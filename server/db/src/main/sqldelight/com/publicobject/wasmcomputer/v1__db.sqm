@@ -1,4 +1,4 @@
-import app.rounds.game.identifiers.ComputerId;
+import com.publicobject.wasmcomputer.identifiers.ComputerId;
 import kotlin.time.Instant;
 
 CREATE TABLE Computer (

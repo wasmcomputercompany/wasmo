@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-  mainClass = "com.roundsapp.ktor.localhost.RoundsServerDevelopment"
+  mainClass = "com.publicobject.wasmcomputer.ktor.development.WasmComputerServerDevelopment"
 }
 
 // Copy client-development.js into this project's resources.
