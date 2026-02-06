@@ -2,6 +2,7 @@ package com.publicobject.wasmcomputer.testing
 
 import com.publicobject.wasmcomputer.app.db.WasmComputerDbService
 import com.publicobject.wasmcomputer.common.testing.FakeClock
+import com.publicobject.wasmcomputer.computer.actions.CreateComputerAction
 import java.io.Closeable
 
 /**
@@ -11,6 +12,11 @@ class WasmComputerTester private constructor(
   val service: WasmComputerDbService,
 ) : Closeable by service {
   val clock = FakeClock()
+
+  fun createComputerAction() = CreateComputerAction(
+    clock = clock,
+    service = service,
+  )
 
   companion object {
     fun start(): WasmComputerTester {

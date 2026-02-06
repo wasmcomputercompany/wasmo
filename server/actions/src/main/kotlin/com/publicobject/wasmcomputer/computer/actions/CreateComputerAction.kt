@@ -2,14 +2,28 @@ package com.publicobject.wasmcomputer.computer.actions
 
 import com.publicobject.wasmcomputer.account.api.CreateComputerRequest
 import com.publicobject.wasmcomputer.account.api.CreateComputerResponse
+import com.publicobject.wasmcomputer.app.db.WasmComputerDbService
 import com.publicobject.wasmcomputer.framework.Response
+import kotlin.time.Clock
 
-class CreateComputerAction() {
+class CreateComputerAction(
+  private val clock: Clock,
+  private val service: WasmComputerDbService,
+) {
   fun createComputer(
     request: CreateComputerRequest,
   ): Response<CreateComputerResponse> {
-    return Response(
-      body = CreateComputerResponse(url = ""),
-    )
+    return service.transactionWithResult(noEnclosing = true) {
+      service.computerQueries.insertComputer(
+        created_at = clock.now(),
+        slug = request.slug,
+      ).executeAsOne()
+
+      Response(
+        body = CreateComputerResponse(
+          url = "/computer/${request.slug}",
+        ),
+      )
+    }
   }
 }
