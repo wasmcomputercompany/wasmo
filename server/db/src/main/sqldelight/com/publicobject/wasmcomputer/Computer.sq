@@ -1,0 +1,17 @@
+selectComputerBySlug:
+SELECT *
+FROM
+  Computer
+WHERE
+  slug = :slug
+LIMIT 1;
+
+insertComputer:
+INSERT INTO Computer(
+  created_at,
+  slug
+)
+VALUES (
+  :created_at,
+  :slug
+) RETURNING id;

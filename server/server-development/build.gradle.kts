@@ -1,0 +1,37 @@
+plugins {
+  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.ktor)
+}
+
+application {
+  mainClass = "com.roundsapp.ktor.localhost.RoundsServerDevelopment"
+}
+
+// Copy client-development.js into this project's resources.
+val jsResources by configurations.creating {
+  isCanBeResolved = true
+  isCanBeConsumed = false
+  attributes {
+    attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class, "jsResources"))
+  }
+}
+val copyJsResources = tasks.register<Copy>("copyJsResources") {
+  from(jsResources)
+  into(project.layout.buildDirectory.dir("jsResources/static/assets"))
+}
+sourceSets.main.configure {
+  resources.srcDir(copyJsResources.map { project.layout.buildDirectory.dir("jsResources") })
+}
+
+dependencies {
+  jsResources(project(":client:development-app"))
+  implementation(libs.okio)
+  implementation(project(":server:actions"))
+  implementation(project(":server:ktor"))
+}
+
+ktor {
+  docker {
+    jreVersion.set(JavaVersion.VERSION_24)
+  }
+}

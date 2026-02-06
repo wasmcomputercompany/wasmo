@@ -1,0 +1,6 @@
+.gradle
+.kotlin
+.idea
+.DS_Store
+build
+kotlin-js-store/yarn.lock
