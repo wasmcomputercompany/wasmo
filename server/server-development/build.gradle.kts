@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-  mainClass = "com.publicobject.wasmcomputer.ktor.development.WasmComputerServerDevelopment"
+  mainClass = "com.wasmo.ktor.development.WasmoServiceDevelopment"
 }
 
 // Copy client-development.js into this project's resources.

@@ -1,10 +1,10 @@
 package com.wasmo.admin.server
 
-import com.publicobject.wasmcomputer.common.tokens.newToken
 import com.wasmo.FakeClock
 import com.wasmo.FakeHttpClient
 import com.wasmo.WasmoApp
 import com.wasmo.admin.api.AdminJson
+import com.wasmo.common.tokens.newToken
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.FileSystem
 import okio.Path
