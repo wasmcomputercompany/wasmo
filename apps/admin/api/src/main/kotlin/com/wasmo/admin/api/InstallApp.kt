@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class InstallAppRequest(
-  val manifest: AppManifest,
+  val manifestUrl: String,
 )
 
 @Serializable
