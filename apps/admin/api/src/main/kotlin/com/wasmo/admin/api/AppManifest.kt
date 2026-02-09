@@ -1,5 +1,6 @@
-package com.publicobject.wasmcomputer.api
+package com.wasmo.admin.api
 
+import com.wasmo.json.ByteStringAsHexSerializer
 import kotlinx.serialization.Serializable
 import okio.ByteString
 

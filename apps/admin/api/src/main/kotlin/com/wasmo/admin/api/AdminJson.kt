@@ -1,7 +1,7 @@
-package com.publicobject.wasmcomputer.api
+package com.wasmo.admin.api
 
 import kotlinx.serialization.json.Json
 
-val WasmComputerJson = Json {
+val AdminJson = Json {
   this.ignoreUnknownKeys = true
 }

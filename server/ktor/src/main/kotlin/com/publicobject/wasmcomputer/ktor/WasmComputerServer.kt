@@ -2,10 +2,9 @@
 
 package com.publicobject.wasmcomputer.ktor
 
-import com.publicobject.wasmcomputer.account.api.CreateComputerRequest
-import com.publicobject.wasmcomputer.account.api.CreateComputerResponse
+import com.publicobject.wasmcomputer.api.CreateComputerRequest
+import com.publicobject.wasmcomputer.api.CreateComputerResponse
 import com.publicobject.wasmcomputer.app.db.WasmComputerDbService
-import com.publicobject.wasmcomputer.computer.actions.CreateComputerAction
 import com.publicobject.wasmcomputer.framework.HttpException
 import com.publicobject.wasmcomputer.home.actions.HomePage
 import io.ktor.server.application.Application
@@ -41,11 +40,13 @@ class WasmComputerServer(
       password = postgresDatabasePassword,
       ssl = false,
     )
-
-    val clock = Clock.System
-
+    val actionFactory = ActionFactory(
+      clock = Clock.System,
+      service = service,
+    )
     configureServer(
       application = server.application,
+      actionFactory = actionFactory
     )
 
     server.start(true)
@@ -53,6 +54,7 @@ class WasmComputerServer(
 
   fun configureServer(
     application: Application,
+    actionFactory: ActionFactory,
   ) {
     application.install(CallLogging)
     application.routing {
@@ -64,7 +66,7 @@ class WasmComputerServer(
 
       // Rest RPCs.
       post("/create-computer") {
-        val action = CreateComputerAction()
+        val action = actionFactory.createComputerAction()
         val response = try {
           action.createComputer(createComputerRequestAdapter.decode(call.request))
         } catch (e: HttpException) {
