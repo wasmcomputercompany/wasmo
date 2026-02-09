@@ -56,6 +56,6 @@ class AppLoader(
       throw BadRequestException("failed to fetch wasm")
     }
 
-    return wasmResponse.body ?: ByteString.Companion.EMPTY
+    return wasmResponse.body ?: ByteString.EMPTY
   }
 }

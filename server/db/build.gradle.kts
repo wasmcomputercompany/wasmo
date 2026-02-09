@@ -8,7 +8,7 @@ dependencies {
   implementation(libs.kotlinx.serialization.json)
   implementation(libs.okio)
   implementation(libs.postgresql)
-  implementation(libs.sqdelight.jdbc.driver)
+  implementation(libs.sqldelight.jdbc.driver)
   implementation(project(":common:api"))
   implementation(project(":common:framework"))
   implementation(project(":common:tokens"))

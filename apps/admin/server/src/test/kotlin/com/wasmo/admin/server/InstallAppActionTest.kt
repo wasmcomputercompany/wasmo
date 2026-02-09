@@ -1,41 +1,42 @@
 package com.wasmo.admin.server
 
 import com.wasmo.ContentType
-import com.wasmo.FakeHttpClient
 import com.wasmo.Header
 import com.wasmo.HttpResponse
-import com.wasmo.admin.api.AdminJson
 import com.wasmo.admin.api.InstallAppRequest
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 
 class InstallAppActionTest {
-  private val baseUrl = "https://example.com/".toHttpUrl()
-  private val server = WasmoArtifactServer(AdminJson)
-  private val httpClient = FakeHttpClient().apply {
-    this += server
+  private lateinit var tester: AdminAppTester
+
+  @BeforeTest
+  fun setUp() {
+    tester = AdminAppTester.start()
+  }
+
+  @AfterTest
+  fun tearDown() {
+    tester.close()
   }
 
   @Test
   fun happyPath() = runTest {
-    val action = InstallAppAction(
-      appLoader = AppLoader(
-        json = AdminJson,
-        httpClient = httpClient,
-      ),
-    )
+    val action = tester.app.installAppAction()
     val helloApp = WasmoArtifactServer.App(
-      name = "hello",
+      slug = "hello",
+      displayName = "Hello World",
       wasm = "XXXX".encodeUtf8(),
     )
-    server.apps += helloApp
+    tester.wasmoArtifactServer.apps += helloApp
 
     val installAppResponse = action.installApp(
       InstallAppRequest(
-        manifestUrl = baseUrl.resolve(helloApp.manifestPath)!!.toString(),
+        manifestUrl = tester.baseUrl.resolve(helloApp.manifestPath)!!.toString(),
       ),
     )
   }

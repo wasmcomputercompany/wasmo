@@ -7,6 +7,7 @@ dependencyResolutionManagement {
 }
 
 include(":apps:admin:api")
+include(":apps:admin:db")
 include(":apps:admin:server")
 include(":client:app")
 include(":client:development-app")

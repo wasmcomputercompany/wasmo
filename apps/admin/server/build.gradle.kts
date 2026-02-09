@@ -9,6 +9,8 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.okio)
   implementation(project(":apps:admin:api"))
+  implementation(project(":apps:admin:db"))
+  implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
   implementation(project(":platform:testing"))
   testImplementation(libs.assertk)

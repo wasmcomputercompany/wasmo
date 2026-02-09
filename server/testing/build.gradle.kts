@@ -9,7 +9,7 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.okio)
   implementation(libs.postgresql)
-  implementation(libs.sqdelight.jdbc.driver)
+  implementation(libs.sqldelight.jdbc.driver)
   implementation(libs.webauthn4j.core)
   implementation(project(":common:api"))
   implementation(project(":common:framework"))

@@ -23,6 +23,7 @@ class WasmoArtifactServer(
           body = AppManifest(
             canonicalUrl = request.url.resolve(app.manifestPath)!!.toString(),
             version = 1L,
+            displayName = app.displayName,
             wasmUrl = request.url.resolve(app.wasmPath)!!.toString(),
             wasmSha256 = app.wasm.sha256(),
           ),
@@ -38,12 +39,13 @@ class WasmoArtifactServer(
   }
 
   data class App(
-    val name: String,
+    val slug: String,
+    val displayName: String,
     val wasm: ByteString,
   ) {
     val manifestPath: String
-      get() = "/$name/wasmo-manifest.json"
+      get() = "/$slug/wasmo-manifest.json"
     val wasmPath: String
-      get() = "/$name/$name.wasm"
+      get() = "/$slug/$slug.wasm"
   }
 }
