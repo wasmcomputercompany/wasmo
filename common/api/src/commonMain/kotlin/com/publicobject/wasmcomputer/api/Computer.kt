@@ -1,4 +1,4 @@
-package com.publicobject.wasmcomputer.account.api
+package com.publicobject.wasmcomputer.api
 
 import kotlinx.serialization.Serializable
 
@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 data class CreateComputerRequest(
   val slug: String,
 )
-
 
 @Serializable
 data class CreateComputerResponse(

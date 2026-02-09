@@ -1,7 +1,7 @@
 package com.publicobject.wasmcomputer.computer.actions
 
-import com.publicobject.wasmcomputer.account.api.CreateComputerRequest
-import com.publicobject.wasmcomputer.account.api.CreateComputerResponse
+import com.publicobject.wasmcomputer.api.CreateComputerRequest
+import com.publicobject.wasmcomputer.api.CreateComputerResponse
 import com.publicobject.wasmcomputer.app.db.WasmComputerDbService
 import com.publicobject.wasmcomputer.framework.Response
 import kotlin.time.Clock

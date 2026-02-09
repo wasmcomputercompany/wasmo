@@ -2,8 +2,8 @@ package com.publicobject.wasmcomputer.computer.actions
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.publicobject.wasmcomputer.account.api.CreateComputerRequest
-import com.publicobject.wasmcomputer.account.api.CreateComputerResponse
+import com.publicobject.wasmcomputer.api.CreateComputerRequest
+import com.publicobject.wasmcomputer.api.CreateComputerResponse
 import com.publicobject.wasmcomputer.framework.Response
 import com.publicobject.wasmcomputer.testing.WasmComputerTester
 import kotlin.test.AfterTest
