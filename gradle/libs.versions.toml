@@ -1,5 +1,6 @@
 [versions]
 assertk = "0.28.1"
+graalvm = "25.0.0"
 kotlin = "2.2.21"
 kotlinx-coroutines = "1.10.2"
 kotlinx-html = "0.12.0"
@@ -15,6 +16,8 @@ webauthn4j = "0.30.2.RELEASE"
 [libraries]
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
 commons-dbcp2 = { module = "org.apache.commons:commons-dbcp2", version = "2.13.0" }
+graalvm-polyglot = { module = "org.graalvm.polyglot:polyglot", version.ref = "graalvm" }
+graalvm-wasm = { module = "org.graalvm.polyglot:wasm", version.ref = "graalvm" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version = "26.0.2-1" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-js = { module = "org.jetbrains.kotlin:kotlin-test-js", version.ref = "kotlin" }

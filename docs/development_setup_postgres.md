@@ -1,5 +1,5 @@
-Development Setup
-=================
+Development Setup: Postgres
+===========================
 
 Create the database:
 
