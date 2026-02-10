@@ -1,4 +1,4 @@
-rootProject.name = "wasmcomputer"
+rootProject.name = "wasmo"
 
 dependencyResolutionManagement {
   repositories {
@@ -6,9 +6,9 @@ dependencyResolutionManagement {
   }
 }
 
-include(":apps:admin:api")
-include(":apps:admin:db")
-include(":apps:admin:server")
+include(":apps:hello:api")
+include(":apps:hello:db")
+include(":apps:hello:server")
 include(":client:app")
 include(":client:development-app")
 include(":common:api")

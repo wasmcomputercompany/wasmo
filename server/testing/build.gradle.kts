@@ -15,6 +15,8 @@ dependencies {
   implementation(project(":common:framework"))
   implementation(project(":common:testing"))
   implementation(project(":common:tokens"))
+  implementation(project(":platform:api"))
+  implementation(project(":platform:testing"))
   implementation(project(":server:actions"))
   implementation(project(":server:db"))
   implementation(project(":server:identifiers"))

@@ -1,0 +1,14 @@
+insertPerson:
+INSERT OR IGNORE INTO Person(
+  created_at,
+  name
+)
+VALUES (
+  :created_at,
+  :name
+);
+
+selectRecentPersons:
+SELECT * FROM Person
+ORDER BY created_at DESC
+LIMIT :limit;

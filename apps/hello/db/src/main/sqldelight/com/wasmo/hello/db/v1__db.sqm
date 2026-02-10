@@ -1,0 +1,8 @@
+import com.wasmo.hello.db.PersonId;
+import kotlin.time.Instant;
+
+CREATE TABLE Person (
+  id INTEGER AS PersonId PRIMARY KEY,
+  created_at TEXT AS Instant NOT NULL,
+  name TEXT NOT NULL UNIQUE
+);

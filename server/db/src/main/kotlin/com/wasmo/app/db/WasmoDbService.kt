@@ -3,8 +3,10 @@ package com.wasmo.app.db
 import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.driver.jdbc.JdbcDriver
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
+import com.wasmo.db.AppInstall
 import com.wasmo.db.Computer
 import com.wasmo.db.WasmComputerDb
+import com.wasmo.identifiers.AppInstallId
 import com.wasmo.identifiers.ComputerId
 import java.io.Closeable
 import java.time.OffsetDateTime
@@ -25,6 +27,7 @@ class WasmoDbService(
   val jdbcDriver: JdbcDriver,
 ) : Closeable by connectionPool, WasmComputerDb by WasmComputerDb.Companion(
   jdbcDriver,
+  AppInstallAdapter,
   ComputerAdapter,
 ) {
   fun clearSchema() {
@@ -81,10 +84,21 @@ class WasmoDbService(
         value.toJavaInstant().atOffset(ZoneOffset.UTC)
     }
 
+    private object AppInstallIdAdapter : ColumnAdapter<AppInstallId, Long> {
+      override fun decode(databaseValue: Long) = AppInstallId(databaseValue)
+      override fun encode(value: AppInstallId) = value.id
+    }
+
     private object ComputerIdAdapter : ColumnAdapter<ComputerId, Long> {
       override fun decode(databaseValue: Long) = ComputerId(databaseValue)
       override fun encode(value: ComputerId) = value.id
     }
+
+    private val AppInstallAdapter = AppInstall.Adapter(
+      idAdapter = AppInstallIdAdapter,
+      created_atAdapter = InstantAdapter,
+      computer_idAdapter = ComputerIdAdapter,
+    )
 
     private val ComputerAdapter = Computer.Adapter(
       idAdapter = ComputerIdAdapter,

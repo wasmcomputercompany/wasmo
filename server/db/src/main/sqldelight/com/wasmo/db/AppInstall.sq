@@ -1,0 +1,15 @@
+insertAppInstall:
+INSERT INTO AppInstall(
+  created_at,
+  computer_id,
+  slug,
+  version,
+  display_name
+)
+VALUES (
+  :created_at,
+  :computer_id,
+  :slug,
+  :version,
+  :display_name
+) RETURNING id;
