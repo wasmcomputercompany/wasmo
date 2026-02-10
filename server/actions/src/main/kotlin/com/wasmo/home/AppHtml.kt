@@ -1,6 +1,6 @@
 package com.wasmo.home
 
-import com.wasmo.api.WasmComputerJson
+import com.wasmo.api.WasmoJson
 import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.MapPageData
 import com.wasmo.framework.Response
@@ -24,7 +24,7 @@ class AppPage() : ResponseBody {
     )
 
   override fun write(sink: BufferedSink) = sink.run {
-    val pageData = MapPageData.Builder(WasmComputerJson)
+    val pageData = MapPageData.Builder(WasmoJson)
       .build()
 
     writeUtf8("<!DOCTYPE html>")

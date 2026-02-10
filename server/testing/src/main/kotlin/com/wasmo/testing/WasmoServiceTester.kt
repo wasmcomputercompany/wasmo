@@ -3,7 +3,7 @@ package com.wasmo.testing
 import com.wasmo.FakeHttpClient
 import com.wasmo.FileSystemObjectStore
 import com.wasmo.api.CreateComputerRequest
-import com.wasmo.api.WasmComputerJson
+import com.wasmo.api.WasmoJson
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.apps.InstallAppAction
 import com.wasmo.apps.ObjectStoreKeyFactory
@@ -28,7 +28,9 @@ class WasmoServiceTester private constructor(
     fileSystem = fileSystem,
     path = "/".toPath(),
   )
-  val wasmoArtifactServer = WasmoArtifactServer(WasmComputerJson)
+  val wasmoArtifactServer = WasmoArtifactServer(
+    json = WasmoJson,
+  )
   val httpClient = FakeHttpClient().apply {
     this += wasmoArtifactServer
   }

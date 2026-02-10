@@ -1,6 +1,6 @@
 package com.wasmo.ktor
 
-import com.wasmo.api.WasmComputerJson
+import com.wasmo.api.WasmoJson
 import com.wasmo.framework.BadRequestException
 import com.wasmo.framework.ContentType
 import com.wasmo.framework.Response
@@ -25,7 +25,7 @@ import okio.buffer
 fun <T> DeserializationStrategy<T>.decode(request: RoutingRequest): T {
   try {
     request.receiveChannel().asSource().asOkioSource().buffer().use { source ->
-      return WasmComputerJson.decodeFromString(this@decode, source.readUtf8())
+      return WasmoJson.decodeFromString(this@decode, source.readUtf8())
     }
   } catch (e: SerializationException) {
     throw BadRequestException(e.message ?: "failed to decode JSON")
@@ -42,7 +42,7 @@ suspend fun <T> RoutingCall.respond(
       headers = response.headers,
       contentType = response.contentType,
       body = ResponseBody { sink ->
-        sink.writeUtf8(WasmComputerJson.encodeToString(serializer, response.body))
+        sink.writeUtf8(WasmoJson.encodeToString(serializer, response.body))
       },
     ),
   )

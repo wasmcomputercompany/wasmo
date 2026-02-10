@@ -5,7 +5,7 @@ import com.wasmo.ObjectStore
 import com.wasmo.RealDownloader
 import com.wasmo.ScopedObjectStore
 import com.wasmo.api.AppManifest
-import com.wasmo.api.WasmComputerJson
+import com.wasmo.api.WasmoJson
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.apps.AppLoader
 import com.wasmo.apps.ObjectStoreKeyFactory
@@ -48,7 +48,7 @@ class RealComputerStore(
       objectStore = objectStore,
     )
     val appLoader = AppLoader(
-      json = WasmComputerJson,
+      json = WasmoJson,
       httpClient = httpClient,
       downloader = downloader,
       objectStoreKeyFactory = objectStoreKeyFactory,

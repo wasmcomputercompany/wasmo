@@ -2,6 +2,6 @@ package com.wasmo.api
 
 import kotlinx.serialization.json.Json
 
-val WasmComputerJson = Json {
+val WasmoJson = Json {
   this.ignoreUnknownKeys = true
 }
