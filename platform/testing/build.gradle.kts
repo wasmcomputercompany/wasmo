@@ -18,6 +18,7 @@ kotlin {
     }
     commonTest {
       dependencies {
+        implementation(libs.kotlinx.coroutines.test)
         implementation(libs.assertk)
         implementation(libs.kotlin.test)
       }
