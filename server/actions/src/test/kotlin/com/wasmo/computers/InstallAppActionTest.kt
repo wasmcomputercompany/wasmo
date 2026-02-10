@@ -1,5 +1,7 @@
 package com.wasmo.computers
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.testing.WasmoArtifactServer
 import com.wasmo.testing.WasmoServiceTester
@@ -8,6 +10,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
+import okio.Path.Companion.toPath
 
 class InstallAppActionTest {
   private lateinit var tester: WasmoServiceTester
@@ -26,10 +29,12 @@ class InstallAppActionTest {
   fun happyPath() = runTest {
     val computer = tester.createComputer("jesse124")
     val action = tester.installAppAction()
+    val wasm = "XXXX".encodeUtf8()
     val helloApp = WasmoArtifactServer.App(
       slug = "hello",
       displayName = "Hello World",
-      wasm = "XXXX".encodeUtf8(),
+      version = 1L,
+      wasm = wasm,
     )
     tester.wasmoArtifactServer.apps += helloApp
 
@@ -39,5 +44,11 @@ class InstallAppActionTest {
         manifestUrl = tester.baseUrl.resolve(helloApp.manifestPath)!!.toString(),
       ),
     )
+
+    assertThat(
+      tester.fileSystem.read("/jesse124/apps/hello/v1/app.wasm".toPath()) {
+        readByteString()
+      },
+    ).isEqualTo(wasm)
   }
 }

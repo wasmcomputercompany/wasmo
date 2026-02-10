@@ -2,11 +2,13 @@ package com.wasmo.computers
 
 import com.wasmo.ObjectStore
 import com.wasmo.api.AppManifest
+import com.wasmo.apps.AppLoader
 import okhttp3.HttpUrl
 
 interface WasmoComputer {
   val url: HttpUrl
   val objectStore: ObjectStore
+  val appLoader: AppLoader
 
   suspend fun installApp(manifest: AppManifest)
 }

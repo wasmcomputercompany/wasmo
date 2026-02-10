@@ -2,11 +2,9 @@ package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
 import com.wasmo.FileSystemObjectStore
-import com.wasmo.RealDownloader
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.WasmComputerJson
 import com.wasmo.app.db.WasmoDbService
-import com.wasmo.apps.AppLoader
 import com.wasmo.apps.InstallAppAction
 import com.wasmo.apps.ObjectStoreKeyFactory
 import com.wasmo.common.testing.FakeClock
@@ -34,23 +32,14 @@ class WasmoServiceTester private constructor(
   val httpClient = FakeHttpClient().apply {
     this += wasmoArtifactServer
   }
-  val downloader = RealDownloader(
-    httpClient = httpClient,
-    objectStore = rootObjectStore,
-  )
   val objectStoreKeyFactory = ObjectStoreKeyFactory()
-  val appLoader = AppLoader(
-    json = WasmComputerJson,
-    httpClient = httpClient,
-    downloader = downloader,
-    objectStoreKeyFactory = objectStoreKeyFactory,
-  )
   val computerStore = RealComputerStore(
     baseUrl = baseUrl,
     clock = clock,
     rootObjectStore = rootObjectStore,
+    httpClient = httpClient,
+    objectStoreKeyFactory = objectStoreKeyFactory,
     service = service,
-    appLoader = appLoader,
   )
 
   fun createComputerAction() = CreateComputerAction(
@@ -59,7 +48,6 @@ class WasmoServiceTester private constructor(
 
   fun installAppAction() = InstallAppAction(
     computerStore = computerStore,
-    appLoader = appLoader,
   )
 
   fun createComputer(slug: String): ComputerTester {

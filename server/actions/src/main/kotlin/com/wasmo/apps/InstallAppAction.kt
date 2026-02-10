@@ -7,17 +7,17 @@ import com.wasmo.framework.Response
 
 class InstallAppAction(
   private val computerStore: ComputerStore,
-  private val appLoader: AppLoader,
 ) {
   suspend fun install(
     computerSlug: String,
     request: InstallAppRequest,
   ): Response<InstallAppResponse> {
     val computer = computerStore.get(computerSlug)
-
-    val manifest = appLoader.loadManifest(request.manifestUrl)
-
-    computer.installApp(manifest)
+    computer.installApp(
+      manifest = computer.appLoader.loadManifest(
+        manifestUrl = request.manifestUrl,
+      ),
+    )
 
     return Response(
       body = InstallAppResponse(

@@ -19,6 +19,7 @@ dependencies {
   testImplementation(libs.assertk)
   testImplementation(libs.kotlin.test.junit)
   testImplementation(libs.kotlinx.coroutines.test)
+  testImplementation(libs.okio.fakefilesystem)
   testImplementation(project(":common:testing"))
   testImplementation(project(":platform:testing"))
   testImplementation(project(":server:testing"))

@@ -22,7 +22,7 @@ class WasmoArtifactServer(
           json = json,
           body = AppManifest(
             canonicalUrl = request.url.resolve(app.manifestPath)!!.toString(),
-            version = 1L,
+            version = app.version,
             slug = app.slug,
             displayName = app.displayName,
             wasmUrl = request.url.resolve(app.wasmPath)!!.toString(),
@@ -42,6 +42,7 @@ class WasmoArtifactServer(
   data class App(
     val slug: String,
     val displayName: String,
+    val version: Long,
     val wasm: ByteString,
   ) {
     val manifestPath: String
