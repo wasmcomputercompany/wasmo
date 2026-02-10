@@ -44,6 +44,7 @@ ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.re
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+okio-fakefilesystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 postgresql = { module = "org.postgresql:postgresql", version = "42.7.8" }
 sqldelight-jdbc-driver = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqldelight" }
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }

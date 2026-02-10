@@ -8,17 +8,17 @@ import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 
-class ScopedObjectStoreTest {
+class ScopedObjectStoreTest : AbstractObjectStoreTest() {
   private val casino = "casino".encodeUtf8()
   private val subway = "subway".encodeUtf8()
-  private val store = FakeObjectStore()
+  override val store = FakeObjectStore()
   private val pokerfaceStore = ScopedObjectStore(
     prefix = "shows/pokerface/",
     delegate = store,
   )
 
   @Test
-  fun putAndGet() = runTest {
+  fun scopedPutAndGet() = runTest {
     store.put(PutObjectRequest("shows/pokerface/s1e1.mp4", casino))
     pokerfaceStore.put(PutObjectRequest("s1e2.mp4", subway))
 
@@ -42,7 +42,7 @@ class ScopedObjectStoreTest {
   }
 
   @Test
-  fun list() = runTest {
+  fun scopedList() = runTest {
     store.put(PutObjectRequest("shows/pokerface/s1e1.mp4", casino))
     pokerfaceStore.put(PutObjectRequest("s1e2.mp4", subway))
 
@@ -66,7 +66,7 @@ class ScopedObjectStoreTest {
   }
 
   @Test
-  fun delete() = runTest {
+  fun scopedDelete() = runTest {
     store.put(PutObjectRequest("shows/pokerface/s1e1.mp4", casino))
     store.put(PutObjectRequest("shows/pokerface/s1e2.mp4", subway))
 

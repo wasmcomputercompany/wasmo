@@ -13,7 +13,9 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okhttp)
         implementation(libs.okio)
+        implementation(libs.okio.fakefilesystem)
         implementation(project(":platform:api"))
+        implementation(project(":platform:filesystemobjectstore"))
       }
     }
     commonTest {
