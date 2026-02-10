@@ -1,15 +1,21 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
+import com.wasmo.FileSystemObjectStore
+import com.wasmo.RealDownloader
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.WasmComputerJson
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.apps.AppLoader
 import com.wasmo.apps.InstallAppAction
+import com.wasmo.apps.ObjectStoreKeyFactory
 import com.wasmo.common.testing.FakeClock
 import com.wasmo.computers.CreateComputerAction
+import com.wasmo.computers.RealComputerStore
 import java.io.Closeable
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okio.Path.Companion.toPath
+import okio.fakefilesystem.FakeFileSystem
 
 /**
  * Create instances with [WasmoServiceTester.start]
@@ -17,26 +23,43 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 class WasmoServiceTester private constructor(
   val service: WasmoDbService,
 ) : Closeable by service {
-  val clock = FakeClock()
   val baseUrl = "https://example.com/".toHttpUrl()
+  val clock = FakeClock()
+  val fileSystem = FakeFileSystem()
+  val rootObjectStore = FileSystemObjectStore(
+    fileSystem = fileSystem,
+    path = "/".toPath(),
+  )
   val wasmoArtifactServer = WasmoArtifactServer(WasmComputerJson)
   val httpClient = FakeHttpClient().apply {
     this += wasmoArtifactServer
   }
+  val downloader = RealDownloader(
+    httpClient = httpClient,
+    objectStore = rootObjectStore,
+  )
+  val objectStoreKeyFactory = ObjectStoreKeyFactory()
   val appLoader = AppLoader(
     json = WasmComputerJson,
     httpClient = httpClient,
+    downloader = downloader,
+    objectStoreKeyFactory = objectStoreKeyFactory,
+  )
+  val computerStore = RealComputerStore(
+    baseUrl = baseUrl,
+    clock = clock,
+    rootObjectStore = rootObjectStore,
+    service = service,
+    appLoader = appLoader,
   )
 
   fun createComputerAction() = CreateComputerAction(
-    clock = clock,
-    service = service,
+    computerStore = computerStore,
   )
 
   fun installAppAction() = InstallAppAction(
-    clock = clock,
+    computerStore = computerStore,
     appLoader = appLoader,
-    service = service,
   )
 
   fun createComputer(slug: String): ComputerTester {
@@ -49,6 +72,12 @@ class WasmoServiceTester private constructor(
     return ComputerTester(
       slug = slug,
     )
+  }
+
+  override fun close() {
+    service.close()
+    fileSystem.checkNoOpenFiles()
+    fileSystem.close()
   }
 
   companion object {

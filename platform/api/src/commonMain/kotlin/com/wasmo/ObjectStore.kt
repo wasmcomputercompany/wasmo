@@ -82,8 +82,8 @@ data class ListObjectsResponse(
 
 /** An object that prefixes all entries with [prefix]. */
 class ScopedObjectStore(
-  private val prefix: String,
   private val delegate: ObjectStore,
+  private val prefix: String,
 ) : ObjectStore {
   init {
     check(prefix.endsWith("/")) { "prefix must end with '/' but was '$prefix'" }

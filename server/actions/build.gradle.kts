@@ -13,6 +13,7 @@ dependencies {
   implementation(project(":common:framework"))
   implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
+  implementation(project(":platform:filesystemobjectstore"))
   implementation(project(":server:db"))
   implementation(project(":server:identifiers"))
   testImplementation(libs.assertk)

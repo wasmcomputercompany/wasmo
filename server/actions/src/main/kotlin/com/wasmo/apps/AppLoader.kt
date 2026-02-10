@@ -2,16 +2,19 @@ package com.wasmo.apps
 
 import com.wasmo.BadRequestException
 import com.wasmo.ContentType
+import com.wasmo.Downloader
 import com.wasmo.HttpClient
 import com.wasmo.HttpRequest
+import com.wasmo.TransferRequest
 import com.wasmo.api.AppManifest
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okio.ByteString
 
 class AppLoader(
   private val json: Json,
   private val httpClient: HttpClient,
+  private val downloader: Downloader,
+  private val objectStoreKeyFactory: ObjectStoreKeyFactory,
 ) {
   suspend fun loadManifest(manifestUrl: String): AppManifest {
     val httpUrl = manifestUrl.toHttpUrlOrNull()
@@ -38,22 +41,23 @@ class AppLoader(
     }
   }
 
-  suspend fun loadWasm(manifest: AppManifest): ByteString {
+  suspend fun downloadWasm(manifest: AppManifest) {
     val canonicalUrl = manifest.canonicalUrl?.toHttpUrlOrNull()
     val wasmUrl = canonicalUrl?.resolve(manifest.wasmUrl)
       ?: throw BadRequestException("unexpected wasmUrl")
 
-    val wasmResponse = httpClient.execute(
-      HttpRequest(
-        method = "GET",
-        url = wasmUrl,
-      ),
+    val transferResponse = downloader.download(
+      transferRequest = TransferRequest(
+        httpRequest = HttpRequest(
+          method = "GET",
+          url = wasmUrl,
+        ),
+        objectStoreKey = objectStoreKeyFactory.wasm(manifest.slug, manifest.version),
+      )
     )
 
-    if (!wasmResponse.isSuccessful) {
+    if (!transferResponse.httpResponse.isSuccessful) {
       throw BadRequestException("failed to fetch wasm")
     }
-
-    return wasmResponse.body ?: ByteString.EMPTY
   }
 }

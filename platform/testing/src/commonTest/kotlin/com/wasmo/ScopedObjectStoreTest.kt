@@ -13,8 +13,8 @@ class ScopedObjectStoreTest : AbstractObjectStoreTest() {
   private val subway = "subway".encodeUtf8()
   private val unscopedStore = FakeObjectStore()
   override val store = ScopedObjectStore(
-    prefix = "shows/pokerface/",
     delegate = unscopedStore,
+    prefix = "shows/pokerface/",
   )
 
   @Test
