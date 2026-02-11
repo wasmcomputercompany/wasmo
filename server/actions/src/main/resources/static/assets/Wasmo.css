@@ -1,0 +1,23 @@
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background-color: #00C55F;
+  font-family: "Outfit", sans-serif;
+}
+
+h1, h2 {
+  font-weight: 400;
+  color: rgba(0 0 0 / 0.8);
+}
+
+a {
+  color: rgba(255 255 255 / 0.8);
+  text-decoration: none;
+}
+
+a:hover {
+  color: rgba(255 255 255 / 1.0);
+}

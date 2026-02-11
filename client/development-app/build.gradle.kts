@@ -9,10 +9,10 @@ kotlin {
   js {
     browser {
       commonWebpackConfig {
-        outputFileName = "wasmcomputer.js"
+        outputFileName = "wasmo.js"
       }
       webpackTask {
-        this.output.library = "wasmcomputer"
+        this.output.library = "wasmo"
         this.output.libraryTarget = KotlinWebpackOutput.Target.VAR
       }
     }

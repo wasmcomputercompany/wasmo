@@ -1,17 +1,26 @@
 package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import com.wasmo.common.logging.ConsoleLogger
 import com.wasmo.common.logging.Logger
-import org.jetbrains.compose.web.css.padding
+import org.jetbrains.compose.web.css.AlignItems
+import org.jetbrains.compose.web.css.DisplayStyle
+import org.jetbrains.compose.web.css.FlexDirection
+import org.jetbrains.compose.web.css.JustifyContent
+import org.jetbrains.compose.web.css.alignItems
+import org.jetbrains.compose.web.css.display
+import org.jetbrains.compose.web.css.flexDirection
+import org.jetbrains.compose.web.css.height
+import org.jetbrains.compose.web.css.justifyContent
+import org.jetbrains.compose.web.css.margin
+import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
-import org.jetbrains.compose.web.dom.Button
+import org.jetbrains.compose.web.css.width
+import org.jetbrains.compose.web.dom.A
 import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.Span
+import org.jetbrains.compose.web.dom.H1
+import org.jetbrains.compose.web.dom.H2
+import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.renderComposableInBody
 
@@ -29,27 +38,60 @@ class WasmoClientApp(
 
 @Composable
 fun Home() {
-  var count: Int by remember { mutableStateOf(0) }
-
-  Div({ style { padding(25.px) } }) {
-    Button(
+  Div(
+    attrs = {
+      style {
+        width(100.percent)
+        height(100.percent)
+        display(DisplayStyle.Flex)
+        flexDirection(FlexDirection.Column)
+        alignItems(AlignItems.Center)
+        justifyContent(JustifyContent.Center)
+      }
+    },
+  ) {
+    Img(
+      src = "/assets/wasmo1000x300.svg",
+      alt = "Wasmo",
       attrs = {
-        onClick { count -= 1 }
+        style {
+          property("width", "max(80%, 600px)")
+        }
+      },
+    )
+
+    H1(
+      attrs = {
+        style {
+          margin(20.px, 0.px, 5.px, 0.px)
+        }
       },
     ) {
-      Text("-")
+      Text("Your Cloud Computer")
     }
 
-    Span({ style { padding(15.px) } }) {
-      Text("$count")
-    }
-
-    Button(
+    H2(
       attrs = {
-        onClick { count += 1 }
+        style {
+          margin(5.px, 0.px, 10.px, 0.px)
+        }
       },
     ) {
-      Text("+")
+      Text("Coming in 2026")
+    }
+
+    Div(
+      attrs = {
+        style {
+          margin(10.px, 0.px, 20.px, 0.px)
+        }
+      },
+    ) {
+      A(
+        href = "https://github.com/wasmo",
+      ) {
+        Text("open source on GitHub")
+      }
     }
   }
 }

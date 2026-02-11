@@ -48,14 +48,15 @@ class AppPage() : ResponseBody {
           rel = "stylesheet",
           href = "https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap",
         )
+        link(rel = "stylesheet", href = "/assets/Wasmo.css")
 
-        script(src = "/assets/wasmcomputer.js") {}
+        script(src = "/assets/wasmo.js") {}
 
         pageData.write(this)
 
         script {
           unsafe {
-            raw("""wasmcomputer.startOnLoad();""")
+            raw("""wasmo.startOnLoad();""")
           }
         }
       }
