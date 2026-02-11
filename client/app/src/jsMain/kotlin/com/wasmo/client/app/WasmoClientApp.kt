@@ -88,7 +88,7 @@ fun Home() {
       },
     ) {
       A(
-        href = "https://github.com/wasmo",
+        href = "https://github.com/wasmcomputercompany/wasmo",
       ) {
         Text("open source on GitHub")
       }
