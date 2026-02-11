@@ -24,7 +24,7 @@ sourceSets.main.configure {
 }
 
 dependencies {
-  jsResources(project(":client:app-development"))
+  jsResources(project(":client:app-staging"))
   implementation(libs.okio)
   implementation(libs.okhttp)
   implementation(project(":server:actions"))

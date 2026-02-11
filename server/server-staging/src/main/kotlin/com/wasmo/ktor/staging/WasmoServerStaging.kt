@@ -1,7 +1,7 @@
 @file:OptIn(ExperimentalStdlibApi::class)
-@file:JvmName("WasmoServiceDevelopment")
+@file:JvmName("WasmoServerStaging")
 
-package com.wasmo.ktor.development
+package com.wasmo.ktor.staging
 
 import com.wasmo.ktor.WasmoService
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -11,10 +11,10 @@ import okio.Path.Companion.toPath
 fun main(args: Array<String>) {
   val service = WasmoService(
     postgresDatabaseHostname = "localhost",
-    postgresDatabaseName = "wasmcomputer_development",
+    postgresDatabaseName = "wasmcomputer_staging",
     postgresDatabaseUser = "postgres",
     postgresDatabasePassword = "password",
-    baseUrl = "http://localwasmo:8080/".toHttpUrl(),
+    baseUrl = "https://staging.wasmo.com/".toHttpUrl(),
     fileSystem = FileSystem.SYSTEM,
     path = System.getProperty("user.home").toPath() / ".wasmo",
   )
