@@ -7,6 +7,7 @@ import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.JustifyContent
+import org.jetbrains.compose.web.css.StyleScope
 import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flexDirection
@@ -26,21 +27,25 @@ import org.jetbrains.compose.web.renderComposableInBody
 
 class WasmoClientApp(
   val logger: Logger = ConsoleLogger,
+  val environment: Environment,
 ) {
   fun start() {
     logger.info("hello")
 
     renderComposableInBody {
-      Home()
+      EnvironmentFrame(environment) { childStyle ->
+        Home(childStyle)
+      }
     }
   }
 }
 
 @Composable
-fun Home() {
+fun Home(childStyle: StyleScope.() -> Unit) {
   Div(
     attrs = {
       style {
+        childStyle()
         width(100.percent)
         height(100.percent)
         display(DisplayStyle.Flex)
@@ -55,7 +60,7 @@ fun Home() {
       alt = "Wasmo",
       attrs = {
         style {
-          property("width", "max(80%, 600px)")
+          property("width", "min(80%, 600px)")
         }
       },
     )
