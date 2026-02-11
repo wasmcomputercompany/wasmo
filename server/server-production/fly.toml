@@ -2,11 +2,11 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'wasmo-staging'
+app = 'wasmo-production'
 primary_region = 'yyz'
 
 [build]
-image = 'registry.fly.io/wasmo-staging:latest'
+image = 'registry.fly.io/wasmo-production:latest'
 
 [http_service]
 internal_port = 8080

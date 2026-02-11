@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-  mainClass = "com.wasmo.ktor.staging.WasmoServerStaging"
+  mainClass = "com.wasmo.ktor.production.WasmoServerProduction"
 }
 
 // Copy client-development.js into this project's resources.
@@ -24,7 +24,7 @@ sourceSets.main.configure {
 }
 
 dependencies {
-  jsResources(project(":client:app-staging"))
+  jsResources(project(":client:app-production"))
   implementation(libs.okio)
   implementation(libs.okhttp)
   implementation(project(":server:actions"))
@@ -34,7 +34,7 @@ dependencies {
 ktor {
   docker {
     jreVersion.set(JavaVersion.VERSION_24)
-    localImageName.set("wasmo-staging")
+    localImageName.set("wasmo-production")
     imageTag.set("latest")
   }
 }
