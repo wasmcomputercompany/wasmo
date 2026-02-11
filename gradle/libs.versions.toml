@@ -1,5 +1,6 @@
 [versions]
 assertk = "0.28.1"
+compose = "1.10.0"
 graalvm = "25.0.0"
 kotlin = "2.2.21"
 kotlinx-coroutines = "1.10.2"
@@ -16,6 +17,8 @@ webauthn4j = "0.30.2.RELEASE"
 [libraries]
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
 commons-dbcp2 = { module = "org.apache.commons:commons-dbcp2", version = "2.13.0" }
+compose-html = { module = "org.jetbrains.compose.html:html-core", version.ref = "compose" }
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
 graalvm-polyglot = { module = "org.graalvm.polyglot:polyglot", version.ref = "graalvm" }
 graalvm-wasm = { module = "org.graalvm.polyglot:wasm", version.ref = "graalvm" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version = "26.0.2-1" }
@@ -52,6 +55,8 @@ sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", versi
 webauthn4j-core = { module = "com.webauthn4j:webauthn4j-core", version.ref = "webauthn4j" }
 
 [plugins]
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

@@ -4,7 +4,6 @@ plugins {
 
 dependencies {
   implementation(libs.kotlinx.coroutines.core)
-  implementation(libs.kotlinx.coroutines.test)
   implementation(libs.kotlinx.serialization.json)
   implementation(libs.okhttp)
   implementation(libs.okio)
@@ -14,5 +13,6 @@ dependencies {
   implementation(project(":platform:api"))
   testImplementation(libs.assertk)
   testImplementation(libs.kotlin.test.junit)
+  testImplementation(libs.kotlinx.coroutines.test)
   testImplementation(project(":platform:testing"))
 }
