@@ -21,6 +21,9 @@ dependencies {
   implementation(project(":common:api"))
   implementation(project(":common:framework"))
   implementation(project(":common:tokens"))
+  implementation(project(":platform:api"))
+  implementation(project(":platform:filesystemobjectstore"))
+  implementation(project(":platform:okhttpclient"))
   implementation(project(":server:actions"))
   implementation(project(":server:db"))
 }

@@ -5,7 +5,7 @@ import com.wasmo.api.CreateComputerResponse
 import com.wasmo.framework.Response
 
 class CreateComputerAction(
-  private val computerStore: RealComputerStore,
+  private val computerStore: ComputerStore,
 ) {
   fun createComputer(
     request: CreateComputerRequest,

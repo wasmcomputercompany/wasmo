@@ -2,9 +2,13 @@
 
 package com.wasmo.ktor
 
+import com.wasmo.FileSystemObjectStore
+import com.wasmo.RealHttpClient
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.CreateComputerResponse
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.apps.ObjectStoreKeyFactory
+import com.wasmo.computers.RealComputerStore
 import com.wasmo.framework.HttpException
 import com.wasmo.home.HomePage
 import io.ktor.server.application.Application
@@ -17,12 +21,19 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlin.time.Clock
+import okhttp3.HttpUrl
+import okhttp3.OkHttpClient
+import okio.FileSystem
+import okio.Path
 
 class WasmoService(
   val postgresDatabaseHostname: String,
   val postgresDatabaseName: String,
   val postgresDatabaseUser: String,
   val postgresDatabasePassword: String,
+  val baseUrl: HttpUrl,
+  val fileSystem: FileSystem,
+  val path: Path,
 ) {
   private val createComputerRequestAdapter = CreateComputerRequest.serializer()
   private val createComputerResponseAdapter = CreateComputerResponse.serializer()
@@ -37,9 +48,23 @@ class WasmoService(
       password = postgresDatabasePassword,
       ssl = false,
     )
-    val actionFactory = ActionFactory(
+    val httpClient = RealHttpClient(
+      callFactory = OkHttpClient(),
+    )
+    val fileSystemObjectStore = FileSystemObjectStore(
+      fileSystem = fileSystem,
+      path = path,
+    )
+    val computerStore = RealComputerStore(
+      baseUrl = baseUrl,
       clock = Clock.System,
+      rootObjectStore = fileSystemObjectStore,
+      httpClient = httpClient,
+      objectStoreKeyFactory = ObjectStoreKeyFactory(),
       service = service,
+    )
+    val actionFactory = ActionFactory(
+      computerStore = computerStore,
     )
     configureServer(
       application = server.application,

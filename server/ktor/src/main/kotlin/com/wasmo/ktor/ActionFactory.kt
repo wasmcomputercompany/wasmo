@@ -1,17 +1,14 @@
 package com.wasmo.ktor
 
-import com.wasmo.app.db.WasmoDbService
+import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
-import kotlin.time.Clock
 
 class ActionFactory(
-  val clock: Clock,
-  val service: WasmoDbService,
+  val computerStore: ComputerStore,
 ) {
   fun createComputerAction(): CreateComputerAction {
     return CreateComputerAction(
-      clock = clock,
-      service = service,
+      computerStore = computerStore,
     )
   }
 }
