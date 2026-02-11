@@ -15,7 +15,7 @@ Wasmo can do all kinds of computery things, like running apps:
  - to track what you're reading, watching, and listening to
 
 You'll pay a low monthly price for your Wasmo. And you'll be able to cancel all those enshittified
-services that charge you every month to hold a narrow slice of your digital life.
+services that charge you each month to hold a narrow slice of your digital life.
 
 
 Yours
@@ -27,7 +27,7 @@ gross that governments in foreign countries have jurisdiction over our data.
 We'd like to fix that.
 
 Your Wasmo is yours. And although it's in our datacenter, its fast & easy to move it to somebody
-else's. You can even run it Wasmo at home if you have a spare house computer.
+else's. You can even run your Wasmo at home if you have a spare house computer.
 
 Wasmo is open source.
 
@@ -50,9 +50,8 @@ Computer
 
 Wasmo is a computer. It has a UI, runs apps, and stores your stuff.
 
-But Wasmo isn’t a _conventional_ computer; it’s a _WebAssembly_ computer. It saves power (and
-money!) by only running when you're using it. Each app runs in a secure sandbox and can't access
-each other's data.
+But Wasmo isn’t a _conventional_ computer; it’s a _WebAssembly_ computer. It saves power by only
+running when you're using it. Each app runs in a secure sandbox and can't access each other's data.
 
 
 Status
