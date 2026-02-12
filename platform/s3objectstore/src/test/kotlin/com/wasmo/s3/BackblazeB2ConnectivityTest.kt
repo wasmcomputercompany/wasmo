@@ -8,7 +8,6 @@ import com.wasmo.GetObjectRequest
 import com.wasmo.ListObjectsRequest
 import com.wasmo.ListObjectsResponse
 import com.wasmo.PutObjectRequest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Clock
 import kotlinx.coroutines.test.runTest
@@ -19,27 +18,28 @@ import okio.ByteString.Companion.encodeUtf8
  * Run this test manually to confirm connectivity to a particular Backblaze bucket.
  */
 class BackblazeB2ConnectivityTest {
+  private val warehouse = ObjectStoreWarehouse(
+    clock = Clock.System,
+    client = OkHttpClient(),
+  )
+
+  private val backblazeB2BucketAddress: BackblazeB2BucketAddress?
+    get() {
+      return BackblazeB2BucketAddress(
+        regionId = System.getenv("B2_REGION_ID") ?: return null,
+        applicationKeyId = System.getenv("B2_APPLICATION_KEY_ID") ?: return null,
+        applicationKey = System.getenv("B2_APPLICATION_KEY") ?: return null,
+        bucket = System.getenv("B2_BUCKET") ?: return null,
+      )
+    }
+
   @Test
-  @Ignore
   fun happyPath() = runTest {
+    val address = backblazeB2BucketAddress ?: return@runTest
+    val objectStore = warehouse.connect(address)
+
     val key = "files/hello.txt"
     val value = "Hello, this file has a path!".encodeUtf8()
-
-    val b2ApplicationKeyId = System.getenv("B2_APPLICATION_KEY_ID")
-      ?: error("required env B2_APPLICATION_KEY_ID not set")
-    val b2ApplicationKey = System.getenv("B2_APPLICATION_KEY")
-      ?: error("required env B2_APPLICATION_KEY not set")
-    val b2Bucket = System.getenv("B2_BUCKET")
-      ?: error("required env B2_BUCKET not set")
-
-    val objectStore = connectB2(
-      clock = Clock.System,
-      client = OkHttpClient(),
-      region = B2Region("ca-east-006"),
-      applicationKeyId = b2ApplicationKeyId,
-      applicationKey = b2ApplicationKey,
-      bucket = b2Bucket,
-    )
 
     val putObjectResponse = objectStore.put(
       PutObjectRequest(

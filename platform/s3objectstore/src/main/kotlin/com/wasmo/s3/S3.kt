@@ -20,17 +20,15 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PUT
-import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
 
 internal class S3ObjectStore(
   private val service: SimpleStorageService,
-  private val bucket: String,
 ) : ObjectStore {
   override suspend fun put(request: PutObjectRequest): PutObjectResponse {
     val response = service.put(
-      bucketAndKey = "${bucket}/${request.key}",
+      key = request.key,
       requestBody = request.value.toRequestBody(),
     )
     return PutObjectResponse(
@@ -40,7 +38,7 @@ internal class S3ObjectStore(
 
   override suspend fun get(request: GetObjectRequest): GetObjectResponse {
     val response = service.get(
-      bucketAndKey = "${bucket}/${request.key}",
+      key = request.key,
     )
     return GetObjectResponse(
       etag = response.headers()["ETag"]!!,
@@ -50,14 +48,13 @@ internal class S3ObjectStore(
 
   override suspend fun delete(request: DeleteObjectRequest): DeleteObjectResponse {
     service.delete(
-      bucketAndKey = "${bucket}/${request.key}",
+      key = request.key,
     )
     return DeleteObjectResponse
   }
 
   override suspend fun list(request: ListObjectsRequest): ListObjectsResponse {
     val listBucketResult = service.list(
-      bucket = bucket,
       delimiter = request.delimiter,
       prefix = request.prefix,
       continuationToken = request.continuationToken,
@@ -83,23 +80,22 @@ internal class S3ObjectStore(
 internal interface SimpleStorageService {
   @PUT
   suspend fun put(
-    @Url bucketAndKey: String,
+    @Url key: String,
     @Body requestBody: RequestBody,
   ): Response<Unit>
 
   @GET
   suspend fun get(
-    @Url bucketAndKey: String,
+    @Url key: String,
   ): Response<ResponseBody>
 
   @DELETE
   suspend fun delete(
-    @Url bucketAndKey: String,
+    @Url key: String,
   ): Response<Unit>
 
-  @GET("/{bucket}/?list-type=2")
+  @GET("?list-type=2")
   suspend fun list(
-    @Path("bucket") bucket: String,
     @Query("delimiter") delimiter: String?,
     @Query("prefix") prefix: String?,
     @Query("continuation-token") continuationToken: String?,
