@@ -1,8 +1,8 @@
 package com.wasmo.s3
 
 import com.wasmo.ListObjectsRequest
-import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.time.Clock
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 
@@ -11,7 +11,6 @@ import okhttp3.OkHttpClient
  */
 class BackblazeB2ConnectivityTest {
   @Test
-  @Ignore
   fun happyPath() = runTest {
     val b2ApplicationKeyId = System.getenv("B2_APPLICATION_KEY_ID")
       ?: error("required env B2_APPLICATION_KEY_ID not set")
@@ -21,8 +20,9 @@ class BackblazeB2ConnectivityTest {
       ?: error("required env B2_BUCKET not set")
 
     val objectStore = connectB2(
+      clock = Clock.System,
       client = OkHttpClient(),
-      region = B2Region.CaEast,
+      region = B2Region("ca-east-006"),
       applicationKeyId = b2ApplicationKeyId,
       applicationKey = b2ApplicationKey,
       bucket = b2Bucket,

@@ -3,6 +3,7 @@ package com.wasmo.s3
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.FakeClock
+import com.wasmo.s3.AwsRequestSigV4Signer.Companion.DefaultSignedHeaderNames
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Instant
@@ -20,9 +21,10 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class AwsRequestSigV4SignerTest {
   private val clock = FakeClock()
   private val signer = AwsRequestSigV4Signer(
+    clock = clock,
+    signedHeaderNames = DefaultSignedHeaderNames + "x-amz-archive-description",
     accessKeyId = "access",
     secretAccessKey = "secret",
-    clock = clock,
     region = "us-east-1",
     service = "demo",
   )

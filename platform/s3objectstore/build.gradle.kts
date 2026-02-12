@@ -1,9 +1,16 @@
 plugins {
   alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlin.noarg)
   alias(libs.plugins.kotlin.serialization)
 }
 
+noArg {
+  annotation("jakarta.xml.bind.annotation.XmlRootElement")
+}
+
 dependencies {
+  implementation(libs.jaxb.api)
+  implementation(libs.jaxb.implementation)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.kotlinx.datetime)
   implementation(libs.kotlinx.serialization.json)

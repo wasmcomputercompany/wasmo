@@ -9,7 +9,9 @@ import com.wasmo.ListObjectsResponse
 import com.wasmo.ObjectStore
 import com.wasmo.PutObjectRequest
 import com.wasmo.PutObjectResponse
-import kotlinx.serialization.json.Json
+import jakarta.xml.bind.annotation.XmlAccessType
+import jakarta.xml.bind.annotation.XmlAccessorType
+import jakarta.xml.bind.annotation.XmlRootElement
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -31,16 +33,23 @@ internal class S3ObjectStore(
   }
 
   override suspend fun list(request: ListObjectsRequest): ListObjectsResponse {
-    val string = service.list(
+    val listBucketResult = service.list(
       bucket = bucket,
       delimiter = request.delimiter,
       prefix = request.prefix,
       continuationToken = request.continuationToken,
     )
-    println(string)
     return ListObjectsResponse(
-      entries = listOf(),
-      nextRequest = null,
+      entries = listBucketResult.Contents.map {
+        ListObjectsResponse.Object(
+          key = it.Key,
+          etag = it.ETag,
+          size = it.Size,
+        )
+      },
+      nextRequest = listBucketResult.NextContinuationToken?.let {
+        request.copy(continuationToken = it)
+      },
     )
   }
 }
@@ -55,9 +64,26 @@ internal interface SimpleStorageService {
     @Query("delimiter") delimiter: String?,
     @Query("prefix") prefix: String?,
     @Query("continuation-token") continuationToken: String?,
-  ): String
+  ): ListBucketResult
 }
 
-internal val S3Json = Json {
-  this.ignoreUnknownKeys = true
-}
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+data class ListBucketResult(
+  var Contents: MutableList<Contents> = mutableListOf(),
+  var IsTruncated: Boolean? = null,
+  var MaxKeys: Int? = null,
+  var Name: String? = null,
+  var Prefix: String? = null,
+  var KeyCount: Int? = null,
+  var NextContinuationToken: String? = null,
+)
+
+@XmlAccessorType(XmlAccessType.FIELD)
+data class Contents(
+  var ETag: String,
+  var Key: String,
+  var LastModified: String? = null,
+  var Size: Long,
+  var StorageClass: String? = null,
+)

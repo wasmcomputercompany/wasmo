@@ -8,8 +8,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
 import okhttp3.HttpUrl
+import okhttp3.Interceptor
 import okhttp3.Protocol
 import okhttp3.Request
+import okhttp3.Response
 import okio.Buffer
 import okio.BufferedSink
 import okio.ByteString
@@ -25,15 +27,24 @@ import okio.buffer
  * https://github.com/aws-samples/sigv4-signing-examples/blob/main/no-sdk/java/AWSSigner.java
  */
 class AwsRequestSigV4Signer(
-  val accessKeyId: String,
-  val secretAccessKey: String,
-  val clock: Clock,
-  val region: String,
-  val service: String,
-) {
+  private val clock: Clock,
+  private val signedHeaderNames: Set<String> = DefaultSignedHeaderNames,
+  private val accessKeyId: String,
+  private val secretAccessKey: String,
+  private val region: String,
+  private val service: String,
+) : Interceptor {
   init {
     require(region == region.lowercase(Locale.ROOT))
     require(service == service.lowercase(Locale.ROOT))
+  }
+
+  override fun intercept(chain: Interceptor.Chain): Response {
+    val signedRequest = sign(
+      chain.request(),
+      chain.connection()?.protocol() ?: Protocol.HTTP_1_1,
+    )
+    return chain.proceed(signedRequest)
   }
 
   fun sign(request: Request, protocol: Protocol): Request {
@@ -55,7 +66,7 @@ class AwsRequestSigV4Signer(
           wireName to value.trim()
         }
 
-        in SignedHeaderNames -> lowercaseName to value.trim()
+        in signedHeaderNames -> lowercaseName to value.trim()
         else -> continue
       }
     }
@@ -159,12 +170,6 @@ class AwsRequestSigV4Signer(
       second()
       char('Z')
     }
-
-    val SignedHeaderNames = setOf(
-      ":authority",
-      "host",
-      "x-amz-archive-description",
-      "x-amz-date",
-    )
+    val DefaultSignedHeaderNames: Set<String> = setOf(":authority", "host", "x-amz-date")
   }
 }
