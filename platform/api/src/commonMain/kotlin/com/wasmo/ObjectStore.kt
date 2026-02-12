@@ -1,6 +1,7 @@
 package com.wasmo
 
 import okio.ByteString
+import okio.utf8Size
 
 /**
  * An S3-like object store.
@@ -30,7 +31,11 @@ interface ObjectStore {
 data class PutObjectRequest(
   val key: String,
   val value: ByteString,
-)
+) {
+  init {
+    key.validateKey()
+  }
+}
 
 data class PutObjectResponse(
   val etag: String,
@@ -38,7 +43,11 @@ data class PutObjectResponse(
 
 data class GetObjectRequest(
   val key: String,
-)
+) {
+  init {
+    key.validateKey()
+  }
+}
 
 data class GetObjectResponse(
   val value: ByteString?,
@@ -47,7 +56,11 @@ data class GetObjectResponse(
 
 data class DeleteObjectRequest(
   val key: String,
-)
+) {
+  init {
+    key.validateKey()
+  }
+}
 
 object DeleteObjectResponse
 
@@ -106,6 +119,7 @@ class ScopedObjectStore(
           is ListObjectsResponse.CommonPrefix -> entry.copy(
             prefix = entry.prefix.removePrefix(prefix),
           )
+
           is ListObjectsResponse.Object -> entry.copy(
             key = entry.key.removePrefix(prefix),
           )
@@ -120,3 +134,22 @@ class ScopedObjectStore(
 
 val ByteString.etag: String
   get() = md5().hex()
+
+/**
+ * https://www.backblaze.com/docs/cloud-storage-files#file-names
+ */
+fun String.validateKey() {
+  val utf8Size = utf8Size()
+  require(utf8Size in 1..1024) {
+    "key length must be in 1..1024 but was $utf8Size: $this"
+  }
+
+  var pos = 0
+  while (pos < length) {
+    val codePoint = codePointAt(pos)
+    require(codePoint >= ' '.code && codePoint != '\u007f'.code) {
+      "key has invalid code point at $pos: 0x${codePoint.toString(radix = 16)}"
+    }
+    pos += Character.charCount(codePoint)
+  }
+}
