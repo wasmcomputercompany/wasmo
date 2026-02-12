@@ -15,7 +15,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.okio.fakefilesystem)
         implementation(project(":platform:api"))
-        implementation(project(":platform:filesystemobjectstore"))
+        implementation(project(":server:objectstore:fs"))
       }
     }
     commonTest {
