@@ -40,6 +40,18 @@ class AppPage() : ResponseBody {
           name = "theme-color",
           content = "#ffffff",
         )
+        meta {
+          attributes["property"] = "og:image"
+          attributes["content"] = "/assets/og-image.png"
+        }
+        meta {
+          attributes["property"] = "og:image:width"
+          attributes["content"] = "1200"
+        }
+        meta {
+          attributes["property"] = "og:image:height"
+          attributes["content"] = "630"
+        }
 
         link(rel = "preconnect", href = "https://fonts.gstatic.com") {
           attributes["crossorigin"] = "anonymous"
@@ -48,6 +60,11 @@ class AppPage() : ResponseBody {
           rel = "stylesheet",
           href = "https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap",
         )
+        link(rel = "icon", href = "/favicon.ico") {
+          attributes["sizes"] = "32x32"
+        }
+        link(rel = "icon", href = "/icon.svg", type = "image/svg+xml")
+        link(rel = "apple-touch-icon", href = "/apple-touch-icon.png")
         link(rel = "stylesheet", href = "/assets/Wasmo.css")
 
         script(src = "/assets/wasmo.js") {}
