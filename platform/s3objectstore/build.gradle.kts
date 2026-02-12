@@ -5,7 +5,7 @@ plugins {
 }
 
 noArg {
-  annotation("jakarta.xml.bind.annotation.XmlRootElement")
+  annotation("jakarta.xml.bind.annotation.XmlAccessorType")
 }
 
 dependencies {
@@ -16,6 +16,7 @@ dependencies {
   implementation(libs.kotlinx.serialization.json)
   implementation(libs.okio)
   implementation(libs.okhttp)
+  implementation(libs.okhttp.coroutines)
   implementation(libs.retrofit)
   implementation(libs.retrofit.converter.kotlinx.serialization)
   implementation(libs.retrofit.converter.jaxb3)

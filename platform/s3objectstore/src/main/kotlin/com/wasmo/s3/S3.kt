@@ -12,24 +12,47 @@ import com.wasmo.PutObjectResponse
 import jakarta.xml.bind.annotation.XmlAccessType
 import jakarta.xml.bind.annotation.XmlAccessorType
 import jakarta.xml.bind.annotation.XmlRootElement
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 internal class S3ObjectStore(
   private val service: SimpleStorageService,
   private val bucket: String,
 ) : ObjectStore {
   override suspend fun put(request: PutObjectRequest): PutObjectResponse {
-    TODO("Not yet implemented")
+    val response = service.put(
+      bucketAndKey = "${bucket}/${request.key}",
+      requestBody = request.value.toRequestBody(),
+    )
+    return PutObjectResponse(
+      etag = response.headers()["ETag"]!!,
+    )
   }
 
   override suspend fun get(request: GetObjectRequest): GetObjectResponse {
-    TODO("Not yet implemented")
+    val response = service.get(
+      bucketAndKey = "${bucket}/${request.key}",
+    )
+    return GetObjectResponse(
+      etag = response.headers()["ETag"]!!,
+      value = response.body()!!.byteString(),
+    )
   }
 
   override suspend fun delete(request: DeleteObjectRequest): DeleteObjectResponse {
-    TODO("Not yet implemented")
+    service.delete(
+      bucketAndKey = "${bucket}/${request.key}",
+    )
+    return DeleteObjectResponse
   }
 
   override suspend fun list(request: ListObjectsRequest): ListObjectsResponse {
@@ -58,6 +81,22 @@ internal class S3ObjectStore(
  * https://www.backblaze.com/apidocs/introduction-to-the-s3-compatible-api
  */
 internal interface SimpleStorageService {
+  @PUT
+  suspend fun put(
+    @Url bucketAndKey: String,
+    @Body requestBody: RequestBody,
+  ): Response<Unit>
+
+  @GET
+  suspend fun get(
+    @Url bucketAndKey: String,
+  ): Response<ResponseBody>
+
+  @DELETE
+  suspend fun delete(
+    @Url bucketAndKey: String,
+  ): Response<Unit>
+
   @GET("/{bucket}/?list-type=2")
   suspend fun list(
     @Path("bucket") bucket: String,

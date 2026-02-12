@@ -18,6 +18,8 @@ interface ObjectStore {
   suspend fun get(request: GetObjectRequest): GetObjectResponse
 
   /**
+   * Replaces the value with a delete marker. It will continue to be returned by [list].
+   *
    * https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html
    */
   suspend fun delete(request: DeleteObjectRequest): DeleteObjectResponse
