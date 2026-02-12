@@ -1,14 +1,14 @@
-package com.wasmo.s3
+package com.wasmo.objectstore.s3
 
-import com.wasmo.DeleteObjectRequest
-import com.wasmo.DeleteObjectResponse
-import com.wasmo.GetObjectRequest
-import com.wasmo.GetObjectResponse
-import com.wasmo.ListObjectsRequest
-import com.wasmo.ListObjectsResponse
-import com.wasmo.ObjectStore
-import com.wasmo.PutObjectRequest
-import com.wasmo.PutObjectResponse
+import com.wasmo.objectstore.DeleteObjectRequest
+import com.wasmo.objectstore.DeleteObjectResponse
+import com.wasmo.objectstore.GetObjectRequest
+import com.wasmo.objectstore.GetObjectResponse
+import com.wasmo.objectstore.ListObjectsRequest
+import com.wasmo.objectstore.ListObjectsResponse
+import com.wasmo.objectstore.ObjectStore
+import com.wasmo.objectstore.PutObjectRequest
+import com.wasmo.objectstore.PutObjectResponse
 import jakarta.xml.bind.annotation.XmlAccessType
 import jakarta.xml.bind.annotation.XmlAccessorType
 import jakarta.xml.bind.annotation.XmlRootElement

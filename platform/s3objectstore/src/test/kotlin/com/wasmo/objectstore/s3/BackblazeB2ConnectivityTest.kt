@@ -1,13 +1,13 @@
-package com.wasmo.s3
+package com.wasmo.objectstore.s3
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import com.wasmo.DeleteObjectRequest
-import com.wasmo.GetObjectRequest
-import com.wasmo.ListObjectsRequest
-import com.wasmo.ListObjectsResponse
-import com.wasmo.PutObjectRequest
+import com.wasmo.objectstore.DeleteObjectRequest
+import com.wasmo.objectstore.GetObjectRequest
+import com.wasmo.objectstore.ListObjectsRequest
+import com.wasmo.objectstore.ListObjectsResponse
+import com.wasmo.objectstore.PutObjectRequest
 import kotlin.test.Test
 import kotlin.time.Clock
 import kotlinx.coroutines.test.runTest

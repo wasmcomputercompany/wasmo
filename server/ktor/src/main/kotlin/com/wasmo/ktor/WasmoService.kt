@@ -2,7 +2,6 @@
 
 package com.wasmo.ktor
 
-import com.wasmo.FileSystemObjectStore
 import com.wasmo.RealHttpClient
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.CreateComputerResponse
@@ -11,6 +10,7 @@ import com.wasmo.apps.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.framework.HttpException
 import com.wasmo.home.HomePage
+import com.wasmo.objectstore.filesystem.FileSystemObjectStore
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log

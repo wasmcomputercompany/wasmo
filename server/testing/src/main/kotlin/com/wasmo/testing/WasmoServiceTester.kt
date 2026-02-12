@@ -1,7 +1,6 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
-import com.wasmo.FileSystemObjectStore
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.WasmoJson
 import com.wasmo.app.db.WasmoDbService
@@ -10,6 +9,7 @@ import com.wasmo.apps.ObjectStoreKeyFactory
 import com.wasmo.common.testing.FakeClock
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.RealComputerStore
+import com.wasmo.objectstore.filesystem.FileSystemObjectStore
 import java.io.Closeable
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.Path.Companion.toPath
@@ -21,7 +21,7 @@ import okio.fakefilesystem.FakeFileSystem
 class WasmoServiceTester private constructor(
   val service: WasmoDbService,
 ) : Closeable by service {
-  val baseUrl = "https://example.com/".toHttpUrl()
+  val baseUrl = "https://wasmo.com/".toHttpUrl()
   val clock = FakeClock()
   val fileSystem = FakeFileSystem()
   val rootObjectStore = FileSystemObjectStore(

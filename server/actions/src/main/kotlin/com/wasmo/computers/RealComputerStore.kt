@@ -1,9 +1,7 @@
 package com.wasmo.computers
 
 import com.wasmo.HttpClient
-import com.wasmo.ObjectStore
 import com.wasmo.RealDownloader
-import com.wasmo.ScopedObjectStore
 import com.wasmo.api.AppManifest
 import com.wasmo.api.WasmoJson
 import com.wasmo.app.db.WasmoDbService
@@ -11,6 +9,8 @@ import com.wasmo.apps.AppLoader
 import com.wasmo.apps.ObjectStoreKeyFactory
 import com.wasmo.framework.BadRequestException
 import com.wasmo.identifiers.ComputerId
+import com.wasmo.objectstore.ObjectStore
+import com.wasmo.objectstore.ScopedObjectStore
 import kotlin.time.Clock
 import okhttp3.HttpUrl
 

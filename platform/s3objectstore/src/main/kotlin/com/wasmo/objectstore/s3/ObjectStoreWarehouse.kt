@@ -1,6 +1,6 @@
-package com.wasmo.s3
+package com.wasmo.objectstore.s3
 
-import com.wasmo.ObjectStore
+import com.wasmo.objectstore.ObjectStore
 import kotlin.time.Clock
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl

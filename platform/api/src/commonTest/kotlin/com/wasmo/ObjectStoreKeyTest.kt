@@ -2,6 +2,7 @@ package com.wasmo
 
 import assertk.assertThat
 import assertk.assertions.hasMessage
+import com.wasmo.objectstore.validateKey
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 

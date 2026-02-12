@@ -1,4 +1,4 @@
-package com.wasmo.s3
+package com.wasmo.objectstore.s3
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -13,6 +13,7 @@ class XmlCodecTest {
 
   @Test
   fun happyPath() {
+    @Suppress("UNCHECKED_CAST", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     val converter = converterFactory.responseBodyConverter(
       ListBucketResult::class.java,
       arrayOf(),

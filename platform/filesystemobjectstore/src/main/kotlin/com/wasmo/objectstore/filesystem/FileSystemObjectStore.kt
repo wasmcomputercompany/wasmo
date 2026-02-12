@@ -1,5 +1,15 @@
-package com.wasmo
+package com.wasmo.objectstore.filesystem
 
+import com.wasmo.objectstore.DeleteObjectRequest
+import com.wasmo.objectstore.DeleteObjectResponse
+import com.wasmo.objectstore.GetObjectRequest
+import com.wasmo.objectstore.GetObjectResponse
+import com.wasmo.objectstore.ListObjectsRequest
+import com.wasmo.objectstore.ListObjectsResponse
+import com.wasmo.objectstore.ObjectStore
+import com.wasmo.objectstore.PutObjectRequest
+import com.wasmo.objectstore.PutObjectResponse
+import com.wasmo.objectstore.etag
 import okio.Buffer
 import okio.FileNotFoundException
 import okio.FileSystem

@@ -1,4 +1,4 @@
-package com.wasmo
+package com.wasmo.objectstore
 
 import java.util.TreeMap
 import okio.ByteString

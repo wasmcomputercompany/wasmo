@@ -1,9 +1,9 @@
-package com.wasmo.s3
+package com.wasmo.objectstore.s3
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.FakeClock
-import com.wasmo.s3.AwsRequestSigV4Signer.Companion.DefaultSignedHeaderNames
+import com.wasmo.objectstore.s3.AwsRequestSigV4Signer.Companion.DefaultSignedHeaderNames
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Instant

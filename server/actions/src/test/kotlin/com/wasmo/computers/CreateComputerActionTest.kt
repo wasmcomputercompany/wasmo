@@ -33,7 +33,7 @@ class CreateComputerActionTest {
     assertThat(response).isEqualTo(
       Response(
         body = CreateComputerResponse(
-          url = "/computer/computer-one",
+          url = "https://wasmo.com/computer/computer-one",
         ),
       ),
     )

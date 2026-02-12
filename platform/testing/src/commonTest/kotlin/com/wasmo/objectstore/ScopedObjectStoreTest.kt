@@ -1,4 +1,4 @@
-package com.wasmo
+package com.wasmo.objectstore
 
 import assertk.assertThat
 import assertk.assertions.containsExactly

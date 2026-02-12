@@ -1,5 +1,8 @@
 package com.wasmo
 
+import com.wasmo.objectstore.ObjectStore
+import com.wasmo.objectstore.PutObjectRequest
+
 interface Downloader {
   /**
    * Make an HTTP request and save its response to the object store.
@@ -43,8 +46,8 @@ class RealDownloader(
     val putObjectResponse = objectStore.put(
       PutObjectRequest(
         key = transferRequest.objectStoreKey,
-        value = body
-      )
+        value = body,
+      ),
     )
 
     return TransferResponse(

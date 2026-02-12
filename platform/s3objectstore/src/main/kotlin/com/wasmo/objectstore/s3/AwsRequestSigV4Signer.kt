@@ -1,4 +1,4 @@
-package com.wasmo.s3
+package com.wasmo.objectstore.s3
 
 import java.util.Locale
 import kotlin.time.Clock
@@ -80,14 +80,14 @@ class AwsRequestSigV4Signer(
 
     val credentialScope = "$date/$region/$service/aws4_request"
     val stringToSign =
-      "$Aws4HmacSha256\n$amzDate\n$credentialScope\n${canonicalRequest.sha256().hex()}"
+      "$AWS4_HMAC_SHA256\n$amzDate\n$credentialScope\n${canonicalRequest.sha256().hex()}"
 
     val signingKey = getSignatureKey(date)
     val signature = stringToSign.encodeUtf8().hmacSha256(signingKey)
 
     headersBuilder.add(
       "authorization",
-      "$Aws4HmacSha256 Credential=$accessKeyId/$credentialScope, SignedHeaders=$signedHeaderNames, Signature=${signature.hex()}",
+      "$AWS4_HMAC_SHA256 Credential=$accessKeyId/$credentialScope, SignedHeaders=$signedHeaderNames, Signature=${signature.hex()}",
     )
 
     return request.newBuilder()
@@ -158,7 +158,7 @@ class AwsRequestSigV4Signer(
   }
 
   companion object {
-    val Aws4HmacSha256 = "AWS4-HMAC-SHA256"
+    const val AWS4_HMAC_SHA256 = "AWS4-HMAC-SHA256"
     val CredentialDateFormat = LocalDate.Formats.ISO_BASIC
     val AmzDateFormat = LocalDateTime.Format {
       year()
