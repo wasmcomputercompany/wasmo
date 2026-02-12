@@ -21,56 +21,53 @@ import okio.ByteString.Companion.encodeUtf8
 class BackblazeB2ConnectivityTest {
   @Test
   @Ignore
-  fun happyPath() {
+  fun happyPath() = runTest {
     val key = "files/hello.txt"
     val value = "Hello, this file has a path!".encodeUtf8()
 
-    runTest {
-      val b2ApplicationKeyId = System.getenv("B2_APPLICATION_KEY_ID")
-        ?: error("required env B2_APPLICATION_KEY_ID not set")
-      val b2ApplicationKey = System.getenv("B2_APPLICATION_KEY")
-        ?: error("required env B2_APPLICATION_KEY not set")
-      val b2Bucket = System.getenv("B2_BUCKET")
-        ?: error("required env B2_BUCKET not set")
+    val b2ApplicationKeyId = System.getenv("B2_APPLICATION_KEY_ID")
+      ?: error("required env B2_APPLICATION_KEY_ID not set")
+    val b2ApplicationKey = System.getenv("B2_APPLICATION_KEY")
+      ?: error("required env B2_APPLICATION_KEY not set")
+    val b2Bucket = System.getenv("B2_BUCKET")
+      ?: error("required env B2_BUCKET not set")
 
-      val objectStore = connectB2(
-        clock = Clock.System,
-        client = OkHttpClient(),
-        region = B2Region("ca-east-006"),
-        applicationKeyId = b2ApplicationKeyId,
-        applicationKey = b2ApplicationKey,
-        bucket = b2Bucket,
-      )
+    val objectStore = connectB2(
+      clock = Clock.System,
+      client = OkHttpClient(),
+      region = B2Region("ca-east-006"),
+      applicationKeyId = b2ApplicationKeyId,
+      applicationKey = b2ApplicationKey,
+      bucket = b2Bucket,
+    )
 
-      val putObjectResponse = objectStore.put(
-        PutObjectRequest(
-          key = key,
-          value = value,
-        ),
-      )
-      println(putObjectResponse)
+    val putObjectResponse = objectStore.put(
+      PutObjectRequest(
+        key = key,
+        value = value,
+      ),
+    )
 
-      val getObjectResponse = objectStore.get(
-        GetObjectRequest(
-          key = key,
-        ),
-      )
-      assertThat(getObjectResponse.value).isEqualTo(value)
-      assertThat(getObjectResponse.etag).isEqualTo(putObjectResponse.etag)
+    val getObjectResponse = objectStore.get(
+      GetObjectRequest(
+        key = key,
+      ),
+    )
+    assertThat(getObjectResponse.value).isEqualTo(value)
+    assertThat(getObjectResponse.etag).isEqualTo(putObjectResponse.etag)
 
-      val list = objectStore.list(ListObjectsRequest())
+    val list = objectStore.list(ListObjectsRequest())
 
-      assertThat(list.entries.map { (it as? ListObjectsResponse.Object)?.key }).containsExactly(
-        key,
-      )
+    assertThat(list.entries.map { (it as? ListObjectsResponse.Object)?.key }).containsExactly(
+      key,
+    )
 
-      objectStore.delete(DeleteObjectRequest(key))
+    objectStore.delete(DeleteObjectRequest(key))
 
-      // According to the Backblaze B2 docs, DELETE replaces an object with a tombstone.
-      // We need to delete with a specific version parameter to properly delete.
-      assertThat(list.entries.map { (it as? ListObjectsResponse.Object)?.key }).containsExactly(
-        key,
-      )
-    }
+    // According to the Backblaze B2 docs, DELETE replaces an object with a tombstone.
+    // We need to delete with a specific version parameter to properly delete.
+    assertThat(list.entries.map { (it as? ListObjectsResponse.Object)?.key }).containsExactly(
+      key,
+    )
   }
 }
