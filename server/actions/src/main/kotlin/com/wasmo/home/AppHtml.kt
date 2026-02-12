@@ -14,9 +14,12 @@ import kotlinx.html.meta
 import kotlinx.html.script
 import kotlinx.html.title
 import kotlinx.html.unsafe
+import okhttp3.HttpUrl
 import okio.BufferedSink
 
-class AppPage() : ResponseBody {
+class AppPage(
+  val baseUrl: HttpUrl,
+) : ResponseBody {
   val response: Response<ResponseBody>
     get() = Response(
       contentType = ContentTypes.TextHtml,
@@ -42,7 +45,7 @@ class AppPage() : ResponseBody {
         )
         meta {
           attributes["property"] = "og:image"
-          attributes["content"] = "/assets/og-image.png"
+          attributes["content"] = baseUrl.resolve("/assets/og-image.png").toString()
         }
         meta {
           attributes["property"] = "og:image:width"

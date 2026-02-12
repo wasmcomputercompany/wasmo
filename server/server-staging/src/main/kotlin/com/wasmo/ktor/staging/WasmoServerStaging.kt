@@ -14,7 +14,7 @@ fun main(args: Array<String>) {
     postgresDatabaseName = "wasmcomputer_staging",
     postgresDatabaseUser = "postgres",
     postgresDatabasePassword = "password",
-    baseUrl = "https://staging.wasmo.com/".toHttpUrl(),
+    baseUrl = "https://wasmo.dev/".toHttpUrl(),
     fileSystem = FileSystem.SYSTEM,
     path = System.getProperty("user.home").toPath() / ".wasmo",
   )

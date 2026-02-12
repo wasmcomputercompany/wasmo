@@ -81,7 +81,7 @@ class WasmoService(
     application.install(CallLogging)
     application.routing {
       get("/") {
-        val action = HomePage()
+        val action = HomePage(baseUrl)
         val page = action.get()
         call.respond(page.response)
       }
