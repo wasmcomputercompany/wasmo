@@ -10,7 +10,8 @@ import com.wasmo.apps.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.framework.HttpException
 import com.wasmo.home.HomePage
-import com.wasmo.objectstore.filesystem.FileSystemObjectStore
+import com.wasmo.objectstore.ObjectStoreAddress
+import com.wasmo.objectstore.ObjectStoreFactory
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log
@@ -23,8 +24,6 @@ import io.ktor.server.routing.routing
 import kotlin.time.Clock
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
-import okio.FileSystem
-import okio.Path
 
 class WasmoService(
   val postgresDatabaseHostname: String,
@@ -32,8 +31,7 @@ class WasmoService(
   val postgresDatabaseUser: String,
   val postgresDatabasePassword: String,
   val baseUrl: HttpUrl,
-  val fileSystem: FileSystem,
-  val path: Path,
+  val objectStoreAddress: ObjectStoreAddress,
 ) {
   private val createComputerRequestAdapter = CreateComputerRequest.serializer()
   private val createComputerResponseAdapter = CreateComputerResponse.serializer()
@@ -41,6 +39,7 @@ class WasmoService(
   fun start(args: Array<String>) {
     val server = EngineMain.createServer(args)
 
+    val clock = Clock.System
     val service = WasmoDbService.start(
       hostname = postgresDatabaseHostname,
       databaseName = postgresDatabaseName,
@@ -48,17 +47,19 @@ class WasmoService(
       password = postgresDatabasePassword,
       ssl = false,
     )
+    val okHttpClient = OkHttpClient()
     val httpClient = RealHttpClient(
-      callFactory = OkHttpClient(),
+      callFactory = okHttpClient,
     )
-    val fileSystemObjectStore = FileSystemObjectStore(
-      fileSystem = fileSystem,
-      path = path,
+    val objectStoreFactory = ObjectStoreFactory(
+      clock,
+      okHttpClient,
     )
+    val rootObjectStore = objectStoreFactory.open(objectStoreAddress)
     val computerStore = RealComputerStore(
       baseUrl = baseUrl,
-      clock = Clock.System,
-      rootObjectStore = fileSystemObjectStore,
+      clock = clock,
+      rootObjectStore = rootObjectStore,
       httpClient = httpClient,
       objectStoreKeyFactory = ObjectStoreKeyFactory(),
       service = service,

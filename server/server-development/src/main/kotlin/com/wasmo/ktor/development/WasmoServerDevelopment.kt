@@ -4,6 +4,7 @@
 package com.wasmo.ktor.development
 
 import com.wasmo.ktor.WasmoService
+import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.FileSystem
 import okio.Path.Companion.toPath
@@ -15,8 +16,10 @@ fun main(args: Array<String>) {
     postgresDatabaseUser = "postgres",
     postgresDatabasePassword = "password",
     baseUrl = "http://localwasmo:8080/".toHttpUrl(),
-    fileSystem = FileSystem.SYSTEM,
-    path = System.getProperty("user.home").toPath() / ".wasmo",
+    objectStoreAddress = FileSystemObjectStoreAddress(
+      fileSystem = FileSystem.SYSTEM,
+      path = System.getProperty("user.home").toPath() / ".wasmo",
+    ),
   )
   service.start(args = args)
 }

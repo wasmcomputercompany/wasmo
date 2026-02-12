@@ -3,6 +3,7 @@ package com.wasmo.objectstore.s3
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
+import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.objectstore.DeleteObjectRequest
 import com.wasmo.objectstore.GetObjectRequest
 import com.wasmo.objectstore.ListObjectsRequest
@@ -18,7 +19,7 @@ import okio.ByteString.Companion.encodeUtf8
  * Run this test manually to confirm connectivity to a particular Backblaze bucket.
  */
 class BackblazeB2ConnectivityTest {
-  private val warehouse = ObjectStoreWarehouse(
+  private val s3Client = S3Client(
     clock = Clock.System,
     client = OkHttpClient(),
   )
@@ -36,7 +37,7 @@ class BackblazeB2ConnectivityTest {
   @Test
   fun happyPath() = runTest {
     val address = backblazeB2BucketAddress ?: return@runTest
-    val objectStore = warehouse.connect(address)
+    val objectStore = s3Client.connect(address)
 
     val key = "files/hello.txt"
     val value = "Hello, this file has a path!".encodeUtf8()

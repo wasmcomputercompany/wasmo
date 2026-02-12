@@ -17,9 +17,9 @@ dependencies {
   implementation(project(":common:testing"))
   implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
-  implementation(project(":platform:filesystemobjectstore"))
   implementation(project(":platform:testing"))
   implementation(project(":server:actions"))
   implementation(project(":server:db"))
   implementation(project(":server:identifiers"))
+  implementation(project(":server:objectstore"))
 }

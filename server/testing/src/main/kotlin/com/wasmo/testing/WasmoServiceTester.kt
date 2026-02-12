@@ -9,9 +9,11 @@ import com.wasmo.apps.ObjectStoreKeyFactory
 import com.wasmo.common.testing.FakeClock
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.RealComputerStore
-import com.wasmo.objectstore.filesystem.FileSystemObjectStore
+import com.wasmo.objectstore.FileSystemObjectStoreAddress
+import com.wasmo.objectstore.ObjectStoreFactory
 import java.io.Closeable
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.OkHttpClient
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 
@@ -24,9 +26,15 @@ class WasmoServiceTester private constructor(
   val baseUrl = "https://wasmo.com/".toHttpUrl()
   val clock = FakeClock()
   val fileSystem = FakeFileSystem()
-  val rootObjectStore = FileSystemObjectStore(
-    fileSystem = fileSystem,
-    path = "/".toPath(),
+  val objectStoreFactory = ObjectStoreFactory(
+    clock = clock,
+    client = OkHttpClient(),
+  )
+  val rootObjectStore = objectStoreFactory.open(
+    FileSystemObjectStoreAddress(
+      fileSystem = fileSystem,
+      path = "/".toPath(),
+    ),
   )
   val wasmoArtifactServer = WasmoArtifactServer(
     json = WasmoJson,
