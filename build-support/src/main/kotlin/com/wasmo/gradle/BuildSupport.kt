@@ -28,6 +28,10 @@ internal class RealWasmoBuildExtension(
     }
     project.tasks.named { it == "jsBrowserTest" }.configureEach {
       dependsOn(writeSnapshotTestingJsTask)
+      outputs.dirs(
+        project.layout.projectDirectory.dir("dom-tester-snapshots"),
+        project.layout.buildDirectory.dir("dom-tester-snapshots"),
+      )
     }
   }
 }
