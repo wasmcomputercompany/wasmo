@@ -1,7 +1,7 @@
 package com.wasmo.computers
 
-import com.wasmo.HttpClient
-import com.wasmo.RealDownloader
+import com.wasmo.http.HttpClient
+import com.wasmo.downloader.RealDownloader
 import com.wasmo.api.AppManifest
 import com.wasmo.api.WasmoJson
 import com.wasmo.app.db.WasmoDbService

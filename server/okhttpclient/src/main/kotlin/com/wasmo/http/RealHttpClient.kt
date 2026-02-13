@@ -1,4 +1,4 @@
-package com.wasmo
+package com.wasmo.http
 
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException

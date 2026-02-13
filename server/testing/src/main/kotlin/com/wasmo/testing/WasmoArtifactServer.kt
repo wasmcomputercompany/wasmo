@@ -1,8 +1,8 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
-import com.wasmo.HttpRequest
-import com.wasmo.HttpResponse
+import com.wasmo.http.HttpRequest
+import com.wasmo.http.HttpResponse
 import com.wasmo.api.AppManifest
 import kotlinx.serialization.json.Json
 import okio.ByteString

@@ -14,6 +14,7 @@ dependencies {
   implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
   implementation(project(":server:db"))
+  implementation(project(":server:downloader"))
   implementation(project(":server:identifiers"))
   testImplementation(libs.assertk)
   testImplementation(libs.kotlin.test.junit)

@@ -1,12 +1,12 @@
 package com.wasmo.apps
 
-import com.wasmo.BadRequestException
-import com.wasmo.ContentType
-import com.wasmo.Downloader
-import com.wasmo.HttpClient
-import com.wasmo.HttpRequest
-import com.wasmo.TransferRequest
 import com.wasmo.api.AppManifest
+import com.wasmo.downloader.Downloader
+import com.wasmo.downloader.TransferRequest
+import com.wasmo.http.BadRequestException
+import com.wasmo.http.ContentType
+import com.wasmo.http.HttpClient
+import com.wasmo.http.HttpRequest
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 

@@ -1,4 +1,4 @@
-package com.wasmo.admin.server
+package com.wasmo.hello.server
 
 import assertk.assertThat
 import assertk.assertions.containsExactly

@@ -2,7 +2,7 @@
 
 package com.wasmo.ktor
 
-import com.wasmo.RealHttpClient
+import com.wasmo.http.RealHttpClient
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.CreateComputerResponse
 import com.wasmo.app.db.WasmoDbService

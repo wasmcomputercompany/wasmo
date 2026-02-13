@@ -24,6 +24,7 @@ dependencies {
   implementation(project(":platform:api"))
   implementation(project(":server:actions"))
   implementation(project(":server:db"))
+  implementation(project(":server:downloader"))
   implementation(project(":server:objectstore"))
   implementation(project(":server:okhttpclient"))
 }

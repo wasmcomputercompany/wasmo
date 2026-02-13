@@ -1,5 +1,8 @@
 package com.wasmo
 
+import com.wasmo.http.HttpClient
+import com.wasmo.http.HttpRequest
+import com.wasmo.http.HttpResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
