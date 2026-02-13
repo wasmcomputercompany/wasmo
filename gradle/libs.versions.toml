@@ -1,5 +1,6 @@
 [versions]
 assertk = "0.28.1"
+burst = "2.10.2"
 compose = "1.10.0"
 graalvm = "25.0.0"
 jaxb = "4.0.0"
@@ -64,6 +65,7 @@ sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", versi
 webauthn4j-core = { module = "com.webauthn4j:webauthn4j-core", version.ref = "webauthn4j" }
 
 [plugins]
+burst = { id = "app.cash.burst", version.ref = "burst" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
