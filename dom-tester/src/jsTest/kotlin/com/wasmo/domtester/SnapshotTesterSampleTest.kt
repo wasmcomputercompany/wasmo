@@ -15,7 +15,7 @@
  */
 @file:OptIn(ExperimentalJsExport::class)
 
-package app.cash.redwood.dom.testing
+package com.wasmo.domtester
 
 import app.cash.burst.Burst
 import app.cash.burst.burstValues
@@ -33,7 +33,7 @@ import kotlinx.dom.clear
 @Burst
 internal class SnapshotTesterSampleTest {
   private val snapshotTester = SnapshotTester(
-    path = "app.cash.redwood.dom.testing/SnapshotTesterSampleTest",
+    path = "com.wasmo.domtester/SnapshotTesterSampleTest",
   )
 
   @Test

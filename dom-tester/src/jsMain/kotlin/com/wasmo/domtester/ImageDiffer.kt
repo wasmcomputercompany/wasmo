@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.redwood.dom.testing
+package com.wasmo.domtester
 
 import kotlin.math.abs
 import kotlin.math.max
@@ -24,7 +24,7 @@ import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.files.Blob
 
-public data class DiffResult(
+data class DiffResult(
   val isDifferent: Boolean,
   val deltaImage: Blob? = null,
   val percentDifference: Float = 0f,

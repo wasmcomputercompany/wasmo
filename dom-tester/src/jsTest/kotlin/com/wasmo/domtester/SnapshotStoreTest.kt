@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.redwood.dom.testing
+package com.wasmo.domtester
 
 import assertk.assertThat
 import assertk.assertions.hasMessage
@@ -25,7 +25,7 @@ import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 
 internal class SnapshotStoreTest {
-  private val path = "app.cash.redwood.dom.testing/SnapshotStoreTest"
+  private val path = "com.wasmo.domtester/SnapshotStoreTest"
 
   @Test
   fun putAndGetFile() = runTest {

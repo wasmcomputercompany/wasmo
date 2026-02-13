@@ -4,6 +4,10 @@ plugins {
   id("build-support")
 }
 
+wasmoBuild {
+  domSnapshotTesting()
+}
+
 kotlin {
   js {
     browser()

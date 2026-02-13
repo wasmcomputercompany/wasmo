@@ -13,9 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.redwood.dom.testing
+package com.wasmo.domtester
 
 /**
- * Thrown when the actual snapshot doesn't match the expected one.
+ * Configure the canvas that we will snapshot our element on.
  */
-public class SnapshotMismatchException(message: String) : IllegalArgumentException(message)
+class Frame(
+  val width: Int?,
+  val height: Int?,
+  val pixelRatio: Double,
+) {
+  companion object {
+    val None: Frame = Frame(width = null, height = null, pixelRatio = 1.0)
+    val Iphone14: Frame = Frame(width = 390, height = 844, pixelRatio = 3.0)
+  }
+}

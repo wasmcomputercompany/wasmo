@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.redwood.dom.testing
+package com.wasmo.domtester
 
 import org.w3c.dom.Element
 import org.w3c.files.Blob
 
-public class SnapshotTester @PublishedApi internal constructor(
+class SnapshotTester @PublishedApi internal constructor(
   private val snapshotStore: SnapshotStore = SnapshotStore(),
   private val domSnapshotter: DomSnapshotter = DomSnapshotter(),
   private val imageDiffer: ImageDiffer = ImageDiffer(),
   private val path: String,
 ) {
 
-  public suspend fun snapshot(
+  suspend fun snapshot(
     element: Element,
     name: String = "snapshot",
     frame: Frame,
@@ -68,7 +68,7 @@ public class SnapshotTester @PublishedApi internal constructor(
     }
   }
 
-  public companion object Companion {
-    public operator fun invoke(path: String): SnapshotTester = SnapshotTester(path = path)
+  companion object Companion {
+    operator fun invoke(path: String): SnapshotTester = SnapshotTester(path = path)
   }
 }

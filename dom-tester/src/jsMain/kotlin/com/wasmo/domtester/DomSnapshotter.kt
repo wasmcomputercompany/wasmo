@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.redwood.dom.testing
+package com.wasmo.domtester
 
 import kotlin.math.ceil
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.coroutines.await
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
@@ -26,13 +27,13 @@ import org.w3c.files.Blob
 /**
  * A image rendering of an HTML element.
  */
-public data class DomSnapshot(
-  public val images: List<Blob?>,
-  public val framedHtml: String,
+data class DomSnapshot(
+  val images: List<Blob?>,
+  val framedHtml: String,
 )
 
-public class DomSnapshotter {
-  public suspend fun snapshot(
+class DomSnapshotter {
+  suspend fun snapshot(
     element: Element,
     frame: Frame,
     scrolling: Boolean,
@@ -107,7 +108,7 @@ public class DomSnapshotter {
     val elements = element.getElementsByTagName("div")
     for (i in 0 until elements.length) {
       val div = elements.get(i) as? HTMLElement ?: continue
-      val style = kotlinx.browser.window.getComputedStyle(div)
+      val style = window.getComputedStyle(div)
       if (style.overflowY == "scroll" || style.overflowY == "auto") {
         if (div.scrollHeight > div.clientHeight) {
           return div

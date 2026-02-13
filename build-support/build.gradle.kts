@@ -10,6 +10,8 @@ repositories {
 dependencies {
   add("compileOnly", kotlin("gradle-plugin"))
   add("compileOnly", kotlin("gradle-plugin-api"))
+  implementation(libs.kotlin.gradle.plugin)
+  implementation(libs.okio)
 }
 
 gradlePlugin {
@@ -19,8 +21,4 @@ gradlePlugin {
       implementationClass = "com.wasmo.gradle.BuildSupport"
     }
   }
-}
-
-dependencies {
-  implementation(libs.kotlin.gradle.plugin)
 }
