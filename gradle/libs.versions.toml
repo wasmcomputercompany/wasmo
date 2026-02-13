@@ -28,6 +28,7 @@ graalvm-wasm = { module = "org.graalvm.polyglot:wasm", version.ref = "graalvm" }
 jaxb-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxb" }
 jaxb-implementation = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "jaxb" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version = "26.0.2-1" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-js = { module = "org.jetbrains.kotlin:kotlin-test-js", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }

@@ -1,5 +1,7 @@
 rootProject.name = "wasmo"
 
+includeBuild("build-support")
+
 pluginManagement {
   repositories {
     google {

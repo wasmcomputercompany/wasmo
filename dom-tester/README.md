@@ -2,6 +2,7 @@
 
 Snapshot testing for HTML DOMs.
 
+This is derived from [Redwood's dom-testing module][redwood].
 
 ### Files in Kotlin/JS
 
@@ -22,3 +23,4 @@ We snapshot HTML elements using [html-to-image].
 
 [Karma]: https://karma-runner.github.io/0.13/config/configuration-file.html
 [html-to-image]: https://github.com/bubkoo/html-to-image
+[redwood]: https://github.com/cashapp/redwood/
