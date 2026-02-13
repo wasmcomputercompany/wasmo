@@ -20,6 +20,8 @@ import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
@@ -30,6 +32,9 @@ import org.gradle.api.tasks.TaskAction
 internal abstract class WriteSnapshotTestingJsTask : DefaultTask() {
   @get:OutputDirectory
   abstract val karmaConfigD: DirectoryProperty
+
+  @get:Input
+  abstract val fullyQualifiedProjectDirectory: Property<String>
 
   @TaskAction
   fun task() {
@@ -54,6 +59,13 @@ internal abstract class WriteSnapshotTestingJsTask : DefaultTask() {
       FileSystem.RESOURCES.source(sourcePath).use {
         writeAll(it)
       }
+      writeUtf8(
+        """
+        |
+        |installSnapshotsStore(config, "${fullyQualifiedProjectDirectory.get()}");
+        |configureMochaTimeout(config, "10s");
+        """.trimMargin(),
+      )
     }
   }
 }

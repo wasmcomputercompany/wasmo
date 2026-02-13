@@ -3,6 +3,11 @@ plugins {
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
+  id("build-support")
+}
+
+wasmoBuild {
+  domTester()
 }
 
 kotlin {
@@ -33,6 +38,7 @@ kotlin {
         implementation(libs.kotlin.test.js)
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":common:testing"))
+        implementation(project(":dom-tester"))
       }
     }
   }

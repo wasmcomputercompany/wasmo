@@ -5,7 +5,7 @@ plugins {
 }
 
 wasmoBuild {
-  domSnapshotTesting()
+  domTester()
 }
 
 kotlin {

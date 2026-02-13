@@ -16,48 +16,28 @@
 let fs = require('node:fs');
 let path = require('node:path');
 
-function installSnapshotsStore(config) {
-  /**
-   * Given a path like '/Development/wasmo/build/js/packages/wasmo-dom-tester-test',
-   * this returns the original Kotlin path like '/Development/wasmo/wasmo-dom-tester'.
-   *
-   * This is clumsy! We'd prefer to be able to read that path directly from somewhere.
-   */
-  function jsDirectoryToModuleDirectory(jsDirectory) {
-    let parts = jsDirectory.split('/');
-
-    let fullyQualifiedDirectory = parts.pop();
-    let moduleDirectory = fullyQualifiedDirectory.split('-').slice(1, -1).join('-')
-
-    parts.pop(); // Discard 'packages'
-    parts.pop(); // Discard 'js'
-    parts.pop(); // Discard 'build'
-    parts.push(moduleDirectory);
-
-    return parts.join('/')
-  }
-
-  let moduleDirectory = jsDirectoryToModuleDirectory(config.basePath);
-
+function installSnapshotsStore(config, fullyQualifiedProjectDirectory) {
   function isSnapshotRequest(method, urlPath) {
-    return urlPath.startsWith('/dom-tester-snapshots/') && (method === 'GET' || method === 'POST');
+    if (method === 'GET' || method === 'POST') {
+      return urlPath.startsWith('/dom-tester-snapshots/')
+        || urlPath.startsWith('/build/dom-tester-snapshots/');
+    } else {
+      return false;
+    }
   }
 
   function SnapshotStoreMiddlewareFactory(config) {
     return function (request, response, next) {
       let url = new URL(request.originalUrl, "https://example.com/");
       let urlPath = url.pathname;
-      let writeToBuildDir = url.searchParams.get('dir') === 'build';
 
       if (!isSnapshotRequest(request.method, urlPath)) {
         return next();
       }
 
-      let filePath = writeToBuildDir
-        ? path.join(moduleDirectory, 'build', urlPath)
-        : path.join(moduleDirectory, urlPath);
+      let filePath = path.join(fullyQualifiedProjectDirectory, urlPath);
 
-      if (!filePath.startsWith(`${moduleDirectory}/`)) {
+      if (!filePath.startsWith(`${fullyQualifiedProjectDirectory}/`)) {
         return next(); // Directory traversal attack? Don't touch the file system.
       }
 
@@ -106,6 +86,3 @@ function configureMochaTimeout(config, timeout) {
   config.client.mocha = config.client.mocha || {};
   config.client.mocha.timeout = timeout;
 }
-
-installSnapshotsStore(config);
-configureMochaTimeout(config, "10s");

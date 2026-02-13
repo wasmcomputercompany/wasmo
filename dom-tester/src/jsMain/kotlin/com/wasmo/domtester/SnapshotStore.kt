@@ -35,7 +35,7 @@ internal class SnapshotStore {
 
   private suspend fun putInternal(fileName: String, data: dynamic, writeToBuildDir: Boolean) {
     val url = if (writeToBuildDir) {
-      "/dom-tester-snapshots/$fileName?dir=build"
+      "/build/dom-tester-snapshots/$fileName"
     } else {
       "/dom-tester-snapshots/$fileName"
     }

@@ -24,7 +24,6 @@ class SnapshotTester @PublishedApi internal constructor(
   private val imageDiffer: ImageDiffer = ImageDiffer(),
   private val path: String,
 ) {
-
   suspend fun snapshot(
     element: Element,
     name: String = "snapshot",
@@ -40,27 +39,27 @@ class SnapshotTester @PublishedApi internal constructor(
 
     var createdNewSnapshot = false
 
-    images.forEachIndexed { index, image ->
+    for ((index, image) in images.withIndex()) {
+      snapshotStore.put("$path/$name.actual.html", Blob(arrayOf(html)), writeToBuildDir = true)
       val fileName = "$path/${if (index == 0) "$name.png" else "${name}_$index.png"}"
 
       val existing = snapshotStore.getBlob(fileName)
       if (existing == null) {
         snapshotStore.put(fileName, image!!)
         createdNewSnapshot = true
-        return@forEachIndexed
+        continue
       }
 
       val diffResult = imageDiffer.compare(existing, image!!)
-      if (!diffResult.isDifferent) return@forEachIndexed
+      if (diffResult.isDifferent) {
+        // Save the delta image and wrapped HTML so the developer can see what's different.
+        snapshotStore.put("$path/$name.diff.png", diffResult.deltaImage!!, writeToBuildDir = true)
 
-      // Save the delta image and wrapped HTML so the developer can see what's different.
-      snapshotStore.put("$path/$name.diff.png", diffResult.deltaImage!!, writeToBuildDir = true)
-      snapshotStore.put("$path/$name.actual.html", Blob(arrayOf(html)), writeToBuildDir = true)
-
-      throw SnapshotMismatchException(
-        "Current snapshot does not match the existing file $fileName " +
-          "(${diffResult.percentDifference}% different, ${diffResult.numDifferentPixels} pixels)",
-      )
+        throw SnapshotMismatchException(
+          "Current snapshot does not match the existing file $fileName " +
+            "(${diffResult.percentDifference}% different, ${diffResult.numDifferentPixels} pixels)",
+        )
+      }
     }
 
     if (createdNewSnapshot) {

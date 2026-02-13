@@ -18,12 +18,13 @@ internal class RealWasmoBuildExtension(
   private val project: Project,
 ) : WasmoBuildExtension {
 
-  override fun domSnapshotTesting() {
+  override fun domTester() {
     val writeSnapshotTestingJsTask = project.tasks.register(
       "writeKarmaConfigTask",
       WriteSnapshotTestingJsTask::class.java,
     ) {
       karmaConfigD.set(project.layout.projectDirectory.dir("karma.config.d"))
+      fullyQualifiedProjectDirectory.set(project.projectDir.path)
     }
     project.tasks.named { it == "jsBrowserTest" }.configureEach {
       dependsOn(writeSnapshotTestingJsTask)
