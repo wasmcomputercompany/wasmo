@@ -11,10 +11,10 @@ and that hosts the in-browser tests.
 
 We have a custom Karma middleware that implements these endpoints:
 
-  * `GET /snapshots/{path}`: Reads a snapshot file from the local file system. Returns 200 if
-    the file is found, and 404 if it does not.
+  * `GET /dom-tester-snapshots/{path}`: Reads a snapshot file from the local file system. Returns
+    200 if the file is found, and 404 if it does not.
 
-  * `POST /snapshots/{path}`: Writes a snapshot file to the local file system.
+  * `POST /dom-tester-snapshots/{path}`: Writes a snapshot file to the local file system.
 
 
 ### DOM Snapshots

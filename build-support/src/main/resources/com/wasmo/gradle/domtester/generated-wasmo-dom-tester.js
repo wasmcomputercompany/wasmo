@@ -18,8 +18,8 @@ let path = require('node:path');
 
 function installSnapshotsStore(config) {
   /**
-   * Given a path like '/Development/redwood/build/js/packages/redwood-redwood-dom-testing-test',
-   * this returns the original Kotlin path like '/Development/redwood/redwood-dom-testing'.
+   * Given a path like '/Development/wasmo/build/js/packages/wasmo-dom-tester-test',
+   * this returns the original Kotlin path like '/Development/wasmo/wasmo-dom-tester'.
    *
    * This is clumsy! We'd prefer to be able to read that path directly from somewhere.
    */
@@ -40,7 +40,7 @@ function installSnapshotsStore(config) {
   let moduleDirectory = jsDirectoryToModuleDirectory(config.basePath);
 
   function isSnapshotRequest(method, urlPath) {
-    return urlPath.startsWith('/snapshots/') && (method === 'GET' || method === 'POST');
+    return urlPath.startsWith('/dom-tester-snapshots/') && (method === 'GET' || method === 'POST');
   }
 
   function SnapshotStoreMiddlewareFactory(config) {
@@ -55,7 +55,7 @@ function installSnapshotsStore(config) {
 
       let filePath = writeToBuildDir
         ? path.join(moduleDirectory, 'build', urlPath)
-        : path.join(moduleDirectory, 'src', 'test', urlPath);
+        : path.join(moduleDirectory, urlPath);
 
       if (!filePath.startsWith(`${moduleDirectory}/`)) {
         return next(); // Directory traversal attack? Don't touch the file system.

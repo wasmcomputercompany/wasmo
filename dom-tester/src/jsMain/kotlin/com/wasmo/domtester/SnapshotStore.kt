@@ -35,9 +35,9 @@ internal class SnapshotStore {
 
   private suspend fun putInternal(fileName: String, data: dynamic, writeToBuildDir: Boolean) {
     val url = if (writeToBuildDir) {
-      "/snapshots/$fileName?dir=build"
+      "/dom-tester-snapshots/$fileName?dir=build"
     } else {
-      "/snapshots/$fileName"
+      "/dom-tester-snapshots/$fileName"
     }
 
     val response = window.fetch(
@@ -70,7 +70,7 @@ internal class SnapshotStore {
 
   private suspend fun getInternal(fileName: String): Response? {
     val response = window.fetch(
-      input = "/snapshots/$fileName",
+      input = "/dom-tester-snapshots/$fileName",
     ).await()
 
     if (response.status.toInt() == 404) {
