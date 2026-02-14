@@ -15,7 +15,7 @@
  */
 package com.wasmo.domtester
 
-import org.w3c.dom.Element
+import org.w3c.dom.HTMLElement
 import org.w3c.files.Blob
 
 class SnapshotTester @PublishedApi internal constructor(
@@ -25,7 +25,7 @@ class SnapshotTester @PublishedApi internal constructor(
   private val path: String,
 ) {
   suspend fun snapshot(
-    element: Element,
+    element: HTMLElement,
     name: String = "snapshot",
     frame: Frame,
     scrolling: Boolean = false,

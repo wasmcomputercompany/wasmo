@@ -5,10 +5,8 @@ import com.wasmo.domtester.SnapshotTester
 import kotlin.test.Test
 import kotlinx.browser.document
 import kotlinx.coroutines.test.runTest
-import kotlinx.dom.addClass
-import org.jetbrains.compose.web.renderComposable
+import org.jetbrains.compose.web.renderComposableInBody
 import org.w3c.dom.Document
-import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.get
 
 class HomeTest {
@@ -21,21 +19,13 @@ class HomeTest {
     document.addStylesheet("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap")
     document.addStylesheet("/assets/Wasmo.css")
 
-    val root = document.createElement("div").apply {
-      this as HTMLDivElement
-      addClass("root")
-      style.width = "100%"
-      style.height = "100%"
-    }
-    renderComposable(
-      root = root,
-    ) {
+    renderComposableInBody {
       Home(
         childStyle = {},
       )
     }
     snapshotTester.snapshot(
-      element = root,
+      element = document.body!!,
       frame = Frame.Iphone14,
     )
   }

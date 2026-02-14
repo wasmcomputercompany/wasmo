@@ -26,7 +26,6 @@ import org.jetbrains.compose.web.dom.Text
 fun Home(childStyle: StyleScope.() -> Unit) {
   Div(
     attrs = {
-      classes("home")
       style {
         childStyle()
         width(100.percent)

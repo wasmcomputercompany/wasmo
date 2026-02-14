@@ -34,32 +34,18 @@ data class DomSnapshot(
 
 class DomSnapshotter {
   suspend fun snapshot(
-    element: Element,
+    element: HTMLElement,
     frame: Frame,
     scrolling: Boolean,
   ): DomSnapshot {
-    require(element != document.documentElement && element.parentElement == null)
-
-    // Wrap the element in a <div> with a 10px wide border. The div's border ensures the measurement
-    // made by getBoundingClientRect() includes our element's margins.
-    //
-    // Note that later we have to subtract off the border size when we measure.
-    val framingBorderSize = 10
-    val wrapper = (document.createElement("div") as HTMLElement).apply {
-      style.border = "${framingBorderSize}px solid red"
-      style.width = frame.width?.let { "${it}px" } ?: "max-content"
-      style.height = frame.height?.let { "${it}px" } ?: "max-content"
-      style.display = "flex"
-      style.flexDirection = "column"
-      style.alignItems = "stretch"
-    }
-    wrapper.appendChild(element)
-    document.documentElement!!.appendChild(wrapper)
-
+    val oldWidth = element.style.width
+    val oldHeight = element.style.height
+    element.style.width = "${frame.width}px"
+    element.style.height = "${frame.height}px"
     try {
-      val boundingClientRect = wrapper.getBoundingClientRect()
-      val elementWidth = ceil(boundingClientRect.width).toInt() - (2 * framingBorderSize)
-      val elementHeight = ceil(boundingClientRect.height).toInt() - (2 * framingBorderSize)
+      val boundingClientRect = element.getBoundingClientRect()
+      val elementWidth = ceil(boundingClientRect.width).toInt()
+      val elementHeight = ceil(boundingClientRect.height).toInt()
 
       suspend fun captureImage(): Blob? {
         return html2canvas(
@@ -99,8 +85,8 @@ class DomSnapshotter {
         framedHtml = document.documentElement!!.outerHTML,
       )
     } finally {
-      document.documentElement!!.removeChild(wrapper)
-      wrapper.removeChild(element)
+      element.style.width = oldWidth
+      element.style.height = oldHeight
     }
   }
 

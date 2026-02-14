@@ -4,7 +4,7 @@ html, body {
   height: 100%;
 }
 
-.root {
+body {
   background-color: #00C55F;
   font-family: "Outfit", sans-serif;
 }

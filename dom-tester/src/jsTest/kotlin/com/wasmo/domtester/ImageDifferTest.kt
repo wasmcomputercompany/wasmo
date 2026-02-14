@@ -20,22 +20,21 @@ import assertk.assertions.isEqualTo
 import kotlin.test.Test
 import kotlinx.browser.document
 import kotlinx.coroutines.test.runTest
-import org.w3c.dom.Element
+import org.w3c.dom.HTMLElement
 import org.w3c.files.Blob
 
 internal class ImageDifferTest {
   @Test
   fun exactMatch() = runTest {
-    val yellowRect = document.createElement("div").apply {
+    val yellowRect = (document.createElement("div") as HTMLElement).run {
       setAttribute(
         "style",
         """
         |background-color: #ffff00;
-        |width: 100px;
-        |height: 100px;
         """.trimMargin(),
       )
-    }.toBlob()
+      toBlob(width = 100, height = 100)
+    }
 
     val diffResult = ImageDiffer().compare(yellowRect, yellowRect)
     assertThat(diffResult.isDifferent).isEqualTo(false)
@@ -43,23 +42,21 @@ internal class ImageDifferTest {
 
   @Test
   fun tenPercentRGBDiff() = runTest {
-    val yellowRect = document.createElement("div").apply {
+    val yellowRect = (document.createElement("div") as HTMLElement).run {
       setAttribute(
         "style",
         """
         |background-color: #ffff00;
-        |width: 100px;
-        |height: 100px;
         """.trimMargin(),
       )
-    }.toBlob()
-    val yellowRect10PercentBlue = document.createElement("div").apply {
+      toBlob(width = 100, height = 100)
+    }
+
+    val yellowRect10PercentBlue = (document.createElement("div") as HTMLElement).run {
       setAttribute(
         "style",
         """
         |background-color: #ffff00;
-        |width: 100px;
-        |height: 100px;
         """.trimMargin(),
       )
       appendChild(
@@ -74,7 +71,8 @@ internal class ImageDifferTest {
           )
         },
       )
-    }.toBlob()
+      toBlob(width = 100, height = 100)
+    }
 
     val diffResult = ImageDiffer().compare(yellowRect, yellowRect10PercentBlue)
     assertThat(diffResult.isDifferent).isEqualTo(true)
@@ -83,27 +81,26 @@ internal class ImageDifferTest {
 
   @Test
   fun twentyPercentAlphaDiff() = runTest {
-    val yellowRect = document.createElement("div").apply {
+    val yellowRect = (document.createElement("div") as HTMLElement).run {
       setAttribute(
         "style",
         """
         |background-color: #ffff00;
-        |width: 100px;
-        |height: 100px;
         """.trimMargin(),
       )
-    }.toBlob()
-    val transparentYellowRect = document.createElement("div").apply {
+      toBlob(width = 100, height = 100)
+    }
+
+    val transparentYellowRect = (document.createElement("div") as HTMLElement).run {
       setAttribute(
         "style",
         """
         |background-color: #ffff00;
         |opacity: 0.8;
-        |width: 100px;
-        |height: 100px;
         """.trimMargin(),
       )
-    }.toBlob()
+      toBlob(width = 100, height = 100)
+    }
 
     val diffResult = ImageDiffer().compare(yellowRect, transparentYellowRect)
     assertThat(diffResult.isDifferent).isEqualTo(true)
@@ -117,31 +114,45 @@ internal class ImageDifferTest {
    */
   @Test
   fun fullAlphaSizeMismatch() = runTest {
-    val transparent200x100 = document.createElement("div").apply {
+    val transparent200x100 = (document.createElement("div") as HTMLElement).run {
       setAttribute(
         "style",
         """
         |background-color: #00000000;
-        |width: 200px;
-        |height: 100px;
         """.trimMargin(),
       )
-    }.toBlob()
-    val transparent100x200 = document.createElement("div").apply {
+      toBlob(width = 200, height = 100)
+    }
+    val transparent100x200 = (document.createElement("div") as HTMLElement).run {
       setAttribute(
         "style",
         """
         |background-color: #00000000;
-        |width: 100px;
-        |height: 200px;
         """.trimMargin(),
       )
-    }.toBlob()
+      toBlob(width = 100, height = 200)
+    }
 
     val diffResult = ImageDiffer().compare(transparent200x100, transparent100x200)
     assertThat(diffResult.isDifferent).isEqualTo(true)
     assertThat(diffResult.percentDifference).isEqualTo(75f)
   }
 
-  internal suspend fun Element.toBlob(): Blob = DomSnapshotter().snapshot(this, Frame.None, false).images.first()!!
+  internal suspend fun HTMLElement.toBlob(width: Int, height: Int): Blob {
+    document.body!!.appendChild(this)
+    try {
+      val snapshot = DomSnapshotter()
+        .snapshot(
+          element = this,
+          frame = Frame(
+            width = width,
+            height = height,
+          ),
+          scrolling = false,
+        )
+      return snapshot.images.first()!!
+    } finally {
+      this.remove()
+    }
+  }
 }
