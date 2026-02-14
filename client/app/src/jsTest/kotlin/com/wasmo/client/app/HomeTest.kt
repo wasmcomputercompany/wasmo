@@ -1,5 +1,6 @@
 package com.wasmo.client.app
 
+import app.cash.burst.InterceptTest
 import com.wasmo.domtester.Frame
 import com.wasmo.domtester.SnapshotTester
 import kotlin.test.Test
@@ -10,9 +11,8 @@ import org.w3c.dom.Document
 import org.w3c.dom.get
 
 class HomeTest {
-  private val snapshotTester = SnapshotTester(
-    path = "com.wasmo.client.app/HomeTest",
-  )
+  @InterceptTest
+  val snapshotTester = SnapshotTester()
 
   @Test
   fun happyPath() = runTest {

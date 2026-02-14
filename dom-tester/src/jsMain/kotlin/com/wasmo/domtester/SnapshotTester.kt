@@ -15,6 +15,8 @@
  */
 package com.wasmo.domtester
 
+import app.cash.burst.coroutines.CoroutineTestFunction
+import app.cash.burst.coroutines.CoroutineTestInterceptor
 import org.w3c.dom.HTMLElement
 import org.w3c.files.Blob
 
@@ -22,30 +24,51 @@ class SnapshotTester @PublishedApi internal constructor(
   private val snapshotStore: SnapshotStore = SnapshotStore(),
   private val domSnapshotter: DomSnapshotter = DomSnapshotter(),
   private val imageDiffer: ImageDiffer = ImageDiffer(),
-  private val path: String,
-) {
+) : CoroutineTestInterceptor {
+  private var testFunction: CoroutineTestFunction? = null
+  private var snapshotCount = 0
+
+  override suspend fun intercept(testFunction: CoroutineTestFunction) {
+    this.testFunction = testFunction
+    try {
+      testFunction()
+    } finally {
+      this.testFunction = null
+    }
+  }
+
   suspend fun snapshot(
     element: HTMLElement,
-    name: String = "snapshot",
     frame: Frame,
+    name: String? = null,
     scrolling: Boolean = false,
   ) {
+    check(snapshotCount++ == 0 || name != null) {
+      "a name must be specified when taking multiple snapshots"
+    }
+
+    val pathPrefix = pathPrefix(name)
+    val htmlPath = "$pathPrefix.actual.html"
+
     val (images, html) = domSnapshotter.snapshot(element, frame, scrolling)
 
     if (images.any { it == null }) {
-      snapshotStore.put("$path/$name.actual.html", Blob(arrayOf(html)), writeToBuildDir = true)
-      throw SnapshotMismatchException("html2canvas returned null for $path/$name.png")
+      snapshotStore.put(htmlPath, Blob(arrayOf(html)), writeToBuildDir = true)
+      throw SnapshotMismatchException("html2canvas returned null for $pathPrefix.png")
     }
 
     var createdNewSnapshot = false
 
     for ((index, image) in images.withIndex()) {
-      snapshotStore.put("$path/$name.actual.html", Blob(arrayOf(html)), writeToBuildDir = true)
-      val fileName = "$path/${if (index == 0) "$name.png" else "${name}_$index.png"}"
+      snapshotStore.put(htmlPath, Blob(arrayOf(html)), writeToBuildDir = true)
+      val pngPath = when (index) {
+        0 -> "$pathPrefix.png"
+        else -> "${pathPrefix}_$index.png"
+      }
 
-      val existing = snapshotStore.getBlob(fileName)
+      val existing = snapshotStore.getBlob(pngPath)
       if (existing == null) {
-        snapshotStore.put(fileName, image!!)
+        snapshotStore.put(pngPath, image!!)
         createdNewSnapshot = true
         continue
       }
@@ -53,21 +76,35 @@ class SnapshotTester @PublishedApi internal constructor(
       val diffResult = imageDiffer.compare(existing, image!!)
       if (diffResult.isDifferent) {
         // Save the delta image and wrapped HTML so the developer can see what's different.
-        snapshotStore.put("$path/$name.diff.png", diffResult.deltaImage!!, writeToBuildDir = true)
+        snapshotStore.put("$pathPrefix.diff.png", diffResult.deltaImage!!, writeToBuildDir = true)
 
         throw SnapshotMismatchException(
-          "Current snapshot does not match the existing file $fileName " +
+          "Current snapshot does not match the existing file $pngPath " +
             "(${diffResult.percentDifference}% different, ${diffResult.numDifferentPixels} pixels)",
         )
       }
     }
 
     if (createdNewSnapshot) {
-      throw SnapshotMismatchException("Created new snapshot file $path/$name.png")
+      throw SnapshotMismatchException("Created new snapshot file $pathPrefix.png")
+    }
+  }
+
+  private fun pathPrefix(name: String?) = buildString {
+    val testFunction = testFunction
+      ?: error("unexpected call to snapshot(): is the interceptor applied?")
+    append(testFunction.packageName)
+    append("/")
+    append(testFunction.className)
+    append(".")
+    append(testFunction.functionName)
+    if (name != null) {
+      append("-")
+      append(name)
     }
   }
 
   companion object Companion {
-    operator fun invoke(path: String): SnapshotTester = SnapshotTester(path = path)
+    operator fun invoke() = SnapshotTester()
   }
 }

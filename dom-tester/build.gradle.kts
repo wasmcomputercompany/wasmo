@@ -16,6 +16,7 @@ kotlin {
   sourceSets {
     val jsMain by getting {
       dependencies {
+        implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
         implementation(npm("html2canvas", "1.4.1"))

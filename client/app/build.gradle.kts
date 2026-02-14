@@ -3,6 +3,7 @@ plugins {
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
+  alias(libs.plugins.burst)
   id("build-support")
 }
 
@@ -35,6 +36,7 @@ kotlin {
     val jsTest by getting {
       dependencies {
         implementation(libs.assertk)
+        implementation(libs.burst.coroutines)
         implementation(libs.kotlin.test)
         implementation(libs.kotlin.test.js)
         implementation(libs.kotlinx.coroutines.test)

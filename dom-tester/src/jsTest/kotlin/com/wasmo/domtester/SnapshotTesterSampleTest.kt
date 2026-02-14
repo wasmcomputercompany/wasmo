@@ -18,6 +18,7 @@
 package com.wasmo.domtester
 
 import app.cash.burst.Burst
+import app.cash.burst.InterceptTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -32,9 +33,8 @@ import kotlinx.dom.clear
  */
 @Burst
 internal class SnapshotTesterSampleTest {
-  private val snapshotTester = SnapshotTester(
-    path = "com.wasmo.domtester/SnapshotTesterSampleTest",
-  )
+  @InterceptTest
+  private val snapshotTester = SnapshotTester()
 
   @AfterTest
   fun afterTest() {
@@ -49,7 +49,7 @@ internal class SnapshotTesterSampleTest {
       }
     }
 
-    snapshotTester.snapshot(helloWorld, "happyPath", Frame.Iphone14)
+    snapshotTester.snapshot(helloWorld, Frame.Iphone14)
   }
 
   @Test
@@ -60,7 +60,7 @@ internal class SnapshotTesterSampleTest {
         appendText("hello world")
       }
     }
-    snapshotTester.snapshot(body, "mismatchedSnapshot", Frame.Iphone14)
+    snapshotTester.snapshot(body, Frame.Iphone14, "mismatch")
 
     body.apply {
       clear()
@@ -69,7 +69,7 @@ internal class SnapshotTesterSampleTest {
       }
     }
     assertFailsWith<SnapshotMismatchException> {
-      snapshotTester.snapshot(body, "mismatchedSnapshot", Frame.Iphone14)
+      snapshotTester.snapshot(body, Frame.Iphone14, "mismatch")
     }
   }
 }
