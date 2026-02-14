@@ -72,11 +72,25 @@ internal abstract class WriteSnapshotTestingJsTask : DefaultTask() {
         |
         |""".trimMargin(),
       )
+
+      // This combination of features clumsily gets Karma to serve an arbitrary directory at
+      // /static/, which is what our web server does.
       for (file in jvmResources.files) {
         writeUtf8(
           """
-          |config.files.push('${file.path}/static/assets/**/*');
+          |config.files.push(
+          |  {
+          |    pattern: '${file}/static/**/*',
+          |    watched: false,
+          |    included: false,
+          |    served: true,
+          |    nocache: false
+          |  }
+          |);
           |
+          |config.proxies = {
+          |  "/assets/": "${file}/static/assets/"
+          |};
           """.trimMargin()
         )
       }

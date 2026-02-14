@@ -21,21 +21,21 @@ class HomeTest {
     document.addStylesheet("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap")
     document.addStylesheet("/assets/Wasmo.css")
 
-    val body = document.createElement("div").apply {
+    val root = document.createElement("div").apply {
       this as HTMLDivElement
       addClass("root")
       style.width = "100%"
       style.height = "100%"
     }
     renderComposable(
-      root = body,
+      root = root,
     ) {
       Home(
         childStyle = {},
       )
     }
     snapshotTester.snapshot(
-      element = body,
+      element = root,
       frame = Frame.Iphone14,
     )
   }

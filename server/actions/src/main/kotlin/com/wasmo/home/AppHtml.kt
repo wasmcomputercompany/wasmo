@@ -80,7 +80,7 @@ class AppPage(
           }
         }
       }
-      body {
+      body("root") {
       }
     }
   }
