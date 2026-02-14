@@ -1,9 +1,10 @@
 html, body {
   margin: 0;
+  width: 100%;
   height: 100%;
 }
 
-body {
+.root {
   background-color: #00C55F;
   font-family: "Outfit", sans-serif;
 }

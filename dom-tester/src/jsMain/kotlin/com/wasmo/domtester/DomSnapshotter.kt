@@ -96,7 +96,7 @@ class DomSnapshotter {
 
       return DomSnapshot(
         images = images,
-        framedHtml = wrapper.outerHTML,
+        framedHtml = document.documentElement!!.outerHTML,
       )
     } finally {
       document.documentElement!!.removeChild(wrapper)
