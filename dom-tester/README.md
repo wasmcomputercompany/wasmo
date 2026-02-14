@@ -16,10 +16,16 @@ We have a custom Karma middleware that implements these endpoints:
 
   * `POST /dom-tester-snapshots/{path}`: Writes a snapshot file to the local file system.
 
+Prefixing either path with `/build` writes to the project's `build` directory, where files won't
+be in Git.
 
 ### DOM Snapshots
 
 We snapshot HTML elements using [html-to-image].
+
+To debug, HTML is written to `build/dom-tester-snapshots`. Because these files don't include CSS
+or other resources, run the service at `http://localhost:8080` while browsing these snapshots.
+
 
 [Karma]: https://karma-runner.github.io/0.13/config/configuration-file.html
 [html-to-image]: https://github.com/bubkoo/html-to-image
