@@ -25,6 +25,7 @@ internal class RealWasmoBuildExtension(
     ) {
       karmaConfigD.set(project.layout.projectDirectory.dir("karma.config.d"))
       fullyQualifiedProjectDirectory.set(project.projectDir.path)
+      jvmResources.from(project.tasks.named { it == "jvmProcessResources" })
     }
     project.tasks.named { it == "jsBrowserTest" }.configureEach {
       dependsOn(writeSnapshotTestingJsTask)

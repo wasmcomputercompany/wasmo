@@ -15,6 +15,7 @@ kotlin {
     browser()
     useEsModules()
   }
+  jvm()
 
   sourceSets {
     val jsMain by getting {

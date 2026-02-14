@@ -9,6 +9,7 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.okio)
   implementation(libs.postgresql)
+  implementation(project(":client:app"))
   implementation(project(":common:api"))
   implementation(project(":common:framework"))
   implementation(project(":common:tokens"))
