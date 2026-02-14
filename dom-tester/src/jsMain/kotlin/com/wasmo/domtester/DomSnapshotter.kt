@@ -16,21 +16,12 @@
 package com.wasmo.domtester
 
 import kotlin.math.ceil
-import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 import org.w3c.files.Blob
-
-/**
- * A image rendering of an HTML element.
- */
-data class DomSnapshot(
-  val images: List<Blob?>,
-  val framedHtml: String,
-)
 
 class DomSnapshotter {
   suspend fun snapshot(
@@ -82,7 +73,7 @@ class DomSnapshotter {
 
       return DomSnapshot(
         images = images,
-        framedHtml = document.documentElement!!.outerHTML,
+        elementHtml = element.outerHTML,
       )
     } finally {
       element.style.width = oldWidth

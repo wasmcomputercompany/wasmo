@@ -7,18 +7,18 @@ import kotlin.test.Test
 import kotlinx.browser.document
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.compose.web.renderComposableInBody
-import org.w3c.dom.Document
-import org.w3c.dom.get
 
 class HomeTest {
   @InterceptTest
-  val snapshotTester = SnapshotTester()
+  val snapshotTester = SnapshotTester(
+    stylesheetsUrls = listOf(
+      "https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap",
+      "/assets/Wasmo.css",
+    )
+  )
 
   @Test
   fun happyPath() = runTest {
-    document.addStylesheet("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap")
-    document.addStylesheet("/assets/Wasmo.css")
-
     renderComposableInBody {
       Home(
         childStyle = {},
@@ -27,17 +27,6 @@ class HomeTest {
     snapshotTester.snapshot(
       element = document.body!!,
       frame = Frame.Iphone14,
-    )
-  }
-}
-
-fun Document.addStylesheet(href: String) {
-  getElementsByTagName("head").get(0)!!.apply {
-    appendChild(
-      createElement("link").apply {
-        setAttribute("href", href)
-        setAttribute("rel", "stylesheet")
-      },
     )
   }
 }

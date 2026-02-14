@@ -20,7 +20,10 @@ import kotlin.coroutines.resumeWithException
 import kotlinx.browser.document
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.w3c.dom.HTMLCanvasElement
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLImageElement
+import org.w3c.dom.HTMLLinkElement
+import org.w3c.dom.get
 import org.w3c.dom.url.URL
 import org.w3c.files.Blob
 
@@ -58,4 +61,24 @@ internal suspend fun Blob.decodeImage(): HTMLImageElement {
   } finally {
     URL.revokeObjectURL(url)
   }
+}
+
+internal fun HTMLElement.addStylesheets(
+  stylesheetsUrls: List<String>,
+): List<HTMLLinkElement> {
+  val result = mutableListOf<HTMLLinkElement>()
+  for (stylesheetUrl in stylesheetsUrls) {
+    result += addStylesheet(stylesheetUrl)
+  }
+  return result
+}
+
+internal fun HTMLElement.addStylesheet(href: String): HTMLLinkElement {
+  val head = getElementsByTagName("head").get(0)!!
+  val stylesheet = (document.createElement("link") as HTMLLinkElement).apply {
+    setAttribute("href", href)
+    setAttribute("rel", "stylesheet")
+  }
+  head.appendChild(stylesheet)
+  return stylesheet
 }

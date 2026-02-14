@@ -17,23 +17,30 @@ package com.wasmo.domtester
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
+import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 import org.w3c.files.Blob
 
-class SnapshotTester @PublishedApi internal constructor(
-  private val snapshotStore: SnapshotStore = SnapshotStore(),
-  private val domSnapshotter: DomSnapshotter = DomSnapshotter(),
-  private val imageDiffer: ImageDiffer = ImageDiffer(),
+class SnapshotTester(
+  private val stylesheetsUrls: List<String> = listOf(),
 ) : CoroutineTestInterceptor {
+  private val snapshotStore: SnapshotStore = SnapshotStore()
+  private val domSnapshotter: DomSnapshotter = DomSnapshotter()
+  private val imageDiffer: ImageDiffer = ImageDiffer()
   private var testFunction: CoroutineTestFunction? = null
   private var snapshotCount = 0
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     this.testFunction = testFunction
+    val stylesheetLinkElements =  (document.documentElement as HTMLElement)
+      .addStylesheets(stylesheetsUrls)
     try {
       testFunction()
     } finally {
       this.testFunction = null
+      for (element in stylesheetLinkElements) {
+        element.remove()
+      }
     }
   }
 
@@ -50,7 +57,13 @@ class SnapshotTester @PublishedApi internal constructor(
     val pathPrefix = pathPrefix(name)
     val htmlPath = "$pathPrefix.actual.html"
 
-    val (images, html) = domSnapshotter.snapshot(element, frame, scrolling)
+    val domSnapshot = domSnapshotter.snapshot(element, frame, scrolling)
+    val images = domSnapshot.images
+    val html = domSnapshot.htmlPage(
+      title = testFunction.toString(),
+      stylesheetsUrls = stylesheetsUrls,
+      baseHref = "http://localhost:8080/",
+    )
 
     if (images.any { it == null }) {
       snapshotStore.put(htmlPath, Blob(arrayOf(html)), writeToBuildDir = true)
@@ -102,9 +115,5 @@ class SnapshotTester @PublishedApi internal constructor(
       append("-")
       append(name)
     }
-  }
-
-  companion object Companion {
-    operator fun invoke() = SnapshotTester()
   }
 }
