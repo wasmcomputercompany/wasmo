@@ -8,11 +8,15 @@ import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.StyleScope
 import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.background
+import org.jetbrains.compose.web.css.boxSizing
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
+import org.jetbrains.compose.web.css.overflowY
+import org.jetbrains.compose.web.css.padding
 import org.jetbrains.compose.web.css.percent
+import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Div
 
@@ -32,11 +36,26 @@ fun FormScreen(
         height(100.percent)
         display(DisplayStyle.Flex)
         flexDirection(FlexDirection.Column)
-        alignItems(AlignItems.Stretch)
+        alignItems(AlignItems.Center)
         justifyContent(JustifyContent.Start)
+        overflowY("scroll")
       }
     },
   ) {
-    content()
+    Div(
+      attrs = {
+        style {
+          display(DisplayStyle.Flex)
+          flexDirection(FlexDirection.Column)
+          alignItems(AlignItems.Stretch)
+          justifyContent(JustifyContent.Start)
+          boxSizing("border-box")
+          padding(12.px)
+          property("width", "min(100%, 420px)")
+        }
+      }
+    ) {
+      content()
+    }
   }
 }

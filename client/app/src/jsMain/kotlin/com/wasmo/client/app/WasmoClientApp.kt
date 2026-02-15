@@ -12,8 +12,10 @@ class WasmoClientApp(
     logger.info("hello")
 
     renderComposableInBody {
+
       EnvironmentFrame(environment) { childStyle ->
-        Home(childStyle)
+        SignUpIntro(childStyle)
+//        Home(childStyle)
       }
     }
   }
