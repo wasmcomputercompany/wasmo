@@ -21,6 +21,9 @@ data class DomSnapshot(
     append(
       document.createElement("head").apply {
         append(
+          document.createElement("meta").apply {
+            setAttribute("charset", "utf-8")
+          },
           document.createElement("title").apply {
             textContent = title
           },

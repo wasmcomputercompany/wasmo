@@ -23,7 +23,9 @@ import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.Text
 
 @Composable
-fun Home(childStyle: StyleScope.() -> Unit) {
+fun Home(
+  childStyle: StyleScope.() -> Unit = {},
+) {
   Div(
     attrs = {
       style {

@@ -8,7 +8,7 @@ import kotlinx.browser.document
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.compose.web.renderComposableInBody
 
-class HomeTest {
+class SignUpFlowTest {
   @InterceptTest
   val snapshotTester = SnapshotTester(
     stylesheetsUrls = listOf(
@@ -18,9 +18,9 @@ class HomeTest {
   )
 
   @Test
-  fun happyPath() = runTest {
+  fun signUpIntro() = runTest {
     renderComposableInBody {
-      Home()
+      SignUpIntro()
     }
     snapshotTester.snapshot(
       element = document.body!!,

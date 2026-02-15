@@ -6,6 +6,9 @@ html, body {
 
 body {
   background-color: #00C55F;
+}
+
+body, input {
   font-family: "Outfit", sans-serif;
 }
 
@@ -27,4 +30,27 @@ a:hover {
   color: rgba(255 255 255 / 1.0);
   text-align: center;
   vertical-align: middle;
+}
+
+.FormScreen, .FormScreen input {
+  color: rgba(255 255 255 / 0.9);
+}
+
+.FormScreen input[type="button"] {
+  margin: 4px 0;
+  background-color: transparent;
+  font-size: 18px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.FormScreen input[type="button"].Primary {
+  border: 1px solid white;
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.FormScreen input[type="button"].Secondary {
+  border: none;
+  padding: 6px;
 }
