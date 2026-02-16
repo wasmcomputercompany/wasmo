@@ -1,6 +1,7 @@
 package com.wasmo.client.app
 
 import app.cash.burst.InterceptTest
+import com.wasmo.compose.ChildStyle
 import com.wasmo.domtester.Frame
 import com.wasmo.domtester.SnapshotTester
 import kotlin.test.Test

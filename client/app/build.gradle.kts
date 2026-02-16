@@ -14,7 +14,6 @@ wasmoBuild {
 kotlin {
   js {
     browser()
-    useEsModules()
   }
   jvm()
 
@@ -28,6 +27,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core.js)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
+        implementation(project(":client:compose"))
         implementation(project(":common:api"))
         implementation(project(":common:framework"))
         implementation(project(":common:logging"))
