@@ -37,7 +37,8 @@ a:hover {
 }
 
 .FormScreen input[type="button"] {
-  margin: 4px 0;
+  margin-top: 4px;
+  margin-bottom: 4px;
   background-color: transparent;
   font-size: 18px;
   text-align: center;
@@ -53,4 +54,26 @@ a:hover {
 .FormScreen input[type="button"].Secondary {
   border: none;
   padding: 6px;
+}
+
+.FormScreen > div > * {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.FormScreen > div > .Toolbar {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.Toolbar {
+  height: 64px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.ToolbarTitle {
+  font-size: 28px;
+  opacity: 0.7;
 }

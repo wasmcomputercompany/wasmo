@@ -14,9 +14,7 @@ import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.overflowY
-import org.jetbrains.compose.web.css.padding
 import org.jetbrains.compose.web.css.percent
-import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Div
 
@@ -50,7 +48,6 @@ fun FormScreen(
           alignItems(AlignItems.Stretch)
           justifyContent(JustifyContent.Start)
           boxSizing("border-box")
-          padding(12.px)
           property("width", "min(100%, 420px)")
         }
       }

@@ -8,11 +8,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.wasmo.compose.ChildStyle
 import com.wasmo.compose.SegmentedProgressBar
+import com.wasmo.compose.Toolbar
+import com.wasmo.compose.ToolbarTitle
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
-import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.Li
 import org.jetbrains.compose.web.dom.P
@@ -33,11 +35,23 @@ fun SignUpIntro(childStyle: ChildStyle) {
       }
     }
 
-    H1 {
-      Text("Sign Up")
-    }
+    Toolbar(
+      childStyle = ChildStyle {
+        marginBottom(8.px)
+      },
+      title = {
+        ToolbarTitle(
+          childStyle = ChildStyle {
+          },
+        ) {
+          Text("Sign Up")
+        }
+      },
+    )
     SegmentedProgressBar(
       childStyle = ChildStyle {
+        marginBottom(8.px)
+        marginTop(8.px)
       },
       stepsCompleted = stepsCompleted,
       stepCount = 5,

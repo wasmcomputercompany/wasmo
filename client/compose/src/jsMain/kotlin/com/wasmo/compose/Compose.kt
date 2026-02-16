@@ -17,7 +17,7 @@ inline fun ChildStyle(
   }
 }
 
-typealias ComposableElement = @Composable (ChildStyle) -> Unit
+typealias ComposableElement = @Composable (childStyle: ChildStyle) -> Unit
 
 @Composable
 inline operator fun ComposableElement.invoke(
