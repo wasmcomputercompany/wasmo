@@ -1,6 +1,14 @@
 package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.wasmo.compose.ChildStyle
+import com.wasmo.compose.SegmentedProgressBar
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
@@ -16,13 +24,22 @@ fun SignUpIntro(childStyle: ChildStyle) {
   FormScreen(
     childStyle = childStyle,
   ) {
+    var stepsCompleted by remember { mutableIntStateOf(1) }
+    LaunchedEffect(Unit) {
+      var i = 1
+      while (true) {
+        stepsCompleted = (i++ % 6)
+        delay(1_000)
+      }
+    }
+
     H1 {
       Text("Sign Up")
     }
     SegmentedProgressBar(
       childStyle = ChildStyle {
       },
-      stepsCompleted = 1,
+      stepsCompleted = stepsCompleted,
       stepCount = 5,
       minGap = 8.px,
       height = 12.px,

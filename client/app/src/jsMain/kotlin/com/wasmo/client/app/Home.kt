@@ -1,6 +1,7 @@
 package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
+import com.wasmo.compose.ChildStyle
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection

@@ -1,4 +1,4 @@
-package com.wasmo.client.app
+package com.wasmo.compose
 
 import org.w3c.dom.Element
 
