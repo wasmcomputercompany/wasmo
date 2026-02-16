@@ -14,13 +14,13 @@ class HomeTest {
     stylesheetsUrls = listOf(
       "https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap",
       "/assets/Wasmo.css",
-    )
+    ),
   )
 
   @Test
   fun happyPath() = runTest {
     renderComposableInBody {
-      Home()
+      Home(ChildStyle {})
     }
     snapshotTester.snapshot(
       element = document.body!!,

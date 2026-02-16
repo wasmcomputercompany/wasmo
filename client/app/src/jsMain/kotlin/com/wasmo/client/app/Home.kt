@@ -5,7 +5,6 @@ import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.JustifyContent
-import org.jetbrains.compose.web.css.StyleScope
 import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flexDirection
@@ -24,7 +23,7 @@ import org.jetbrains.compose.web.dom.Text
 
 @Composable
 fun Home(
-  childStyle: StyleScope.() -> Unit = {},
+  childStyle: ChildStyle,
 ) {
   Div(
     attrs = {

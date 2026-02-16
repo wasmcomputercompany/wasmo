@@ -2,7 +2,6 @@ package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.css.StyleScope
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.H1
@@ -13,13 +12,21 @@ import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.dom.Ul
 
 @Composable
-fun SignUpIntro(childStyle: StyleScope.() -> Unit = {}) {
+fun SignUpIntro(childStyle: ChildStyle) {
   FormScreen(
     childStyle = childStyle,
   ) {
     H1 {
       Text("Sign Up")
     }
+    SegmentedProgressBar(
+      childStyle = ChildStyle {
+      },
+      stepsCompleted = 1,
+      stepCount = 5,
+      minGap = 8.px,
+      height = 12.px,
+    )
     P {
       Text("Wasmo is currently available in Canada.")
     }
