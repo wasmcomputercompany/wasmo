@@ -16,7 +16,7 @@ class RealPasskeyCheckerTest {
   private val cookieToken = "1234567890123456789012345"
   private val challengerFactory = HmacChallenger.Factory(clock, "secret".encodeUtf8())
   private val challenger = challengerFactory.create(cookieToken)
-  private val baseUrl = "https://rounds.app/".toHttpUrl()
+  private val baseUrl = "https://wasmo.com/".toHttpUrl()
   private val origin = baseUrl.toString()
 
   private val passkey = FakePasskey(

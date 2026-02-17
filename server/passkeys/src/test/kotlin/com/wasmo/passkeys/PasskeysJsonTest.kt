@@ -67,7 +67,7 @@ class PasskeysJsonTest {
       |    ]
       |  },
       |  "user": {
-      |    "name": "passkeys@rounds.app",
+      |    "name": "passkeys@wasmo.com",
       |    "id": "c188393a-b938-47f1-9d56-9f50ed95b1b2"
       |  }
       |}
@@ -105,7 +105,7 @@ class PasskeysJsonTest {
       |    ]
       |  },
       |  "user": {
-      |    "name": "passkeys@rounds.app",
+      |    "name": "passkeys@wasmo.com",
       |    "id": "298ac031-d6de-41ff-a7f5-a81686f1c433"
       |  }
       |}
@@ -143,7 +143,7 @@ class PasskeysJsonTest {
       |    ]
       |  },
       |  "user": {
-      |    "name": "passkeys@rounds.app",
+      |    "name": "passkeys@wasmo.com",
       |    "id": "0d3887a9-a0bc-463b-8bc9-460af275a624"
       |  }
       |}
@@ -180,7 +180,7 @@ class PasskeysJsonTest {
       |    ]
       |  },
       |  "user": {
-      |    "name": "passkeys@rounds.app",
+      |    "name": "passkeys@wasmo.com",
       |    "id": "c164b47c-0f8d-4c01-8a8a-9492c46f025f"
       |  }
       |}
