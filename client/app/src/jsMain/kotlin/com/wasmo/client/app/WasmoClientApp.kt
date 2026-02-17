@@ -1,6 +1,10 @@
 package com.wasmo.client.app
 
-import com.wasmo.client.app.signup.SignUpChallengeCode
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.wasmo.client.app.signup.SignUpWorkflow
 import com.wasmo.common.logging.ConsoleLogger
 import com.wasmo.common.logging.Logger
 import org.jetbrains.compose.web.renderComposableInBody
@@ -11,8 +15,21 @@ class WasmoClientApp(
 ) {
   fun start() {
     renderComposableInBody {
-      EnvironmentFrame(environment) { childStyle ->
-        SignUpChallengeCode(childStyle) { _ ->
+      var home by remember { mutableStateOf(true) }
+
+      EnvironmentFrame(environment) { attrs ->
+        if (home) {
+          Home(
+            attrs = attrs,
+          ) { event ->
+            home = !home
+          }
+        } else {
+          SignUpWorkflow(
+            attrs = attrs,
+          ) { event ->
+            home = !home
+          }
         }
       }
     }

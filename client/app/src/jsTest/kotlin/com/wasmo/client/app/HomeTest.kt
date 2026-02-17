@@ -17,7 +17,8 @@ class HomeTest {
   @Test
   fun happyPath() = runTest {
     snapshotTester.snapshot {
-      Home()
+      Home { _ ->
+      }
     }
   }
 }

@@ -5,10 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.TextField
-import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.display
@@ -20,81 +18,70 @@ import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
-import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun SignUpCreateWasmo(
-  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (SignUpCreateWasmoEvent) -> Unit,
 ) {
   var nameState by remember { mutableStateOf("jesse99") }
 
-  FormScreen(
-    attrs = attrs,
+  P {
+    Text("Name your Wasmo.")
+  }
+  Div(
+    attrs = {
+      style {
+        display(DisplayStyle.Flex)
+        flexDirection(FlexDirection.Row)
+      }
+    },
   ) {
-    SignUpToolbar()
-    SignUpSegmentedProgressBar(
-      stepsCompleted = 4,
-      stepCount = 5,
+    TextField(
+      attrs = {
+        style {
+          flex("100 100 0")
+        }
+      },
+      inputAttrs = {
+        value(nameState)
+        onInput { event ->
+          nameState = event.value
+        }
+      },
     )
-    P {
-      Text("Name your Wasmo.")
-    }
     Div(
       attrs = {
-        style {
-          display(DisplayStyle.Flex)
-          flexDirection(FlexDirection.Row)
-        }
+        classes("TextFieldSuffix")
       },
     ) {
-      TextField(
-        attrs = {
-          style {
-            flex("100 100 0")
-          }
-        },
-        inputAttrs = {
-          value(nameState)
-          onInput { event ->
-            nameState = event.value
-          }
-        },
-      )
-      Div(
-        attrs = {
-          classes("TextFieldSuffix")
-        },
-      ) {
-        Text(".wasmo.com")
-      }
+      Text(".wasmo.com")
     }
-    P(
-      attrs = {
-        style {
-          marginTop(24.px)
-        }
-      },
-    ) {
-      Text("Names may use lowercase a-z characters and 0-9 numbers. No spaces or punctuation!")
-    }
-    PrimaryButton(
-      attrs = {
-        style {
-          marginTop(24.px)
-          marginBottom(24.px)
-        }
-        value("Create Wasmo")
-        onClick {
-          eventListener(
-            SignUpCreateWasmoEvent.CreateWasmo(
-              name = nameState,
-            ),
-          )
-        }
-      },
-    )
   }
+  P(
+    attrs = {
+      style {
+        marginTop(24.px)
+      }
+    },
+  ) {
+    Text("Names may use lowercase a-z characters and 0-9 numbers. No spaces or punctuation!")
+  }
+  PrimaryButton(
+    attrs = {
+      style {
+        marginTop(24.px)
+        marginBottom(24.px)
+      }
+      value("Create Wasmo")
+      onClick {
+        eventListener(
+          SignUpCreateWasmoEvent.CreateWasmo(
+            name = nameState,
+          ),
+        )
+      }
+    },
+  )
 }
 
 sealed interface SignUpCreateWasmoEvent {

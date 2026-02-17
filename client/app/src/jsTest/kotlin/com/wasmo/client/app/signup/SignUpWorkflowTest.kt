@@ -1,6 +1,7 @@
 package com.wasmo.client.app.signup
 
 import app.cash.burst.InterceptTest
+import com.wasmo.client.app.FormScreen
 import com.wasmo.domtester.SnapshotTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -17,7 +18,10 @@ class SignUpWorkflowTest {
   @Test
   fun intro() = runTest {
     snapshotTester.snapshot {
-      SignUpIntro { _ ->
+      FormScreen {
+        SignUpToolbar()
+        SignUpIntro { _ ->
+        }
       }
     }
   }
@@ -25,7 +29,10 @@ class SignUpWorkflowTest {
   @Test
   fun credentials() = runTest {
     snapshotTester.snapshot {
-      SignUpCredentials { _ ->
+      FormScreen {
+        SignUpToolbar()
+        SignUpCredentials { _ ->
+        }
       }
     }
   }
@@ -33,7 +40,10 @@ class SignUpWorkflowTest {
   @Test
   fun payment() = runTest {
     snapshotTester.snapshot {
-      SignUpPayment { _ ->
+      FormScreen {
+        SignUpToolbar()
+        SignUpPayment { _ ->
+        }
       }
     }
   }
@@ -41,7 +51,10 @@ class SignUpWorkflowTest {
   @Test
   fun createWasmo() = runTest {
     snapshotTester.snapshot {
-      SignUpCreateWasmo { _ ->
+      FormScreen {
+        SignUpToolbar()
+        SignUpCreateWasmo { _ ->
+        }
       }
     }
   }
@@ -49,7 +62,10 @@ class SignUpWorkflowTest {
   @Test
   fun challengeCode() = runTest {
     snapshotTester.snapshot {
-      SignUpChallengeCode { _ ->
+      FormScreen {
+        SignUpToolbar()
+        SignUpChallengeCode { _ ->
+        }
       }
     }
   }
