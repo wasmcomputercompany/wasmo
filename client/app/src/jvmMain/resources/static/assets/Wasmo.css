@@ -34,31 +34,53 @@ a:hover {
 
 .FormScreen, .FormScreen input {
   color: rgba(255 255 255 / 0.9);
+  font-size: 18px;
 }
 
 .FormScreen input[type="button"] {
-  margin-top: 4px;
-  margin-bottom: 4px;
+  margin-top: 8px;
+  margin-bottom: 8px;
   background-color: transparent;
-  font-size: 18px;
   text-align: center;
   text-transform: uppercase;
 }
 
 .FormScreen input[type="button"].Primary {
+  font-size: 22px;
   border: 1px solid white;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 8px;
 }
 
 .FormScreen input[type="button"].Secondary {
+  font-size: 20px;
   border: none;
   padding: 6px;
+  color: rgba(255 255 255 / 0.8);
+}
+
+.FormScreen input[type="text"] {
+  background: rgb(235 235 235);
+  border-radius: 16px;
+  border: none;
+  color: rgb(0 0 0 / 0.9);
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+.FormScreen input[type="text"], .FormScreen .TextFieldSuffix {
+  font-size: 28px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.FormScreen .TextFieldSuffix {
+  padding-left: 8px;
+  padding-right: 0;
 }
 
 .FormScreen > div > * {
-  margin-left: 8px;
-  margin-right: 8px;
+  margin: 8px 24px;
 }
 
 .FormScreen > div > .Toolbar {
@@ -68,12 +90,12 @@ a:hover {
 
 .Toolbar {
   height: 64px;
-  padding: 0 8px;
+  padding: 0 24px;
   box-sizing: border-box;
   margin-bottom: 16px;
 }
 
 .ToolbarTitle {
-  font-size: 28px;
-  opacity: 0.7;
+  font-size: 24px;
+  color: rgb(255 255 255 / 0.9)
 }

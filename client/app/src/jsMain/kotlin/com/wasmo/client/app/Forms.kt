@@ -3,6 +3,7 @@ package com.wasmo.client.app
 import androidx.compose.runtime.Composable
 import com.wasmo.compose.ChildStyle
 import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.attributes.size
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
@@ -14,8 +15,10 @@ import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
+import org.jetbrains.compose.web.css.margin
 import org.jetbrains.compose.web.css.overflowY
 import org.jetbrains.compose.web.css.percent
+import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Input
@@ -101,17 +104,34 @@ fun TextField(
   label: String? = null,
   value: String,
 ) {
-  if (label != null) {
-    P {
-      Text(label)
-    }
-  }
-  Input(
-    type = InputType.Text,
+  Div(
+    attrs = {
+      style {
+        childStyle()
+        display(DisplayStyle.Flex)
+        flexDirection(FlexDirection.Column)
+        alignItems(AlignItems.Stretch)
+      }
+    },
   ) {
-    style {
-      childStyle()
+    if (label != null) {
+      P(
+        attrs = {
+          style {
+            margin(0.px, 16.px)
+            property("text-transform", "uppercase")
+            property("color", "rgb(255 255 255 / 0.8)")
+          }
+        },
+      ) {
+        Text(label)
+      }
     }
-    value(value)
+    Input(
+      type = InputType.Text,
+    ) {
+      value(value)
+      size(6)
+    }
   }
 }

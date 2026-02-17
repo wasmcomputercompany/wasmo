@@ -11,6 +11,7 @@ import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.SecondaryButton
 import com.wasmo.compose.ChildStyle
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Li
@@ -57,7 +58,10 @@ fun SignUpIntro(childStyle: ChildStyle) {
       }
     }
     PrimaryButton(
-      childStyle = ChildStyle {},
+      childStyle = ChildStyle {
+        marginTop(24.px)
+        marginBottom(24.px)
+      },
       label = "I’m ready, let’s go",
     )
     SecondaryButton(

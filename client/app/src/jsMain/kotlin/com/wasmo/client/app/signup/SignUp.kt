@@ -37,8 +37,8 @@ fun SignUpSegmentedProgressBar(
 ) {
   SegmentedProgressBar(
     childStyle = ChildStyle {
-      marginBottom(8.px)
       marginTop(8.px)
+      marginBottom(24.px)
     },
     stepsCompleted = stepsCompleted,
     stepCount = stepCount,

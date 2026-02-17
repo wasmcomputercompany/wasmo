@@ -6,6 +6,9 @@ import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.SecondaryButton
 import com.wasmo.client.app.TextField
 import com.wasmo.compose.ChildStyle
+import org.jetbrains.compose.web.css.marginBottom
+import org.jetbrains.compose.web.css.marginTop
+import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 
@@ -29,7 +32,10 @@ fun SignUpChallengeCode(childStyle: ChildStyle) {
       value = "1 2 3 4 5 6",
     )
     PrimaryButton(
-      childStyle = ChildStyle {},
+      childStyle = ChildStyle {
+        marginTop(24.px)
+        marginBottom(24.px)
+      },
       label = "Finish",
     )
     SecondaryButton(

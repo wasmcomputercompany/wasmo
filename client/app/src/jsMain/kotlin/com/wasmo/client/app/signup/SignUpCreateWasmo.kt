@@ -5,6 +5,15 @@ import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.TextField
 import com.wasmo.compose.ChildStyle
+import org.jetbrains.compose.web.css.DisplayStyle
+import org.jetbrains.compose.web.css.FlexDirection
+import org.jetbrains.compose.web.css.display
+import org.jetbrains.compose.web.css.flex
+import org.jetbrains.compose.web.css.flexDirection
+import org.jetbrains.compose.web.css.marginBottom
+import org.jetbrains.compose.web.css.marginTop
+import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 
@@ -23,15 +32,42 @@ fun SignUpCreateWasmo(childStyle: ChildStyle) {
     P {
       Text("Name your Wasmo.")
     }
-    TextField(
-      childStyle = ChildStyle {},
-      value = "jesse99",
-    )
-    P {
+    Div(
+      attrs = {
+        style {
+          display(DisplayStyle.Flex)
+          flexDirection(FlexDirection.Row)
+        }
+      },
+    ) {
+      TextField(
+        childStyle = ChildStyle {
+          flex("100 100 0")
+        },
+        value = "jesse99",
+      )
+      Div(
+        attrs = {
+          classes("TextFieldSuffix")
+        },
+      ) {
+        Text(".wasmo.com")
+      }
+    }
+    P(
+      attrs = {
+        style {
+          marginTop(24.px)
+        }
+      },
+    ) {
       Text("Names may use lowercase a-z characters and 0-9 numbers. No spaces or punctuation!")
     }
     PrimaryButton(
-      childStyle = ChildStyle {},
+      childStyle = ChildStyle {
+        marginTop(24.px)
+        marginBottom(24.px)
+      },
       label = "Create Computer",
     )
   }
