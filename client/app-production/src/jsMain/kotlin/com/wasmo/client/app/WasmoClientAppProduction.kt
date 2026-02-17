@@ -15,4 +15,7 @@ fun startOnLoad() {
 object ProductionEnvironment : Environment {
   override val warningLabel: String?
     get() = null
+
+  override val showSignUp: Boolean
+    get() = false
 }

@@ -15,5 +15,8 @@ fun startOnLoad() {
 object DevelopmentEnvironment : Environment {
   override val warningLabel: String
     get() = "localhost"
+
+  override val showSignUp: Boolean
+    get() = true
 }
 

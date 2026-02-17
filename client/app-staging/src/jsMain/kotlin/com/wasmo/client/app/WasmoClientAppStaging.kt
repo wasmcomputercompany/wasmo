@@ -15,5 +15,8 @@ fun startOnLoad() {
 object StagingEnvironment : Environment {
   override val warningLabel: String
     get() = "wasmo.dev"
+
+  override val showSignUp: Boolean
+    get() = false
 }
 

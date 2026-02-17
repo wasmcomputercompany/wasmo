@@ -21,6 +21,7 @@ class WasmoClientApp(
         if (home) {
           Home(
             attrs = attrs,
+            showSignUp = environment.showSignUp,
           ) { event ->
             home = !home
           }

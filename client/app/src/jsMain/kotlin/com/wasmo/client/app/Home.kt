@@ -26,6 +26,7 @@ import org.w3c.dom.HTMLDivElement
 @Composable
 fun Home(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
+  showSignUp: Boolean,
   eventListener: (HomeEvent) -> Unit,
 ) {
   Div(
@@ -72,21 +73,23 @@ fun Home(
       Text("Coming in 2026")
     }
 
-    Div(
-      attrs = {
-        style {
-          margin(10.px, 0.px, 10.px, 0.px)
-        }
-      },
-    ) {
-      A(
+    if (showSignUp) {
+      Div(
         attrs = {
-          onClick {
-            eventListener(HomeEvent.SignUp)
+          style {
+            margin(10.px, 0.px, 10.px, 0.px)
           }
         },
       ) {
-        Text("Sign Up")
+        A(
+          attrs = {
+            onClick {
+              eventListener(HomeEvent.SignUp)
+            }
+          },
+        ) {
+          Text("Sign Up")
+        }
       }
     }
 

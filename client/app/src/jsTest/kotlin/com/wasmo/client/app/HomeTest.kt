@@ -17,7 +17,9 @@ class HomeTest {
   @Test
   fun happyPath() = runTest {
     snapshotTester.snapshot {
-      Home { _ ->
+      Home(
+        showSignUp = true,
+      ) { _ ->
       }
     }
   }
