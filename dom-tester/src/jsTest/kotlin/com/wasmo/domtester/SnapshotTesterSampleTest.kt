@@ -27,6 +27,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.dom.appendElement
 import kotlinx.dom.appendText
 import kotlinx.dom.clear
+import org.jetbrains.compose.web.dom.H1
+import org.jetbrains.compose.web.dom.Text
 
 /**
  * This isn't a proper unit test for [SnapshotTester], it's just a sample.
@@ -50,6 +52,15 @@ internal class SnapshotTesterSampleTest {
     }
 
     snapshotTester.snapshot(helloWorld, Frame.Iphone14)
+  }
+
+  @Test
+  fun compose() = runTest {
+    snapshotTester.snapshot {
+      H1 {
+        Text("hello compose")
+      }
+    }
   }
 
   @Test

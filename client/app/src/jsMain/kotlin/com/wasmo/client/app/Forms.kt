@@ -3,6 +3,7 @@ package com.wasmo.client.app
 import androidx.compose.runtime.Composable
 import com.wasmo.compose.ChildStyle
 import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.attributes.builders.InputAttrsScope
 import org.jetbrains.compose.web.attributes.size
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
@@ -67,42 +68,41 @@ fun FormScreen(
 @Composable
 fun PrimaryButton(
   childStyle: ChildStyle,
-  label: String,
+  attrs: InputAttrsScope<Unit>.() -> Unit,
 ) {
   Input(
     type = InputType.Button,
-    attrs = {
-      classes("Primary")
-      value(label)
-      style {
-        childStyle()
-      }
-    },
-  )
+  ) {
+    classes("Primary")
+    style {
+      childStyle()
+    }
+    attrs()
+  }
 }
 
 @Composable
 fun SecondaryButton(
   childStyle: ChildStyle,
-  label: String,
+  attrs: InputAttrsScope<Unit>.() -> Unit,
 ) {
   Input(
     type = InputType.Button,
-    attrs = {
-      style {
-        childStyle()
-      }
-      classes("Secondary")
-      value(label)
-    },
-  )
+  ) {
+    style {
+      childStyle()
+    }
+    classes("Secondary")
+    attrs()
+  }
 }
 
 @Composable
 fun TextField(
   childStyle: ChildStyle,
   label: String? = null,
-  value: String,
+  type: InputType<String> = InputType.Text,
+  attrs: InputAttrsScope<String>.() -> Unit,
 ) {
   Div(
     attrs = {
@@ -128,10 +128,10 @@ fun TextField(
       }
     }
     Input(
-      type = InputType.Text,
+      type = type,
     ) {
-      value(value)
       size(6)
+      attrs()
     }
   }
 }

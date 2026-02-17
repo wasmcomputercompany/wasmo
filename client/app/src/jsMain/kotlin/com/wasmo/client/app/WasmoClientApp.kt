@@ -12,7 +12,8 @@ class WasmoClientApp(
   fun start() {
     renderComposableInBody {
       EnvironmentFrame(environment) { childStyle ->
-        SignUpChallengeCode(childStyle)
+        SignUpChallengeCode(childStyle) { _ ->
+        }
       }
     }
   }

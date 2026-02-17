@@ -15,9 +15,14 @@
  */
 package com.wasmo.domtester
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import kotlinx.browser.document
+import org.jetbrains.compose.web.dom.DOMScope
+import org.jetbrains.compose.web.renderComposableInBody
+import org.w3c.dom.HTMLBodyElement
 import org.w3c.dom.HTMLElement
 import org.w3c.files.Blob
 
@@ -32,7 +37,7 @@ class SnapshotTester(
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     this.testFunction = testFunction
-    val stylesheetLinkElements =  (document.documentElement as HTMLElement)
+    val stylesheetLinkElements = (document.documentElement as HTMLElement)
       .addStylesheets(stylesheetsUrls)
     try {
       testFunction()
@@ -101,6 +106,22 @@ class SnapshotTester(
     if (createdNewSnapshot) {
       throw SnapshotMismatchException("Created new snapshot file $pathPrefix.png")
     }
+  }
+
+  suspend fun snapshot(
+    frame: Frame = Frame.Iphone14,
+    name: String? = null,
+    scrolling: Boolean = false,
+    content: @Composable DOMScope<HTMLBodyElement>.() -> Unit,
+  ): Composition {
+    val composition = renderComposableInBody(content)
+    snapshot(
+      element = document.body!!,
+      frame = frame,
+      name = name,
+      scrolling = scrolling,
+    )
+    return composition
   }
 
   private fun pathPrefix(name: String?) = buildString {

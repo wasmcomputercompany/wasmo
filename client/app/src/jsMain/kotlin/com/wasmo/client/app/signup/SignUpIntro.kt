@@ -20,7 +20,10 @@ import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.dom.Ul
 
 @Composable
-fun SignUpIntro(childStyle: ChildStyle) {
+fun SignUpIntro(
+  childStyle: ChildStyle,
+  eventListener: (SignUpIntroEvent) -> Unit,
+) {
   FormScreen(
     childStyle = childStyle,
   ) {
@@ -62,17 +65,41 @@ fun SignUpIntro(childStyle: ChildStyle) {
         marginTop(24.px)
         marginBottom(24.px)
       },
-      label = "I’m ready, let’s go",
-    )
+    ) {
+      value("I’m ready, let’s go")
+      onClick {
+        eventListener(
+          SignUpIntroEvent.Proceed,
+        )
+      }
+    }
     SecondaryButton(
       childStyle = ChildStyle {
         marginTop(12.px)
       },
-      label = "Other countries",
-    )
+    ) {
+      value("Other countries")
+      onClick {
+        eventListener(
+          SignUpIntroEvent.OtherCountries,
+        )
+      }
+    }
     SecondaryButton(
       childStyle = ChildStyle {},
-      label = "Questions",
-    )
+    ) {
+      value("Questions")
+      onClick {
+        eventListener(
+          SignUpIntroEvent.Questions,
+        )
+      }
+    }
   }
+}
+
+sealed interface SignUpIntroEvent {
+  object Proceed : SignUpIntroEvent
+  object OtherCountries : SignUpIntroEvent
+  object Questions : SignUpIntroEvent
 }

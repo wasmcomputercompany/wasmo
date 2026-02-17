@@ -1,6 +1,10 @@
 package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.TextField
@@ -18,7 +22,12 @@ import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 
 @Composable
-fun SignUpCreateWasmo(childStyle: ChildStyle) {
+fun SignUpCreateWasmo(
+  childStyle: ChildStyle,
+  eventListener: (SignUpCreateWasmoEvent) -> Unit,
+) {
+  var nameState by remember { mutableStateOf("jesse99") }
+
   FormScreen(
     childStyle = childStyle,
   ) {
@@ -44,8 +53,12 @@ fun SignUpCreateWasmo(childStyle: ChildStyle) {
         childStyle = ChildStyle {
           flex("100 100 0")
         },
-        value = "jesse99",
-      )
+      ) {
+        value(nameState)
+        onInput { event ->
+          nameState = event.value
+        }
+      }
       Div(
         attrs = {
           classes("TextFieldSuffix")
@@ -68,7 +81,21 @@ fun SignUpCreateWasmo(childStyle: ChildStyle) {
         marginTop(24.px)
         marginBottom(24.px)
       },
-      label = "Create Computer",
-    )
+    ) {
+      value("Create Wasmo")
+      onClick {
+        eventListener(
+          SignUpCreateWasmoEvent.CreateWasmo(
+            name = nameState,
+          ),
+        )
+      }
+    }
   }
+}
+
+sealed interface SignUpCreateWasmoEvent {
+  data class CreateWasmo(
+    val name: String,
+  ) : SignUpCreateWasmoEvent
 }

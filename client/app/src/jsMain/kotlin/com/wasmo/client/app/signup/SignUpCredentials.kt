@@ -1,6 +1,10 @@
 package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.TextField
@@ -15,7 +19,13 @@ import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 
 @Composable
-fun SignUpCredentials(childStyle: ChildStyle) {
+fun SignUpCredentials(
+  childStyle: ChildStyle,
+  eventListener: (SignUpCredentialsEvent) -> Unit,
+) {
+  var emailState by remember { mutableStateOf("jesse@swank.ca") }
+  var passkeyState by remember { mutableStateOf("") }
+
   FormScreen(
     childStyle = childStyle,
   ) {
@@ -29,15 +39,23 @@ fun SignUpCredentials(childStyle: ChildStyle) {
     TextField(
       childStyle = ChildStyle {},
       label = "Email Address",
-      value = "jesse@swank.ca",
-    )
+    ) {
+      value(emailState)
+      onInput { event ->
+        emailState = event.value
+      }
+    }
     TextField(
       childStyle = ChildStyle {},
       label = "Passkey",
-      value = "",
-    )
+    ) {
+      value(passkeyState)
+      onInput { event ->
+        passkeyState = event.value
+      }
+    }
     P {
-      Text("You can sign later with either the passkey or the email. ")
+      Text("You can sign in later with either the passkey or the email address. ")
       A(
         href = "https://www.wired.com/story/what-is-a-passkey-and-how-to-use-them/",
         attrs = {
@@ -52,7 +70,23 @@ fun SignUpCredentials(childStyle: ChildStyle) {
         marginTop(24.px)
         marginBottom(24.px)
       },
-      label = "Create Account",
-    )
+    ) {
+      value("Create Account")
+      onClick {
+        eventListener(
+          SignUpCredentialsEvent.CreateAccount(
+            email = emailState,
+            passkey = passkeyState,
+          ),
+        )
+      }
+    }
   }
+}
+
+sealed interface SignUpCredentialsEvent {
+  data class CreateAccount(
+    val email: String,
+    val passkey: String,
+  ) : SignUpCredentialsEvent
 }

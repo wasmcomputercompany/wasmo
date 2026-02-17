@@ -1,6 +1,10 @@
 package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.TextField
@@ -19,7 +23,16 @@ import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 
 @Composable
-fun SignUpPayment(childStyle: ChildStyle) {
+fun SignUpPayment(
+  childStyle: ChildStyle,
+  eventListener: (SignUpPaymentEvent) -> Unit,
+) {
+  var fullNameState by remember { mutableStateOf("Jesse Wilson") }
+  var cardNumberState by remember { mutableStateOf("1111 2222 3333 4444") }
+  var mmddState by remember { mutableStateOf("12/31") }
+  var cvvState by remember { mutableStateOf("123") }
+  var postalCodeState by remember { mutableStateOf("A1A 1A1") }
+
   FormScreen(
     childStyle = childStyle,
   ) {
@@ -44,13 +57,21 @@ fun SignUpPayment(childStyle: ChildStyle) {
         marginTop(24.px)
       },
       label = "Full Name",
-      value = "Jesse Wilson",
-    )
+    ) {
+      value(fullNameState)
+      onInput { event ->
+        fullNameState = event.value
+      }
+    }
     TextField(
       childStyle = ChildStyle {},
       label = "Card Number",
-      value = "1111 2222 3333 4444",
-    )
+    ) {
+      value(cardNumberState)
+      onInput { event ->
+        cardNumberState = event.value
+      }
+    }
     Div(
       attrs = {
         style {
@@ -65,28 +86,62 @@ fun SignUpPayment(childStyle: ChildStyle) {
           flex(100, 100, 0.px)
         },
         label = "MM/DD",
-        value = "12/31",
-      )
+      ) {
+        value(mmddState)
+        onInput { event ->
+          mmddState = event.value
+        }
+      }
       TextField(
         childStyle = ChildStyle {
           marginRight(16.px)
           flex(100, 100, 0.px)
         },
         label = "CVV",
-        value = "127",
-      )
+      ) {
+        value(cvvState)
+        onInput { event ->
+          cvvState = event.value
+        }
+      }
     }
     TextField(
       childStyle = ChildStyle {},
       label = "Postal Code",
-      value = "A1A 1A1",
-    )
+    ) {
+      value(postalCodeState)
+      onInput { event ->
+        postalCodeState = event.value
+      }
+    }
     PrimaryButton(
       childStyle = ChildStyle {
         marginTop(24.px)
         marginBottom(24.px)
       },
-      label = "Subscribe",
-    )
+    ) {
+      value("Subscribe")
+      onClick {
+        eventListener(
+          SignUpPaymentEvent.Subscribe(
+            fullName = fullNameState,
+            cardNumber = cardNumberState,
+            mmdd = mmddState,
+            cvv = cvvState,
+            postalCode = postalCodeState,
+          ),
+        )
+      }
+    }
   }
+}
+
+sealed interface SignUpPaymentEvent {
+  data class Subscribe(
+    val fullName: String,
+    val cardNumber: String,
+    val mmdd: String,
+    val cvv: String,
+    val postalCode: String,
+  ) : SignUpPaymentEvent
 }
