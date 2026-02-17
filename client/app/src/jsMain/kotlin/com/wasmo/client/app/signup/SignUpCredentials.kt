@@ -8,8 +8,8 @@ import androidx.compose.runtime.setValue
 import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.TextField
-import com.wasmo.compose.ChildStyle
 import org.jetbrains.compose.web.attributes.ATarget
+import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.target
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
@@ -17,27 +17,25 @@ import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.A
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun SignUpCredentials(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (SignUpCredentialsEvent) -> Unit,
 ) {
   var emailState by remember { mutableStateOf("jesse@swank.ca") }
   var passkeyState by remember { mutableStateOf("") }
 
   FormScreen(
-    childStyle = childStyle,
+    attrs = attrs,
   ) {
-    SignUpToolbar(
-      childStyle = ChildStyle {},
-    )
+    SignUpToolbar()
     SignUpSegmentedProgressBar(
       stepsCompleted = 2,
       stepCount = 5,
     )
     TextField(
-      childStyle = ChildStyle {},
       label = "Email Address",
     ) {
       value(emailState)
@@ -46,7 +44,6 @@ fun SignUpCredentials(
       }
     }
     TextField(
-      childStyle = ChildStyle {},
       label = "Passkey",
     ) {
       value(passkeyState)
@@ -66,21 +63,22 @@ fun SignUpCredentials(
       }
     }
     PrimaryButton(
-      childStyle = ChildStyle {
-        marginTop(24.px)
-        marginBottom(24.px)
+      attrs = {
+        style {
+          marginTop(24.px)
+          marginBottom(24.px)
+        }
+        value("Create Account")
+        onClick {
+          eventListener(
+            SignUpCredentialsEvent.CreateAccount(
+              email = emailState,
+              passkey = passkeyState,
+            ),
+          )
+        }
       },
-    ) {
-      value("Create Account")
-      onClick {
-        eventListener(
-          SignUpCredentialsEvent.CreateAccount(
-            email = emailState,
-            passkey = passkeyState,
-          ),
-        )
-      }
-    }
+    )
   }
 }
 

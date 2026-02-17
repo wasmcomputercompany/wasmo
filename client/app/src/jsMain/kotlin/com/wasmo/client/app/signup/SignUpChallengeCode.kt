@@ -9,26 +9,25 @@ import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.SecondaryButton
 import com.wasmo.client.app.TextField
-import com.wasmo.compose.ChildStyle
+import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun SignUpChallengeCode(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (SignUpChallengeCodeEvent) -> Unit,
 ) {
   var challengeCodeState by remember { mutableStateOf("1 2 3 1 2 3") }
 
   FormScreen(
-    childStyle = childStyle,
+    attrs = attrs,
   ) {
-    SignUpToolbar(
-      childStyle = ChildStyle {},
-    )
+    SignUpToolbar()
     SignUpSegmentedProgressBar(
       stepsCompleted = 5,
       stepCount = 5,
@@ -36,49 +35,48 @@ fun SignUpChallengeCode(
     P {
       Text("Enter the code we sent to jesse@swank.ca.")
     }
-    TextField(
-      childStyle = ChildStyle {},
-    ) {
+    TextField {
       value(challengeCodeState)
       onInput { event ->
         challengeCodeState = event.value
       }
     }
     PrimaryButton(
-      childStyle = ChildStyle {
-        marginTop(24.px)
-        marginBottom(24.px)
+      attrs = {
+        style {
+          marginTop(24.px)
+          marginBottom(24.px)
+        }
+        value("Finish")
+        onClick {
+          eventListener(
+            SignUpChallengeCodeEvent.Finish(
+              challengeCode = challengeCodeState,
+            ),
+          )
+        }
       },
-    ) {
-      value("Finish")
-      onClick {
-        eventListener(
-          SignUpChallengeCodeEvent.Finish(
-            challengeCode = challengeCodeState,
-          ),
-        )
-      }
-    }
+    )
     SecondaryButton(
-      childStyle = ChildStyle { },
-    ) {
-      value("Change Email")
-      onClick {
-        eventListener(
-          SignUpChallengeCodeEvent.ChangeEmail,
-        )
-      }
-    }
+      attrs = {
+        value("Change Email")
+        onClick {
+          eventListener(
+            SignUpChallengeCodeEvent.ChangeEmail,
+          )
+        }
+      },
+    )
     SecondaryButton(
-      childStyle = ChildStyle { },
-    ) {
-      value("Resend Code")
-      onClick {
-        eventListener(
-          SignUpChallengeCodeEvent.ResendCode,
-        )
-      }
-    }
+      attrs = {
+        value("Resend Code")
+        onClick {
+          eventListener(
+            SignUpChallengeCodeEvent.ResendCode,
+          )
+        }
+      },
+    )
   }
 }
 

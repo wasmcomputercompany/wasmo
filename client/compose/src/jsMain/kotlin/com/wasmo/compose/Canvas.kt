@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.browser.window
+import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.dom.Canvas
@@ -19,7 +20,7 @@ import org.w3c.dom.HTMLCanvasElement
  */
 @Composable
 fun Canvas(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLCanvasElement>.() -> Unit = {},
   renderable: Renderable,
 ) {
   val canvasState = remember { mutableStateOf<HTMLCanvasElement?>(null) }
@@ -27,7 +28,6 @@ fun Canvas(
   Canvas(
     attrs = {
       style {
-        childStyle()
         display(DisplayStyle.Block)
       }
       ref { element ->
@@ -36,6 +36,7 @@ fun Canvas(
           canvasState.value = null
         }
       }
+      attrs()
     },
   )
 

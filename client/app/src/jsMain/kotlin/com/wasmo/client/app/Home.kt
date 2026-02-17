@@ -1,7 +1,7 @@
 package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
-import com.wasmo.compose.ChildStyle
+import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
@@ -21,15 +21,15 @@ import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.H2
 import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun Home(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
 ) {
   Div(
     attrs = {
       style {
-        childStyle()
         width(100.percent)
         height(100.percent)
         display(DisplayStyle.Flex)
@@ -37,6 +37,7 @@ fun Home(
         alignItems(AlignItems.Center)
         justifyContent(JustifyContent.Center)
       }
+      attrs()
     },
   ) {
     Img(

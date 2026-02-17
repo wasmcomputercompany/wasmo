@@ -2,7 +2,6 @@ package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
 import com.wasmo.compose.ComposableElement
-import com.wasmo.compose.invoke
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.backgroundColor
@@ -51,7 +50,9 @@ fun EnvironmentFrame(
     }
 
     content {
-      flex(100, 100, 0.px)
+      style {
+        flex(100, 100, 0.px)
+      }
     }
   }
 }

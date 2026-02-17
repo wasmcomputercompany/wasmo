@@ -9,8 +9,8 @@ import androidx.compose.runtime.setValue
 import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.SecondaryButton
-import com.wasmo.compose.ChildStyle
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
@@ -18,14 +18,15 @@ import org.jetbrains.compose.web.dom.Li
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.dom.Ul
+import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun SignUpIntro(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (SignUpIntroEvent) -> Unit,
 ) {
   FormScreen(
-    childStyle = childStyle,
+    attrs = attrs,
   ) {
     var stepsCompleted by remember { mutableIntStateOf(1) }
     LaunchedEffect(Unit) {
@@ -36,9 +37,7 @@ fun SignUpIntro(
       }
     }
 
-    SignUpToolbar(
-      childStyle = ChildStyle { },
-    )
+    SignUpToolbar()
     SignUpSegmentedProgressBar(
       stepsCompleted = stepsCompleted,
       stepCount = 5,
@@ -61,40 +60,42 @@ fun SignUpIntro(
       }
     }
     PrimaryButton(
-      childStyle = ChildStyle {
-        marginTop(24.px)
-        marginBottom(24.px)
+      attrs = {
+        style {
+          marginTop(24.px)
+          marginBottom(24.px)
+        }
+        value("I’m ready, let’s go")
+        onClick {
+          eventListener(
+            SignUpIntroEvent.Proceed,
+          )
+        }
       },
-    ) {
-      value("I’m ready, let’s go")
-      onClick {
-        eventListener(
-          SignUpIntroEvent.Proceed,
-        )
-      }
-    }
+    )
     SecondaryButton(
-      childStyle = ChildStyle {
-        marginTop(12.px)
+      attrs = {
+        style {
+          marginTop(12.px)
+        }
+        value("Other countries")
+        onClick {
+          eventListener(
+            SignUpIntroEvent.OtherCountries,
+          )
+        }
       },
-    ) {
-      value("Other countries")
-      onClick {
-        eventListener(
-          SignUpIntroEvent.OtherCountries,
-        )
-      }
-    }
+    )
     SecondaryButton(
-      childStyle = ChildStyle {},
-    ) {
-      value("Questions")
-      onClick {
-        eventListener(
-          SignUpIntroEvent.Questions,
-        )
-      }
-    }
+      attrs = {
+        value("Questions")
+        onClick {
+          eventListener(
+            SignUpIntroEvent.Questions,
+          )
+        }
+      },
+    )
   }
 }
 

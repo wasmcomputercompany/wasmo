@@ -2,14 +2,15 @@ package com.wasmo.compose
 
 import androidx.compose.runtime.Composable
 import kotlinx.browser.window
+import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.CSSSizeValue
 import org.jetbrains.compose.web.css.CSSUnit
-import org.jetbrains.compose.web.css.StyleScope
 import org.jetbrains.compose.web.css.height
+import org.w3c.dom.HTMLCanvasElement
 
 @Composable
 fun SegmentedProgressBar(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLCanvasElement>.() -> Unit = {},
   stepsCompleted: Int,
   stepCount: Int,
   minGap: CSSSizeValue<CSSUnit.px>,
@@ -19,12 +20,11 @@ fun SegmentedProgressBar(
   require(stepsCompleted in 0..stepCount)
 
   Canvas(
-    childStyle = object : ChildStyle {
-      context(styleScope: StyleScope)
-      override fun invoke() {
-        childStyle()
-        styleScope.height(height)
+    attrs = {
+      style {
+        height(height)
       }
+      attrs()
     },
   ) { context, width, height ->
     val width = width.toDouble()

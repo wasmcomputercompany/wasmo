@@ -1,12 +1,11 @@
 package com.wasmo.client.app.signup
 
 import app.cash.burst.InterceptTest
-import com.wasmo.compose.ChildStyle
 import com.wasmo.domtester.SnapshotTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
-class SignUpFlowTest {
+class SignUpWorkflowTest {
   @InterceptTest
   val snapshotTester = SnapshotTester(
     stylesheetsUrls = listOf(
@@ -18,7 +17,7 @@ class SignUpFlowTest {
   @Test
   fun intro() = runTest {
     snapshotTester.snapshot {
-      SignUpIntro(ChildStyle {}) { _ ->
+      SignUpIntro { _ ->
       }
     }
   }
@@ -26,7 +25,7 @@ class SignUpFlowTest {
   @Test
   fun credentials() = runTest {
     snapshotTester.snapshot {
-      SignUpCredentials(ChildStyle {}) { _ ->
+      SignUpCredentials { _ ->
       }
     }
   }
@@ -34,7 +33,7 @@ class SignUpFlowTest {
   @Test
   fun payment() = runTest {
     snapshotTester.snapshot {
-      SignUpPayment(ChildStyle {}) { _ ->
+      SignUpPayment { _ ->
       }
     }
   }
@@ -42,7 +41,7 @@ class SignUpFlowTest {
   @Test
   fun createWasmo() = runTest {
     snapshotTester.snapshot {
-      SignUpCreateWasmo(ChildStyle {}) { _ ->
+      SignUpCreateWasmo { _ ->
       }
     }
   }
@@ -50,7 +49,7 @@ class SignUpFlowTest {
   @Test
   fun challengeCode() = runTest {
     snapshotTester.snapshot {
-      SignUpChallengeCode(ChildStyle {}) { _ ->
+      SignUpChallengeCode { _ ->
       }
     }
   }

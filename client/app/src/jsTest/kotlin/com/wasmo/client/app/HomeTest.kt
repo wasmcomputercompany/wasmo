@@ -1,7 +1,6 @@
 package com.wasmo.client.app
 
 import app.cash.burst.InterceptTest
-import com.wasmo.compose.ChildStyle
 import com.wasmo.domtester.SnapshotTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -18,7 +17,7 @@ class HomeTest {
   @Test
   fun happyPath() = runTest {
     snapshotTester.snapshot {
-      Home(ChildStyle {})
+      Home()
     }
   }
 }

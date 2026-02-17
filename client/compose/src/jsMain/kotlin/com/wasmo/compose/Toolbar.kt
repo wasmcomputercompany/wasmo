@@ -1,6 +1,7 @@
 package com.wasmo.compose
 
 import androidx.compose.runtime.Composable
+import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
@@ -14,10 +15,11 @@ import org.jetbrains.compose.web.css.marginLeft
 import org.jetbrains.compose.web.css.marginRight
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Div
+import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun Toolbar(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   left: ComposableElement? = null,
   title: ComposableElement = {},
   right: ComposableElement? = null,
@@ -26,30 +28,33 @@ fun Toolbar(
     attrs = {
       classes("Toolbar")
       style {
-        childStyle()
         display(DisplayStyle.Flex)
         flexDirection(FlexDirection.Row)
         alignItems(AlignItems.Center)
         justifyContent(JustifyContent.Start)
       }
+      attrs()
     },
   ) {
     left?.invoke {
     }
     title {
-      flex(100, 100, 0.px)
-      marginLeft(
-        when {
-          left != null -> 8.px
-          else -> 0.px
-        },
-      )
-      marginRight(
-        when {
-          right != null -> 8.px
-          else -> 0.px
-        },
-      )
+      style {
+        flex(100, 100, 0.px)
+
+        marginLeft(
+          when {
+            left != null -> 8.px
+            else -> 0.px
+          },
+        )
+        marginRight(
+          when {
+            right != null -> 8.px
+            else -> 0.px
+          },
+        )
+      }
     }
     right?.invoke {
     }
@@ -58,15 +63,13 @@ fun Toolbar(
 
 @Composable
 fun ToolbarTitle(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   content: @Composable () -> Unit,
 ) {
   Div(
     attrs = {
       classes("ToolbarTitle")
-      style {
-        childStyle()
-      }
+      attrs()
     },
   ) {
     content()

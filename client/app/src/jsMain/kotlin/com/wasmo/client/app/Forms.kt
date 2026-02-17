@@ -1,7 +1,7 @@
 package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
-import com.wasmo.compose.ChildStyle
+import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.builders.InputAttrsScope
 import org.jetbrains.compose.web.attributes.size
@@ -25,17 +25,17 @@ import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun FormScreen(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   content: @Composable () -> Unit,
 ) {
   Div(
     attrs = {
       classes("FormScreen")
       style {
-        childStyle()
         background("#A100F1")
         background("linear-gradient(177deg, rgba(161, 0, 241, 1) 0%, rgba(20, 0, 105, 1) 100%)")
         width(100.percent)
@@ -46,6 +46,7 @@ fun FormScreen(
         justifyContent(JustifyContent.Start)
         overflowY("scroll")
       }
+      attrs()
     },
   ) {
     Div(
@@ -67,31 +68,23 @@ fun FormScreen(
 
 @Composable
 fun PrimaryButton(
-  childStyle: ChildStyle,
   attrs: InputAttrsScope<Unit>.() -> Unit,
 ) {
   Input(
     type = InputType.Button,
   ) {
     classes("Primary")
-    style {
-      childStyle()
-    }
     attrs()
   }
 }
 
 @Composable
 fun SecondaryButton(
-  childStyle: ChildStyle,
   attrs: InputAttrsScope<Unit>.() -> Unit,
 ) {
   Input(
     type = InputType.Button,
   ) {
-    style {
-      childStyle()
-    }
     classes("Secondary")
     attrs()
   }
@@ -99,19 +92,19 @@ fun SecondaryButton(
 
 @Composable
 fun TextField(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   label: String? = null,
   type: InputType<String> = InputType.Text,
-  attrs: InputAttrsScope<String>.() -> Unit,
+  inputAttrs: InputAttrsScope<String>.() -> Unit,
 ) {
   Div(
     attrs = {
       style {
-        childStyle()
         display(DisplayStyle.Flex)
         flexDirection(FlexDirection.Column)
         alignItems(AlignItems.Stretch)
       }
+      attrs()
     },
   ) {
     if (label != null) {
@@ -131,7 +124,7 @@ fun TextField(
       type = type,
     ) {
       size(6)
-      attrs()
+      inputAttrs()
     }
   }
 }

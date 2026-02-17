@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.TextField
-import com.wasmo.compose.ChildStyle
+import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.display
@@ -21,10 +21,11 @@ import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun SignUpPayment(
-  childStyle: ChildStyle,
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (SignUpPaymentEvent) -> Unit,
 ) {
   var fullNameState by remember { mutableStateOf("Jesse Wilson") }
@@ -34,11 +35,9 @@ fun SignUpPayment(
   var postalCodeState by remember { mutableStateOf("A1A 1A1") }
 
   FormScreen(
-    childStyle = childStyle,
+    attrs = attrs,
   ) {
-    SignUpToolbar(
-      childStyle = ChildStyle {},
-    )
+    SignUpToolbar()
     SignUpSegmentedProgressBar(
       stepsCompleted = 3,
       stepCount = 5,
@@ -53,25 +52,28 @@ fun SignUpPayment(
       Text($$"We’ll charge you again $10 (or less) each month to top it up. We’ll send an email 24 hours before we charge your card with the amount of the charge and a link to cancel.")
     }
     TextField(
-      childStyle = ChildStyle {
-        marginTop(24.px)
+      attrs = {
+        style {
+          marginTop(24.px)
+        }
       },
       label = "Full Name",
-    ) {
-      value(fullNameState)
-      onInput { event ->
-        fullNameState = event.value
-      }
-    }
+      inputAttrs = {
+        value(fullNameState)
+        onInput { event ->
+          fullNameState = event.value
+        }
+      },
+    )
     TextField(
-      childStyle = ChildStyle {},
       label = "Card Number",
-    ) {
-      value(cardNumberState)
-      onInput { event ->
-        cardNumberState = event.value
-      }
-    }
+      inputAttrs = {
+        value(cardNumberState)
+        onInput { event ->
+          cardNumberState = event.value
+        }
+      },
+    )
     Div(
       attrs = {
         style {
@@ -81,21 +83,27 @@ fun SignUpPayment(
       },
     ) {
       TextField(
-        childStyle = ChildStyle {
-          marginRight(16.px)
-          flex(100, 100, 0.px)
+        attrs = {
+          style {
+            marginRight(16.px)
+            flex(100, 100, 0.px)
+
+          }
         },
         label = "MM/DD",
-      ) {
-        value(mmddState)
-        onInput { event ->
-          mmddState = event.value
-        }
-      }
+        inputAttrs = {
+          value(mmddState)
+          onInput { event ->
+            mmddState = event.value
+          }
+        },
+      )
       TextField(
-        childStyle = ChildStyle {
-          marginRight(16.px)
-          flex(100, 100, 0.px)
+        attrs = {
+          style {
+            marginRight(16.px)
+            flex(100, 100, 0.px)
+          }
         },
         label = "CVV",
       ) {
@@ -106,7 +114,6 @@ fun SignUpPayment(
       }
     }
     TextField(
-      childStyle = ChildStyle {},
       label = "Postal Code",
     ) {
       value(postalCodeState)
@@ -115,24 +122,25 @@ fun SignUpPayment(
       }
     }
     PrimaryButton(
-      childStyle = ChildStyle {
-        marginTop(24.px)
-        marginBottom(24.px)
+      attrs = {
+        style {
+          marginTop(24.px)
+          marginBottom(24.px)
+        }
+        value("Subscribe")
+        onClick {
+          eventListener(
+            SignUpPaymentEvent.Subscribe(
+              fullName = fullNameState,
+              cardNumber = cardNumberState,
+              mmdd = mmddState,
+              cvv = cvvState,
+              postalCode = postalCodeState,
+            ),
+          )
+        }
       },
-    ) {
-      value("Subscribe")
-      onClick {
-        eventListener(
-          SignUpPaymentEvent.Subscribe(
-            fullName = fullNameState,
-            cardNumber = cardNumberState,
-            mmdd = mmddState,
-            cvv = cvvState,
-            postalCode = postalCodeState,
-          ),
-        )
-      }
-    }
+    )
   }
 }
 
