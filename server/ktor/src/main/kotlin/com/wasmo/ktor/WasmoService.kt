@@ -2,7 +2,11 @@
 
 package com.wasmo.ktor
 
-import com.wasmo.http.RealHttpClient
+import com.wasmo.accounts.ClientAuthenticator
+import com.wasmo.accounts.CookieClient
+import com.wasmo.accounts.RealClientAuthenticator
+import com.wasmo.accounts.SessionCookieEncoder
+import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.CreateComputerResponse
 import com.wasmo.app.db.WasmoDbService
@@ -10,6 +14,7 @@ import com.wasmo.apps.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.framework.HttpException
 import com.wasmo.home.HomePage
+import com.wasmo.http.RealHttpClient
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
 import io.ktor.server.application.Application
@@ -24,14 +29,17 @@ import io.ktor.server.routing.routing
 import kotlin.time.Clock
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
+import okio.ByteString
 
 class WasmoService(
+  val cookieSecret: ByteString,
   val postgresDatabaseHostname: String,
   val postgresDatabaseName: String,
   val postgresDatabaseUser: String,
   val postgresDatabasePassword: String,
   val baseUrl: HttpUrl,
   val objectStoreAddress: ObjectStoreAddress,
+  val sessionCookieSpec: SessionCookieSpec,
 ) {
   private val createComputerRequestAdapter = CreateComputerRequest.serializer()
   private val createComputerResponseAdapter = CreateComputerResponse.serializer()
@@ -55,6 +63,16 @@ class WasmoService(
       clock,
       okHttpClient,
     )
+    val clientAuthenticatorFactory = RealClientAuthenticator.Factory(
+      clock = clock,
+      sessionCookieSpec = sessionCookieSpec,
+      sessionCookieEncoder = SessionCookieEncoder(cookieSecret),
+      cookieClientFactory = CookieClient.Factory(
+        clock = clock,
+        cookieQueries = service.cookieQueries,
+        accountQueries = service.accountQueries,
+      ),
+    )
     val rootObjectStore = objectStoreFactory.open(objectStoreAddress)
     val computerStore = RealComputerStore(
       baseUrl = baseUrl,
@@ -70,6 +88,7 @@ class WasmoService(
     configureServer(
       application = server.application,
       actionFactory = actionFactory,
+      clientAuthenticatorFactory = clientAuthenticatorFactory,
     )
 
     server.start(true)
@@ -78,11 +97,17 @@ class WasmoService(
   fun configureServer(
     application: Application,
     actionFactory: ActionFactory,
+    clientAuthenticatorFactory: ClientAuthenticator.Factory,
   ) {
     application.install(CallLogging)
     application.routing {
       get("/") {
-        val action = HomePage(baseUrl)
+        val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
+        clientAuthenticator.updateSessionCookie()
+        val action = HomePage(
+          baseUrl = baseUrl,
+          client = clientAuthenticator.get(),
+        )
         val page = action.get()
         call.respond(page.response)
       }

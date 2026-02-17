@@ -29,6 +29,7 @@ dependencies {
   implementation(libs.okhttp)
   implementation(project(":platform:api"))
   implementation(project(":server:actions"))
+  implementation(project(":server:accounts"))
   implementation(project(":server:ktor"))
 }
 

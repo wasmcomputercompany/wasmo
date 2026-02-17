@@ -9,6 +9,8 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.okio)
   implementation(project(":common:api"))
+  implementation(project(":common:framework"))
+  implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
   implementation(project(":server:accounts:api"))
   implementation(project(":server:db"))

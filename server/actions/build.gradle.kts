@@ -14,7 +14,7 @@ dependencies {
   implementation(project(":common:framework"))
   implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
-  implementation(project(":server:accounts"))
+  implementation(project(":server:accounts:api"))
   implementation(project(":server:db"))
   implementation(project(":server:downloader"))
   implementation(project(":server:identifiers"))

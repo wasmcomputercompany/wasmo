@@ -28,6 +28,7 @@ dependencies {
   implementation(libs.okio)
   implementation(libs.okhttp)
   implementation(project(":platform:api"))
+  implementation(project(":server:accounts"))
   implementation(project(":server:actions"))
   implementation(project(":server:ktor"))
 }
