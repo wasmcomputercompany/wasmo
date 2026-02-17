@@ -19,7 +19,6 @@ h1, h2 {
 
 a {
   color: rgba(255 255 255 / 0.8);
-  text-decoration: none;
 }
 
 a:hover {
@@ -99,3 +98,8 @@ a:hover {
   font-size: 24px;
   color: rgb(255 255 255 / 0.9)
 }
+
+.HomeScreen a {
+  text-decoration: none;
+}
+

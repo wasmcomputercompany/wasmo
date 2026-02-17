@@ -30,6 +30,7 @@ fun Home(
 ) {
   Div(
     attrs = {
+      classes("HomeScreen")
       style {
         width(100.percent)
         height(100.percent)
