@@ -1,6 +1,8 @@
-package com.wasmo.apps
+package com.wasmo.computers
 
 import com.wasmo.api.AppManifest
+import com.wasmo.apps.AppLoader
+import com.wasmo.apps.ObjectStoreKeyFactory
 import com.wasmo.downloader.Downloader
 import com.wasmo.downloader.TransferRequest
 import com.wasmo.http.BadRequestException
@@ -10,13 +12,13 @@ import com.wasmo.http.HttpRequest
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
-class AppLoader(
+class RealAppLoader(
   private val json: Json,
   private val httpClient: HttpClient,
   private val downloader: Downloader,
   private val objectStoreKeyFactory: ObjectStoreKeyFactory,
-) {
-  suspend fun loadManifest(manifestUrl: String): AppManifest {
+) : AppLoader {
+  override suspend fun loadManifest(manifestUrl: String): AppManifest {
     val httpUrl = manifestUrl.toHttpUrlOrNull()
       ?: throw BadRequestException("unexpected manifestUrl")
 
@@ -41,7 +43,7 @@ class AppLoader(
     }
   }
 
-  suspend fun downloadWasm(manifest: AppManifest) {
+  override suspend fun downloadWasm(manifest: AppManifest) {
     val canonicalUrl = manifest.canonicalUrl?.toHttpUrlOrNull()
     val wasmUrl = canonicalUrl?.resolve(manifest.wasmUrl)
       ?: throw BadRequestException("unexpected wasmUrl")
@@ -53,7 +55,7 @@ class AppLoader(
           url = wasmUrl,
         ),
         objectStoreKey = objectStoreKeyFactory.wasm(manifest.slug, manifest.version),
-      )
+      ),
     )
 
     if (!transferResponse.httpResponse.isSuccessful) {

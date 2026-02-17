@@ -25,12 +25,14 @@ sourceSets.main.configure {
 
 dependencies {
   jsResources(project(":client:app-development"))
-  implementation(libs.okio)
   implementation(libs.okhttp)
+  implementation(libs.okio)
   implementation(project(":platform:api"))
   implementation(project(":server:accounts"))
-  implementation(project(":server:actions"))
+  implementation(project(":server:apps"))
+  implementation(project(":server:computers"))
   implementation(project(":server:ktor"))
+  implementation(project(":server:website"))
 }
 
 ktor {
