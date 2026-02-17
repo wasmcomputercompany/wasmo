@@ -13,6 +13,7 @@ dependencies {
   implementation(project(":common:framework"))
   implementation(project(":common:tokens"))
   implementation(project(":server:identifiers"))
+  implementation(project(":server:passkeys:api"))
   testImplementation(libs.assertk)
   testImplementation(libs.kotlin.test.junit)
   testImplementation(project(":common:testing"))

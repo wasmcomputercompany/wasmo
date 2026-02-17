@@ -1,0 +1,26 @@
+insertCookie:
+INSERT INTO Cookie(
+  created_at,
+  account_id,
+  token,
+  created_by_user_agent,
+  created_by_ip
+)
+VALUES (
+  :created_at,
+  :account_id,
+  :token,
+  :created_by_user_agent,
+  :created_by_ip
+);
+
+findCookieByToken:
+SELECT * FROM Cookie WHERE token = :token;
+
+findCookieByAccountId:
+SELECT * FROM Cookie WHERE account_id = :account_id;
+
+updateAccountIdByAccountId:
+UPDATE Cookie
+SET account_id = :target_account_id
+WHERE account_id = :source_account_id;

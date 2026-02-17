@@ -22,4 +22,6 @@ dependencies {
   implementation(project(":server:db"))
   implementation(project(":server:identifiers"))
   implementation(project(":server:objectstore"))
+  implementation(project(":server:passkeys"))
+  implementation(project(":server:passkeys:api"))
 }

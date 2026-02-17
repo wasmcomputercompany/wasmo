@@ -3,11 +3,19 @@ package com.wasmo.app.db
 import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.driver.jdbc.JdbcDriver
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
+import com.wasmo.api.WasmoJson
+import com.wasmo.db.Account
 import com.wasmo.db.AppInstall
 import com.wasmo.db.Computer
+import com.wasmo.db.Cookie
+import com.wasmo.db.Passkey
 import com.wasmo.db.WasmComputerDb
+import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppInstallId
 import com.wasmo.identifiers.ComputerId
+import com.wasmo.identifiers.CookieId
+import com.wasmo.identifiers.PasskeyId
+import com.wasmo.passkeys.RegistrationRecord
 import java.io.Closeable
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -27,8 +35,11 @@ class WasmoDbService(
   val jdbcDriver: JdbcDriver,
 ) : Closeable by connectionPool, WasmComputerDb by WasmComputerDb.Companion(
   jdbcDriver,
+  AccountAdapter,
   AppInstallAdapter,
   ComputerAdapter,
+  CookieAdapter,
+  PasskeyAdapter,
 ) {
   fun clearSchema() {
     jdbcDriver.execute(null, "DROP SCHEMA public CASCADE", 0)
@@ -84,9 +95,27 @@ class WasmoDbService(
         value.toJavaInstant().atOffset(ZoneOffset.UTC)
     }
 
+    private object RegistrationRecordAdapter : ColumnAdapter<RegistrationRecord, String> {
+      override fun decode(databaseValue: String) =
+        WasmoJson.decodeFromString<RegistrationRecord>(databaseValue)
+
+      override fun encode(value: RegistrationRecord) =
+        WasmoJson.encodeToString(value)
+    }
+
+    private object AccountIdAdapter : ColumnAdapter<AccountId, Long> {
+      override fun decode(databaseValue: Long) = AccountId(databaseValue)
+      override fun encode(value: AccountId) = value.id
+    }
+
     private object AppInstallIdAdapter : ColumnAdapter<AppInstallId, Long> {
       override fun decode(databaseValue: Long) = AppInstallId(databaseValue)
       override fun encode(value: AppInstallId) = value.id
+    }
+
+    private object CookieIdAdapter : ColumnAdapter<CookieId, Long> {
+      override fun decode(databaseValue: Long) = CookieId(databaseValue)
+      override fun encode(value: CookieId) = value.id
     }
 
     private object ComputerIdAdapter : ColumnAdapter<ComputerId, Long> {
@@ -94,15 +123,38 @@ class WasmoDbService(
       override fun encode(value: ComputerId) = value.id
     }
 
+    private object PasskeyIdAdapter : ColumnAdapter<PasskeyId, Long> {
+      override fun decode(databaseValue: Long) = PasskeyId(databaseValue)
+      override fun encode(value: PasskeyId) = value.id
+    }
+
+    private val AccountAdapter = Account.Adapter(
+      idAdapter = AccountIdAdapter,
+    )
+
     private val AppInstallAdapter = AppInstall.Adapter(
       idAdapter = AppInstallIdAdapter,
       created_atAdapter = InstantAdapter,
       computer_idAdapter = ComputerIdAdapter,
     )
 
+    private val CookieAdapter = Cookie.Adapter(
+      idAdapter = CookieIdAdapter,
+      created_atAdapter = InstantAdapter,
+      account_idAdapter = AccountIdAdapter,
+    )
+
     private val ComputerAdapter = Computer.Adapter(
       idAdapter = ComputerIdAdapter,
       created_atAdapter = InstantAdapter,
     )
+
+    private val PasskeyAdapter = Passkey.Adapter(
+      idAdapter = PasskeyIdAdapter,
+      created_atAdapter = InstantAdapter,
+      account_idAdapter = AccountIdAdapter,
+      registration_recordAdapter = RegistrationRecordAdapter,
+    )
+
   }
 }

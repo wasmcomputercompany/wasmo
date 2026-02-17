@@ -1,0 +1,10 @@
+insertAccount:
+INSERT INTO Account(
+  version
+)
+VALUES (
+  :version
+) RETURNING id;
+
+getById:
+SELECT * FROM Account WHERE id = :id;

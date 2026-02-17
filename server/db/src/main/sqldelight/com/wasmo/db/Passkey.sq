@@ -1,0 +1,25 @@
+insertPasskey:
+INSERT INTO Passkey(
+  created_at,
+  account_id,
+  passkey_id,
+  aaguid,
+  created_by_user_agent,
+  created_by_ip,
+  registration_record
+)
+VALUES (
+  :created_at,
+  :account_id,
+  :passkey_id,
+  :aaguid,
+  :created_by_user_agent,
+  :created_by_ip,
+  :registration_record
+);
+
+findPasskeyByPasskeyId:
+SELECT * FROM Passkey WHERE passkey_id = :passkey_id;
+
+findPasskeysByAccountId:
+SELECT * FROM Passkey WHERE account_id = :account_id;
