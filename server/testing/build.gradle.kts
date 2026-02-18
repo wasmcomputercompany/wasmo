@@ -18,6 +18,8 @@ dependencies {
   implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
   implementation(project(":platform:testing"))
+  implementation(project(":server:accounts"))
+  implementation(project(":server:accounts:api"))
   implementation(project(":server:computers"))
   implementation(project(":server:db"))
   implementation(project(":server:identifiers"))

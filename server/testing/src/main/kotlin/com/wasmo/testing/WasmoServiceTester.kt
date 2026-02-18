@@ -1,12 +1,13 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
-import com.wasmo.api.CreateComputerRequest
+import com.wasmo.accounts.CookieClient
+import com.wasmo.accounts.RealClientAuthenticator
+import com.wasmo.accounts.SessionCookieEncoder
+import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.WasmoJson
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.testing.FakeClock
-import com.wasmo.computers.CreateComputerAction
-import com.wasmo.computers.InstallAppAction
 import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
@@ -14,6 +15,7 @@ import com.wasmo.objectstore.ObjectStoreFactory
 import java.io.Closeable
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
+import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 
@@ -52,25 +54,23 @@ class WasmoServiceTester private constructor(
     service = service,
   )
 
-  fun createComputerAction() = CreateComputerAction(
-    computerStore = computerStore,
+  val clientAuthenticatorFactory = RealClientAuthenticator.Factory(
+    clock = clock,
+    sessionCookieSpec = SessionCookieSpec.Https,
+    sessionCookieEncoder = SessionCookieEncoder(
+      secret = "password".encodeUtf8(),
+    ),
+    cookieClientFactory = CookieClient.Factory(
+      clock = clock,
+      cookieQueries = service.cookieQueries,
+      accountQueries = service.accountQueries,
+    ),
   )
 
-  fun installAppAction() = InstallAppAction(
+  fun newClient() = ClientTester(
+    clientAuthenticatorFactory = clientAuthenticatorFactory,
     computerStore = computerStore,
   )
-
-  fun createComputer(slug: String): ComputerTester {
-    createComputerAction().createComputer(
-      request = CreateComputerRequest(
-        slug = slug,
-      ),
-    )
-
-    return ComputerTester(
-      slug = slug,
-    )
-  }
 
   override fun close() {
     service.close()

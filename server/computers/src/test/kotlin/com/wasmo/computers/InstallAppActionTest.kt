@@ -27,8 +27,9 @@ class InstallAppActionTest {
 
   @Test
   fun happyPath() = runTest {
-    val computer = tester.createComputer("jesse124")
-    val action = tester.installAppAction()
+    val client = tester.newClient()
+    val computer = client.createComputer("jesse124")
+    val action = client.installAppAction()
     val wasm = "XXXX".encodeUtf8()
     val helloApp = WasmoArtifactServer.App(
       slug = "hello",

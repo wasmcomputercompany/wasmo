@@ -1,16 +1,16 @@
-package com.wasmo.computers
+package com.wasmo.accounts
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.api.CreateComputerRequest
-import com.wasmo.api.CreateComputerResponse
+import com.wasmo.api.LinkEmailAddressRequest
+import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.framework.Response
 import com.wasmo.testing.WasmoServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class CreateComputerActionTest {
+class LinkEmailAddressActionTest {
   lateinit var tester: WasmoServiceTester
 
   @BeforeTest
@@ -26,15 +26,15 @@ class CreateComputerActionTest {
   @Test
   fun happyPath() {
     val client = tester.newClient()
-    val response = client.createComputerAction().createComputer(
-      request = CreateComputerRequest(
-        slug = "computer-one",
+    val response = client.linkEmailAddressAction().link(
+      request = LinkEmailAddressRequest(
+        unverifiedEmailAddress = "jesse@example.com",
       ),
     )
     assertThat(response).isEqualTo(
       Response(
-        body = CreateComputerResponse(
-          url = "https://wasmo.com/computer/computer-one",
+        body = LinkEmailAddressResponse(
+          challengeSent = true,
         ),
       ),
     )
