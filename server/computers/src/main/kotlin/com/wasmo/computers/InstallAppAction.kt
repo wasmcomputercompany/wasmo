@@ -1,8 +1,7 @@
-package com.wasmo.apps
+package com.wasmo.computers
 
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
-import com.wasmo.computers.ComputerStore
 import com.wasmo.framework.Response
 
 class InstallAppAction(

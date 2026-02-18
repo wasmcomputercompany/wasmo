@@ -29,7 +29,6 @@ dependencies {
   implementation(libs.okio)
   implementation(project(":platform:api"))
   implementation(project(":server:accounts"))
-  implementation(project(":server:apps"))
   implementation(project(":server:computers"))
   implementation(project(":server:ktor"))
   implementation(project(":server:website"))

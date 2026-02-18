@@ -4,10 +4,10 @@ import com.wasmo.FakeHttpClient
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.WasmoJson
 import com.wasmo.app.db.WasmoDbService
-import com.wasmo.apps.InstallAppAction
-import com.wasmo.apps.ObjectStoreKeyFactory
 import com.wasmo.common.testing.FakeClock
 import com.wasmo.computers.CreateComputerAction
+import com.wasmo.computers.InstallAppAction
+import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory

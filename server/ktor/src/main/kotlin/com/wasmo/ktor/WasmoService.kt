@@ -10,7 +10,7 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.CreateComputerResponse
 import com.wasmo.app.db.WasmoDbService
-import com.wasmo.apps.ObjectStoreKeyFactory
+import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.framework.HttpException
 import com.wasmo.home.HomePage

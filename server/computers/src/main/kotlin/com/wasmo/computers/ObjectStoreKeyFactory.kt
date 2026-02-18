@@ -1,4 +1,4 @@
-package com.wasmo.apps
+package com.wasmo.computers
 
 /**
  * Tracks how we identify resources in our [ObjectStore].
