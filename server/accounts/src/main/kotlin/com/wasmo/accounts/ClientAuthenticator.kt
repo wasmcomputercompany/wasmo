@@ -1,7 +1,7 @@
 package com.wasmo.accounts
 
 interface ClientAuthenticator {
-  fun updateSessionCookie()
+  fun updateSessionCookie(): SessionCookie
   fun signOutSessionCookie()
   fun get(): Client
   fun unauthenticated(): Client

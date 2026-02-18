@@ -2,7 +2,7 @@ package com.wasmo.testing
 
 import com.wasmo.api.PasskeyAuthentication
 import com.wasmo.api.PasskeyRegistration
-import com.wasmo.passkeys.AuthenticatorDatabase
+import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.webauthn4j.converter.AuthenticatorDataConverter
 import com.webauthn4j.converter.util.ObjectConverter
 import com.webauthn4j.data.attestation.AttestationObject
@@ -35,7 +35,7 @@ import okio.ByteString.Companion.toByteString
 class FakePasskey(
   val rpId: String,
   val id: String,
-  val aaguid: String = AuthenticatorDatabase.ApplePasswords,
+  val aaguid: String = RealAuthenticatorDatabase.ApplePasswords,
   private val transports: List<String> = listOf("internal", "hybrid"),
 ) {
   private val keyPairGenerator = KeyPairGenerator.getInstance("EC").apply {

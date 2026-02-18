@@ -1,10 +1,6 @@
 package com.wasmo.passkeys
 
-/**
- * https://fidoalliance.org/metadata/
- * https://passkeydeveloper.github.io/passkey-authenticator-aaguids/explorer/
- */
-class AuthenticatorDatabase {
+class RealAuthenticatorDatabase : AuthenticatorDatabase {
   companion object {
     const val ApplePasswords = "fbfc3007-154e-4ecc-8c0b-6e020557d7bd"
   }
@@ -49,5 +45,5 @@ class AuthenticatorDatabase {
     "d49b2120-b865-4191-8cea-be84a52b0485" to "Heimlane Vault",
   )
 
-  fun forAaguid(aaguid: String): String? = map[aaguid]
+  override fun forAaguid(aaguid: String): String? = map[aaguid]
 }

@@ -15,6 +15,7 @@ dependencies {
   implementation(project(":server:accounts:api"))
   implementation(project(":server:db"))
   implementation(project(":server:identifiers"))
+  implementation(project(":server:passkeys:api"))
   testImplementation(libs.assertk)
   testImplementation(libs.kotlin.test.junit)
   testImplementation(libs.kotlinx.coroutines.test)

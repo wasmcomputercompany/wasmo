@@ -22,7 +22,7 @@ class RealPasskeyCheckerTest {
   private val passkey = FakePasskey(
     rpId = baseUrl.host,
     id = "passkey-1".encodeUtf8().base64Url(),
-    aaguid = AuthenticatorDatabase.ApplePasswords,
+    aaguid = RealAuthenticatorDatabase.ApplePasswords,
   )
 
   private val passkeyChecker = RealPasskeyChecker(challenger, baseUrl)
@@ -78,7 +78,7 @@ class RealPasskeyCheckerTest {
     val wrongPasskey = FakePasskey(
       rpId = baseUrl.host,
       id = "passkey-2".encodeUtf8().base64Url(),
-      aaguid = AuthenticatorDatabase.ApplePasswords,
+      aaguid = RealAuthenticatorDatabase.ApplePasswords,
     )
 
     val authentication = wrongPasskey.authentication(challenger.create(), origin)

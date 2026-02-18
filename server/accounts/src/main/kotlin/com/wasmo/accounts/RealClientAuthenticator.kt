@@ -16,11 +16,12 @@ class RealClientAuthenticator private constructor(
    * Send the customer's cookie on each page load. The cookie expires after 400 days, so we send
    * it on every page load to push that back.
    */
-  override fun updateSessionCookie() {
+  override fun updateSessionCookie(): SessionCookie {
     val cookie = userAgent.getCookie(sessionCookieSpec.cookieName)
       ?.let { sessionCookieEncoder.decode(it) }
       ?: newSessionCookie()
     userAgent.append(cookie)
+    return cookie
   }
 
   /** Replace the customer's cookie with a new one. */

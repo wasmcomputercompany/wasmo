@@ -12,6 +12,8 @@ import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
+import com.wasmo.passkeys.HmacChallenger
+import com.wasmo.passkeys.RealAuthenticatorDatabase
 import java.io.Closeable
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -26,6 +28,8 @@ class WasmoServiceTester private constructor(
   val service: WasmoDbService,
 ) : Closeable by service {
   val baseUrl = "https://wasmo.com/".toHttpUrl()
+  val origin: String
+    get() = baseUrl.toString()
   val clock = FakeClock()
   val fileSystem = FakeFileSystem()
   val objectStoreFactory = ObjectStoreFactory(
@@ -38,21 +42,8 @@ class WasmoServiceTester private constructor(
       path = "/".toPath(),
     ),
   )
-  val wasmoArtifactServer = WasmoArtifactServer(
-    json = WasmoJson,
-  )
-  val httpClient = FakeHttpClient().apply {
-    this += wasmoArtifactServer
-  }
-  val objectStoreKeyFactory = ObjectStoreKeyFactory()
-  val computerStore = RealComputerStore(
-    baseUrl = baseUrl,
-    clock = clock,
-    rootObjectStore = rootObjectStore,
-    httpClient = httpClient,
-    objectStoreKeyFactory = objectStoreKeyFactory,
-    service = service,
-  )
+
+  val challengerFactory = HmacChallenger.Factory(clock, "secret".encodeUtf8())
 
   val clientAuthenticatorFactory = RealClientAuthenticator.Factory(
     clock = clock,
@@ -67,9 +58,44 @@ class WasmoServiceTester private constructor(
     ),
   )
 
-  fun newClient() = ClientTester(
-    clientAuthenticatorFactory = clientAuthenticatorFactory,
-    computerStore = computerStore,
+  val objectStoreKeyFactory = ObjectStoreKeyFactory()
+
+  val wasmoArtifactServer = WasmoArtifactServer(
+    json = WasmoJson,
+  )
+  val httpClient = FakeHttpClient().apply {
+    this += wasmoArtifactServer
+  }
+
+  val computerStore = RealComputerStore(
+    baseUrl = baseUrl,
+    clock = clock,
+    rootObjectStore = rootObjectStore,
+    httpClient = httpClient,
+    objectStoreKeyFactory = objectStoreKeyFactory,
+    service = service,
+  )
+
+  private var nextPasskeyId = 1
+
+  fun newClient(): ClientTester {
+    val userAgent = FakeUserAgent()
+    val clientAuthenticator = clientAuthenticatorFactory.create(userAgent)
+    val sessionCookie = clientAuthenticator.updateSessionCookie()
+    return ClientTester(
+      clock = clock,
+      service = service,
+      clientAuthenticator = clientAuthenticator,
+      computerStore = computerStore,
+      baseUrl = baseUrl,
+      challenger = challengerFactory.create(sessionCookie.token),
+    )
+  }
+
+  fun newPasskey() = FakePasskey(
+    rpId = baseUrl.host,
+    id = "passkey-${nextPasskeyId++}".encodeUtf8().base64Url(),
+    aaguid = RealAuthenticatorDatabase.ApplePasswords,
   )
 
   override fun close() {
