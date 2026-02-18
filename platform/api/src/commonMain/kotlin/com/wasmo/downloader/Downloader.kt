@@ -26,4 +26,3 @@ data class TransferResponse(
   val httpResponse: HttpResponse,
   val etag: String?,
 )
-
