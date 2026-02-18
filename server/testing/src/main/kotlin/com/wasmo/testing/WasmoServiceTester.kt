@@ -10,6 +10,7 @@ import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.testing.FakeClock
 import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
+import com.wasmo.deployment.Deployment
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.HmacChallenger
@@ -27,7 +28,11 @@ import okio.fakefilesystem.FakeFileSystem
 class WasmoServiceTester private constructor(
   val service: WasmoDbService,
 ) : Closeable by service {
-  val baseUrl = "https://wasmo.com/".toHttpUrl()
+  val deployment = Deployment(
+    baseUrl = "https://wasmo.com/".toHttpUrl(),
+    sendFromEmailAddress = "noreply@wasmo.com",
+  )
+  val baseUrl get() = deployment.baseUrl
   val origin: String
     get() = baseUrl.toString()
   val clock = FakeClock()
@@ -58,6 +63,8 @@ class WasmoServiceTester private constructor(
     ),
   )
 
+  val sendEmailService = FakeSendEmailService()
+
   val objectStoreKeyFactory = ObjectStoreKeyFactory()
 
   val wasmoArtifactServer = WasmoArtifactServer(
@@ -68,7 +75,7 @@ class WasmoServiceTester private constructor(
   }
 
   val computerStore = RealComputerStore(
-    baseUrl = baseUrl,
+    deployment = deployment,
     clock = clock,
     rootObjectStore = rootObjectStore,
     httpClient = httpClient,
@@ -85,9 +92,10 @@ class WasmoServiceTester private constructor(
     return ClientTester(
       clock = clock,
       service = service,
+      deployment = deployment,
+      sendEmailService = sendEmailService,
       clientAuthenticator = clientAuthenticator,
       computerStore = computerStore,
-      baseUrl = baseUrl,
       challenger = challengerFactory.create(sessionCookie.token),
     )
   }

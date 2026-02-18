@@ -2,6 +2,7 @@ package com.wasmo.passkeys
 
 import com.wasmo.api.PasskeyAuthentication
 import com.wasmo.api.PasskeyRegistration
+import com.wasmo.deployment.Deployment
 import com.webauthn4j.WebAuthnAuthenticationManager
 import com.webauthn4j.WebAuthnRegistrationManager
 import com.webauthn4j.converter.AttestationObjectConverter
@@ -21,7 +22,6 @@ import com.webauthn4j.data.attestation.statement.COSEAlgorithmIdentifier
 import com.webauthn4j.data.client.Origin
 import com.webauthn4j.data.extension.authenticator.AuthenticationExtensionAuthenticatorOutput
 import com.webauthn4j.server.ServerProperty
-import okhttp3.HttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.ByteString.Companion.toByteString
 
@@ -32,7 +32,7 @@ import okio.ByteString.Companion.toByteString
  */
 class RealPasskeyChecker(
   private val challenger: Challenger,
-  private val baseUrl: HttpUrl,
+  private val deployment: Deployment,
 ) : PasskeyChecker {
   private val objectConverter = ObjectConverter()
   private val collectedClientDataConverter = CollectedClientDataConverter(objectConverter)
@@ -59,9 +59,9 @@ class RealPasskeyChecker(
     challenger.check(challengeBytes.toByteString())
 
     val serverProperty = ServerProperty.builder()
-      .origin(Origin.create(baseUrl.toString()))
+      .origin(Origin.create(deployment.baseUrl.toString()))
       .challenge { challengeBytes }
-      .rpId(baseUrl.host)
+      .rpId(deployment.baseUrl.host)
       .build()
 
     val registrationData = RegistrationData(
@@ -128,9 +128,9 @@ class RealPasskeyChecker(
     )
 
     val serverProperty = ServerProperty.builder()
-      .origin(Origin.create(baseUrl.toString()))
+      .origin(Origin.create(deployment.baseUrl.toString()))
       .challenge { challengeBytes }
-      .rpId(baseUrl.host)
+      .rpId(deployment.baseUrl.host)
       .build()
 
     val authenticationParameters = AuthenticationParameters(

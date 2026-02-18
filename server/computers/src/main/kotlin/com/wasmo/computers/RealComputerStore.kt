@@ -3,6 +3,7 @@ package com.wasmo.computers
 import com.wasmo.api.AppManifest
 import com.wasmo.api.WasmoJson
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.deployment.Deployment
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.framework.BadRequestException
 import com.wasmo.http.HttpClient
@@ -13,7 +14,7 @@ import kotlin.time.Clock
 import okhttp3.HttpUrl
 
 class RealComputerStore(
-  private val baseUrl: HttpUrl,
+  private val deployment: Deployment,
   private val clock: Clock,
   private val rootObjectStore: ObjectStore,
   private val httpClient: HttpClient,
@@ -55,7 +56,7 @@ class RealComputerStore(
       clock = clock,
       service = service,
       computerId = computer.id,
-      url = baseUrl.resolve("/computer/$slug")!!,
+      url = deployment.baseUrl.resolve("/computer/$slug")!!,
       objectStore = objectStore,
       appLoader = appLoader,
     )

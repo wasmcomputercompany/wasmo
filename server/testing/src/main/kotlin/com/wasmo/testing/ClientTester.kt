@@ -11,21 +11,23 @@ import com.wasmo.app.db.WasmoDbService
 import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
+import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatePasskeyAction
 import com.wasmo.passkeys.Challenger
 import com.wasmo.passkeys.PasskeyLinker
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.passkeys.RegisterPasskeyAction
+import com.wasmo.sendemail.SendEmailService
 import kotlin.time.Clock
-import okhttp3.HttpUrl
 
 class ClientTester(
   private val clock: Clock,
   private val service: WasmoDbService,
+  private val deployment: Deployment,
+  private val sendEmailService: SendEmailService,
   private val clientAuthenticator: ClientAuthenticator,
   private val computerStore: ComputerStore,
-  private val baseUrl: HttpUrl,
   val challenger: Challenger,
 ) {
   val authenticatorDatabase = RealAuthenticatorDatabase()
@@ -38,7 +40,7 @@ class ClientTester(
 
   val passkeyChecker = RealPasskeyChecker(
     challenger = challenger,
-    baseUrl = baseUrl,
+    deployment = deployment,
   )
 
   val passkeyLinkerFactory = PasskeyLinker.Factory(
@@ -46,6 +48,8 @@ class ClientTester(
   )
 
   fun linkEmailAddressAction() = LinkEmailAddressAction(
+    deployment = deployment,
+    sendEmailService = sendEmailService,
     client = clientAuthenticator.get(),
   )
 
@@ -65,7 +69,7 @@ class ClientTester(
     request = RegisterPasskeyRequest(
       registration = passkey.registration(
         challenge = challenger.create(),
-        origin = baseUrl.toString(),
+        origin = deployment.baseUrl.toString(),
       ),
     ),
   )
@@ -82,7 +86,7 @@ class ClientTester(
     request = AuthenticatePasskeyRequest(
       authentication = passkey.authentication(
         challenge = challenger.create(),
-        origin = baseUrl.toString(),
+        origin = deployment.baseUrl.toString(),
       ),
     ),
   )

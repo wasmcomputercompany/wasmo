@@ -11,4 +11,5 @@ dependencies {
   implementation(project(":common:framework"))
   implementation(project(":platform:api"))
   implementation(project(":server:accounts:api"))
+  implementation(project(":server:deployment"))
 }

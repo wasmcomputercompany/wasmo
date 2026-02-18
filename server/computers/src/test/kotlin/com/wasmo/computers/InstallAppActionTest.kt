@@ -42,7 +42,7 @@ class InstallAppActionTest {
     val installAppResponse = action.install(
       computerSlug = computer.slug,
       request = InstallAppRequest(
-        manifestUrl = tester.baseUrl.resolve(helloApp.manifestPath)!!.toString(),
+        manifestUrl = tester.deployment.baseUrl.resolve(helloApp.manifestPath)!!.toString(),
       ),
     )
 

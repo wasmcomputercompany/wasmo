@@ -15,9 +15,11 @@ import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
+import com.wasmo.deployment.Deployment
 import com.wasmo.framework.HttpException
 import com.wasmo.framework.Response
 import com.wasmo.home.HomePage
+import com.wasmo.sendemail.SendEmailService
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log
@@ -29,15 +31,17 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlinx.serialization.serializer
-import okhttp3.HttpUrl
 
 class ActionRouter(
-  val baseUrl: HttpUrl,
+  val deployment: Deployment,
   val application: Application,
   val clientAuthenticatorFactory: ClientAuthenticator.Factory,
   val computerStore: ComputerStore,
+  val sendEmailService: SendEmailService,
 ) {
   fun linkEmailAddressAction(client: Client) = LinkEmailAddressAction(
+    deployment = deployment,
+    sendEmailService = sendEmailService,
     client = client,
   )
 
@@ -62,7 +66,7 @@ class ActionRouter(
         val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
         clientAuthenticator.updateSessionCookie()
         val action = HomePage(
-          baseUrl = baseUrl,
+          deployment = deployment,
           client = clientAuthenticator.get(),
         )
         val page = action.get()

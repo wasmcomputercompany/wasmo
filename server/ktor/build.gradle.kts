@@ -27,8 +27,11 @@ dependencies {
   implementation(project(":server:accounts:api"))
   implementation(project(":server:computers"))
   implementation(project(":server:db"))
+  implementation(project(":server:deployment"))
   implementation(project(":server:downloader"))
   implementation(project(":server:objectstore"))
   implementation(project(":server:okhttpclient"))
+  implementation(project(":server:sendemail"))
+  implementation(project(":server:sendemail:api"))
   implementation(project(":server:website"))
 }

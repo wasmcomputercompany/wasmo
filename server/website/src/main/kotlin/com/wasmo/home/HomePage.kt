@@ -1,15 +1,15 @@
 package com.wasmo.home
 
 import com.wasmo.accounts.Client
-import okhttp3.HttpUrl
+import com.wasmo.deployment.Deployment
 
 class HomePage(
-  val baseUrl: HttpUrl,
+  val deployment: Deployment,
   val client: Client,
 ) {
   fun get(): AppPage {
     return AppPage(
-      baseUrl = baseUrl,
+      baseUrl = deployment.baseUrl,
     )
   }
 }

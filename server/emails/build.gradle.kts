@@ -21,6 +21,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.kotlinx.html)
         implementation(project(":common:framework"))
+        implementation(project(":server:sendemail:api"))
       }
     }
     commonTest {

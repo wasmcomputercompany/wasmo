@@ -3,6 +3,7 @@ package com.wasmo.passkeys
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.FakeClock
+import com.wasmo.deployment.Deployment
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.registrationRecord
 import com.webauthn4j.verifier.exception.BadSignatureException
@@ -16,16 +17,23 @@ class RealPasskeyCheckerTest {
   private val cookieToken = "1234567890123456789012345"
   private val challengerFactory = HmacChallenger.Factory(clock, "secret".encodeUtf8())
   private val challenger = challengerFactory.create(cookieToken)
-  private val baseUrl = "https://wasmo.com/".toHttpUrl()
-  private val origin = baseUrl.toString()
+  private val deployment = Deployment(
+    baseUrl = "https://wasmo.com/".toHttpUrl(),
+    sendFromEmailAddress = "noreply@wasmo.com",
+  )
+  private val origin: String
+    get() = deployment.baseUrl.toString()
 
   private val passkey = FakePasskey(
-    rpId = baseUrl.host,
+    rpId = deployment.baseUrl.host,
     id = "passkey-1".encodeUtf8().base64Url(),
     aaguid = RealAuthenticatorDatabase.ApplePasswords,
   )
 
-  private val passkeyChecker = RealPasskeyChecker(challenger, baseUrl)
+  private val passkeyChecker = RealPasskeyChecker(
+    challenger = challenger,
+    deployment = deployment,
+  )
 
   @Test
   fun validRegistration() {
@@ -76,7 +84,7 @@ class RealPasskeyCheckerTest {
     val registrationRecord = registration.registrationRecord()
 
     val wrongPasskey = FakePasskey(
-      rpId = baseUrl.host,
+      rpId = deployment.baseUrl.host,
       id = "passkey-2".encodeUtf8().base64Url(),
       aaguid = RealAuthenticatorDatabase.ApplePasswords,
     )

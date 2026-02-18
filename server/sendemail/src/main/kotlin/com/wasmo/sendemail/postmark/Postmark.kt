@@ -1,5 +1,6 @@
 package com.wasmo.sendemail.postmark
 
+import com.wasmo.sendemail.EmailMessage
 import com.wasmo.sendemail.EmailSendFailedException
 import com.wasmo.sendemail.SendEmailService
 import kotlin.time.Instant
@@ -25,19 +26,14 @@ class PostmarkEmailService private constructor(
   private val postmarkApi: PostmarkApi,
 ) : SendEmailService {
 
-  override suspend fun sendEmail(
-    from: String,
-    to: String,
-    subject: String,
-    htmlBody: String,
-  ) {
+  override suspend fun send(message: EmailMessage) {
     val response = try {
       postmarkApi.sendEmail(
         SendEmailRequest(
-          From = from,
-          To = to,
-          Subject = subject,
-          HtmlBody = htmlBody,
+          From = message.from,
+          To = message.to,
+          Subject = message.subject,
+          HtmlBody = message.html,
         ),
       )
     } catch (e: Exception) {

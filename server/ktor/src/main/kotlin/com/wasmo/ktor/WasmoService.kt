@@ -9,22 +9,25 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
+import com.wasmo.deployment.Deployment
 import com.wasmo.http.RealHttpClient
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
+import com.wasmo.sendemail.postmark.PostmarkCredentials
+import com.wasmo.sendemail.postmark.PostmarkEmailService
 import io.ktor.server.netty.EngineMain
 import kotlin.time.Clock
-import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okio.ByteString
 
 class WasmoService(
   val cookieSecret: ByteString,
+  val postmarkCredentials: PostmarkCredentials,
   val postgresDatabaseHostname: String,
   val postgresDatabaseName: String,
   val postgresDatabaseUser: String,
   val postgresDatabasePassword: String,
-  val baseUrl: HttpUrl,
+  val deployment: Deployment,
   val objectStoreAddress: ObjectStoreAddress,
   val sessionCookieSpec: SessionCookieSpec,
 ) {
@@ -59,18 +62,23 @@ class WasmoService(
     )
     val rootObjectStore = objectStoreFactory.open(objectStoreAddress)
     val computerStore = RealComputerStore(
-      baseUrl = baseUrl,
+      deployment = deployment,
       clock = clock,
       rootObjectStore = rootObjectStore,
       httpClient = httpClient,
       objectStoreKeyFactory = ObjectStoreKeyFactory(),
       service = service,
     )
+    val sendEmailService = PostmarkEmailService.Factory(
+      credentials = postmarkCredentials,
+      client = okHttpClient,
+    ).create()
     val actionRouter = ActionRouter(
-      baseUrl = baseUrl,
+      deployment = deployment,
       application = server.application,
       clientAuthenticatorFactory = clientAuthenticatorFactory,
       computerStore = computerStore,
+      sendEmailService = sendEmailService,
     )
     actionRouter.createRoutes()
 

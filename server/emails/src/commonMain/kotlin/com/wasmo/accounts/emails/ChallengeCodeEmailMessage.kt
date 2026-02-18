@@ -1,21 +1,26 @@
 package com.wasmo.accounts.emails
 
 import com.wasmo.framework.writeHtml
+import com.wasmo.sendemail.EmailMessage
 import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.p
-import okio.BufferedSink
+import okio.Buffer
 
-data class ChallengeCodeEmail(
-  val baseUrl: String,
-  val baseUrlHost: String,
-  val code: String,
-  val recipientEmailAddress: String,
-) {
-  fun write(sink: BufferedSink) {
-    sink.writeHtml {
+fun challengeCodeEmailMessage(
+  from: String,
+  to: String,
+  baseUrl: String,
+  baseUrlHost: String,
+  code: String,
+) = EmailMessage(
+  from = from,
+  to = to,
+  subject = "Sign in to $baseUrlHost with code $code",
+  html = Buffer().run {
+    writeHtml {
       body {
         div {
           attributes["style"] =
@@ -57,10 +62,11 @@ data class ChallengeCodeEmail(
             }
 
             text(" to ")
-            text(recipientEmailAddress)
+            text(to)
           }
         }
       }
     }
-  }
-}
+    readUtf8()
+  },
+)

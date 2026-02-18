@@ -22,9 +22,11 @@ dependencies {
   implementation(project(":server:accounts:api"))
   implementation(project(":server:computers"))
   implementation(project(":server:db"))
+  implementation(project(":server:deployment"))
   implementation(project(":server:identifiers"))
   implementation(project(":server:objectstore"))
   implementation(project(":server:passkeys"))
   implementation(project(":server:passkeys:api"))
+  implementation(project(":server:sendemail:api"))
   implementation(project(":server:website"))
 }
