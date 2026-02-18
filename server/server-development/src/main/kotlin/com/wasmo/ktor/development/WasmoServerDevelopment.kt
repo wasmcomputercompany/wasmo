@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
     postgresDatabasePassword = "password",
     deployment = Deployment(
       baseUrl = "http://localwasmo:8080/".toHttpUrl(),
-      sendFromEmailAddress = "noreply@wasmo.com",
+      sendFromEmailAddress = "noreply@wasmo.dev",
     ),
     objectStoreAddress = FileSystemObjectStoreAddress(
       fileSystem = FileSystem.SYSTEM,
