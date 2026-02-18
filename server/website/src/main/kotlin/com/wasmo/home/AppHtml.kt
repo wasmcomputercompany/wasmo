@@ -26,12 +26,12 @@ class AppPage(
       body = this,
     )
 
-  override fun write(sink: BufferedSink) = sink.run {
+  override fun write(sink: BufferedSink) {
     val pageData = MapPageData.Builder(WasmoJson)
       .build()
 
-    writeUtf8("<!DOCTYPE html>")
-    writeHtml {
+    sink.writeUtf8("<!DOCTYPE html>")
+    sink.writeHtml {
       head {
         meta(charset = "utf-8")
         title("Wasmo")

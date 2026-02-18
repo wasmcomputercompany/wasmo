@@ -1,6 +1,11 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.burst)
+  id("build-support")
+}
+
+wasmoBuild {
+  domTester()
 }
 
 kotlin {
@@ -13,9 +18,9 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        implementation(libs.kotlinx.html)
-        implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
+        implementation(libs.kotlinx.html)
+        implementation(project(":common:framework"))
       }
     }
     commonTest {
@@ -26,12 +31,10 @@ kotlin {
     }
     jsTest {
       dependencies {
+        implementation(libs.burst.coroutines)
         implementation(libs.kotlin.test.js)
-      }
-    }
-    jvmTest {
-      dependencies {
-        implementation(libs.kotlin.test.junit)
+        implementation(libs.kotlinx.coroutines.test)
+        implementation(project(":dom-tester"))
       }
     }
   }
