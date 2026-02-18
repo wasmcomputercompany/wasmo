@@ -35,7 +35,6 @@ fun SignUpChallengeCode(
         marginTop(24.px)
         marginBottom(24.px)
       }
-      value("Finish")
       onClick {
         eventListener(
           SignUpChallengeCodeEvent.Finish(
@@ -44,27 +43,31 @@ fun SignUpChallengeCode(
         )
       }
     },
-  )
+  ) {
+    Text("Finish")
+  }
   SecondaryButton(
     attrs = {
-      value("Change Email")
       onClick {
         eventListener(
           SignUpChallengeCodeEvent.ChangeEmail,
         )
       }
     },
-  )
+  ) {
+    Text("Change Email")
+  }
   SecondaryButton(
     attrs = {
-      value("Resend Code")
       onClick {
         eventListener(
           SignUpChallengeCodeEvent.ResendCode,
         )
       }
     },
-  )
+  ) {
+    Text("Resend Code")
+  }
 }
 
 sealed interface SignUpChallengeCodeEvent {

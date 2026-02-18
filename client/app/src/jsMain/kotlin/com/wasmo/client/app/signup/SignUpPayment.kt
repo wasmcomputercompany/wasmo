@@ -115,7 +115,6 @@ fun SignUpPayment(
         marginTop(24.px)
         marginBottom(24.px)
       }
-      value("Subscribe")
       onClick {
         eventListener(
           SignUpPaymentEvent.Subscribe(
@@ -128,7 +127,9 @@ fun SignUpPayment(
         )
       }
     },
-  )
+  ) {
+    Text("Subscribe")
+  }
 }
 
 sealed interface SignUpPaymentEvent {

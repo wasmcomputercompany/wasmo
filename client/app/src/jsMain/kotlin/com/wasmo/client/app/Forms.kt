@@ -1,9 +1,11 @@
 package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.builders.InputAttrsScope
+import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.size
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
@@ -21,20 +23,38 @@ import org.jetbrains.compose.web.css.overflowY
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
+import org.jetbrains.compose.web.dom.Button
+import org.jetbrains.compose.web.dom.ContentBuilder
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
+
+enum class FormState {
+  Ready,
+  Busy,
+}
+
+val LocalFormState = compositionLocalOf { FormState.Ready }
 
 @Composable
 fun FormScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   content: @Composable () -> Unit,
 ) {
+  val localFormState = LocalFormState.current
+
   Div(
     attrs = {
-      classes("FormScreen")
+      classes(
+        "FormScreen",
+        when (localFormState) {
+          FormState.Ready -> "FormScreenReady"
+          FormState.Busy -> "FormScreenBusy"
+        },
+      )
       style {
         background("#A100F1")
         background("linear-gradient(177deg, rgba(161, 0, 241, 1) 0%, rgba(20, 0, 105, 1) 100%)")
@@ -68,26 +88,38 @@ fun FormScreen(
 
 @Composable
 fun PrimaryButton(
-  attrs: InputAttrsScope<Unit>.() -> Unit,
+  attrs: AttrsScope<HTMLButtonElement>.() -> Unit,
+  content: ContentBuilder<HTMLButtonElement>? = null,
 ) {
-  Input(
-    type = InputType.Button,
-  ) {
-    classes("Primary")
-    attrs()
-  }
+  val localFormState = LocalFormState.current
+  Button(
+    attrs = {
+      classes("Primary")
+      if (localFormState == FormState.Busy) {
+        disabled()
+      }
+      attrs()
+    },
+    content = content,
+  )
 }
 
 @Composable
 fun SecondaryButton(
-  attrs: InputAttrsScope<Unit>.() -> Unit,
+  attrs: AttrsScope<HTMLButtonElement>.() -> Unit,
+  content: ContentBuilder<HTMLButtonElement>? = null,
 ) {
-  Input(
-    type = InputType.Button,
-  ) {
-    classes("Secondary")
-    attrs()
-  }
+  val localFormState = LocalFormState.current
+  Button(
+    attrs = {
+      classes("Secondary")
+      if (localFormState == FormState.Busy) {
+        disabled()
+      }
+      attrs()
+    },
+    content = content,
+  )
 }
 
 @Composable
@@ -97,6 +129,7 @@ fun TextField(
   type: InputType<String> = InputType.Text,
   inputAttrs: InputAttrsScope<String>.() -> Unit,
 ) {
+  val localFormState = LocalFormState.current
   Div(
     attrs = {
       style {
@@ -124,6 +157,9 @@ fun TextField(
       type = type,
     ) {
       size(6)
+      if (localFormState == FormState.Busy) {
+        disabled()
+      }
       inputAttrs()
     }
   }

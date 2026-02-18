@@ -1,14 +1,8 @@
 package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.SecondaryButton
-import kotlinx.coroutines.delay
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
@@ -44,37 +38,40 @@ fun SignUpIntro(
         marginTop(24.px)
         marginBottom(24.px)
       }
-      value("I’m ready, let’s go")
       onClick {
         eventListener(
           SignUpIntroEvent.Proceed,
         )
       }
     },
-  )
+  ) {
+    Text("I’m ready, let’s go")
+  }
   SecondaryButton(
     attrs = {
       style {
         marginTop(12.px)
       }
-      value("Other countries")
       onClick {
         eventListener(
           SignUpIntroEvent.OtherCountries,
         )
       }
     },
-  )
+  ) {
+    Text("Other countries")
+  }
   SecondaryButton(
     attrs = {
-      value("Questions")
       onClick {
         eventListener(
           SignUpIntroEvent.Questions,
         )
       }
     },
-  )
+  ) {
+    Text("Questions")
+  }
 }
 
 sealed interface SignUpIntroEvent {

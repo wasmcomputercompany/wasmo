@@ -72,7 +72,6 @@ fun SignUpCreateWasmo(
         marginTop(24.px)
         marginBottom(24.px)
       }
-      value("Create Wasmo")
       onClick {
         eventListener(
           SignUpCreateWasmoEvent.CreateWasmo(
@@ -81,7 +80,9 @@ fun SignUpCreateWasmo(
         )
       }
     },
-  )
+  ) {
+    Text("Create Wasmo")
+  }
 }
 
 sealed interface SignUpCreateWasmoEvent {

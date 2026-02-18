@@ -1,6 +1,7 @@
 package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +11,8 @@ import androidx.compose.runtime.setValue
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.WasmoApi
 import com.wasmo.client.app.FormScreen
+import com.wasmo.client.app.FormState
+import com.wasmo.client.app.LocalFormState
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLDivElement
@@ -22,64 +25,66 @@ fun SignUpWorkflow(
 ) {
   var stepsCompleted by remember { mutableIntStateOf(0) }
   val scope = rememberCoroutineScope()
-  var enabled by remember { mutableStateOf(true) }
+  var formState by remember { mutableStateOf(FormState.Ready) }
 
-  FormScreen(
-    attrs = attrs,
-  ) {
-    SignUpToolbar()
-    SignUpSegmentedProgressBar(
-      stepsCompleted = stepsCompleted + 1,
-      stepCount = 5,
-    )
+  CompositionLocalProvider(LocalFormState provides formState) {
+    FormScreen(
+      attrs = attrs,
+    ) {
+      SignUpToolbar()
+      SignUpSegmentedProgressBar(
+        stepsCompleted = stepsCompleted + 1,
+        stepCount = 5,
+      )
 
-    when (stepsCompleted) {
-      0 -> {
-        SignUpIntro { _ ->
-          stepsCompleted++
+      when (stepsCompleted) {
+        0 -> {
+          SignUpIntro { _ ->
+            stepsCompleted++
+          }
         }
-      }
 
-      1 -> {
-        SignUpCredentials(
-          enabled = enabled,
-        ) { event ->
-          enabled = false
-          scope.launch {
-            try {
-              if (event is SignUpCredentialsEvent.CreateAccount) {
-                val result = wasmoApi.linkEmailAddress(
-                  LinkEmailAddressRequest(
-                    unverifiedEmailAddress = event.email,
-                  ),
-                )
-                if (result.challengeSent) {
-                  stepsCompleted++
+        1 -> {
+          SignUpCredentials { event ->
+            formState = FormState.Busy
+            scope.launch {
+              try {
+                if (event is SignUpCredentialsEvent.CreateAccount) {
+                  val result = wasmoApi.linkEmailAddress(
+                    LinkEmailAddressRequest(
+                      unverifiedEmailAddress = event.email,
+                    ),
+                  )
+                  if (result.challengeSent) {
+                    stepsCompleted++
+                  }
                 }
+              } catch (e: Exception) {
+                console.log("linkEmailAddress failed: $e")
+              } finally {
+                formState = FormState.Ready
               }
-            } finally {
-              enabled = true
             }
           }
         }
-      }
 
-      2 -> {
-        SignUpPayment { _ ->
-          stepsCompleted++
+        2 -> {
+          SignUpPayment { _ ->
+            stepsCompleted++
+          }
         }
-      }
 
-      3 -> {
-        SignUpCreateWasmo { _ ->
-          stepsCompleted++
+        3 -> {
+          SignUpCreateWasmo { _ ->
+            stepsCompleted++
+          }
         }
-      }
 
-      4 -> {
-        SignUpChallengeCode { _ ->
-          stepsCompleted = 0
-          eventListener(SignUpWorkflowEvent.Finished)
+        4 -> {
+          SignUpChallengeCode { _ ->
+            stepsCompleted = 0
+            eventListener(SignUpWorkflowEvent.Finished)
+          }
         }
       }
     }

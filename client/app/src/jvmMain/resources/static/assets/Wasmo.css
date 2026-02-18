@@ -8,7 +8,7 @@ body {
   background-color: #00C55F;
 }
 
-body, input {
+body, input, button {
   font-family: "Outfit", sans-serif;
 }
 
@@ -19,6 +19,7 @@ h1, h2 {
 
 a {
   color: rgba(255 255 255 / 0.8);
+  cursor: pointer;
 }
 
 a:hover {
@@ -31,31 +32,50 @@ a:hover {
   vertical-align: middle;
 }
 
-.FormScreen, .FormScreen input {
+.FormScreen, .FormScreen input, .FormScreen button {
   color: rgba(255 255 255 / 0.9);
   font-size: 18px;
 }
 
-.FormScreen input[type="button"] {
+.FormScreenReady button {
+  cursor: pointer;
+}
+
+.FormScreenBusy input, .FormScreenBusy button {
+  cursor: progress;
+}
+
+.FormScreen button {
   margin-top: 8px;
   margin-bottom: 8px;
   background-color: transparent;
   text-align: center;
   text-transform: uppercase;
-}
-
-.FormScreen input[type="button"].Primary {
-  font-size: 22px;
-  border: 1px solid white;
+  border-width: 1px;
   border-radius: 16px;
-  padding: 8px;
 }
 
-.FormScreen input[type="button"].Secondary {
+.FormScreen button.Primary {
+  font-size: 22px;
+  padding: 8px;
+  border-color: rgba(255 255 255 / 0.8);
+}
+
+.FormScreen button.Secondary {
   font-size: 20px;
-  border: none;
   padding: 6px;
   color: rgba(255 255 255 / 0.8);
+  border-color: rgba(255 255 255 / 0.0);
+}
+
+.FormScreen button:hover {
+  border-color: rgba(255 255 255 / 1.0);
+  color: rgba(255 255 255 / 1.0);
+  background-color: rgb(108 34 179 / 0.3);
+}
+
+.FormScreen button[disabled] {
+  color: rgba(255 255 255 / 0.3);
 }
 
 .FormScreen input[type="text"] {
