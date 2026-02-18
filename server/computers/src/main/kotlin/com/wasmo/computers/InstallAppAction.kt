@@ -1,10 +1,12 @@
 package com.wasmo.computers
 
+import com.wasmo.accounts.Client
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.framework.Response
 
 class InstallAppAction(
+  private val client: Client,
   private val computerStore: ComputerStore,
 ) {
   suspend fun install(

@@ -1,6 +1,7 @@
 package com.wasmo.testing
 
 import com.wasmo.accounts.ClientAuthenticator
+import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.computers.ComputerStore
@@ -21,11 +22,17 @@ class ClientTester(
     client = clientAuthenticator.get(),
   )
 
+  fun confirmEmailAddressAction() = ConfirmEmailAddressAction(
+    client = clientAuthenticator.get(),
+  )
+
   fun createComputerAction() = CreateComputerAction(
+    client = clientAuthenticator.get(),
     computerStore = computerStore,
   )
 
   fun installAppAction() = InstallAppAction(
+    client = clientAuthenticator.get(),
     computerStore = computerStore,
   )
 

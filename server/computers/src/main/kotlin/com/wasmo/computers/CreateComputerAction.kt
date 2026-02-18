@@ -1,10 +1,12 @@
 package com.wasmo.computers
 
+import com.wasmo.accounts.Client
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.CreateComputerResponse
 import com.wasmo.framework.Response
 
 class CreateComputerAction(
+  private val client: Client,
   private val computerStore: ComputerStore,
 ) {
   fun createComputer(
