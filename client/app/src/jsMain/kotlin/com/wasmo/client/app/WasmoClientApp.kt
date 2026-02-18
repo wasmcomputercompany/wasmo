@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.wasmo.api.RealWasmoApi
 import com.wasmo.client.app.signup.SignUpWorkflow
 import com.wasmo.common.logging.ConsoleLogger
 import com.wasmo.common.logging.Logger
@@ -14,6 +15,8 @@ class WasmoClientApp(
   val environment: Environment,
 ) {
   fun start() {
+    val wasmoApi = RealWasmoApi()
+
     renderComposableInBody {
       var home by remember { mutableStateOf(true) }
 
@@ -27,6 +30,7 @@ class WasmoClientApp(
           }
         } else {
           SignUpWorkflow(
+            wasmoApi = wasmoApi,
             attrs = attrs,
           ) { event ->
             home = !home

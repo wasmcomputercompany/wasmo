@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.TextField
 import org.jetbrains.compose.web.attributes.ATarget
+import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.target
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
@@ -18,6 +19,7 @@ import org.jetbrains.compose.web.dom.Text
 
 @Composable
 fun SignUpCredentials(
+  enabled: Boolean,
   eventListener: (SignUpCredentialsEvent) -> Unit,
 ) {
   var emailState by remember { mutableStateOf("jesse@swank.ca") }
@@ -55,6 +57,9 @@ fun SignUpCredentials(
       style {
         marginTop(24.px)
         marginBottom(24.px)
+      }
+      if (!enabled) {
+        disabled()
       }
       value("Create Account")
       onClick {
