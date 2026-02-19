@@ -14,8 +14,12 @@ import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.background
 import org.jetbrains.compose.web.css.boxSizing
+import org.jetbrains.compose.web.css.columnGap
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flexDirection
+import org.jetbrains.compose.web.css.gridColumn
+import org.jetbrains.compose.web.css.gridRow
+import org.jetbrains.compose.web.css.gridTemplateColumns
 import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.margin
@@ -26,11 +30,14 @@ import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.ContentBuilder
 import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.H3
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLHeadingElement
+import org.w3c.dom.HTMLParagraphElement
 
 enum class FormState {
   Ready,
@@ -56,8 +63,6 @@ fun FormScreen(
         },
       )
       style {
-        background("#A100F1")
-        background("linear-gradient(177deg, rgba(161, 0, 241, 1) 0%, rgba(20, 0, 105, 1) 100%)")
         width(100.percent)
         height(100.percent)
         display(DisplayStyle.Flex)
@@ -162,5 +167,104 @@ fun TextField(
       }
       inputAttrs()
     }
+  }
+}
+
+@Composable
+fun SectionTitle(
+  content: ContentBuilder<HTMLHeadingElement>?,
+) {
+  H3(
+    attrs = {
+      classes("SectionTitle")
+    },
+    content = content,
+  )
+}
+
+@Composable
+fun Checkbox(
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
+  label: String,
+  type: InputType<Boolean> = InputType.Checkbox,
+  inputAttrs: InputAttrsScope<Boolean>.() -> Unit,
+  content: ContentBuilder<HTMLDivElement>,
+) {
+  val localFormState = LocalFormState.current
+  Div(
+    attrs = {
+      style {
+        display(DisplayStyle.Grid)
+        gridTemplateColumns("auto 1fr")
+        columnGap(8.px)
+      }
+      attrs()
+    },
+  ) {
+    Input(
+      type = type,
+      attrs = {
+        if (localFormState == FormState.Busy) {
+          disabled()
+        }
+        style {
+          gridColumn("1")
+          gridRow("1")
+        }
+        inputAttrs()
+      },
+    )
+    H3(
+      attrs = {
+        classes("CheckboxLabel")
+        style {
+          gridColumn("2")
+          gridRow("1")
+        }
+      },
+    ) {
+      Text(label)
+    }
+    Div(
+      attrs = {
+        style {
+          gridColumn("2")
+          gridRow("2")
+        }
+        attrs()
+      },
+    ) {
+      content()
+    }
+  }
+}
+
+@Composable
+fun FinePrint(
+  attrs: AttrsScope<HTMLParagraphElement>.() -> Unit = {},
+  content: ContentBuilder<HTMLParagraphElement>,
+) {
+  P(
+    attrs = {
+      classes("FinePrint")
+      attrs()
+    },
+  ) {
+    content()
+  }
+}
+
+@Composable
+fun SmallText(
+  attrs: AttrsScope<HTMLParagraphElement>.() -> Unit = {},
+  content: ContentBuilder<HTMLParagraphElement>,
+) {
+  P(
+    attrs = {
+      classes("SmallText")
+      attrs()
+    },
+  ) {
+    content()
   }
 }

@@ -29,7 +29,7 @@ a:hover {
 
 /* FormScreen */
 
-.FormScreen h1, .FormScreen h2 {
+.FormScreen h1, .FormScreen h2, .FormScreen h3 {
   color: rgba(255 255 255 / 0.9);
   font-weight: 400;
 }
@@ -109,6 +109,38 @@ a:hover {
   margin-right: 0;
 }
 
+.FormScreen p {
+  color: rgba(255 255 255 / 0.8);
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.FormScreen .SectionTitle {
+  font-size: 22px;
+  color: rgba(255 255 255 / 0.75);
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+.FormScreen h3.CheckboxLabel {
+  color: rgba(255 255 255 / 1.0);
+  margin: 4px 0;
+  font-size: 22px;
+}
+
+.FormScreen input[type="checkbox"],.FormScreen input[type="radio"] {
+  transform: scale(1.5);
+}
+
+.FormScreen .SmallText {
+  font-size: 14px;
+}
+
+.FormScreen .FinePrint {
+  font-size: 14px;
+  color: rgba(255 255 255 / 0.6);
+}
+
 /* SignUpScreen */
 
 .SignUpScreen {
@@ -118,6 +150,12 @@ a:hover {
 
 .SignUpFormScreen button:hover {
   background-color: rgb(108 34 179 / 0.3);
+}
+
+/* BuildYoursScreen */
+
+.BuildYoursScreen {
+  background: #4c6d81;
 }
 
 /* Toolbar */
@@ -140,7 +178,7 @@ a:hover {
   text-decoration: none;
 }
 
-.HomeScreen h1, .HomeScreen h2 {
+.HomeScreen h1, .HomeScreen h2, .HomeScreen h3 {
   font-weight: 400;
   color: rgba(0 0 0 / 0.8);
 }

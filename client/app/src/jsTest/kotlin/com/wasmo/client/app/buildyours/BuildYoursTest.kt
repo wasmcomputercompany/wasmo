@@ -15,9 +15,21 @@ class BuildYoursTest {
   )
 
   @Test
-  fun home() = runTest {
+  fun initial() = runTest {
     snapshotTester.snapshot {
-      BuildYoursFormScreen {
+      BuildYoursScreen(
+        showBuildForm = false,
+      ) {
+      }
+    }
+  }
+
+  @Test
+  fun buildForm() = runTest {
+    snapshotTester.snapshot {
+      BuildYoursScreen(
+        showBuildForm = true,
+      ) {
       }
     }
   }
