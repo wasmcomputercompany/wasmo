@@ -73,6 +73,20 @@ app install time, so app artifacts don't need to be online when the apps are use
                 /snake.js
 ```
 
+Backblaze B2
+------------
+
+We've implemented connectivity to Backblaze.
+
+We're pinned to the CA East region.
+
+We've done our own S3 client, including [AWS Signature Version 4].
+
+```
+https://s3.<region>.backblazeb2.com/<your-bucket-name>
+```
+
+
 App Updates
 -----------
 
@@ -86,3 +100,5 @@ To update apps:
 The double GC means we’ll avoid ever having more than two versions in the store at the same time,
 even if step 4 crashes at some point.
 
+
+[AWS Signature Version 4]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_sigv.html

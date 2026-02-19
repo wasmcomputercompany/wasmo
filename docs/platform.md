@@ -8,7 +8,7 @@ This is how the application presents an HTML UI to browsers, and data API to mob
 It may also be used for webhooks.
 
 Inbound requests will include additional context about the caller:
- 
+
  - Original IP address
  - Single-sign on identity
 
@@ -30,7 +30,7 @@ Web Sockets
 -----------
 
 We have web sockets, but the process serving a web socket call isn’t necessarily long-lived and
-memory resident. Instead, we map web sockets into resources that can post messages and receive them.   
+memory resident. Instead, we map web sockets into resources that can post messages and receive them.
 
 
 Secrets Vault
@@ -44,10 +44,10 @@ It can do secure-enclave style `Ed25519` signing, where the application can crea
 validate a signature, but never exfiltrate the private key.
 
 
-File Store
-----------
+Object Store
+------------
 
-An file store backed by an S3-compatible service.
+An S3-compatible service.
 
 We don’t expose the full capabilities of Amazon S3 because we want to support multiple independent
 implementations. For example, you cannot set arbitrary permissions on files; everything is
