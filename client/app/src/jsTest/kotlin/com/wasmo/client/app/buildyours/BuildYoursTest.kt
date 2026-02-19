@@ -26,7 +26,9 @@ class BuildYoursTest {
 
   @Test
   fun buildForm() = runTest {
-    snapshotTester.snapshot {
+    snapshotTester.snapshot(
+      scrolling = true,
+    ) {
       BuildYoursScreen(
         showBuildForm = true,
       ) {
