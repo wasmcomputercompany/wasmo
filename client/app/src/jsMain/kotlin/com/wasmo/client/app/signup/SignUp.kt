@@ -1,15 +1,31 @@
 package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
+import com.wasmo.client.app.FormScreen
 import com.wasmo.compose.SegmentedProgressBar
 import com.wasmo.compose.Toolbar
 import com.wasmo.compose.ToolbarTitle
 import org.jetbrains.compose.web.attributes.AttrsScope
+import org.jetbrains.compose.web.css.background
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLDivElement
+
+@Composable
+fun SignUpFormScreen(
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
+  content: @Composable () -> Unit,
+) {
+  FormScreen(
+    attrs = {
+      classes("SignUpFormScreen")
+      attrs()
+    },
+    content = content,
+  )
+}
 
 @Composable
 fun SignUpToolbar(

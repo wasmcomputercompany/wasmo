@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.wasmo.api.RealWasmoApi
-import com.wasmo.client.app.signup.SignUpWorkflow
+import com.wasmo.client.app.buildyours.BuildYoursFormScreen
 import com.wasmo.common.logging.ConsoleLogger
 import com.wasmo.common.logging.Logger
 import org.jetbrains.compose.web.renderComposableInBody
@@ -29,12 +29,9 @@ class WasmoClientApp(
             home = !home
           }
         } else {
-          SignUpWorkflow(
-            wasmoApi = wasmoApi,
+          BuildYoursFormScreen(
             attrs = attrs,
-          ) { event ->
-            home = !home
-          }
+          )
         }
       }
     }

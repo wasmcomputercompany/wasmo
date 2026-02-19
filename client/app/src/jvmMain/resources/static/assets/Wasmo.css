@@ -12,11 +12,6 @@ body, input, button {
   font-family: "Outfit", sans-serif;
 }
 
-h1, h2 {
-  font-weight: 400;
-  color: rgba(0 0 0 / 0.8);
-}
-
 a {
   color: rgba(255 255 255 / 0.8);
   cursor: pointer;
@@ -30,6 +25,13 @@ a:hover {
   color: rgba(255 255 255 / 1.0);
   text-align: center;
   vertical-align: middle;
+}
+
+/* FormScreen */
+
+.FormScreen h1, .FormScreen h2 {
+  color: rgba(255 255 255 / 0.9);
+  font-weight: 400;
 }
 
 .FormScreen, .FormScreen input, .FormScreen button {
@@ -51,6 +53,7 @@ a:hover {
   background-color: transparent;
   text-align: center;
   text-transform: uppercase;
+  border-style: solid;
   border-width: 1px;
   border-radius: 16px;
 }
@@ -71,7 +74,6 @@ a:hover {
 .FormScreen button:hover {
   border-color: rgba(255 255 255 / 1.0);
   color: rgba(255 255 255 / 1.0);
-  background-color: rgb(108 34 179 / 0.3);
 }
 
 .FormScreen button[disabled] {
@@ -107,6 +109,19 @@ a:hover {
   margin-right: 0;
 }
 
+/* SignUpScreen */
+
+.SignUpScreen {
+  background: #a100f1;
+  background: linear-gradient(177deg, rgba(161, 0, 241, 1) 0%, rgba(20, 0, 105, 1) 100%);
+}
+
+.SignUpFormScreen button:hover {
+  background-color: rgb(108 34 179 / 0.3);
+}
+
+/* Toolbar */
+
 .Toolbar {
   height: 64px;
   padding: 0 24px;
@@ -119,7 +134,14 @@ a:hover {
   color: rgb(255 255 255 / 0.9)
 }
 
+/* HomeScreen */
+
 .HomeScreen a {
   text-decoration: none;
+}
+
+.HomeScreen h1, .HomeScreen h2 {
+  font-weight: 400;
+  color: rgba(0 0 0 / 0.8);
 }
 

@@ -10,7 +10,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.WasmoApi
-import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.FormState
 import com.wasmo.client.app.LocalFormState
 import kotlinx.coroutines.launch
@@ -28,7 +27,7 @@ fun SignUpWorkflow(
   var formState by remember { mutableStateOf(FormState.Ready) }
 
   CompositionLocalProvider(LocalFormState provides formState) {
-    FormScreen(
+    SignUpFormScreen(
       attrs = attrs,
     ) {
       SignUpToolbar()
