@@ -27,12 +27,14 @@ dependencies {
   jsResources(project(":client:app-development"))
   implementation(libs.okhttp)
   implementation(libs.okio)
+  implementation(project(":common:catalog"))
   implementation(project(":platform:api"))
   implementation(project(":server:accounts"))
   implementation(project(":server:computers"))
   implementation(project(":server:deployment"))
   implementation(project(":server:ktor"))
   implementation(project(":server:sendemail"))
+  implementation(project(":server:stripe"))
   implementation(project(":server:website"))
 }
 

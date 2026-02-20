@@ -12,6 +12,11 @@ import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
+import com.wasmo.api.stripe.CreateCheckoutSessionRequest
+import com.wasmo.api.stripe.CreateCheckoutSessionResponse
+import com.wasmo.api.stripe.GetSessionStatusRequest
+import com.wasmo.api.stripe.GetSessionStatusResponse
+import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
@@ -20,6 +25,9 @@ import com.wasmo.framework.HttpException
 import com.wasmo.framework.Response
 import com.wasmo.home.HomePage
 import com.wasmo.sendemail.SendEmailService
+import com.wasmo.stripe.CreateCheckoutSessionAction
+import com.wasmo.stripe.GetSessionStatusAction
+import com.wasmo.stripe.StripeInitializer
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log
@@ -38,6 +46,8 @@ class ActionRouter(
   val clientAuthenticatorFactory: ClientAuthenticator.Factory,
   val computerStore: ComputerStore,
   val sendEmailService: SendEmailService,
+  val stripeInitializer: StripeInitializer,
+  val catalog: Catalog,
 ) {
   fun linkEmailAddressAction(client: Client) = LinkEmailAddressAction(
     deployment = deployment,
@@ -57,6 +67,18 @@ class ActionRouter(
   fun installAppAction(client: Client) = InstallAppAction(
     client = client,
     computerStore = computerStore,
+  )
+
+  fun createCheckoutSessionAction(client: Client) = CreateCheckoutSessionAction(
+    stripeInitializer = stripeInitializer,
+    catalog = catalog,
+    deployment = deployment,
+    client = client,
+  )
+
+  fun getSessionStatusAction(client: Client) = GetSessionStatusAction(
+    stripeInitializer = stripeInitializer,
+    client = client,
   )
 
   fun createRoutes() {
@@ -102,6 +124,20 @@ class ActionRouter(
       ) { client, request, _ ->
         val action = confirmEmailAddressAction(client)
         action.confirm(request)
+      }
+
+      rpc<CreateCheckoutSessionRequest, CreateCheckoutSessionResponse>(
+        path = "/create-checkout-session",
+      ) { client, request, _ ->
+        val action = createCheckoutSessionAction(client)
+        action.create(request)
+      }
+
+      rpc<GetSessionStatusRequest, GetSessionStatusResponse>(
+        path = "/session-status",
+      ) { client, request, _ ->
+        val action = getSessionStatusAction(client)
+        action.get(request)
       }
 
       staticResources("/", "static")

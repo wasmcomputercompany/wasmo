@@ -20,6 +20,7 @@ dependencies {
   implementation(libs.okio)
   implementation(project(":client:app"))
   implementation(project(":common:api"))
+  implementation(project(":common:catalog"))
   implementation(project(":common:framework"))
   implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
@@ -33,5 +34,6 @@ dependencies {
   implementation(project(":server:okhttpclient"))
   implementation(project(":server:sendemail"))
   implementation(project(":server:sendemail:api"))
+  implementation(project(":server:stripe"))
   implementation(project(":server:website"))
 }

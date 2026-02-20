@@ -7,6 +7,7 @@ import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieEncoder
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.deployment.Deployment
@@ -15,6 +16,8 @@ import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
+import com.wasmo.stripe.StripeCredentials
+import com.wasmo.stripe.StripeInitializer
 import io.ktor.server.netty.EngineMain
 import kotlin.time.Clock
 import okhttp3.OkHttpClient
@@ -23,6 +26,8 @@ import okio.ByteString
 class WasmoService(
   val cookieSecret: ByteString,
   val postmarkCredentials: PostmarkCredentials,
+  val stripeCredentials: StripeCredentials,
+  val catalog: Catalog,
   val postgresDatabaseHostname: String,
   val postgresDatabaseName: String,
   val postgresDatabaseUser: String,
@@ -73,12 +78,17 @@ class WasmoService(
       credentials = postmarkCredentials,
       client = okHttpClient,
     ).create()
+    val stripeInitializer = StripeInitializer(
+      stripeCredentials = stripeCredentials,
+    )
     val actionRouter = ActionRouter(
       deployment = deployment,
       application = server.application,
       clientAuthenticatorFactory = clientAuthenticatorFactory,
       computerStore = computerStore,
       sendEmailService = sendEmailService,
+      stripeInitializer = stripeInitializer,
+      catalog = catalog,
     )
     actionRouter.createRoutes()
 

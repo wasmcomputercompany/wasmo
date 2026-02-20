@@ -3,6 +3,7 @@ assertk = "0.28.1"
 burst = "2.10.2"
 compose = "1.10.0"
 graalvm = "25.0.0"
+gson = "2.13.2"
 jaxb = "4.0.0"
 kotlin = "2.2.21"
 kotlinx-coroutines = "1.10.2"
@@ -16,6 +17,7 @@ okhttp = "5.3.0"
 okio = "3.16.4"
 retrofit = "3.0.0"
 sqldelight = "2.2.1"
+stripe = "31.3.0"
 webauthn4j = "0.30.2.RELEASE"
 
 [libraries]
@@ -26,6 +28,7 @@ compose-html = { module = "org.jetbrains.compose.html:html-core", version.ref = 
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
 graalvm-polyglot = { module = "org.graalvm.polyglot:polyglot", version.ref = "graalvm" }
 graalvm-wasm = { module = "org.graalvm.polyglot:wasm", version.ref = "graalvm" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 jaxb-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxb" }
 jaxb-implementation = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "jaxb" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version = "26.0.2-1" }
@@ -64,6 +67,7 @@ retrofit-converter-jaxb3 = { module = "com.squareup.retrofit2:converter-jaxb3", 
 retrofit-converter-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
 sqldelight-jdbc-driver = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqldelight" }
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+stripe = { module = "com.stripe:stripe-java", version.ref = "stripe" }
 webauthn4j-core = { module = "com.webauthn4j:webauthn4j-core", version.ref = "webauthn4j" }
 
 [plugins]
