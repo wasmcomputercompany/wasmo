@@ -1,11 +1,12 @@
 package com.wasmo.stripe
 
+import com.wasmo.api.stripe.StripePublishableKey
+
 data class StripeCredentials(
-  val publishableKey: String,
+  val publishableKey: StripePublishableKey,
   val secretKey: String,
 ) {
   init {
-    check(publishableKey.startsWith("pk_"))
     check(secretKey.startsWith("sk_"))
   }
 }

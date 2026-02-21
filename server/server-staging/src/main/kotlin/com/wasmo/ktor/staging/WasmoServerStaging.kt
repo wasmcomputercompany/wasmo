@@ -4,6 +4,7 @@
 package com.wasmo.ktor.staging
 
 import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.deployment.Deployment
 import com.wasmo.ktor.WasmoService
@@ -42,7 +43,7 @@ fun main(args: Array<String>) {
       serverToken = postmarkServerToken,
     ),
     stripeCredentials = StripeCredentials(
-      publishableKey = stripePublishableKey,
+      publishableKey = StripePublishableKey(stripePublishableKey),
       secretKey = stripeSecretKey,
     ),
     catalog = DevelopmentCatalog,

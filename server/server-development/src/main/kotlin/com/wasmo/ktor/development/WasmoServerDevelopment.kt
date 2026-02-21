@@ -4,6 +4,7 @@
 package com.wasmo.ktor.development
 
 import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.deployment.Deployment
 import com.wasmo.ktor.WasmoService
@@ -15,6 +16,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
 import okio.Path.Companion.toPath
+import okio.SYSTEM
 
 fun main(args: Array<String>) {
   val stripePublishableKey = System.getenv("STRIPE_PUBLISHABLE_KEY")
@@ -28,7 +30,7 @@ fun main(args: Array<String>) {
       serverToken = System.getenv("POSTMARK_SERVER_TOKEN") ?: "?",
     ),
     stripeCredentials = StripeCredentials(
-      publishableKey = stripePublishableKey,
+      publishableKey = StripePublishableKey(stripePublishableKey),
       secretKey = stripeSecretKey,
     ),
     catalog = DevelopmentCatalog,

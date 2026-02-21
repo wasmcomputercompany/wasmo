@@ -90,6 +90,7 @@ class ActionRouter(
         val action = HomePage(
           deployment = deployment,
           client = clientAuthenticator.get(),
+          stripePublishableKey = stripeInitializer.stripeCredentials.publishableKey,
         )
         val page = action.get()
         call.respond(page.response)

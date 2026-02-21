@@ -27,6 +27,7 @@ dependencies {
   jsResources(project(":client:app-staging"))
   implementation(libs.okhttp)
   implementation(libs.okio)
+  implementation(project(":common:api"))
   implementation(project(":common:catalog"))
   implementation(project(":platform:api"))
   implementation(project(":server:accounts"))

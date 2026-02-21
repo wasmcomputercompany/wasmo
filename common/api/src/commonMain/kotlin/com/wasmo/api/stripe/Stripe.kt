@@ -20,3 +20,12 @@ data class GetSessionStatusResponse(
   val status: String,
   val customer_email: String,
 )
+
+@Serializable
+data class StripePublishableKey(
+  val publishableKey: String,
+) {
+  init {
+    check(publishableKey.startsWith("pk_"))
+  }
+}

@@ -1,6 +1,7 @@
 package com.wasmo.home
 
 import com.wasmo.api.WasmoJson
+import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.MapPageData
 import com.wasmo.framework.Response
@@ -19,6 +20,7 @@ import okio.BufferedSink
 
 class AppPage(
   val baseUrl: HttpUrl,
+  val stripePublishableKey: StripePublishableKey,
 ) : ResponseBody {
   val response: Response<ResponseBody>
     get() = Response(
@@ -28,6 +30,7 @@ class AppPage(
 
   override fun write(sink: BufferedSink) {
     val pageData = MapPageData.Builder(WasmoJson)
+      .put("stripe_publishable_key", stripePublishableKey)
       .build()
 
     sink.writeUtf8("<!DOCTYPE html>")
@@ -71,6 +74,7 @@ class AppPage(
         link(rel = "stylesheet", href = "/assets/Wasmo.css")
 
         script(src = "/assets/wasmo.js") {}
+        script(src = "https://js.stripe.com/clover/stripe.js") {}
 
         pageData.write(this)
 

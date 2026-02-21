@@ -80,7 +80,9 @@ class WasmoService(
     ).create()
     val stripeInitializer = StripeInitializer(
       stripeCredentials = stripeCredentials,
-    )
+    ).apply {
+      initialize()
+    }
     val actionRouter = ActionRouter(
       deployment = deployment,
       application = server.application,

@@ -22,7 +22,7 @@ class CreateCheckoutSessionAction(
 
     val sessionCreateParams = SessionCreateParams.builder()
       .setUiMode(SessionCreateParams.UiMode.EMBEDDED)
-      .setMode(SessionCreateParams.Mode.PAYMENT)
+      .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
       .setReturnUrl(
         deployment.baseUrl.resolve("/return.html?session_id={CHECKOUT_SESSION_ID}").toString(),
       )
