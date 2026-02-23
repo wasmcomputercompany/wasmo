@@ -1,5 +1,6 @@
 package com.wasmo.testing
 
+import com.wasmo.accounts.Challenger
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
@@ -13,7 +14,6 @@ import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatePasskeyAction
-import com.wasmo.passkeys.Challenger
 import com.wasmo.passkeys.PasskeyLinker
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.passkeys.RealPasskeyChecker
@@ -33,7 +33,6 @@ class ClientTester(
   val authenticatorDatabase = RealAuthenticatorDatabase()
 
   val accountStoreFactory = RealAccountStore.Factory(
-    challenger = challenger,
     authenticatorDatabase = authenticatorDatabase,
     passkeyQueries = service.passkeyQueries,
   )

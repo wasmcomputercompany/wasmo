@@ -1,9 +1,12 @@
 package com.wasmo.ktor
 
+import com.wasmo.accounts.AccountStore
 import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
+import com.wasmo.api.AuthenticatePasskeyRequest
+import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.CreateComputerRequest
@@ -12,10 +15,13 @@ import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
+import com.wasmo.api.RegisterPasskeyRequest
+import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.api.stripe.CreateCheckoutSessionRequest
 import com.wasmo.api.stripe.CreateCheckoutSessionResponse
 import com.wasmo.api.stripe.GetSessionStatusRequest
 import com.wasmo.api.stripe.GetSessionStatusResponse
+import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
@@ -24,6 +30,11 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.framework.HttpException
 import com.wasmo.framework.Response
 import com.wasmo.home.HomePage
+import com.wasmo.passkeys.AuthenticatePasskeyAction
+import com.wasmo.passkeys.PasskeyChecker
+import com.wasmo.passkeys.PasskeyLinker
+import com.wasmo.passkeys.RealPasskeyChecker
+import com.wasmo.passkeys.RegisterPasskeyAction
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.stripe.CreateCheckoutSessionAction
 import com.wasmo.stripe.GetSessionStatusAction
@@ -38,17 +49,43 @@ import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import kotlin.time.Clock
 import kotlinx.serialization.serializer
 
 class ActionRouter(
+  val clock: Clock,
   val deployment: Deployment,
   val application: Application,
   val clientAuthenticatorFactory: ClientAuthenticator.Factory,
+  val accountStoreFactory: AccountStore.Factory,
+  val passkeyLinkerFactory: PasskeyLinker.Factory,
   val computerStore: ComputerStore,
   val sendEmailService: SendEmailService,
   val stripeInitializer: StripeInitializer,
   val catalog: Catalog,
+  val wasmoDbService: WasmoDbService,
 ) {
+  private fun passkeyChecker(client: Client): PasskeyChecker = RealPasskeyChecker(
+    challenger = client.challenger,
+    deployment = deployment,
+  )
+
+  fun registerPasskeyAction(client: Client) = RegisterPasskeyAction(
+    clock = clock,
+    accountStoreFactory = accountStoreFactory,
+    client = client,
+    passkeyChecker = passkeyChecker(client),
+    passkeyQueries = wasmoDbService.passkeyQueries,
+  )
+
+  fun authenticatePasskeyAction(client: Client) = AuthenticatePasskeyAction(
+    client = client,
+    passkeyChecker = passkeyChecker(client),
+    passkeyLinkerFactory = passkeyLinkerFactory,
+    accountStoreFactory = accountStoreFactory,
+    passkeyQueries = wasmoDbService.passkeyQueries,
+  )
+
   fun linkEmailAddressAction(client: Client) = LinkEmailAddressAction(
     deployment = deployment,
     sendEmailService = sendEmailService,
@@ -94,6 +131,20 @@ class ActionRouter(
         )
         val page = action.get()
         call.respond(page.response)
+      }
+
+      rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
+        path = "/register-passkey",
+      ) { client, request, _ ->
+        val action = registerPasskeyAction(client)
+        action.register(request)
+      }
+
+      rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
+        path = "/authenticate-passkey",
+      ) { client, request, _ ->
+        val action = authenticatePasskeyAction(client)
+        action.authenticate(request)
       }
 
       rpc<CreateComputerRequest, CreateComputerResponse>(

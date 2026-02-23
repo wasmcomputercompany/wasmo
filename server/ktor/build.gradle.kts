@@ -32,6 +32,8 @@ dependencies {
   implementation(project(":server:downloader"))
   implementation(project(":server:objectstore"))
   implementation(project(":server:okhttpclient"))
+  implementation(project(":server:passkeys"))
+  implementation(project(":server:passkeys:api"))
   implementation(project(":server:sendemail"))
   implementation(project(":server:sendemail:api"))
   implementation(project(":server:stripe"))

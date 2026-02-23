@@ -2,8 +2,9 @@ package com.wasmo.passkeys
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.FakeClock
+import com.wasmo.accounts.UnexpectedChallengeException
 import com.wasmo.deployment.Deployment
+import com.wasmo.testing.FakeChallenger
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.registrationRecord
 import com.webauthn4j.verifier.exception.BadSignatureException
@@ -13,10 +14,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 
 class RealPasskeyCheckerTest {
-  private val clock = FakeClock()
-  private val cookieToken = "1234567890123456789012345"
-  private val challengerFactory = HmacChallenger.Factory(clock, "secret".encodeUtf8())
-  private val challenger = challengerFactory.create(cookieToken)
+  private val challenger = FakeChallenger("1234567890123456789012345")
   private val deployment = Deployment(
     baseUrl = "https://wasmo.com/".toHttpUrl(),
     sendFromEmailAddress = "noreply@wasmo.com",
@@ -54,7 +52,7 @@ class RealPasskeyCheckerTest {
 
   @Test
   fun registrationWithBadChallenge() {
-    val wrongChallenger = challengerFactory.create("XXXXXXXXXXXXXXXXXXXXXXXXX")
+    val wrongChallenger = FakeChallenger("XXXXXXXXXXXXXXXXXXXXXXXXX")
     val badChallenge = wrongChallenger.create()
 
     assertFailsWith<UnexpectedChallengeException> {
@@ -105,7 +103,7 @@ class RealPasskeyCheckerTest {
     val registration = passkey.registration(challenger.create(), origin)
     val registrationRecord = registration.registrationRecord()
 
-    val wrongChallenger = challengerFactory.create("XXXXXXXXXXXXXXXXXXXXXXXXX")
+    val wrongChallenger = FakeChallenger("XXXXXXXXXXXXXXXXXXXXXXXXX")
     val badChallenge = wrongChallenger.create()
     val authentication = passkey.authentication(badChallenge, origin)
 

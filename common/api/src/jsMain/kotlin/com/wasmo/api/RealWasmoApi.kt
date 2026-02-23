@@ -10,6 +10,18 @@ import kotlinx.serialization.json.decodeFromDynamic
 import kotlinx.serialization.serializer
 
 class RealWasmoApi : WasmoApi {
+  override suspend fun registerPasskey(
+    request: RegisterPasskeyRequest,
+  ): RegisterPasskeyResponse {
+    return call("/register-passkey", request)
+  }
+
+  override suspend fun authenticatePasskey(
+    request: AuthenticatePasskeyRequest,
+  ): AuthenticatePasskeyResponse {
+    return call("/authenticate-passkey", request)
+  }
+
   override suspend fun createComputer(
     request: CreateComputerRequest,
   ): CreateComputerResponse {

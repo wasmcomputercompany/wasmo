@@ -4,7 +4,7 @@ interface ClientAuthenticator {
   fun updateSessionCookie(): SessionCookie
   fun signOutSessionCookie()
   fun get(): Client
-  fun unauthenticated(): Client
+  fun unauthenticated(): Caller
 
   interface Factory {
     fun create(userAgent: UserAgent): ClientAuthenticator

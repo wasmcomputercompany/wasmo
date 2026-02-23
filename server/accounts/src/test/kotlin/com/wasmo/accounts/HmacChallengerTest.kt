@@ -1,4 +1,4 @@
-package com.wasmo.passkeys
+package com.wasmo.accounts
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo

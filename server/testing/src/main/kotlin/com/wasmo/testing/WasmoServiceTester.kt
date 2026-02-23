@@ -2,6 +2,7 @@ package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
 import com.wasmo.accounts.CookieClient
+import com.wasmo.accounts.HmacChallenger
 import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieEncoder
 import com.wasmo.accounts.SessionCookieSpec
@@ -13,7 +14,6 @@ import com.wasmo.computers.RealComputerStore
 import com.wasmo.deployment.Deployment
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
-import com.wasmo.passkeys.HmacChallenger
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import java.io.Closeable
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -48,7 +48,10 @@ class WasmoServiceTester private constructor(
     ),
   )
 
-  val challengerFactory = HmacChallenger.Factory(clock, "secret".encodeUtf8())
+  val challengerFactory = HmacChallenger.Factory(
+    clock = clock,
+    cookieSecret = "secret".encodeUtf8(),
+  )
 
   val clientAuthenticatorFactory = RealClientAuthenticator.Factory(
     clock = clock,
@@ -60,6 +63,7 @@ class WasmoServiceTester private constructor(
       clock = clock,
       cookieQueries = service.cookieQueries,
       accountQueries = service.accountQueries,
+      hmacChallengerFactory = challengerFactory,
     ),
   )
 

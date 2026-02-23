@@ -45,7 +45,7 @@ class RealClientAuthenticator private constructor(
     )
   }
 
-  override fun get(): CookieClient {
+  override fun get(): Client {
     val sessionCookieString = userAgent.getCookie(sessionCookieSpec.cookieName)
       ?: throw UnauthorizedException("required session cookie not set")
 
@@ -59,7 +59,7 @@ class RealClientAuthenticator private constructor(
     )
   }
 
-  override fun unauthenticated(): Client = UnauthenticatedClient(
+  override fun unauthenticated(): Caller = UnauthenticatedCaller(
     userAgent = userAgent.userAgent,
     ip = userAgent.ip,
   )

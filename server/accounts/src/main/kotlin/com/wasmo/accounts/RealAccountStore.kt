@@ -6,10 +6,8 @@ import com.wasmo.api.PasskeySnapshot
 import com.wasmo.db.Passkey
 import com.wasmo.db.PasskeyQueries
 import com.wasmo.passkeys.AuthenticatorDatabase
-import com.wasmo.passkeys.Challenger
 
 class RealAccountStore private constructor(
-  private val challenger: Challenger,
   private val authenticatorDatabase: AuthenticatorDatabase,
   private val passkeyQueries: PasskeyQueries,
   private val client: Client,
@@ -27,7 +25,7 @@ class RealAccountStore private constructor(
     }
 
     return AccountSnapshot(
-      nextChallenge = challenger.create(),
+      nextChallenge = client.challenger.create(),
       passkeys = passkeys,
     )
   }
@@ -38,12 +36,10 @@ class RealAccountStore private constructor(
   )
 
   class Factory(
-    private val challenger: Challenger,
     private val authenticatorDatabase: AuthenticatorDatabase,
     private val passkeyQueries: PasskeyQueries,
   ) : AccountStore.Factory {
     override fun create(client: Client) = RealAccountStore(
-      challenger = challenger,
       authenticatorDatabase = authenticatorDatabase,
       passkeyQueries = passkeyQueries,
       client = client,

@@ -3,6 +3,8 @@
 package com.wasmo.ktor
 
 import com.wasmo.accounts.CookieClient
+import com.wasmo.accounts.HmacChallenger
+import com.wasmo.accounts.RealAccountStore
 import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieEncoder
 import com.wasmo.accounts.SessionCookieSpec
@@ -14,6 +16,8 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.http.RealHttpClient
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
+import com.wasmo.passkeys.PasskeyLinker
+import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.stripe.StripeCredentials
@@ -40,7 +44,7 @@ class WasmoService(
     val server = EngineMain.createServer(args)
 
     val clock = Clock.System
-    val service = WasmoDbService.start(
+    val wasmoDbService = WasmoDbService.start(
       hostname = postgresDatabaseHostname,
       databaseName = postgresDatabaseName,
       user = postgresDatabaseUser,
@@ -52,18 +56,29 @@ class WasmoService(
       callFactory = okHttpClient,
     )
     val objectStoreFactory = ObjectStoreFactory(
-      clock,
-      okHttpClient,
+      clock = clock,
+      client = okHttpClient,
+    )
+    val hmacChallengerFactory = HmacChallenger.Factory(
+      clock = clock,
+      cookieSecret = cookieSecret,
+    )
+    val cookieClientFactory = CookieClient.Factory(
+      clock = clock,
+      cookieQueries = wasmoDbService.cookieQueries,
+      accountQueries = wasmoDbService.accountQueries,
+      hmacChallengerFactory = hmacChallengerFactory,
     )
     val clientAuthenticatorFactory = RealClientAuthenticator.Factory(
       clock = clock,
       sessionCookieSpec = sessionCookieSpec,
       sessionCookieEncoder = SessionCookieEncoder(cookieSecret),
-      cookieClientFactory = CookieClient.Factory(
-        clock = clock,
-        cookieQueries = service.cookieQueries,
-        accountQueries = service.accountQueries,
-      ),
+      cookieClientFactory = cookieClientFactory,
+    )
+    val authenticatorDatabase = RealAuthenticatorDatabase()
+    val accountStoreFactory = RealAccountStore.Factory(
+      authenticatorDatabase = authenticatorDatabase,
+      passkeyQueries = wasmoDbService.passkeyQueries,
     )
     val rootObjectStore = objectStoreFactory.open(objectStoreAddress)
     val computerStore = RealComputerStore(
@@ -72,7 +87,7 @@ class WasmoService(
       rootObjectStore = rootObjectStore,
       httpClient = httpClient,
       objectStoreKeyFactory = ObjectStoreKeyFactory(),
-      service = service,
+      service = wasmoDbService,
     )
     val sendEmailService = PostmarkEmailService.Factory(
       credentials = postmarkCredentials,
@@ -83,14 +98,21 @@ class WasmoService(
     ).apply {
       initialize()
     }
+    val passkeyLinkerFactory = PasskeyLinker.Factory(
+      cookieQueries = wasmoDbService.cookieQueries,
+    )
     val actionRouter = ActionRouter(
+      clock = clock,
       deployment = deployment,
       application = server.application,
       clientAuthenticatorFactory = clientAuthenticatorFactory,
+      accountStoreFactory = accountStoreFactory,
+      passkeyLinkerFactory = passkeyLinkerFactory,
       computerStore = computerStore,
       sendEmailService = sendEmailService,
       stripeInitializer = stripeInitializer,
       catalog = catalog,
+      wasmoDbService = wasmoDbService,
     )
     actionRouter.createRoutes()
 

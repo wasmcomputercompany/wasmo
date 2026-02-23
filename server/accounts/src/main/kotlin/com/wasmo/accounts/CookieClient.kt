@@ -18,6 +18,7 @@ class CookieClient private constructor(
   val sessionCookie: SessionCookie,
   override val userAgent: String?,
   override val ip: String?,
+  override val challenger: Challenger,
 ) : Client {
   private var cachedAccountId: AccountId? = null
 
@@ -65,6 +66,7 @@ class CookieClient private constructor(
     private val clock: Clock,
     private val cookieQueries: CookieQueries,
     private val accountQueries: AccountQueries,
+    private val hmacChallengerFactory: HmacChallenger.Factory,
   ) {
     fun create(
       sessionCookie: SessionCookie,
@@ -77,6 +79,7 @@ class CookieClient private constructor(
       sessionCookie = sessionCookie,
       userAgent = userAgent,
       ip = ip,
+      challenger = hmacChallengerFactory.create(sessionCookie.token),
     )
   }
 }

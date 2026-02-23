@@ -1,5 +1,6 @@
 package com.wasmo.passkeys
 
+import com.wasmo.accounts.Challenger
 import com.wasmo.api.PasskeyAuthentication
 import com.wasmo.api.PasskeyRegistration
 import com.wasmo.deployment.Deployment

@@ -6,6 +6,14 @@ import com.wasmo.api.stripe.GetSessionStatusRequest
 import com.wasmo.api.stripe.GetSessionStatusResponse
 
 interface WasmoApi {
+  suspend fun registerPasskey(
+    request: RegisterPasskeyRequest,
+  ): RegisterPasskeyResponse
+
+  suspend fun authenticatePasskey(
+    request: AuthenticatePasskeyRequest,
+  ): AuthenticatePasskeyResponse
+
   suspend fun createComputer(
     request: CreateComputerRequest,
   ): CreateComputerResponse

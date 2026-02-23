@@ -1,4 +1,4 @@
-package com.wasmo.passkeys
+package com.wasmo.accounts
 
 import com.wasmo.api.CHALLENGE_LIFETIME
 import com.wasmo.api.CHALLENGE_LIFETIME_MAX_STALE
@@ -7,21 +7,8 @@ import kotlin.time.Instant
 import okio.Buffer
 import okio.ByteString
 
-/**
- * Encode and decode our passkey challenges.
- *
- * Our structure is fixed-width and not forwards-compatible.
- *
- * * 25 byte cookie token
- * * 8 byte timestamp
- * * 32 byte HMAC
- *
- * Challenges are only valid for the same cookie token.
- *
- * Challenges are only valid for [CHALLENGE_LIFETIME] plus [CHALLENGE_LIFETIME_MAX_STALE].
- */
 class HmacChallenger private constructor(
-  val clock: Clock,
+  private val clock: Clock,
   private val cookieSecret: ByteString,
   private val cookieToken: String,
 ) : Challenger {
@@ -82,8 +69,6 @@ class HmacChallenger private constructor(
     )
   }
 }
-
-internal class UnexpectedChallengeException(message: String) : RuntimeException(message)
 
 internal data class Challenge(
   val cookieToken: String,
