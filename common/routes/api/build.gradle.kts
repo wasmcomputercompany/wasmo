@@ -7,4 +7,12 @@ kotlin {
     browser()
   }
   jvm()
+
+  sourceSets {
+    jvmMain {
+      dependencies {
+        implementation(libs.okhttp)
+      }
+    }
+  }
 }

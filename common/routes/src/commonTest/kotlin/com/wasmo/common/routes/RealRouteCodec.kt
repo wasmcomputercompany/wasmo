@@ -5,10 +5,10 @@ import assertk.assertions.isEqualTo
 import kotlin.test.Test
 
 class RealRouteCodecTest {
-  private val root = Url(topPrivateDomain = "wasmo.com")
+  private val root = Url(scheme = "https", topPrivateDomain = "wasmo.com")
   private val unauthenticated = RealRouteCodec(
     context = RealRouteCodec.Context(
-      root = root,
+      rootUrl = "https://wasmo.com/",
       hasComputers = false,
       hasInvite = false,
       isAdmin = false,

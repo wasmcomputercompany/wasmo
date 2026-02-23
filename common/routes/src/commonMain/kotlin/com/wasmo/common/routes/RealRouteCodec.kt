@@ -1,5 +1,7 @@
 package com.wasmo.common.routes
 
+import kotlinx.serialization.Serializable
+
 class RealRouteCodec(
   val context: Context,
 ) : RouteCodec {
@@ -76,10 +78,14 @@ class RealRouteCodec(
     }
   }
 
+  @Serializable
   data class Context(
-    val root: Url,
+    val rootUrl: String,
     val hasComputers: Boolean,
     val hasInvite: Boolean,
     val isAdmin: Boolean,
-  )
+  ) {
+    val root: Url
+      get() = rootUrl.decodeUrl()
+  }
 }

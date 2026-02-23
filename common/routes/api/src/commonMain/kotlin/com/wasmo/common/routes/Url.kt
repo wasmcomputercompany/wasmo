@@ -1,13 +1,45 @@
 package com.wasmo.common.routes
 
 data class Url(
+  val scheme: String,
   val topPrivateDomain: String,
   val subdomain: String? = null,
-  val path: List<String> = listOf(),
+  val path: List<String> = listOf(""),
   val query: List<QueryParameter>? = listOf(),
-)
+) {
+  init {
+    require(path.isNotEmpty())
+  }
+}
 
 data class QueryParameter(
   val name: String,
-  val value: String,
+  val value: String?,
 )
+
+expect fun String.decodeUrl(): Url
+
+expect fun Url.encode(): String
+
+val TopPrivateDomains = listOf(
+  "wasmo.com",
+  "wasmo.dev",
+  "localwasmo",
+)
+
+internal fun decodeDomain(hostname: String): Pair<String, String?> {
+  for (candidate in TopPrivateDomains) {
+    if (!hostname.endsWith(candidate)) continue
+
+    val candidateStart = hostname.length - candidate.length
+    if (candidateStart == 0) {
+      return candidate to null
+    }
+
+    if (candidateStart > 1 || hostname[candidateStart - 1] == '.') {
+      return candidate to hostname.take(candidateStart - 1)
+    }
+  }
+
+  return hostname to null
+}
