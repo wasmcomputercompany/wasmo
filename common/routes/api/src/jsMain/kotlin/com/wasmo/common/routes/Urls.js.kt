@@ -26,6 +26,15 @@ actual fun String.decodeUrl(): Url {
 }
 
 actual fun Url.encode(): String {
+  return toURL().href
+}
+
+actual fun Url.encodePathAndQuery(): String {
+  val url = toURL()
+  return "${url.pathname}${url.search}"
+}
+
+fun Url.toURL(): URL {
   val hostname = when {
     subdomain != null -> "$subdomain.$topPrivateDomain"
     else -> topPrivateDomain
@@ -37,5 +46,5 @@ actual fun Url.encode(): String {
       result.searchParams.append(name, value.toString())
     }
   }
-  return result.href
+  return result
 }

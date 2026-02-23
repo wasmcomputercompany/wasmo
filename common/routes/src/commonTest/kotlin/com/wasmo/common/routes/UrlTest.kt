@@ -18,6 +18,20 @@ class UrlTest {
     val string = "https://jesse99.wasmo.dev/invite/1234?q=query-string"
     assertThat(string.decodeUrl()).isEqualTo(url)
     assertThat(url.encode()).isEqualTo(string)
+    assertThat(url.encodePathAndQuery()).isEqualTo("/invite/1234?q=query-string")
+  }
+
+  @Test
+  fun absentQuery() {
+    val url = Url(
+      scheme = "https",
+      topPrivateDomain = "wasmo.dev",
+      path = listOf("invite", "1234"),
+    )
+    val string = "https://wasmo.dev/invite/1234"
+    assertThat(string.decodeUrl()).isEqualTo(url)
+    assertThat(url.encode()).isEqualTo(string)
+    assertThat(url.encodePathAndQuery()).isEqualTo("/invite/1234")
   }
 
   /** OkHttp uses '%20', URLSearchParams uses '+'. */

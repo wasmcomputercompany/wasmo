@@ -21,6 +21,9 @@ expect fun String.decodeUrl(): Url
 
 expect fun Url.encode(): String
 
+/** Return the parts of this URL that can be navigated to without a hard navigation. */
+expect fun Url.encodePathAndQuery(): String
+
 val TopPrivateDomains = listOf(
   "wasmo.com",
   "wasmo.dev",

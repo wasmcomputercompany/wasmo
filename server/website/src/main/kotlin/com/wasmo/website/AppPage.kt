@@ -2,6 +2,7 @@ package com.wasmo.website
 
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.stripe.StripePublishableKey
+import com.wasmo.common.routes.RoutingContext
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.MapPageData
@@ -22,6 +23,7 @@ import okio.BufferedSink
 class AppPage(
   val baseUrl: HttpUrl,
   val stripePublishableKey: StripePublishableKey,
+  val routingContext: RoutingContext,
 ) : ResponseBody {
   val response: Response<ResponseBody>
     get() = Response(
@@ -32,6 +34,7 @@ class AppPage(
   override fun write(sink: BufferedSink) {
     val pageData = MapPageData.Builder(WasmoJson)
       .put("stripe_publishable_key", stripePublishableKey)
+      .put("routing_context", routingContext)
       .build()
 
     sink.writeUtf8("<!DOCTYPE html>")
@@ -98,6 +101,12 @@ class AppPage(
       return AppPage(
         baseUrl = deployment.baseUrl,
         stripePublishableKey = stripePublishableKey,
+        routingContext = RoutingContext(
+          rootUrl = deployment.baseUrl.toString(),
+          hasComputers = false,
+          hasInvite = false,
+          isAdmin = false,
+        ),
       ).response
     }
   }

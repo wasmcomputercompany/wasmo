@@ -1,9 +1,7 @@
 package com.wasmo.common.routes
 
-import kotlinx.serialization.Serializable
-
 class RealRouteCodec(
-  val context: Context,
+  private val context: RoutingContext,
 ) : RouteCodec {
 
   override fun decode(url: Url): Route {
@@ -12,16 +10,16 @@ class RealRouteCodec(
       return ComputerHomeRoute(subdomain)
     }
 
-    if (url.path.isEmpty()) {
-      return when {
-        context.hasComputers -> ComputersRoute
-        context.hasInvite -> BuildYoursRoute
-        else -> TeaserRoute
-      }
-    }
-
     if (url.path.size == 1) {
       return when (url.path.single()) {
+        "" -> {
+          when {
+            context.hasComputers -> ComputersRoute
+            context.hasInvite -> BuildYoursRoute
+            else -> TeaserRoute
+          }
+        }
+
         "admin" -> AdminRoute
         "build-yours" -> BuildYoursRoute
         "computers" -> ComputersRoute
@@ -76,16 +74,5 @@ class RealRouteCodec(
 
       NotFoundRoute -> context.root.copy(path = listOf("not-found"))
     }
-  }
-
-  @Serializable
-  data class Context(
-    val rootUrl: String,
-    val hasComputers: Boolean,
-    val hasInvite: Boolean,
-    val isAdmin: Boolean,
-  ) {
-    val root: Url
-      get() = rootUrl.decodeUrl()
   }
 }

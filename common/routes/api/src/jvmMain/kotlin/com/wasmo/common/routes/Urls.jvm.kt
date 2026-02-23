@@ -22,6 +22,20 @@ actual fun String.decodeUrl(): Url {
 }
 
 actual fun Url.encode(): String {
+  return toHttpUrl().toString()
+}
+
+actual fun Url.encodePathAndQuery(): String {
+  val httpUrl = toHttpUrl()
+  val encodedPath = httpUrl.encodedPath
+  val encodedQuery = httpUrl.encodedQuery
+  return when {
+    encodedQuery != null -> "$encodedPath?$encodedQuery"
+    else -> encodedPath
+  }
+}
+
+fun Url.toHttpUrl(): HttpUrl {
   val host = when {
     subdomain != null -> "$subdomain.$topPrivateDomain"
     else -> topPrivateDomain
@@ -41,5 +55,5 @@ actual fun Url.encode(): String {
     }
   }
 
-  return builder.build().toString()
+  return builder.build()
 }
