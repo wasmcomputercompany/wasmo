@@ -1,7 +1,8 @@
-package com.wasmo.home
+package com.wasmo.website
 
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.stripe.StripePublishableKey
+import com.wasmo.deployment.Deployment
 import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.MapPageData
 import com.wasmo.framework.Response
@@ -86,6 +87,18 @@ class AppPage(
       }
       body {
       }
+    }
+  }
+
+  class Factory(
+    val deployment: Deployment,
+    val stripePublishableKey: StripePublishableKey,
+  ) : AppPageFactory {
+    override fun create(): Response<ResponseBody> {
+      return AppPage(
+        baseUrl = deployment.baseUrl,
+        stripePublishableKey = stripePublishableKey,
+      ).response
     }
   }
 }

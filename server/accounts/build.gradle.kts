@@ -19,6 +19,7 @@ dependencies {
   implementation(project(":server:identifiers"))
   implementation(project(":server:passkeys:api"))
   implementation(project(":server:sendemail:api"))
+  implementation(project(":server:website:api"))
   testImplementation(libs.assertk)
   testImplementation(libs.kotlin.test.junit)
   testImplementation(libs.kotlinx.coroutines.test)

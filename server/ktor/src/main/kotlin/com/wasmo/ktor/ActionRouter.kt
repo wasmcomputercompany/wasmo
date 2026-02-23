@@ -5,6 +5,7 @@ import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
+import com.wasmo.accounts.invite.InvitePage
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.api.ConfirmEmailAddressRequest
@@ -29,7 +30,6 @@ import com.wasmo.computers.InstallAppAction
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.HttpException
 import com.wasmo.framework.Response
-import com.wasmo.home.HomePage
 import com.wasmo.passkeys.AuthenticatePasskeyAction
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.PasskeyLinker
@@ -39,6 +39,8 @@ import com.wasmo.sendemail.SendEmailService
 import com.wasmo.stripe.CreateCheckoutSessionAction
 import com.wasmo.stripe.GetSessionStatusAction
 import com.wasmo.stripe.StripeInitializer
+import com.wasmo.website.AppPageFactory
+import com.wasmo.website.home.HomePage
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log
@@ -64,6 +66,7 @@ class ActionRouter(
   val stripeInitializer: StripeInitializer,
   val catalog: Catalog,
   val wasmoDbService: WasmoDbService,
+  val appPageFactory: AppPageFactory,
 ) {
   private fun passkeyChecker(client: Client): PasskeyChecker = RealPasskeyChecker(
     challenger = client.challenger,
@@ -118,21 +121,48 @@ class ActionRouter(
     client = client,
   )
 
+  fun homePage(client: Client) = HomePage(
+    appPageFactory = appPageFactory,
+  )
+
+  fun invitePage(client: Client) = InvitePage(
+    appPageFactory = appPageFactory,
+    client = client,
+  )
+
   fun createRoutes() {
     application.install(CallLogging)
+
+    createPages()
+    createRpcs()
+
+    application.routing {
+      staticResources("/", "static")
+    }
+  }
+
+  private fun createPages() {
     application.routing {
       get("/") {
         val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
         clientAuthenticator.updateSessionCookie()
-        val action = HomePage(
-          deployment = deployment,
-          client = clientAuthenticator.get(),
-          stripePublishableKey = stripeInitializer.stripeCredentials.publishableKey,
-        )
+        val action = homePage(clientAuthenticator.get())
         val page = action.get()
-        call.respond(page.response)
+        call.respond(page)
       }
 
+      get("/invite/{code}") {
+        val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
+        clientAuthenticator.updateSessionCookie()
+        val action = invitePage(clientAuthenticator.get())
+        val page = action.invite(call.pathParameters["code"]!!)
+        call.respond(page)
+      }
+    }
+  }
+
+  private fun createRpcs() {
+    application.routing {
       rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
         path = "/register-passkey",
       ) { client, request, _ ->
@@ -191,8 +221,6 @@ class ActionRouter(
         val action = getSessionStatusAction(client)
         action.get(request)
       }
-
-      staticResources("/", "static")
     }
   }
 

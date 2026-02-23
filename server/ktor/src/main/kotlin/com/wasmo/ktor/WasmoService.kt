@@ -22,6 +22,7 @@ import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.stripe.StripeInitializer
+import com.wasmo.website.AppPage
 import io.ktor.server.netty.EngineMain
 import kotlin.time.Clock
 import okhttp3.OkHttpClient
@@ -101,6 +102,10 @@ class WasmoService(
     val passkeyLinkerFactory = PasskeyLinker.Factory(
       cookieQueries = wasmoDbService.cookieQueries,
     )
+    val appPageFactory = AppPage.Factory(
+      deployment = deployment,
+      stripePublishableKey = stripeInitializer.stripeCredentials.publishableKey,
+    )
     val actionRouter = ActionRouter(
       clock = clock,
       deployment = deployment,
@@ -113,6 +118,7 @@ class WasmoService(
       stripeInitializer = stripeInitializer,
       catalog = catalog,
       wasmoDbService = wasmoDbService,
+      appPageFactory = appPageFactory,
     )
     actionRouter.createRoutes()
 
