@@ -9,7 +9,7 @@ import com.wasmo.db.AppInstall
 import com.wasmo.db.Computer
 import com.wasmo.db.Cookie
 import com.wasmo.db.Passkey
-import com.wasmo.db.WasmComputerDb
+import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppInstallId
 import com.wasmo.identifiers.ComputerId
@@ -33,7 +33,7 @@ import org.apache.commons.pool2.impl.GenericObjectPool
 class WasmoDbService(
   val connectionPool: ObjectPool<PoolableConnection>,
   val jdbcDriver: JdbcDriver,
-) : Closeable by connectionPool, WasmComputerDb by WasmComputerDb.Companion(
+) : Closeable by connectionPool, WasmoDb by WasmoDb.Companion(
   jdbcDriver,
   AccountAdapter,
   AppInstallAdapter,
@@ -50,9 +50,9 @@ class WasmoDbService(
 
   fun migrate(
     oldVersion: Long = 0L,
-    newVersion: Long = WasmComputerDb.Schema.version,
+    newVersion: Long = WasmoDb.Schema.version,
   ) {
-    WasmComputerDb.Schema.migrate(jdbcDriver, oldVersion, newVersion)
+    WasmoDb.Schema.migrate(jdbcDriver, oldVersion, newVersion)
   }
 
   companion object {

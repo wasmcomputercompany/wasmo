@@ -1,5 +1,7 @@
 package com.wasmo.website
 
+import com.wasmo.accounts.AppPageFactory
+import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.routes.RoutingContext
@@ -24,6 +26,7 @@ class AppPage(
   val baseUrl: HttpUrl,
   val stripePublishableKey: StripePublishableKey,
   val routingContext: RoutingContext,
+  val accountSnapshot: AccountSnapshot,
 ) : ResponseBody {
   val response: Response<ResponseBody>
     get() = Response(
@@ -35,6 +38,7 @@ class AppPage(
     val pageData = MapPageData.Builder(WasmoJson)
       .put("stripe_publishable_key", stripePublishableKey)
       .put("routing_context", routingContext)
+      .put("account_snapshot", accountSnapshot)
       .build()
 
     sink.writeUtf8("<!DOCTYPE html>")
@@ -93,11 +97,13 @@ class AppPage(
     }
   }
 
-  class Factory(
+  class FactoryApp(
     val deployment: Deployment,
     val stripePublishableKey: StripePublishableKey,
   ) : AppPageFactory {
-    override fun create(): Response<ResponseBody> {
+    override fun create(
+      accountSnapshot: AccountSnapshot,
+    ): Response<ResponseBody> {
       return AppPage(
         baseUrl = deployment.baseUrl,
         stripePublishableKey = stripePublishableKey,
@@ -107,6 +113,7 @@ class AppPage(
           hasInvite = false,
           isAdmin = false,
         ),
+        accountSnapshot = accountSnapshot,
       ).response
     }
   }

@@ -1,11 +1,12 @@
 package com.wasmo.ktor
 
 import com.wasmo.accounts.AccountStore
+import com.wasmo.accounts.AppPageFactory
 import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
-import com.wasmo.accounts.invite.InvitePage
+import com.wasmo.accounts.invite.InvitePageAction
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.api.ConfirmEmailAddressRequest
@@ -39,8 +40,7 @@ import com.wasmo.sendemail.SendEmailService
 import com.wasmo.stripe.CreateCheckoutSessionAction
 import com.wasmo.stripe.GetSessionStatusAction
 import com.wasmo.stripe.StripeInitializer
-import com.wasmo.website.AppPageFactory
-import com.wasmo.website.home.HomePage
+import com.wasmo.website.AppPageAction
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log
@@ -121,13 +121,18 @@ class ActionRouter(
     client = client,
   )
 
-  fun homePage(client: Client) = HomePage(
+  fun appPage(client: Client) = AppPageAction(
+    client = client,
+    accountStoreFactory = accountStoreFactory,
     appPageFactory = appPageFactory,
+    wasmoDbService = wasmoDbService,
   )
 
-  fun invitePage(client: Client) = InvitePage(
-    appPageFactory = appPageFactory,
+  fun invitePage(client: Client) = InvitePageAction(
     client = client,
+    accountStoreFactory = accountStoreFactory,
+    appPageFactory = appPageFactory,
+    wasmoDbService = wasmoDbService,
   )
 
   fun createRoutes() {
@@ -146,7 +151,7 @@ class ActionRouter(
       get("/") {
         val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
         clientAuthenticator.updateSessionCookie()
-        val action = homePage(clientAuthenticator.get())
+        val action = appPage(clientAuthenticator.get())
         val page = action.get()
         call.respond(page)
       }

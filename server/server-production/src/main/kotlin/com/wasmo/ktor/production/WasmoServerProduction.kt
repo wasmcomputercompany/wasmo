@@ -48,7 +48,7 @@ fun main(args: Array<String>) {
     ),
     catalog = DevelopmentCatalog,
     postgresDatabaseHostname = "localhost",
-    postgresDatabaseName = "wasmcomputer_production",
+    postgresDatabaseName = "wasmo_production",
     postgresDatabaseUser = "postgres",
     postgresDatabasePassword = "password",
     deployment = Deployment(

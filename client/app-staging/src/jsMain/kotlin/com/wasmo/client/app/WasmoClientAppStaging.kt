@@ -13,6 +13,9 @@ fun startOnLoad() {
 }
 
 object StagingEnvironment : Environment {
+  override val passkeyUser: String
+    get() = "passkeys@wasmo.dev"
+
   override val warningLabel: String
     get() = "wasmo.dev"
 

@@ -22,7 +22,7 @@ dependencies {
 
 sqldelight {
   databases {
-    create("WasmComputerDb") {
+    create("WasmoDb") {
       packageName.set("com.wasmo.db")
       dialect("app.cash.sqldelight:postgresql-dialect:${libs.versions.sqldelight.get()}")
       deriveSchemaFromMigrations.set(true)

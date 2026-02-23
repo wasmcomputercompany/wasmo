@@ -119,7 +119,7 @@ class WasmoServiceTester private constructor(
   companion object {
     fun start(): WasmoServiceTester {
       val service = WasmoDbService.start(
-        databaseName = "wasmcomputer_test",
+        databaseName = "wasmo_test",
         user = "postgres",
         password = "password",
         hostname = "localhost",

@@ -1,12 +1,15 @@
 package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.RealWasmoApi
+import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.client.app.browser.RealBrowser
@@ -14,6 +17,7 @@ import com.wasmo.client.app.buildyours.BuildYoursScreen
 import com.wasmo.client.app.buildyours.BuildYoursScreenEvent
 import com.wasmo.client.app.invite.InviteEvent
 import com.wasmo.client.app.invite.InviteScreen
+import com.wasmo.client.app.invite.InviteState
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.app.stripe.CheckoutScreen
@@ -33,7 +37,11 @@ import com.wasmo.common.routes.RoutingContext
 import com.wasmo.common.routes.TeaserRoute
 import com.wasmo.framework.PageData
 import com.wasmo.framework.detectPageData
+import com.wasmo.passkeys.RealPasskeyAuthenticator
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.Text
@@ -50,6 +58,8 @@ class WasmoClientApp(
     ?: error("required stripe_publishable_key pageData not found")
   val routingContext = pageData.get<RoutingContext>("routing_context")
     ?: error("required routing_context pageData not found")
+  val accountSnapshot = pageData.get<AccountSnapshot>("account_snapshot")
+    ?: error("required account_snapshot pageData not found")
   val wasmoApi = RealWasmoApi()
   val checkoutSessionFactory = CheckoutSession.Factory(
     stripePublishableKey = stripePublishableKey,
@@ -64,6 +74,7 @@ class WasmoClientApp(
     routeCodec = routeCodec,
     browser = browser,
   )
+  val passkeyAuthenticator = RealPasskeyAuthenticator()
 
   fun start() {
     router.start()
@@ -79,13 +90,13 @@ class WasmoClientApp(
       when (route) {
         AdminRoute -> {
           H1 {
-            Text("AdminRoute")
+            Text("Admin")
           }
         }
 
         is AfterCheckoutRoute -> {
           H1 {
-            Text("AfterCheckoutRoute")
+            Text("After Checkout")
           }
         }
 
@@ -97,13 +108,13 @@ class WasmoClientApp(
 
         is ComputerHomeRoute -> {
           H1 {
-            Text("ComputerHomeRoute")
+            Text("Computer Home")
           }
         }
 
         ComputersRoute -> {
           H1 {
-            Text("ComputersRoute")
+            Text("Computers")
           }
         }
 
@@ -113,7 +124,7 @@ class WasmoClientApp(
 
         NotFoundRoute -> {
           H1 {
-            Text("NotFoundRoute")
+            Text("Not Found")
           }
         }
 
@@ -144,12 +155,38 @@ class WasmoClientApp(
   fun InviteRoute(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
   ) {
-    InviteScreen(
-      attrs = attrs,
-    ) { event ->
-      when (event) {
-        InviteEvent.ClickAccept -> {
-          router.goTo(BuildYoursRoute, TransitionDirection.REPLACE)
+    var inviteState by remember { mutableStateOf(InviteState.Ready) }
+    val scope = rememberCoroutineScope()
+
+    var formState by remember { mutableStateOf(FormState.Ready) }
+    CompositionLocalProvider(LocalFormState provides formState) {
+      InviteScreen(
+        attrs = attrs,
+        inviteState = inviteState,
+      ) { event ->
+        when (event) {
+          InviteEvent.ClickAccept -> {
+            inviteState = InviteState.ClientBusy
+            scope.launch {
+              try {
+                val passkeyRegistration = passkeyAuthenticator.register(
+                  user = environment.passkeyUser,
+                  challenge = accountSnapshot.nextChallenge,
+                )
+                inviteState = InviteState.ServerBusy
+                wasmoApi.registerPasskey(
+                  RegisterPasskeyRequest(passkeyRegistration),
+                )
+                router.goTo(BuildYoursRoute, TransitionDirection.REPLACE)
+              } catch (e: Throwable) {
+                logger.info("passkey failed", e)
+                inviteState = InviteState.Failed
+                delay(2.seconds)
+              } finally {
+                inviteState = InviteState.Ready
+              }
+            }
+          }
         }
       }
     }

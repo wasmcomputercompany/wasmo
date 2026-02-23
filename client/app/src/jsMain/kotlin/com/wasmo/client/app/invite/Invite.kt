@@ -1,15 +1,8 @@
 package com.wasmo.client.app.invite
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import com.wasmo.client.app.FormScreen
-import com.wasmo.client.app.FormState
 import com.wasmo.client.app.FormWasmoLogo
-import com.wasmo.client.app.LocalFormState
 import com.wasmo.client.app.PrimaryButton
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.marginBottom
@@ -25,54 +18,64 @@ import org.w3c.dom.HTMLDivElement
 @Composable
 fun InviteScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
+  inviteState: InviteState,
   eventListener: (InviteEvent) -> Unit,
 ) {
-  var formState by remember { mutableStateOf(FormState.Ready) }
-  CompositionLocalProvider(LocalFormState provides formState) {
-    FormScreen(
+  FormScreen(
+    attrs = {
+      classes("InviteScreen")
+      style {
+        paddingBottom(48.px)
+      }
+      attrs()
+    },
+  ) {
+    FormWasmoLogo()
+
+    H2(
       attrs = {
-        classes("InviteScreen")
         style {
-          paddingBottom(48.px)
+          textAlign("center")
+          marginTop(24.px)
+          marginBottom(36.px)
         }
-        attrs()
       },
     ) {
-      FormWasmoLogo()
+      Text("Your Cloud Computer")
+    }
 
-      H2(
-        attrs = {
-          style {
-            textAlign("center")
-            marginTop(24.px)
-            marginBottom(36.px)
-          }
-        },
-      ) {
-        Text("Your Cloud Computer")
-      }
+    P {
+      Text("You've been invited to look around our wildly incomplete website. Please send feedback to jessewilson.99 on Signal.")
+    }
 
-      P {
-        Text("You've been invited to look around our wildly incomplete website. Please send feedback to jessewilson.99 on Signal.")
-      }
-
-      PrimaryButton(
-        attrs = {
-          style {
-            marginTop(24.px)
-            marginBottom(24.px)
-          }
-          onClick {
-            eventListener(
-              InviteEvent.ClickAccept
-            )
-          }
+    PrimaryButton(
+      attrs = {
+        style {
+          marginTop(24.px)
+          marginBottom(24.px)
         }
-      ) {
-        Text("Accept Invite")
+        onClick {
+          eventListener(
+            InviteEvent.ClickAccept,
+          )
+        }
+      },
+    ) {
+      when (inviteState) {
+        InviteState.Ready -> Text("Accept Invite")
+        InviteState.ClientBusy -> Text("...")
+        InviteState.ServerBusy -> Text("...")
+        InviteState.Failed -> Text("Failed")
       }
     }
   }
+}
+
+enum class InviteState {
+  Ready,
+  ClientBusy,
+  ServerBusy,
+  Failed,
 }
 
 sealed interface InviteEvent {

@@ -102,7 +102,7 @@ class WasmoService(
     val passkeyLinkerFactory = PasskeyLinker.Factory(
       cookieQueries = wasmoDbService.cookieQueries,
     )
-    val appPageFactory = AppPage.Factory(
+    val appPageFactory = AppPage.FactoryApp(
       deployment = deployment,
       stripePublishableKey = stripeInitializer.stripeCredentials.publishableKey,
     )
