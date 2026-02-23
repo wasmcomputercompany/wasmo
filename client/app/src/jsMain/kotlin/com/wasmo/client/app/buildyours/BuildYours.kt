@@ -11,6 +11,7 @@ import com.wasmo.client.app.Checkbox
 import com.wasmo.client.app.FinePrint
 import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.FormState
+import com.wasmo.client.app.FormWasmoLogo
 import com.wasmo.client.app.LocalFormState
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.SecondaryButton
@@ -22,10 +23,8 @@ import com.wasmo.compose.ToolbarTitle
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.builders.InputAttrsScope
-import org.jetbrains.compose.web.css.AlignSelf
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
-import org.jetbrains.compose.web.css.alignSelf
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flex
 import org.jetbrains.compose.web.css.flexDirection
@@ -37,7 +36,6 @@ import org.jetbrains.compose.web.css.textAlign
 import org.jetbrains.compose.web.dom.Br
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H2
-import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.Li
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
@@ -66,17 +64,7 @@ fun BuildYoursScreen(
     ) {
       BuildYoursToolbar()
 
-      Img(
-        src = "/assets/wasmo1000x300.svg",
-        alt = "Wasmo",
-        attrs = {
-          style {
-            alignSelf(AlignSelf.Center)
-            property("width", "350px")
-            property("height", "105px")
-          }
-        },
-      )
+      FormWasmoLogo()
 
       H2(
         attrs = {

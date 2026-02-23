@@ -158,6 +158,13 @@ a:hover {
   background: #4c6d81;
 }
 
+/* InviteScreen */
+
+.InviteScreen {
+  background: #1d72c2;
+  background: linear-gradient(135deg,rgba(29, 114, 194, 1) 0%, rgba(70, 112, 75, 1) 56%, rgba(35, 9, 74, 1) 100%);
+}
+
 /* Toolbar */
 
 .Toolbar {

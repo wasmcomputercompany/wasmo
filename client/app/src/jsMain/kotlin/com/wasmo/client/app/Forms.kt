@@ -8,10 +8,12 @@ import org.jetbrains.compose.web.attributes.builders.InputAttrsScope
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.size
 import org.jetbrains.compose.web.css.AlignItems
+import org.jetbrains.compose.web.css.AlignSelf
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.alignItems
+import org.jetbrains.compose.web.css.alignSelf
 import org.jetbrains.compose.web.css.background
 import org.jetbrains.compose.web.css.boxSizing
 import org.jetbrains.compose.web.css.columnGap
@@ -31,6 +33,7 @@ import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.ContentBuilder
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H3
+import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
@@ -82,6 +85,7 @@ fun FormScreen(
           alignItems(AlignItems.Stretch)
           justifyContent(JustifyContent.Start)
           boxSizing("border-box")
+          property("margin", "auto 0")
           property("width", "min(100%, 420px)")
         }
       },
@@ -89,6 +93,21 @@ fun FormScreen(
       content()
     }
   }
+}
+
+@Composable
+fun FormWasmoLogo() {
+  Img(
+    src = "/assets/wasmo1000x300.svg",
+    alt = "Wasmo",
+    attrs = {
+      style {
+        alignSelf(AlignSelf.Center)
+        property("width", "350px")
+        property("height", "105px")
+      }
+    },
+  )
 }
 
 @Composable
