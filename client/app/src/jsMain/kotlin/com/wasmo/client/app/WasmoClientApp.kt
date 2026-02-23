@@ -12,6 +12,8 @@ import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.client.app.browser.RealBrowser
 import com.wasmo.client.app.buildyours.BuildYoursScreen
 import com.wasmo.client.app.buildyours.BuildYoursScreenEvent
+import com.wasmo.client.app.invite.InviteEvent
+import com.wasmo.client.app.invite.InviteScreen
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.app.stripe.CheckoutScreen
@@ -106,9 +108,7 @@ class WasmoClientApp(
         }
 
         is InviteRoute -> {
-          H1 {
-            Text("InviteRoute")
-          }
+          InviteRoute(attrs = attrs)
         }
 
         NotFoundRoute -> {
@@ -128,13 +128,28 @@ class WasmoClientApp(
   fun TeaserRoute(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
   ) {
-    Home(
+    TeaserScreen(
       attrs = attrs,
       showSignUp = environment.showSignUp,
     ) { event ->
       when (event) {
         HomeEvent.SignUp -> {
           router.goTo(BuildYoursRoute, TransitionDirection.PUSH)
+        }
+      }
+    }
+  }
+
+  @Composable
+  fun InviteRoute(
+    attrs: AttrsScope<HTMLElement>.() -> Unit,
+  ) {
+    InviteScreen(
+      attrs = attrs,
+    ) { event ->
+      when (event) {
+        InviteEvent.ClickAccept -> {
+          router.goTo(BuildYoursRoute, TransitionDirection.REPLACE)
         }
       }
     }

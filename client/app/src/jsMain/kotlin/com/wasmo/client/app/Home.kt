@@ -24,14 +24,14 @@ import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLDivElement
 
 @Composable
-fun Home(
+fun TeaserScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   showSignUp: Boolean,
   eventListener: (HomeEvent) -> Unit,
 ) {
   Div(
     attrs = {
-      classes("HomeScreen")
+      classes("TeaserScreen")
       style {
         width(100.percent)
         height(100.percent)
