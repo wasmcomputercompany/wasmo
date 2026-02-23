@@ -31,6 +31,7 @@ kotlin {
         implementation(project(":common:api"))
         implementation(project(":common:framework"))
         implementation(project(":common:logging"))
+        implementation(project(":common:routes"))
       }
     }
     val jsTest by getting {

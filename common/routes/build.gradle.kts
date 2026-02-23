@@ -1,6 +1,5 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -12,17 +11,23 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.kotlinx.serialization.json)
-        implementation(libs.okio)
-        implementation(project(":common:json"))
-        implementation(project(":common:tokens"))
+        implementation(project(":common:routes:api"))
       }
     }
     commonTest {
       dependencies {
         implementation(libs.assertk)
         implementation(libs.kotlin.test)
+      }
+    }
+    jsTest {
+      dependencies {
+        implementation(libs.kotlin.test.js)
+      }
+    }
+    jvmTest {
+      dependencies {
+        implementation(libs.kotlin.test.junit)
       }
     }
   }

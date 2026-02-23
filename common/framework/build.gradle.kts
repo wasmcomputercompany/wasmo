@@ -6,7 +6,6 @@ plugins {
 kotlin {
   js {
     browser()
-    useEsModules()
   }
   jvm()
 
