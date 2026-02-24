@@ -2,6 +2,7 @@ package com.wasmo.website
 
 import com.wasmo.accounts.AppPageFactory
 import com.wasmo.api.AccountSnapshot
+import com.wasmo.api.InviteTicket
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.routes.RoutingContext
@@ -24,9 +25,7 @@ import okio.BufferedSink
 
 class AppPage(
   val baseUrl: HttpUrl,
-  val stripePublishableKey: StripePublishableKey,
-  val routingContext: RoutingContext,
-  val accountSnapshot: AccountSnapshot,
+  val pageData: MapPageData,
 ) : ResponseBody {
   val response: Response<ResponseBody>
     get() = Response(
@@ -35,12 +34,6 @@ class AppPage(
     )
 
   override fun write(sink: BufferedSink) {
-    val pageData = MapPageData.Builder(WasmoJson)
-      .put("stripe_publishable_key", stripePublishableKey)
-      .put("routing_context", routingContext)
-      .put("account_snapshot", accountSnapshot)
-      .build()
-
     sink.writeUtf8("<!DOCTYPE html>")
     sink.writeHtml {
       head {
@@ -103,17 +96,29 @@ class AppPage(
   ) : AppPageFactory {
     override fun create(
       accountSnapshot: AccountSnapshot,
+      inviteTicket: InviteTicket?,
     ): Response<ResponseBody> {
+      val routingContext = RoutingContext(
+        rootUrl = deployment.baseUrl.toString(),
+        hasComputers = false,
+        hasInvite = false,
+        isAdmin = false,
+      )
+
+      val pageData = MapPageData.Builder(WasmoJson)
+        .put("stripe_publishable_key", stripePublishableKey)
+        .put("routing_context", routingContext)
+        .put("account_snapshot", accountSnapshot)
+        .apply {
+          if (inviteTicket != null) {
+            put("invite_ticket", inviteTicket)
+          }
+        }
+        .build()
+
       return AppPage(
         baseUrl = deployment.baseUrl,
-        stripePublishableKey = stripePublishableKey,
-        routingContext = RoutingContext(
-          rootUrl = deployment.baseUrl.toString(),
-          hasComputers = false,
-          hasInvite = false,
-          isAdmin = false,
-        ),
-        accountSnapshot = accountSnapshot,
+        pageData = pageData,
       ).response
     }
   }

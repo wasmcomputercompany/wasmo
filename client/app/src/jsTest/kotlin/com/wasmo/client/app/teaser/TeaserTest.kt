@@ -1,11 +1,11 @@
-package com.wasmo.client.app
+package com.wasmo.client.app.teaser
 
 import app.cash.burst.InterceptTest
 import com.wasmo.domtester.SnapshotTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
-class HomeTest {
+class TeaserTest {
   @InterceptTest
   val snapshotTester = SnapshotTester(
     stylesheetsUrls = listOf(

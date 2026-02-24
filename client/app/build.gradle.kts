@@ -28,6 +28,7 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
         implementation(project(":client:compose"))
+        implementation(project(":client:framework"))
         implementation(project(":client:passkeys"))
         implementation(project(":client:passkeys:api"))
         implementation(project(":common:api"))

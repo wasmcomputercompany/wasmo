@@ -1,4 +1,4 @@
-package com.wasmo.client.app
+package com.wasmo.client.app.teaser
 
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.attributes.AttrsScope
@@ -27,7 +27,7 @@ import org.w3c.dom.HTMLDivElement
 fun TeaserScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   showSignUp: Boolean,
-  eventListener: (HomeEvent) -> Unit,
+  eventListener: (TeaserEvent) -> Unit,
 ) {
   Div(
     attrs = {
@@ -84,7 +84,7 @@ fun TeaserScreen(
         A(
           attrs = {
             onClick {
-              eventListener(HomeEvent.SignUp)
+              eventListener(TeaserEvent.SignUp)
             }
           },
         ) {
@@ -109,6 +109,6 @@ fun TeaserScreen(
   }
 }
 
-interface HomeEvent {
-  object SignUp : HomeEvent
+interface TeaserEvent {
+  object SignUp : TeaserEvent
 }

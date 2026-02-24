@@ -1,229 +1,84 @@
 package com.wasmo.client.app
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.RealWasmoApi
-import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.client.app.browser.RealBrowser
-import com.wasmo.client.app.buildyours.BuildYoursScreen
-import com.wasmo.client.app.buildyours.BuildYoursScreenEvent
-import com.wasmo.client.app.invite.InviteEvent
-import com.wasmo.client.app.invite.InviteScreen
-import com.wasmo.client.app.invite.InviteState
+import com.wasmo.client.app.buildyours.BuildYoursUi
+import com.wasmo.client.app.invite.InviteUi
 import com.wasmo.client.app.routing.Router
-import com.wasmo.client.app.routing.TransitionDirection
-import com.wasmo.client.app.stripe.CheckoutScreen
 import com.wasmo.client.app.stripe.CheckoutSession
+import com.wasmo.client.app.teaser.TeaserUi
+import com.wasmo.client.app.ui.UiFactory
 import com.wasmo.common.logging.ConsoleLogger
 import com.wasmo.common.logging.Logger
-import com.wasmo.common.routes.AdminRoute
-import com.wasmo.common.routes.AfterCheckoutRoute
-import com.wasmo.common.routes.BuildYoursRoute
-import com.wasmo.common.routes.ComputerHomeRoute
-import com.wasmo.common.routes.ComputersRoute
-import com.wasmo.common.routes.InviteRoute
-import com.wasmo.common.routes.NotFoundRoute
 import com.wasmo.common.routes.RealRouteCodec
-import com.wasmo.common.routes.Route
 import com.wasmo.common.routes.RoutingContext
-import com.wasmo.common.routes.TeaserRoute
 import com.wasmo.framework.PageData
 import com.wasmo.framework.detectPageData
 import com.wasmo.passkeys.RealPasskeyAuthenticator
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import org.jetbrains.compose.web.attributes.AttrsScope
-import org.jetbrains.compose.web.dom.H1
-import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.renderComposableInBody
-import org.w3c.dom.HTMLElement
 
 class WasmoClientApp(
   val logger: Logger = ConsoleLogger,
   val environment: Environment,
 ) {
-  val scope = MainScope()
-  val pageData: PageData = detectPageData(WasmoJson)
-  val stripePublishableKey = pageData.get<StripePublishableKey>("stripe_publishable_key")
+  private val scope = MainScope()
+  private val pageData: PageData = detectPageData(WasmoJson)
+  private val stripePublishableKey = pageData.get<StripePublishableKey>("stripe_publishable_key")
     ?: error("required stripe_publishable_key pageData not found")
-  val routingContext = pageData.get<RoutingContext>("routing_context")
+  private val routingContext = pageData.get<RoutingContext>("routing_context")
     ?: error("required routing_context pageData not found")
-  val accountSnapshot = pageData.get<AccountSnapshot>("account_snapshot")
+  private val accountSnapshot = pageData.get<AccountSnapshot>("account_snapshot")
     ?: error("required account_snapshot pageData not found")
-  val wasmoApi = RealWasmoApi()
-  val checkoutSessionFactory = CheckoutSession.Factory(
+  private val wasmoApi = RealWasmoApi()
+  private val checkoutSessionFactory = CheckoutSession.Factory(
     stripePublishableKey = stripePublishableKey,
     wasmoApi = wasmoApi,
   )
-  val browser = RealBrowser()
-  val routeCodec = RealRouteCodec(
+  private val browser = RealBrowser()
+  private val routeCodec = RealRouteCodec(
     context = routingContext,
   )
-  val router = Router(
+  private val router = Router(
     scope = scope,
     routeCodec = routeCodec,
     browser = browser,
   )
-  val passkeyAuthenticator = RealPasskeyAuthenticator()
+  private val passkeyAuthenticator = RealPasskeyAuthenticator()
+
+  private val uiFactory = UiFactory(
+    pageData = pageData,
+    accountSnapshot = accountSnapshot,
+    inviteUiFactory = InviteUi.Factory(
+      router = router,
+      passkeyAuthenticator = passkeyAuthenticator,
+      wasmoApi = wasmoApi,
+      logger = logger,
+      environment = environment,
+    ),
+    buildYoursUiFactory = BuildYoursUi.Factory(
+      checkoutSessionFactory = checkoutSessionFactory,
+      router = router,
+    ),
+    teaserUiFactory = TeaserUi.Factory(
+      environment = environment,
+      router = router,
+    ),
+  )
 
   fun start() {
     router.start()
     renderComposableInBody {
       val route = router.current.value ?: return@renderComposableInBody
-      ShowRoute(route)
-    }
-  }
+      val ui = remember(route) { uiFactory.create(route) }
 
-  @Composable
-  fun ShowRoute(route: Route) {
-    EnvironmentFrame(environment) { attrs ->
-      when (route) {
-        AdminRoute -> {
-          H1 {
-            Text("Admin")
-          }
-        }
-
-        is AfterCheckoutRoute -> {
-          H1 {
-            Text("After Checkout")
-          }
-        }
-
-        BuildYoursRoute -> {
-          BuildYoursRoute(
-            attrs = attrs,
-          )
-        }
-
-        is ComputerHomeRoute -> {
-          H1 {
-            Text("Computer Home")
-          }
-        }
-
-        ComputersRoute -> {
-          H1 {
-            Text("Computers")
-          }
-        }
-
-        is InviteRoute -> {
-          InviteRoute(attrs = attrs)
-        }
-
-        NotFoundRoute -> {
-          H1 {
-            Text("Not Found")
-          }
-        }
-
-        TeaserRoute -> {
-          TeaserRoute(attrs = attrs)
-        }
+      EnvironmentFrame(environment) { attrs ->
+        ui.Show(attrs = attrs)
       }
     }
-  }
-
-  @Composable
-  fun TeaserRoute(
-    attrs: AttrsScope<HTMLElement>.() -> Unit,
-  ) {
-    TeaserScreen(
-      attrs = attrs,
-      showSignUp = environment.showSignUp,
-    ) { event ->
-      when (event) {
-        HomeEvent.SignUp -> {
-          router.goTo(BuildYoursRoute, TransitionDirection.PUSH)
-        }
-      }
-    }
-  }
-
-  @Composable
-  fun InviteRoute(
-    attrs: AttrsScope<HTMLElement>.() -> Unit,
-  ) {
-    var inviteState by remember { mutableStateOf(InviteState.Ready) }
-    val scope = rememberCoroutineScope()
-
-    var formState by remember { mutableStateOf(FormState.Ready) }
-    CompositionLocalProvider(LocalFormState provides formState) {
-      InviteScreen(
-        attrs = attrs,
-        inviteState = inviteState,
-      ) { event ->
-        when (event) {
-          InviteEvent.ClickAccept -> {
-            inviteState = InviteState.ClientBusy
-            scope.launch {
-              try {
-                val passkeyRegistration = passkeyAuthenticator.register(
-                  user = environment.passkeyUser,
-                  challenge = accountSnapshot.nextChallenge,
-                )
-                inviteState = InviteState.ServerBusy
-                wasmoApi.registerPasskey(
-                  RegisterPasskeyRequest(passkeyRegistration),
-                )
-                router.goTo(BuildYoursRoute, TransitionDirection.REPLACE)
-              } catch (e: Throwable) {
-                logger.info("passkey failed", e)
-                inviteState = InviteState.Failed
-                delay(2.seconds)
-              } finally {
-                inviteState = InviteState.Ready
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  @Composable
-  fun BuildYoursRoute(
-    attrs: AttrsScope<HTMLElement>.() -> Unit,
-  ) {
-    val coroutineScope = rememberCoroutineScope()
-    var showBuildForm by remember { mutableStateOf(false) }
-    var checkoutSessionState by remember { mutableStateOf<CheckoutSession?>(null) }
-
-    val checkoutSession = checkoutSessionState
-    if (checkoutSession != null) {
-      CheckoutScreen(checkoutSession)
-      return
-    }
-
-    BuildYoursScreen(
-      attrs = attrs,
-      showBuildForm = showBuildForm,
-      eventListener = {
-        when (it) {
-          BuildYoursScreenEvent.ClickBuildYours -> {
-            showBuildForm = true
-          }
-
-          BuildYoursScreenEvent.ClickCheckOut -> {
-            checkoutSessionState = checkoutSessionFactory.create(coroutineScope)
-          }
-
-          BuildYoursScreenEvent.ClickQuestions -> {
-            router.goTo(TeaserRoute, TransitionDirection.POP)
-          }
-        }
-      },
-    )
   }
 }
