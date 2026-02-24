@@ -95,7 +95,7 @@ class WasmoServiceTester private constructor(
     val sessionCookie = clientAuthenticator.updateSessionCookie()
     return ClientTester(
       clock = clock,
-      service = service,
+      wasmoDbService = service,
       deployment = deployment,
       sendEmailService = sendEmailService,
       clientAuthenticator = clientAuthenticator,

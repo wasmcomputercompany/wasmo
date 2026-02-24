@@ -22,6 +22,8 @@ dependencies {
   implementation(project(":common:api"))
   implementation(project(":common:catalog"))
   implementation(project(":common:framework"))
+  implementation(project(":common:routes"))
+  implementation(project(":common:routes:api"))
   implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
   implementation(project(":server:accounts"))

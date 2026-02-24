@@ -3,9 +3,10 @@ package com.wasmo.accounts.passkeys
 
 import com.wasmo.accounts.AccountStore
 import com.wasmo.accounts.Client
+import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
-import com.wasmo.db.PasskeyQueries
+import com.wasmo.app.db.WasmoDbService
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
 import kotlin.time.Clock
@@ -15,7 +16,8 @@ class RegisterPasskeyAction(
   private val accountStoreFactory: AccountStore.Factory,
   private val client: Client,
   private val passkeyChecker: PasskeyChecker,
-  private val passkeyQueries: PasskeyQueries,
+  private val wasmoDbService: WasmoDbService,
+  private val inviteService: InviteService,
 ) {
   fun register(
     request: RegisterPasskeyRequest,
@@ -23,10 +25,10 @@ class RegisterPasskeyAction(
     val accountStore = accountStoreFactory.create(client)
     val registerResult = passkeyChecker.register(request.registration)
 
-    return passkeyQueries.transactionWithResult(noEnclosing = true) {
+    return wasmoDbService.transactionWithResult(noEnclosing = true) {
       val accountId = client.getOrCreateAccountId()
 
-      passkeyQueries.insertPasskey(
+      wasmoDbService.passkeyQueries.insertPasskey(
         created_at = clock.now(),
         account_id = accountId,
         passkey_id = registerResult.id,
@@ -35,6 +37,11 @@ class RegisterPasskeyAction(
         created_by_ip = client.ip,
         registration_record = registerResult.record,
       ).value
+
+      val inviteCode = request.inviteCode
+      if (inviteCode != null) {
+        inviteService.claim(client, inviteCode)
+      }
 
       Response(
         body = RegisterPasskeyResponse(

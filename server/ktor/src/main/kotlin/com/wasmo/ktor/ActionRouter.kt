@@ -1,21 +1,28 @@
 package com.wasmo.ktor
 
+import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.AccountStore
 import com.wasmo.accounts.AppPageFactory
 import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
+import com.wasmo.accounts.invite.CreateInviteAction
 import com.wasmo.accounts.invite.InvitePageAction
+import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.PasskeyLinker
 import com.wasmo.accounts.passkeys.RegisterPasskeyAction
+import com.wasmo.api.AccountSnapshotRequest
+import com.wasmo.api.AccountSnapshotResponse
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.CreateComputerResponse
+import com.wasmo.api.CreateInviteRequest
+import com.wasmo.api.CreateInviteResponse
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.api.LinkEmailAddressRequest
@@ -28,6 +35,7 @@ import com.wasmo.api.stripe.GetSessionStatusRequest
 import com.wasmo.api.stripe.GetSessionStatusResponse
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
+import com.wasmo.common.routes.RouteCodec
 import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
@@ -67,10 +75,25 @@ class ActionRouter(
   val catalog: Catalog,
   val wasmoDbService: WasmoDbService,
   val appPageFactory: AppPageFactory,
+  val routeCodec: RouteCodec,
+  val inviteService: InviteService,
 ) {
   private fun passkeyChecker(client: Client): PasskeyChecker = RealPasskeyChecker(
     challenger = client.challenger,
     deployment = deployment,
+  )
+
+  fun accountSnapshotAction(client: Client) = AccountSnapshotAction(
+    accountStoreFactory = accountStoreFactory,
+    client = client,
+    wasmoDbService = wasmoDbService,
+  )
+
+  fun createInviteAction(client: Client) = CreateInviteAction(
+    client = client,
+    routeCodec = routeCodec,
+    wasmoDbService = wasmoDbService,
+    inviteService = inviteService,
   )
 
   fun registerPasskeyAction(client: Client) = RegisterPasskeyAction(
@@ -78,7 +101,8 @@ class ActionRouter(
     accountStoreFactory = accountStoreFactory,
     client = client,
     passkeyChecker = passkeyChecker(client),
-    passkeyQueries = wasmoDbService.passkeyQueries,
+    wasmoDbService = wasmoDbService,
+    inviteService = inviteService,
   )
 
   fun authenticatePasskeyAction(client: Client) = AuthenticatePasskeyAction(
@@ -86,7 +110,8 @@ class ActionRouter(
     passkeyChecker = passkeyChecker(client),
     passkeyLinkerFactory = passkeyLinkerFactory,
     accountStoreFactory = accountStoreFactory,
-    passkeyQueries = wasmoDbService.passkeyQueries,
+    wasmoDbService = wasmoDbService,
+    inviteService = inviteService,
   )
 
   fun linkEmailAddressAction(client: Client) = LinkEmailAddressAction(
@@ -168,6 +193,20 @@ class ActionRouter(
 
   private fun createRpcs() {
     application.routing {
+      rpc<CreateInviteRequest, CreateInviteResponse>(
+        path = "/create-invite",
+      ) { client, request, _ ->
+        val action = createInviteAction(client)
+        action.create(request)
+      }
+
+      rpc<AccountSnapshotRequest, AccountSnapshotResponse>(
+        path = "/account-snapshot",
+      ) { client, request, _ ->
+        val action = accountSnapshotAction(client)
+        action.get(request)
+      }
+
       rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
         path = "/register-passkey",
       ) { client, request, _ ->

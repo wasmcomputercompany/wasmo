@@ -8,9 +8,12 @@ import com.wasmo.accounts.RealAccountStore
 import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieEncoder
 import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.PasskeyLinker
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
+import com.wasmo.common.routes.RealRouteCodec
+import com.wasmo.common.routes.RoutingContext
 import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.deployment.Deployment
@@ -79,7 +82,7 @@ class WasmoService(
     val authenticatorDatabase = RealAuthenticatorDatabase()
     val accountStoreFactory = RealAccountStore.Factory(
       authenticatorDatabase = authenticatorDatabase,
-      passkeyQueries = wasmoDbService.passkeyQueries,
+      wasmoDbService = wasmoDbService,
     )
     val rootObjectStore = objectStoreFactory.open(objectStoreAddress)
     val computerStore = RealComputerStore(
@@ -106,6 +109,15 @@ class WasmoService(
       deployment = deployment,
       stripePublishableKey = stripeInitializer.stripeCredentials.publishableKey,
     )
+    val inviteService = InviteService(clock, wasmoDbService)
+    val routeCodec = RealRouteCodec(
+      RoutingContext(
+        rootUrl = deployment.baseUrl.toString(),
+        hasComputers = false,
+        hasInvite = false,
+        isAdmin = false,
+      ),
+    )
     val actionRouter = ActionRouter(
       clock = clock,
       deployment = deployment,
@@ -119,6 +131,8 @@ class WasmoService(
       catalog = catalog,
       wasmoDbService = wasmoDbService,
       appPageFactory = appPageFactory,
+      inviteService = inviteService,
+      routeCodec = routeCodec,
     )
     actionRouter.createRoutes()
 

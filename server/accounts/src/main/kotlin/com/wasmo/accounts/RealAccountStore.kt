@@ -3,13 +3,13 @@ package com.wasmo.accounts
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.PasskeySnapshot
+import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.Passkey
-import com.wasmo.db.PasskeyQueries
 import com.wasmo.passkeys.AuthenticatorDatabase
 
 class RealAccountStore private constructor(
   private val authenticatorDatabase: AuthenticatorDatabase,
-  private val passkeyQueries: PasskeyQueries,
+  private val wasmoDbService: WasmoDbService,
   private val client: Client,
 ) : AccountStore {
   context(transactionCallbacks: TransactionCallbacks)
@@ -17,16 +17,29 @@ class RealAccountStore private constructor(
     val accountId = client.getAccountIdOrNull()
 
     val passkeys = when {
-      accountId != null -> passkeyQueries.findPasskeysByAccountId(accountId)
+      accountId != null -> wasmoDbService.passkeyQueries.findPasskeysByAccountId(accountId)
         .executeAsList()
         .map { it.toSnapshot() }
 
       else -> listOf()
     }
 
+    val inviteOrNull = when {
+      accountId != null -> {
+        wasmoDbService.inviteQueries.findInvitesByClaimedBy(
+          claimed_by = accountId,
+          limit = 1,
+        ).executeAsOneOrNull()
+
+      }
+
+      else -> null
+    }
+
     return AccountSnapshot(
       nextChallenge = client.challenger.create(),
       passkeys = passkeys,
+      hasInvite = inviteOrNull != null,
     )
   }
 
@@ -37,11 +50,11 @@ class RealAccountStore private constructor(
 
   class Factory(
     private val authenticatorDatabase: AuthenticatorDatabase,
-    private val passkeyQueries: PasskeyQueries,
+    private val wasmoDbService: WasmoDbService,
   ) : AccountStore.Factory {
     override fun create(client: Client) = RealAccountStore(
       authenticatorDatabase = authenticatorDatabase,
-      passkeyQueries = passkeyQueries,
+      wasmoDbService = wasmoDbService,
       client = client,
     )
   }

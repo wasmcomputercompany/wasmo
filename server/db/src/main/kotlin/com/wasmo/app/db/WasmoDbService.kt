@@ -8,12 +8,14 @@ import com.wasmo.db.Account
 import com.wasmo.db.AppInstall
 import com.wasmo.db.Computer
 import com.wasmo.db.Cookie
+import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppInstallId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.CookieId
+import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.passkeys.RegistrationRecord
 import java.io.Closeable
@@ -39,6 +41,7 @@ class WasmoDbService(
   AppInstallAdapter,
   ComputerAdapter,
   CookieAdapter,
+  InviteAdapter,
   PasskeyAdapter,
 ) {
   fun clearSchema() {
@@ -113,14 +116,19 @@ class WasmoDbService(
       override fun encode(value: AppInstallId) = value.id
     }
 
+    private object ComputerIdAdapter : ColumnAdapter<ComputerId, Long> {
+      override fun decode(databaseValue: Long) = ComputerId(databaseValue)
+      override fun encode(value: ComputerId) = value.id
+    }
+
     private object CookieIdAdapter : ColumnAdapter<CookieId, Long> {
       override fun decode(databaseValue: Long) = CookieId(databaseValue)
       override fun encode(value: CookieId) = value.id
     }
 
-    private object ComputerIdAdapter : ColumnAdapter<ComputerId, Long> {
-      override fun decode(databaseValue: Long) = ComputerId(databaseValue)
-      override fun encode(value: ComputerId) = value.id
+    private object InviteIdAdapter : ColumnAdapter<InviteId, Long> {
+      override fun decode(databaseValue: Long) = InviteId(databaseValue)
+      override fun encode(value: InviteId) = value.id
     }
 
     private object PasskeyIdAdapter : ColumnAdapter<PasskeyId, Long> {
@@ -138,15 +146,23 @@ class WasmoDbService(
       computer_idAdapter = ComputerIdAdapter,
     )
 
+    private val ComputerAdapter = Computer.Adapter(
+      idAdapter = ComputerIdAdapter,
+      created_atAdapter = InstantAdapter,
+    )
+
     private val CookieAdapter = Cookie.Adapter(
       idAdapter = CookieIdAdapter,
       created_atAdapter = InstantAdapter,
       account_idAdapter = AccountIdAdapter,
     )
 
-    private val ComputerAdapter = Computer.Adapter(
-      idAdapter = ComputerIdAdapter,
+    private val InviteAdapter = Invite.Adapter(
+      idAdapter = InviteIdAdapter,
       created_atAdapter = InstantAdapter,
+      created_byAdapter = AccountIdAdapter,
+      claimed_atAdapter = InstantAdapter,
+      claimed_byAdapter = AccountIdAdapter,
     )
 
     private val PasskeyAdapter = Passkey.Adapter(

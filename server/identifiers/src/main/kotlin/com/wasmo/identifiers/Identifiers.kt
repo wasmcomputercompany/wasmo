@@ -8,4 +8,6 @@ data class CookieId(val id: Long)
 
 data class ComputerId(val id: Long)
 
+data class InviteId(val id: Long)
+
 data class PasskeyId(val id: Long)

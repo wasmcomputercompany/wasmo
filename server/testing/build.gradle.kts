@@ -14,6 +14,8 @@ dependencies {
   implementation(libs.webauthn4j.core)
   implementation(project(":common:api"))
   implementation(project(":common:framework"))
+  implementation(project(":common:routes"))
+  implementation(project(":common:routes:api"))
   implementation(project(":common:testing"))
   implementation(project(":common:tokens"))
   implementation(project(":platform:api"))

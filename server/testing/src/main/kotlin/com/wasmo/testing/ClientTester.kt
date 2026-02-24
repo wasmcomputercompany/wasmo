@@ -1,10 +1,13 @@
 package com.wasmo.testing
 
+import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.Challenger
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.RealAccountStore
+import com.wasmo.accounts.invite.CreateInviteAction
+import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.PasskeyLinker
 import com.wasmo.accounts.passkeys.RegisterPasskeyAction
@@ -12,6 +15,9 @@ import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.common.routes.RealRouteCodec
+import com.wasmo.common.routes.RouteCodec
+import com.wasmo.common.routes.RoutingContext
 import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
@@ -23,7 +29,7 @@ import kotlin.time.Clock
 
 class ClientTester(
   private val clock: Clock,
-  private val service: WasmoDbService,
+  private val wasmoDbService: WasmoDbService,
   private val deployment: Deployment,
   private val sendEmailService: SendEmailService,
   private val clientAuthenticator: ClientAuthenticator,
@@ -34,7 +40,7 @@ class ClientTester(
 
   val accountStoreFactory = RealAccountStore.Factory(
     authenticatorDatabase = authenticatorDatabase,
-    passkeyQueries = service.passkeyQueries,
+    wasmoDbService = wasmoDbService,
   )
 
   val passkeyChecker = RealPasskeyChecker(
@@ -43,7 +49,29 @@ class ClientTester(
   )
 
   val passkeyLinkerFactory = PasskeyLinker.Factory(
-    cookieQueries = service.cookieQueries,
+    cookieQueries = wasmoDbService.cookieQueries,
+  )
+
+  val inviteService = InviteService(
+    clock = clock,
+    wasmoDbService = wasmoDbService,
+  )
+
+  fun routingContext() = RoutingContext(
+    rootUrl = deployment.baseUrl.toString(),
+    hasComputers = false,
+    hasInvite = false,
+    isAdmin = false,
+  )
+
+  fun routeCodec(): RouteCodec = RealRouteCodec(
+    context = routingContext(),
+  )
+
+  fun accountSnapshotAction() = AccountSnapshotAction(
+    accountStoreFactory = accountStoreFactory,
+    client = clientAuthenticator.get(),
+    wasmoDbService = wasmoDbService,
   )
 
   fun linkEmailAddressAction() = LinkEmailAddressAction(
@@ -61,15 +89,20 @@ class ClientTester(
     accountStoreFactory = accountStoreFactory,
     client = clientAuthenticator.get(),
     passkeyChecker = passkeyChecker,
-    passkeyQueries = service.passkeyQueries,
+    wasmoDbService = wasmoDbService,
+    inviteService = inviteService,
   )
 
-  fun register(passkey: FakePasskey) = registerPasskeyAction().register(
+  fun register(
+    passkey: FakePasskey,
+    inviteCode: String? = null,
+  ) = registerPasskeyAction().register(
     request = RegisterPasskeyRequest(
       registration = passkey.registration(
         challenge = challenger.create(),
         origin = deployment.baseUrl.toString(),
       ),
+      inviteCode = inviteCode,
     ),
   )
 
@@ -78,15 +111,27 @@ class ClientTester(
     client = clientAuthenticator.get(),
     passkeyChecker = passkeyChecker,
     passkeyLinkerFactory = passkeyLinkerFactory,
-    passkeyQueries = service.passkeyQueries,
+    wasmoDbService = wasmoDbService,
+    inviteService = inviteService,
   )
 
-  fun authenticate(passkey: FakePasskey) = authenticatePasskeyAction().authenticate(
+  fun createInviteAction() = CreateInviteAction(
+    client = clientAuthenticator.get(),
+    routeCodec = routeCodec(),
+    wasmoDbService = wasmoDbService,
+    inviteService = inviteService,
+  )
+
+  fun authenticate(
+    passkey: FakePasskey,
+    inviteCode: String? = null,
+  ) = authenticatePasskeyAction().authenticate(
     request = AuthenticatePasskeyRequest(
       authentication = passkey.authentication(
         challenge = challenger.create(),
         origin = deployment.baseUrl.toString(),
       ),
+      inviteCode = inviteCode,
     ),
   )
 
