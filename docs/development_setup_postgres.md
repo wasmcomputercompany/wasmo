@@ -58,3 +58,20 @@ $ find ../server/db/build/resources/main/migrations \
   | xargs -n 1 \
   psql "host=localhost dbname=wasmo_development user=postgres" -a -f
 ```
+
+Database Migrations
+-------------------
+
+Run an individual migration:
+
+```bash
+$ ../gradlew --project-dir .. server:db:generateMainWasmoDbMigrations
+```
+
+Replace _XXX_ with the migration number.
+
+```bash
+$ export PGPASSWORD=password
+$ psql "host=localhost dbname=wasmo_development user=postgres" -a -f \
+     ../server/db/build/resources/main/migrations/vXXX__db.sql
+```

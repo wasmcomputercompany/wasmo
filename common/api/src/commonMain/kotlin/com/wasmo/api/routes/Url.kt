@@ -27,7 +27,7 @@ expect fun Url.encodePathAndQuery(): String
 val TopPrivateDomains = listOf(
   "wasmo.com",
   "wasmo.dev",
-  "localwasmo",
+  "localhost",
 )
 
 internal fun decodeDomain(hostname: String): Pair<String, String?> {
