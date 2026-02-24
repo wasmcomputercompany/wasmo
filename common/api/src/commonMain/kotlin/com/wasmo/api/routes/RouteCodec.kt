@@ -1,4 +1,4 @@
-package com.wasmo.common.routes
+package com.wasmo.api.routes
 
 interface RouteCodec {
   fun decode(url: Url): Route

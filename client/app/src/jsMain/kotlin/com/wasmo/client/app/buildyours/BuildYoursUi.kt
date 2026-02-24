@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.client.app.FormState
 import com.wasmo.client.app.LocalFormState
 import com.wasmo.client.app.routing.Router
@@ -14,7 +15,6 @@ import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.app.stripe.CheckoutScreen
 import com.wasmo.client.app.stripe.CheckoutSession
 import com.wasmo.client.framework.Ui
-import com.wasmo.common.routes.TeaserRoute
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 

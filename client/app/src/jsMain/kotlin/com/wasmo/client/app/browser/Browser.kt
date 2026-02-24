@@ -1,6 +1,6 @@
 package com.wasmo.client.app.browser
 
-import com.wasmo.common.routes.Url
+import com.wasmo.api.routes.Url
 import org.w3c.dom.PopStateEvent
 
 interface Browser {

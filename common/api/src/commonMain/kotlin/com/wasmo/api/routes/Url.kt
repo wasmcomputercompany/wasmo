@@ -1,4 +1,4 @@
-package com.wasmo.common.routes
+package com.wasmo.api.routes
 
 data class Url(
   val scheme: String,

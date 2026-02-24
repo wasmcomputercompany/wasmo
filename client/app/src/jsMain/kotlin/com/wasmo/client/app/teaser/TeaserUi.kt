@@ -1,11 +1,11 @@
 package com.wasmo.client.app.teaser
 
 import androidx.compose.runtime.Composable
+import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.client.app.Environment
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
-import com.wasmo.common.routes.BuildYoursRoute
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 

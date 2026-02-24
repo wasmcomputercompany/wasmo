@@ -1,11 +1,10 @@
 package com.wasmo.website
 
-import com.wasmo.accounts.AppPageFactory
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.WasmoJson
+import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.stripe.StripePublishableKey
-import com.wasmo.common.routes.RoutingContext
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.MapPageData
@@ -20,14 +19,28 @@ import kotlinx.html.meta
 import kotlinx.html.script
 import kotlinx.html.title
 import kotlinx.html.unsafe
-import okhttp3.HttpUrl
 import okio.BufferedSink
 
-class AppPage(
-  val baseUrl: HttpUrl,
-  val pageData: MapPageData,
-) : ResponseBody {
-  val response: Response<ResponseBody>
+class RealServerAppPage(
+  override val deployment: Deployment,
+  override val stripePublishableKey: StripePublishableKey,
+  override val accountSnapshot: AccountSnapshot,
+  override val routingContext: RoutingContext,
+  override val inviteTicket: InviteTicket?,
+) : ServerAppPage, ResponseBody {
+  val pageData: MapPageData
+    get() = MapPageData.Builder(WasmoJson)
+      .put("stripe_publishable_key", stripePublishableKey)
+      .put("routing_context", routingContext)
+      .put("account_snapshot", accountSnapshot)
+      .apply {
+        if (inviteTicket != null) {
+          put("invite_ticket", inviteTicket)
+        }
+      }
+      .build()
+
+  override val response: Response<ResponseBody>
     get() = Response(
       contentType = ContentTypes.TextHtml,
       body = this,
@@ -49,7 +62,7 @@ class AppPage(
         )
         meta {
           attributes["property"] = "og:image"
-          attributes["content"] = baseUrl.resolve("/assets/og-image.png").toString()
+          attributes["content"] = deployment.baseUrl.resolve("/assets/og-image.png").toString()
         }
         meta {
           attributes["property"] = "og:image:width"
@@ -90,14 +103,14 @@ class AppPage(
     }
   }
 
-  class FactoryApp(
+  class Factory(
     val deployment: Deployment,
     val stripePublishableKey: StripePublishableKey,
-  ) : AppPageFactory {
+  ) : ServerAppPage.Factory {
     override fun create(
       accountSnapshot: AccountSnapshot,
       inviteTicket: InviteTicket?,
-    ): Response<ResponseBody> {
+    ): ServerAppPage {
       val routingContext = RoutingContext(
         rootUrl = deployment.baseUrl.toString(),
         hasComputers = false,
@@ -105,21 +118,13 @@ class AppPage(
         isAdmin = false,
       )
 
-      val pageData = MapPageData.Builder(WasmoJson)
-        .put("stripe_publishable_key", stripePublishableKey)
-        .put("routing_context", routingContext)
-        .put("account_snapshot", accountSnapshot)
-        .apply {
-          if (inviteTicket != null) {
-            put("invite_ticket", inviteTicket)
-          }
-        }
-        .build()
-
-      return AppPage(
-        baseUrl = deployment.baseUrl,
-        pageData = pageData,
-      ).response
+      return RealServerAppPage(
+        deployment = deployment,
+        stripePublishableKey = stripePublishableKey,
+        accountSnapshot = accountSnapshot,
+        routingContext = routingContext,
+        inviteTicket = inviteTicket,
+      )
     }
   }
 }

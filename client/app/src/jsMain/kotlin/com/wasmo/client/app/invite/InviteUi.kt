@@ -11,6 +11,7 @@ import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.WasmoApi
+import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.client.app.Environment
 import com.wasmo.client.app.FormState
 import com.wasmo.client.app.LocalFormState
@@ -19,7 +20,6 @@ import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import com.wasmo.common.logging.Logger
-import com.wasmo.common.routes.BuildYoursRoute
 import com.wasmo.passkeys.PasskeyAuthenticator
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope

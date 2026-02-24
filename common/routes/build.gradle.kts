@@ -13,7 +13,7 @@ kotlin {
     commonMain {
       dependencies {
         implementation(libs.kotlinx.serialization.json)
-        implementation(project(":common:routes:api"))
+        implementation(project(":common:api"))
       }
     }
     commonTest {

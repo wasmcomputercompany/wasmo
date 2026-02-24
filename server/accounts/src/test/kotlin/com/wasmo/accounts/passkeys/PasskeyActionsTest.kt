@@ -2,6 +2,7 @@ package com.wasmo.accounts.passkeys
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
+import assertk.assertions.isEqualTo
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.RegisterPasskeyRequest
@@ -57,6 +58,29 @@ class PasskeyActionsTest {
         createdAt = tester.clock.now(),
       ),
     )
+  }
+
+  @Test
+  fun registerIsIdempotent() {
+    val onlyPasskey = tester.newPasskey()
+
+    val clientA = tester.newClient()
+    val registerResponse1 = clientA.register(onlyPasskey)
+    val registerResponse2 = clientA.register(onlyPasskey)
+    assertThat(registerResponse2.body).isEqualTo(registerResponse1.body)
+  }
+
+  @Test
+  fun authenticateIsIdempotent() {
+    val onlyPasskey = tester.newPasskey()
+
+    val clientA = tester.newClient()
+    clientA.register(onlyPasskey)
+
+    val clientB = tester.newClient()
+    val authenticateResponse1 = clientB.authenticate(onlyPasskey)
+    val authenticateResponse2 = clientB.authenticate(onlyPasskey)
+    assertThat(authenticateResponse2.body).isEqualTo(authenticateResponse1.body)
   }
 
   @Test

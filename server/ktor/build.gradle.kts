@@ -23,7 +23,6 @@ dependencies {
   implementation(project(":common:catalog"))
   implementation(project(":common:framework"))
   implementation(project(":common:routes"))
-  implementation(project(":common:routes:api"))
   implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
   implementation(project(":server:accounts"))
@@ -40,4 +39,5 @@ dependencies {
   implementation(project(":server:sendemail:api"))
   implementation(project(":server:stripe"))
   implementation(project(":server:website"))
+  implementation(project(":server:website:api"))
 }

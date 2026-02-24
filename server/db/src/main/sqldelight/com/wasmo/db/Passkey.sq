@@ -19,7 +19,16 @@ VALUES (
 );
 
 findPasskeyByPasskeyId:
-SELECT * FROM Passkey WHERE passkey_id = :passkey_id;
+SELECT *
+FROM Passkey
+WHERE
+  passkey_id = :passkey_id;
+
+findPasskeyByPasskeyIdAndAccountId:
+SELECT * FROM Passkey
+WHERE
+   passkey_id = :passkey_id AND
+   account_id = :account_id;
 
 findPasskeysByAccountId:
 SELECT * FROM Passkey WHERE account_id = :account_id;

@@ -2,6 +2,16 @@ package com.wasmo.common.routes
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.api.routes.AdminRoute
+import com.wasmo.api.routes.AfterCheckoutRoute
+import com.wasmo.api.routes.BuildYoursRoute
+import com.wasmo.api.routes.ComputerHomeRoute
+import com.wasmo.api.routes.ComputersRoute
+import com.wasmo.api.routes.InviteRoute
+import com.wasmo.api.routes.NotFoundRoute
+import com.wasmo.api.routes.RoutingContext
+import com.wasmo.api.routes.TeaserRoute
+import com.wasmo.api.routes.Url
 import kotlin.test.Test
 
 class RealRouteCodecTest {

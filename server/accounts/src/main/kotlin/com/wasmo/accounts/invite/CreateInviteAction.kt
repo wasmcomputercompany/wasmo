@@ -3,10 +3,10 @@ package com.wasmo.accounts.invite
 import com.wasmo.accounts.Client
 import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.CreateInviteResponse
+import com.wasmo.api.routes.InviteRoute
+import com.wasmo.api.routes.RouteCodec
+import com.wasmo.api.routes.toHttpUrl
 import com.wasmo.app.db.WasmoDbService
-import com.wasmo.common.routes.InviteRoute
-import com.wasmo.common.routes.RouteCodec
-import com.wasmo.common.routes.toHttpUrl
 import com.wasmo.framework.Response
 
 class CreateInviteAction(

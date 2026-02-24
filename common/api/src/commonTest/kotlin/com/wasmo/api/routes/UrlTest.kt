@@ -1,4 +1,4 @@
-package com.wasmo.common.routes
+package com.wasmo.api.routes
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo

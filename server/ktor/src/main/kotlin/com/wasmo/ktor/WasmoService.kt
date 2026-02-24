@@ -10,10 +10,10 @@ import com.wasmo.accounts.SessionCookieEncoder
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.PasskeyLinker
+import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.common.routes.RealRouteCodec
-import com.wasmo.common.routes.RoutingContext
 import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.deployment.Deployment
@@ -25,7 +25,7 @@ import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.stripe.StripeInitializer
-import com.wasmo.website.AppPage
+import com.wasmo.website.RealServerAppPage
 import io.ktor.server.netty.EngineMain
 import kotlin.time.Clock
 import okhttp3.OkHttpClient
@@ -105,7 +105,7 @@ class WasmoService(
     val passkeyLinkerFactory = PasskeyLinker.Factory(
       cookieQueries = wasmoDbService.cookieQueries,
     )
-    val appPageFactory = AppPage.FactoryApp(
+    val serverAppPageFactory = RealServerAppPage.Factory(
       deployment = deployment,
       stripePublishableKey = stripeInitializer.stripeCredentials.publishableKey,
     )
@@ -130,7 +130,7 @@ class WasmoService(
       stripeInitializer = stripeInitializer,
       catalog = catalog,
       wasmoDbService = wasmoDbService,
-      appPageFactory = appPageFactory,
+      serverAppPageFactory = serverAppPageFactory,
       inviteService = inviteService,
       routeCodec = routeCodec,
     )

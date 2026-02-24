@@ -1,4 +1,4 @@
-package com.wasmo.common.routes
+package com.wasmo.api.routes
 
 sealed interface Route
 

@@ -2,7 +2,6 @@ package com.wasmo.ktor
 
 import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.AccountStore
-import com.wasmo.accounts.AppPageFactory
 import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
@@ -29,13 +28,13 @@ import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
+import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.stripe.CreateCheckoutSessionRequest
 import com.wasmo.api.stripe.CreateCheckoutSessionResponse
 import com.wasmo.api.stripe.GetSessionStatusRequest
 import com.wasmo.api.stripe.GetSessionStatusResponse
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
-import com.wasmo.common.routes.RouteCodec
 import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
@@ -49,6 +48,7 @@ import com.wasmo.stripe.CreateCheckoutSessionAction
 import com.wasmo.stripe.GetSessionStatusAction
 import com.wasmo.stripe.StripeInitializer
 import com.wasmo.website.AppPageAction
+import com.wasmo.website.ServerAppPage
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log
@@ -74,7 +74,7 @@ class ActionRouter(
   val stripeInitializer: StripeInitializer,
   val catalog: Catalog,
   val wasmoDbService: WasmoDbService,
-  val appPageFactory: AppPageFactory,
+  val serverAppPageFactory: ServerAppPage.Factory,
   val routeCodec: RouteCodec,
   val inviteService: InviteService,
 ) {
@@ -149,14 +149,14 @@ class ActionRouter(
   fun appPage(client: Client) = AppPageAction(
     client = client,
     accountStoreFactory = accountStoreFactory,
-    appPageFactory = appPageFactory,
+    appPageFactory = serverAppPageFactory,
     wasmoDbService = wasmoDbService,
   )
 
   fun invitePage(client: Client) = InvitePageAction(
     client = client,
     accountStoreFactory = accountStoreFactory,
-    appPageFactory = appPageFactory,
+    appPageFactory = serverAppPageFactory,
     wasmoDbService = wasmoDbService,
   )
 
@@ -178,7 +178,7 @@ class ActionRouter(
         clientAuthenticator.updateSessionCookie()
         val action = appPage(clientAuthenticator.get())
         val page = action.get()
-        call.respond(page)
+        call.respond(page.response)
       }
 
       get("/invite/{code}") {
@@ -186,7 +186,7 @@ class ActionRouter(
         clientAuthenticator.updateSessionCookie()
         val action = invitePage(clientAuthenticator.get())
         val page = action.invite(call.pathParameters["code"]!!)
-        call.respond(page)
+        call.respond(page.response)
       }
     }
   }

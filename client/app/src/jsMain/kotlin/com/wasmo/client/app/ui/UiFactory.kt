@@ -1,19 +1,19 @@
 package com.wasmo.client.app.ui
 
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.routes.AdminRoute
+import com.wasmo.api.routes.AfterCheckoutRoute
+import com.wasmo.api.routes.BuildYoursRoute
+import com.wasmo.api.routes.ComputerHomeRoute
+import com.wasmo.api.routes.ComputersRoute
+import com.wasmo.api.routes.InviteRoute
+import com.wasmo.api.routes.NotFoundRoute
+import com.wasmo.api.routes.Route
+import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.client.app.buildyours.BuildYoursUi
 import com.wasmo.client.app.invite.InviteUi
 import com.wasmo.client.app.teaser.TeaserUi
 import com.wasmo.client.framework.Ui
-import com.wasmo.common.routes.AdminRoute
-import com.wasmo.common.routes.AfterCheckoutRoute
-import com.wasmo.common.routes.BuildYoursRoute
-import com.wasmo.common.routes.ComputerHomeRoute
-import com.wasmo.common.routes.ComputersRoute
-import com.wasmo.common.routes.InviteRoute
-import com.wasmo.common.routes.NotFoundRoute
-import com.wasmo.common.routes.Route
-import com.wasmo.common.routes.TeaserRoute
 import com.wasmo.framework.PageData
 
 class UiFactory(

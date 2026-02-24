@@ -5,8 +5,8 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.CreateInviteRequest
-import com.wasmo.common.routes.InviteRoute
-import com.wasmo.common.routes.decodeUrl
+import com.wasmo.api.routes.InviteRoute
+import com.wasmo.api.routes.decodeUrl
 import com.wasmo.framework.BadRequestException
 import com.wasmo.testing.WasmoServiceTester
 import kotlin.test.AfterTest
@@ -44,6 +44,22 @@ class InvitesTest {
     val registerResponse = claimedByClient.register(passkey, inviteRoute.code)
 
     assertThat(registerResponse.body.account.hasInvite).isTrue()
+  }
+
+  @Test
+  fun claimInviteIsIdempotent() {
+    val createdByClient = tester.newClient()
+    val createInviteResponse = createdByClient.createInviteAction().create(CreateInviteRequest)
+
+    val inviteUrl = createInviteResponse.body.inviteUrl.decodeUrl()
+    val inviteRoute = createdByClient.routeCodec().decode(inviteUrl) as InviteRoute
+
+    val claimedByClient = tester.newClient()
+    val passkey = tester.newPasskey()
+    claimedByClient.register(passkey, inviteRoute.code)
+    claimedByClient.register(passkey, inviteRoute.code)
+    claimedByClient.authenticate(passkey, inviteRoute.code)
+    claimedByClient.authenticate(passkey, inviteRoute.code)
   }
 
   /** We have to be careful that our database 'WHERE' clauses do case-sensitive search on tokens. */

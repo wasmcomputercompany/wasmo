@@ -1,20 +1,18 @@
 package com.wasmo.accounts.invite
 
 import com.wasmo.accounts.AccountStore
-import com.wasmo.accounts.AppPageFactory
 import com.wasmo.accounts.Client
 import com.wasmo.api.InviteTicket
 import com.wasmo.app.db.WasmoDbService
-import com.wasmo.framework.Response
-import com.wasmo.framework.ResponseBody
+import com.wasmo.website.ServerAppPage
 
 class InvitePageAction(
   private val client: Client,
   private val accountStoreFactory: AccountStore.Factory,
-  private val appPageFactory: AppPageFactory,
+  private val appPageFactory: ServerAppPage.Factory,
   private val wasmoDbService: WasmoDbService,
 ) {
-  fun invite(code: String): Response<ResponseBody> {
+  fun invite(code: String): ServerAppPage {
     // TODO: associate code with the current user's session?
     val accountStore = accountStoreFactory.create(client)
     val inviteTicket = InviteTicket(

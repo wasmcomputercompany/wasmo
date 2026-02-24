@@ -1,11 +1,11 @@
 package com.wasmo.client.app.routing
 
 import androidx.compose.runtime.mutableStateOf
+import com.wasmo.api.routes.Route
+import com.wasmo.api.routes.RouteCodec
+import com.wasmo.api.routes.Url
+import com.wasmo.api.routes.decodeUrl
 import com.wasmo.client.app.browser.Browser
-import com.wasmo.common.routes.Route
-import com.wasmo.common.routes.RouteCodec
-import com.wasmo.common.routes.Url
-import com.wasmo.common.routes.decodeUrl
 import kotlinx.coroutines.CoroutineScope
 
 /**

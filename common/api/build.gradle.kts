@@ -19,10 +19,25 @@ kotlin {
         implementation(project(":common:tokens"))
       }
     }
+    jvmMain {
+      dependencies {
+        implementation(libs.okhttp)
+      }
+    }
     commonTest {
       dependencies {
         implementation(libs.assertk)
         implementation(libs.kotlin.test)
+      }
+    }
+    jsTest {
+      dependencies {
+        implementation(libs.kotlin.test.js)
+      }
+    }
+    jvmTest {
+      dependencies {
+        implementation(libs.kotlin.test.junit)
       }
     }
   }
