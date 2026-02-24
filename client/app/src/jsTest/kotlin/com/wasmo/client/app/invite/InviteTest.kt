@@ -18,7 +18,7 @@ class InviteTest {
   fun initial() = runTest {
     snapshotTester.snapshot {
       InviteScreen(
-        inviteState = InviteState.Ready,
+        inviteState = InviteState.ReadyToAccept,
       ) {
       }
     }

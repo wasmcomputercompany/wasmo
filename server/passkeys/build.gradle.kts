@@ -12,7 +12,6 @@ dependencies {
   implementation(project(":common:api"))
   implementation(project(":common:framework"))
   implementation(project(":server:accounts:api"))
-  implementation(project(":server:db"))
   implementation(project(":server:deployment"))
   implementation(project(":server:identifiers"))
   implementation(project(":server:passkeys:api"))

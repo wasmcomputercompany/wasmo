@@ -1,4 +1,4 @@
-package com.wasmo.passkeys
+package com.wasmo.accounts.passkeys
 
 import assertk.assertThat
 import assertk.assertions.containsExactly

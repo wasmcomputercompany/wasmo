@@ -5,6 +5,9 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.RealAccountStore
+import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
+import com.wasmo.accounts.passkeys.PasskeyLinker
+import com.wasmo.accounts.passkeys.RegisterPasskeyAction
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.RegisterPasskeyRequest
@@ -13,11 +16,8 @@ import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
 import com.wasmo.deployment.Deployment
-import com.wasmo.passkeys.AuthenticatePasskeyAction
-import com.wasmo.passkeys.PasskeyLinker
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.passkeys.RealPasskeyChecker
-import com.wasmo.passkeys.RegisterPasskeyAction
 import com.wasmo.sendemail.SendEmailService
 import kotlin.time.Clock
 

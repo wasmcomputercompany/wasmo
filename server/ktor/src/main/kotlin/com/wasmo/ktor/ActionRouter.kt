@@ -7,6 +7,9 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.invite.InvitePageAction
+import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
+import com.wasmo.accounts.passkeys.PasskeyLinker
+import com.wasmo.accounts.passkeys.RegisterPasskeyAction
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.api.ConfirmEmailAddressRequest
@@ -31,11 +34,8 @@ import com.wasmo.computers.InstallAppAction
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.HttpException
 import com.wasmo.framework.Response
-import com.wasmo.passkeys.AuthenticatePasskeyAction
 import com.wasmo.passkeys.PasskeyChecker
-import com.wasmo.passkeys.PasskeyLinker
 import com.wasmo.passkeys.RealPasskeyChecker
-import com.wasmo.passkeys.RegisterPasskeyAction
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.stripe.CreateCheckoutSessionAction
 import com.wasmo.stripe.GetSessionStatusAction

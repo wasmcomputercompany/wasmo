@@ -1,4 +1,4 @@
-package com.wasmo.passkeys
+package com.wasmo.accounts.passkeys
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client

@@ -1,4 +1,4 @@
-package com.wasmo.passkeys
+package com.wasmo.accounts.passkeys
 
 import com.wasmo.accounts.AccountStore
 import com.wasmo.accounts.Client
@@ -7,6 +7,7 @@ import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.db.PasskeyQueries
 import com.wasmo.framework.BadRequestException
 import com.wasmo.framework.Response
+import com.wasmo.passkeys.PasskeyChecker
 
 class AuthenticatePasskeyAction(
   private val client: Client,

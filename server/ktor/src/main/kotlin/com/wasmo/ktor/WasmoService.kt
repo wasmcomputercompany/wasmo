@@ -8,6 +8,7 @@ import com.wasmo.accounts.RealAccountStore
 import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieEncoder
 import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.accounts.passkeys.PasskeyLinker
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ObjectStoreKeyFactory
@@ -16,7 +17,6 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.http.RealHttpClient
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
-import com.wasmo.passkeys.PasskeyLinker
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService

@@ -1,4 +1,4 @@
-package com.wasmo.passkeys
+package com.wasmo.accounts.passkeys
 
 
 import com.wasmo.accounts.AccountStore
@@ -7,6 +7,7 @@ import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.db.PasskeyQueries
 import com.wasmo.framework.Response
+import com.wasmo.passkeys.PasskeyChecker
 import kotlin.time.Clock
 
 class RegisterPasskeyAction(
