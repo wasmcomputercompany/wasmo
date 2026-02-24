@@ -7,6 +7,7 @@ import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieEncoder
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.WasmoJson
+import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.testing.FakeClock
 import com.wasmo.computers.ObjectStoreKeyFactory
@@ -15,6 +16,7 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.RealAuthenticatorDatabase
+import com.wasmo.stripe.StripeCredentials
 import java.io.Closeable
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -87,6 +89,11 @@ class WasmoServiceTester private constructor(
     service = service,
   )
 
+  val stripeCredentials = StripeCredentials(
+    publishableKey = StripePublishableKey("pk_test_5544332211"),
+    secretKey = "sk_test_5544332211",
+  )
+
   private var nextPasskeyId = 1
 
   fun newClient(): ClientTester {
@@ -101,6 +108,7 @@ class WasmoServiceTester private constructor(
       clientAuthenticator = clientAuthenticator,
       computerStore = computerStore,
       challenger = challengerFactory.create(sessionCookie.token),
+      stripePublishableKey = stripeCredentials.publishableKey,
     )
   }
 

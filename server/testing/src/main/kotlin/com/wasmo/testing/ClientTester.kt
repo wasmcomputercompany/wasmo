@@ -7,6 +7,7 @@ import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.RealAccountStore
 import com.wasmo.accounts.invite.CreateInviteAction
+import com.wasmo.accounts.invite.InvitePageAction
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.PasskeyLinker
@@ -16,6 +17,7 @@ import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
+import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.ComputerStore
@@ -25,6 +27,7 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.sendemail.SendEmailService
+import com.wasmo.website.RealServerAppPage
 import kotlin.time.Clock
 
 class ClientTester(
@@ -34,6 +37,7 @@ class ClientTester(
   private val sendEmailService: SendEmailService,
   private val clientAuthenticator: ClientAuthenticator,
   private val computerStore: ComputerStore,
+  private val stripePublishableKey: StripePublishableKey,
   val challenger: Challenger,
 ) {
   val authenticatorDatabase = RealAuthenticatorDatabase()
@@ -55,6 +59,11 @@ class ClientTester(
   val inviteService = InviteService(
     clock = clock,
     wasmoDbService = wasmoDbService,
+  )
+
+  val appPageFactory = RealServerAppPage.Factory(
+    deployment = deployment,
+    stripePublishableKey = stripePublishableKey,
   )
 
   fun routingContext() = RoutingContext(
@@ -120,6 +129,13 @@ class ClientTester(
     routeCodec = routeCodec(),
     wasmoDbService = wasmoDbService,
     inviteService = inviteService,
+  )
+
+  fun invitePageAction() = InvitePageAction(
+    client = clientAuthenticator.get(),
+    accountStoreFactory = accountStoreFactory,
+    appPageFactory = appPageFactory,
+    wasmoDbService = wasmoDbService,
   )
 
   fun authenticate(

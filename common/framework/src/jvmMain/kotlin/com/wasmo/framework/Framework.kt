@@ -38,7 +38,7 @@ object ContentTypes {
 
 open class HttpException(
   val code: Int,
-  message: String,
+  message: String?,
 ) : Exception(message) {
   fun asResponse(): Response<ResponseBody> = Response(
     status = 400,
@@ -51,7 +51,7 @@ class BadRequestException(message: String) : HttpException(400, message)
 
 class UnauthorizedException(message: String) : HttpException(403, message)
 
-class NotFoundException(message: String) : HttpException(404, message)
+class NotFoundException(message: String? = null) : HttpException(404, message)
 
 @OptIn(ExperimentalContracts::class)
 fun checkRequest(value: Boolean, lazyMessage: () -> String) {

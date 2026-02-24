@@ -1,6 +1,7 @@
 package com.wasmo.accounts.invite
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.wasmo.api.AccountSnapshotRequest
@@ -8,6 +9,7 @@ import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.decodeUrl
 import com.wasmo.framework.BadRequestException
+import com.wasmo.framework.NotFoundException
 import com.wasmo.testing.WasmoServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -28,6 +30,14 @@ class InvitesTest {
   }
 
   @Test
+  fun unknownCode404s() {
+    val client = tester.newClient()
+    assertFailsWith<NotFoundException> {
+      client.invitePageAction().invite("12345")
+    }
+  }
+
+  @Test
   fun receiveAndClaimInviteWithPasskeyRegistration() {
     val createdByClient = tester.newClient()
     val createInviteResponse = createdByClient.createInviteAction().create(CreateInviteRequest)
@@ -36,6 +46,11 @@ class InvitesTest {
     val inviteRoute = createdByClient.routeCodec().decode(inviteUrl) as InviteRoute
 
     val claimedByClient = tester.newClient()
+
+    val appPage = claimedByClient.invitePageAction().invite(inviteRoute.code)
+    assertThat(appPage.inviteTicket?.code).isEqualTo(inviteRoute.code)
+    assertThat(appPage.inviteTicket?.claimed).isEqualTo(false)
+
     val accountSnapshotResponse = claimedByClient.accountSnapshotAction()
       .get(AccountSnapshotRequest)
     assertThat(accountSnapshotResponse.body.account.hasInvite).isFalse()
