@@ -14,6 +14,7 @@ val CHALLENGE_LIFETIME_MAX_STALE = 5.minutes
 @Serializable
 data class AuthenticatePasskeyRequest(
   val authentication: PasskeyAuthentication,
+  val inviteCode: String? = null,
 )
 
 @Serializable
@@ -42,6 +43,7 @@ data class PasskeyAuthentication(
 @Serializable
 data class RegisterPasskeyRequest(
   val registration: PasskeyRegistration,
+  val inviteCode: String? = null,
 )
 
 @Serializable

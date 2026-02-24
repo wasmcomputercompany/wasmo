@@ -62,7 +62,8 @@ fun InviteScreen(
       },
     ) {
       when (inviteState) {
-        InviteState.Ready -> Text("Accept Invite")
+        InviteState.ReadyToAccept -> Text("Accept Invite")
+        InviteState.ReadyToSignIn -> Text("Sign In")
         InviteState.ClientBusy -> Text("...")
         InviteState.ServerBusy -> Text("...")
         InviteState.Failed -> Text("Failed")
@@ -72,7 +73,8 @@ fun InviteScreen(
 }
 
 enum class InviteState {
-  Ready,
+  ReadyToAccept,
+  ReadyToSignIn,
   ClientBusy,
   ServerBusy,
   Failed,

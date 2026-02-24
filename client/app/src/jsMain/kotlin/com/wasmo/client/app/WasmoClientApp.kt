@@ -7,6 +7,7 @@ import com.wasmo.api.WasmoJson
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.client.app.browser.RealBrowser
 import com.wasmo.client.app.buildyours.BuildYoursUi
+import com.wasmo.client.app.data.RealAccountDataService
 import com.wasmo.client.app.invite.InviteUi
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.stripe.CheckoutSession
@@ -50,12 +51,15 @@ class WasmoClientApp(
   )
   private val passkeyAuthenticator = RealPasskeyAuthenticator()
 
+  private val accountDataService = RealAccountDataService(
+    accountSnapshot = accountSnapshot,
+  )
   private val uiFactory = UiFactory(
     pageData = pageData,
-    accountSnapshot = accountSnapshot,
     inviteUiFactory = InviteUi.Factory(
       router = router,
       passkeyAuthenticator = passkeyAuthenticator,
+      accountDataService = accountDataService,
       wasmoApi = wasmoApi,
       logger = logger,
       environment = environment,

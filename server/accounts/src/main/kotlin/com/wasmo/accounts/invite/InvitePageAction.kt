@@ -19,6 +19,7 @@ class InvitePageAction(
     val accountStore = accountStoreFactory.create(client)
     val inviteTicket = InviteTicket(
       claimed = false,
+      code = code,
     )
     return wasmoDbService.transactionWithResult(noEnclosing = true) {
       appPageFactory.create(

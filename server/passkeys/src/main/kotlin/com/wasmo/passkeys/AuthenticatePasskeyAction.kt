@@ -25,8 +25,8 @@ class AuthenticatePasskeyAction(
 
       try {
         passkeyChecker.authenticate(
-          request.authentication,
-          passkey.registration_record,
+          authentication = request.authentication,
+          registrationRecord = passkey.registration_record,
         )
       } catch (_: Exception) {
         // TODO: log the exception
