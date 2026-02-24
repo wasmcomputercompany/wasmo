@@ -29,7 +29,7 @@ Use the cookie to create an invite:
 
 ```
 curl -v \
-  --header 'Cookie: session=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjNwemQ0d3EwYWs0d3I1ZXQwaGF4YjZ0ankiLCJpc3N1ZWRBdCI6IjIwMjYtMDItMjRUMTg6NTQ6MTMuNTAzNTQ2WiJ9.RuTzcNdL06oxp9xSV4U2snrM070fb1wGvelRD0_P8D8=' \
+  --header 'Cookie: session=...' \
   --data '{}' \
   http://localhost:8080/create-invite
 ```

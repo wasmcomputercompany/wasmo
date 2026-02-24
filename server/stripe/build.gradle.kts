@@ -13,6 +13,7 @@ dependencies {
   implementation(project(":common:api"))
   implementation(project(":common:catalog"))
   implementation(project(":common:framework"))
+  implementation(project(":common:logging"))
   implementation(project(":server:accounts:api"))
   implementation(project(":server:db"))
   implementation(project(":server:deployment"))

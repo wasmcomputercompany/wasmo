@@ -1,7 +1,9 @@
 package com.wasmo.framework
 
+import java.net.HttpURLConnection
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+import okhttp3.HttpUrl
 import okio.BufferedSink
 
 data class Response<T>(
@@ -62,3 +64,11 @@ fun checkRequest(value: Boolean, lazyMessage: () -> String) {
     throw BadRequestException(lazyMessage())
   }
 }
+
+fun redirect(url: HttpUrl): Response<ResponseBody> = Response(
+  status = HttpURLConnection.HTTP_MOVED_TEMP,
+  headers = listOf(
+    Header("Location", url.toString()),
+  ),
+  body = ResponseBody { },
+)

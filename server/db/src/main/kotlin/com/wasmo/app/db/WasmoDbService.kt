@@ -7,16 +7,20 @@ import com.wasmo.api.WasmoJson
 import com.wasmo.db.Account
 import com.wasmo.db.AppInstall
 import com.wasmo.db.Computer
+import com.wasmo.db.ComputerAllocation
 import com.wasmo.db.Cookie
 import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
+import com.wasmo.db.StripeCustomer
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppInstallId
+import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.CookieId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
+import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.passkeys.RegistrationRecord
 import java.io.Closeable
 import java.time.OffsetDateTime
@@ -40,9 +44,11 @@ class WasmoDbService(
   AccountAdapter,
   AppInstallAdapter,
   ComputerAdapter,
+  ComputerAllocationAdapter,
   CookieAdapter,
   InviteAdapter,
   PasskeyAdapter,
+  StripeCustomerAdapter,
 ) {
   fun clearSchema() {
     jdbcDriver.execute(null, "DROP SCHEMA public CASCADE", 0)
@@ -116,6 +122,11 @@ class WasmoDbService(
       override fun encode(value: AppInstallId) = value.id
     }
 
+    private object ComputerAllocationIdAdapter : ColumnAdapter<ComputerAllocationId, Long> {
+      override fun decode(databaseValue: Long) = ComputerAllocationId(databaseValue)
+      override fun encode(value: ComputerAllocationId) = value.id
+    }
+
     private object ComputerIdAdapter : ColumnAdapter<ComputerId, Long> {
       override fun decode(databaseValue: Long) = ComputerId(databaseValue)
       override fun encode(value: ComputerId) = value.id
@@ -136,6 +147,11 @@ class WasmoDbService(
       override fun encode(value: PasskeyId) = value.id
     }
 
+    private object StripeCustomerIdAdapter : ColumnAdapter<StripeCustomerId, Long> {
+      override fun decode(databaseValue: Long) = StripeCustomerId(databaseValue)
+      override fun encode(value: StripeCustomerId) = value.id
+    }
+
     private val AccountAdapter = Account.Adapter(
       idAdapter = AccountIdAdapter,
     )
@@ -149,6 +165,15 @@ class WasmoDbService(
     private val ComputerAdapter = Computer.Adapter(
       idAdapter = ComputerIdAdapter,
       created_atAdapter = InstantAdapter,
+    )
+
+    private val ComputerAllocationAdapter = ComputerAllocation.Adapter(
+      idAdapter = ComputerAllocationIdAdapter,
+      created_atAdapter = InstantAdapter,
+      stripe_customer_idAdapter = StripeCustomerIdAdapter,
+      computer_idAdapter = ComputerIdAdapter,
+      active_startAdapter = InstantAdapter,
+      active_endAdapter = InstantAdapter,
     )
 
     private val CookieAdapter = Cookie.Adapter(
@@ -172,5 +197,9 @@ class WasmoDbService(
       registration_recordAdapter = RegistrationRecordAdapter,
     )
 
+    private val StripeCustomerAdapter = StripeCustomer.Adapter(
+      idAdapter = StripeCustomerIdAdapter,
+      created_atAdapter = InstantAdapter,
+    )
   }
 }

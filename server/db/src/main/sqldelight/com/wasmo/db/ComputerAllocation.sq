@@ -1,0 +1,46 @@
+insertComputerAllocation:
+INSERT INTO ComputerAllocation(
+  created_at,
+  version,
+  stripe_customer_id,
+  stripe_subscription_id,
+  computer_id,
+  active_start,
+  active_end
+)
+VALUES (
+  :created_at,
+  :version,
+  :stripe_customer_id,
+  :stripe_subscription_id,
+  :computer_id,
+  :active_start,
+  :active_end
+);
+
+truncateComputerAllocation:
+UPDATE ComputerAllocation
+SET
+  version = :new_version,
+  active_end = :active_end
+WHERE
+  version = :expected_version AND
+  id = :id;
+
+findComputerAllocationByStripeSubscriptionId:
+SELECT *
+FROM ComputerAllocation
+WHERE
+  stripe_subscription_id = :stripe_subscription_id
+ORDER BY
+  active_start DESC
+LIMIT :limit;
+
+findComputerAllocationByComputerId:
+SELECT *
+FROM ComputerAllocation
+WHERE
+  computer_id = :computer_id
+ORDER BY
+  active_start DESC
+LIMIT :limit;

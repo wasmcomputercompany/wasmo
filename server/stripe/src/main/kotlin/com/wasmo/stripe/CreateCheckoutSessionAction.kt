@@ -23,9 +23,7 @@ class CreateCheckoutSessionAction(
     val sessionCreateParams = SessionCreateParams.builder()
       .setUiMode(SessionCreateParams.UiMode.EMBEDDED)
       .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
-      .setReturnUrl(
-        deployment.baseUrl.resolve("/return.html?session_id={CHECKOUT_SESSION_ID}").toString(),
-      )
+      .setReturnUrl(deployment.baseUrl.resolve("/after-checkout/{CHECKOUT_SESSION_ID}").toString())
       .setAutomaticTax(
         SessionCreateParams.AutomaticTax.builder()
           .setEnabled(true)

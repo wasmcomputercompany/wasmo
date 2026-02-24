@@ -2,6 +2,7 @@
 
 package com.wasmo.ktor
 
+import com.stripe.StripeClient
 import com.wasmo.accounts.CookieClient
 import com.wasmo.accounts.HmacChallenger
 import com.wasmo.accounts.RealAccountStore
@@ -25,6 +26,7 @@ import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.stripe.StripeInitializer
+import com.wasmo.stripe.SubscriptionUpdater
 import com.wasmo.website.RealServerAppPage
 import io.ktor.server.netty.EngineMain
 import kotlin.time.Clock
@@ -118,6 +120,15 @@ class WasmoService(
         isAdmin = false,
       ),
     )
+    val stripeClient = StripeClient.StripeClientBuilder()
+      .setApiKey(stripeCredentials.secretKey)
+      .build()
+    val subscriptionUpdater = SubscriptionUpdater(
+      clock = clock,
+      subscriptionService = stripeClient.v1().subscriptions(),
+      wasmoDbService = wasmoDbService,
+      catalog = catalog,
+    )
     val actionRouter = ActionRouter(
       clock = clock,
       deployment = deployment,
@@ -133,6 +144,7 @@ class WasmoService(
       serverAppPageFactory = serverAppPageFactory,
       inviteService = inviteService,
       routeCodec = routeCodec,
+      subscriptionUpdater = subscriptionUpdater,
     )
     actionRouter.createRoutes()
 

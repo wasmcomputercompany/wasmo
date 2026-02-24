@@ -18,6 +18,7 @@ dependencies {
   implementation(libs.logback.classic)
   implementation(libs.okhttp)
   implementation(libs.okio)
+  implementation(libs.stripe)
   implementation(project(":client:app"))
   implementation(project(":common:api"))
   implementation(project(":common:catalog"))

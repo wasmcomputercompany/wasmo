@@ -44,9 +44,11 @@ import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.sendemail.SendEmailService
+import com.wasmo.stripe.AfterCheckoutAction
 import com.wasmo.stripe.CreateCheckoutSessionAction
 import com.wasmo.stripe.GetSessionStatusAction
 import com.wasmo.stripe.StripeInitializer
+import com.wasmo.stripe.SubscriptionUpdater
 import com.wasmo.website.AppPageAction
 import com.wasmo.website.ServerAppPage
 import io.ktor.server.application.Application
@@ -77,6 +79,7 @@ class ActionRouter(
   val serverAppPageFactory: ServerAppPage.Factory,
   val routeCodec: RouteCodec,
   val inviteService: InviteService,
+  val subscriptionUpdater: SubscriptionUpdater,
 ) {
   private fun passkeyChecker(client: Client): PasskeyChecker = RealPasskeyChecker(
     challenger = client.challenger,
@@ -160,6 +163,14 @@ class ActionRouter(
     wasmoDbService = wasmoDbService,
   )
 
+  fun afterCheckoutAction(client: Client) = AfterCheckoutAction(
+    stripeInitializer = stripeInitializer,
+    routeCodec = routeCodec,
+    deployment = deployment,
+    client = client,
+    subscriptionUpdater = subscriptionUpdater,
+  )
+
   fun createRoutes() {
     application.install(CallLogging)
 
@@ -187,6 +198,14 @@ class ActionRouter(
         val action = invitePage(clientAuthenticator.get())
         val page = action.invite(call.pathParameters["code"]!!)
         call.respond(page.response)
+      }
+
+      get("/after-checkout/{checkoutSessionId}") {
+        val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
+        clientAuthenticator.updateSessionCookie()
+        val action = afterCheckoutAction(clientAuthenticator.get())
+        val page = action.get(call.pathParameters["checkoutSessionId"]!!)
+        call.respond(page)
       }
     }
   }

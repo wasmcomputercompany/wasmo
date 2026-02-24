@@ -17,6 +17,11 @@ kotlin {
         implementation(libs.okio)
       }
     }
+    jvmMain {
+      dependencies {
+        implementation(libs.okhttp)
+      }
+    }
     commonTest {
       dependencies {
         implementation(libs.assertk)
