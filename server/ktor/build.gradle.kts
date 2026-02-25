@@ -46,7 +46,7 @@ kotlin {
         implementation(project(":server:passkeys:real"))
         implementation(project(":server:payments:api"))
         implementation(project(":server:payments:stripe"))
-        implementation(project(":server:sendemail"))
+        implementation(project(":server:sendemail:postmark"))
         implementation(project(":server:sendemail:api"))
         implementation(project(":server:website"))
         implementation(project(":server:website:api"))
