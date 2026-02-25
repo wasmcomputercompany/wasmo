@@ -44,7 +44,6 @@ Running in a datacenter is rad:
  - pay-as-you-go for storage, scaling up as much as you need
  - always on and backed-up
 
-
 Computer
 --------
 
@@ -82,7 +81,6 @@ Contact
 
  * [jesse@wasmo.com](mailto:jesse@wasmo.com), project founder
 
-
 Contributors
 ============
 
@@ -96,7 +94,7 @@ Project layout
 |:----------------|:----------------------------------------------------------|
 | apps            | Wasm-packaged applications that use the framework.        |
 | `'--` hello     | A sample Wasmo app                                        |
-| platform        | APIs exposed by the host to guest apps.                   |
+| dom-tester      | A standalone library for snapshot testing HTML elements   |
 | host            | The host container for Wasmo apps                         |
 | `'--` api       | HTTP APIs and data models shared by client and server     |
 | `'--` catalog   | The catalog of Wasmo products that may be purchased       |
@@ -105,3 +103,5 @@ Project layout
 | `'--` logging   | A small-enough logging API for client and server          |
 | `'--` routes    | Encode and decode the host's URLs as values               |
 | `'--` server    | The backend Kotlin server of the host container           |
+| platform        | APIs exposed by the host to guest apps.                   |
+| wasmo-build     | Gradle stuff for building this project                    |
