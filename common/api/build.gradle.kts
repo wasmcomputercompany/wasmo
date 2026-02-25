@@ -1,14 +1,14 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotlin.serialization)
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJvmJs()
 }
 
 kotlin {
-  js {
-    browser()
-  }
-  jvm()
-
   sourceSets {
     commonMain {
       dependencies {
@@ -22,22 +22,6 @@ kotlin {
     jvmMain {
       dependencies {
         implementation(libs.okhttp)
-      }
-    }
-    commonTest {
-      dependencies {
-        implementation(libs.assertk)
-        implementation(libs.kotlin.test)
-      }
-    }
-    jsTest {
-      dependencies {
-        implementation(libs.kotlin.test.js)
-      }
-    }
-    jvmTest {
-      dependencies {
-        implementation(libs.kotlin.test.junit)
       }
     }
   }

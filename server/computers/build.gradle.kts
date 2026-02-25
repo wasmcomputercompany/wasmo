@@ -1,5 +1,10 @@
 plugins {
   alias(libs.plugins.kotlin.jvm)
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJvm()
 }
 
 dependencies {
@@ -16,8 +21,6 @@ dependencies {
   implementation(project(":server:downloader"))
   implementation(project(":server:identifiers"))
   implementation(project(":server:payments:api"))
-  testImplementation(libs.assertk)
-  testImplementation(libs.kotlin.test.junit)
   testImplementation(libs.kotlinx.coroutines.test)
   testImplementation(libs.okio.fakefilesystem)
   testImplementation(project(":platform:testing"))

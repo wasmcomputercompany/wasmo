@@ -2,13 +2,14 @@ plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotlin.serialization)
   kotlin("plugin.js-plain-objects") version libs.versions.kotlin
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJs()
 }
 
 kotlin {
-  js {
-    browser()
-  }
-
   sourceSets {
     val commonMain by getting {
       dependencies {
@@ -22,17 +23,6 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.core.js)
         implementation(npm("@passwordless-id/webauthn", "2.3.1"))
-      }
-    }
-    val commonTest by getting {
-      dependencies {
-        implementation(libs.assertk)
-        implementation(libs.kotlin.test)
-      }
-    }
-    val jsTest by getting {
-      dependencies {
-        implementation(libs.kotlin.test.js)
       }
     }
   }

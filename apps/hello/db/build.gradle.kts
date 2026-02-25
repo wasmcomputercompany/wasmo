@@ -1,13 +1,16 @@
 plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.sqldelight)
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJvm()
 }
 
 dependencies {
   implementation(libs.okio)
   implementation(libs.sqldelight.sqlite.driver)
-  testImplementation(libs.assertk)
-  testImplementation(libs.kotlin.test.junit)
 }
 
 sqldelight {

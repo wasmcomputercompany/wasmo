@@ -1,7 +1,12 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.burst)
+  id("wasmo-build")
   id("dom-tester")
+}
+
+wasmoBuild {
+  libraryJvmJs()
 }
 
 domTester {
@@ -9,12 +14,6 @@ domTester {
 }
 
 kotlin {
-  js {
-    browser()
-    useEsModules()
-  }
-  jvm()
-
   sourceSets {
     commonMain {
       dependencies {
@@ -24,16 +23,9 @@ kotlin {
         implementation(project(":server:sendemail:api"))
       }
     }
-    commonTest {
-      dependencies {
-        implementation(libs.assertk)
-        implementation(libs.kotlin.test)
-      }
-    }
     jsTest {
       dependencies {
         implementation(libs.burst.coroutines)
-        implementation(libs.kotlin.test.js)
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":dom-tester"))
       }

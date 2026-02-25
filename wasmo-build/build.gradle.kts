@@ -12,13 +12,16 @@ dependencies {
   add("compileOnly", kotlin("gradle-plugin-api"))
   implementation(libs.kotlin.gradle.plugin)
   implementation(libs.okio)
+
+  // So the plugin can see org.gradle.accessors.dm.LibrariesForLibs
+  implementation(files(libs::class.java.superclass.protectionDomain.codeSource.location))
 }
 
 gradlePlugin {
   plugins {
-    create("build-support") {
-      id = "build-support"
-      implementationClass = "com.wasmo.gradle.BuildSupport"
+    create("wasmo-build") {
+      id = "wasmo-build"
+      implementationClass = "com.wasmo.gradle.WasmoProjectPlugin"
     }
   }
 }

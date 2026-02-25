@@ -1,5 +1,10 @@
 plugins {
   alias(libs.plugins.kotlin.jvm)
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJvm()
 }
 
 dependencies {
@@ -11,8 +16,6 @@ dependencies {
   implementation(project(":apps:hello:db"))
   implementation(project(":common:tokens"))
   implementation(project(":platform:api"))
-  testImplementation(libs.assertk)
-  testImplementation(libs.kotlin.test.junit)
   testImplementation(libs.kotlinx.coroutines.test)
   testImplementation(project(":platform:testing"))
 }

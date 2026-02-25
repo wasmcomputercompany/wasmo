@@ -1,6 +1,11 @@
 plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.kotlin.serialization)
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJvm()
 }
 
 dependencies {
@@ -21,8 +26,6 @@ dependencies {
   implementation(project(":server:passkeys:api"))
   implementation(project(":server:sendemail:api"))
   implementation(project(":server:website:api"))
-  testImplementation(libs.assertk)
-  testImplementation(libs.kotlin.test.junit)
   testImplementation(libs.kotlinx.coroutines.test)
   testImplementation(project(":common:testing"))
   testImplementation(project(":platform:testing"))

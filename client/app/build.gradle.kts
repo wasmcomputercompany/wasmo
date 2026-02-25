@@ -4,7 +4,12 @@ plugins {
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.burst)
+  id("wasmo-build")
   id("dom-tester")
+}
+
+wasmoBuild {
+  libraryJvmJs()
 }
 
 domTester {
@@ -12,11 +17,6 @@ domTester {
 }
 
 kotlin {
-  js {
-    browser()
-  }
-  jvm()
-
   sourceSets {
     val jsMain by getting {
       dependencies {
@@ -40,10 +40,7 @@ kotlin {
     }
     val jsTest by getting {
       dependencies {
-        implementation(libs.assertk)
         implementation(libs.burst.coroutines)
-        implementation(libs.kotlin.test)
-        implementation(libs.kotlin.test.js)
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":common:testing"))
         implementation(project(":dom-tester"))

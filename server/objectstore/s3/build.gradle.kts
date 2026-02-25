@@ -2,6 +2,11 @@ plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.kotlin.noarg)
   alias(libs.plugins.kotlin.serialization)
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJvm()
 }
 
 noArg {
@@ -21,8 +26,6 @@ dependencies {
   implementation(libs.retrofit.converter.kotlinx.serialization)
   implementation(libs.retrofit.converter.jaxb3)
   implementation(project(":platform:api"))
-  testImplementation(libs.assertk)
-  testImplementation(libs.kotlin.test.junit)
   testImplementation(libs.kotlinx.coroutines.test)
   testImplementation(project(":platform:testing"))
 }

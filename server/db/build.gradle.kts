@@ -1,6 +1,11 @@
 plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.sqldelight)
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJvm()
 }
 
 dependencies {
@@ -14,8 +19,6 @@ dependencies {
   implementation(project(":common:tokens"))
   implementation(project(":server:identifiers"))
   implementation(project(":server:passkeys:api"))
-  testImplementation(libs.assertk)
-  testImplementation(libs.kotlin.test.junit)
   testImplementation(project(":common:testing"))
   testImplementation(project(":server:testing"))
 }
