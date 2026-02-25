@@ -36,7 +36,7 @@ dependencies {
   implementation(project(":server:ktor"))
   implementation(project(":server:payments:stripe"))
   implementation(project(":server:sendemail:postmark"))
-  implementation(project(":server:website"))
+  implementation(project(":server:website:real"))
 }
 
 ktor {
