@@ -45,7 +45,7 @@ $ psql "host=localhost user=postgres" \
 Build migrations `.sql` files:
 
 ```bash
-$ ../gradlew --project-dir .. server:db:generateMainWasmoDbMigrations
+$ ../gradlew --project-dir .. :host:server:db:generateMainWasmoDbMigrations
 ```
 
 Run all migrations:
@@ -65,7 +65,7 @@ Database Migrations
 Run an individual migration:
 
 ```bash
-$ ../gradlew --project-dir .. server:db:generateMainWasmoDbMigrations
+$ ../gradlew --project-dir .. :host:server:db:generateMainWasmoDbMigrations
 ```
 
 Replace _XXX_ with the migration number.

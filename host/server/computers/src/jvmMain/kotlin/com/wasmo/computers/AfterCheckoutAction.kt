@@ -5,7 +5,6 @@ import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.toHttpUrl
-import com.wasmo.framework.NotFoundException
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.redirect
@@ -37,8 +36,6 @@ class AfterCheckoutAction(
         val url = routeCodec.encode(ComputerHomeRoute(snapshot.slug))
         return redirect(url.toHttpUrl())
       }
-
-      else -> throw NotFoundException()
     }
   }
 }
