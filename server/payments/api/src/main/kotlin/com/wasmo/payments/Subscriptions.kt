@@ -1,4 +1,4 @@
-package com.wasmo.stripe
+package com.wasmo.payments
 
 import kotlin.time.Instant
 

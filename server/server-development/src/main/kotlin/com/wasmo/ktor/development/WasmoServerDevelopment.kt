@@ -16,7 +16,6 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import okio.SYSTEM
 
 fun main(args: Array<String>) {
   val stripePublishableKey = System.getenv("STRIPE_PUBLISHABLE_KEY")

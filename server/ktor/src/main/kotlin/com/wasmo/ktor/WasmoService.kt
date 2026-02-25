@@ -22,10 +22,11 @@ import com.wasmo.http.RealHttpClient
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.RealAuthenticatorDatabase
+import com.wasmo.payments.actions.SubscriptionUpdater
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.stripe.StripeCredentials
-import com.wasmo.stripe.SubscriptionUpdater
+import com.wasmo.stripe.StripePaymentsService
 import com.wasmo.website.RealServerAppPage
 import io.ktor.server.netty.EngineMain
 import kotlin.time.Clock
@@ -117,11 +118,16 @@ class WasmoService(
         isAdmin = false,
       ),
     )
+    val paymentsService = StripePaymentsService(
+      deployment = deployment,
+      sessionService = stripeClient.v1().checkout().sessions(),
+      subscriptionService = stripeClient.v1().subscriptions(),
+      catalog = catalog,
+    )
     val subscriptionUpdater = SubscriptionUpdater(
       clock = clock,
-      subscriptionService = stripeClient.v1().subscriptions(),
+      paymentsService = paymentsService,
       wasmoDbService = wasmoDbService,
-      catalog = catalog,
     )
     val actionRouter = ActionRouter(
       clock = clock,
@@ -132,13 +138,12 @@ class WasmoService(
       passkeyLinkerFactory = passkeyLinkerFactory,
       computerStore = computerStore,
       sendEmailService = sendEmailService,
-      catalog = catalog,
       wasmoDbService = wasmoDbService,
       serverAppPageFactory = serverAppPageFactory,
       inviteService = inviteService,
       routeCodec = routeCodec,
       subscriptionUpdater = subscriptionUpdater,
-      sessionService = stripeClient.v1().checkout().sessions(),
+      paymentsService = paymentsService,
     )
     actionRouter.createRoutes()
 

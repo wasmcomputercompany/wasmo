@@ -1,45 +1,33 @@
-package com.wasmo.stripe
+package com.wasmo.payments.actions
 
-import com.stripe.param.SubscriptionRetrieveParams
-import com.stripe.service.SubscriptionService
 import com.wasmo.app.db.WasmoDbService
-import com.wasmo.common.catalog.Catalog
 import com.wasmo.identifiers.StripeCustomerId
+import com.wasmo.payments.ComputerAllocationSnapshot
+import com.wasmo.payments.PaymentsService
+import com.wasmo.payments.SubscriptionSnapshot
 import kotlin.time.Clock
-import kotlin.time.Instant
 
 /**
  * Call the Stripe API and sync a subscription to the database.
  */
 class SubscriptionUpdater(
   private val clock: Clock,
-  private val subscriptionService: SubscriptionService,
-  private val catalog: Catalog,
+  private val paymentsService: PaymentsService,
   private val wasmoDbService: WasmoDbService,
 ) {
   fun update(subscriptionId: String): SubscriptionSnapshot {
     val now = clock.now()
-    val subscription = subscriptionService.retrieve(
-      subscriptionId,
-      SubscriptionRetrieveParams.Builder()
-        .addExpand("customer")
-        .build(),
-    )
-    val computerSpecToken = subscription.metadata[StripeMetadataKey.ComputerSpecToken.name]
-    require(computerSpecToken != null)
+    val subscription = paymentsService.getSubscription(subscriptionId)
+    val computerSpecToken = subscription.computerSpecToken
 
-    val item = subscription.items.data.single()
-    require(item.price.id == catalog.wasmoStandard.priceId)
-    require(item.quantity == 1L)
     val currentAllocation = ComputerAllocationSnapshot(
-      activeStart = Instant.fromEpochSeconds(item.currentPeriodStart),
-      activeEnd = Instant.fromEpochSeconds(item.currentPeriodEnd),
+      activeStart = subscription.currentPeriodStart,
+      activeEnd = subscription.currentPeriodEnd,
     )
 
     return wasmoDbService.transactionWithResult(noEnclosing = true) {
-      val customerObject = subscription.customerObject
       val existingCustomer = wasmoDbService.stripeCustomerQueries
-        .findStripeCustomerByStripeCustomerId(subscription.customer)
+        .findStripeCustomerByStripeCustomerId(subscription.customer.id)
         .executeAsOneOrNull()
 
       val computerSpec = wasmoDbService.computerSpecQueries
@@ -72,10 +60,10 @@ class SubscriptionUpdater(
       if (existingCustomer != null) {
         wasmoDbService.stripeCustomerQueries.updateStripeCustomer(
           new_version = existingCustomer.version + 1,
-          name = customerObject.name,
-          email = customerObject.email,
-          country = customerObject.address.country,
-          postal_code = customerObject.address.postalCode,
+          name = subscription.customer.name,
+          email = subscription.customer.email,
+          country = subscription.customer.address.country,
+          postal_code = subscription.customer.address.postalCode,
           expected_version = existingCustomer.version,
           id = existingCustomer.id,
         )
@@ -84,11 +72,11 @@ class SubscriptionUpdater(
         customerId = wasmoDbService.stripeCustomerQueries.insertStripeCustomer(
           created_at = now,
           version = 1,
-          stripe_customer_id = subscription.customer,
-          name = customerObject.name,
-          email = customerObject.email,
-          country = customerObject.address.country,
-          postal_code = customerObject.address.postalCode,
+          stripe_customer_id = subscription.customer.id,
+          name = subscription.customer.name,
+          email = subscription.customer.email,
+          country = subscription.customer.address.country,
+          postal_code = subscription.customer.address.postalCode,
         ).executeAsOne()
       }
 

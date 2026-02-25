@@ -1,34 +1,33 @@
-package com.wasmo.stripe
+package com.wasmo.payments.actions
 
-import com.stripe.service.checkout.SessionService
 import com.wasmo.accounts.Client
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.toHttpUrl
-import com.wasmo.deployment.Deployment
 import com.wasmo.framework.NotFoundException
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.redirect
+import com.wasmo.payments.CheckoutStatus
+import com.wasmo.payments.PaymentsService
 
 class AfterCheckoutAction(
-  val sessionService: SessionService,
+  val paymentsService: PaymentsService,
   val subscriptionUpdater: SubscriptionUpdater,
   val routeCodec: RouteCodec,
-  val deployment: Deployment,
   val client: Client,
 ) {
   fun get(checkoutSessionId: String): Response<ResponseBody> {
-    val session = sessionService.retrieve(checkoutSessionId)
+    val session = paymentsService.getCheckoutSession(checkoutSessionId)
     when (session.status) {
-      "open" -> {
+      CheckoutStatus.Open -> {
         val url = routeCodec.encode(BuildYoursRoute)
         return redirect(url.toHttpUrl())
       }
 
-      "complete" -> {
-        val snapshot = subscriptionUpdater.update(session.subscription)
+      CheckoutStatus.Complete -> {
+        val snapshot = subscriptionUpdater.update(session.subscriptionId)
         val url = routeCodec.encode(ComputerHomeRoute(snapshot.slug))
         return redirect(url.toHttpUrl())
       }

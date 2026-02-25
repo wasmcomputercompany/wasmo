@@ -34,8 +34,8 @@ dependencies {
   implementation(project(":server:computers"))
   implementation(project(":server:deployment"))
   implementation(project(":server:ktor"))
+  implementation(project(":server:payments:stripe"))
   implementation(project(":server:sendemail"))
-  implementation(project(":server:stripe"))
   implementation(project(":server:website"))
 }
 

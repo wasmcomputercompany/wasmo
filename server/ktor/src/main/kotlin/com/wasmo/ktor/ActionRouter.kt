@@ -1,6 +1,5 @@
 package com.wasmo.ktor
 
-import com.stripe.service.checkout.SessionService
 import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.AccountStore
 import com.wasmo.accounts.Client
@@ -32,10 +31,7 @@ import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.stripe.CreateCheckoutSessionRequest
 import com.wasmo.api.stripe.CreateCheckoutSessionResponse
-import com.wasmo.api.stripe.GetSessionStatusRequest
-import com.wasmo.api.stripe.GetSessionStatusResponse
 import com.wasmo.app.db.WasmoDbService
-import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
@@ -44,11 +40,11 @@ import com.wasmo.framework.HttpException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
+import com.wasmo.payments.PaymentsService
+import com.wasmo.payments.actions.AfterCheckoutAction
+import com.wasmo.payments.actions.CreateCheckoutSessionAction
+import com.wasmo.payments.actions.SubscriptionUpdater
 import com.wasmo.sendemail.SendEmailService
-import com.wasmo.stripe.AfterCheckoutAction
-import com.wasmo.stripe.CreateCheckoutSessionAction
-import com.wasmo.stripe.GetSessionStatusAction
-import com.wasmo.stripe.SubscriptionUpdater
 import com.wasmo.website.AppPageAction
 import com.wasmo.website.ServerAppPage
 import io.ktor.server.application.Application
@@ -73,13 +69,12 @@ class ActionRouter(
   val passkeyLinkerFactory: PasskeyLinker.Factory,
   val computerStore: ComputerStore,
   val sendEmailService: SendEmailService,
-  val catalog: Catalog,
   val wasmoDbService: WasmoDbService,
-  val sessionService: SessionService,
   val serverAppPageFactory: ServerAppPage.Factory,
   val routeCodec: RouteCodec,
   val inviteService: InviteService,
   val subscriptionUpdater: SubscriptionUpdater,
+  val paymentsService: PaymentsService,
 ) {
   private fun passkeyChecker(client: Client): PasskeyChecker = RealPasskeyChecker(
     challenger = client.challenger,
@@ -139,16 +134,9 @@ class ActionRouter(
 
   fun createCheckoutSessionAction(client: Client) = CreateCheckoutSessionAction(
     clock = clock,
-    sessionService = sessionService,
-    catalog = catalog,
-    deployment = deployment,
+    paymentsService = paymentsService,
     client = client,
     wasmoDbService = wasmoDbService,
-  )
-
-  fun getSessionStatusAction(client: Client) = GetSessionStatusAction(
-    sessionService = sessionService,
-    client = client,
   )
 
   fun appPage(client: Client) = AppPageAction(
@@ -166,9 +154,8 @@ class ActionRouter(
   )
 
   fun afterCheckoutAction(client: Client) = AfterCheckoutAction(
-    sessionService = sessionService,
+    paymentsService = paymentsService,
     routeCodec = routeCodec,
-    deployment = deployment,
     client = client,
     subscriptionUpdater = subscriptionUpdater,
   )
@@ -278,13 +265,6 @@ class ActionRouter(
       ) { client, request, _ ->
         val action = createCheckoutSessionAction(client)
         action.create(request)
-      }
-
-      rpc<GetSessionStatusRequest, GetSessionStatusResponse>(
-        path = "/session-status",
-      ) { client, request, _ ->
-        val action = getSessionStatusAction(client)
-        action.get(request)
       }
     }
   }

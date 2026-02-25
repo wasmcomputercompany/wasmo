@@ -28,8 +28,8 @@ dependencies {
   implementation(project(":server:objectstore"))
   implementation(project(":server:passkeys"))
   implementation(project(":server:passkeys:api"))
+  implementation(project(":server:payments:stripe"))
   implementation(project(":server:sendemail:api"))
-  implementation(project(":server:stripe"))
   implementation(project(":server:website"))
   implementation(project(":server:website:api"))
 }

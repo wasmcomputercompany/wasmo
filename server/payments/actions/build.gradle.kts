@@ -19,6 +19,7 @@ dependencies {
   implementation(project(":server:db"))
   implementation(project(":server:deployment"))
   implementation(project(":server:identifiers"))
+  implementation(project(":server:payments:api"))
   testImplementation(libs.assertk)
   testImplementation(libs.kotlin.test)
   testImplementation(libs.kotlin.test.junit)

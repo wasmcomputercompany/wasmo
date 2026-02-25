@@ -181,6 +181,10 @@ a:hover {
 
 /* TeaserScreen */
 
+.TeaserScreen {
+  background-color: #00C55F;
+}
+
 .TeaserScreen a {
   text-decoration: none;
 }

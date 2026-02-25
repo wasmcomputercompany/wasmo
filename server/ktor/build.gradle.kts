@@ -36,9 +36,11 @@ dependencies {
   implementation(project(":server:okhttpclient"))
   implementation(project(":server:passkeys"))
   implementation(project(":server:passkeys:api"))
+  implementation(project(":server:payments:actions"))
+  implementation(project(":server:payments:api"))
+  implementation(project(":server:payments:stripe"))
   implementation(project(":server:sendemail"))
   implementation(project(":server:sendemail:api"))
-  implementation(project(":server:stripe"))
   implementation(project(":server:website"))
   implementation(project(":server:website:api"))
 }
