@@ -1,5 +1,6 @@
 package com.wasmo.ktor
 
+import com.stripe.service.checkout.SessionService
 import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.AccountStore
 import com.wasmo.accounts.Client
@@ -47,7 +48,6 @@ import com.wasmo.sendemail.SendEmailService
 import com.wasmo.stripe.AfterCheckoutAction
 import com.wasmo.stripe.CreateCheckoutSessionAction
 import com.wasmo.stripe.GetSessionStatusAction
-import com.wasmo.stripe.StripeInitializer
 import com.wasmo.stripe.SubscriptionUpdater
 import com.wasmo.website.AppPageAction
 import com.wasmo.website.ServerAppPage
@@ -73,9 +73,9 @@ class ActionRouter(
   val passkeyLinkerFactory: PasskeyLinker.Factory,
   val computerStore: ComputerStore,
   val sendEmailService: SendEmailService,
-  val stripeInitializer: StripeInitializer,
   val catalog: Catalog,
   val wasmoDbService: WasmoDbService,
+  val sessionService: SessionService,
   val serverAppPageFactory: ServerAppPage.Factory,
   val routeCodec: RouteCodec,
   val inviteService: InviteService,
@@ -138,14 +138,16 @@ class ActionRouter(
   )
 
   fun createCheckoutSessionAction(client: Client) = CreateCheckoutSessionAction(
-    stripeInitializer = stripeInitializer,
+    clock = clock,
+    sessionService = sessionService,
     catalog = catalog,
     deployment = deployment,
     client = client,
+    wasmoDbService = wasmoDbService,
   )
 
   fun getSessionStatusAction(client: Client) = GetSessionStatusAction(
-    stripeInitializer = stripeInitializer,
+    sessionService = sessionService,
     client = client,
   )
 
@@ -164,7 +166,7 @@ class ActionRouter(
   )
 
   fun afterCheckoutAction(client: Client) = AfterCheckoutAction(
-    stripeInitializer = stripeInitializer,
+    sessionService = sessionService,
     routeCodec = routeCodec,
     deployment = deployment,
     client = client,

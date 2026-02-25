@@ -8,6 +8,7 @@ import com.wasmo.db.Account
 import com.wasmo.db.AppInstall
 import com.wasmo.db.Computer
 import com.wasmo.db.ComputerAllocation
+import com.wasmo.db.ComputerSpec
 import com.wasmo.db.Cookie
 import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
@@ -17,6 +18,7 @@ import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppInstallId
 import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId
+import com.wasmo.identifiers.ComputerSpecId
 import com.wasmo.identifiers.CookieId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
@@ -45,6 +47,7 @@ class WasmoDbService(
   AppInstallAdapter,
   ComputerAdapter,
   ComputerAllocationAdapter,
+  ComputerSpecAdapter,
   CookieAdapter,
   InviteAdapter,
   PasskeyAdapter,
@@ -132,6 +135,11 @@ class WasmoDbService(
       override fun encode(value: ComputerId) = value.id
     }
 
+    private object ComputerSpecIdAdapter : ColumnAdapter<ComputerSpecId, Long> {
+      override fun decode(databaseValue: Long) = ComputerSpecId(databaseValue)
+      override fun encode(value: ComputerSpecId) = value.id
+    }
+
     private object CookieIdAdapter : ColumnAdapter<CookieId, Long> {
       override fun decode(databaseValue: Long) = CookieId(databaseValue)
       override fun encode(value: CookieId) = value.id
@@ -165,6 +173,12 @@ class WasmoDbService(
     private val ComputerAdapter = Computer.Adapter(
       idAdapter = ComputerIdAdapter,
       created_atAdapter = InstantAdapter,
+    )
+
+    private val ComputerSpecAdapter = ComputerSpec.Adapter(
+      idAdapter = ComputerSpecIdAdapter,
+      created_atAdapter = InstantAdapter,
+      computer_idAdapter = ComputerIdAdapter,
     )
 
     private val ComputerAllocationAdapter = ComputerAllocation.Adapter(

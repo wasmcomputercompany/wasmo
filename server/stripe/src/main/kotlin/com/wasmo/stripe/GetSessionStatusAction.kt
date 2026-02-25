@@ -1,18 +1,17 @@
 package com.wasmo.stripe
 
-import com.stripe.model.checkout.Session
+import com.stripe.service.checkout.SessionService
 import com.wasmo.accounts.Client
 import com.wasmo.api.stripe.GetSessionStatusRequest
 import com.wasmo.api.stripe.GetSessionStatusResponse
 import com.wasmo.framework.Response
 
 class GetSessionStatusAction(
-  val stripeInitializer: StripeInitializer,
+  val sessionService: SessionService,
   val client: Client,
 ) {
   fun get(request: GetSessionStatusRequest): Response<GetSessionStatusResponse> {
-    stripeInitializer.requireInitialized()
-    val session = Session.retrieve(request.sessionId)
+    val session = sessionService.retrieve(request.sessionId)
     return Response(
       body = GetSessionStatusResponse(
         status = session.status,

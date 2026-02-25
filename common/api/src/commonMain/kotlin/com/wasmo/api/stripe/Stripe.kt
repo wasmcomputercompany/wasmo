@@ -3,7 +3,10 @@ package com.wasmo.api.stripe
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object CreateCheckoutSessionRequest
+data class CreateCheckoutSessionRequest(
+  val computerSpecToken: String,
+  val slug: String,
+)
 
 @Serializable
 data class CreateCheckoutSessionResponse(

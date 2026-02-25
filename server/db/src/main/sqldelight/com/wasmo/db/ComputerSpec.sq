@@ -1,0 +1,30 @@
+selectComputerSpecByToken:
+SELECT *
+FROM
+  ComputerSpec
+WHERE
+  token = :token
+LIMIT 1;
+
+insertComputerSpec:
+INSERT INTO ComputerSpec(
+  created_at,
+  version,
+  token,
+  slug
+)
+VALUES (
+  :created_at,
+  :version,
+  :token,
+  :slug
+) RETURNING id;
+
+linkComputer:
+UPDATE ComputerSpec
+SET
+  version = :new_version,
+  computer_id = :computer_id
+WHERE
+  version = :expected_version AND
+  id = :id;

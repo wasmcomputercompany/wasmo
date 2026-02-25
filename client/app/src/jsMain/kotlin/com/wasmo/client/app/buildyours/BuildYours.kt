@@ -241,7 +241,7 @@ fun BuildYoursScreen(
         onClick {
           eventListener(
             when {
-              showBuildForm -> BuildYoursScreenEvent.ClickCheckOut
+              showBuildForm -> BuildYoursScreenEvent.ClickCheckOut(nameState)
               else -> BuildYoursScreenEvent.ClickBuildYours
             },
           )
@@ -325,6 +325,8 @@ fun BuildYoursToolbar(
 
 sealed interface BuildYoursScreenEvent {
   object ClickBuildYours : BuildYoursScreenEvent
-  object ClickCheckOut : BuildYoursScreenEvent
+  data class ClickCheckOut(
+    val slug: String,
+  ) : BuildYoursScreenEvent
   object ClickQuestions : BuildYoursScreenEvent
 }

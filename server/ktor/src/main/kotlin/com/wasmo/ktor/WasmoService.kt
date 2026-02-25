@@ -25,7 +25,6 @@ import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.stripe.StripeCredentials
-import com.wasmo.stripe.StripeInitializer
 import com.wasmo.stripe.SubscriptionUpdater
 import com.wasmo.website.RealServerAppPage
 import io.ktor.server.netty.EngineMain
@@ -99,17 +98,15 @@ class WasmoService(
       credentials = postmarkCredentials,
       client = okHttpClient,
     ).create()
-    val stripeInitializer = StripeInitializer(
-      stripeCredentials = stripeCredentials,
-    ).apply {
-      initialize()
-    }
+    val stripeClient = StripeClient.StripeClientBuilder()
+      .setApiKey(stripeCredentials.secretKey)
+      .build()
     val passkeyLinkerFactory = PasskeyLinker.Factory(
       cookieQueries = wasmoDbService.cookieQueries,
     )
     val serverAppPageFactory = RealServerAppPage.Factory(
       deployment = deployment,
-      stripePublishableKey = stripeInitializer.stripeCredentials.publishableKey,
+      stripePublishableKey = stripeCredentials.publishableKey,
     )
     val inviteService = InviteService(clock, wasmoDbService)
     val routeCodec = RealRouteCodec(
@@ -120,9 +117,6 @@ class WasmoService(
         isAdmin = false,
       ),
     )
-    val stripeClient = StripeClient.StripeClientBuilder()
-      .setApiKey(stripeCredentials.secretKey)
-      .build()
     val subscriptionUpdater = SubscriptionUpdater(
       clock = clock,
       subscriptionService = stripeClient.v1().subscriptions(),
@@ -138,13 +132,13 @@ class WasmoService(
       passkeyLinkerFactory = passkeyLinkerFactory,
       computerStore = computerStore,
       sendEmailService = sendEmailService,
-      stripeInitializer = stripeInitializer,
       catalog = catalog,
       wasmoDbService = wasmoDbService,
       serverAppPageFactory = serverAppPageFactory,
       inviteService = inviteService,
       routeCodec = routeCodec,
       subscriptionUpdater = subscriptionUpdater,
+      sessionService = stripeClient.v1().checkout().sessions(),
     )
     actionRouter.createRoutes()
 

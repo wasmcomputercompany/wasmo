@@ -9,6 +9,7 @@ dependencies {
   implementation(libs.kotlinx.serialization.json)
   implementation(libs.okhttp)
   implementation(libs.okio)
+  implementation(libs.postgresql)
   implementation(libs.stripe)
   implementation(project(":common:api"))
   implementation(project(":common:catalog"))

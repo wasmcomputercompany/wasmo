@@ -4,7 +4,6 @@ import com.stripe.param.SubscriptionRetrieveParams
 import com.stripe.service.SubscriptionService
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
-import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.StripeCustomerId
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -18,7 +17,7 @@ class SubscriptionUpdater(
   private val catalog: Catalog,
   private val wasmoDbService: WasmoDbService,
 ) {
-  fun update(subscriptionId: String) {
+  fun update(subscriptionId: String): SubscriptionSnapshot {
     val now = clock.now()
     val subscription = subscriptionService.retrieve(
       subscriptionId,
@@ -26,18 +25,48 @@ class SubscriptionUpdater(
         .addExpand("customer")
         .build(),
     )
+    val computerSpecToken = subscription.metadata[StripeMetadataKey.ComputerSpecToken.name]
+    require(computerSpecToken != null)
 
     val item = subscription.items.data.single()
     require(item.price.id == catalog.wasmoStandard.priceId)
     require(item.quantity == 1L)
-    val activeStart = Instant.fromEpochSeconds(item.currentPeriodStart)
-    val activeEnd = Instant.fromEpochSeconds(item.currentPeriodEnd)
+    val currentAllocation = ComputerAllocationSnapshot(
+      activeStart = Instant.fromEpochSeconds(item.currentPeriodStart),
+      activeEnd = Instant.fromEpochSeconds(item.currentPeriodEnd),
+    )
 
-    wasmoDbService.transactionWithResult(noEnclosing = true) {
+    return wasmoDbService.transactionWithResult(noEnclosing = true) {
       val customerObject = subscription.customerObject
       val existingCustomer = wasmoDbService.stripeCustomerQueries
         .findStripeCustomerByStripeCustomerId(subscription.customer)
         .executeAsOneOrNull()
+
+      val computerSpec = wasmoDbService.computerSpecQueries
+        .selectComputerSpecByToken(computerSpecToken)
+        .executeAsOneOrNull()
+        ?: throw IllegalStateException("no such computer spec: $computerSpecToken")
+
+      val computerId = computerSpec.computer_id
+        ?: run {
+          val insertedComputerId = wasmoDbService.computerQueries.insertComputer(
+            created_at = computerSpec.created_at,
+            slug = computerSpec.slug,
+          ).executeAsOne()
+
+          wasmoDbService.computerSpecQueries.linkComputer(
+            new_version = computerSpec.version + 1,
+            computer_id = insertedComputerId,
+            expected_version = computerSpec.version,
+            id = computerSpec.id,
+          )
+
+          insertedComputerId
+        }
+
+      val computer = wasmoDbService.computerQueries
+        .selectComputerById(computerId)
+        .executeAsOne()
 
       val customerId: StripeCustomerId
       if (existingCustomer != null) {
@@ -69,8 +98,6 @@ class SubscriptionUpdater(
           limit = 1L,
         ).executeAsOneOrNull()
 
-      val computerId = ComputerId(1L)
-
       if (latestAllocation == null) {
         // Create an allocation if we don't have one.
         wasmoDbService.computerAllocationQueries.insertComputerAllocation(
@@ -79,10 +106,10 @@ class SubscriptionUpdater(
           stripe_customer_id = customerId,
           stripe_subscription_id = subscriptionId,
           computer_id = computerId,
-          active_start = activeStart,
-          active_end = activeEnd,
+          active_start = currentAllocation.activeStart,
+          active_end = currentAllocation.activeEnd,
         )
-      } else if (latestAllocation.active_end != activeEnd) {
+      } else if (latestAllocation.active_end != currentAllocation.activeEnd) {
         // If we have an allocation that's different, truncate it and create a replacement.
         wasmoDbService.computerAllocationQueries.truncateComputerAllocation(
           active_end = now,
@@ -97,9 +124,14 @@ class SubscriptionUpdater(
           stripe_subscription_id = subscriptionId,
           computer_id = computerId,
           active_start = now,
-          active_end = activeEnd,
+          active_end = currentAllocation.activeEnd,
         )
       }
+
+      SubscriptionSnapshot(
+        slug = computer.slug,
+        currentAllocation = currentAllocation,
+      )
     }
   }
 }

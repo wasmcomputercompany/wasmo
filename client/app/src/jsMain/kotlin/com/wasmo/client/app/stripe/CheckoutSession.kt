@@ -41,13 +41,16 @@ class CheckoutSession private constructor(
     private val stripePublishableKey: StripePublishableKey,
     private val wasmoApi: RealWasmoApi,
   ) {
-    fun create(coroutineScope: CoroutineScope): CheckoutSession {
+    fun create(
+      coroutineScope: CoroutineScope,
+      checkoutSessionRequest: CreateCheckoutSessionRequest,
+    ): CheckoutSession {
       val stripe = Stripe(stripePublishableKey.publishableKey)
       val deferredCheckout = stripe.initEmbeddedCheckout(
         InitEmbeddedCheckoutOptions(
           fetchClientSecret = {
             coroutineScope.async {
-              val response = wasmoApi.createCheckoutSession(CreateCheckoutSessionRequest)
+              val response = wasmoApi.createCheckoutSession(checkoutSessionRequest)
               response.clientSecret
             }.asPromise()
           },

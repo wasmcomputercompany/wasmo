@@ -1,6 +1,6 @@
 package com.wasmo.stripe
 
-import com.stripe.model.checkout.Session
+import com.stripe.service.checkout.SessionService
 import com.wasmo.accounts.Client
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
@@ -13,16 +13,14 @@ import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.redirect
 
 class AfterCheckoutAction(
-  val stripeInitializer: StripeInitializer,
+  val sessionService: SessionService,
   val subscriptionUpdater: SubscriptionUpdater,
   val routeCodec: RouteCodec,
   val deployment: Deployment,
   val client: Client,
 ) {
   fun get(checkoutSessionId: String): Response<ResponseBody> {
-    stripeInitializer.requireInitialized()
-
-    val session = Session.retrieve(checkoutSessionId)
+    val session = sessionService.retrieve(checkoutSessionId)
     when (session.status) {
       "open" -> {
         val url = routeCodec.encode(BuildYoursRoute)
@@ -30,8 +28,8 @@ class AfterCheckoutAction(
       }
 
       "complete" -> {
-        subscriptionUpdater.update(session.subscription)
-        val url = routeCodec.encode(ComputerHomeRoute("jesse99"))
+        val snapshot = subscriptionUpdater.update(session.subscription)
+        val url = routeCodec.encode(ComputerHomeRoute(snapshot.slug))
         return redirect(url.toHttpUrl())
       }
 

@@ -10,6 +10,8 @@ data class ComputerAllocationId(val id: Long)
 
 data class ComputerId(val id: Long)
 
+data class ComputerSpecId(val id: Long)
+
 data class StripeCustomerId(val id: Long)
 
 data class InviteId(val id: Long)

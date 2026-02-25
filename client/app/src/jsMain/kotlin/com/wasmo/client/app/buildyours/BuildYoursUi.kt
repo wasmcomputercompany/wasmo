@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.wasmo.api.routes.TeaserRoute
+import com.wasmo.api.stripe.CreateCheckoutSessionRequest
 import com.wasmo.client.app.FormState
 import com.wasmo.client.app.LocalFormState
 import com.wasmo.client.app.routing.Router
@@ -15,6 +16,7 @@ import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.app.stripe.CheckoutScreen
 import com.wasmo.client.app.stripe.CheckoutSession
 import com.wasmo.client.framework.Ui
+import com.wasmo.common.tokens.newToken
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
@@ -22,6 +24,7 @@ class BuildYoursUi(
   val checkoutSessionFactory: CheckoutSession.Factory,
   val router: Router,
 ) : Ui {
+  val computerSpecToken = newToken()
   var showBuildForm by mutableStateOf(false)
   var checkoutSessionState by mutableStateOf<CheckoutSession?>(null)
 
@@ -48,8 +51,14 @@ class BuildYoursUi(
               showBuildForm = true
             }
 
-            BuildYoursScreenEvent.ClickCheckOut -> {
-              checkoutSessionState = checkoutSessionFactory.create(coroutineScope)
+            is BuildYoursScreenEvent.ClickCheckOut -> {
+              checkoutSessionState = checkoutSessionFactory.create(
+                coroutineScope,
+                CreateCheckoutSessionRequest(
+                  computerSpecToken = computerSpecToken,
+                  slug = it.slug,
+                ),
+              )
             }
 
             BuildYoursScreenEvent.ClickQuestions -> {
