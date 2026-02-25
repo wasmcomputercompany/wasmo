@@ -19,21 +19,10 @@ class RealComputerStore(
   private val rootObjectStore: ObjectStore,
   private val httpClient: HttpClient,
   private val objectStoreKeyFactory: ObjectStoreKeyFactory,
-  private val service: WasmoDbService,
+  private val wasmoDbService: WasmoDbService,
 ) : ComputerStore {
-  override fun create(slug: String): WasmoComputer {
-    service.transactionWithResult(noEnclosing = true) {
-      service.computerQueries.insertComputer(
-        created_at = clock.now(),
-        slug = slug,
-      ).executeAsOne()
-    }
-
-    return get(slug)
-  }
-
   override fun get(slug: String): WasmoComputer {
-    val computer = service.computerQueries.selectComputerBySlug(
+    val computer = wasmoDbService.computerQueries.selectComputerBySlug(
       slug = slug,
     ).executeAsOneOrNull()
       ?: throw BadRequestException("unexpected computer: $slug")
@@ -54,7 +43,7 @@ class RealComputerStore(
     )
     return RealWasmoComputer(
       clock = clock,
-      service = service,
+      wasmoDbService = wasmoDbService,
       computerId = computer.id,
       url = deployment.baseUrl.resolve("/computer/$slug")!!,
       objectStore = objectStore,
@@ -65,15 +54,15 @@ class RealComputerStore(
 
 class RealWasmoComputer(
   private val clock: Clock,
-  private val service: WasmoDbService,
+  private val wasmoDbService: WasmoDbService,
   private val computerId: ComputerId,
   override val url: HttpUrl,
   override val objectStore: ObjectStore,
   override val appLoader: AppLoader,
 ) : WasmoComputer {
   override suspend fun installApp(manifest: AppManifest) {
-    service.transactionWithResult(noEnclosing = true) {
-      service.appInstallQueries.insertAppInstall(
+    wasmoDbService.transactionWithResult(noEnclosing = true) {
+      wasmoDbService.appInstallQueries.insertAppInstall(
         created_at = clock.now(),
         computer_id = computerId,
         slug = manifest.slug,

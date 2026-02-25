@@ -10,13 +10,14 @@ import com.wasmo.api.WasmoJson
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.testing.FakeClock
+import com.wasmo.computers.ComputerSpecStore
 import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
+import com.wasmo.computers.SubscriptionUpdater
 import com.wasmo.deployment.Deployment
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.RealAuthenticatorDatabase
-import com.wasmo.stripe.StripeCredentials
 import java.io.Closeable
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -28,8 +29,8 @@ import okio.fakefilesystem.FakeFileSystem
  * Create instances with [WasmoServiceTester.start]
  */
 class WasmoServiceTester private constructor(
-  val service: WasmoDbService,
-) : Closeable by service {
+  val wasmoDbService: WasmoDbService,
+) : Closeable by wasmoDbService {
   val deployment = Deployment(
     baseUrl = "https://wasmo.com/".toHttpUrl(),
     sendFromEmailAddress = "noreply@wasmo.com",
@@ -39,6 +40,9 @@ class WasmoServiceTester private constructor(
     get() = baseUrl.toString()
   val clock = FakeClock()
   val fileSystem = FakeFileSystem()
+  val paymentsService = FakePaymentsService(
+    clock = clock,
+  )
   val objectStoreFactory = ObjectStoreFactory(
     clock = clock,
     client = OkHttpClient(),
@@ -63,8 +67,8 @@ class WasmoServiceTester private constructor(
     ),
     cookieClientFactory = CookieClient.Factory(
       clock = clock,
-      cookieQueries = service.cookieQueries,
-      accountQueries = service.accountQueries,
+      cookieQueries = wasmoDbService.cookieQueries,
+      accountQueries = wasmoDbService.accountQueries,
       hmacChallengerFactory = challengerFactory,
     ),
   )
@@ -86,13 +90,22 @@ class WasmoServiceTester private constructor(
     rootObjectStore = rootObjectStore,
     httpClient = httpClient,
     objectStoreKeyFactory = objectStoreKeyFactory,
-    service = service,
+    wasmoDbService = wasmoDbService,
   )
 
-  val stripeCredentials = StripeCredentials(
-    publishableKey = StripePublishableKey("pk_test_5544332211"),
-    secretKey = "sk_test_5544332211",
+  val computerSpecStore = ComputerSpecStore(
+    clock = clock,
+    wasmoDbService = wasmoDbService,
   )
+
+  val subscriptionUpdater = SubscriptionUpdater(
+    clock = clock,
+    wasmoDbService = wasmoDbService,
+    paymentsService = paymentsService,
+    computerSpecStore = computerSpecStore,
+  )
+
+  val stripePublishableKey = StripePublishableKey("pk_test_5544332211")
 
   private var nextPasskeyId = 1
 
@@ -102,13 +115,16 @@ class WasmoServiceTester private constructor(
     val sessionCookie = clientAuthenticator.updateSessionCookie()
     return ClientTester(
       clock = clock,
-      wasmoDbService = service,
+      wasmoDbService = wasmoDbService,
       deployment = deployment,
       sendEmailService = sendEmailService,
       clientAuthenticator = clientAuthenticator,
       computerStore = computerStore,
+      computerSpecStore = computerSpecStore,
+      subscriptionUpdater = subscriptionUpdater,
+      stripePublishableKey = stripePublishableKey,
+      paymentsService = paymentsService,
       challenger = challengerFactory.create(sessionCookie.token),
-      stripePublishableKey = stripeCredentials.publishableKey,
     )
   }
 
@@ -119,7 +135,7 @@ class WasmoServiceTester private constructor(
   )
 
   override fun close() {
-    service.close()
+    wasmoDbService.close()
     fileSystem.checkNoOpenFiles()
     fileSystem.close()
   }

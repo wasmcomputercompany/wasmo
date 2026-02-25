@@ -13,6 +13,5 @@ interface WasmoComputer {
 }
 
 interface ComputerStore {
-  fun create(slug: String): WasmoComputer
   fun get(slug: String): WasmoComputer
 }

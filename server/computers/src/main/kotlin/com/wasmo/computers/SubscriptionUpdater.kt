@@ -1,4 +1,4 @@
-package com.wasmo.payments.actions
+package com.wasmo.computers
 
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.identifiers.StripeCustomerId
@@ -14,11 +14,11 @@ class SubscriptionUpdater(
   private val clock: Clock,
   private val paymentsService: PaymentsService,
   private val wasmoDbService: WasmoDbService,
+  private val computerSpecStore: ComputerSpecStore,
 ) {
   fun update(subscriptionId: String): SubscriptionSnapshot {
     val now = clock.now()
     val subscription = paymentsService.getSubscription(subscriptionId)
-    val computerSpecToken = subscription.computerSpecToken
 
     val currentAllocation = ComputerAllocationSnapshot(
       activeStart = subscription.currentPeriodStart,
@@ -29,32 +29,6 @@ class SubscriptionUpdater(
       val existingCustomer = wasmoDbService.stripeCustomerQueries
         .findStripeCustomerByStripeCustomerId(subscription.customer.id)
         .executeAsOneOrNull()
-
-      val computerSpec = wasmoDbService.computerSpecQueries
-        .selectComputerSpecByToken(computerSpecToken)
-        .executeAsOneOrNull()
-        ?: throw IllegalStateException("no such computer spec: $computerSpecToken")
-
-      val computerId = computerSpec.computer_id
-        ?: run {
-          val insertedComputerId = wasmoDbService.computerQueries.insertComputer(
-            created_at = computerSpec.created_at,
-            slug = computerSpec.slug,
-          ).executeAsOne()
-
-          wasmoDbService.computerSpecQueries.linkComputer(
-            new_version = computerSpec.version + 1,
-            computer_id = insertedComputerId,
-            expected_version = computerSpec.version,
-            id = computerSpec.id,
-          )
-
-          insertedComputerId
-        }
-
-      val computer = wasmoDbService.computerQueries
-        .selectComputerById(computerId)
-        .executeAsOne()
 
       val customerId: StripeCustomerId
       if (existingCustomer != null) {
@@ -86,6 +60,10 @@ class SubscriptionUpdater(
           limit = 1L,
         ).executeAsOneOrNull()
 
+      val computer = computerSpecStore.getOrCreateComputer(
+        computerSpecToken = subscription.computerSpecToken,
+      )
+
       if (latestAllocation == null) {
         // Create an allocation if we don't have one.
         wasmoDbService.computerAllocationQueries.insertComputerAllocation(
@@ -93,7 +71,7 @@ class SubscriptionUpdater(
           version = 1,
           stripe_customer_id = customerId,
           stripe_subscription_id = subscriptionId,
-          computer_id = computerId,
+          computer_id = computer.id,
           active_start = currentAllocation.activeStart,
           active_end = currentAllocation.activeEnd,
         )
@@ -110,7 +88,7 @@ class SubscriptionUpdater(
           version = 1,
           stripe_customer_id = customerId,
           stripe_subscription_id = subscriptionId,
-          computer_id = computerId,
+          computer_id = computer.id,
           active_start = now,
           active_end = currentAllocation.activeEnd,
         )

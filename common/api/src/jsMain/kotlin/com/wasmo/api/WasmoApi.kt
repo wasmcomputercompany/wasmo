@@ -1,10 +1,5 @@
 package com.wasmo.api
 
-import com.wasmo.api.stripe.CreateCheckoutSessionRequest
-import com.wasmo.api.stripe.CreateCheckoutSessionResponse
-import com.wasmo.api.stripe.GetSessionStatusRequest
-import com.wasmo.api.stripe.GetSessionStatusResponse
-
 interface WasmoApi {
   suspend fun registerPasskey(
     request: RegisterPasskeyRequest,
@@ -13,10 +8,6 @@ interface WasmoApi {
   suspend fun authenticatePasskey(
     request: AuthenticatePasskeyRequest,
   ): AuthenticatePasskeyResponse
-
-  suspend fun createComputer(
-    request: CreateComputerRequest,
-  ): CreateComputerResponse
 
   suspend fun installApp(
     computer: String,
@@ -31,11 +22,7 @@ interface WasmoApi {
     request: ConfirmEmailAddressRequest,
   ): ConfirmEmailAddressResponse
 
-  suspend fun createCheckoutSession(
-    request: CreateCheckoutSessionRequest,
-  ): CreateCheckoutSessionResponse
-
-  suspend fun getSessionStatus(
-    request: GetSessionStatusRequest,
-  ): GetSessionStatusResponse
+  suspend fun createComputer(
+    request: CreateComputerRequest,
+  ): CreateComputerResponse
 }

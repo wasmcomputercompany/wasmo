@@ -29,21 +29,19 @@ import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.api.routes.RouteCodec
-import com.wasmo.api.stripe.CreateCheckoutSessionRequest
-import com.wasmo.api.stripe.CreateCheckoutSessionResponse
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.computers.AfterCheckoutAction
+import com.wasmo.computers.ComputerSpecStore
 import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
+import com.wasmo.computers.SubscriptionUpdater
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.HttpException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.payments.PaymentsService
-import com.wasmo.payments.actions.AfterCheckoutAction
-import com.wasmo.payments.actions.CreateCheckoutSessionAction
-import com.wasmo.payments.actions.SubscriptionUpdater
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.website.AppPageAction
 import com.wasmo.website.ServerAppPage
@@ -75,6 +73,7 @@ class ActionRouter(
   val inviteService: InviteService,
   val subscriptionUpdater: SubscriptionUpdater,
   val paymentsService: PaymentsService,
+  val computerSpecStore: ComputerSpecStore,
 ) {
   private fun passkeyChecker(client: Client): PasskeyChecker = RealPasskeyChecker(
     challenger = client.challenger,
@@ -123,20 +122,15 @@ class ActionRouter(
   )
 
   fun createComputerAction(client: Client) = CreateComputerAction(
+    paymentsService = paymentsService,
     client = client,
-    computerStore = computerStore,
+    wasmoDbService = wasmoDbService,
+    computerSpecStore = computerSpecStore,
   )
 
   fun installAppAction(client: Client) = InstallAppAction(
     client = client,
     computerStore = computerStore,
-  )
-
-  fun createCheckoutSessionAction(client: Client) = CreateCheckoutSessionAction(
-    clock = clock,
-    paymentsService = paymentsService,
-    client = client,
-    wasmoDbService = wasmoDbService,
   )
 
   fun appPage(client: Client) = AppPageAction(
@@ -229,13 +223,6 @@ class ActionRouter(
         action.authenticate(request)
       }
 
-      rpc<CreateComputerRequest, CreateComputerResponse>(
-        path = "/create-computer",
-      ) { client, request, _ ->
-        val action = createComputerAction(client)
-        action.createComputer(request)
-      }
-
       rpc<InstallAppRequest, InstallAppResponse>(
         path = "/computers/{computer}/install-app",
       ) { client, request, call ->
@@ -260,10 +247,10 @@ class ActionRouter(
         action.confirm(request)
       }
 
-      rpc<CreateCheckoutSessionRequest, CreateCheckoutSessionResponse>(
-        path = "/create-checkout-session",
+      rpc<CreateComputerRequest, CreateComputerResponse>(
+        path = "/create-computer",
       ) { client, request, _ ->
-        val action = createCheckoutSessionAction(client)
+        val action = createComputerAction(client)
         action.create(request)
       }
     }

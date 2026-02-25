@@ -15,14 +15,15 @@ import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.common.routes.RealRouteCodec
+import com.wasmo.computers.ComputerSpecStore
 import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
+import com.wasmo.computers.SubscriptionUpdater
 import com.wasmo.deployment.Deployment
 import com.wasmo.http.RealHttpClient
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.RealAuthenticatorDatabase
-import com.wasmo.payments.actions.SubscriptionUpdater
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.stripe.StripeCredentials
@@ -93,7 +94,7 @@ class WasmoService(
       rootObjectStore = rootObjectStore,
       httpClient = httpClient,
       objectStoreKeyFactory = ObjectStoreKeyFactory(),
-      service = wasmoDbService,
+      wasmoDbService = wasmoDbService,
     )
     val sendEmailService = PostmarkEmailService.Factory(
       credentials = postmarkCredentials,
@@ -124,10 +125,15 @@ class WasmoService(
       subscriptionService = stripeClient.v1().subscriptions(),
       catalog = catalog,
     )
+    val computerSpecStore = ComputerSpecStore(
+      clock = clock,
+      wasmoDbService = wasmoDbService,
+    )
     val subscriptionUpdater = SubscriptionUpdater(
       clock = clock,
       paymentsService = paymentsService,
       wasmoDbService = wasmoDbService,
+      computerSpecStore = computerSpecStore
     )
     val actionRouter = ActionRouter(
       clock = clock,
@@ -144,6 +150,7 @@ class WasmoService(
       routeCodec = routeCodec,
       subscriptionUpdater = subscriptionUpdater,
       paymentsService = paymentsService,
+      computerSpecStore = computerSpecStore,
     )
     actionRouter.createRoutes()
 

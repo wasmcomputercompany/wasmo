@@ -79,7 +79,7 @@ class StripePaymentsService(
     require(item.quantity == 1L)
 
     return Subscription(
-      subscriptionId = subscription.id,
+      id = subscription.id,
       computerSpecToken = subscription.metadata[StripeMetadataKey.ComputerSpecToken.name]
         ?: error("expected metadata not found: ${StripeMetadataKey.ComputerSpecToken}"),
       currentPeriodStart = Instant.fromEpochSeconds(item.currentPeriodStart),

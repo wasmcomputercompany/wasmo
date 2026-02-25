@@ -4,10 +4,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateComputerRequest(
+  val computerSpecToken: String,
   val slug: String,
 )
 
 @Serializable
 data class CreateComputerResponse(
-  val url: String,
+  val checkoutSessionClientSecret: String,
 )

@@ -1,4 +1,4 @@
-package com.wasmo.payments.actions
+package com.wasmo.computers
 
 import com.wasmo.accounts.Client
 import com.wasmo.api.routes.BuildYoursRoute
@@ -12,6 +12,12 @@ import com.wasmo.framework.redirect
 import com.wasmo.payments.CheckoutStatus
 import com.wasmo.payments.PaymentsService
 
+/**
+ * We navigate to `/after-checkout/{CHECKOUT_SESSION_ID}` after the Stripe checkout screen.
+ *
+ * This will either redirect to the [BuildYoursRoute] to resume editing (if the payment failed),
+ * or to [ComputerHomeRoute] if payment succeeded.
+ */
 class AfterCheckoutAction(
   val paymentsService: PaymentsService,
   val subscriptionUpdater: SubscriptionUpdater,

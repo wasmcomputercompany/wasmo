@@ -1,9 +1,5 @@
 package com.wasmo.api
 
-import com.wasmo.api.stripe.CreateCheckoutSessionRequest
-import com.wasmo.api.stripe.CreateCheckoutSessionResponse
-import com.wasmo.api.stripe.GetSessionStatusRequest
-import com.wasmo.api.stripe.GetSessionStatusResponse
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.json.decodeFromDynamic
@@ -20,12 +16,6 @@ class RealWasmoApi : WasmoApi {
     request: AuthenticatePasskeyRequest,
   ): AuthenticatePasskeyResponse {
     return call("/authenticate-passkey", request)
-  }
-
-  override suspend fun createComputer(
-    request: CreateComputerRequest,
-  ): CreateComputerResponse {
-    return call("/create-computer", request)
   }
 
   override suspend fun installApp(
@@ -47,16 +37,10 @@ class RealWasmoApi : WasmoApi {
     return call("/confirm-email-address", request)
   }
 
-  override suspend fun createCheckoutSession(
-    request: CreateCheckoutSessionRequest,
-  ): CreateCheckoutSessionResponse {
-    return call("/create-checkout-session", request)
-  }
-
-  override suspend fun getSessionStatus(
-    request: GetSessionStatusRequest,
-  ): GetSessionStatusResponse {
-    return call("/session-status", request)
+  override suspend fun createComputer(
+    request: CreateComputerRequest,
+  ): CreateComputerResponse {
+    return call("/create-computer", request)
   }
 
   suspend inline fun <reified S, reified R> call(

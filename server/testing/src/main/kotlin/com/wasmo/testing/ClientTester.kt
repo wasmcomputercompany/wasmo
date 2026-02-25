@@ -20,9 +20,13 @@ import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.routes.RealRouteCodec
+import com.wasmo.common.tokens.newToken
+import com.wasmo.computers.AfterCheckoutAction
+import com.wasmo.computers.ComputerSpecStore
 import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
+import com.wasmo.computers.SubscriptionUpdater
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.passkeys.RealPasskeyChecker
@@ -37,7 +41,10 @@ class ClientTester(
   private val sendEmailService: SendEmailService,
   private val clientAuthenticator: ClientAuthenticator,
   private val computerStore: ComputerStore,
+  private val computerSpecStore: ComputerSpecStore,
+  private val subscriptionUpdater: SubscriptionUpdater,
   private val stripePublishableKey: StripePublishableKey,
+  val paymentsService: FakePaymentsService,
   val challenger: Challenger,
 ) {
   val authenticatorDatabase = RealAuthenticatorDatabase()
@@ -124,6 +131,20 @@ class ClientTester(
     inviteService = inviteService,
   )
 
+  fun createComputerAction() = CreateComputerAction(
+    paymentsService = paymentsService,
+    client = clientAuthenticator.get(),
+    wasmoDbService = wasmoDbService,
+    computerSpecStore = computerSpecStore,
+  )
+
+  fun afterCheckoutAction() = AfterCheckoutAction(
+    paymentsService = paymentsService,
+    subscriptionUpdater = subscriptionUpdater,
+    routeCodec = routeCodec(),
+    client = clientAuthenticator.get(),
+  )
+
   fun createInviteAction() = CreateInviteAction(
     client = clientAuthenticator.get(),
     routeCodec = routeCodec(),
@@ -151,22 +172,28 @@ class ClientTester(
     ),
   )
 
-  fun createComputerAction() = CreateComputerAction(
-    client = clientAuthenticator.get(),
-    computerStore = computerStore,
-  )
-
   fun installAppAction() = InstallAppAction(
     client = clientAuthenticator.get(),
     computerStore = computerStore,
   )
 
   fun createComputer(slug: String): ComputerTester {
-    createComputerAction().createComputer(
-      request = CreateComputerRequest(
-        slug = slug,
-      ),
+    // Create a ComputerSpec.
+    val createComputerResponse = createComputerAction()
+      .create(
+        request = CreateComputerRequest(
+          computerSpecToken = newToken(),
+          slug = slug,
+        ),
+      )
+
+    // Pay for it.
+    val checkoutSessionId = paymentsService.completePayment(
+      createComputerResponse.body.checkoutSessionClientSecret,
     )
+
+    // Sync payment state.
+    afterCheckoutAction().get(checkoutSessionId)
 
     return ComputerTester(
       slug = slug,

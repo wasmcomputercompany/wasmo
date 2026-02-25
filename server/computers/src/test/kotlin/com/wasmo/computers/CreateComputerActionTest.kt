@@ -3,8 +3,6 @@ package com.wasmo.computers
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.api.CreateComputerRequest
-import com.wasmo.api.CreateComputerResponse
-import com.wasmo.framework.Response
 import com.wasmo.testing.WasmoServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -26,17 +24,19 @@ class CreateComputerActionTest {
   @Test
   fun happyPath() {
     val client = tester.newClient()
-    val response = client.createComputerAction().createComputer(
+    val createComputerResponse = client.createComputerAction().create(
       request = CreateComputerRequest(
+        computerSpecToken = "computerspectoken00000001",
         slug = "computer-one",
       ),
     )
-    assertThat(response).isEqualTo(
-      Response(
-        body = CreateComputerResponse(
-          url = "https://wasmo.com/computer/computer-one",
-        ),
-      ),
+    val checkoutSessionId = client.paymentsService.completePayment(
+      createComputerResponse.body.checkoutSessionClientSecret,
+    )
+    val afterCheckoutResponse = client.afterCheckoutAction().get(checkoutSessionId)
+
+    assertThat(afterCheckoutResponse.header("Location")).isEqualTo(
+      "https://computer-one.wasmo.com/",
     )
   }
 }

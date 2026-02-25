@@ -15,6 +15,7 @@ dependencies {
   implementation(project(":server:deployment"))
   implementation(project(":server:downloader"))
   implementation(project(":server:identifiers"))
+  implementation(project(":server:payments:api"))
   testImplementation(libs.assertk)
   testImplementation(libs.kotlin.test.junit)
   testImplementation(libs.kotlinx.coroutines.test)

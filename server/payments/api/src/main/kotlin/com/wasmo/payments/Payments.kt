@@ -41,7 +41,7 @@ enum class CheckoutStatus {
 }
 
 data class Subscription(
-  val subscriptionId: String,
+  val id: String,
   val computerSpecToken: String,
   val currentPeriodStart: Instant,
   val currentPeriodEnd: Instant,
