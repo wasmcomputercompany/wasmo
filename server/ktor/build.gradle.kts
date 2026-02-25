@@ -40,7 +40,7 @@ kotlin {
         implementation(project(":server:db"))
         implementation(project(":server:deployment"))
         implementation(project(":server:downloader"))
-        implementation(project(":server:objectstore"))
+        implementation(project(":server:objectstore:api"))
         implementation(project(":server:okhttpclient"))
         implementation(project(":server:passkeys"))
         implementation(project(":server:passkeys:api"))

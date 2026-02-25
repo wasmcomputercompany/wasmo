@@ -33,7 +33,7 @@ kotlin {
         implementation(project(":server:db"))
         implementation(project(":server:deployment"))
         implementation(project(":server:identifiers"))
-        implementation(project(":server:objectstore"))
+        implementation(project(":server:objectstore:api"))
         implementation(project(":server:passkeys"))
         implementation(project(":server:passkeys:api"))
         implementation(project(":server:payments:api"))
