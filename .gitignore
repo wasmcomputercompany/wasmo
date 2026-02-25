@@ -6,4 +6,4 @@ build
 kotlin-js-store/yarn.lock
 
 # dom-tester
-generated-wasmo-dom-tester.js
+generated-dom-tester.js

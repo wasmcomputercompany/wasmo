@@ -1,6 +1,7 @@
 rootProject.name = "wasmo"
 
 includeBuild("build-support")
+includeBuild("dom-tester-gradle-plugin")
 
 pluginManagement {
   repositories {

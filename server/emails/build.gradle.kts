@@ -1,10 +1,10 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.burst)
-  id("build-support")
+  id("dom-tester")
 }
 
-wasmoBuild {
+domTester {
   domTester()
 }
 

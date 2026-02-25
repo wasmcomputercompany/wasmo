@@ -4,10 +4,10 @@ plugins {
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.burst)
-  id("build-support")
+  id("dom-tester")
 }
 
-wasmoBuild {
+domTester {
   domTester()
 }
 

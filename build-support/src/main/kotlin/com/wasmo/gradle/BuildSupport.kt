@@ -1,6 +1,5 @@
 package com.wasmo.gradle
 
-import com.wasmo.gradle.domtester.WriteSnapshotTestingJsTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -17,22 +16,4 @@ class BuildSupport : Plugin<Project> {
 internal class RealWasmoBuildExtension(
   private val project: Project,
 ) : WasmoBuildExtension {
-
-  override fun domTester() {
-    val writeSnapshotTestingJsTask = project.tasks.register(
-      "writeKarmaConfigTask",
-      WriteSnapshotTestingJsTask::class.java,
-    ) {
-      karmaConfigD.set(project.layout.projectDirectory.dir("karma.config.d"))
-      fullyQualifiedProjectDirectory.set(project.projectDir.path)
-      jvmResources.from(project.tasks.named { it == "jvmProcessResources" })
-    }
-    project.tasks.named { it == "jsBrowserTest" }.configureEach {
-      dependsOn(writeSnapshotTestingJsTask)
-      outputs.dirs(
-        project.layout.projectDirectory.dir("dom-tester-snapshots"),
-        project.layout.buildDirectory.dir("dom-tester-snapshots"),
-      )
-    }
-  }
 }
