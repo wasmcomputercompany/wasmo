@@ -11,19 +11,17 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
-        implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.kotlinx.serialization.json)
         implementation(libs.okhttp)
         implementation(libs.okio)
-        implementation(project(":apps:hello:api"))
-        implementation(project(":apps:hello:db"))
-        implementation(project(":host:tokens"))
+        implementation(project(":host:server:objectstore:fs"))
+        implementation(project(":host:server:objectstore:s3"))
         implementation(project(":platform:api"))
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
+        implementation(libs.okio.fakefilesystem)
         implementation(project(":platform:testing"))
       }
     }

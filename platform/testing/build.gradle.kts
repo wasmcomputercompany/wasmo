@@ -17,7 +17,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.okio.fakefilesystem)
         implementation(libs.okhttp)
-        implementation(project(":server:objectstore:fs"))
+        implementation(project(":host:server:objectstore:fs"))
         implementation(project(":platform:api"))
       }
     }

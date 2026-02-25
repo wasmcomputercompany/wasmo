@@ -92,12 +92,16 @@ Wasmo docs are in [docs](docs/).
 Project layout
 --------------
 
-| Directory   | What it's for                                                                            |
-|:------------|:-----------------------------------------------------------------------------------------|
-| apps        | Wasm-packaged applications that use the framework.                                       |
-| `'--` admin | The admin app. It's pre-installed on each computer and privileged to install other apps. |
-| client      | The user interface to create new computers.                                              |
-| platform    | APIs exposed by the server and consumed by apps.                                         |
-| server      | A deployable artifact that hosts apps and satisfies their requirements.                  |
-| common      | Shared utilities.                                                                        |
-
+| Directory       | What it's for                                             |
+|:----------------|:----------------------------------------------------------|
+| apps            | Wasm-packaged applications that use the framework.        |
+| `'--` hello     | A sample Wasmo app                                        |
+| platform        | APIs exposed by the host to guest apps.                   |
+| host            | The host container for Wasmo apps                         |
+| `'--` api       | HTTP APIs and data models shared by client and server     |
+| `'--` catalog   | The catalog of Wasmo products that may be purchased       |
+| `'--` client    | The frontend JavaScript application of the host container |
+| `'--` framework | The host's own web framework, built on Kotlin and Ktor    |
+| `'--` logging   | A small-enough logging API for client and server          |
+| `'--` routes    | Encode and decode the host's URLs as values               |
+| `'--` server    | The backend Kotlin server of the host container           |

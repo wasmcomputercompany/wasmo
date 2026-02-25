@@ -1,0 +1,56 @@
+plugins {
+  alias(libs.plugins.kotlin.multiplatform)
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJvm()
+}
+
+kotlin {
+  sourceSets {
+    val jvmMain by getting {
+      dependencies {
+        implementation(libs.kotlinx.html)
+        implementation(libs.kotlinx.io)
+        implementation(libs.kotlinx.io.okio)
+        implementation(libs.kotlinx.serialization.json)
+        implementation(libs.ktor.server.call.logging)
+        implementation(libs.ktor.server.config.yaml)
+        implementation(libs.ktor.server.core)
+        implementation(libs.ktor.server.default.headers)
+        implementation(libs.ktor.server.host.common)
+        implementation(libs.ktor.server.html.builder)
+        implementation(libs.ktor.server.netty)
+        implementation(libs.ktor.server.websockets)
+        implementation(libs.logback.classic)
+        implementation(libs.okhttp)
+        implementation(libs.okio)
+        implementation(libs.stripe)
+        implementation(project(":host:api"))
+        implementation(project(":host:catalog"))
+        implementation(project(":host:client:app"))
+        implementation(project(":host:framework"))
+        implementation(project(":host:routes"))
+        implementation(project(":host:server:accounts:api"))
+        implementation(project(":host:server:accounts:real"))
+        implementation(project(":host:server:computers"))
+        implementation(project(":host:server:db"))
+        implementation(project(":host:server:deployment"))
+        implementation(project(":host:server:downloader"))
+        implementation(project(":host:server:objectstore:api"))
+        implementation(project(":host:server:okhttpclient"))
+        implementation(project(":host:server:passkeys:api"))
+        implementation(project(":host:server:passkeys:real"))
+        implementation(project(":host:server:payments:api"))
+        implementation(project(":host:server:payments:stripe"))
+        implementation(project(":host:server:sendemail:api"))
+        implementation(project(":host:server:sendemail:postmark"))
+        implementation(project(":host:server:website:api"))
+        implementation(project(":host:server:website:real"))
+        implementation(project(":host:tokens"))
+        implementation(project(":platform:api"))
+      }
+    }
+  }
+}

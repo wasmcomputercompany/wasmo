@@ -52,7 +52,7 @@ Run all migrations:
 
 ```bash
 $ export PGPASSWORD=password
-$ find ../server/db/build/resources/main/migrations \
+$ find ../host/server/db/build/resources/main/migrations \
   -name '*.sql' \
   | sort --version-sort \
   | xargs -n 1 \
@@ -73,5 +73,5 @@ Replace _XXX_ with the migration number.
 ```bash
 $ export PGPASSWORD=password
 $ psql "host=localhost dbname=wasmo_development user=postgres" -a -f \
-     ../server/db/build/resources/main/migrations/vXXX__db.sql
+     ../host/server/db/build/resources/main/migrations/vXXX__db.sql
 ```

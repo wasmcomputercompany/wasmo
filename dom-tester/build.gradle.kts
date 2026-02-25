@@ -30,7 +30,7 @@ kotlin {
     val jsTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":common:testing"))
+        implementation(project(":host:testing"))
       }
     }
   }
