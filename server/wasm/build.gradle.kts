@@ -1,5 +1,5 @@
 plugins {
-  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlin.multiplatform)
   id("wasmo-build")
 }
 
@@ -7,11 +7,21 @@ wasmoBuild {
   libraryJvm()
 }
 
-dependencies {
-  implementation(libs.okhttp)
-  implementation(libs.okio)
-  implementation(libs.graalvm.polyglot)
-  implementation(libs.graalvm.wasm)
-  testImplementation(project(":common:testing"))
-  testImplementation(project(":server:testing"))
+kotlin {
+  sourceSets {
+    val jvmMain by getting {
+      dependencies {
+        implementation(libs.okhttp)
+        implementation(libs.okio)
+        implementation(libs.graalvm.polyglot)
+        implementation(libs.graalvm.wasm)
+      }
+    }
+    val jvmTest by getting {
+      dependencies {
+        implementation(project(":common:testing"))
+        implementation(project(":server:testing"))
+      }
+    }
+  }
 }

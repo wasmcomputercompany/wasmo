@@ -1,5 +1,5 @@
 plugins {
-  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlin.multiplatform)
   id("wasmo-build")
 }
 
@@ -7,22 +7,32 @@ wasmoBuild {
   libraryJvm()
 }
 
-dependencies {
-  implementation(libs.kotlinx.serialization.json)
-  implementation(libs.okhttp)
-  implementation(libs.okio)
-  implementation(libs.postgresql)
-  implementation(project(":common:api"))
-  implementation(project(":common:framework"))
-  implementation(project(":platform:api"))
-  implementation(project(":server:accounts:api"))
-  implementation(project(":server:db"))
-  implementation(project(":server:deployment"))
-  implementation(project(":server:downloader"))
-  implementation(project(":server:identifiers"))
-  implementation(project(":server:payments:api"))
-  testImplementation(libs.kotlinx.coroutines.test)
-  testImplementation(libs.okio.fakefilesystem)
-  testImplementation(project(":platform:testing"))
-  testImplementation(project(":server:testing"))
+kotlin {
+  sourceSets {
+    val jvmMain by getting {
+      dependencies {
+        implementation(libs.kotlinx.serialization.json)
+        implementation(libs.okhttp)
+        implementation(libs.okio)
+        implementation(libs.postgresql)
+        implementation(project(":common:api"))
+        implementation(project(":common:framework"))
+        implementation(project(":platform:api"))
+        implementation(project(":server:accounts:api"))
+        implementation(project(":server:db"))
+        implementation(project(":server:deployment"))
+        implementation(project(":server:downloader"))
+        implementation(project(":server:identifiers"))
+        implementation(project(":server:payments:api"))
+      }
+    }
+    val jvmTest by getting {
+      dependencies {
+        implementation(libs.kotlinx.coroutines.test)
+        implementation(libs.okio.fakefilesystem)
+        implementation(project(":platform:testing"))
+        implementation(project(":server:testing"))
+      }
+    }
+  }
 }

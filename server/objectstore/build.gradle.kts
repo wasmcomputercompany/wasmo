@@ -1,5 +1,5 @@
 plugins {
-  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlin.multiplatform)
   id("wasmo-build")
 }
 
@@ -7,13 +7,23 @@ wasmoBuild {
   libraryJvm()
 }
 
-dependencies {
-  implementation(libs.okhttp)
-  implementation(libs.okio)
-  implementation(project(":platform:api"))
-  implementation(project(":server:objectstore:fs"))
-  implementation(project(":server:objectstore:s3"))
-  testImplementation(libs.kotlinx.coroutines.test)
-  testImplementation(libs.okio.fakefilesystem)
-  testImplementation(project(":platform:testing"))
+kotlin {
+  sourceSets {
+    val jvmMain by getting {
+      dependencies {
+        implementation(libs.okhttp)
+        implementation(libs.okio)
+        implementation(project(":platform:api"))
+        implementation(project(":server:objectstore:fs"))
+        implementation(project(":server:objectstore:s3"))
+      }
+    }
+    val jvmTest by getting {
+      dependencies {
+        implementation(libs.kotlinx.coroutines.test)
+        implementation(libs.okio.fakefilesystem)
+        implementation(project(":platform:testing"))
+      }
+    }
+  }
 }

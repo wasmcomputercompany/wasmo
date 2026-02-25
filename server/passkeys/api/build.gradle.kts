@@ -1,10 +1,21 @@
 plugins {
-  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotlin.serialization)
+  id("wasmo-build")
 }
 
-dependencies {
-  implementation(libs.kotlinx.serialization.json)
-  implementation(libs.okio)
-  implementation(project(":common:api"))
+wasmoBuild {
+  libraryJvm()
+}
+
+kotlin {
+  sourceSets {
+    val jvmMain by getting {
+      dependencies {
+        implementation(libs.kotlinx.serialization.json)
+        implementation(libs.okio)
+        implementation(project(":common:api"))
+      }
+    }
+  }
 }

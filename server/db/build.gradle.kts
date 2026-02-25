@@ -1,5 +1,5 @@
 plugins {
-  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.sqldelight)
   id("wasmo-build")
 }
@@ -8,19 +8,29 @@ wasmoBuild {
   libraryJvm()
 }
 
-dependencies {
-  implementation(libs.commons.dbcp2)
-  implementation(libs.kotlinx.serialization.json)
-  implementation(libs.okio)
-  implementation(libs.postgresql)
-  implementation(libs.sqldelight.jdbc.driver)
-  implementation(project(":common:api"))
-  implementation(project(":common:framework"))
-  implementation(project(":common:tokens"))
-  implementation(project(":server:identifiers"))
-  implementation(project(":server:passkeys:api"))
-  testImplementation(project(":common:testing"))
-  testImplementation(project(":server:testing"))
+kotlin {
+  sourceSets {
+    val jvmMain by getting {
+      dependencies {
+        implementation(libs.commons.dbcp2)
+        implementation(libs.kotlinx.serialization.json)
+        implementation(libs.okio)
+        implementation(libs.postgresql)
+        implementation(libs.sqldelight.jdbc.driver)
+        implementation(project(":common:api"))
+        implementation(project(":common:framework"))
+        implementation(project(":common:tokens"))
+        implementation(project(":server:identifiers"))
+        implementation(project(":server:passkeys:api"))
+      }
+    }
+    val jvmTest by getting {
+      dependencies {
+        implementation(project(":common:testing"))
+        implementation(project(":server:testing"))
+      }
+    }
+  }
 }
 
 sqldelight {

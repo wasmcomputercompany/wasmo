@@ -1,11 +1,23 @@
 plugins {
-  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlin.multiplatform)
+  id("wasmo-build")
 }
 
-dependencies {
-  implementation(libs.kotlinx.coroutines.core)
-  implementation(libs.okio)
-  implementation(libs.okhttp)
-  implementation(libs.okhttp.coroutines)
-  implementation(project(":platform:api"))
+wasmoBuild {
+  libraryJvm()
 }
+
+kotlin {
+  sourceSets {
+    val jvmMain by getting {
+      dependencies {
+        implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.okio)
+        implementation(libs.okhttp)
+        implementation(libs.okhttp.coroutines)
+        implementation(project(":platform:api"))
+      }
+    }
+  }
+}
+

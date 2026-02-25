@@ -1,7 +1,18 @@
 plugins {
-  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlin.multiplatform)
+  id("wasmo-build")
 }
 
-dependencies {
-  implementation(libs.okhttp)
+wasmoBuild {
+  libraryJvm()
+}
+
+kotlin {
+  sourceSets {
+    val jvmMain by getting {
+      dependencies {
+        implementation(libs.okhttp)
+      }
+    }
+  }
 }

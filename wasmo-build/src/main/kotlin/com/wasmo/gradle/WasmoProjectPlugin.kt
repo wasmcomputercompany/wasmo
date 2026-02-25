@@ -6,7 +6,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 
 class WasmoProjectPlugin : Plugin<Project> {
   override fun apply(project: Project) {
@@ -27,22 +26,16 @@ internal class RealWasmoBuildExtension(
   private val project: Project,
   private val libs: LibrariesForLibs,
 ) : WasmoBuildExtension {
-  override fun libraryJvm() {
-    project.plugins.withType<KotlinPluginWrapper> {
-      project.dependencies.apply {
-        add("testImplementation", libs.assertk)
-        add("testImplementation", libs.kotlin.test)
-        add("testImplementation", libs.kotlin.test.junit)
-      }
-    }
-  }
-
   override fun libraryJs() {
     libraryMultiplatform(js = true)
   }
 
   override fun libraryJvmJs() {
     libraryMultiplatform(jvm = true, js = true)
+  }
+
+  override fun libraryJvm() {
+    libraryMultiplatform(jvm = true)
   }
 
   private fun libraryMultiplatform(
