@@ -20,11 +20,42 @@ import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.framework.PageData
 import com.wasmo.framework.detectPageData
 import com.wasmo.passkeys.RealPasskeyAuthenticator
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.MainScope
 import org.jetbrains.compose.web.renderComposableInBody
 
+fun newWasmoClientApp(
+  logger: Logger = ConsoleLogger,
+  environment: Environment,
+): WasmoClientApp {
+  val appGraph = createGraphFactory<WasmoClientAppGraph.Factory>()
+    .create(
+      logger = logger,
+      environment = environment,
+    )
+  return appGraph.wasmoClientApp
+}
+
+@DependencyGraph(AppScope::class)
+interface WasmoClientAppGraph {
+  val wasmoClientApp: WasmoClientApp
+
+  @DependencyGraph.Factory
+  interface Factory {
+    fun create(
+      @Provides logger: Logger,
+      @Provides environment: Environment,
+    ): WasmoClientAppGraph
+  }
+}
+
+@Inject
 class WasmoClientApp(
-  val logger: Logger = ConsoleLogger,
+  val logger: Logger,
   val environment: Environment,
 ) {
   private val scope = MainScope()
