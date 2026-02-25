@@ -30,7 +30,7 @@ dependencies {
   implementation(project(":common:api"))
   implementation(project(":common:catalog"))
   implementation(project(":platform:api"))
-  implementation(project(":server:accounts"))
+  implementation(project(":server:accounts:real"))
   implementation(project(":server:computers"))
   implementation(project(":server:deployment"))
   implementation(project(":server:ktor"))
