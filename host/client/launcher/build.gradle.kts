@@ -1,6 +1,5 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.burst)
@@ -27,16 +26,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core.js)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
-        implementation(project(":host:api"))
         implementation(project(":host:client:compose"))
-        implementation(project(":host:client:framework"))
-        implementation(project(":host:client:launcher"))
-        implementation(project(":host:client:passkeys:api"))
-        implementation(project(":host:client:passkeys:real"))
-        implementation(project(":host:framework"))
-        implementation(project(":host:logging"))
-        implementation(project(":host:routes"))
-        implementation(project(":host:tokens"))
       }
     }
     val jsTest by getting {

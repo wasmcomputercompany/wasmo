@@ -68,7 +68,7 @@ class RealRouteCodec(
       }
 
       is ComputerHomeRoute -> context.root.copy(
-        subdomain = route.name,
+        subdomain = route.slug,
       )
 
       ComputersRoute -> when {

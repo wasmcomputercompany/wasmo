@@ -3,7 +3,7 @@ package com.wasmo.api.routes
 sealed interface Route
 
 data class ComputerHomeRoute(
-  val name: String,
+  val slug: String,
 ) : Route
 
 data class InviteRoute(

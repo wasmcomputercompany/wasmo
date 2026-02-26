@@ -30,6 +30,7 @@ kotlin {
         implementation(project(":host:api"))
         implementation(project(":host:catalog"))
         implementation(project(":host:client:app"))
+        implementation(project(":host:client:launcher"))
         implementation(project(":host:framework"))
         implementation(project(":host:routes"))
         implementation(project(":host:server:accounts:api"))
