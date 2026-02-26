@@ -29,3 +29,28 @@ $ psql "sslmode=require host=gcp-northamerica-northeast1-1.pg.psdb.cloud dbname=
      ../host/server/db/build/resources/main/migrations/vXXX__db.sql
 ```
 
+wasmo.com
+---------
+
+ * [PlanetScale admin](https://app.planetscale.com/jesse-wasmo/wasmo-com)
+
+Connect with danger:
+
+```bash
+$ export PGPASSWORD=`pbpaste`
+$ psql "sslmode=require host=gcp-northamerica-northeast1-1.pg.psdb.cloud dbname=wasmo_com user=pscale_api_eu3kxhe4lp41.7q408njs9kb7"
+```
+
+Create migrations:
+
+```bash
+$ ../gradlew --project-dir .. :host:server:db:generateMainWasmoDbMigrations
+```
+
+To execute an individual migration, replace _XXX_ with the migration number.
+
+```bash
+$ export PGPASSWORD=`pbpaste`
+$ psql "sslmode=require host=gcp-northamerica-northeast1-1.pg.psdb.cloud dbname=wasmo_com user=pscale_api_eu3kxhe4lp41.7q408njs9kb7" -a -f \
+     ../host/server/db/build/resources/main/migrations/vXXX__db.sql
+```
