@@ -1,17 +1,21 @@
 package com.wasmo.client.app.computerlist
 
 import androidx.compose.runtime.Composable
+import com.wasmo.api.routes.toURL
 import com.wasmo.client.app.FormScreen
 import com.wasmo.smartphoneframe.SmartphoneFrame
 import org.jetbrains.compose.web.attributes.AttrsScope
+import org.jetbrains.compose.web.css.backgroundColor
 import org.jetbrains.compose.web.css.border
 import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.css.rgb
 import org.jetbrains.compose.web.dom.Iframe
 import org.w3c.dom.HTMLElement
 
 @Composable
 fun ComputerListScreen(
-  attrs: AttrsScope<HTMLElement>.() -> Unit,
+  attrs: AttrsScope<HTMLElement>.() -> Unit = {},
+  items: List<ComputerListItem>,
   eventListener: (ComputerListEvent) -> Unit,
 ) {
   FormScreen(
@@ -20,26 +24,25 @@ fun ComputerListScreen(
       attrs()
     },
   ) {
-    for (i in 96..99) {
-      val slug = "jesse$i"
-      val url = "http://$slug.localhost:8080/"
+    for (item in items) {
       SmartphoneFrame(
         attrs = {
           onClick {
-            eventListener(ComputerListEvent.ClickComputer(slug))
+            eventListener(ComputerListEvent.ClickComputer(item.slug))
           }
           attrs()
         },
       ) { frameAttrs ->
         NameOverlay(
-          name = slug,
+          name = item.slug,
           attrs = frameAttrs,
         ) { nameOverlayAttrs ->
           Iframe(
             attrs = {
-              attr("src", url)
+              attr("src", item.url.toURL().href)
               style {
                 border(0.px)
+                backgroundColor(rgb(51, 51, 51))
               }
               nameOverlayAttrs()
             },

@@ -2,6 +2,7 @@ package com.wasmo.client.app.computerlist
 
 import androidx.compose.runtime.Composable
 import com.wasmo.api.routes.ComputerHomeRoute
+import com.wasmo.api.routes.Url
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
@@ -17,6 +18,24 @@ class ComputerListUi(
   ) {
     ComputerListScreen(
       attrs = attrs,
+      items = listOf(
+        ComputerListItem(
+          slug = "jesse99",
+          url = Url(
+            scheme = "https",
+            topPrivateDomain = "wasmo.com",
+            subdomain = "jesse99",
+          ),
+        ),
+        ComputerListItem(
+          slug = "rounds",
+          url = Url(
+            scheme = "https",
+            topPrivateDomain = "wasmo.com",
+            subdomain = "rounds",
+          ),
+        ),
+      ),
     ) { event ->
       when (event) {
         is ComputerListEvent.ClickComputer -> {
