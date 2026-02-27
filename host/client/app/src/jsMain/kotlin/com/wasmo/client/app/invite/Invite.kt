@@ -7,7 +7,6 @@ import com.wasmo.client.app.PrimaryButton
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
-import org.jetbrains.compose.web.css.paddingBottom
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.textAlign
 import org.jetbrains.compose.web.dom.H2
@@ -24,9 +23,6 @@ fun InviteScreen(
   FormScreen(
     attrs = {
       classes("InviteScreen")
-      style {
-        paddingBottom(48.px)
-      }
       attrs()
     },
   ) {

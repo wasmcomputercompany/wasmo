@@ -23,6 +23,7 @@ class UiFactory(
   private val inviteUiFactory: InviteUi.Factory,
   private val buildYoursUiFactory: BuildYoursUi.Factory,
   private val teaserUiFactory: TeaserUi.Factory,
+  private val computerListUiFactory: ComputerListUi.Factory,
 ) {
   fun create(route: Route): Ui {
     return when (route) {
@@ -34,7 +35,7 @@ class UiFactory(
 
       is ComputerHomeRoute -> ComputerUi(route.slug)
 
-      ComputerListRoute -> ComputerListUi()
+      ComputerListRoute -> computerListUiFactory.create()
 
       is InviteRoute -> inviteUiFactory.create(
         inviteTicket = pageData.get<InviteTicket>("invite_ticket")

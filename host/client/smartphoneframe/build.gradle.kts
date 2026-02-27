@@ -22,6 +22,7 @@ kotlin {
         compileOnly(libs.jetbrains.annotations)
         implementation(libs.compose.html)
         implementation(libs.compose.runtime)
+        implementation(project(":host:client:compose"))
       }
     }
     val jsTest by getting {

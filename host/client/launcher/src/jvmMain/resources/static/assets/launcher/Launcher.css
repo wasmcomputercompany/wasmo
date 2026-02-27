@@ -31,6 +31,7 @@
   overflow-x: hidden;
   overflow-y: hidden;
   color: rgb(255 255 255 / 0.8);
+  transition: all 200ms ease-in;
 }
 
 .LauncherIcon:hover .LauncherIconImage {

@@ -1,33 +1,39 @@
 package com.wasmo.client.app.computerlist
 
 import androidx.compose.runtime.Composable
+import com.wasmo.api.routes.ComputerHomeRoute
+import com.wasmo.client.app.routing.Router
+import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
-import com.wasmo.smartphoneframe.SmartphoneFrame
 import org.jetbrains.compose.web.attributes.AttrsScope
-import org.jetbrains.compose.web.css.border
-import org.jetbrains.compose.web.css.flex
-import org.jetbrains.compose.web.css.px
-import org.jetbrains.compose.web.dom.Iframe
 import org.w3c.dom.HTMLElement
 
-class ComputerListUi : Ui {
+class ComputerListUi(
+  val router: Router,
+) : Ui {
   @Composable
   override fun Show(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
   ) {
-    SmartphoneFrame(
+    ComputerListScreen(
       attrs = attrs,
-    ) { frameAttrs ->
-      Iframe(
-        attrs = {
-          attr("src", "http://jesse99.localhost:8080/")
-          style {
-            flex("100 100 0")
-            border(0.px)
-          }
-          frameAttrs()
-        },
-      )
+    ) { event ->
+      when (event) {
+        is ComputerListEvent.ClickComputer -> {
+          router.goTo(
+            ComputerHomeRoute(slug = event.slug),
+            TransitionDirection.PUSH,
+          )
+        }
+      }
     }
+  }
+
+  class Factory(
+    val router: Router,
+  ) {
+    fun create() = ComputerListUi(
+      router = router,
+    )
   }
 }

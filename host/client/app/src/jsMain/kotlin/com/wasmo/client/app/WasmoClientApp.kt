@@ -8,6 +8,7 @@ import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.client.app.browser.RealBrowser
 import com.wasmo.client.app.buildyours.BuildYoursUi
+import com.wasmo.client.app.computerlist.ComputerListUi
 import com.wasmo.client.app.data.RealAccountDataService
 import com.wasmo.client.app.invite.InviteUi
 import com.wasmo.client.app.routing.Router
@@ -72,6 +73,9 @@ class WasmoClientApp(
       environment = environment,
       router = router,
     ),
+    computerListUiFactory = ComputerListUi.Factory(
+      router = router,
+    )
   )
 
   fun start() {

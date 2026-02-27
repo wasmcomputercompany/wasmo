@@ -51,9 +51,6 @@ fun BuildYoursScreen(
   FormScreen(
     attrs = {
       classes("BuildYoursScreen")
-      style {
-        paddingBottom(48.px)
-      }
       attrs()
     },
   ) {

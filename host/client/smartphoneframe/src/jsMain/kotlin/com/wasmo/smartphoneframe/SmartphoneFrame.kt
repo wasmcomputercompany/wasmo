@@ -17,6 +17,7 @@ import org.jetbrains.compose.web.css.flex
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.margin
+import org.jetbrains.compose.web.css.overflow
 import org.jetbrains.compose.web.css.overflowX
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.position
@@ -41,6 +42,7 @@ fun SmartphoneFrame(
 ) {
   Div(
     attrs = {
+      classes("SmartphoneFrame")
       style {
         margin(16.px, 0.px)
         width(100.percent)
@@ -102,7 +104,6 @@ fun SmartphoneFrame(
         content {
           style {
             flex("100 100 0")
-            border(0.px)
           }
         }
         BottomBar()
@@ -126,6 +127,7 @@ private fun FlatSmartphoneFrame(
         borderRadius(25.px)
         display(DisplayStyle.Flex)
         flexDirection(FlexDirection.Column)
+        overflow("clip")
       }
       attrs()
     },

@@ -128,7 +128,7 @@ a:hover {
   font-size: 22px;
 }
 
-.FormScreen input[type="checkbox"],.FormScreen input[type="radio"] {
+.FormScreen input[type="checkbox"], .FormScreen input[type="radio"] {
   transform: scale(1.5);
 }
 
@@ -194,3 +194,26 @@ a:hover {
   color: rgba(0 0 0 / 0.8);
 }
 
+/* ComputerListUi */
+
+.ComputerListScreen {
+  background: #043c70;
+  background: linear-gradient(63deg,rgba(4, 60, 112, 1) 0%, rgba(189, 81, 189, 1) 56%, rgba(209, 63, 10, 1) 100%);
+}
+
+.ComputerListScreen .SmartphoneFrame {
+  cursor: pointer;
+}
+
+.NameOverlay {
+  padding: 10px;
+  font-size: 60px;
+  color: rgba(255 255 255 / 0.9);
+  background-color: rgba(0 0 0 / 0.5);
+  transition: all 200ms ease-in;
+}
+
+.SmartphoneFrame:hover .NameOverlay {
+  color: rgba(255 255 255 / 1.0);
+  background-color: rgba(0 0 0 / 0.3);
+}

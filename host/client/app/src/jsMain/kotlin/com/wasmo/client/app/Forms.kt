@@ -14,7 +14,6 @@ import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.alignSelf
-import org.jetbrains.compose.web.css.background
 import org.jetbrains.compose.web.css.boxSizing
 import org.jetbrains.compose.web.css.columnGap
 import org.jetbrains.compose.web.css.display
@@ -26,6 +25,7 @@ import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.margin
 import org.jetbrains.compose.web.css.overflowY
+import org.jetbrains.compose.web.css.paddingBottom
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
@@ -73,6 +73,7 @@ fun FormScreen(
         alignItems(AlignItems.Center)
         justifyContent(JustifyContent.Start)
         overflowY("scroll")
+        paddingBottom(48.px)
       }
       attrs()
     },
