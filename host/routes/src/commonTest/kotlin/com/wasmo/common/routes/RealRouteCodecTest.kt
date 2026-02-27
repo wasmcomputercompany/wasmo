@@ -6,7 +6,7 @@ import com.wasmo.api.routes.AdminRoute
 import com.wasmo.api.routes.AfterCheckoutRoute
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
-import com.wasmo.api.routes.ComputersRoute
+import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.NotFoundRoute
 import com.wasmo.api.routes.RoutingContext
@@ -37,7 +37,7 @@ class RealRouteCodecTest {
       .isEqualTo(root)
     assertThat(unauthenticated.encode(BuildYoursRoute))
       .isEqualTo(root.copy(path = listOf("build-yours")))
-    assertThat(unauthenticated.encode(ComputersRoute))
+    assertThat(unauthenticated.encode(ComputerListRoute))
       .isEqualTo(root.copy(path = listOf("computers")))
     assertThat(unauthenticated.encode(AfterCheckoutRoute("5678")))
       .isEqualTo(root.copy(path = listOf("after-checkout", "5678")))
@@ -58,7 +58,7 @@ class RealRouteCodecTest {
     assertThat(unauthenticated.decode(root.copy(path = listOf("build-yours"))))
       .isEqualTo(BuildYoursRoute)
     assertThat(unauthenticated.decode(root.copy(path = listOf("computers"))))
-      .isEqualTo(ComputersRoute)
+      .isEqualTo(ComputerListRoute)
     assertThat(unauthenticated.decode(root.copy(path = listOf("after-checkout", "5678"))))
       .isEqualTo(AfterCheckoutRoute("5678"))
     assertThat(unauthenticated.decode(root.copy(path = listOf("not-found"))))

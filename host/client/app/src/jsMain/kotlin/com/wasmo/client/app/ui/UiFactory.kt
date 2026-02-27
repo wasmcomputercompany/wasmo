@@ -5,13 +5,14 @@ import com.wasmo.api.routes.AdminRoute
 import com.wasmo.api.routes.AfterCheckoutRoute
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
-import com.wasmo.api.routes.ComputersRoute
+import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.NotFoundRoute
 import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.client.app.buildyours.BuildYoursUi
 import com.wasmo.client.app.computer.ComputerUi
+import com.wasmo.client.app.computerlist.ComputerListUi
 import com.wasmo.client.app.invite.InviteUi
 import com.wasmo.client.app.teaser.TeaserUi
 import com.wasmo.client.framework.Ui
@@ -33,7 +34,7 @@ class UiFactory(
 
       is ComputerHomeRoute -> ComputerUi(route.slug)
 
-      ComputersRoute -> UnimplementedUi("Computers")
+      ComputerListRoute -> ComputerListUi()
 
       is InviteRoute -> inviteUiFactory.create(
         inviteTicket = pageData.get<InviteTicket>("invite_ticket")

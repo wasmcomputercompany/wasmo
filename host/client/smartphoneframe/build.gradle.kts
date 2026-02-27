@@ -8,7 +8,7 @@ plugins {
 }
 
 wasmoBuild {
-  libraryJvmJs()
+  libraryJs()
 }
 
 domTester {
@@ -22,11 +22,6 @@ kotlin {
         compileOnly(libs.jetbrains.annotations)
         implementation(libs.compose.html)
         implementation(libs.compose.runtime)
-        implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.kotlinx.coroutines.core.js)
-        implementation(libs.kotlinx.serialization.json)
-        implementation(libs.okio)
-        implementation(project(":host:client:compose"))
       }
     }
     val jsTest by getting {

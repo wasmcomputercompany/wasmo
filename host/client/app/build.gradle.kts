@@ -33,6 +33,7 @@ kotlin {
         implementation(project(":host:client:launcher"))
         implementation(project(":host:client:passkeys:api"))
         implementation(project(":host:client:passkeys:real"))
+        implementation(project(":host:client:smartphoneframe"))
         implementation(project(":host:framework"))
         implementation(project(":host:logging"))
         implementation(project(":host:routes"))

@@ -16,7 +16,7 @@ data object TeaserRoute : Route
 
 data object BuildYoursRoute : Route
 
-data object ComputersRoute : Route
+data object ComputerListRoute : Route
 
 data class AfterCheckoutRoute(
   val checkoutSessionId: String,

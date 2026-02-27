@@ -167,12 +167,14 @@ class ActionRouter(
 
   private fun createPages() {
     application.routing {
-      get("/") {
-        val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
-        clientAuthenticator.updateSessionCookie()
-        val action = appPage(clientAuthenticator.get())
-        val page = action.get()
-        call.respond(page.response)
+      for (path in listOf("/", "/build-yours", "/computers", "/teaser")) {
+        get(path) {
+          val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
+          clientAuthenticator.updateSessionCookie()
+          val action = appPage(clientAuthenticator.get())
+          val page = action.get()
+          call.respond(page.response)
+        }
       }
 
       get("/invite/{code}") {
