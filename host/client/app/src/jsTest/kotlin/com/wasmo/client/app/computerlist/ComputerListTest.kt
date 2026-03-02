@@ -2,7 +2,6 @@ package com.wasmo.client.app.computerlist
 
 import app.cash.burst.InterceptTest
 import com.wasmo.api.ComputerSlug
-import com.wasmo.api.routes.Url
 import com.wasmo.domtester.SnapshotTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -23,21 +22,13 @@ class ComputerListTest {
     ) {
       ComputerListScreen(
         items = listOf(
-          ComputerListItem(
+          Item(
             slug = ComputerSlug("jesse99"),
-            url = Url(
-              scheme = "https",
-              topPrivateDomain = "wasmo.com",
-              subdomain = "jesse99",
-            ),
+            iframeSrc = "https://jesse99.wasmo.com/",
           ),
-          ComputerListItem(
+          Item(
             slug = ComputerSlug("rounds"),
-            url = Url(
-              scheme = "https",
-              topPrivateDomain = "wasmo.com",
-              subdomain = "rounds",
-            ),
+            iframeSrc = "https://rounds.wasmo.com/",
           ),
         ),
       ) {

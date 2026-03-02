@@ -2,6 +2,9 @@ package com.wasmo.website
 
 import com.wasmo.accounts.AccountStore
 import com.wasmo.accounts.Client
+import com.wasmo.api.ComputerListItem
+import com.wasmo.api.ComputerListSnapshot
+import com.wasmo.api.ComputerSlug
 import com.wasmo.app.db.WasmoDbService
 
 /**
@@ -15,9 +18,25 @@ class HostPageAction(
 ) {
   fun get(): ServerHostPage {
     val accountStore = accountStoreFactory.create(client)
+
+    // TODO: only include this if the requested route is to the ComputerList page.
+    val computerListSnapshot = ComputerListSnapshot(
+      items = listOf(
+        ComputerListItem(
+          slug = ComputerSlug("jesse99"),
+        ),
+        ComputerListItem(
+          slug = ComputerSlug("rounds"),
+        ),
+      ),
+    )
+
     return wasmoDbService.transactionWithResult(noEnclosing = true) {
       val accountSnapshot = accountStore.snapshot()
-      hostPageFactory.create(accountSnapshot)
+      hostPageFactory.create(
+        accountSnapshot = accountSnapshot,
+        computerListSnapshot = computerListSnapshot,
+      )
     }
   }
 }

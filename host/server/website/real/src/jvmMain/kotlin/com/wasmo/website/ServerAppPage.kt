@@ -1,6 +1,7 @@
 package com.wasmo.website
 
 import com.wasmo.api.AccountSnapshot
+import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.WasmoJson
@@ -29,6 +30,7 @@ class RealServerHostPage(
   override val routingContext: RoutingContext,
   override val inviteTicket: InviteTicket?,
   override val computerSnapshot: ComputerSnapshot?,
+  override val computerListSnapshot: ComputerListSnapshot?,
 ) : ServerHostPage, ResponseBody {
   val pageData: MapPageData
     get() = MapPageData.Builder(WasmoJson)
@@ -41,6 +43,9 @@ class RealServerHostPage(
         }
         if (computerSnapshot != null) {
           put("computer_snapshot", computerSnapshot)
+        }
+        if (computerListSnapshot != null) {
+          put("computer_list_snapshot", computerListSnapshot)
         }
       }
       .build()
@@ -117,6 +122,7 @@ class RealServerHostPage(
       accountSnapshot: AccountSnapshot,
       inviteTicket: InviteTicket?,
       computerSnapshot: ComputerSnapshot?,
+      computerListSnapshot: ComputerListSnapshot?,
     ): ServerHostPage {
       val routingContext = RoutingContext(
         rootUrl = deployment.baseUrl.toString(),
@@ -132,6 +138,7 @@ class RealServerHostPage(
         routingContext = routingContext,
         inviteTicket = inviteTicket,
         computerSnapshot = computerSnapshot,
+        computerListSnapshot = computerListSnapshot,
       )
     }
   }

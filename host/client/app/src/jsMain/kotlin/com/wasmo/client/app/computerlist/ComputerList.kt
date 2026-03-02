@@ -2,7 +2,6 @@ package com.wasmo.client.app.computerlist
 
 import androidx.compose.runtime.Composable
 import com.wasmo.api.ComputerSlug
-import com.wasmo.api.routes.toURL
 import com.wasmo.client.app.FormScreen
 import com.wasmo.smartphoneframe.SmartphoneFrame
 import org.jetbrains.compose.web.attributes.AttrsScope
@@ -16,7 +15,7 @@ import org.w3c.dom.HTMLElement
 @Composable
 fun ComputerListScreen(
   attrs: AttrsScope<HTMLElement>.() -> Unit = {},
-  items: List<ComputerListItem>,
+  items: List<Item>,
   eventListener: (ComputerListEvent) -> Unit,
 ) {
   FormScreen(
@@ -40,7 +39,7 @@ fun ComputerListScreen(
         ) { nameOverlayAttrs ->
           Iframe(
             attrs = {
-              attr("src", item.url.toURL().href)
+              attr("src", item.iframeSrc)
               style {
                 border(0.px)
                 backgroundColor(rgb(51, 51, 51))
@@ -53,6 +52,11 @@ fun ComputerListScreen(
     }
   }
 }
+
+class Item(
+  val slug: ComputerSlug,
+  val iframeSrc: String,
+)
 
 sealed interface ComputerListEvent {
   data class ClickComputer(val slug: ComputerSlug) : ComputerListEvent

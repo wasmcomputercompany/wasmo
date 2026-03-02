@@ -9,4 +9,5 @@ interface HostPage {
   val routingContext: RoutingContext
   val inviteTicket: InviteTicket?
   val computerSnapshot: ComputerSnapshot?
+  val computerListSnapshot: ComputerListSnapshot?
 }

@@ -2,6 +2,7 @@ package com.wasmo.client.app
 
 import androidx.compose.runtime.remember
 import com.wasmo.api.AccountSnapshot
+import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.RealWasmoApi
 import com.wasmo.api.WasmoJson
@@ -39,6 +40,7 @@ class WasmoClientApp(
   private val accountSnapshot = pageData.get<AccountSnapshot>("account_snapshot")
     ?: error("required account_snapshot pageData not found")
   private val computerSnapshot = pageData.get<ComputerSnapshot>("computer_snapshot")
+  private val computerListSnapshot = pageData.get<ComputerListSnapshot>("computer_list_snapshot")
   private val wasmoApi = RealWasmoApi()
   private val checkoutSessionFactory = CheckoutSession.Factory(
     stripePublishableKey = stripePublishableKey,
@@ -77,7 +79,9 @@ class WasmoClientApp(
       router = router,
     ),
     computerListUiFactory = ComputerListUi.Factory(
+      routeCodec = routeCodec,
       router = router,
+      computerListSnapshot = computerListSnapshot,
     ),
     computerUiFactory = ComputerUi.Factory(
       router = router,

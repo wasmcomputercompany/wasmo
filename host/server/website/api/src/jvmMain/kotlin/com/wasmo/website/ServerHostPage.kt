@@ -1,6 +1,7 @@
 package com.wasmo.website
 
 import com.wasmo.api.AccountSnapshot
+import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.HostPage
 import com.wasmo.api.InviteTicket
@@ -17,6 +18,7 @@ interface ServerHostPage : HostPage {
       accountSnapshot: AccountSnapshot,
       inviteTicket: InviteTicket? = null,
       computerSnapshot: ComputerSnapshot? = null,
+      computerListSnapshot: ComputerListSnapshot? = null,
     ): ServerHostPage
   }
 }

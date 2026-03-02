@@ -42,7 +42,7 @@ class ComputerUi(
       slug = route.slug,
       router = router,
       computerSnapshot = computerSnapshot
-        ?: error("unexpected call of ComputerUiFactory.create(), computer snapshot is absent"),
+        ?: error("unexpected call of ComputerUi.Factory.create(), snapshot is absent"),
     )
   }
 }
