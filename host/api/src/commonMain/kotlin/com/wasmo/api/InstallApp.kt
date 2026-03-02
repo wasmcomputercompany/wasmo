@@ -11,3 +11,9 @@ data class InstallAppRequest(
 data class InstallAppResponse(
   val url: String,
 )
+
+data class InstalledApp(
+  val label: String,
+  val slug: String,
+  val maskableIconUrl: String,
+)

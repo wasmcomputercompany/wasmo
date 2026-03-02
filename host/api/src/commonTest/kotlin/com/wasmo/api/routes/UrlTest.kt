@@ -11,11 +11,12 @@ class UrlTest {
     val url = Url(
       scheme = "https",
       topPrivateDomain = "wasmo.dev",
+      port = 8000,
       subdomain = "jesse99",
       path = listOf("invite", "1234"),
       query = listOf(QueryParameter("q", "query-string")),
     )
-    val string = "https://jesse99.wasmo.dev/invite/1234?q=query-string"
+    val string = "https://jesse99.wasmo.dev:8000/invite/1234?q=query-string"
     assertThat(string.decodeUrl()).isEqualTo(url)
     assertThat(url.encode()).isEqualTo(string)
     assertThat(url.encodePathAndQuery()).isEqualTo("/invite/1234?q=query-string")
@@ -32,6 +33,40 @@ class UrlTest {
     assertThat(string.decodeUrl()).isEqualTo(url)
     assertThat(url.encode()).isEqualTo(string)
     assertThat(url.encodePathAndQuery()).isEqualTo("/invite/1234")
+  }
+
+  @Test
+  fun defaultPortHttp() {
+    val url = Url(
+      scheme = "http",
+      topPrivateDomain = "wasmo.dev",
+    )
+    val string = "http://wasmo.dev/"
+    assertThat(string.decodeUrl()).isEqualTo(url)
+    assertThat(url.encode()).isEqualTo(string)
+  }
+
+  @Test
+  fun defaultPortHttps() {
+    val url = Url(
+      scheme = "https",
+      topPrivateDomain = "wasmo.dev",
+    )
+    val string = "https://wasmo.dev/"
+    assertThat(string.decodeUrl()).isEqualTo(url)
+    assertThat(url.encode()).isEqualTo(string)
+  }
+
+  @Test
+  fun nonDefaultPort() {
+    val url = Url(
+      scheme = "http",
+      topPrivateDomain = "wasmo.dev",
+      port = 8000,
+    )
+    val string = "http://wasmo.dev:8000/"
+    assertThat(string.decodeUrl()).isEqualTo(url)
+    assertThat(url.encode()).isEqualTo(string)
   }
 
   /** OkHttp uses '%20', URLSearchParams uses '+'. */

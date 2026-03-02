@@ -16,9 +16,11 @@ actual fun String.decodeUrl(): Url {
     query += QueryParameter(entry.value[0], entry.value[1])
   }
 
+  val scheme = url.protocol.removeSuffix(":")
   return Url(
-    scheme = url.protocol.removeSuffix(":"),
+    scheme = scheme,
     topPrivateDomain = topPrivateDomain,
+    port = url.port.toIntOrNull() ?: defaultPort(scheme),
     subdomain = subdomain,
     path = path,
     query = query,
@@ -40,7 +42,7 @@ fun Url.toURL(): URL {
     else -> topPrivateDomain
   }
   val pathname = path.joinToString(separator = "/")
-  val result = URL("$scheme:$hostname/$pathname")
+  val result = URL("$scheme:$hostname:${port}/$pathname")
   if (query != null) {
     for ((name, value) in query) {
       result.searchParams.append(name, value.toString())

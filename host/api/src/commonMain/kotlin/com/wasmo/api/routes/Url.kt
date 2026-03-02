@@ -3,13 +3,21 @@ package com.wasmo.api.routes
 data class Url(
   val scheme: String,
   val topPrivateDomain: String,
+  val port: Int = defaultPort(scheme),
   val subdomain: String? = null,
   val path: List<String> = listOf(""),
   val query: List<QueryParameter>? = listOf(),
 ) {
   init {
+    require(scheme == "http" || scheme == "https")
     require(path.isNotEmpty())
   }
+}
+
+fun defaultPort(scheme: String): Int = when (scheme) {
+  "http" -> 80
+  "https" -> 443
+  else -> error("unexpected scheme: $scheme")
 }
 
 data class QueryParameter(

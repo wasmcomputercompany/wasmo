@@ -5,6 +5,7 @@ import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.decodeUrl
+import com.wasmo.api.routes.encode
 import com.wasmo.client.app.browser.Browser
 import kotlinx.coroutines.CoroutineScope
 
@@ -52,6 +53,12 @@ class Router(
     }
 
     if (nextUrl == currentUrl) return
+
+    // Switching subdomains triggers a browser navigation & fresh page load.
+    if (currentUrl != null && nextUrl.subdomain != currentUrl.subdomain) {
+      browser.locationHref = nextUrl.encode()
+      return
+    }
 
     // Infer the animation based on whether this page is 'back' in history.
     val displayTransition = transitionDirection

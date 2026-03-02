@@ -3,6 +3,7 @@ package com.wasmo.client.app.ui
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.routes.AdminRoute
 import com.wasmo.api.routes.AfterCheckoutRoute
+import com.wasmo.api.routes.AppRoute
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
@@ -24,6 +25,7 @@ class UiFactory(
   private val buildYoursUiFactory: BuildYoursUi.Factory,
   private val teaserUiFactory: TeaserUi.Factory,
   private val computerListUiFactory: ComputerListUi.Factory,
+  private val computerUiFactory: ComputerUi.Factory,
 ) {
   fun create(route: Route): Ui {
     return when (route) {
@@ -33,7 +35,9 @@ class UiFactory(
 
       BuildYoursRoute -> buildYoursUiFactory.create()
 
-      is ComputerHomeRoute -> ComputerUi(route.slug)
+      is AppRoute -> UnimplementedUi("App ${route.appSlug} on ${route.computerSlug}")
+
+      is ComputerHomeRoute -> computerUiFactory.create(route)
 
       ComputerListRoute -> computerListUiFactory.create()
 
@@ -48,4 +52,3 @@ class UiFactory(
     }
   }
 }
-

@@ -1,6 +1,11 @@
 package com.wasmo.client.app.computer
 
 import androidx.compose.runtime.Composable
+import com.wasmo.api.InstalledApp
+import com.wasmo.api.routes.AppRoute
+import com.wasmo.api.routes.ComputerHomeRoute
+import com.wasmo.client.app.routing.Router
+import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import com.wasmo.launcher.Icon
 import com.wasmo.launcher.LauncherIconList
@@ -10,6 +15,8 @@ import org.w3c.dom.HTMLElement
 
 class ComputerUi(
   val slug: String,
+  val router: Router,
+  val apps: List<InstalledApp>,
 ) : Ui {
   @Composable
   override fun Show(
@@ -17,17 +24,75 @@ class ComputerUi(
   ) {
     LauncherScreen {
       LauncherIconList {
-        Icon("Files", "/assets/launcher/sample-folder.svg")
-        Icon("Library", "/assets/launcher/sample-books.svg")
-        Icon("Music", "/assets/launcher/sample-headphones.svg")
-        Icon("Photos", "/assets/launcher/sample-camera.svg")
-        Icon("Pink Journal", "/assets/launcher/sample-flower.svg")
-        Icon("Recipes", "/assets/launcher/sample-pancakes.svg")
-        Icon("Smart Home", "/assets/launcher/sample-home.svg")
-        Icon("Snake", "/assets/launcher/sample-snake.svg")
-        Icon("Writer", "/assets/launcher/sample-w.svg")
-        Icon("Zap", "/assets/launcher/sample-z.svg")
+        for (app in apps) {
+          Icon(app.label, app.maskableIconUrl) {
+            router.goTo(AppRoute(slug, app.slug), TransitionDirection.PUSH)
+          }
+        }
       }
     }
+  }
+
+  class Factory(
+    val router: Router,
+  ) {
+    private val apps = listOf(
+      InstalledApp(
+        label = "Files",
+        slug = "files",
+        maskableIconUrl = "/assets/launcher/sample-folder.svg",
+      ),
+      InstalledApp(
+        label = "Library",
+        slug = "library",
+        maskableIconUrl = "/assets/launcher/sample-books.svg",
+      ),
+      InstalledApp(
+        label = "Music",
+        slug = "music",
+        maskableIconUrl = "/assets/launcher/sample-headphones.svg",
+      ),
+      InstalledApp(
+        label = "Photos",
+        slug = "photos",
+        maskableIconUrl = "/assets/launcher/sample-camera.svg",
+      ),
+      InstalledApp(
+        label = "Pink Journal",
+        slug = "pink",
+        maskableIconUrl = "/assets/launcher/sample-flower.svg",
+      ),
+      InstalledApp(
+        label = "Recipes",
+        slug = "recipes",
+        maskableIconUrl = "/assets/launcher/sample-pancakes.svg",
+      ),
+      InstalledApp(
+        label = "Smart Home",
+        slug = "smart",
+        maskableIconUrl = "/assets/launcher/sample-home.svg",
+      ),
+      InstalledApp(
+        label = "Snake",
+        slug = "snake",
+        maskableIconUrl = "/assets/launcher/sample-snake.svg",
+      ),
+      InstalledApp(
+        label = "Writer",
+        slug = "writer",
+        maskableIconUrl = "/assets/launcher/sample-w.svg",
+      ),
+      InstalledApp(
+        label = "Zap",
+        slug = "zap",
+        maskableIconUrl = "/assets/launcher/sample-z.svg",
+      ),
+    )
+
+    fun create(route: ComputerHomeRoute) = ComputerUi(
+      slug = route.slug,
+      router = router,
+      apps = apps,
+    )
   }
 }

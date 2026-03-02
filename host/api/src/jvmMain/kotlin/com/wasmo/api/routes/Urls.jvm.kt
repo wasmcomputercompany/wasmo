@@ -15,6 +15,7 @@ actual fun String.decodeUrl(): Url {
   return Url(
     scheme = httpUrl.scheme,
     topPrivateDomain = topPrivateDomain,
+    port = httpUrl.port,
     subdomain = subdomain,
     path = httpUrl.pathSegments,
     query = query,
@@ -44,6 +45,7 @@ fun Url.toHttpUrl(): HttpUrl {
   val builder = HttpUrl.Builder()
     .scheme(scheme)
     .host(host)
+    .port(port)
 
   for (pathSegment in path) {
     builder.addPathSegment(pathSegment)
