@@ -32,6 +32,8 @@ kotlin {
         implementation(libs.okio.fakefilesystem)
         implementation(project(":platform:testing"))
         implementation(project(":host:server:testing"))
+        implementation(project(":host:server:website:api"))
+        implementation(project(":host:server:website:real"))
       }
     }
   }

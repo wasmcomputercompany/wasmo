@@ -22,14 +22,14 @@ import kotlinx.html.title
 import kotlinx.html.unsafe
 import okio.BufferedSink
 
-class RealServerAppPage(
+class RealServerHostPage(
   override val deployment: Deployment,
   override val stripePublishableKey: StripePublishableKey,
   override val accountSnapshot: AccountSnapshot,
   override val routingContext: RoutingContext,
   override val inviteTicket: InviteTicket?,
   override val computerSnapshot: ComputerSnapshot?,
-) : ServerAppPage, ResponseBody {
+) : ServerHostPage, ResponseBody {
   val pageData: MapPageData
     get() = MapPageData.Builder(WasmoJson)
       .put("stripe_publishable_key", stripePublishableKey)
@@ -112,12 +112,12 @@ class RealServerAppPage(
   class Factory(
     val deployment: Deployment,
     val stripePublishableKey: StripePublishableKey,
-  ) : ServerAppPage.Factory {
+  ) : ServerHostPage.Factory {
     override fun create(
       accountSnapshot: AccountSnapshot,
       inviteTicket: InviteTicket?,
       computerSnapshot: ComputerSnapshot?,
-    ): ServerAppPage {
+    ): ServerHostPage {
       val routingContext = RoutingContext(
         rootUrl = deployment.baseUrl.toString(),
         hasComputers = false,
@@ -125,7 +125,7 @@ class RealServerAppPage(
         isAdmin = false,
       )
 
-      return RealServerAppPage(
+      return RealServerHostPage(
         deployment = deployment,
         stripePublishableKey = stripePublishableKey,
         accountSnapshot = accountSnapshot,

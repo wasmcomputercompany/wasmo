@@ -32,8 +32,9 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.sendemail.SendEmailService
-import com.wasmo.website.AppPageAction
-import com.wasmo.website.RealServerAppPage
+import com.wasmo.website.ComputerHomePageAction
+import com.wasmo.website.HostPageAction
+import com.wasmo.website.RealServerHostPage
 import kotlin.time.Clock
 
 class ClientTester(
@@ -70,7 +71,7 @@ class ClientTester(
     wasmoDbService = wasmoDbService,
   )
 
-  val appPageFactory = RealServerAppPage.Factory(
+  val hostPageFactory = RealServerHostPage.Factory(
     deployment = deployment,
     stripePublishableKey = stripePublishableKey,
   )
@@ -124,10 +125,17 @@ class ClientTester(
     ),
   )
 
-  fun appPageAction() = AppPageAction(
+  fun hostPageAction() = HostPageAction(
     client = clientAuthenticator.get(),
     accountStoreFactory = accountStoreFactory,
-    appPageFactory = appPageFactory,
+    hostPageFactory = hostPageFactory,
+    wasmoDbService = wasmoDbService,
+  )
+
+  fun computerHomePageAction() = ComputerHomePageAction(
+    client = clientAuthenticator.get(),
+    accountStoreFactory = accountStoreFactory,
+    hostPageFactory = hostPageFactory,
     wasmoDbService = wasmoDbService,
   )
 
@@ -164,7 +172,7 @@ class ClientTester(
   fun invitePageAction() = InvitePageAction(
     client = clientAuthenticator.get(),
     accountStoreFactory = accountStoreFactory,
-    appPageFactory = appPageFactory,
+    hostPageFactory = hostPageFactory,
     wasmoDbService = wasmoDbService,
   )
 

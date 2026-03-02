@@ -47,9 +47,9 @@ import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
-import com.wasmo.website.AppPageAction
-import com.wasmo.website.ComputerPageAction
-import com.wasmo.website.ServerAppPage
+import com.wasmo.website.ComputerHomePageAction
+import com.wasmo.website.HostPageAction
+import com.wasmo.website.ServerHostPage
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log
@@ -76,7 +76,7 @@ class ActionRouter(
   val computerStore: ComputerStore,
   val sendEmailService: SendEmailService,
   val wasmoDbService: WasmoDbService,
-  val serverAppPageFactory: ServerAppPage.Factory,
+  val serverHostPageFactory: ServerHostPage.Factory,
   val routingContext: RoutingContext,
   val routeCodec: RouteCodec,
   val inviteService: InviteService,
@@ -142,24 +142,24 @@ class ActionRouter(
     computerStore = computerStore,
   )
 
-  fun appPage(client: Client) = AppPageAction(
+  fun hostPage(client: Client) = HostPageAction(
     client = client,
     accountStoreFactory = accountStoreFactory,
-    appPageFactory = serverAppPageFactory,
+    hostPageFactory = serverHostPageFactory,
     wasmoDbService = wasmoDbService,
   )
 
-  fun computerPage(client: Client) = ComputerPageAction(
+  fun computerPage(client: Client) = ComputerHomePageAction(
     client = client,
     accountStoreFactory = accountStoreFactory,
-    appPageFactory = serverAppPageFactory,
+    hostPageFactory = serverHostPageFactory,
     wasmoDbService = wasmoDbService,
   )
 
   fun invitePage(client: Client) = InvitePageAction(
     client = client,
     accountStoreFactory = accountStoreFactory,
-    appPageFactory = serverAppPageFactory,
+    hostPageFactory = serverHostPageFactory,
     wasmoDbService = wasmoDbService,
   )
 
@@ -221,7 +221,7 @@ class ActionRouter(
         get(path) {
           val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
           clientAuthenticator.updateSessionCookie()
-          val action = appPage(clientAuthenticator.get())
+          val action = hostPage(clientAuthenticator.get())
           val page = action.get()
           call.respond(page.response)
         }

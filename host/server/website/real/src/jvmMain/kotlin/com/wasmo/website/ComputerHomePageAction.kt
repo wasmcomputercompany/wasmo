@@ -8,13 +8,13 @@ import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledApp
 import com.wasmo.app.db.WasmoDbService
 
-class ComputerPageAction(
+class ComputerHomePageAction(
   private val client: Client,
   private val accountStoreFactory: AccountStore.Factory,
-  private val appPageFactory: ServerAppPage.Factory,
+  private val hostPageFactory: ServerHostPage.Factory,
   private val wasmoDbService: WasmoDbService,
 ) {
-  fun get(computerSlug: ComputerSlug): ServerAppPage {
+  fun get(computerSlug: ComputerSlug): ServerHostPage {
     val accountStore = accountStoreFactory.create(client)
     val computerSnapshot = ComputerSnapshot(
       slug = computerSlug,
@@ -74,7 +74,7 @@ class ComputerPageAction(
 
     return wasmoDbService.transactionWithResult(noEnclosing = true) {
       val accountSnapshot = accountStore.snapshot()
-      appPageFactory.create(
+      hostPageFactory.create(
         accountSnapshot = accountSnapshot,
         computerSnapshot = computerSnapshot,
       )
