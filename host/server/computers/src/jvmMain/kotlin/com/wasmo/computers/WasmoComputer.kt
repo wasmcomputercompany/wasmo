@@ -1,5 +1,7 @@
 package com.wasmo.computers
 
+import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.accounts.Client
 import com.wasmo.api.AppManifest
 import com.wasmo.api.ComputerSlug
 import com.wasmo.objectstore.ObjectStore
@@ -14,5 +16,6 @@ interface WasmoComputer {
 }
 
 interface ComputerStore {
-  fun get(slug: ComputerSlug): WasmoComputer
+  context(transactionCallbacks: TransactionCallbacks)
+  fun get(client: Client, slug: ComputerSlug): WasmoComputer
 }

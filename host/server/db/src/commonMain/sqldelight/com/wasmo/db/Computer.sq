@@ -1,19 +1,38 @@
 insertComputer:
 INSERT INTO Computer(
   created_at,
+  version,
   slug
 )
 VALUES (
   :created_at,
+  :version,
   :slug
 ) RETURNING id;
 
-selectComputerBySlug:
-SELECT *
+selectComputersByAccountId:
+SELECT
+  c.*
 FROM
-  Computer
+  ComputerAccess ca,
+  Computer c
 WHERE
-  slug = :slug
+  c.id = ca.id AND
+  ca.account_id = :account_id
+ORDER BY
+  c.slug
+LIMIT :limit;
+
+selectComputerByAccountIdAndSlug:
+SELECT
+  c.*
+FROM
+  ComputerAccess ca,
+  Computer c
+WHERE
+  c.id = ca.id AND
+  ca.account_id = :account_id AND
+  c.slug = :slug
 LIMIT 1;
 
 selectComputerById:

@@ -139,6 +139,7 @@ class ActionRouter(
   fun installAppAction(client: Client) = InstallAppAction(
     client = client,
     computerStore = computerStore,
+    wasmoDbService = wasmoDbService,
   )
 
   fun hostPage(client: Client) = HostPageAction(

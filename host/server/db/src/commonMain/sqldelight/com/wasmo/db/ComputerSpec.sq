@@ -10,12 +10,14 @@ insertComputerSpec:
 INSERT INTO ComputerSpec(
   created_at,
   version,
+  account_id,
   token,
   slug
 )
 VALUES (
   :created_at,
   :version,
+  :account_id,
   :token,
   :slug
 ) RETURNING id;

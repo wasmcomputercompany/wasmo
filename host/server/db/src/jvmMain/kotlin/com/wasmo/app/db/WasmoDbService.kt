@@ -9,6 +9,7 @@ import com.wasmo.api.WasmoJson
 import com.wasmo.db.Account
 import com.wasmo.db.AppInstall
 import com.wasmo.db.Computer
+import com.wasmo.db.ComputerAccess
 import com.wasmo.db.ComputerAllocation
 import com.wasmo.db.ComputerSpec
 import com.wasmo.db.Cookie
@@ -18,6 +19,7 @@ import com.wasmo.db.StripeCustomer
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppInstallId
+import com.wasmo.identifiers.ComputerAccessId
 import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSpecId
@@ -47,6 +49,7 @@ class WasmoDbService(
   jdbcDriver,
   AccountAdapter,
   AppInstallAdapter,
+  ComputerAccessAdapter,
   ComputerAdapter,
   ComputerAllocationAdapter,
   ComputerSpecAdapter,
@@ -137,6 +140,11 @@ class WasmoDbService(
       override fun encode(value: ComputerAllocationId) = value.id
     }
 
+    private object ComputerAccessIdAdapter : ColumnAdapter<ComputerAccessId, Long> {
+      override fun decode(databaseValue: Long) = ComputerAccessId(databaseValue)
+      override fun encode(value: ComputerAccessId) = value.id
+    }
+
     private object ComputerIdAdapter : ColumnAdapter<ComputerId, Long> {
       override fun decode(databaseValue: Long) = ComputerId(databaseValue)
       override fun encode(value: ComputerId) = value.id
@@ -189,11 +197,11 @@ class WasmoDbService(
       slugAdapter = ComputerSlugAdapter,
     )
 
-    private val ComputerSpecAdapter = ComputerSpec.Adapter(
-      idAdapter = ComputerSpecIdAdapter,
+    private val ComputerAccessAdapter = ComputerAccess.Adapter(
+      idAdapter = ComputerAccessIdAdapter,
       created_atAdapter = InstantAdapter,
       computer_idAdapter = ComputerIdAdapter,
-      slugAdapter = ComputerSlugAdapter,
+      account_idAdapter = AccountIdAdapter,
     )
 
     private val ComputerAllocationAdapter = ComputerAllocation.Adapter(
@@ -203,6 +211,14 @@ class WasmoDbService(
       computer_idAdapter = ComputerIdAdapter,
       active_startAdapter = InstantAdapter,
       active_endAdapter = InstantAdapter,
+    )
+
+    private val ComputerSpecAdapter = ComputerSpec.Adapter(
+      idAdapter = ComputerSpecIdAdapter,
+      created_atAdapter = InstantAdapter,
+      account_idAdapter = AccountIdAdapter,
+      computer_idAdapter = ComputerIdAdapter,
+      slugAdapter = ComputerSlugAdapter,
     )
 
     private val CookieAdapter = Cookie.Adapter(

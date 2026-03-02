@@ -4,17 +4,21 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
+import com.wasmo.app.db.WasmoDbService
 import com.wasmo.framework.Response
 
 class InstallAppAction(
   private val client: Client,
   private val computerStore: ComputerStore,
+  private val wasmoDbService: WasmoDbService,
 ) {
   suspend fun install(
     computerSlug: ComputerSlug,
     request: InstallAppRequest,
   ): Response<InstallAppResponse> {
-    val computer = computerStore.get(computerSlug)
+    val computer = wasmoDbService.transactionWithResult(noEnclosing = true) {
+      computerStore.get(client, computerSlug)
+    }
     computer.installApp(
       manifest = computer.appLoader.loadManifest(
         manifestUrl = request.manifestUrl,

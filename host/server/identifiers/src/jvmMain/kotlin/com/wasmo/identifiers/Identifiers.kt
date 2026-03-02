@@ -6,6 +6,8 @@ data class AppInstallId(val id: Long)
 
 data class CookieId(val id: Long)
 
+data class ComputerAccessId(val id: Long)
+
 data class ComputerAllocationId(val id: Long)
 
 data class ComputerId(val id: Long)

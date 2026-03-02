@@ -1,5 +1,7 @@
 package com.wasmo.computers
 
+import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.accounts.Client
 import com.wasmo.api.AppManifest
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.WasmoJson
@@ -22,8 +24,16 @@ class RealComputerStore(
   private val objectStoreKeyFactory: ObjectStoreKeyFactory,
   private val wasmoDbService: WasmoDbService,
 ) : ComputerStore {
-  override fun get(slug: ComputerSlug): WasmoComputer {
-    val computer = wasmoDbService.computerQueries.selectComputerBySlug(
+  context(transactionCallbacks: TransactionCallbacks)
+  override fun get(
+    client: Client,
+    slug: ComputerSlug,
+  ): WasmoComputer {
+    val accountId = client.getAccountIdOrNull()
+      ?: throw BadRequestException("unexpected computer: $slug")
+
+    val computer = wasmoDbService.computerQueries.selectComputerByAccountIdAndSlug(
+      account_id = accountId,
       slug = slug,
     ).executeAsOneOrNull()
       ?: throw BadRequestException("unexpected computer: $slug")

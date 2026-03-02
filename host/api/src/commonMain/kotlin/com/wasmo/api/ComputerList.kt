@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ComputerListSnapshot(
-  val items: List<ComputerListItem>,
+  val items: List<ComputerListItem> = listOf(),
 )
 
 @Serializable

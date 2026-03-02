@@ -4,6 +4,7 @@ import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSlug
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.Computer
+import com.wasmo.identifiers.AccountId
 import kotlin.time.Clock
 import org.postgresql.util.PSQLException
 
@@ -12,11 +13,16 @@ class ComputerSpecStore(
   private val wasmoDbService: WasmoDbService,
 ) {
   context(_: TransactionCallbacks)
-  fun createSpec(slug: ComputerSlug, computerSpecToken: String) {
+  fun createSpec(
+    accountId: AccountId,
+    slug: ComputerSlug,
+    computerSpecToken: String,
+  ) {
     try {
       wasmoDbService.computerSpecQueries.insertComputerSpec(
         created_at = clock.now(),
         version = 1,
+        account_id = accountId,
         token = computerSpecToken,
         slug = slug,
       ).executeAsOneOrNull()
@@ -37,7 +43,15 @@ class ComputerSpecStore(
       ?: run {
         val insertedComputerId = wasmoDbService.computerQueries.insertComputer(
           created_at = computerSpec.created_at,
+          version = 1,
           slug = computerSpec.slug,
+        ).executeAsOne()
+
+        wasmoDbService.computerAccessQueries.insertComputerAccess(
+          created_at = computerSpec.created_at,
+          version = 1,
+          computer_id = insertedComputerId,
+          account_id = computerSpec.account_id,
         ).executeAsOne()
 
         wasmoDbService.computerSpecQueries.linkComputer(

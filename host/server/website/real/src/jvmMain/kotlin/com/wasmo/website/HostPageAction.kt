@@ -6,7 +6,6 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerListItem
 import com.wasmo.api.ComputerListSnapshot
-import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledApp
 import com.wasmo.api.InviteTicket
@@ -20,6 +19,7 @@ import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.NotFoundException
+import com.wasmo.framework.UnauthorizedException
 
 /**
  * We serve the same page to most routes, with different embedded page data.
@@ -59,15 +59,18 @@ class HostPageAction(
   fun loadComputerListSnapshotOrNull(route: Route): ComputerListSnapshot? {
     if (route !is ComputerListRoute) return null
 
+    val accountId = client.getAccountIdOrNull()
+      ?: return ComputerListSnapshot()
+
+    val computers = wasmoDbService.computerQueries.selectComputersByAccountId(
+      account_id = accountId,
+      limit = 100,
+    ).executeAsList()
+
     return ComputerListSnapshot(
-      items = listOf(
-        ComputerListItem(
-          slug = ComputerSlug("jesse99"),
-        ),
-        ComputerListItem(
-          slug = ComputerSlug("rounds"),
-        ),
-      ),
+      items = computers.map {
+        ComputerListItem(it.slug)
+      },
     )
   }
 
@@ -89,8 +92,17 @@ class HostPageAction(
   fun loadComputerSnapshotOrNull(route: Route): ComputerSnapshot? {
     if (route !is ComputerHomeRoute) return null
 
-    return ComputerSnapshot(
+    val accountId = client.getAccountIdOrNull()
+      ?: throw UnauthorizedException()
+
+    val computer = wasmoDbService.computerQueries.selectComputerByAccountIdAndSlug(
+      account_id = accountId,
       slug = route.slug,
+    ).executeAsOneOrNull()
+      ?: throw UnauthorizedException()
+
+    return ComputerSnapshot(
+      slug = computer.slug,
       apps = listOf(
         InstalledApp(
           label = "Files",

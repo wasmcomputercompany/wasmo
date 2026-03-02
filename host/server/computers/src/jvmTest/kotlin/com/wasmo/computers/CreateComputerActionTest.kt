@@ -1,10 +1,14 @@
 package com.wasmo.computers
 
 import assertk.assertThat
+import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
+import com.wasmo.api.ComputerListItem
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.routes.ComputerHomeRoute
+import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.testing.WasmoServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -41,6 +45,11 @@ class CreateComputerActionTest {
     assertThat(afterCheckoutResponse.header("Location")).isEqualTo(
       "https://jesse99.wasmo.com/",
     )
+
+    val computerListPage = client.hostPage(ComputerListRoute)
+    assertThat(computerListPage.computerListSnapshot?.items)
+      .isNotNull()
+      .containsExactly(ComputerListItem(computerSlug))
 
     val computerHostPage = client.hostPage(ComputerHomeRoute(computerSlug))
     assertThat(computerHostPage.computerSnapshot?.slug).isEqualTo(computerSlug)

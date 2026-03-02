@@ -19,6 +19,7 @@ class CreateComputerAction(
   ): Response<CreateComputerResponse> {
     wasmoDbService.transactionWithResult(noEnclosing = true) {
       computerSpecStore.createSpec(
+        accountId = client.getOrCreateAccountId(),
         slug = request.slug,
         computerSpecToken = request.computerSpecToken,
       )

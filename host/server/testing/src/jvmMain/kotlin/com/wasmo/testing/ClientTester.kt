@@ -184,6 +184,7 @@ class ClientTester(
   fun installAppAction() = InstallAppAction(
     client = clientAuthenticator.get(),
     computerStore = computerStore,
+    wasmoDbService = wasmoDbService,
   )
 
   fun createComputer(slug: ComputerSlug): ComputerTester {

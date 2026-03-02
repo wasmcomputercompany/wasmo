@@ -1,0 +1,13 @@
+insertComputerAccess:
+INSERT INTO ComputerAccess(
+  created_at,
+  version,
+  computer_id,
+  account_id
+)
+VALUES (
+  :created_at,
+  :version,
+  :computer_id,
+  :account_id
+) RETURNING id;

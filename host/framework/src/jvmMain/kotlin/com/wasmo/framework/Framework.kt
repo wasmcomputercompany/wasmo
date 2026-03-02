@@ -51,7 +51,7 @@ open class HttpException(
 
 class BadRequestException(message: String) : HttpException(400, message)
 
-class UnauthorizedException(message: String) : HttpException(403, message)
+class UnauthorizedException(message: String? = null) : HttpException(401, message)
 
 class NotFoundException(message: String? = null) : HttpException(404, message)
 
