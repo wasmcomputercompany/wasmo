@@ -1,6 +1,7 @@
 package com.wasmo.computers
 
 import com.wasmo.accounts.Client
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.framework.Response
@@ -10,7 +11,7 @@ class InstallAppAction(
   private val computerStore: ComputerStore,
 ) {
   suspend fun install(
-    computerSlug: String,
+    computerSlug: ComputerSlug,
     request: InstallAppRequest,
   ): Response<InstallAppResponse> {
     val computer = computerStore.get(computerSlug)

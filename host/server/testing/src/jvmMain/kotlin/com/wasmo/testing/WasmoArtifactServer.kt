@@ -1,9 +1,10 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
+import com.wasmo.api.AppManifest
+import com.wasmo.api.AppSlug
 import com.wasmo.http.HttpRequest
 import com.wasmo.http.HttpResponse
-import com.wasmo.api.AppManifest
 import kotlinx.serialization.json.Json
 import okio.ByteString
 
@@ -40,7 +41,7 @@ class WasmoArtifactServer(
   }
 
   data class App(
-    val slug: String,
+    val slug: AppSlug,
     val displayName: String,
     val version: Long,
     val wasm: ByteString,

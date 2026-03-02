@@ -1,5 +1,7 @@
 package com.wasmo.common.routes
 
+import com.wasmo.api.AppSlug
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.routes.AdminRoute
 import com.wasmo.api.routes.AfterCheckoutRoute
 import com.wasmo.api.routes.AppRoute
@@ -22,10 +24,10 @@ class RealRouteCodec(
     val subdomain = url.subdomain
     if (subdomain != null) {
       return when (val dash = subdomain.indexOf('-')) {
-        -1 -> ComputerHomeRoute(subdomain)
+        -1 -> ComputerHomeRoute(ComputerSlug(subdomain))
         else -> AppRoute(
-          appSlug = subdomain.take(dash),
-          computerSlug = subdomain.substring(dash + 1),
+          appSlug = AppSlug(subdomain.take(dash)),
+          computerSlug = ComputerSlug(subdomain.substring(dash + 1)),
           path = url.path,
           query = url.query,
         )
@@ -72,7 +74,7 @@ class RealRouteCodec(
       )
 
       is AppRoute -> context.root.copy(
-        subdomain = "${route.appSlug}-${route.computerSlug}",
+        subdomain = "${route.appSlug.value}-${route.computerSlug.value}",
         path = route.path,
         query = route.query,
       )
@@ -83,7 +85,7 @@ class RealRouteCodec(
       }
 
       is ComputerHomeRoute -> context.root.copy(
-        subdomain = route.slug,
+        subdomain = route.slug.value,
       )
 
       ComputerListRoute -> when {

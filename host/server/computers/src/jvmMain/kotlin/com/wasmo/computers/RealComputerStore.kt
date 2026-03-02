@@ -1,6 +1,7 @@
 package com.wasmo.computers
 
 import com.wasmo.api.AppManifest
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.WasmoJson
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.deployment.Deployment
@@ -21,7 +22,7 @@ class RealComputerStore(
   private val objectStoreKeyFactory: ObjectStoreKeyFactory,
   private val wasmoDbService: WasmoDbService,
 ) : ComputerStore {
-  override fun get(slug: String): WasmoComputer {
+  override fun get(slug: ComputerSlug): WasmoComputer {
     val computer = wasmoDbService.computerQueries.selectComputerBySlug(
       slug = slug,
     ).executeAsOneOrNull()
@@ -29,7 +30,7 @@ class RealComputerStore(
 
     val objectStore = ScopedObjectStore(
       delegate = rootObjectStore,
-      prefix = "$slug/",
+      prefix = "${slug.value}/",
     )
     val downloader = RealDownloader(
       httpClient = httpClient,

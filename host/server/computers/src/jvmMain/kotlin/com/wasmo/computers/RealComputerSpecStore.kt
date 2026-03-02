@@ -1,6 +1,7 @@
 package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.api.ComputerSlug
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.Computer
 import kotlin.time.Clock
@@ -11,7 +12,7 @@ class ComputerSpecStore(
   private val wasmoDbService: WasmoDbService,
 ) {
   context(_: TransactionCallbacks)
-  fun createSpec(slug: String, computerSpecToken: String) {
+  fun createSpec(slug: ComputerSlug, computerSpecToken: String) {
     try {
       wasmoDbService.computerSpecQueries.insertComputerSpec(
         created_at = clock.now(),

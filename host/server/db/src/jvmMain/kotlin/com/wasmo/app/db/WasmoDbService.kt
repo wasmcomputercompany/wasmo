@@ -3,6 +3,8 @@ package com.wasmo.app.db
 import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.driver.jdbc.JdbcDriver
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
+import com.wasmo.api.AppSlug
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.WasmoJson
 import com.wasmo.db.Account
 import com.wasmo.db.AppInstall
@@ -125,6 +127,11 @@ class WasmoDbService(
       override fun encode(value: AppInstallId) = value.id
     }
 
+    private object AppSlugAdapter : ColumnAdapter<AppSlug, String> {
+      override fun decode(databaseValue: String) = AppSlug(databaseValue)
+      override fun encode(value: AppSlug) = value.value
+    }
+
     private object ComputerAllocationIdAdapter : ColumnAdapter<ComputerAllocationId, Long> {
       override fun decode(databaseValue: Long) = ComputerAllocationId(databaseValue)
       override fun encode(value: ComputerAllocationId) = value.id
@@ -133,6 +140,11 @@ class WasmoDbService(
     private object ComputerIdAdapter : ColumnAdapter<ComputerId, Long> {
       override fun decode(databaseValue: Long) = ComputerId(databaseValue)
       override fun encode(value: ComputerId) = value.id
+    }
+
+    private object ComputerSlugAdapter : ColumnAdapter<ComputerSlug, String> {
+      override fun decode(databaseValue: String) = ComputerSlug(databaseValue)
+      override fun encode(value: ComputerSlug) = value.value
     }
 
     private object ComputerSpecIdAdapter : ColumnAdapter<ComputerSpecId, Long> {
@@ -168,17 +180,20 @@ class WasmoDbService(
       idAdapter = AppInstallIdAdapter,
       created_atAdapter = InstantAdapter,
       computer_idAdapter = ComputerIdAdapter,
+      slugAdapter = AppSlugAdapter,
     )
 
     private val ComputerAdapter = Computer.Adapter(
       idAdapter = ComputerIdAdapter,
       created_atAdapter = InstantAdapter,
+      slugAdapter = ComputerSlugAdapter,
     )
 
     private val ComputerSpecAdapter = ComputerSpec.Adapter(
       idAdapter = ComputerSpecIdAdapter,
       created_atAdapter = InstantAdapter,
       computer_idAdapter = ComputerIdAdapter,
+      slugAdapter = ComputerSlugAdapter,
     )
 
     private val ComputerAllocationAdapter = ComputerAllocation.Adapter(

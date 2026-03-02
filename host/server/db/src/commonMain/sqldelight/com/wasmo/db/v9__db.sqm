@@ -1,3 +1,4 @@
+import com.wasmo.api.ComputerSlug;
 import com.wasmo.identifiers.ComputerSpecId;
 import com.wasmo.identifiers.ComputerId;
 import kotlin.time.Instant;
@@ -7,6 +8,6 @@ CREATE TABLE ComputerSpec (
   created_at TIMESTAMPTZ AS Instant NOT NULL,
   version BIGINT NOT NULL,
   token VARCHAR(25) UNIQUE NOT NULL,
-  slug VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) AS ComputerSlug NOT NULL,
   computer_id BIGINT AS ComputerId NULL
 );

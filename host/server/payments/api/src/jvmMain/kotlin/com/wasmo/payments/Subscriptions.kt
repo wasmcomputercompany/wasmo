@@ -1,9 +1,10 @@
 package com.wasmo.payments
 
+import com.wasmo.api.ComputerSlug
 import kotlin.time.Instant
 
 data class SubscriptionSnapshot(
-  val slug: String,
+  val slug: ComputerSlug,
   val currentAllocation: ComputerAllocationSnapshot,
 )
 

@@ -2,6 +2,8 @@ package com.wasmo.common.routes
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.api.AppSlug
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.routes.AdminRoute
 import com.wasmo.api.routes.AfterCheckoutRoute
 import com.wasmo.api.routes.AppRoute
@@ -28,10 +30,16 @@ class RealRouteCodecTest {
 
   @Test
   fun encodeUnauthenticated() {
-    assertThat(unauthenticated.encode(ComputerHomeRoute("jessewilson99")))
+    val computerSlug = ComputerSlug("jessewilson99")
+    val appSlug = AppSlug("recipes")
+
+    assertThat(unauthenticated.encode(ComputerHomeRoute(computerSlug)))
       .isEqualTo(root.copy(subdomain = "jessewilson99"))
-    assertThat(unauthenticated.encode(AppRoute("jessewilson99", "recipes", listOf("breakfast"))))
-      .isEqualTo(root.copy(subdomain = "recipes-jessewilson99", path = listOf("breakfast")))
+    assertThat(
+      unauthenticated.encode(
+        AppRoute(computerSlug, appSlug, listOf("breakfast")),
+      ),
+    ).isEqualTo(root.copy(subdomain = "recipes-jessewilson99", path = listOf("breakfast")))
     assertThat(unauthenticated.encode(InviteRoute("1234")))
       .isEqualTo(root.copy(path = listOf("invite", "1234")))
     assertThat(unauthenticated.encode(AdminRoute))
@@ -50,10 +58,16 @@ class RealRouteCodecTest {
 
   @Test
   fun decodeUnauthenticated() {
+    val computerSlug = ComputerSlug("jessewilson99")
+    val appSlug = AppSlug("recipes")
+
     assertThat(unauthenticated.decode(root.copy(subdomain = "jessewilson99")))
-      .isEqualTo(ComputerHomeRoute("jessewilson99"))
-    assertThat(unauthenticated.decode(root.copy(subdomain = "recipes-jessewilson99", path = listOf("breakfast"))))
-      .isEqualTo(AppRoute("jessewilson99", "recipes", listOf("breakfast")))
+      .isEqualTo(ComputerHomeRoute(computerSlug))
+    assertThat(
+      unauthenticated.decode(
+        root.copy(subdomain = "recipes-jessewilson99", path = listOf("breakfast")),
+      ),
+    ).isEqualTo(AppRoute(computerSlug, appSlug, listOf("breakfast")))
     assertThat(unauthenticated.decode(root.copy(path = listOf("invite", "1234"))))
       .isEqualTo(InviteRoute("1234"))
     assertThat(unauthenticated.decode(root.copy(path = listOf("admin"))))

@@ -2,6 +2,8 @@ package com.wasmo.computers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.api.AppSlug
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.testing.WasmoArtifactServer
 import com.wasmo.testing.WasmoServiceTester
@@ -28,11 +30,12 @@ class InstallAppActionTest {
   @Test
   fun happyPath() = runTest {
     val client = tester.newClient()
-    val computer = client.createComputer("jesse124")
+    val computerSlug = ComputerSlug("jesse124")
+    val computer = client.createComputer(computerSlug)
     val action = client.installAppAction()
     val wasm = "XXXX".encodeUtf8()
     val helloApp = WasmoArtifactServer.App(
-      slug = "hello",
+      slug = AppSlug("hello"),
       displayName = "Hello World",
       version = 1L,
       wasm = wasm,

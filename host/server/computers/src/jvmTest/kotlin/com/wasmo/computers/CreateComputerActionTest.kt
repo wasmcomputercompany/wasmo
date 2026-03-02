@@ -2,6 +2,7 @@ package com.wasmo.computers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.testing.WasmoServiceTester
 import kotlin.test.AfterTest
@@ -27,7 +28,7 @@ class CreateComputerActionTest {
     val createComputerResponse = client.createComputerAction().create(
       request = CreateComputerRequest(
         computerSpecToken = "computerspectoken00000001",
-        slug = "computer-one",
+        slug = ComputerSlug("jesse99"),
       ),
     )
     val checkoutSessionId = client.paymentsService.completePayment(
@@ -36,7 +37,7 @@ class CreateComputerActionTest {
     val afterCheckoutResponse = client.afterCheckoutAction().get(checkoutSessionId)
 
     assertThat(afterCheckoutResponse.header("Location")).isEqualTo(
-      "https://computer-one.wasmo.com/",
+      "https://jesse99.wasmo.com/",
     )
   }
 }

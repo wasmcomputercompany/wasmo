@@ -13,6 +13,7 @@ import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.PasskeyLinker
 import com.wasmo.accounts.passkeys.RegisterPasskeyAction
 import com.wasmo.api.AuthenticatePasskeyRequest
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.routes.RouteCodec
@@ -177,7 +178,7 @@ class ClientTester(
     computerStore = computerStore,
   )
 
-  fun createComputer(slug: String): ComputerTester {
+  fun createComputer(slug: ComputerSlug): ComputerTester {
     // Create a ComputerSpec.
     val createComputerResponse = createComputerAction()
       .create(

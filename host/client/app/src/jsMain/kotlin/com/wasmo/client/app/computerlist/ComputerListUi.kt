@@ -1,6 +1,7 @@
 package com.wasmo.client.app.computerlist
 
 import androidx.compose.runtime.Composable
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.Url
 import com.wasmo.client.app.routing.Router
@@ -20,7 +21,7 @@ class ComputerListUi(
       attrs = attrs,
       items = listOf(
         ComputerListItem(
-          slug = "jesse99",
+          slug = ComputerSlug("jesse99"),
           url = Url(
             scheme = "https",
             topPrivateDomain = "wasmo.com",
@@ -28,7 +29,7 @@ class ComputerListUi(
           ),
         ),
         ComputerListItem(
-          slug = "rounds",
+          slug = ComputerSlug("rounds"),
           url = Url(
             scheme = "https",
             topPrivateDomain = "wasmo.com",

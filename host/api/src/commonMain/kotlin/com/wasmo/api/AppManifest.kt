@@ -8,7 +8,7 @@ import okio.ByteString
 data class AppManifest(
   val canonicalUrl: String?,
   val version: Long,
-  val slug: String,
+  val slug: AppSlug,
   val displayName: String,
   val wasmUrl: String,
   @Serializable(with = ByteStringAsHexSerializer::class)

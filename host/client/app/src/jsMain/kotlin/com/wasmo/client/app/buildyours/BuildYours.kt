@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.wasmo.api.ComputerSlug
 import com.wasmo.client.app.Checkbox
 import com.wasmo.client.app.FinePrint
 import com.wasmo.client.app.FormScreen
@@ -27,7 +28,6 @@ import org.jetbrains.compose.web.css.flex
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
-import org.jetbrains.compose.web.css.paddingBottom
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.textAlign
 import org.jetbrains.compose.web.dom.Br
@@ -238,7 +238,7 @@ fun BuildYoursScreen(
         onClick {
           eventListener(
             when {
-              showBuildForm -> BuildYoursScreenEvent.ClickCheckOut(nameState)
+              showBuildForm -> BuildYoursScreenEvent.ClickCheckOut(ComputerSlug(nameState))
               else -> BuildYoursScreenEvent.ClickBuildYours
             },
           )
@@ -323,7 +323,7 @@ fun BuildYoursToolbar(
 sealed interface BuildYoursScreenEvent {
   object ClickBuildYours : BuildYoursScreenEvent
   data class ClickCheckOut(
-    val slug: String,
+    val slug: ComputerSlug,
   ) : BuildYoursScreenEvent
   object ClickQuestions : BuildYoursScreenEvent
 }

@@ -1,6 +1,7 @@
 package com.wasmo.client.app.computerlist
 
 import androidx.compose.runtime.Composable
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.routes.toURL
 import com.wasmo.client.app.FormScreen
 import com.wasmo.smartphoneframe.SmartphoneFrame
@@ -34,7 +35,7 @@ fun ComputerListScreen(
         },
       ) { frameAttrs ->
         NameOverlay(
-          name = item.slug,
+          name = item.slug.value,
           attrs = frameAttrs,
         ) { nameOverlayAttrs ->
           Iframe(
@@ -54,5 +55,5 @@ fun ComputerListScreen(
 }
 
 sealed interface ComputerListEvent {
-  data class ClickComputer(val slug: String) : ComputerListEvent
+  data class ClickComputer(val slug: ComputerSlug) : ComputerListEvent
 }

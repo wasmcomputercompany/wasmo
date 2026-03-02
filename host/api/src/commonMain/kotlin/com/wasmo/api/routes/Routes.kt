@@ -1,35 +1,20 @@
 package com.wasmo.api.routes
 
-import com.wasmo.api.AppSlugRegex
-import com.wasmo.api.ComputerSlugRegex
+import com.wasmo.api.AppSlug
+import com.wasmo.api.ComputerSlug
 
 sealed interface Route
 
 data class ComputerHomeRoute(
-  val slug: String,
-) : Route {
-  init {
-    require(slug.matches(ComputerSlugRegex)) {
-      "unexpected computer: $slug"
-    }
-  }
-}
+  val slug: ComputerSlug,
+) : Route
 
 data class AppRoute(
-  val computerSlug: String,
-  val appSlug: String,
+  val computerSlug: ComputerSlug,
+  val appSlug: AppSlug,
   val path: List<String> = listOf(""),
   val query: List<QueryParameter>? = listOf(),
-) : Route {
-  init {
-    require(computerSlug.matches(ComputerSlugRegex)) {
-      "unexpected computer: $computerSlug"
-    }
-    require(appSlug.matches(AppSlugRegex)) {
-      "unexpected app: $appSlug"
-    }
-  }
-}
+) : Route
 
 data class InviteRoute(
   val code: String,

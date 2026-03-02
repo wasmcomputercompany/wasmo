@@ -12,6 +12,7 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
+        implementation(project(":host:api"))
         implementation(project(":platform:api"))
       }
     }

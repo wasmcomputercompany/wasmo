@@ -16,6 +16,7 @@ import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AccountSnapshotResponse
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.CreateComputerRequest
@@ -230,7 +231,7 @@ class ActionRouter(
       ) { client, request, call ->
         val action = installAppAction(client)
         action.install(
-          computerSlug = call.pathParameters["computer"]!!,
+          computerSlug = ComputerSlug(call.pathParameters["computer"]!!),
           request = request,
         )
       }

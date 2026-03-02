@@ -1,6 +1,8 @@
 package com.wasmo.client.app.computer
 
 import androidx.compose.runtime.Composable
+import com.wasmo.api.AppSlug
+import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstalledApp
 import com.wasmo.api.routes.AppRoute
 import com.wasmo.api.routes.ComputerHomeRoute
@@ -14,7 +16,7 @@ import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
 class ComputerUi(
-  val slug: String,
+  val slug: ComputerSlug,
   val router: Router,
   val apps: List<InstalledApp>,
 ) : Ui {
@@ -39,52 +41,52 @@ class ComputerUi(
     private val apps = listOf(
       InstalledApp(
         label = "Files",
-        slug = "files",
+        slug = AppSlug("files"),
         maskableIconUrl = "/assets/launcher/sample-folder.svg",
       ),
       InstalledApp(
         label = "Library",
-        slug = "library",
+        slug = AppSlug("library"),
         maskableIconUrl = "/assets/launcher/sample-books.svg",
       ),
       InstalledApp(
         label = "Music",
-        slug = "music",
+        slug = AppSlug("music"),
         maskableIconUrl = "/assets/launcher/sample-headphones.svg",
       ),
       InstalledApp(
         label = "Photos",
-        slug = "photos",
+        slug = AppSlug("photos"),
         maskableIconUrl = "/assets/launcher/sample-camera.svg",
       ),
       InstalledApp(
         label = "Pink Journal",
-        slug = "pink",
+        slug = AppSlug("pink"),
         maskableIconUrl = "/assets/launcher/sample-flower.svg",
       ),
       InstalledApp(
         label = "Recipes",
-        slug = "recipes",
+        slug = AppSlug("recipes"),
         maskableIconUrl = "/assets/launcher/sample-pancakes.svg",
       ),
       InstalledApp(
         label = "Smart Home",
-        slug = "smart",
+        slug = AppSlug("smart"),
         maskableIconUrl = "/assets/launcher/sample-home.svg",
       ),
       InstalledApp(
         label = "Snake",
-        slug = "snake",
+        slug = AppSlug("snake"),
         maskableIconUrl = "/assets/launcher/sample-snake.svg",
       ),
       InstalledApp(
         label = "Writer",
-        slug = "writer",
+        slug = AppSlug("writer"),
         maskableIconUrl = "/assets/launcher/sample-w.svg",
       ),
       InstalledApp(
         label = "Zap",
-        slug = "zap",
+        slug = AppSlug("zap"),
         maskableIconUrl = "/assets/launcher/sample-z.svg",
       ),
     )
