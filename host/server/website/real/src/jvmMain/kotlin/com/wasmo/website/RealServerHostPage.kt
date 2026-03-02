@@ -119,27 +119,19 @@ class RealServerHostPage(
     val stripePublishableKey: StripePublishableKey,
   ) : ServerHostPage.Factory {
     override fun create(
+      routingContext: RoutingContext,
       accountSnapshot: AccountSnapshot,
       inviteTicket: InviteTicket?,
       computerSnapshot: ComputerSnapshot?,
       computerListSnapshot: ComputerListSnapshot?,
-    ): ServerHostPage {
-      val routingContext = RoutingContext(
-        rootUrl = deployment.baseUrl.toString(),
-        hasComputers = false,
-        hasInvite = false,
-        isAdmin = false,
-      )
-
-      return RealServerHostPage(
-        deployment = deployment,
-        stripePublishableKey = stripePublishableKey,
-        accountSnapshot = accountSnapshot,
-        routingContext = routingContext,
-        inviteTicket = inviteTicket,
-        computerSnapshot = computerSnapshot,
-        computerListSnapshot = computerListSnapshot,
-      )
-    }
+    ) = RealServerHostPage(
+      deployment = deployment,
+      stripePublishableKey = stripePublishableKey,
+      accountSnapshot = accountSnapshot,
+      routingContext = routingContext,
+      inviteTicket = inviteTicket,
+      computerSnapshot = computerSnapshot,
+      computerListSnapshot = computerListSnapshot,
+    )
   }
 }

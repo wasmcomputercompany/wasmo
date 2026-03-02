@@ -7,7 +7,6 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.invite.CreateInviteAction
-import com.wasmo.accounts.invite.InvitePageAction
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.PasskeyLinker
@@ -30,7 +29,6 @@ import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
-import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.Url
@@ -145,13 +143,7 @@ class ActionRouter(
 
   fun hostPage(client: Client) = HostPageAction(
     client = client,
-    accountStoreFactory = accountStoreFactory,
-    hostPageFactory = serverHostPageFactory,
-    wasmoDbService = wasmoDbService,
-  )
-
-  fun invitePage(client: Client) = InvitePageAction(
-    client = client,
+    deployment = deployment,
     accountStoreFactory = accountStoreFactory,
     hostPageFactory = serverHostPageFactory,
     wasmoDbService = wasmoDbService,
@@ -185,15 +177,12 @@ class ActionRouter(
           val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
           clientAuthenticator.updateSessionCookie()
           val action = hostPage(clientAuthenticator.get())
-          val page = action.get(route())
+          val page = action.get(wasmoUrl())
           call.respond(page.response)
         }
       }
     }
   }
-
-  /** Decodes the requested URL with the same logic we use on the frontend. */
-  private fun KtorRoutingContext.route(): Route = routeCodec.decode(url = wasmoUrl())
 
   private fun KtorRoutingContext.wasmoUrl(): Url {
     val host = call.request.host()
@@ -211,22 +200,14 @@ class ActionRouter(
 
   private fun createPages() {
     application.routing {
-      for (path in listOf("/", "/build-yours", "/computers", "/teaser")) {
+      for (path in listOf("/", "/build-yours", "/computers", "/teaser", "/invite/{code}")) {
         get(path) {
           val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
           clientAuthenticator.updateSessionCookie()
           val action = hostPage(clientAuthenticator.get())
-          val page = action.get(route())
+          val page = action.get(wasmoUrl())
           call.respond(page.response)
         }
-      }
-
-      get("/invite/{code}") {
-        val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
-        clientAuthenticator.updateSessionCookie()
-        val action = invitePage(clientAuthenticator.get())
-        val page = action.invite(call.pathParameters["code"]!!)
-        call.respond(page.response)
       }
 
       get("/after-checkout/{checkoutSessionId}") {

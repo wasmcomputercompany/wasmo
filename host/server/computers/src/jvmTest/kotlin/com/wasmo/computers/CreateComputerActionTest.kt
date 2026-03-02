@@ -42,7 +42,7 @@ class CreateComputerActionTest {
       "https://jesse99.wasmo.com/",
     )
 
-    val computerHostPage = client.hostPageAction().get(ComputerHomeRoute(computerSlug))
+    val computerHostPage = client.hostPage(ComputerHomeRoute(computerSlug))
     assertThat(computerHostPage.computerSnapshot?.slug).isEqualTo(computerSlug)
   }
 }

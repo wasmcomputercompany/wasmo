@@ -7,7 +7,6 @@ import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.RealAccountStore
 import com.wasmo.accounts.invite.CreateInviteAction
-import com.wasmo.accounts.invite.InvitePageAction
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.PasskeyLinker
@@ -16,6 +15,7 @@ import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.RegisterPasskeyRequest
+import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.stripe.StripePublishableKey
@@ -34,6 +34,7 @@ import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.website.HostPageAction
 import com.wasmo.website.RealServerHostPage
+import com.wasmo.website.ServerHostPage
 import kotlin.time.Clock
 
 class ClientTester(
@@ -126,10 +127,16 @@ class ClientTester(
 
   fun hostPageAction() = HostPageAction(
     client = clientAuthenticator.get(),
+    deployment = deployment,
     accountStoreFactory = accountStoreFactory,
     hostPageFactory = hostPageFactory,
     wasmoDbService = wasmoDbService,
   )
+
+  fun hostPage(route: Route): ServerHostPage {
+    val url = routeCodec().encode(route)
+    return hostPageAction().get(url)
+  }
 
   fun authenticatePasskeyAction() = AuthenticatePasskeyAction(
     accountStoreFactory = accountStoreFactory,
@@ -159,13 +166,6 @@ class ClientTester(
     routeCodec = routeCodec(),
     wasmoDbService = wasmoDbService,
     inviteService = inviteService,
-  )
-
-  fun invitePageAction() = InvitePageAction(
-    client = clientAuthenticator.get(),
-    accountStoreFactory = accountStoreFactory,
-    hostPageFactory = hostPageFactory,
-    wasmoDbService = wasmoDbService,
   )
 
   fun authenticate(

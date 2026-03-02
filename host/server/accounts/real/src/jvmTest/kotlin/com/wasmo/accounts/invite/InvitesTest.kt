@@ -33,7 +33,7 @@ class InvitesTest {
   fun unknownCode404s() {
     val client = tester.newClient()
     assertFailsWith<NotFoundException> {
-      client.invitePageAction().invite("12345")
+      client.hostPage(InviteRoute(code = "12345"))
     }
   }
 
@@ -47,7 +47,7 @@ class InvitesTest {
 
     val claimedByClient = tester.newClient()
 
-    val appPage = claimedByClient.invitePageAction().invite(inviteRoute.code)
+    val appPage = claimedByClient.hostPage(inviteRoute)
     assertThat(appPage.inviteTicket?.code).isEqualTo(inviteRoute.code)
     assertThat(appPage.inviteTicket?.claimed).isEqualTo(false)
 

@@ -9,27 +9,46 @@ import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledApp
+import com.wasmo.api.InviteTicket
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
+import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.Route
+import com.wasmo.api.routes.RoutingContext
+import com.wasmo.api.routes.Url
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.common.routes.RealRouteCodec
+import com.wasmo.deployment.Deployment
+import com.wasmo.framework.NotFoundException
 
 /**
  * We serve the same page to most routes, with different embedded page data.
  */
 class HostPageAction(
   private val client: Client,
+  private val deployment: Deployment,
   private val accountStoreFactory: AccountStore.Factory,
   private val hostPageFactory: ServerHostPage.Factory,
   private val wasmoDbService: WasmoDbService,
 ) {
-  fun get(route: Route): ServerHostPage {
+  fun get(url: Url): ServerHostPage {
     val accountStore = accountStoreFactory.create(client)
 
     return wasmoDbService.transactionWithResult(noEnclosing = true) {
+      val routingContext = RoutingContext(
+        rootUrl = deployment.baseUrl.toString(),
+        hasComputers = false,
+        hasInvite = false,
+        isAdmin = false,
+      )
+      val router = RealRouteCodec(routingContext)
+      val route = router.decode(url)
+
       val accountSnapshot = accountStore.snapshot()
       hostPageFactory.create(
+        routingContext = routingContext,
         accountSnapshot = accountSnapshot,
+        inviteTicket = loadInviteTicket(route),
         computerSnapshot = loadComputerSnapshotOrNull(route),
         computerListSnapshot = loadComputerListSnapshotOrNull(route),
       )
@@ -49,6 +68,20 @@ class HostPageAction(
           slug = ComputerSlug("rounds"),
         ),
       ),
+    )
+  }
+
+  context(transactionCallbacks: TransactionCallbacks)
+  fun loadInviteTicket(route: Route): InviteTicket? {
+    if (route !is InviteRoute) return null
+
+    val invite = wasmoDbService.inviteQueries.findInvitesByCode(route.code)
+      .executeAsOneOrNull()
+      ?: throw NotFoundException()
+
+    return InviteTicket(
+      claimed = invite.claimed_by != null,
+      code = invite.code,
     )
   }
 

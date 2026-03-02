@@ -5,6 +5,7 @@ import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.HostPage
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.routes.RoutingContext
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
@@ -15,6 +16,7 @@ interface ServerHostPage : HostPage {
 
   interface Factory {
     fun create(
+      routingContext: RoutingContext,
       accountSnapshot: AccountSnapshot,
       inviteTicket: InviteTicket? = null,
       computerSnapshot: ComputerSnapshot? = null,
