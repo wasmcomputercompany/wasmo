@@ -8,4 +8,5 @@ interface AppPage {
   val accountSnapshot: AccountSnapshot
   val routingContext: RoutingContext
   val inviteTicket: InviteTicket?
+  val computerSnapshot: ComputerSnapshot?
 }

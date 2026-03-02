@@ -35,7 +35,7 @@ class UiFactory(
 
       BuildYoursRoute -> buildYoursUiFactory.create()
 
-      is AppRoute -> UnimplementedUi("App ${route.appSlug} on ${route.computerSlug}")
+      is AppRoute -> UnimplementedUi("App ${route.appSlug.value} on ${route.computerSlug.value}")
 
       is ComputerHomeRoute -> computerUiFactory.create(route)
 

@@ -111,13 +111,14 @@ class WasmoService(
       stripePublishableKey = stripeCredentials.publishableKey,
     )
     val inviteService = InviteService(clock, wasmoDbService)
+    val routingContext = RoutingContext(
+      rootUrl = deployment.baseUrl.toString(),
+      hasComputers = false,
+      hasInvite = false,
+      isAdmin = false,
+    )
     val routeCodec = RealRouteCodec(
-      RoutingContext(
-        rootUrl = deployment.baseUrl.toString(),
-        hasComputers = false,
-        hasInvite = false,
-        isAdmin = false,
-      ),
+      routingContext = routingContext,
     )
     val paymentsService = StripePaymentsService(
       deployment = deployment,
@@ -147,6 +148,7 @@ class WasmoService(
       wasmoDbService = wasmoDbService,
       serverAppPageFactory = serverAppPageFactory,
       inviteService = inviteService,
+      routingContext = routingContext,
       routeCodec = routeCodec,
       subscriptionUpdater = subscriptionUpdater,
       paymentsService = paymentsService,

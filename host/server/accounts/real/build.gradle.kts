@@ -27,6 +27,7 @@ kotlin {
         implementation(project(":host:server:passkeys:api"))
         implementation(project(":host:server:sendemail:api"))
         implementation(project(":host:server:website:api"))
+        implementation(project(":host:server:website:real"))
         implementation(project(":host:tokens"))
         implementation(project(":platform:api"))
       }

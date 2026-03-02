@@ -2,6 +2,7 @@ package com.wasmo.client.app
 
 import androidx.compose.runtime.remember
 import com.wasmo.api.AccountSnapshot
+import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.RealWasmoApi
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.routes.RoutingContext
@@ -37,6 +38,7 @@ class WasmoClientApp(
     ?: error("required routing_context pageData not found")
   private val accountSnapshot = pageData.get<AccountSnapshot>("account_snapshot")
     ?: error("required account_snapshot pageData not found")
+  private val computerSnapshot = pageData.get<ComputerSnapshot>("computer_snapshot")
   private val wasmoApi = RealWasmoApi()
   private val checkoutSessionFactory = CheckoutSession.Factory(
     stripePublishableKey = stripePublishableKey,
@@ -44,7 +46,7 @@ class WasmoClientApp(
   )
   private val browser = RealBrowser()
   private val routeCodec = RealRouteCodec(
-    context = routingContext,
+    routingContext = routingContext,
   )
   private val router = Router(
     scope = scope,
@@ -79,6 +81,7 @@ class WasmoClientApp(
     ),
     computerUiFactory = ComputerUi.Factory(
       router = router,
+      computerSnapshot = computerSnapshot,
     ),
   )
 

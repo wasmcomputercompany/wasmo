@@ -17,7 +17,7 @@ import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.api.routes.Url
 
 class RealRouteCodec(
-  private val context: RoutingContext,
+  private val routingContext: RoutingContext,
 ) : RouteCodec {
 
   override fun decode(url: Url): Route {
@@ -38,8 +38,8 @@ class RealRouteCodec(
       return when (url.path.single()) {
         "" -> {
           when {
-            context.hasComputers -> ComputerListRoute
-            context.hasInvite -> BuildYoursRoute
+            routingContext.hasComputers -> ComputerListRoute
+            routingContext.hasInvite -> BuildYoursRoute
             else -> TeaserRoute
           }
         }
@@ -65,44 +65,44 @@ class RealRouteCodec(
 
   override fun encode(route: Route): Url {
     return when (route) {
-      AdminRoute -> context.root.copy(
+      AdminRoute -> routingContext.root.copy(
         path = listOf("admin"),
       )
 
-      is AfterCheckoutRoute -> context.root.copy(
+      is AfterCheckoutRoute -> routingContext.root.copy(
         path = listOf("after-checkout", route.checkoutSessionId),
       )
 
-      is AppRoute -> context.root.copy(
+      is AppRoute -> routingContext.root.copy(
         subdomain = "${route.appSlug.value}-${route.computerSlug.value}",
         path = route.path,
         query = route.query,
       )
 
       BuildYoursRoute -> when {
-        context.hasInvite && !context.hasComputers -> context.root
-        else -> context.root.copy(path = listOf("build-yours"))
+        routingContext.hasInvite && !routingContext.hasComputers -> routingContext.root
+        else -> routingContext.root.copy(path = listOf("build-yours"))
       }
 
-      is ComputerHomeRoute -> context.root.copy(
+      is ComputerHomeRoute -> routingContext.root.copy(
         subdomain = route.slug.value,
       )
 
       ComputerListRoute -> when {
-        context.hasComputers -> context.root
-        else -> context.root.copy(path = listOf("computers"))
+        routingContext.hasComputers -> routingContext.root
+        else -> routingContext.root.copy(path = listOf("computers"))
       }
 
-      is InviteRoute -> context.root.copy(
+      is InviteRoute -> routingContext.root.copy(
         path = listOf("invite", route.code),
       )
 
       TeaserRoute -> when {
-        !context.hasComputers && !context.hasInvite -> context.root
-        else -> context.root.copy(path = listOf("teaser"))
+        !routingContext.hasComputers && !routingContext.hasInvite -> routingContext.root
+        else -> routingContext.root.copy(path = listOf("teaser"))
       }
 
-      NotFoundRoute -> context.root.copy(path = listOf("not-found"))
+      NotFoundRoute -> routingContext.root.copy(path = listOf("not-found"))
     }
   }
 }

@@ -17,6 +17,7 @@ import com.wasmo.api.AccountSnapshotResponse
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.api.ComputerSlug
+import com.wasmo.api.ComputerSlugRegex
 import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.CreateComputerRequest
@@ -29,7 +30,9 @@ import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
+import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.RouteCodec
+import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.computers.AfterCheckoutAction
 import com.wasmo.computers.ComputerSpecStore
@@ -45,15 +48,19 @@ import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.website.AppPageAction
+import com.wasmo.website.ComputerPageAction
 import com.wasmo.website.ServerAppPage
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.plugins.calllogging.CallLogging
+import io.ktor.server.request.host
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.RoutingCall
+import io.ktor.server.routing.RoutingContext as KtorRoutingContext
 import io.ktor.server.routing.get
+import io.ktor.server.routing.host
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlin.time.Clock
@@ -70,6 +77,7 @@ class ActionRouter(
   val sendEmailService: SendEmailService,
   val wasmoDbService: WasmoDbService,
   val serverAppPageFactory: ServerAppPage.Factory,
+  val routingContext: RoutingContext,
   val routeCodec: RouteCodec,
   val inviteService: InviteService,
   val subscriptionUpdater: SubscriptionUpdater,
@@ -141,6 +149,13 @@ class ActionRouter(
     wasmoDbService = wasmoDbService,
   )
 
+  fun computerPage(client: Client) = ComputerPageAction(
+    client = client,
+    accountStoreFactory = accountStoreFactory,
+    appPageFactory = serverAppPageFactory,
+    wasmoDbService = wasmoDbService,
+  )
+
   fun invitePage(client: Client) = InvitePageAction(
     client = client,
     accountStoreFactory = accountStoreFactory,
@@ -158,12 +173,46 @@ class ActionRouter(
   fun createRoutes() {
     application.install(CallLogging)
 
+    createComputerRoutes()
     createPages()
     createRpcs()
 
     application.routing {
       staticResources("/", "static")
     }
+  }
+
+  private fun createComputerRoutes() {
+    val suffix = ".${routingContext.root.topPrivateDomain}"
+    val hostRegex = Regex("${ComputerSlugRegex.pattern}${Regex.escape(suffix)}")
+    application.routing {
+      host(hostRegex) {
+        get("/") {
+          val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
+          clientAuthenticator.updateSessionCookie()
+          val action = computerPage(clientAuthenticator.get())
+          val page = action.get(computerSlug())
+          call.respond(page.response)
+        }
+      }
+    }
+  }
+
+  /** Given a request to a hostname like `jesse99.wasmo.com`, this returns `jesse99`. */
+  private fun KtorRoutingContext.computerSlug(): ComputerSlug {
+    val host = call.request.host()
+    val dotIndex = host.length - routingContext.root.topPrivateDomain.length - 1
+    require(
+      dotIndex >= 1 && host[dotIndex] == '.' && host.endsWith(routingContext.root.topPrivateDomain),
+    )
+    val subdomain = host.take(dotIndex)
+
+    val route = routeCodec.decode(
+      url = routingContext.root.copy(subdomain = subdomain),
+    ) as? ComputerHomeRoute
+      ?: error("unexpected host: $host")
+
+    return route.slug
   }
 
   private fun createPages() {

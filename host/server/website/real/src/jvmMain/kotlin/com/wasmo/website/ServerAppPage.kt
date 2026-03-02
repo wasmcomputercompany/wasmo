@@ -1,6 +1,7 @@
 package com.wasmo.website
 
 import com.wasmo.api.AccountSnapshot
+import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.routes.RoutingContext
@@ -27,6 +28,7 @@ class RealServerAppPage(
   override val accountSnapshot: AccountSnapshot,
   override val routingContext: RoutingContext,
   override val inviteTicket: InviteTicket?,
+  override val computerSnapshot: ComputerSnapshot?,
 ) : ServerAppPage, ResponseBody {
   val pageData: MapPageData
     get() = MapPageData.Builder(WasmoJson)
@@ -36,6 +38,9 @@ class RealServerAppPage(
       .apply {
         if (inviteTicket != null) {
           put("invite_ticket", inviteTicket)
+        }
+        if (computerSnapshot != null) {
+          put("computer_snapshot", computerSnapshot)
         }
       }
       .build()
@@ -111,6 +116,7 @@ class RealServerAppPage(
     override fun create(
       accountSnapshot: AccountSnapshot,
       inviteTicket: InviteTicket?,
+      computerSnapshot: ComputerSnapshot?,
     ): ServerAppPage {
       val routingContext = RoutingContext(
         rootUrl = deployment.baseUrl.toString(),
@@ -125,6 +131,7 @@ class RealServerAppPage(
         accountSnapshot = accountSnapshot,
         routingContext = routingContext,
         inviteTicket = inviteTicket,
+        computerSnapshot = computerSnapshot,
       )
     }
   }

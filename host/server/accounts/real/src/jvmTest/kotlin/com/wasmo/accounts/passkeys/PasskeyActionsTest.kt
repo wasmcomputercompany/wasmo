@@ -36,12 +36,14 @@ class PasskeyActionsTest {
 
     val registerResponse = clientA.registerPasskeyAction()
       .register(RegisterPasskeyRequest(registration))
-    assertThat(registerResponse.body.account.passkeys).containsExactly(
-      PasskeySnapshot(
-        authenticator = "Apple Passwords",
-        createdAt = tester.clock.now(),
-      ),
+    val passkeySnapshot = PasskeySnapshot(
+      authenticator = "Apple Passwords",
+      createdAt = tester.clock.now(),
     )
+    assertThat(registerResponse.body.account.passkeys)
+      .containsExactly(passkeySnapshot)
+    assertThat(clientA.appPageAction().get().accountSnapshot.passkeys)
+      .containsExactly(passkeySnapshot)
 
     val clientB = tester.newClient()
     val authenticateResponse = clientB.authenticatePasskeyAction().authenticate(

@@ -32,6 +32,7 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.sendemail.SendEmailService
+import com.wasmo.website.AppPageAction
 import com.wasmo.website.RealServerAppPage
 import kotlin.time.Clock
 
@@ -82,7 +83,7 @@ class ClientTester(
   )
 
   fun routeCodec(): RouteCodec = RealRouteCodec(
-    context = routingContext(),
+    routingContext = routingContext(),
   )
 
   fun accountSnapshotAction() = AccountSnapshotAction(
@@ -121,6 +122,13 @@ class ClientTester(
       ),
       inviteCode = inviteCode,
     ),
+  )
+
+  fun appPageAction() = AppPageAction(
+    client = clientAuthenticator.get(),
+    accountStoreFactory = accountStoreFactory,
+    appPageFactory = appPageFactory,
+    wasmoDbService = wasmoDbService,
   )
 
   fun authenticatePasskeyAction() = AuthenticatePasskeyAction(

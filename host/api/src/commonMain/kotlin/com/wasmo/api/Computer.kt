@@ -19,6 +19,7 @@ val ComputerSlugRegex = Regex("[a-z][a-z0-9]{0,14}")
 
 @Serializable
 data class ComputerSnapshot(
+  val slug: ComputerSlug,
   val apps: List<InstalledApp>,
 )
 
