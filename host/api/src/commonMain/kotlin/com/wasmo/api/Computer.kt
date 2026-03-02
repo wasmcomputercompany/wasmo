@@ -12,3 +12,6 @@ data class CreateComputerRequest(
 data class CreateComputerResponse(
   val checkoutSessionClientSecret: String,
 )
+
+val ComputerSlugRegex = Regex("[a-z][a-z0-9]{0,14}")
+val AppSlugRegex = Regex("[a-z][a-z0-9]{0,14}")

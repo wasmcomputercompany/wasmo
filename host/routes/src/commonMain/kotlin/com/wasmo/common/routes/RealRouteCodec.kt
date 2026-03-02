@@ -21,18 +21,14 @@ class RealRouteCodec(
   override fun decode(url: Url): Route {
     val subdomain = url.subdomain
     if (subdomain != null) {
-      return when {
-        subdomain.contains("-") -> {
-          val (appSlug, computerSlug) = subdomain.split("-", limit = 2)
-          AppRoute(
-            appSlug = appSlug,
-            computerSlug = computerSlug,
-            path = url.path,
-            query = url.query,
-          )
-        }
-
-        else -> ComputerHomeRoute(subdomain)
+      return when (val dash = subdomain.indexOf('-')) {
+        -1 -> ComputerHomeRoute(subdomain)
+        else -> AppRoute(
+          appSlug = subdomain.take(dash),
+          computerSlug = subdomain.substring(dash + 1),
+          path = url.path,
+          query = url.query,
+        )
       }
     }
 
