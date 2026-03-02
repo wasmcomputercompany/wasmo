@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.CreateComputerRequest
+import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.testing.WasmoServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -41,7 +42,7 @@ class CreateComputerActionTest {
       "https://jesse99.wasmo.com/",
     )
 
-    val computerHomePage = client.computerHomePageAction().get(computerSlug)
-    assertThat(computerHomePage.computerSnapshot?.slug).isEqualTo(computerSlug)
+    val computerHostPage = client.hostPageAction().get(ComputerHomeRoute(computerSlug))
+    assertThat(computerHostPage.computerSnapshot?.slug).isEqualTo(computerSlug)
   }
 }

@@ -6,6 +6,7 @@ import assertk.assertions.isEqualTo
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.RegisterPasskeyRequest
+import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.testing.WasmoServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -42,7 +43,7 @@ class PasskeyActionsTest {
     )
     assertThat(registerResponse.body.account.passkeys)
       .containsExactly(passkeySnapshot)
-    assertThat(clientA.hostPageAction().get().accountSnapshot.passkeys)
+    assertThat(clientA.hostPageAction().get(TeaserRoute).accountSnapshot.passkeys)
       .containsExactly(passkeySnapshot)
 
     val clientB = tester.newClient()

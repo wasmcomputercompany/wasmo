@@ -32,7 +32,6 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.sendemail.SendEmailService
-import com.wasmo.website.ComputerHomePageAction
 import com.wasmo.website.HostPageAction
 import com.wasmo.website.RealServerHostPage
 import kotlin.time.Clock
@@ -126,13 +125,6 @@ class ClientTester(
   )
 
   fun hostPageAction() = HostPageAction(
-    client = clientAuthenticator.get(),
-    accountStoreFactory = accountStoreFactory,
-    hostPageFactory = hostPageFactory,
-    wasmoDbService = wasmoDbService,
-  )
-
-  fun computerHomePageAction() = ComputerHomePageAction(
     client = clientAuthenticator.get(),
     accountStoreFactory = accountStoreFactory,
     hostPageFactory = hostPageFactory,
