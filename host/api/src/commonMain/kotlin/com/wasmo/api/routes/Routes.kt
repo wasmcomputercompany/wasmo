@@ -6,6 +6,13 @@ data class ComputerHomeRoute(
   val slug: String,
 ) : Route
 
+data class AppRoute(
+  val computerSlug: String,
+  val appSlug: String,
+  val path: List<String> = listOf(""),
+  val query: List<QueryParameter>? = listOf(),
+) : Route
+
 data class InviteRoute(
   val code: String,
 ) : Route

@@ -17,7 +17,7 @@ object DevelopmentEnvironment : Environment {
     get() = "wasmo-development-passkeys"
 
   override val warningLabel: String?
-    get() = null
+    get() = "localhost"
 
   override val showSignUp: Boolean
     get() = true

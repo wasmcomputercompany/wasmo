@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.api.routes.AdminRoute
 import com.wasmo.api.routes.AfterCheckoutRoute
+import com.wasmo.api.routes.AppRoute
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
@@ -29,6 +30,8 @@ class RealRouteCodecTest {
   fun encodeUnauthenticated() {
     assertThat(unauthenticated.encode(ComputerHomeRoute("jessewilson99")))
       .isEqualTo(root.copy(subdomain = "jessewilson99"))
+    assertThat(unauthenticated.encode(AppRoute("jessewilson99", "recipes", listOf("breakfast"))))
+      .isEqualTo(root.copy(subdomain = "recipes-jessewilson99", path = listOf("breakfast")))
     assertThat(unauthenticated.encode(InviteRoute("1234")))
       .isEqualTo(root.copy(path = listOf("invite", "1234")))
     assertThat(unauthenticated.encode(AdminRoute))
@@ -49,6 +52,8 @@ class RealRouteCodecTest {
   fun decodeUnauthenticated() {
     assertThat(unauthenticated.decode(root.copy(subdomain = "jessewilson99")))
       .isEqualTo(ComputerHomeRoute("jessewilson99"))
+    assertThat(unauthenticated.decode(root.copy(subdomain = "recipes-jessewilson99", path = listOf("breakfast"))))
+      .isEqualTo(AppRoute("jessewilson99", "recipes", listOf("breakfast")))
     assertThat(unauthenticated.decode(root.copy(path = listOf("invite", "1234"))))
       .isEqualTo(InviteRoute("1234"))
     assertThat(unauthenticated.decode(root.copy(path = listOf("admin"))))

@@ -2,6 +2,7 @@ package com.wasmo.common.routes
 
 import com.wasmo.api.routes.AdminRoute
 import com.wasmo.api.routes.AfterCheckoutRoute
+import com.wasmo.api.routes.AppRoute
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
@@ -20,7 +21,19 @@ class RealRouteCodec(
   override fun decode(url: Url): Route {
     val subdomain = url.subdomain
     if (subdomain != null) {
-      return ComputerHomeRoute(subdomain)
+      return when {
+        subdomain.contains("-") -> {
+          val (appSlug, computerSlug) = subdomain.split("-", limit = 2)
+          AppRoute(
+            appSlug = appSlug,
+            computerSlug = computerSlug,
+            path = url.path,
+            query = url.query,
+          )
+        }
+
+        else -> ComputerHomeRoute(subdomain)
+      }
     }
 
     if (url.path.size == 1) {
@@ -60,6 +73,12 @@ class RealRouteCodec(
 
       is AfterCheckoutRoute -> context.root.copy(
         path = listOf("after-checkout", route.checkoutSessionId),
+      )
+
+      is AppRoute -> context.root.copy(
+        subdomain = "${route.appSlug}-${route.computerSlug}",
+        path = route.path,
+        query = route.query,
       )
 
       BuildYoursRoute -> when {
