@@ -17,13 +17,9 @@ kotlin {
         implementation(libs.okio)
         implementation(project(":host:api"))
         implementation(project(":host:framework"))
-        implementation(project(":host:routes"))
         implementation(project(":host:server:accounts:api"))
-        implementation(project(":host:server:calls:api"))
         implementation(project(":host:server:db"))
         implementation(project(":host:server:deployment"))
-        implementation(project(":host:server:identifiers"))
-        implementation(project(":host:server:website:api"))
         implementation(project(":platform:api"))
       }
     }

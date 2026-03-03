@@ -5,7 +5,6 @@ import com.wasmo.accounts.Challenger
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
-import com.wasmo.accounts.RealAccountStore
 import com.wasmo.accounts.invite.CreateInviteAction
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
@@ -20,6 +19,7 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.calls.RealCallDataService
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.common.tokens.newToken
 import com.wasmo.computers.AfterCheckoutAction
@@ -52,7 +52,7 @@ class ClientTester(
 ) {
   val authenticatorDatabase = RealAuthenticatorDatabase()
 
-  val accountStoreFactory = RealAccountStore.Factory(
+  val callDataServiceFactory = RealCallDataService.Factory(
     authenticatorDatabase = authenticatorDatabase,
     wasmoDbService = wasmoDbService,
   )
@@ -88,7 +88,7 @@ class ClientTester(
   )
 
   fun accountSnapshotAction() = AccountSnapshotAction(
-    accountStoreFactory = accountStoreFactory,
+    callDataServiceFactory = callDataServiceFactory,
     client = clientAuthenticator.get(),
     wasmoDbService = wasmoDbService,
   )
@@ -105,7 +105,7 @@ class ClientTester(
 
   fun registerPasskeyAction() = RegisterPasskeyAction(
     clock = clock,
-    accountStoreFactory = accountStoreFactory,
+    callDataServiceFactory = callDataServiceFactory,
     client = clientAuthenticator.get(),
     passkeyChecker = passkeyChecker,
     wasmoDbService = wasmoDbService,
@@ -128,7 +128,7 @@ class ClientTester(
   fun hostPageAction() = HostPageAction(
     client = clientAuthenticator.get(),
     deployment = deployment,
-    accountStoreFactory = accountStoreFactory,
+    callDataServiceFactory = callDataServiceFactory,
     hostPageFactory = hostPageFactory,
     wasmoDbService = wasmoDbService,
   )
@@ -139,7 +139,7 @@ class ClientTester(
   }
 
   fun authenticatePasskeyAction() = AuthenticatePasskeyAction(
-    accountStoreFactory = accountStoreFactory,
+    callDataServiceFactory = callDataServiceFactory,
     client = clientAuthenticator.get(),
     passkeyChecker = passkeyChecker,
     passkeyLinkerFactory = passkeyLinkerFactory,

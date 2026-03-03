@@ -5,7 +5,6 @@ package com.wasmo.ktor
 import com.stripe.StripeClient
 import com.wasmo.accounts.CookieClient
 import com.wasmo.accounts.HmacChallenger
-import com.wasmo.accounts.RealAccountStore
 import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieEncoder
 import com.wasmo.accounts.SessionCookieSpec
@@ -13,6 +12,7 @@ import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.PasskeyLinker
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.calls.RealCallDataService
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.ComputerSpecStore
@@ -84,7 +84,7 @@ class WasmoService(
       cookieClientFactory = cookieClientFactory,
     )
     val authenticatorDatabase = RealAuthenticatorDatabase()
-    val accountStoreFactory = RealAccountStore.Factory(
+    val callDataServiceFactory = RealCallDataService.Factory(
       authenticatorDatabase = authenticatorDatabase,
       wasmoDbService = wasmoDbService,
     )
@@ -142,7 +142,7 @@ class WasmoService(
       deployment = deployment,
       application = server.application,
       clientAuthenticatorFactory = clientAuthenticatorFactory,
-      accountStoreFactory = accountStoreFactory,
+      callDataServiceFactory = callDataServiceFactory,
       passkeyLinkerFactory = passkeyLinkerFactory,
       computerStore = computerStore,
       sendEmailService = sendEmailService,

@@ -23,7 +23,7 @@ kotlin {
         implementation(project(":host:server:db"))
         implementation(project(":host:server:deployment"))
         implementation(project(":host:server:identifiers"))
-        implementation(project(":host:server:website:api"))
+        implementation(project(":host:server:passkeys:api"))
         implementation(project(":platform:api"))
       }
     }

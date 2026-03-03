@@ -1,7 +1,6 @@
 package com.wasmo.ktor
 
 import com.wasmo.accounts.AccountSnapshotAction
-import com.wasmo.accounts.AccountStore
 import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
@@ -33,6 +32,7 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.Url
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.calls.CallDataService
 import com.wasmo.computers.AfterCheckoutAction
 import com.wasmo.computers.ComputerSpecStore
 import com.wasmo.computers.ComputerStore
@@ -70,7 +70,7 @@ class ActionRouter(
   val deployment: Deployment,
   val application: Application,
   val clientAuthenticatorFactory: ClientAuthenticator.Factory,
-  val accountStoreFactory: AccountStore.Factory,
+  val callDataServiceFactory: CallDataService.Factory,
   val passkeyLinkerFactory: PasskeyLinker.Factory,
   val computerStore: ComputerStore,
   val sendEmailService: SendEmailService,
@@ -89,7 +89,7 @@ class ActionRouter(
   )
 
   fun accountSnapshotAction(client: Client) = AccountSnapshotAction(
-    accountStoreFactory = accountStoreFactory,
+    callDataServiceFactory = callDataServiceFactory,
     client = client,
     wasmoDbService = wasmoDbService,
   )
@@ -103,7 +103,7 @@ class ActionRouter(
 
   fun registerPasskeyAction(client: Client) = RegisterPasskeyAction(
     clock = clock,
-    accountStoreFactory = accountStoreFactory,
+    callDataServiceFactory = callDataServiceFactory,
     client = client,
     passkeyChecker = passkeyChecker(client),
     wasmoDbService = wasmoDbService,
@@ -114,7 +114,7 @@ class ActionRouter(
     client = client,
     passkeyChecker = passkeyChecker(client),
     passkeyLinkerFactory = passkeyLinkerFactory,
-    accountStoreFactory = accountStoreFactory,
+    callDataServiceFactory = callDataServiceFactory,
     wasmoDbService = wasmoDbService,
     inviteService = inviteService,
   )
@@ -145,7 +145,7 @@ class ActionRouter(
   fun hostPage(client: Client) = HostPageAction(
     client = client,
     deployment = deployment,
-    accountStoreFactory = accountStoreFactory,
+    callDataServiceFactory = callDataServiceFactory,
     hostPageFactory = serverHostPageFactory,
     wasmoDbService = wasmoDbService,
   )

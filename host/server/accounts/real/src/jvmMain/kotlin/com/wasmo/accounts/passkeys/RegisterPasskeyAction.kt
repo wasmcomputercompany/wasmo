@@ -1,12 +1,12 @@
 package com.wasmo.accounts.passkeys
 
 
-import com.wasmo.accounts.AccountStore
 import com.wasmo.accounts.Client
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.calls.CallDataService
 import com.wasmo.framework.BadRequestException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
@@ -15,7 +15,7 @@ import org.postgresql.util.PSQLException
 
 class RegisterPasskeyAction(
   private val clock: Clock,
-  private val accountStoreFactory: AccountStore.Factory,
+  private val callDataServiceFactory: CallDataService.Factory,
   private val client: Client,
   private val passkeyChecker: PasskeyChecker,
   private val wasmoDbService: WasmoDbService,
@@ -24,7 +24,7 @@ class RegisterPasskeyAction(
   fun register(
     request: RegisterPasskeyRequest,
   ): Response<RegisterPasskeyResponse> {
-    val accountStore = accountStoreFactory.create(client)
+    val callDataService = callDataServiceFactory.create(client)
     val registerResult = passkeyChecker.register(request.registration)
 
     return wasmoDbService.transactionWithResult(noEnclosing = true) {
@@ -56,7 +56,7 @@ class RegisterPasskeyAction(
 
       Response(
         body = RegisterPasskeyResponse(
-          account = accountStore.snapshot(),
+          account = callDataService.accountSnapshot(),
         ),
       )
     }
