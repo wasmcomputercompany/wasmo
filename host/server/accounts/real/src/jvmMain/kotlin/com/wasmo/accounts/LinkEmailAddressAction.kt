@@ -6,11 +6,14 @@ import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.sendemail.SendEmailService
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
+@Inject
+@SingleIn(ClientScope::class)
 class LinkEmailAddressAction(
   private val deployment: Deployment,
   private val sendEmailService: SendEmailService,
-  private val client: Client,
 ) {
   suspend fun link(
     request: LinkEmailAddressRequest,

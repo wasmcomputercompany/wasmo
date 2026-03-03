@@ -20,3 +20,5 @@ interface Client : Caller {
   context(transactionCallbacks: TransactionCallbacks)
   fun invalidate()
 }
+
+abstract class ClientScope private constructor()

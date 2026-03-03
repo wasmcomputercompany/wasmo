@@ -1,15 +1,7 @@
 package com.wasmo.ktor
 
-import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
-import com.wasmo.accounts.ConfirmEmailAddressAction
-import com.wasmo.accounts.LinkEmailAddressAction
-import com.wasmo.accounts.invite.CreateInviteAction
-import com.wasmo.accounts.invite.InviteService
-import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
-import com.wasmo.accounts.passkeys.PasskeyLinker
-import com.wasmo.accounts.passkeys.RegisterPasskeyAction
 import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AccountSnapshotResponse
 import com.wasmo.api.AuthenticatePasskeyRequest
@@ -30,23 +22,9 @@ import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.decodeUrl
-import com.wasmo.app.db.WasmoDbService
-import com.wasmo.calls.CallDataService
-import com.wasmo.computers.AfterCheckoutAction
-import com.wasmo.computers.ComputerSpecStore
-import com.wasmo.computers.ComputerStore
-import com.wasmo.computers.CreateComputerAction
-import com.wasmo.computers.InstallAppAction
-import com.wasmo.computers.SubscriptionUpdater
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.HttpException
 import com.wasmo.framework.Response
-import com.wasmo.passkeys.PasskeyChecker
-import com.wasmo.passkeys.RealPasskeyChecker
-import com.wasmo.payments.PaymentsService
-import com.wasmo.sendemail.SendEmailService
-import com.wasmo.website.HostPageAction
-import com.wasmo.website.ServerHostPage
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -64,97 +42,45 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.host
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
-import kotlin.time.Clock
 import kotlinx.serialization.serializer
 
 @Inject
 @SingleIn(AppScope::class)
 class ActionRouter(
-  private val clock: Clock,
   private val deployment: Deployment,
   private val application: Application,
   private val clientAuthenticatorFactory: ClientAuthenticator.Factory,
-  private val callDataServiceFactory: CallDataService.Factory,
-  private val passkeyLinkerFactory: PasskeyLinker.Factory,
-  private val computerStore: ComputerStore,
-  private val sendEmailService: SendEmailService,
-  private val wasmoDbService: WasmoDbService,
-  private val serverHostPageFactory: ServerHostPage.Factory,
-  private val inviteService: InviteService,
-  private val subscriptionUpdater: SubscriptionUpdater,
-  private val paymentsService: PaymentsService,
-  private val computerSpecStore: ComputerSpecStore,
+  private val clientGraphFactory: ClientGraph.Factory,
 ) {
-  private fun passkeyChecker(client: Client): PasskeyChecker = RealPasskeyChecker(
-    challenger = client.challenger,
-    deployment = deployment,
-  )
+  fun accountSnapshotAction(client: Client) =
+    clientGraphFactory.create(client).accountSnapshotAction
 
-  fun accountSnapshotAction(client: Client) = AccountSnapshotAction(
-    callDataService = callDataServiceFactory.create(client),
-    wasmoDbService = wasmoDbService,
-  )
+  fun createInviteAction(client: Client) =
+    clientGraphFactory.create(client).createInviteAction
 
-  fun createInviteAction(client: Client) = CreateInviteAction(
-    client = client,
-    callDataService = callDataServiceFactory.create(client),
-    wasmoDbService = wasmoDbService,
-    inviteService = inviteService,
-  )
+  fun registerPasskeyAction(client: Client) =
+    clientGraphFactory.create(client).registerPasskeyAction
 
-  fun registerPasskeyAction(client: Client) = RegisterPasskeyAction(
-    clock = clock,
-    callDataService = callDataServiceFactory.create(client),
-    client = client,
-    passkeyChecker = passkeyChecker(client),
-    wasmoDbService = wasmoDbService,
-    inviteService = inviteService,
-  )
+  fun authenticatePasskeyAction(client: Client) =
+    clientGraphFactory.create(client).authenticatePasskeyAction
 
-  fun authenticatePasskeyAction(client: Client) = AuthenticatePasskeyAction(
-    client = client,
-    passkeyChecker = passkeyChecker(client),
-    passkeyLinker = passkeyLinkerFactory.create(client),
-    callDataService = callDataServiceFactory.create(client),
-    wasmoDbService = wasmoDbService,
-    inviteService = inviteService,
-  )
+  fun linkEmailAddressAction(client: Client) =
+    clientGraphFactory.create(client).linkEmailAddressAction
 
-  fun linkEmailAddressAction(client: Client) = LinkEmailAddressAction(
-    deployment = deployment,
-    sendEmailService = sendEmailService,
-    client = client,
-  )
+  fun confirmEmailAddressAction(client: Client) =
+    clientGraphFactory.create(client).confirmEmailAddressAction
 
-  fun confirmEmailAddressAction(client: Client) = ConfirmEmailAddressAction(
-    client = client,
-  )
+  fun createComputerAction(client: Client) =
+    clientGraphFactory.create(client).createComputerAction
 
-  fun createComputerAction(client: Client) = CreateComputerAction(
-    paymentsService = paymentsService,
-    client = client,
-    wasmoDbService = wasmoDbService,
-    computerSpecStore = computerSpecStore,
-  )
+  fun installAppAction(client: Client) =
+    clientGraphFactory.create(client).installAppAction
 
-  fun installAppAction(client: Client) = InstallAppAction(
-    client = client,
-    computerStore = computerStore,
-    wasmoDbService = wasmoDbService,
-  )
+  fun hostPageAction(client: Client) =
+    clientGraphFactory.create(client).hostPageAction
 
-  fun hostPage(client: Client) = HostPageAction(
-    callDataService = callDataServiceFactory.create(client),
-    hostPageFactory = serverHostPageFactory,
-    wasmoDbService = wasmoDbService,
-  )
-
-  fun afterCheckoutAction(client: Client) = AfterCheckoutAction(
-    callDataService = callDataServiceFactory.create(client),
-    paymentsService = paymentsService,
-    wasmoDbService = wasmoDbService,
-    subscriptionUpdater = subscriptionUpdater,
-  )
+  fun afterCheckoutAction(client: Client) =
+    clientGraphFactory.create(client).afterCheckoutAction
 
   fun createRoutes() {
     application.install(CallLogging)
@@ -178,7 +104,7 @@ class ActionRouter(
         get("/") {
           val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
           clientAuthenticator.updateSessionCookie()
-          val action = hostPage(clientAuthenticator.get())
+          val action = hostPageAction(clientAuthenticator.get())
           val page = action.get(wasmoUrl(rootUrl))
           call.respond(page.response)
         }
@@ -206,7 +132,7 @@ class ActionRouter(
         get(path) {
           val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
           clientAuthenticator.updateSessionCookie()
-          val action = hostPage(clientAuthenticator.get())
+          val action = hostPageAction(clientAuthenticator.get())
           val page = action.get(wasmoUrl(rootUrl))
           call.respond(page.response)
         }

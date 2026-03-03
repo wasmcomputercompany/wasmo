@@ -5,7 +5,11 @@ import com.wasmo.api.AccountSnapshotResponse
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
+@Inject
+@SingleIn(ClientScope::class)
 class AccountSnapshotAction(
   private val callDataService: CallDataService,
   private val wasmoDbService: WasmoDbService,

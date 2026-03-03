@@ -1,17 +1,29 @@
 package com.wasmo.ktor
 
 import com.stripe.StripeClient
+import com.wasmo.accounts.AccountSnapshotAction
+import com.wasmo.accounts.Challenger
+import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
+import com.wasmo.accounts.ClientScope
+import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.CookieSecret
+import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.accounts.invite.CreateInviteAction
+import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
+import com.wasmo.accounts.passkeys.RegisterPasskeyAction
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.calls.CallDataService
 import com.wasmo.calls.RealCallDataService
 import com.wasmo.common.routes.RealRouteCodec
+import com.wasmo.computers.AfterCheckoutAction
 import com.wasmo.computers.ComputerStore
+import com.wasmo.computers.CreateComputerAction
+import com.wasmo.computers.InstallAppAction
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.deployment.Deployment
 import com.wasmo.http.HttpClient
@@ -19,17 +31,21 @@ import com.wasmo.http.RealHttpClient
 import com.wasmo.objectstore.ObjectStore
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.AuthenticatorDatabase
+import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealAuthenticatorDatabase
+import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.stripe.StripePaymentsService
+import com.wasmo.website.HostPageAction
 import com.wasmo.website.RealServerHostPage
 import com.wasmo.website.ServerHostPage
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.createGraphFactory
@@ -68,6 +84,8 @@ fun startWasmoService(
 @DependencyGraph(AppScope::class)
 interface WasmoServiceGraph {
   val wasmoService: WasmoService
+
+  val clientGraphFactory: ClientGraph.Factory
 
   @Provides
   @SingleIn(AppScope::class)
@@ -166,11 +184,6 @@ interface WasmoServiceGraph {
   ): AuthenticatorDatabase
 
   @Binds
-  fun bindCallDataServiceFactory(
-    real: RealCallDataService.Factory,
-  ): CallDataService.Factory
-
-  @Binds
   fun bindComputerStore(
     real: RealComputerStore,
   ): ComputerStore
@@ -187,5 +200,42 @@ interface WasmoServiceGraph {
       @Provides server: EmbeddedServer<*, *>,
       @Provides wasmoDbService: WasmoDbService,
     ): WasmoServiceGraph
+  }
+}
+
+@GraphExtension(
+  scope = ClientScope::class,
+)
+interface ClientGraph {
+  val accountSnapshotAction: AccountSnapshotAction
+  val createInviteAction: CreateInviteAction
+  val registerPasskeyAction: RegisterPasskeyAction
+  val authenticatePasskeyAction: AuthenticatePasskeyAction
+  val linkEmailAddressAction: LinkEmailAddressAction
+  val confirmEmailAddressAction: ConfirmEmailAddressAction
+  val createComputerAction: CreateComputerAction
+  val installAppAction: InstallAppAction
+  val hostPageAction: HostPageAction
+  val afterCheckoutAction: AfterCheckoutAction
+
+  @Provides
+  @SingleIn(ClientScope::class)
+  fun provideChallenger(
+    client: Client
+  ): Challenger = client.challenger
+
+  @Binds
+  fun bindPasskeyChecker(
+    real: RealPasskeyChecker,
+  ): PasskeyChecker
+
+  @Binds
+  fun bindCallDataService(
+    real: RealCallDataService,
+  ): CallDataService
+
+  @GraphExtension.Factory
+  interface Factory {
+    fun create(@Provides client: Client): ClientGraph
   }
 }

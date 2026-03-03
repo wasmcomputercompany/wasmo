@@ -1,7 +1,6 @@
 package com.wasmo.calls
 
 import app.cash.sqldelight.TransactionCallbacks
-import com.wasmo.accounts.Client
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSlug
@@ -31,8 +30,4 @@ interface CallDataService {
 
   context(transactionCallbacks: TransactionCallbacks)
   fun computerSnapshotOrNull(slug: ComputerSlug): ComputerSnapshot?
-
-  interface Factory {
-    fun create(client: Client): CallDataService
-  }
 }

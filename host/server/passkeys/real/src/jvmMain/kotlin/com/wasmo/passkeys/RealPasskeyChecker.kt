@@ -1,6 +1,7 @@
 package com.wasmo.passkeys
 
 import com.wasmo.accounts.Challenger
+import com.wasmo.accounts.ClientScope
 import com.wasmo.api.PasskeyAuthentication
 import com.wasmo.api.PasskeyRegistration
 import com.wasmo.deployment.Deployment
@@ -23,6 +24,8 @@ import com.webauthn4j.data.attestation.statement.COSEAlgorithmIdentifier
 import com.webauthn4j.data.client.Origin
 import com.webauthn4j.data.extension.authenticator.AuthenticationExtensionAuthenticatorOutput
 import com.webauthn4j.server.ServerProperty
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import okio.ByteString.Companion.encodeUtf8
 import okio.ByteString.Companion.toByteString
 
@@ -31,6 +34,8 @@ import okio.ByteString.Companion.toByteString
  *
  * https://github.com/webauthn4j/webauthn4j/
  */
+@Inject
+@SingleIn(ClientScope::class)
 class RealPasskeyChecker(
   private val challenger: Challenger,
   private val deployment: Deployment,

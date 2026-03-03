@@ -61,27 +61,23 @@ class ClientTester(
     override fun create(routingContext: RoutingContext) = RealRouteCodec(routingContext)
   }
 
-  val callDataServiceFactory = object : RealCallDataService.Factory {
-    override fun create(client: Client) = RealCallDataService(
-      deployment = deployment,
-      authenticatorDatabase = authenticatorDatabase,
-      routeCodecFactory = routeCodecFactory,
-      wasmoDbService = wasmoDbService,
-      client = client,
-    )
-  }
+  fun callDataService(client: Client) = RealCallDataService(
+    deployment = deployment,
+    authenticatorDatabase = authenticatorDatabase,
+    routeCodecFactory = routeCodecFactory,
+    wasmoDbService = wasmoDbService,
+    client = client,
+  )
 
   val passkeyChecker = RealPasskeyChecker(
     challenger = challenger,
     deployment = deployment,
   )
 
-  val passkeyLinkerFactory = object : PasskeyLinker.Factory {
-    override fun create(client: Client) = PasskeyLinker(
-      wasmoDbService = wasmoDbService,
-      client = client,
-    )
-  }
+  fun passkeyLinker(client: Client) = PasskeyLinker(
+    wasmoDbService = wasmoDbService,
+    client = client,
+  )
 
   val inviteService = InviteService(
     clock = clock,
@@ -118,25 +114,23 @@ class ClientTester(
   )
 
   fun accountSnapshotAction() = AccountSnapshotAction(
-    callDataService = callDataServiceFactory.create(clientAuthenticator.get()),
+    callDataService = callDataService(clientAuthenticator.get()),
     wasmoDbService = wasmoDbService,
   )
 
   fun linkEmailAddressAction() = LinkEmailAddressAction(
     deployment = deployment,
     sendEmailService = sendEmailService,
-    client = clientAuthenticator.get(),
   )
 
   fun confirmEmailAddressAction() = ConfirmEmailAddressAction(
-    client = clientAuthenticator.get(),
   )
 
   fun registerPasskeyAction(): RegisterPasskeyAction {
     val client = clientAuthenticator.get()
     return RegisterPasskeyAction(
       clock = clock,
-      callDataService = callDataServiceFactory.create(client),
+      callDataService = callDataService(client),
       client = client,
       passkeyChecker = passkeyChecker,
       wasmoDbService = wasmoDbService,
@@ -158,7 +152,7 @@ class ClientTester(
   )
 
   fun hostPageAction() = HostPageAction(
-    callDataService = callDataServiceFactory.create(clientAuthenticator.get()),
+    callDataService = callDataService(clientAuthenticator.get()),
     hostPageFactory = hostPageFactory,
     wasmoDbService = wasmoDbService,
   )
@@ -171,10 +165,10 @@ class ClientTester(
   fun authenticatePasskeyAction(): AuthenticatePasskeyAction {
     val client = clientAuthenticator.get()
     return AuthenticatePasskeyAction(
-      callDataService = callDataServiceFactory.create(client),
+      callDataService = callDataService(client),
       client = client,
       passkeyChecker = passkeyChecker,
-      passkeyLinker = passkeyLinkerFactory.create(client),
+      passkeyLinker = passkeyLinker(client),
       wasmoDbService = wasmoDbService,
       inviteService = inviteService,
     )
@@ -190,7 +184,7 @@ class ClientTester(
   fun afterCheckoutAction() = AfterCheckoutAction(
     paymentsService = paymentsService,
     subscriptionUpdater = subscriptionUpdater,
-    callDataService = callDataServiceFactory.create(clientAuthenticator.get()),
+    callDataService = callDataService(clientAuthenticator.get()),
     wasmoDbService = wasmoDbService,
   )
 
@@ -198,7 +192,7 @@ class ClientTester(
     val client = clientAuthenticator.get()
     return CreateInviteAction(
       client = clientAuthenticator.get(),
-      callDataService = callDataServiceFactory.create(client),
+      callDataService = callDataService(client),
       wasmoDbService = wasmoDbService,
       inviteService = inviteService,
     )

@@ -2,6 +2,7 @@ package com.wasmo.calls
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
+import com.wasmo.accounts.ClientScope
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerListItem
@@ -18,17 +19,17 @@ import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
-import dev.zacsweers.metro.Assisted
-import dev.zacsweers.metro.AssistedFactory
-import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
-@AssistedInject
+@Inject
+@SingleIn(ClientScope::class)
 class RealCallDataService(
   private val deployment: Deployment,
   private val routeCodecFactory: RouteCodec.Factory,
   private val authenticatorDatabase: AuthenticatorDatabase,
   private val wasmoDbService: WasmoDbService,
-  @Assisted private val client: Client,
+  private val client: Client,
 ) : CallDataService {
   private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
     context(transactionCallbacks: TransactionCallbacks)
@@ -201,10 +202,5 @@ class RealCallDataService(
         ),
       ),
     )
-  }
-
-  @AssistedFactory
-  interface Factory: CallDataService.Factory {
-    override fun create(client: Client): RealCallDataService
   }
 }
