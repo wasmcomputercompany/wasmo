@@ -47,7 +47,8 @@ class WasmoClientApp(
     wasmoApi = wasmoApi,
   )
   private val browser = RealBrowser()
-  private val routeCodec = RealRouteCodec(
+  private val routeCodecFactory = RealRouteCodec.Factory()
+  private val routeCodec = routeCodecFactory.create(
     routingContext = routingContext,
   )
   private val router = Router(

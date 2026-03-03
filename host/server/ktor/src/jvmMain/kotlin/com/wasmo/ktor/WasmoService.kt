@@ -83,9 +83,11 @@ class WasmoService(
       sessionCookieEncoder = SessionCookieEncoder(cookieSecret),
       cookieClientFactory = cookieClientFactory,
     )
+    val routeCodecFactory = RealRouteCodec.Factory()
     val authenticatorDatabase = RealAuthenticatorDatabase()
     val callDataServiceFactory = RealCallDataService.Factory(
       deployment = deployment,
+      routeCodecFactory = routeCodecFactory,
       authenticatorDatabase = authenticatorDatabase,
       wasmoDbService = wasmoDbService,
     )
@@ -112,15 +114,9 @@ class WasmoService(
       deployment = deployment,
       stripePublishableKey = stripeCredentials.publishableKey,
     )
-    val inviteService = InviteService(clock, wasmoDbService)
-    val routingContext = RoutingContext(
-      rootUrl = deployment.baseUrl.toString(),
-      hasComputers = false,
-      hasInvite = false,
-      isAdmin = false,
-    )
-    val routeCodec = RealRouteCodec(
-      routingContext = routingContext,
+    val inviteService = InviteService(
+      clock = clock,
+      wasmoDbService = wasmoDbService,
     )
     val paymentsService = StripePaymentsService(
       deployment = deployment,
@@ -150,8 +146,6 @@ class WasmoService(
       wasmoDbService = wasmoDbService,
       serverHostPageFactory = serverAppPageFactory,
       inviteService = inviteService,
-      routingContext = routingContext,
-      routeCodec = routeCodec,
       subscriptionUpdater = subscriptionUpdater,
       paymentsService = paymentsService,
       computerSpecStore = computerSpecStore,

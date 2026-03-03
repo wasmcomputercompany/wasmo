@@ -68,11 +68,11 @@ class RealClientAuthenticator private constructor(
   )
 
   class Factory(
-    val clock: Clock,
-    val deployment: Deployment,
-    val sessionCookieSpec: SessionCookieSpec,
-    val sessionCookieEncoder: SessionCookieEncoder,
-    val cookieClientFactory: CookieClient.Factory,
+    private val clock: Clock,
+    private val deployment: Deployment,
+    private val sessionCookieSpec: SessionCookieSpec,
+    private val sessionCookieEncoder: SessionCookieEncoder,
+    private val cookieClientFactory: CookieClient.Factory,
   ) : ClientAuthenticator.Factory {
     override fun create(userAgent: UserAgent) = RealClientAuthenticator(
       clock = clock,

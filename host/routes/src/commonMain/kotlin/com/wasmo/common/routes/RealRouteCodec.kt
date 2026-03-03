@@ -16,10 +16,9 @@ import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.api.routes.Url
 
-class RealRouteCodec(
+class RealRouteCodec private constructor(
   private val routingContext: RoutingContext,
 ) : RouteCodec {
-
   override fun decode(url: Url): Route {
     val subdomain = url.subdomain
     if (subdomain != null) {
@@ -104,5 +103,11 @@ class RealRouteCodec(
 
       NotFoundRoute -> routingContext.root.copy(path = listOf("not-found"))
     }
+  }
+
+  class Factory : RouteCodec.Factory {
+    override fun create(routingContext: RoutingContext) = RealRouteCodec(
+      routingContext = routingContext,
+    )
   }
 }

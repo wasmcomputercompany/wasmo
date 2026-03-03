@@ -9,8 +9,8 @@ import com.wasmo.framework.BadRequestException
 import kotlin.time.Clock
 
 class InviteService(
-  val clock: Clock,
-  val wasmoDbService: WasmoDbService,
+  private val clock: Clock,
+  private val wasmoDbService: WasmoDbService,
 ) {
   context(transactionCallbacks: TransactionCallbacks)
   fun create(createdBy: Client): InviteTicket {

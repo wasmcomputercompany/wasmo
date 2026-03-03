@@ -29,7 +29,7 @@ Use the cookie to create an invite:
 
 ```
 curl -v \
-  --header 'Cookie: wasmo_session=...' \
+  --header 'Cookie: wasmo_session=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6Imc4amJ4dmExdnJyYnJ6MXo5ZTRlM3ZjeHIiLCJpc3N1ZWRBdCI6IjIwMjYtMDMtMDNUMTU6NTM6MTUuNTIwNTU2WiJ9.rOBaZZYS1M_FnaDQt3vwzffEFXO4AJlg1-0DMlcVr5c=' \
   --data '{}' \
   http://wasmo.localhost:8080/create-invite
 ```

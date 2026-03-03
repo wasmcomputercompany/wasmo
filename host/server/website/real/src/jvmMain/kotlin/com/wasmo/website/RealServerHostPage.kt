@@ -115,8 +115,8 @@ class RealServerHostPage(
   }
 
   class Factory(
-    val deployment: Deployment,
-    val stripePublishableKey: StripePublishableKey,
+    private val deployment: Deployment,
+    private val stripePublishableKey: StripePublishableKey,
   ) : ServerHostPage.Factory {
     override fun create(
       routingContext: RoutingContext,

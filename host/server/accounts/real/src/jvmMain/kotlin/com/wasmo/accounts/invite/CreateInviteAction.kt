@@ -4,14 +4,14 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.CreateInviteResponse
 import com.wasmo.api.routes.InviteRoute
-import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.toHttpUrl
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
 
 class CreateInviteAction(
   private val client: Client,
-  private val routeCodec: RouteCodec,
+  private val callDataServiceFactory: CallDataService.Factory,
   private val wasmoDbService: WasmoDbService,
   private val inviteService: InviteService,
 ) {
@@ -23,6 +23,8 @@ class CreateInviteAction(
       val inviteRoute = InviteRoute(
         code = inviteTicket.code,
       )
+      val callDataService = callDataServiceFactory.create(client)
+      val routeCodec = callDataService.routeCodec()
       Response(
         body = CreateInviteResponse(
           inviteUrl = routeCodec.encode(inviteRoute).toHttpUrl().toString(),

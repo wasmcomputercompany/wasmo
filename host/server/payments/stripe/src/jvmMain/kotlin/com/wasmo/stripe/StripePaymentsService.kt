@@ -17,10 +17,10 @@ import com.wasmo.payments.Subscription
 import kotlin.time.Instant
 
 class StripePaymentsService(
-  val deployment: Deployment,
-  val sessionService: SessionService,
-  val subscriptionService: SubscriptionService,
-  val catalog: Catalog,
+  private val deployment: Deployment,
+  private val sessionService: SessionService,
+  private val subscriptionService: SubscriptionService,
+  private val catalog: Catalog,
 ) : PaymentsService {
   override fun createCheckoutSession(
     request: CreateCheckoutSessionRequest,

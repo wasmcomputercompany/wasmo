@@ -7,6 +7,7 @@ import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 
 /**
@@ -15,6 +16,9 @@ import com.wasmo.api.routes.RoutingContext
 interface CallDataService {
   context(transactionCallbacks: TransactionCallbacks)
   fun routingContext(): RoutingContext
+
+  context(transactionCallbacks: TransactionCallbacks)
+  fun routeCodec(): RouteCodec
 
   context(transactionCallbacks: TransactionCallbacks)
   fun accountSnapshot(): AccountSnapshot

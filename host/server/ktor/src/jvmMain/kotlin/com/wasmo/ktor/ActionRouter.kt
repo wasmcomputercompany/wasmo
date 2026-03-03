@@ -28,9 +28,8 @@ import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
-import com.wasmo.api.routes.RouteCodec
-import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.Url
+import com.wasmo.api.routes.decodeUrl
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.calls.CallDataService
 import com.wasmo.computers.AfterCheckoutAction
@@ -66,22 +65,20 @@ import kotlin.time.Clock
 import kotlinx.serialization.serializer
 
 class ActionRouter(
-  val clock: Clock,
-  val deployment: Deployment,
-  val application: Application,
-  val clientAuthenticatorFactory: ClientAuthenticator.Factory,
-  val callDataServiceFactory: CallDataService.Factory,
-  val passkeyLinkerFactory: PasskeyLinker.Factory,
-  val computerStore: ComputerStore,
-  val sendEmailService: SendEmailService,
-  val wasmoDbService: WasmoDbService,
-  val serverHostPageFactory: ServerHostPage.Factory,
-  val routingContext: RoutingContext,
-  val routeCodec: RouteCodec,
-  val inviteService: InviteService,
-  val subscriptionUpdater: SubscriptionUpdater,
-  val paymentsService: PaymentsService,
-  val computerSpecStore: ComputerSpecStore,
+  private val clock: Clock,
+  private val deployment: Deployment,
+  private val application: Application,
+  private val clientAuthenticatorFactory: ClientAuthenticator.Factory,
+  private val callDataServiceFactory: CallDataService.Factory,
+  private val passkeyLinkerFactory: PasskeyLinker.Factory,
+  private val computerStore: ComputerStore,
+  private val sendEmailService: SendEmailService,
+  private val wasmoDbService: WasmoDbService,
+  private val serverHostPageFactory: ServerHostPage.Factory,
+  private val inviteService: InviteService,
+  private val subscriptionUpdater: SubscriptionUpdater,
+  private val paymentsService: PaymentsService,
+  private val computerSpecStore: ComputerSpecStore,
 ) {
   private fun passkeyChecker(client: Client): PasskeyChecker = RealPasskeyChecker(
     challenger = client.challenger,
@@ -96,7 +93,7 @@ class ActionRouter(
 
   fun createInviteAction(client: Client) = CreateInviteAction(
     client = client,
-    routeCodec = routeCodec,
+    callDataServiceFactory = callDataServiceFactory,
     wasmoDbService = wasmoDbService,
     inviteService = inviteService,
   )
@@ -150,8 +147,9 @@ class ActionRouter(
   )
 
   fun afterCheckoutAction(client: Client) = AfterCheckoutAction(
+    callDataServiceFactory = callDataServiceFactory,
     paymentsService = paymentsService,
-    routeCodec = routeCodec,
+    wasmoDbService = wasmoDbService,
     client = client,
     subscriptionUpdater = subscriptionUpdater,
   )
@@ -159,8 +157,10 @@ class ActionRouter(
   fun createRoutes() {
     application.install(CallLogging)
 
-    createComputerRoutes()
-    createPages()
+    val rootUrl = deployment.baseUrl.toString().decodeUrl()
+
+    createComputerRoutes(rootUrl)
+    createPages(rootUrl)
     createRpcs()
 
     application.routing {
@@ -168,8 +168,8 @@ class ActionRouter(
     }
   }
 
-  private fun createComputerRoutes() {
-    val suffix = ".${routingContext.root.topPrivateDomain}"
+  private fun createComputerRoutes(rootUrl: Url) {
+    val suffix = ".${rootUrl.topPrivateDomain}"
     val hostRegex = Regex("${ComputerSlugRegex.pattern}${Regex.escape(suffix)}")
     application.routing {
       host(hostRegex) {
@@ -177,35 +177,35 @@ class ActionRouter(
           val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
           clientAuthenticator.updateSessionCookie()
           val action = hostPage(clientAuthenticator.get())
-          val page = action.get(wasmoUrl())
+          val page = action.get(wasmoUrl(rootUrl))
           call.respond(page.response)
         }
       }
     }
   }
 
-  private fun KtorRoutingContext.wasmoUrl(): Url {
+  private fun KtorRoutingContext.wasmoUrl(rootUrl: Url): Url {
     val host = call.request.host()
-    val dotIndex = host.length - routingContext.root.topPrivateDomain.length - 1
+    val dotIndex = host.length - rootUrl.topPrivateDomain.length - 1
     val subdomain = when {
-      dotIndex >= 1 && host.endsWith(routingContext.root.topPrivateDomain) -> host.take(dotIndex)
+      dotIndex >= 1 && host.endsWith(rootUrl.topPrivateDomain) -> host.take(dotIndex)
       else -> null
     }
 
-    return routingContext.root.copy(
+    return rootUrl.copy(
       subdomain = subdomain,
       path = call.request.path().removePrefix("/").split("/"),
     )
   }
 
-  private fun createPages() {
+  private fun createPages(rootUrl: Url) {
     application.routing {
       for (path in listOf("/", "/build-yours", "/computers", "/teaser", "/invite/{code}")) {
         get(path) {
           val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
           clientAuthenticator.updateSessionCookie()
           val action = hostPage(clientAuthenticator.get())
-          val page = action.get(wasmoUrl())
+          val page = action.get(wasmoUrl(rootUrl))
           call.respond(page.response)
         }
       }

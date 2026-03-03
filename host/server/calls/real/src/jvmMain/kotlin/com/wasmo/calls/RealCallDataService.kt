@@ -11,6 +11,7 @@ import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledApp
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.PasskeySnapshot
+import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.Invite
@@ -20,6 +21,7 @@ import com.wasmo.passkeys.AuthenticatorDatabase
 
 class RealCallDataService private constructor(
   private val deployment: Deployment,
+  private val routeCodecFactory: RouteCodec.Factory,
   private val authenticatorDatabase: AuthenticatorDatabase,
   private val wasmoDbService: WasmoDbService,
   private val client: Client,
@@ -109,6 +111,9 @@ class RealCallDataService private constructor(
   override fun routingContext() = routingContext.get()
 
   context(transactionCallbacks: TransactionCallbacks)
+  override fun routeCodec() = routeCodecFactory.create(routingContext())
+
+  context(transactionCallbacks: TransactionCallbacks)
   override fun accountSnapshot() = accountSnapshot.get()
 
   context(transactionCallbacks: TransactionCallbacks)
@@ -196,11 +201,13 @@ class RealCallDataService private constructor(
 
   class Factory(
     private val deployment: Deployment,
+    private val routeCodecFactory: RouteCodec.Factory,
     private val authenticatorDatabase: AuthenticatorDatabase,
     private val wasmoDbService: WasmoDbService,
   ) : CallDataService.Factory {
     override fun create(client: Client) = RealCallDataService(
       deployment = deployment,
+      routeCodecFactory = routeCodecFactory,
       authenticatorDatabase = authenticatorDatabase,
       wasmoDbService = wasmoDbService,
       client = client,

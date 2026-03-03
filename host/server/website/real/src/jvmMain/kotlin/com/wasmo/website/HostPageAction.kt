@@ -10,7 +10,6 @@ import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.Url
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.calls.CallDataService
-import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.framework.NotFoundException
 import com.wasmo.framework.UnauthorizedException
 
@@ -29,8 +28,8 @@ class HostPageAction(
     return wasmoDbService.transactionWithResult(noEnclosing = true) {
       val accountSnapshot = callDataService.accountSnapshot()
       val routingContext = callDataService.routingContext()
-      val router = RealRouteCodec(routingContext)
-      val route = router.decode(url)
+      val routeCodec = callDataService.routeCodec()
+      val route = routeCodec.decode(url)
 
       var inviteTicket: InviteTicket? = null
       var computerSnapshot: ComputerSnapshot? = null

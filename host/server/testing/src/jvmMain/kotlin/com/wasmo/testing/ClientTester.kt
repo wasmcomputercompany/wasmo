@@ -52,8 +52,12 @@ class ClientTester(
 ) {
   val authenticatorDatabase = RealAuthenticatorDatabase()
 
+  val routeCodecFactory = RealRouteCodec.Factory()
+
   val callDataServiceFactory = RealCallDataService.Factory(
+    deployment = deployment,
     authenticatorDatabase = authenticatorDatabase,
+    routeCodecFactory = routeCodecFactory,
     wasmoDbService = wasmoDbService,
   )
 
@@ -83,7 +87,7 @@ class ClientTester(
     isAdmin = false,
   )
 
-  fun routeCodec(): RouteCodec = RealRouteCodec(
+  fun routeCodec(): RouteCodec = routeCodecFactory.create(
     routingContext = routingContext(),
   )
 
@@ -127,7 +131,6 @@ class ClientTester(
 
   fun hostPageAction() = HostPageAction(
     client = clientAuthenticator.get(),
-    deployment = deployment,
     callDataServiceFactory = callDataServiceFactory,
     hostPageFactory = hostPageFactory,
     wasmoDbService = wasmoDbService,
@@ -157,13 +160,14 @@ class ClientTester(
   fun afterCheckoutAction() = AfterCheckoutAction(
     paymentsService = paymentsService,
     subscriptionUpdater = subscriptionUpdater,
-    routeCodec = routeCodec(),
+    callDataServiceFactory = callDataServiceFactory,
+    wasmoDbService = wasmoDbService,
     client = clientAuthenticator.get(),
   )
 
   fun createInviteAction() = CreateInviteAction(
     client = clientAuthenticator.get(),
-    routeCodec = routeCodec(),
+    callDataServiceFactory = callDataServiceFactory,
     wasmoDbService = wasmoDbService,
     inviteService = inviteService,
   )
