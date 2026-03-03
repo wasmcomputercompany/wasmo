@@ -5,7 +5,6 @@ import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.RealWasmoApi
 import com.wasmo.api.WasmoApi
-import com.wasmo.api.WasmoJson
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.stripe.StripePublishableKey
@@ -13,11 +12,9 @@ import com.wasmo.client.app.browser.Browser
 import com.wasmo.client.app.browser.RealBrowser
 import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.app.data.RealAccountDataService
-import com.wasmo.common.logging.ConsoleLogger
 import com.wasmo.common.logging.Logger
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.framework.PageData
-import com.wasmo.framework.detectPageData
 import com.wasmo.passkeys.PasskeyAuthenticator
 import com.wasmo.passkeys.RealPasskeyAuthenticator
 import dev.zacsweers.metro.AppScope
@@ -25,26 +22,12 @@ import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
-import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 
-fun createWasmoClientApp(
-  logger: Logger = ConsoleLogger,
-  environment: Environment,
-): WasmoClientApp {
-  val graphFactory = createGraphFactory<WasmoClientAppGraph.Factory>()
-  val graph = graphFactory.create(
-    logger = logger,
-    environment = environment,
-    pageData = detectPageData(WasmoJson),
-  )
-  return graph.wasmoClientApp
-}
-
 @DependencyGraph(AppScope::class)
-interface WasmoClientAppGraph {
-  val wasmoClientApp: WasmoClientApp
+interface WasmoWebAppGraph {
+  val wasmoWebApp: WasmoWebApp
 
   @Binds
   fun bindWasmoApi(real: RealWasmoApi): WasmoApi
@@ -106,6 +89,6 @@ interface WasmoClientAppGraph {
       @Provides logger: Logger,
       @Provides environment: Environment,
       @Provides pageData: PageData,
-    ): WasmoClientAppGraph
+    ): WasmoWebAppGraph
   }
 }

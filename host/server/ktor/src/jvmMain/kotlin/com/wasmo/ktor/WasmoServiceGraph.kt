@@ -37,7 +37,7 @@ import okhttp3.Call
 import okhttp3.OkHttpClient
 
 @DependencyGraph(AppScope::class)
-interface AppGraph {
+interface WasmoServiceGraph {
   val wasmoService: WasmoService
   val clientGraphFactory: ClientGraph.Factory
 
@@ -51,40 +51,40 @@ interface AppGraph {
 
   @Provides
   @SingleIn(AppScope::class)
-  fun provideCookieSecret(config: WasmoServiceConfig): CookieSecret =
+  fun provideCookieSecret(config: WasmoService.Config): CookieSecret =
     CookieSecret(config.cookieSecret)
 
   @Provides
   @SingleIn(AppScope::class)
-  fun provideDeployment(config: WasmoServiceConfig): Deployment =
+  fun provideDeployment(config: WasmoService.Config): Deployment =
     config.deployment
 
   @Provides
   @SingleIn(AppScope::class)
-  fun provideSessionCookieSpec(config: WasmoServiceConfig): SessionCookieSpec =
+  fun provideSessionCookieSpec(config: WasmoService.Config): SessionCookieSpec =
     config.sessionCookieSpec
 
   @Provides
   @SingleIn(AppScope::class)
-  fun providePostmarkCredentials(config: WasmoServiceConfig): PostmarkCredentials =
+  fun providePostmarkCredentials(config: WasmoService.Config): PostmarkCredentials =
     config.postmarkCredentials
 
   @Provides
   @SingleIn(AppScope::class)
-  fun provideStripePublishableKey(config: WasmoServiceConfig): StripePublishableKey =
+  fun provideStripePublishableKey(config: WasmoService.Config): StripePublishableKey =
     config.stripeCredentials.publishableKey
 
   @Provides
   @SingleIn(AppScope::class)
   fun provideObjectStore(
-    config: WasmoServiceConfig,
+    config: WasmoService.Config,
     objectStoreFactory: ObjectStoreFactory,
   ): ObjectStore = objectStoreFactory.open(config.objectStoreAddress)
 
   @Provides
   @SingleIn(AppScope::class)
   fun provideStripeClient(
-    config: WasmoServiceConfig,
+    config: WasmoService.Config,
   ): StripeClient {
     return StripeClient.StripeClientBuilder()
       .setApiKey(config.stripeCredentials.secretKey)
@@ -94,7 +94,7 @@ interface AppGraph {
   @Provides
   @SingleIn(AppScope::class)
   fun provideStripePaymentsService(
-    config: WasmoServiceConfig,
+    config: WasmoService.Config,
     stripeClient: StripeClient,
   ): StripePaymentsService = StripePaymentsService(
     deployment = config.deployment,
@@ -150,9 +150,9 @@ interface AppGraph {
   @DependencyGraph.Factory
   interface Factory {
     fun create(
-      @Provides config: WasmoServiceConfig,
+      @Provides config: WasmoService.Config,
       @Provides server: EmbeddedServer<*, *>,
       @Provides wasmoDb: WasmoDb,
-    ): AppGraph
+    ): WasmoServiceGraph
   }
 }

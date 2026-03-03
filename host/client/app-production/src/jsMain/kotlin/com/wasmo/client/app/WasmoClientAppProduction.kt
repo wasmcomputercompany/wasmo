@@ -5,7 +5,7 @@ import kotlinx.browser.window
 @JsExport
 fun startOnLoad() {
   window.onload = {
-    val app = createWasmoClientApp(
+    val app = createWasmoWebApp(
       environment = ProductionEnvironment,
     )
     app.start()

@@ -7,7 +7,7 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.deployment.Deployment
-import com.wasmo.ktor.WasmoServiceConfig
+import com.wasmo.ktor.WasmoService
 import com.wasmo.ktor.startWasmoService
 import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
@@ -40,7 +40,7 @@ fun main(args: Array<String>) {
   val postgresDatabasePassword = System.getenv("PGPASSWORD")
     ?: error("required env PGPASSWORD not set")
 
-  val config = WasmoServiceConfig(
+  val config = WasmoService.Config(
     cookieSecret = cookieSecret.decodeHex(),
     postmarkCredentials = PostmarkCredentials(
       baseUrl = PostmarkProductionBaseUrl,

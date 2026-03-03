@@ -7,7 +7,7 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.deployment.Deployment
-import com.wasmo.ktor.WasmoServiceConfig
+import com.wasmo.ktor.WasmoService
 import com.wasmo.ktor.startWasmoService
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
@@ -23,7 +23,7 @@ fun main(args: Array<String>) {
     ?: error("required env STRIPE_PUBLISHABLE_KEY not set")
   val stripeSecretKey = System.getenv("STRIPE_SECRET_KEY")
     ?: error("required env STRIPE_SECRET_KEY not set")
-  val config = WasmoServiceConfig(
+  val config = WasmoService.Config(
     cookieSecret = "butters".encodeUtf8(),
     postmarkCredentials = PostmarkCredentials(
       baseUrl = PostmarkProductionBaseUrl,
