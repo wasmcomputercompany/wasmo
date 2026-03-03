@@ -2,8 +2,8 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSlug
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.Computer
+import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
@@ -15,7 +15,7 @@ import org.postgresql.util.PSQLException
 @SingleIn(AppScope::class)
 class ComputerSpecStore(
   private val clock: Clock,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
 ) {
   context(_: TransactionCallbacks)
   fun createSpec(
@@ -24,7 +24,7 @@ class ComputerSpecStore(
     computerSpecToken: String,
   ) {
     try {
-      wasmoDbService.computerSpecQueries.insertComputerSpec(
+      wasmoDb.computerSpecQueries.insertComputerSpec(
         created_at = clock.now(),
         version = 1,
         account_id = accountId,
@@ -39,27 +39,27 @@ class ComputerSpecStore(
 
   context(_: TransactionCallbacks)
   fun getOrCreateComputer(computerSpecToken: String): Computer {
-    val computerSpec = wasmoDbService.computerSpecQueries
+    val computerSpec = wasmoDb.computerSpecQueries
       .selectComputerSpecByToken(computerSpecToken)
       .executeAsOneOrNull()
       ?: throw IllegalStateException("no such computer spec: $computerSpecToken")
 
     val computerId = computerSpec.computer_id
       ?: run {
-        val insertedComputerId = wasmoDbService.computerQueries.insertComputer(
+        val insertedComputerId = wasmoDb.computerQueries.insertComputer(
           created_at = computerSpec.created_at,
           version = 1,
           slug = computerSpec.slug,
         ).executeAsOne()
 
-        wasmoDbService.computerAccessQueries.insertComputerAccess(
+        wasmoDb.computerAccessQueries.insertComputerAccess(
           created_at = computerSpec.created_at,
           version = 1,
           computer_id = insertedComputerId,
           account_id = computerSpec.account_id,
         ).executeAsOne()
 
-        wasmoDbService.computerSpecQueries.linkComputer(
+        wasmoDb.computerSpecQueries.linkComputer(
           new_version = computerSpec.version + 1,
           computer_id = insertedComputerId,
           expected_version = computerSpec.version,
@@ -69,7 +69,7 @@ class ComputerSpecStore(
         insertedComputerId
       }
 
-    return wasmoDbService.computerQueries
+    return wasmoDb.computerQueries
       .selectComputerById(computerId)
       .executeAsOne()
   }

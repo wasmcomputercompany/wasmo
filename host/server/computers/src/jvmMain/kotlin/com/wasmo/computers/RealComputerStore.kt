@@ -5,7 +5,7 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.AppManifest
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.WasmoJson
-import com.wasmo.app.db.WasmoDbService
+import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.framework.BadRequestException
@@ -27,7 +27,7 @@ class RealComputerStore(
   private val rootObjectStore: ObjectStore,
   private val httpClient: HttpClient,
   private val objectStoreKeyFactory: ObjectStoreKeyFactory,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
 ) : ComputerStore {
   context(transactionCallbacks: TransactionCallbacks)
   override fun get(
@@ -37,7 +37,7 @@ class RealComputerStore(
     val accountId = client.getAccountIdOrNull()
       ?: throw BadRequestException("unexpected computer: $slug")
 
-    val computer = wasmoDbService.computerQueries.selectComputerByAccountIdAndSlug(
+    val computer = wasmoDb.computerQueries.selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = slug,
     ).executeAsOneOrNull()
@@ -59,7 +59,7 @@ class RealComputerStore(
     )
     return RealWasmoComputer(
       clock = clock,
-      wasmoDbService = wasmoDbService,
+      wasmoDb = wasmoDb,
       computerId = computer.id,
       url = deployment.baseUrl.resolve("/computer/$slug")!!,
       objectStore = objectStore,
@@ -70,15 +70,15 @@ class RealComputerStore(
 
 class RealWasmoComputer(
   private val clock: Clock,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
   private val computerId: ComputerId,
   override val url: HttpUrl,
   override val objectStore: ObjectStore,
   override val appLoader: AppLoader,
 ) : WasmoComputer {
   override suspend fun installApp(manifest: AppManifest) {
-    wasmoDbService.transactionWithResult(noEnclosing = true) {
-      wasmoDbService.appInstallQueries.insertAppInstall(
+    wasmoDb.transactionWithResult(noEnclosing = true) {
+      wasmoDb.appInstallQueries.insertAppInstall(
         created_at = clock.now(),
         computer_id = computerId,
         slug = manifest.slug,

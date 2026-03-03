@@ -5,8 +5,8 @@ import com.wasmo.accounts.ClientScope
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.calls.CallDataService
+import com.wasmo.db.WasmoDb
 import com.wasmo.framework.BadRequestException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
@@ -20,14 +20,14 @@ class AuthenticatePasskeyAction(
   private val passkeyChecker: PasskeyChecker,
   private val passkeyLinker: PasskeyLinker,
   private val callDataService: CallDataService,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
   private val inviteService: InviteService,
 ) {
   fun authenticate(
     request: AuthenticatePasskeyRequest,
   ): Response<AuthenticatePasskeyResponse> {
-    return wasmoDbService.transactionWithResult(noEnclosing = true) {
-      val passkey = wasmoDbService.passkeyQueries.findPasskeyByPasskeyId(request.authentication.id)
+    return wasmoDb.transactionWithResult(noEnclosing = true) {
+      val passkey = wasmoDb.passkeyQueries.findPasskeyByPasskeyId(request.authentication.id)
         .executeAsOneOrNull()
         ?: throw BadRequestException("no such passkey")
 

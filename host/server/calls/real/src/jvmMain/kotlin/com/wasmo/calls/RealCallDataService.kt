@@ -14,9 +14,9 @@ import com.wasmo.api.InviteTicket
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
+import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
 import dev.zacsweers.metro.Inject
@@ -28,7 +28,7 @@ class RealCallDataService(
   private val deployment: Deployment,
   private val routeCodecFactory: RouteCodec.Factory,
   private val authenticatorDatabase: AuthenticatorDatabase,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
   private val client: Client,
 ) : CallDataService {
   private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
@@ -37,7 +37,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
 
       return when {
-        accountId != null -> wasmoDbService.passkeyQueries.findPasskeysByAccountId(accountId)
+        accountId != null -> wasmoDb.passkeyQueries.findPasskeysByAccountId(accountId)
           .executeAsList()
           .map { it.toSnapshot() }
 
@@ -57,7 +57,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
       return when {
         accountId != null -> {
-          wasmoDbService.inviteQueries.findInvitesByClaimedBy(
+          wasmoDb.inviteQueries.findInvitesByClaimedBy(
             claimed_by = accountId,
             limit = 1,
           ).executeAsOneOrNull()
@@ -98,7 +98,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
         ?: return ComputerListSnapshot()
 
-      val computers = wasmoDbService.computerQueries.selectComputersByAccountId(
+      val computers = wasmoDb.computerQueries.selectComputersByAccountId(
         account_id = accountId,
         limit = 100,
       ).executeAsList()
@@ -126,7 +126,7 @@ class RealCallDataService(
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun inviteTicketOrNull(code: String): InviteTicket? {
-    val invite = wasmoDbService.inviteQueries.findInvitesByCode(code)
+    val invite = wasmoDb.inviteQueries.findInvitesByCode(code)
       .executeAsOneOrNull()
       ?: return null
 
@@ -141,7 +141,7 @@ class RealCallDataService(
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
-    val computer = wasmoDbService.computerQueries.selectComputerByAccountIdAndSlug(
+    val computer = wasmoDb.computerQueries.selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = slug,
     ).executeAsOneOrNull()

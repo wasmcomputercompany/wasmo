@@ -23,7 +23,6 @@ import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.stripe.StripePublishableKey
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.calls.RealCallDataService
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.common.tokens.newToken
@@ -33,6 +32,7 @@ import com.wasmo.computers.ComputerStore
 import com.wasmo.computers.CreateComputerAction
 import com.wasmo.computers.InstallAppAction
 import com.wasmo.computers.SubscriptionUpdater
+import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.passkeys.RealPasskeyChecker
@@ -44,7 +44,7 @@ import kotlin.time.Clock
 
 class ClientTester(
   private val clock: Clock,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
   private val deployment: Deployment,
   private val sendEmailService: SendEmailService,
   private val clientAuthenticator: ClientAuthenticator,
@@ -65,7 +65,7 @@ class ClientTester(
     deployment = deployment,
     authenticatorDatabase = authenticatorDatabase,
     routeCodecFactory = routeCodecFactory,
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
     client = client,
   )
 
@@ -75,13 +75,13 @@ class ClientTester(
   )
 
   fun passkeyLinker(client: Client) = PasskeyLinker(
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
     client = client,
   )
 
   val inviteService = InviteService(
     clock = clock,
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
   )
 
   val hostPageFactory = object : RealServerHostPage.Factory {
@@ -115,7 +115,7 @@ class ClientTester(
 
   fun accountSnapshotAction() = AccountSnapshotAction(
     callDataService = callDataService(clientAuthenticator.get()),
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
   )
 
   fun linkEmailAddressAction() = LinkEmailAddressAction(
@@ -133,7 +133,7 @@ class ClientTester(
       callDataService = callDataService(client),
       client = client,
       passkeyChecker = passkeyChecker,
-      wasmoDbService = wasmoDbService,
+      wasmoDb = wasmoDb,
       inviteService = inviteService,
     )
   }
@@ -154,7 +154,7 @@ class ClientTester(
   fun hostPageAction() = HostPageAction(
     callDataService = callDataService(clientAuthenticator.get()),
     hostPageFactory = hostPageFactory,
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
   )
 
   fun hostPage(route: Route): ServerHostPage {
@@ -169,7 +169,7 @@ class ClientTester(
       client = client,
       passkeyChecker = passkeyChecker,
       passkeyLinker = passkeyLinker(client),
-      wasmoDbService = wasmoDbService,
+      wasmoDb = wasmoDb,
       inviteService = inviteService,
     )
   }
@@ -177,7 +177,7 @@ class ClientTester(
   fun createComputerAction() = CreateComputerAction(
     paymentsService = paymentsService,
     client = clientAuthenticator.get(),
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
     computerSpecStore = computerSpecStore,
   )
 
@@ -185,7 +185,7 @@ class ClientTester(
     paymentsService = paymentsService,
     subscriptionUpdater = subscriptionUpdater,
     callDataService = callDataService(clientAuthenticator.get()),
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
   )
 
   fun createInviteAction(): CreateInviteAction {
@@ -193,7 +193,7 @@ class ClientTester(
     return CreateInviteAction(
       client = clientAuthenticator.get(),
       callDataService = callDataService(client),
-      wasmoDbService = wasmoDbService,
+      wasmoDb = wasmoDb,
       inviteService = inviteService,
     )
   }
@@ -214,7 +214,7 @@ class ClientTester(
   fun installAppAction() = InstallAppAction(
     client = clientAuthenticator.get(),
     computerStore = computerStore,
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
   )
 
   fun createComputer(slug: ComputerSlug): ComputerTester {

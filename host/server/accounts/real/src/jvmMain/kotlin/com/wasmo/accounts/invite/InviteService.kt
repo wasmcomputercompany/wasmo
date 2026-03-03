@@ -3,8 +3,8 @@ package com.wasmo.accounts.invite
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.api.InviteTicket
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.tokens.newToken
+import com.wasmo.db.WasmoDb
 import com.wasmo.framework.BadRequestException
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
@@ -15,12 +15,12 @@ import kotlin.time.Clock
 @SingleIn(AppScope::class)
 class InviteService(
   private val clock: Clock,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
 ) {
   context(transactionCallbacks: TransactionCallbacks)
   fun create(createdBy: Client): InviteTicket {
     val code = newToken()
-    wasmoDbService.inviteQueries.insertInvite(
+    wasmoDb.inviteQueries.insertInvite(
       created_at = clock.now(),
       created_by = createdBy.getOrCreateAccountId(),
       version = 1,
@@ -34,7 +34,7 @@ class InviteService(
 
   context(transactionCallbacks: TransactionCallbacks)
   fun claim(claimedBy: Client, code: String): InviteTicket {
-    val invite = wasmoDbService.inviteQueries.findInvitesByCode(code)
+    val invite = wasmoDb.inviteQueries.findInvitesByCode(code)
       .executeAsOneOrNull()
       ?: throw BadRequestException("unknown invite")
 
@@ -42,7 +42,7 @@ class InviteService(
 
     if (invite.claimed_by != claimedById) {
       if (invite.claimed_by != null) throw BadRequestException("already claimed")
-      wasmoDbService.inviteQueries.claimInvite(
+      wasmoDb.inviteQueries.claimInvite(
         new_version = invite.version + 1,
         claimed_at = clock.now(),
         claimed_by = claimedById,

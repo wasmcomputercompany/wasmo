@@ -1,9 +1,9 @@
 package com.wasmo.accounts
 
 import app.cash.sqldelight.TransactionCallbacks
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.AccountQueries
 import com.wasmo.db.CookieQueries
+import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -18,7 +18,7 @@ import kotlin.time.Clock
 @AssistedInject
 class CookieClient(
   private val clock: Clock,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
   @Assisted private val sessionCookie: SessionCookie,
   @Assisted override val userAgent: String?,
   @Assisted override val ip: String?,
@@ -29,9 +29,9 @@ class CookieClient(
   private var cachedAccountId: AccountId? = null
 
   private val cookieQueries: CookieQueries
-    get() = wasmoDbService.cookieQueries
+    get() = wasmoDb.cookieQueries
   private val accountQueries: AccountQueries
-    get() = wasmoDbService.accountQueries
+    get() = wasmoDb.accountQueries
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun getAccountIdOrNull(): AccountId? {

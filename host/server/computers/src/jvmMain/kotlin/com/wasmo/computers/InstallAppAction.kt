@@ -5,7 +5,7 @@ import com.wasmo.accounts.ClientScope
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
-import com.wasmo.app.db.WasmoDbService
+import com.wasmo.db.WasmoDb
 import com.wasmo.framework.Response
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -15,13 +15,13 @@ import dev.zacsweers.metro.SingleIn
 class InstallAppAction(
   private val client: Client,
   private val computerStore: ComputerStore,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
 ) {
   suspend fun install(
     computerSlug: ComputerSlug,
     request: InstallAppRequest,
   ): Response<InstallAppResponse> {
-    val computer = wasmoDbService.transactionWithResult(noEnclosing = true) {
+    val computer = wasmoDb.transactionWithResult(noEnclosing = true) {
       computerStore.get(client, computerSlug)
     }
     computer.installApp(

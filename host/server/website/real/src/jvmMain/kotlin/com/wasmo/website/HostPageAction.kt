@@ -8,8 +8,8 @@ import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.Url
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.calls.CallDataService
+import com.wasmo.db.WasmoDb
 import com.wasmo.framework.NotFoundException
 import com.wasmo.framework.UnauthorizedException
 import dev.zacsweers.metro.Inject
@@ -23,10 +23,10 @@ import dev.zacsweers.metro.SingleIn
 class HostPageAction(
   private val callDataService: CallDataService,
   private val hostPageFactory: ServerHostPage.Factory,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
 ) {
   fun get(url: Url): ServerHostPage {
-    return wasmoDbService.transactionWithResult(noEnclosing = true) {
+    return wasmoDb.transactionWithResult(noEnclosing = true) {
       val accountSnapshot = callDataService.accountSnapshot()
       val routingContext = callDataService.routingContext()
       val routeCodec = callDataService.routeCodec()

@@ -3,9 +3,9 @@ package com.wasmo.accounts.passkeys
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientScope
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.CookieQueries
 import com.wasmo.db.Passkey
+import com.wasmo.db.WasmoDb
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -24,11 +24,11 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(ClientScope::class)
 class PasskeyLinker(
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
   private val client: Client,
 ) {
   private val cookieQueries: CookieQueries
-    get() = wasmoDbService.cookieQueries
+    get() = wasmoDb.cookieQueries
 
   context(transactionCallbacks: TransactionCallbacks)
   fun link(passkey: Passkey) {

@@ -6,8 +6,8 @@ import com.wasmo.accounts.ClientScope
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.calls.CallDataService
+import com.wasmo.db.WasmoDb
 import com.wasmo.framework.BadRequestException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
@@ -23,7 +23,7 @@ class RegisterPasskeyAction(
   private val callDataService: CallDataService,
   private val client: Client,
   private val passkeyChecker: PasskeyChecker,
-  private val wasmoDbService: WasmoDbService,
+  private val wasmoDb: WasmoDb,
   private val inviteService: InviteService,
 ) {
   fun register(
@@ -31,15 +31,15 @@ class RegisterPasskeyAction(
   ): Response<RegisterPasskeyResponse> {
     val registerResult = passkeyChecker.register(request.registration)
 
-    return wasmoDbService.transactionWithResult(noEnclosing = true) {
+    return wasmoDb.transactionWithResult(noEnclosing = true) {
       val accountId = client.getOrCreateAccountId()
 
-      val existing = wasmoDbService.passkeyQueries
+      val existing = wasmoDb.passkeyQueries
         .findPasskeyByPasskeyIdAndAccountId(registerResult.id, accountId)
         .executeAsOneOrNull()
       if (existing == null) {
         try {
-          wasmoDbService.passkeyQueries.insertPasskey(
+          wasmoDb.passkeyQueries.insertPasskey(
             created_at = clock.now(),
             account_id = accountId,
             passkey_id = registerResult.id,

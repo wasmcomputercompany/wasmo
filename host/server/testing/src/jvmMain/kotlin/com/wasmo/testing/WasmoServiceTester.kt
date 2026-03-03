@@ -32,8 +32,8 @@ import okio.fakefilesystem.FakeFileSystem
  * Create instances with [WasmoServiceTester.start]
  */
 class WasmoServiceTester private constructor(
-  val wasmoDbService: WasmoDbService,
-) : Closeable by wasmoDbService {
+  val wasmoDb: WasmoDbService,
+) : Closeable by wasmoDb {
   val deployment = Deployment(
     baseUrl = "https://wasmo.com/".toHttpUrl(),
     sendFromEmailAddress = "noreply@wasmo.com",
@@ -72,7 +72,7 @@ class WasmoServiceTester private constructor(
       ip: String?,
     ) = CookieClient(
       clock = clock,
-      wasmoDbService = wasmoDbService,
+      wasmoDb = wasmoDb,
       hmacChallengerFactory = challengerFactory,
       sessionCookie = sessionCookie,
       userAgent = userAgent,
@@ -110,17 +110,17 @@ class WasmoServiceTester private constructor(
     rootObjectStore = rootObjectStore,
     httpClient = httpClient,
     objectStoreKeyFactory = objectStoreKeyFactory,
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
   )
 
   val computerSpecStore = ComputerSpecStore(
     clock = clock,
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
   )
 
   val subscriptionUpdater = SubscriptionUpdater(
     clock = clock,
-    wasmoDbService = wasmoDbService,
+    wasmoDb = wasmoDb,
     paymentsService = paymentsService,
     computerSpecStore = computerSpecStore,
   )
@@ -135,7 +135,7 @@ class WasmoServiceTester private constructor(
     val sessionCookie = clientAuthenticator.updateSessionCookie()
     return ClientTester(
       clock = clock,
-      wasmoDbService = wasmoDbService,
+      wasmoDb = wasmoDb,
       deployment = deployment,
       sendEmailService = sendEmailService,
       clientAuthenticator = clientAuthenticator,
@@ -155,7 +155,7 @@ class WasmoServiceTester private constructor(
   )
 
   override fun close() {
-    wasmoDbService.close()
+    wasmoDb.close()
     fileSystem.checkNoOpenFiles()
     fileSystem.close()
   }
