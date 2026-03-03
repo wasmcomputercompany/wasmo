@@ -33,8 +33,12 @@ fun createWasmoClientApp(
   logger: Logger = ConsoleLogger,
   environment: Environment,
 ): WasmoClientApp {
-  val graph = createGraphFactory<WasmoClientAppGraph.Factory>()
-    .create(logger, environment)
+  val graphFactory = createGraphFactory<WasmoClientAppGraph.Factory>()
+  val graph = graphFactory.create(
+    logger = logger,
+    environment = environment,
+    pageData = detectPageData(WasmoJson),
+  )
   return graph.wasmoClientApp
 }
 
@@ -60,10 +64,6 @@ interface WasmoClientAppGraph {
   @Provides
   @SingleIn(AppScope::class)
   fun provideScope(): CoroutineScope = MainScope()
-
-  @Provides
-  @SingleIn(AppScope::class)
-  fun providePageData(): PageData = detectPageData(WasmoJson)
 
   @Provides
   @SingleIn(AppScope::class)
@@ -101,10 +101,11 @@ interface WasmoClientAppGraph {
   ): RouteCodec = routeCodecFactory.create(routingContext)
 
   @DependencyGraph.Factory
-  fun interface Factory {
+  interface Factory {
     fun create(
       @Provides logger: Logger,
       @Provides environment: Environment,
+      @Provides pageData: PageData,
     ): WasmoClientAppGraph
   }
 }

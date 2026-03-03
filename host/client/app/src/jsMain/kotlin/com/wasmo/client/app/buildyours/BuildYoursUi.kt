@@ -17,19 +17,19 @@ import com.wasmo.client.app.stripe.CheckoutScreen
 import com.wasmo.client.app.stripe.CheckoutSession
 import com.wasmo.client.framework.Ui
 import com.wasmo.common.tokens.newToken
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
+@AssistedInject
 class BuildYoursUi(
-  val checkoutSessionFactory: CheckoutSession.Factory,
-  val router: Router,
+  private val checkoutSessionFactory: CheckoutSession.Factory,
+  private val router: Router,
 ) : Ui {
-  val computerSpecToken = newToken()
-  var showBuildForm by mutableStateOf(false)
-  var checkoutSessionState by mutableStateOf<CheckoutSession?>(null)
+  private val computerSpecToken = newToken()
+  private var showBuildForm by mutableStateOf(false)
+  private var checkoutSessionState by mutableStateOf<CheckoutSession?>(null)
 
   @Composable
   override fun Show(
@@ -73,15 +73,8 @@ class BuildYoursUi(
     }
   }
 
-  @Inject
-  @SingleIn(AppScope::class)
-  class Factory(
-    val checkoutSessionFactory: CheckoutSession.Factory,
-    val router: Router,
-  ) {
-    fun create() = BuildYoursUi(
-      checkoutSessionFactory = checkoutSessionFactory,
-      router = router,
-    )
+  @AssistedFactory
+  interface Factory {
+    fun create(): BuildYoursUi
   }
 }

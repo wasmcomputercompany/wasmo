@@ -8,17 +8,20 @@ import com.wasmo.api.routes.toURL
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
-class ComputerListUi(
-  val routeCodec: RouteCodec,
-  val router: Router,
-  val computerListSnapshot: ComputerListSnapshot,
+@AssistedInject
+class ComputerListUi private constructor(
+  private val routeCodec: RouteCodec,
+  private val router: Router,
+  computerListSnapshot: ComputerListSnapshot?,
 ) : Ui {
+  private val computerListSnapshot: ComputerListSnapshot = computerListSnapshot
+    ?: error("unexpected call of ComputerListUi.Factory.create(), snapshot is absent")
+
   @Composable
   override fun Show(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
@@ -43,18 +46,8 @@ class ComputerListUi(
     }
   }
 
-  @Inject
-  @SingleIn(AppScope::class)
-  class Factory(
-    val routeCodec: RouteCodec,
-    val router: Router,
-    val computerListSnapshot: ComputerListSnapshot?,
-  ) {
-    fun create() = ComputerListUi(
-      routeCodec = routeCodec,
-      router = router,
-      computerListSnapshot = computerListSnapshot
-        ?: error("unexpected call of ComputerListUi.Factory.create(), snapshot is absent"),
-    )
+  @AssistedFactory
+  interface Factory {
+    fun create(): ComputerListUi
   }
 }

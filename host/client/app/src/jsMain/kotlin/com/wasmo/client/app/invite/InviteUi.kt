@@ -21,9 +21,9 @@ import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import com.wasmo.common.logging.Logger
 import com.wasmo.passkeys.PasskeyAuthenticator
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -31,14 +31,15 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
+@AssistedInject
 class InviteUi(
-  val router: Router,
-  val passkeyAuthenticator: PasskeyAuthenticator,
-  val accountDataService: AccountDataService,
-  val wasmoApi: WasmoApi,
-  val logger: Logger,
-  val environment: Environment,
-  val inviteTicket: InviteTicket,
+  private val router: Router,
+  private val passkeyAuthenticator: PasskeyAuthenticator,
+  private val accountDataService: AccountDataService,
+  private val wasmoApi: WasmoApi,
+  private val logger: Logger,
+  private val environment: Environment,
+  @Assisted private val inviteTicket: InviteTicket,
 ) : Ui {
   private val initialInviteState: InviteState
     get() = when {
@@ -110,26 +111,8 @@ class InviteUi(
     }
   }
 
-  @Inject
-  @SingleIn(AppScope::class)
-  class Factory(
-    val router: Router,
-    val passkeyAuthenticator: PasskeyAuthenticator,
-    val accountDataService: AccountDataService,
-    val wasmoApi: WasmoApi,
-    val logger: Logger,
-    val environment: Environment,
-  ) {
-    fun create(
-      inviteTicket: InviteTicket,
-    ) = InviteUi(
-      router = router,
-      passkeyAuthenticator = passkeyAuthenticator,
-      accountDataService = accountDataService,
-      wasmoApi = wasmoApi,
-      logger = logger,
-      environment = environment,
-      inviteTicket = inviteTicket,
-    )
+  @AssistedFactory
+  interface Factory {
+    fun create(inviteTicket: InviteTicket): InviteUi
   }
 }

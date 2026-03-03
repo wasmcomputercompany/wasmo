@@ -6,15 +6,15 @@ import com.wasmo.client.app.Environment
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
+@AssistedInject
 class TeaserUi(
-  val environment: Environment,
-  val router: Router,
+  private val environment: Environment,
+  private val router: Router,
 ) : Ui {
   @Composable
   override fun Show(
@@ -32,15 +32,8 @@ class TeaserUi(
     }
   }
 
-  @Inject
-  @SingleIn(AppScope::class)
-  class Factory(
-    val environment: Environment,
-    val router: Router,
-  ) {
-    fun create() = TeaserUi(
-      environment = environment,
-      router = router,
-    )
+  @AssistedFactory
+  interface Factory {
+    fun create(): TeaserUi
   }
 }

@@ -4,24 +4,28 @@ import androidx.compose.runtime.Composable
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.routes.AppRoute
-import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import com.wasmo.launcher.Icon
 import com.wasmo.launcher.LauncherIconList
 import com.wasmo.launcher.LauncherScreen
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
+@AssistedInject
 class ComputerUi(
-  val slug: ComputerSlug,
-  val router: Router,
-  val computerSnapshot: ComputerSnapshot,
+  @Assisted private val slug: ComputerSlug,
+  private val router: Router,
+  computerSnapshot: ComputerSnapshot?,
 ) : Ui {
+
+  private val computerSnapshot: ComputerSnapshot = computerSnapshot
+    ?: error("unexpected call of ComputerUi.Factory.create(), snapshot is absent")
+
   @Composable
   override fun Show(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
@@ -37,17 +41,8 @@ class ComputerUi(
     }
   }
 
-  @Inject
-  @SingleIn(AppScope::class)
-  class Factory(
-    val router: Router,
-    val computerSnapshot: ComputerSnapshot?,
-  ) {
-    fun create(route: ComputerHomeRoute) = ComputerUi(
-      slug = route.slug,
-      router = router,
-      computerSnapshot = computerSnapshot
-        ?: error("unexpected call of ComputerUi.Factory.create(), snapshot is absent"),
-    )
+  @AssistedFactory
+  interface Factory {
+    fun create(slug: ComputerSlug): ComputerUi
   }
 }
