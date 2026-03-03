@@ -1,15 +1,9 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
-import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.CookieClient
-import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.HmacChallenger
 import com.wasmo.accounts.RealClientAuthenticator
-import com.wasmo.accounts.SessionCookie
-import com.wasmo.accounts.SessionCookieEncoder
-import com.wasmo.accounts.SessionCookieSpec
-import com.wasmo.api.WasmoJson
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.testing.FakeClock
@@ -18,91 +12,44 @@ import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.computers.SubscriptionUpdater
 import com.wasmo.deployment.Deployment
-import com.wasmo.objectstore.FileSystemObjectStoreAddress
+import com.wasmo.objectstore.ObjectStore
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.RealAuthenticatorDatabase
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.createGraphFactory
 import java.io.Closeable
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.OkHttpClient
+import okhttp3.HttpUrl
 import okio.ByteString.Companion.encodeUtf8
-import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 
 /**
  * Create instances with [WasmoServiceTester.start]
  */
+@Inject
+@SingleIn(AppScope::class)
 class WasmoServiceTester private constructor(
   val wasmoDb: WasmoDbService,
+  val deployment: Deployment,
+  val clock: FakeClock,
+  val fileSystem: FakeFileSystem,
+  val paymentsService: FakePaymentsService,
+  val objectStoreFactory: ObjectStoreFactory,
+  val rootObjectStore: ObjectStore,
+  val challengerFactory: HmacChallenger.Factory,
+  val cookieClientFactory: CookieClient.Factory,
+  val clientAuthenticatorFactory: RealClientAuthenticator.Factory,
+  val sendEmailService: FakeSendEmailService,
+  val objectStoreKeyFactory: ObjectStoreKeyFactory,
+  val wasmoArtifactServer: WasmoArtifactServer,
+  val httpClient: FakeHttpClient,
+  val stripePublishableKey: StripePublishableKey,
 ) : Closeable by wasmoDb {
-  val deployment = Deployment(
-    baseUrl = "https://wasmo.com/".toHttpUrl(),
-    sendFromEmailAddress = "noreply@wasmo.com",
-  )
-  val baseUrl get() = deployment.baseUrl
+  val baseUrl: HttpUrl
+    get() = deployment.baseUrl
   val origin: String
     get() = baseUrl.toString()
-  val clock = FakeClock()
-  val fileSystem = FakeFileSystem()
-  val paymentsService = FakePaymentsService(
-    clock = clock,
-  )
-  val objectStoreFactory = ObjectStoreFactory(
-    clock = clock,
-    client = OkHttpClient(),
-  )
-  val rootObjectStore = objectStoreFactory.open(
-    FileSystemObjectStoreAddress(
-      fileSystem = fileSystem,
-      path = "/".toPath(),
-    ),
-  )
-
-  val challengerFactory = object : HmacChallenger.Factory {
-    override fun create(cookieToken: String) = HmacChallenger(
-      clock = clock,
-      cookieSecret = CookieSecret("secret".encodeUtf8()),
-      cookieToken = cookieToken,
-    )
-  }
-
-  val cookieClientFactory = object : CookieClient.Factory {
-    override fun create(
-      sessionCookie: SessionCookie,
-      userAgent: String?,
-      ip: String?,
-    ) = CookieClient(
-      clock = clock,
-      wasmoDb = wasmoDb,
-      hmacChallengerFactory = challengerFactory,
-      sessionCookie = sessionCookie,
-      userAgent = userAgent,
-      ip = ip,
-    )
-  }
-
-  val clientAuthenticatorFactory = object : RealClientAuthenticator.Factory {
-    override fun create(userAgent: ClientAuthenticator.UserAgent) = RealClientAuthenticator(
-      clock = clock,
-      deployment = deployment,
-      sessionCookieSpec = SessionCookieSpec.Https,
-      sessionCookieEncoder = SessionCookieEncoder(
-        secret = CookieSecret("password".encodeUtf8()),
-      ),
-      cookieClientFactory = cookieClientFactory,
-      userAgent = userAgent,
-    )
-  }
-
-  val sendEmailService = FakeSendEmailService()
-
-  val objectStoreKeyFactory = ObjectStoreKeyFactory()
-
-  val wasmoArtifactServer = WasmoArtifactServer(
-    json = WasmoJson,
-  )
-  val httpClient = FakeHttpClient().apply {
-    this += wasmoArtifactServer
-  }
 
   val computerStore = RealComputerStore(
     deployment = deployment,
@@ -124,8 +71,6 @@ class WasmoServiceTester private constructor(
     paymentsService = paymentsService,
     computerSpecStore = computerSpecStore,
   )
-
-  val stripePublishableKey = StripePublishableKey("pk_test_5544332211")
 
   private var nextPasskeyId = 1
 
@@ -162,16 +107,21 @@ class WasmoServiceTester private constructor(
 
   companion object {
     fun start(): WasmoServiceTester {
-      val service = WasmoDbService.start(
+      val wasmoDbService = WasmoDbService.start(
         databaseName = "wasmo_test",
         user = "postgres",
         password = "password",
         hostname = "localhost",
         ssl = false,
       )
-      service.clearSchema()
-      service.migrate()
-      return WasmoServiceTester(service)
+      wasmoDbService.clearSchema()
+      wasmoDbService.migrate()
+
+      val wasmoServiceGraphFactory = createGraphFactory<WasmoServiceTesterGraph.Factory>()
+      val serviceGraph = wasmoServiceGraphFactory.create(
+        wasmoDbService = wasmoDbService,
+      )
+      return serviceGraph.wasmoServiceTester
     }
   }
 }

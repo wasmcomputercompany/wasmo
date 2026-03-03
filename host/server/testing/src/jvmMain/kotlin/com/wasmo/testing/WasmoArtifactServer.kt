@@ -3,24 +3,27 @@ package com.wasmo.testing
 import com.wasmo.FakeHttpClient
 import com.wasmo.api.AppManifest
 import com.wasmo.api.AppSlug
+import com.wasmo.api.WasmoJson
 import com.wasmo.http.HttpRequest
 import com.wasmo.http.HttpResponse
-import kotlinx.serialization.json.Json
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import okio.ByteString
 
 /**
  * A fake server that serves `wasmo-manifest.json` and `.wasm` files.
  */
-class WasmoArtifactServer(
-  val json: Json,
-) : FakeHttpClient.Handler {
+@Inject
+@SingleIn(AppScope::class)
+class WasmoArtifactServer() : FakeHttpClient.Handler {
   val apps = mutableListOf<App>()
 
   override fun handle(request: HttpRequest): HttpResponse? {
     for (app in apps) {
       when (request.url.encodedPath) {
         app.manifestPath -> return HttpResponse(
-          json = json,
+          json = WasmoJson,
           body = AppManifest(
             canonicalUrl = request.url.resolve(app.manifestPath)!!.toString(),
             version = app.version,
