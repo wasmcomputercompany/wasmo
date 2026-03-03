@@ -2,9 +2,14 @@ package com.wasmo.client.app.browser
 
 import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.encodePathAndQuery
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.browser.window
 import org.w3c.dom.PopStateEvent
 
+@Inject
+@SingleIn(AppScope::class)
 class RealBrowser : Browser {
   override var locationHref: String by window.location::href
   override var onpopstate: ((PopStateEvent) -> dynamic)? by window::onpopstate

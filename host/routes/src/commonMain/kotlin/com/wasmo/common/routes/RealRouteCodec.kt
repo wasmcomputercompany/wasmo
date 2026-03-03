@@ -15,6 +15,9 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.api.routes.Url
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
 class RealRouteCodec private constructor(
   private val routingContext: RoutingContext,
@@ -105,6 +108,8 @@ class RealRouteCodec private constructor(
     }
   }
 
+  @Inject
+  @SingleIn(AppScope::class)
   class Factory : RouteCodec.Factory {
     override fun create(routingContext: RoutingContext) = RealRouteCodec(
       routingContext = routingContext,

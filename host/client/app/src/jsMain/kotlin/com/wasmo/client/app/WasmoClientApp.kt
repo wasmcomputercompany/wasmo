@@ -4,10 +4,8 @@ import androidx.compose.runtime.remember
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.api.RealWasmoApi
-import com.wasmo.api.WasmoJson
-import com.wasmo.api.routes.RoutingContext
-import com.wasmo.api.stripe.StripePublishableKey
+import com.wasmo.api.WasmoApi
+import com.wasmo.api.routes.RouteCodec
 import com.wasmo.client.app.browser.RealBrowser
 import com.wasmo.client.app.buildyours.BuildYoursUi
 import com.wasmo.client.app.computer.ComputerUi
@@ -19,39 +17,26 @@ import com.wasmo.client.app.stripe.CheckoutSession
 import com.wasmo.client.app.teaser.TeaserUi
 import com.wasmo.client.app.ui.UiFactory
 import com.wasmo.common.logging.Logger
-import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.framework.PageData
-import com.wasmo.framework.detectPageData
 import com.wasmo.passkeys.RealPasskeyAuthenticator
 import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.compose.web.renderComposableInBody
 
 @Inject
 class WasmoClientApp(
-  val logger: Logger,
-  val environment: Environment,
+  private val logger: Logger,
+  private val environment: Environment,
+  private val scope: CoroutineScope,
+  private val pageData: PageData,
+  private val wasmoApi: WasmoApi,
+  private val accountSnapshot: AccountSnapshot,
+  private val checkoutSessionFactory: CheckoutSession.Factory,
+  private val browser: RealBrowser,
+  private val routeCodec: RouteCodec,
 ) {
-  private val scope = MainScope()
-  private val pageData: PageData = detectPageData(WasmoJson)
-  private val stripePublishableKey = pageData.get<StripePublishableKey>("stripe_publishable_key")
-    ?: error("required stripe_publishable_key pageData not found")
-  private val routingContext = pageData.get<RoutingContext>("routing_context")
-    ?: error("required routing_context pageData not found")
-  private val accountSnapshot = pageData.get<AccountSnapshot>("account_snapshot")
-    ?: error("required account_snapshot pageData not found")
   private val computerSnapshot = pageData.get<ComputerSnapshot>("computer_snapshot")
   private val computerListSnapshot = pageData.get<ComputerListSnapshot>("computer_list_snapshot")
-  private val wasmoApi = RealWasmoApi()
-  private val checkoutSessionFactory = CheckoutSession.Factory(
-    stripePublishableKey = stripePublishableKey,
-    wasmoApi = wasmoApi,
-  )
-  private val browser = RealBrowser()
-  private val routeCodecFactory = RealRouteCodec.Factory()
-  private val routeCodec = routeCodecFactory.create(
-    routingContext = routingContext,
-  )
   private val router = Router(
     scope = scope,
     routeCodec = routeCodec,

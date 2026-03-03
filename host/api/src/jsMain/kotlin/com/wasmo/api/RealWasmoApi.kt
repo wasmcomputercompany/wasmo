@@ -1,10 +1,15 @@
 package com.wasmo.api
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.json.decodeFromDynamic
 import kotlinx.serialization.serializer
 
+@Inject
+@SingleIn(AppScope::class)
 class RealWasmoApi : WasmoApi {
   override suspend fun registerPasskey(
     request: RegisterPasskeyRequest,
