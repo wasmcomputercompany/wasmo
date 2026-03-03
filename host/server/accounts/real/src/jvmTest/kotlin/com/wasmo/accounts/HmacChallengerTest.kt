@@ -12,10 +12,13 @@ import okio.ByteString.Companion.encodeUtf8
 
 class HmacChallengerTest {
   private val clock = FakeClock()
-  private val hmacChallengerFactory = HmacChallenger.Factory(
-    clock = clock,
-    cookieSecret = "secret".encodeUtf8(),
-  )
+  private val hmacChallengerFactory = object : HmacChallenger.Factory {
+    override fun create(cookieToken: String) = HmacChallenger(
+      clock = clock,
+      cookieSecret = CookieSecret("secret".encodeUtf8()),
+      cookieToken = cookieToken,
+    )
+  }
 
   @Test
   fun validChallenge() {

@@ -9,7 +9,7 @@ import okio.ByteString.Companion.encodeUtf8
 
 class SessionCookieEncoderTest {
   private val encoder = SessionCookieEncoder(
-    secret = "password".encodeUtf8(),
+    secret = CookieSecret("password".encodeUtf8()),
   )
 
   @Test
@@ -83,10 +83,10 @@ class SessionCookieEncoderTest {
       issuedAt = Instant.parse("2025-12-25T20:22:34Z"),
     )
     val encoder1 = SessionCookieEncoder(
-      secret = "password1".encodeUtf8(),
+      secret = CookieSecret("password1".encodeUtf8()),
     )
     val encoder2 = SessionCookieEncoder(
-      secret = "password2".encodeUtf8(),
+      secret = CookieSecret("password2".encodeUtf8()),
     )
     assertThat(encoder1.decode(encoder2.encode(sessionCookie))).isNull()
     assertThat(encoder2.decode(encoder1.encode(sessionCookie))).isNull()

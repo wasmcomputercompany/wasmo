@@ -15,12 +15,13 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.api.routes.Url
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
-class RealRouteCodec private constructor(
-  private val routingContext: RoutingContext,
+@AssistedInject
+class RealRouteCodec(
+  @Assisted private val routingContext: RoutingContext,
 ) : RouteCodec {
   override fun decode(url: Url): Route {
     val subdomain = url.subdomain
@@ -108,11 +109,8 @@ class RealRouteCodec private constructor(
     }
   }
 
-  @Inject
-  @SingleIn(AppScope::class)
-  class Factory : RouteCodec.Factory {
-    override fun create(routingContext: RoutingContext) = RealRouteCodec(
-      routingContext = routingContext,
-    )
+  @AssistedFactory
+  interface Factory : RouteCodec.Factory {
+    override fun create(routingContext: RoutingContext): RealRouteCodec
   }
 }

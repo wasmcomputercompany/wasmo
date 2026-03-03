@@ -3,97 +3,50 @@
 package com.wasmo.ktor
 
 import com.stripe.StripeClient
-import com.wasmo.accounts.CookieClient
-import com.wasmo.accounts.HmacChallenger
-import com.wasmo.accounts.RealClientAuthenticator
-import com.wasmo.accounts.SessionCookieEncoder
-import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.PasskeyLinker
-import com.wasmo.api.routes.RoutingContext
+import com.wasmo.api.routes.RouteCodec
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.calls.RealCallDataService
-import com.wasmo.common.catalog.Catalog
-import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.ComputerSpecStore
 import com.wasmo.computers.ObjectStoreKeyFactory
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.computers.SubscriptionUpdater
-import com.wasmo.deployment.Deployment
-import com.wasmo.http.RealHttpClient
-import com.wasmo.objectstore.ObjectStoreAddress
+import com.wasmo.http.HttpClient
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.RealAuthenticatorDatabase
-import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
-import com.wasmo.stripe.StripeCredentials
 import com.wasmo.stripe.StripePaymentsService
 import com.wasmo.website.RealServerHostPage
-import io.ktor.server.netty.EngineMain
+import dev.zacsweers.metro.Inject
+import io.ktor.server.engine.EmbeddedServer
 import kotlin.time.Clock
 import okhttp3.OkHttpClient
-import okio.ByteString
 
+@Inject
 class WasmoService(
-  val cookieSecret: ByteString,
-  val postmarkCredentials: PostmarkCredentials,
-  val stripeCredentials: StripeCredentials,
-  val catalog: Catalog,
-  val postgresDatabaseHostname: String,
-  val postgresDatabaseName: String,
-  val postgresDatabaseUser: String,
-  val postgresDatabasePassword: String,
-  val deployment: Deployment,
-  val objectStoreAddress: ObjectStoreAddress,
-  val sessionCookieSpec: SessionCookieSpec,
+  private val config: WasmoServiceConfig,
+  private val server: EmbeddedServer<*, *>,
+  private val wasmoDbService: WasmoDbService,
+  private val clock: Clock,
+  private val okHttpClient: OkHttpClient,
+  private val httpClient: HttpClient,
+  private val objectStoreFactory: ObjectStoreFactory,
+  private val clientAuthenticatorFactory: ClientAuthenticator.Factory,
+  private val routeCodecFactory: RouteCodec.Factory,
 ) {
-  fun start(args: Array<String>) {
-    val server = EngineMain.createServer(args)
-
-    val clock = Clock.System
-    val wasmoDbService = WasmoDbService.start(
-      hostname = postgresDatabaseHostname,
-      databaseName = postgresDatabaseName,
-      user = postgresDatabaseUser,
-      password = postgresDatabasePassword,
-      ssl = false,
-    )
-    val okHttpClient = OkHttpClient()
-    val httpClient = RealHttpClient(
-      callFactory = okHttpClient,
-    )
-    val objectStoreFactory = ObjectStoreFactory(
-      clock = clock,
-      client = okHttpClient,
-    )
-    val hmacChallengerFactory = HmacChallenger.Factory(
-      clock = clock,
-      cookieSecret = cookieSecret,
-    )
-    val cookieClientFactory = CookieClient.Factory(
-      clock = clock,
-      cookieQueries = wasmoDbService.cookieQueries,
-      accountQueries = wasmoDbService.accountQueries,
-      hmacChallengerFactory = hmacChallengerFactory,
-    )
-    val clientAuthenticatorFactory = RealClientAuthenticator.Factory(
-      clock = clock,
-      deployment = deployment,
-      sessionCookieSpec = sessionCookieSpec,
-      sessionCookieEncoder = SessionCookieEncoder(cookieSecret),
-      cookieClientFactory = cookieClientFactory,
-    )
-    val routeCodecFactory = RealRouteCodec.Factory()
+  fun start() {
     val authenticatorDatabase = RealAuthenticatorDatabase()
     val callDataServiceFactory = RealCallDataService.Factory(
-      deployment = deployment,
+      deployment = config.deployment,
       routeCodecFactory = routeCodecFactory,
       authenticatorDatabase = authenticatorDatabase,
       wasmoDbService = wasmoDbService,
     )
-    val rootObjectStore = objectStoreFactory.open(objectStoreAddress)
+    val rootObjectStore = objectStoreFactory.open(config.objectStoreAddress)
     val computerStore = RealComputerStore(
-      deployment = deployment,
+      deployment = config.deployment,
       clock = clock,
       rootObjectStore = rootObjectStore,
       httpClient = httpClient,
@@ -101,28 +54,28 @@ class WasmoService(
       wasmoDbService = wasmoDbService,
     )
     val sendEmailService = PostmarkEmailService.Factory(
-      credentials = postmarkCredentials,
+      credentials = config.postmarkCredentials,
       client = okHttpClient,
     ).create()
     val stripeClient = StripeClient.StripeClientBuilder()
-      .setApiKey(stripeCredentials.secretKey)
+      .setApiKey(config.stripeCredentials.secretKey)
       .build()
     val passkeyLinkerFactory = PasskeyLinker.Factory(
       cookieQueries = wasmoDbService.cookieQueries,
     )
     val serverAppPageFactory = RealServerHostPage.Factory(
-      deployment = deployment,
-      stripePublishableKey = stripeCredentials.publishableKey,
+      deployment = config.deployment,
+      stripePublishableKey = config.stripeCredentials.publishableKey,
     )
     val inviteService = InviteService(
       clock = clock,
       wasmoDbService = wasmoDbService,
     )
     val paymentsService = StripePaymentsService(
-      deployment = deployment,
+      deployment = config.deployment,
       sessionService = stripeClient.v1().checkout().sessions(),
       subscriptionService = stripeClient.v1().subscriptions(),
-      catalog = catalog,
+      catalog = config.catalog,
     )
     val computerSpecStore = ComputerSpecStore(
       clock = clock,
@@ -136,7 +89,7 @@ class WasmoService(
     )
     val actionRouter = ActionRouter(
       clock = clock,
-      deployment = deployment,
+      deployment = config.deployment,
       application = server.application,
       clientAuthenticatorFactory = clientAuthenticatorFactory,
       callDataServiceFactory = callDataServiceFactory,

@@ -1,10 +1,10 @@
 package com.wasmo.accounts
 
 import com.wasmo.accounts.SessionCookieEncoder.Companion.SessionCookieJoseHeader
+import dev.zacsweers.metro.Inject
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import okio.Buffer
-import okio.ByteString
 import okio.ByteString.Companion.decodeBase64
 import okio.ByteString.Companion.encodeUtf8
 
@@ -14,8 +14,9 @@ import okio.ByteString.Companion.encodeUtf8
  * We do a JWT with a fixed configuration, [SessionCookieJoseHeader]. If ever this is inadequate,
  * we can replace it with something better.
  */
+@Inject
 class SessionCookieEncoder(
-  private val secret: ByteString,
+  private val secret: CookieSecret,
 ) {
   fun encode(content: SessionCookie): String {
     val payload = SessionCookieJson.encodeToString(content).encodeUtf8()
@@ -24,7 +25,7 @@ class SessionCookieEncoder(
     val jwsSignature = Buffer()
       .writeUtf8(headerBase64)
       .writeUtf8(payloadBase64)
-      .hmacSha256(secret)
+      .hmacSha256(secret.value)
     val jwsSignatureBase64 = jwsSignature.base64Url()
     return "$headerBase64.$payloadBase64.$jwsSignatureBase64"
   }
@@ -43,7 +44,7 @@ class SessionCookieEncoder(
     val expectedJwsSignature = Buffer()
       .writeUtf8(headerBase64)
       .writeUtf8(payloadBase64)
-      .hmacSha256(secret)
+      .hmacSha256(secret.value)
 
     if (jwsSignature != expectedJwsSignature) return null
     if (header != SessionCookieJoseHeader) return null

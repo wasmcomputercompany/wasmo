@@ -4,15 +4,19 @@ import com.wasmo.accounts.ClientAuthenticator.UserAgent
 import com.wasmo.common.tokens.newToken
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.UnauthorizedException
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlin.time.Clock
 
-class RealClientAuthenticator private constructor(
-  val clock: Clock,
-  val deployment: Deployment,
-  val sessionCookieSpec: SessionCookieSpec,
-  val sessionCookieEncoder: SessionCookieEncoder,
-  val cookieClientFactory: CookieClient.Factory,
-  val userAgent: UserAgent,
+@AssistedInject
+class RealClientAuthenticator(
+  private val clock: Clock,
+  private val deployment: Deployment,
+  private val sessionCookieSpec: SessionCookieSpec,
+  private val sessionCookieEncoder: SessionCookieEncoder,
+  private val cookieClientFactory: CookieClient.Factory,
+  @Assisted private val userAgent: UserAgent,
 ) : ClientAuthenticator {
   /**
    * Send the customer's cookie on each page load. The cookie expires after 400 days, so we send
@@ -67,20 +71,8 @@ class RealClientAuthenticator private constructor(
     ip = userAgent.ip,
   )
 
-  class Factory(
-    private val clock: Clock,
-    private val deployment: Deployment,
-    private val sessionCookieSpec: SessionCookieSpec,
-    private val sessionCookieEncoder: SessionCookieEncoder,
-    private val cookieClientFactory: CookieClient.Factory,
-  ) : ClientAuthenticator.Factory {
-    override fun create(userAgent: UserAgent) = RealClientAuthenticator(
-      clock = clock,
-      deployment = deployment,
-      sessionCookieSpec = sessionCookieSpec,
-      sessionCookieEncoder = sessionCookieEncoder,
-      cookieClientFactory = cookieClientFactory,
-      userAgent = userAgent,
-    )
+  @AssistedFactory
+  interface Factory : ClientAuthenticator.Factory {
+    override fun create(userAgent: UserAgent): RealClientAuthenticator
   }
 }

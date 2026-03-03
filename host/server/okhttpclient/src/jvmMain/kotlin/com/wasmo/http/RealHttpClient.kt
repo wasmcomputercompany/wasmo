@@ -1,5 +1,8 @@
 package com.wasmo.http
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -13,6 +16,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.IOException
 
+@Inject
+@SingleIn(AppScope::class)
 class RealHttpClient(
   private val callFactory: Call.Factory,
 ) : HttpClient {

@@ -2,9 +2,14 @@ package com.wasmo.objectstore
 
 import com.wasmo.objectstore.filesystem.FileSystemObjectStore
 import com.wasmo.objectstore.s3.S3Client
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import okhttp3.OkHttpClient
 
+@Inject
+@SingleIn(AppScope::class)
 class ObjectStoreFactory(
   private val clock: Clock,
   private val client: OkHttpClient,

@@ -2,15 +2,19 @@ package com.wasmo.accounts
 
 import com.wasmo.api.CHALLENGE_LIFETIME
 import com.wasmo.api.CHALLENGE_LIFETIME_MAX_STALE
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlin.time.Clock
 import kotlin.time.Instant
 import okio.Buffer
 import okio.ByteString
 
-class HmacChallenger private constructor(
+@AssistedInject
+class HmacChallenger(
   private val clock: Clock,
-  private val cookieSecret: ByteString,
-  private val cookieToken: String,
+  private val cookieSecret: CookieSecret,
+  @Assisted private val cookieToken: String,
 ) : Challenger {
   override fun create(): ByteString = encode(Challenge(cookieToken, clock.now()))
 
@@ -55,20 +59,16 @@ class HmacChallenger private constructor(
     return Buffer()
       .writeUtf8(content.cookieToken)
       .writeLong(content.issuedAt.toEpochMilliseconds())
-      .hmacSha256(cookieSecret)
+      .hmacSha256(cookieSecret.value)
   }
 
-  class Factory(
-    private val clock: Clock,
-    private val cookieSecret: ByteString,
-  ) {
-    fun create(cookieToken: String): Challenger = HmacChallenger(
-      clock = clock,
-      cookieSecret = cookieSecret,
-      cookieToken = cookieToken,
-    )
+  @AssistedFactory
+  interface Factory {
+    fun create(cookieToken: String): HmacChallenger
   }
 }
+
+class CookieSecret(val value: ByteString)
 
 internal data class Challenge(
   val cookieToken: String,

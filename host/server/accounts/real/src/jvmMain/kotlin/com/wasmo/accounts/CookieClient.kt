@@ -1,9 +1,13 @@
 package com.wasmo.accounts
 
 import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.AccountQueries
 import com.wasmo.db.CookieQueries
 import com.wasmo.identifiers.AccountId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlin.time.Clock
 
 /**
@@ -11,16 +15,23 @@ import kotlin.time.Clock
  *
  * Each account may have multiple cookies issued to it.
  */
-class CookieClient private constructor(
+@AssistedInject
+class CookieClient(
   private val clock: Clock,
-  private val cookieQueries: CookieQueries,
-  private val accountQueries: AccountQueries,
-  val sessionCookie: SessionCookie,
-  override val userAgent: String?,
-  override val ip: String?,
-  override val challenger: Challenger,
+  private val wasmoDbService: WasmoDbService,
+  @Assisted private val sessionCookie: SessionCookie,
+  @Assisted override val userAgent: String?,
+  @Assisted override val ip: String?,
+  hmacChallengerFactory: HmacChallenger.Factory,
 ) : Client {
+  override val challenger: Challenger = hmacChallengerFactory.create(sessionCookie.token)
+
   private var cachedAccountId: AccountId? = null
+
+  private val cookieQueries: CookieQueries
+    get() = wasmoDbService.cookieQueries
+  private val accountQueries: AccountQueries
+    get() = wasmoDbService.accountQueries
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun getAccountIdOrNull(): AccountId? {
@@ -62,24 +73,12 @@ class CookieClient private constructor(
     this.cachedAccountId = null
   }
 
-  class Factory(
-    private val clock: Clock,
-    private val cookieQueries: CookieQueries,
-    private val accountQueries: AccountQueries,
-    private val hmacChallengerFactory: HmacChallenger.Factory,
-  ) {
+  @AssistedFactory
+  interface Factory {
     fun create(
       sessionCookie: SessionCookie,
       userAgent: String? = null,
       ip: String? = null,
-    ) = CookieClient(
-      clock = clock,
-      cookieQueries = cookieQueries,
-      accountQueries = accountQueries,
-      sessionCookie = sessionCookie,
-      userAgent = userAgent,
-      ip = ip,
-      challenger = hmacChallengerFactory.create(sessionCookie.token),
-    )
+    ): CookieClient
   }
 }

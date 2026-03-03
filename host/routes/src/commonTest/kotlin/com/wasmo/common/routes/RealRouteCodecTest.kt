@@ -19,8 +19,7 @@ import kotlin.test.Test
 
 class RealRouteCodecTest {
   private val root = Url(scheme = "https", topPrivateDomain = "wasmo.com")
-  private val routeCodecFactory = RealRouteCodec.Factory()
-  private val unauthenticated = routeCodecFactory.create(
+  private val unauthenticated = RealRouteCodec(
     routingContext = RoutingContext(
       rootUrl = "https://wasmo.com/",
       hasComputers = false,

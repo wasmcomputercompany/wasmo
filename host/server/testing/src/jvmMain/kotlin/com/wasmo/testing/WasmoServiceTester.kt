@@ -1,9 +1,12 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
+import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.CookieClient
+import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.HmacChallenger
 import com.wasmo.accounts.RealClientAuthenticator
+import com.wasmo.accounts.SessionCookie
 import com.wasmo.accounts.SessionCookieEncoder
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.WasmoJson
@@ -54,25 +57,41 @@ class WasmoServiceTester private constructor(
     ),
   )
 
-  val challengerFactory = HmacChallenger.Factory(
-    clock = clock,
-    cookieSecret = "secret".encodeUtf8(),
-  )
-
-  val clientAuthenticatorFactory = RealClientAuthenticator.Factory(
-    clock = clock,
-    deployment = deployment,
-    sessionCookieSpec = SessionCookieSpec.Https,
-    sessionCookieEncoder = SessionCookieEncoder(
-      secret = "password".encodeUtf8(),
-    ),
-    cookieClientFactory = CookieClient.Factory(
+  val challengerFactory = object : HmacChallenger.Factory {
+    override fun create(cookieToken: String) = HmacChallenger(
       clock = clock,
-      cookieQueries = wasmoDbService.cookieQueries,
-      accountQueries = wasmoDbService.accountQueries,
+      cookieSecret = CookieSecret("secret".encodeUtf8()),
+      cookieToken = cookieToken,
+    )
+  }
+
+  val cookieClientFactory = object : CookieClient.Factory {
+    override fun create(
+      sessionCookie: SessionCookie,
+      userAgent: String?,
+      ip: String?,
+    ) = CookieClient(
+      clock = clock,
+      wasmoDbService = wasmoDbService,
       hmacChallengerFactory = challengerFactory,
-    ),
-  )
+      sessionCookie = sessionCookie,
+      userAgent = userAgent,
+      ip = ip,
+    )
+  }
+
+  val clientAuthenticatorFactory = object : RealClientAuthenticator.Factory {
+    override fun create(userAgent: ClientAuthenticator.UserAgent) = RealClientAuthenticator(
+      clock = clock,
+      deployment = deployment,
+      sessionCookieSpec = SessionCookieSpec.Https,
+      sessionCookieEncoder = SessionCookieEncoder(
+        secret = CookieSecret("password".encodeUtf8()),
+      ),
+      cookieClientFactory = cookieClientFactory,
+      userAgent = userAgent,
+    )
+  }
 
   val sendEmailService = FakeSendEmailService()
 

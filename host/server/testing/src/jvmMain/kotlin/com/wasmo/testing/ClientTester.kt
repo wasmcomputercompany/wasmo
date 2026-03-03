@@ -52,7 +52,9 @@ class ClientTester(
 ) {
   val authenticatorDatabase = RealAuthenticatorDatabase()
 
-  val routeCodecFactory = RealRouteCodec.Factory()
+  val routeCodecFactory = object : RouteCodec.Factory {
+    override fun create(routingContext: RoutingContext) = RealRouteCodec(routingContext)
+  }
 
   val callDataServiceFactory = RealCallDataService.Factory(
     deployment = deployment,
