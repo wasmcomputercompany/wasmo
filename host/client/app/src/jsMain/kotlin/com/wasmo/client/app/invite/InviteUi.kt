@@ -21,6 +21,9 @@ import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import com.wasmo.common.logging.Logger
 import com.wasmo.passkeys.PasskeyAuthenticator
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -107,6 +110,8 @@ class InviteUi(
     }
   }
 
+  @Inject
+  @SingleIn(AppScope::class)
   class Factory(
     val router: Router,
     val passkeyAuthenticator: PasskeyAuthenticator,

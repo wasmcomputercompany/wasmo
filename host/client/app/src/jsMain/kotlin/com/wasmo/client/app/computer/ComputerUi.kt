@@ -11,6 +11,9 @@ import com.wasmo.client.framework.Ui
 import com.wasmo.launcher.Icon
 import com.wasmo.launcher.LauncherIconList
 import com.wasmo.launcher.LauncherScreen
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
@@ -34,6 +37,8 @@ class ComputerUi(
     }
   }
 
+  @Inject
+  @SingleIn(AppScope::class)
   class Factory(
     val router: Router,
     val computerSnapshot: ComputerSnapshot?,

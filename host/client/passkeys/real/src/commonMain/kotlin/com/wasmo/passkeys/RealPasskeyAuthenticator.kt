@@ -1,15 +1,19 @@
 package com.wasmo.passkeys
 
-
 import com.wasmo.api.PasskeyAuthentication
 import com.wasmo.api.PasskeyRegistration
 import com.wasmo.api.WasmoJson
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.js.Promise
 import kotlinx.coroutines.await
 import kotlinx.js.JsPlainObject
 import kotlinx.serialization.json.decodeFromDynamic
 import okio.ByteString
 
+@Inject
+@SingleIn(AppScope::class)
 class RealPasskeyAuthenticator : PasskeyAuthenticator {
   override suspend fun register(user: String, challenge: ByteString): PasskeyRegistration {
     val registerArgs = RegisterArgs(

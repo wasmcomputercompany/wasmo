@@ -8,6 +8,9 @@ import com.wasmo.api.routes.toURL
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
@@ -40,6 +43,8 @@ class ComputerListUi(
     }
   }
 
+  @Inject
+  @SingleIn(AppScope::class)
   class Factory(
     val routeCodec: RouteCodec,
     val router: Router,

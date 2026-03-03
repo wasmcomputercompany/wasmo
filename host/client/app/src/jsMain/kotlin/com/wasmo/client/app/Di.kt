@@ -1,17 +1,25 @@
 package com.wasmo.client.app
 
 import com.wasmo.api.AccountSnapshot
+import com.wasmo.api.ComputerListSnapshot
+import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.RealWasmoApi
 import com.wasmo.api.WasmoApi
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.stripe.StripePublishableKey
+import com.wasmo.client.app.browser.Browser
+import com.wasmo.client.app.browser.RealBrowser
+import com.wasmo.client.app.data.AccountDataService
+import com.wasmo.client.app.data.RealAccountDataService
 import com.wasmo.common.logging.ConsoleLogger
 import com.wasmo.common.logging.Logger
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.framework.PageData
 import com.wasmo.framework.detectPageData
+import com.wasmo.passkeys.PasskeyAuthenticator
+import com.wasmo.passkeys.RealPasskeyAuthenticator
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
@@ -35,10 +43,19 @@ interface WasmoClientAppGraph {
   val wasmoClientApp: WasmoClientApp
 
   @Binds
-  fun provideWasmoApi(real: RealWasmoApi): WasmoApi
+  fun bindWasmoApi(real: RealWasmoApi): WasmoApi
 
   @Binds
-  fun provideRouteCodecFactory(real: RealRouteCodec.Factory): RouteCodec.Factory
+  fun bindBrowser(real: RealBrowser): Browser
+
+  @Binds
+  fun bindRouteCodecFactory(real: RealRouteCodec.Factory): RouteCodec.Factory
+
+  @Binds
+  fun bindPasskeyAuthenticator(real: RealPasskeyAuthenticator): PasskeyAuthenticator
+
+  @Binds
+  fun bindAccountDataService(real: RealAccountDataService): AccountDataService
 
   @Provides
   @SingleIn(AppScope::class)
@@ -65,6 +82,16 @@ interface WasmoClientAppGraph {
   fun provideAccountSnapshot(pageData: PageData): AccountSnapshot =
     pageData.get<AccountSnapshot>("account_snapshot")
       ?: error("required account_snapshot pageData not found")
+
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideComputerSnapshot(pageData: PageData): ComputerSnapshot? =
+    pageData.get<ComputerSnapshot>("computer_snapshot")
+
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideComputerListSnapshot(pageData: PageData): ComputerListSnapshot? =
+    pageData.get<ComputerListSnapshot>("computer_list_snapshot")
 
   @Provides
   @SingleIn(AppScope::class)
