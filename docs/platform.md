@@ -12,6 +12,8 @@ Inbound requests will include additional context about the caller:
  - Original IP address
  - Single-sign on identity
 
+Inbound requests also strip Wasmo's cookies, so guest code can't see these.
+
 
 Static Assets Serving
 ---------------------

@@ -17,6 +17,7 @@ class FakeUserAgent : ClientAuthenticator.UserAgent {
     value: String,
     secure: Boolean,
     httpOnly: Boolean,
+    domain: String,
     path: String,
     maxAgeSeconds: Long,
   ) {

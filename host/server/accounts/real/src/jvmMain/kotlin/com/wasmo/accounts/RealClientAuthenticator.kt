@@ -2,11 +2,13 @@ package com.wasmo.accounts
 
 import com.wasmo.accounts.ClientAuthenticator.UserAgent
 import com.wasmo.common.tokens.newToken
+import com.wasmo.deployment.Deployment
 import com.wasmo.framework.UnauthorizedException
 import kotlin.time.Clock
 
 class RealClientAuthenticator private constructor(
   val clock: Clock,
+  val deployment: Deployment,
   val sessionCookieSpec: SessionCookieSpec,
   val sessionCookieEncoder: SessionCookieEncoder,
   val cookieClientFactory: CookieClient.Factory,
@@ -40,6 +42,7 @@ class RealClientAuthenticator private constructor(
       value = sessionCookieEncoder.encode(cookie),
       secure = sessionCookieSpec == SessionCookieSpec.Https,
       httpOnly = sessionCookieSpec == SessionCookieSpec.Https,
+      domain = ".${deployment.baseUrl.host}",
       path = "/",
       maxAgeSeconds = 34560000L, // 400 days, the limit.
     )
@@ -66,12 +69,14 @@ class RealClientAuthenticator private constructor(
 
   class Factory(
     val clock: Clock,
+    val deployment: Deployment,
     val sessionCookieSpec: SessionCookieSpec,
     val sessionCookieEncoder: SessionCookieEncoder,
     val cookieClientFactory: CookieClient.Factory,
   ) : ClientAuthenticator.Factory {
     override fun create(userAgent: UserAgent) = RealClientAuthenticator(
       clock = clock,
+      deployment = deployment,
       sessionCookieSpec = sessionCookieSpec,
       sessionCookieEncoder = sessionCookieEncoder,
       cookieClientFactory = cookieClientFactory,

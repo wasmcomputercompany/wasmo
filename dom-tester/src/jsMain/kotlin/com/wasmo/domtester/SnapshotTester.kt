@@ -67,7 +67,7 @@ class SnapshotTester(
     val html = domSnapshot.htmlPage(
       title = testFunction.toString(),
       stylesheetsUrls = stylesheetsUrls,
-      baseHref = "http://localhost:8080/",
+      baseHref = "http://wasmo.localhost:8080/",
     )
 
     if (images.any { it == null }) {

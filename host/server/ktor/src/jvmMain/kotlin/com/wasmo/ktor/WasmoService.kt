@@ -78,6 +78,7 @@ class WasmoService(
     )
     val clientAuthenticatorFactory = RealClientAuthenticator.Factory(
       clock = clock,
+      deployment = deployment,
       sessionCookieSpec = sessionCookieSpec,
       sessionCookieEncoder = SessionCookieEncoder(cookieSecret),
       cookieClientFactory = cookieClientFactory,

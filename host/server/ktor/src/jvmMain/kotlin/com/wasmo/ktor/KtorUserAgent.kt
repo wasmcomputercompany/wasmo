@@ -26,6 +26,7 @@ class KtorUserAgent(
     value: String,
     secure: Boolean,
     httpOnly: Boolean,
+    domain: String,
     path: String,
     maxAgeSeconds: Long,
   ) {
@@ -36,6 +37,7 @@ class KtorUserAgent(
       encoding = CookieEncoding.DQUOTES,
       secure = secure,
       httpOnly = httpOnly,
+      domain = domain,
       path = path,
       maxAge = maxAgeSeconds,
     )

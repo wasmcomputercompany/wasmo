@@ -61,6 +61,7 @@ class WasmoServiceTester private constructor(
 
   val clientAuthenticatorFactory = RealClientAuthenticator.Factory(
     clock = clock,
+    deployment = deployment,
     sessionCookieSpec = SessionCookieSpec.Https,
     sessionCookieEncoder = SessionCookieEncoder(
       secret = "password".encodeUtf8(),

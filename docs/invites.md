@@ -22,14 +22,14 @@ Creating an Invite
 Get a cookie:
 
 ```
-curl -v  http://localhost:8080/
+curl -v http://wasmo.localhost:8080/
 ```
 
 Use the cookie to create an invite:
 
 ```
 curl -v \
-  --header 'Cookie: session=...' \
+  --header 'Cookie: wasmo_session=...' \
   --data '{}' \
-  http://localhost:8080/create-invite
+  http://wasmo.localhost:8080/create-invite
 ```
