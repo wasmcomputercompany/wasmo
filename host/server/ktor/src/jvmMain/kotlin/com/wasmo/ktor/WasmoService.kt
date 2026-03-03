@@ -85,6 +85,7 @@ class WasmoService(
     )
     val authenticatorDatabase = RealAuthenticatorDatabase()
     val callDataServiceFactory = RealCallDataService.Factory(
+      deployment = deployment,
       authenticatorDatabase = authenticatorDatabase,
       wasmoDbService = wasmoDbService,
     )

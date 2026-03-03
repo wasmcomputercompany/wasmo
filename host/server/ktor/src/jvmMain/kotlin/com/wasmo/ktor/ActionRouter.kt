@@ -144,7 +144,6 @@ class ActionRouter(
 
   fun hostPage(client: Client) = HostPageAction(
     client = client,
-    deployment = deployment,
     callDataServiceFactory = callDataServiceFactory,
     hostPageFactory = serverHostPageFactory,
     wasmoDbService = wasmoDbService,

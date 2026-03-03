@@ -11,67 +11,108 @@ import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledApp
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.PasskeySnapshot
+import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
+import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
 
 class RealCallDataService private constructor(
+  private val deployment: Deployment,
   private val authenticatorDatabase: AuthenticatorDatabase,
   private val wasmoDbService: WasmoDbService,
   private val client: Client,
 ) : CallDataService {
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun accountSnapshot(): AccountSnapshot {
-    val accountId = client.getAccountIdOrNull()
+  private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
+    context(transactionCallbacks: TransactionCallbacks)
+    override fun load(): List<PasskeySnapshot> {
+      val accountId = client.getAccountIdOrNull()
 
-    val passkeys = when {
-      accountId != null -> wasmoDbService.passkeyQueries.findPasskeysByAccountId(accountId)
-        .executeAsList()
-        .map { it.toSnapshot() }
+      return when {
+        accountId != null -> wasmoDbService.passkeyQueries.findPasskeysByAccountId(accountId)
+          .executeAsList()
+          .map { it.toSnapshot() }
 
-      else -> listOf()
-    }
-
-    val inviteOrNull = when {
-      accountId != null -> {
-        wasmoDbService.inviteQueries.findInvitesByClaimedBy(
-          claimed_by = accountId,
-          limit = 1,
-        ).executeAsOneOrNull()
-
+        else -> listOf()
       }
-
-      else -> null
     }
 
-    return AccountSnapshot(
-      nextChallenge = client.challenger.create(),
-      passkeys = passkeys,
-      hasInvite = inviteOrNull != null,
+    private fun Passkey.toSnapshot() = PasskeySnapshot(
+      authenticator = authenticatorDatabase.forAaguid(aaguid),
+      createdAt = created_at,
     )
   }
 
-  private fun Passkey.toSnapshot() = PasskeySnapshot(
-    authenticator = authenticatorDatabase.forAaguid(aaguid),
-    createdAt = created_at,
-  )
+  private val firstClaimedInvite = object : DbLazy<Invite?>() {
+    context(transactionCallbacks: TransactionCallbacks)
+    override fun load(): Invite? {
+      val accountId = client.getAccountIdOrNull()
+      return when {
+        accountId != null -> {
+          wasmoDbService.inviteQueries.findInvitesByClaimedBy(
+            claimed_by = accountId,
+            limit = 1,
+          ).executeAsOneOrNull()
+        }
+
+        else -> null
+      }
+    }
+  }
+
+  private val routingContext = object : DbLazy<RoutingContext>() {
+    context(transactionCallbacks: TransactionCallbacks)
+    override fun load() = RoutingContext(
+      rootUrl = deployment.baseUrl.toString(),
+      hasComputers = computerListSnapshot.get().items.isNotEmpty(),
+      hasInvite = firstClaimedInvite.get() != null,
+      isAdmin = false,
+    )
+  }
+
+  private val accountSnapshot = object : DbLazy<AccountSnapshot>() {
+    context(transactionCallbacks: TransactionCallbacks)
+    override fun load(): AccountSnapshot {
+      val passkeys = passkeys.get()
+      val firstInvite = firstClaimedInvite.get()
+
+      return AccountSnapshot(
+        nextChallenge = client.challenger.create(),
+        passkeys = passkeys,
+        hasInvite = firstInvite != null,
+      )
+    }
+  }
+
+  private val computerListSnapshot = object : DbLazy<ComputerListSnapshot>() {
+    context(transactionCallbacks: TransactionCallbacks)
+    override fun load(): ComputerListSnapshot {
+      val accountId = client.getAccountIdOrNull()
+        ?: return ComputerListSnapshot()
+
+      val computers = wasmoDbService.computerQueries.selectComputersByAccountId(
+        account_id = accountId,
+        limit = 100,
+      ).executeAsList()
+
+      return ComputerListSnapshot(
+        items = computers.map {
+          ComputerListItem(it.slug)
+        },
+      )
+    }
+  }
+
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun computerListSnapshot(): ComputerListSnapshot {
-    val accountId = client.getAccountIdOrNull()
-      ?: return ComputerListSnapshot()
+  override fun routingContext() = routingContext.get()
 
-    val computers = wasmoDbService.computerQueries.selectComputersByAccountId(
-      account_id = accountId,
-      limit = 100,
-    ).executeAsList()
+  context(transactionCallbacks: TransactionCallbacks)
+  override fun accountSnapshot() = accountSnapshot.get()
 
-    return ComputerListSnapshot(
-      items = computers.map {
-        ComputerListItem(it.slug)
-      },
-    )
-  }
+  context(transactionCallbacks: TransactionCallbacks)
+  override fun computerListSnapshot() = computerListSnapshot.get()
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun inviteTicketOrNull(code: String): InviteTicket? {
@@ -154,10 +195,12 @@ class RealCallDataService private constructor(
   }
 
   class Factory(
+    private val deployment: Deployment,
     private val authenticatorDatabase: AuthenticatorDatabase,
     private val wasmoDbService: WasmoDbService,
   ) : CallDataService.Factory {
     override fun create(client: Client) = RealCallDataService(
+      deployment = deployment,
       authenticatorDatabase = authenticatorDatabase,
       wasmoDbService = wasmoDbService,
       client = client,

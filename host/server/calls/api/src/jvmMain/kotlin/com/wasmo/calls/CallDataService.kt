@@ -7,11 +7,15 @@ import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.routes.RoutingContext
 
 /**
  * This is scoped to a single API call or page load, and loads just the data we need for that call.
  */
 interface CallDataService {
+  context(transactionCallbacks: TransactionCallbacks)
+  fun routingContext(): RoutingContext
+
   context(transactionCallbacks: TransactionCallbacks)
   fun accountSnapshot(): AccountSnapshot
 
