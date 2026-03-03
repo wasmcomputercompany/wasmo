@@ -7,14 +7,12 @@ import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
 
 class AccountSnapshotAction(
-  private val callDataServiceFactory: CallDataService.Factory,
-  private val client: Client,
+  private val callDataService: CallDataService,
   private val wasmoDbService: WasmoDbService,
 ) {
   fun get(
     request: AccountSnapshotRequest,
   ): Response<AccountSnapshotResponse> {
-    val callDataService = callDataServiceFactory.create(client)
     return wasmoDbService.transactionWithResult(noEnclosing = true) {
       Response(
         body = AccountSnapshotResponse(

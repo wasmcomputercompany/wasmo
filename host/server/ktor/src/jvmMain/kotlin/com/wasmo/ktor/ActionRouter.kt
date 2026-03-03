@@ -86,21 +86,20 @@ class ActionRouter(
   )
 
   fun accountSnapshotAction(client: Client) = AccountSnapshotAction(
-    callDataServiceFactory = callDataServiceFactory,
-    client = client,
+    callDataService = callDataServiceFactory.create(client),
     wasmoDbService = wasmoDbService,
   )
 
   fun createInviteAction(client: Client) = CreateInviteAction(
     client = client,
-    callDataServiceFactory = callDataServiceFactory,
+    callDataService = callDataServiceFactory.create(client),
     wasmoDbService = wasmoDbService,
     inviteService = inviteService,
   )
 
   fun registerPasskeyAction(client: Client) = RegisterPasskeyAction(
     clock = clock,
-    callDataServiceFactory = callDataServiceFactory,
+    callDataService = callDataServiceFactory.create(client),
     client = client,
     passkeyChecker = passkeyChecker(client),
     wasmoDbService = wasmoDbService,
@@ -110,8 +109,8 @@ class ActionRouter(
   fun authenticatePasskeyAction(client: Client) = AuthenticatePasskeyAction(
     client = client,
     passkeyChecker = passkeyChecker(client),
-    passkeyLinkerFactory = passkeyLinkerFactory,
-    callDataServiceFactory = callDataServiceFactory,
+    passkeyLinker = passkeyLinkerFactory.create(client),
+    callDataService = callDataServiceFactory.create(client),
     wasmoDbService = wasmoDbService,
     inviteService = inviteService,
   )
@@ -140,17 +139,15 @@ class ActionRouter(
   )
 
   fun hostPage(client: Client) = HostPageAction(
-    client = client,
-    callDataServiceFactory = callDataServiceFactory,
+    callDataService = callDataServiceFactory.create(client),
     hostPageFactory = serverHostPageFactory,
     wasmoDbService = wasmoDbService,
   )
 
   fun afterCheckoutAction(client: Client) = AfterCheckoutAction(
-    callDataServiceFactory = callDataServiceFactory,
+    callDataService = callDataServiceFactory.create(client),
     paymentsService = paymentsService,
     wasmoDbService = wasmoDbService,
-    client = client,
     subscriptionUpdater = subscriptionUpdater,
   )
 

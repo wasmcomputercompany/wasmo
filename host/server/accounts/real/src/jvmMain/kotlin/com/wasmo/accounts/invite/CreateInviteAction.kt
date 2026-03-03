@@ -11,7 +11,7 @@ import com.wasmo.framework.Response
 
 class CreateInviteAction(
   private val client: Client,
-  private val callDataServiceFactory: CallDataService.Factory,
+  private val callDataService: CallDataService,
   private val wasmoDbService: WasmoDbService,
   private val inviteService: InviteService,
 ) {
@@ -23,7 +23,6 @@ class CreateInviteAction(
       val inviteRoute = InviteRoute(
         code = inviteTicket.code,
       )
-      val callDataService = callDataServiceFactory.create(client)
       val routeCodec = callDataService.routeCodec()
       Response(
         body = CreateInviteResponse(

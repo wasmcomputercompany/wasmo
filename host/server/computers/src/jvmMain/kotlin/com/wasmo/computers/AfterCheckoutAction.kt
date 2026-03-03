@@ -1,6 +1,5 @@
 package com.wasmo.computers
 
-import com.wasmo.accounts.Client
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.toHttpUrl
@@ -19,16 +18,14 @@ import com.wasmo.payments.PaymentsService
  * or to [ComputerHomeRoute] if payment succeeded.
  */
 class AfterCheckoutAction(
-  val callDataServiceFactory: CallDataService.Factory,
-  val paymentsService: PaymentsService,
-  val wasmoDbService: WasmoDbService,
-  val subscriptionUpdater: SubscriptionUpdater,
-  val client: Client,
+  private val callDataService: CallDataService,
+  private val paymentsService: PaymentsService,
+  private val wasmoDbService: WasmoDbService,
+  private val subscriptionUpdater: SubscriptionUpdater,
 ) {
   fun get(checkoutSessionId: String): Response<ResponseBody> {
     val session = paymentsService.getCheckoutSession(checkoutSessionId)
 
-    val callDataService = callDataServiceFactory.create(client)
     val routeCodec = wasmoDbService.transactionWithResult(noEnclosing = true) {
       callDataService.routeCodec()
     }

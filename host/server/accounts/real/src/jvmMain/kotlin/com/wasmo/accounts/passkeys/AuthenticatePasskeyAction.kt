@@ -13,8 +13,8 @@ import com.wasmo.passkeys.PasskeyChecker
 class AuthenticatePasskeyAction(
   private val client: Client,
   private val passkeyChecker: PasskeyChecker,
-  private val passkeyLinkerFactory: PasskeyLinker.Factory,
-  private val callDataServiceFactory: CallDataService.Factory,
+  private val passkeyLinker: PasskeyLinker,
+  private val callDataService: CallDataService,
   private val wasmoDbService: WasmoDbService,
   private val inviteService: InviteService,
 ) {
@@ -36,14 +36,13 @@ class AuthenticatePasskeyAction(
         throw BadRequestException("failed to authenticate passkey")
       }
 
-      passkeyLinkerFactory.create(client).link(passkey)
+      passkeyLinker.link(passkey)
 
       val inviteCode = request.inviteCode
       if (inviteCode != null) {
         inviteService.claim(client, inviteCode)
       }
 
-      val callDataService = callDataServiceFactory.create(client)
       Response(
         body = AuthenticatePasskeyResponse(
           account = callDataService.accountSnapshot(),

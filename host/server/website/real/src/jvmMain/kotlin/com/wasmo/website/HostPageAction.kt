@@ -1,6 +1,5 @@
 package com.wasmo.website
 
-import com.wasmo.accounts.Client
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
@@ -17,14 +16,11 @@ import com.wasmo.framework.UnauthorizedException
  * We serve the same page to most routes, with different embedded page data.
  */
 class HostPageAction(
-  private val client: Client,
-  private val callDataServiceFactory: CallDataService.Factory,
+  private val callDataService: CallDataService,
   private val hostPageFactory: ServerHostPage.Factory,
   private val wasmoDbService: WasmoDbService,
 ) {
   fun get(url: Url): ServerHostPage {
-    val callDataService = callDataServiceFactory.create(client)
-
     return wasmoDbService.transactionWithResult(noEnclosing = true) {
       val accountSnapshot = callDataService.accountSnapshot()
       val routingContext = callDataService.routingContext()
