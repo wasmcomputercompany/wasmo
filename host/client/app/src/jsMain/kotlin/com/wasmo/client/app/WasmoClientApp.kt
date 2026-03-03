@@ -18,17 +18,18 @@ import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.stripe.CheckoutSession
 import com.wasmo.client.app.teaser.TeaserUi
 import com.wasmo.client.app.ui.UiFactory
-import com.wasmo.common.logging.ConsoleLogger
 import com.wasmo.common.logging.Logger
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.framework.PageData
 import com.wasmo.framework.detectPageData
 import com.wasmo.passkeys.RealPasskeyAuthenticator
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.MainScope
 import org.jetbrains.compose.web.renderComposableInBody
 
+@Inject
 class WasmoClientApp(
-  val logger: Logger = ConsoleLogger,
+  val logger: Logger,
   val environment: Environment,
 ) {
   private val scope = MainScope()

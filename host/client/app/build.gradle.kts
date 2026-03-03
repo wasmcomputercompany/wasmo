@@ -4,6 +4,7 @@ plugins {
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.burst)
+  alias(libs.plugins.metro)
   id("wasmo-build")
   id("dom-tester")
 }
