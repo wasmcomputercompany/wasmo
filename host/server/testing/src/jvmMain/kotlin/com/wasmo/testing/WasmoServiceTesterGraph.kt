@@ -8,9 +8,11 @@ import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
+import com.wasmo.http.HttpClient
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStore
 import com.wasmo.objectstore.ObjectStoreFactory
+import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
@@ -28,6 +30,7 @@ import okio.fakefilesystem.FakeFileSystem
 @DependencyGraph(AppScope::class)
 interface WasmoServiceTesterGraph {
   val wasmoServiceTester: WasmoServiceTester
+  val clientTesterGraphFactory: ClientTesterGraph.Factory
 
   @Provides
   @SingleIn(AppScope::class)
@@ -92,6 +95,12 @@ interface WasmoServiceTesterGraph {
 
   @Binds
   fun bindSendEmailService(real: FakeSendEmailService): SendEmailService
+
+  @Binds
+  fun bindPaymentsService(real: FakePaymentsService): PaymentsService
+
+  @Binds
+  fun bindHttpClient(real: FakeHttpClient): HttpClient
 
   @DependencyGraph.Factory
   interface Factory {

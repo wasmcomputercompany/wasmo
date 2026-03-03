@@ -4,6 +4,7 @@ import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.Challenger
 import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
+import com.wasmo.accounts.ClientScope
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.invite.CreateInviteAction
@@ -40,8 +41,12 @@ import com.wasmo.sendemail.SendEmailService
 import com.wasmo.website.HostPageAction
 import com.wasmo.website.RealServerHostPage
 import com.wasmo.website.ServerHostPage
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 
+@Inject
+@SingleIn(ClientScope::class)
 class ClientTester(
   private val clock: Clock,
   private val wasmoDb: WasmoDb,
@@ -54,6 +59,7 @@ class ClientTester(
   private val stripePublishableKey: StripePublishableKey,
   val paymentsService: FakePaymentsService,
   val challenger: Challenger,
+  val inviteService: InviteService,
 ) {
   val authenticatorDatabase = RealAuthenticatorDatabase()
 
@@ -77,11 +83,6 @@ class ClientTester(
   fun passkeyLinker(client: Client) = PasskeyLinker(
     wasmoDb = wasmoDb,
     client = client,
-  )
-
-  val inviteService = InviteService(
-    clock = clock,
-    wasmoDb = wasmoDb,
   )
 
   val hostPageFactory = object : RealServerHostPage.Factory {

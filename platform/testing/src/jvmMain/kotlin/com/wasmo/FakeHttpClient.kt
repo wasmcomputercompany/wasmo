@@ -3,11 +3,16 @@ package com.wasmo
 import com.wasmo.http.HttpClient
 import com.wasmo.http.HttpRequest
 import com.wasmo.http.HttpResponse
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
 
+@Inject
+@SingleIn(AppScope::class)
 class FakeHttpClient : HttpClient {
   private val handlersFlow = MutableStateFlow(listOf<Handler>())
 
