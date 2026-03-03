@@ -1,5 +1,11 @@
 package com.wasmo.passkeys
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+
+@Inject
+@SingleIn(AppScope::class)
 class RealAuthenticatorDatabase : AuthenticatorDatabase {
   companion object {
     const val ApplePasswords = "fbfc3007-154e-4ecc-8c0b-6e020557d7bd"

@@ -2,8 +2,12 @@ package com.wasmo.accounts.passkeys
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
+import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.CookieQueries
 import com.wasmo.db.Passkey
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
 /**
  * After we authenticate a passkey we have two accounts for one person.
@@ -17,10 +21,14 @@ import com.wasmo.db.Passkey
  *
  * Note that we *do not* move other passkeys, in case the account already has a passkey.
  */
-class PasskeyLinker private constructor(
-  private val cookieQueries: CookieQueries,
-  private val client: Client,
+@AssistedInject
+class PasskeyLinker(
+  private val wasmoDbService: WasmoDbService,
+  @Assisted private val client: Client,
 ) {
+  private val cookieQueries: CookieQueries
+    get() = wasmoDbService.cookieQueries
+
   context(transactionCallbacks: TransactionCallbacks)
   fun link(passkey: Passkey) {
     val cookieAccountId = client.getOrCreateAccountId()
@@ -37,12 +45,8 @@ class PasskeyLinker private constructor(
     client.invalidate()
   }
 
-  class Factory(
-    private val cookieQueries: CookieQueries,
-  ) {
-    fun create(client: Client) = PasskeyLinker(
-      cookieQueries = cookieQueries,
-      client = client,
-    )
+  @AssistedFactory
+  interface Factory {
+    fun create(client: Client): PasskeyLinker
   }
 }

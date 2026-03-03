@@ -14,8 +14,13 @@ import com.wasmo.payments.CreateCheckoutSessionResponse
 import com.wasmo.payments.Customer
 import com.wasmo.payments.PaymentsService
 import com.wasmo.payments.Subscription
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.time.Instant
 
+@Inject
+@SingleIn(AppScope::class)
 class StripePaymentsService(
   private val deployment: Deployment,
   private val sessionService: SessionService,

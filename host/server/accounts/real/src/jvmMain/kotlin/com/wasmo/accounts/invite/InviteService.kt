@@ -6,8 +6,13 @@ import com.wasmo.api.InviteTicket
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.tokens.newToken
 import com.wasmo.framework.BadRequestException
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 
+@Inject
+@SingleIn(AppScope::class)
 class InviteService(
   private val clock: Clock,
   private val wasmoDbService: WasmoDbService,

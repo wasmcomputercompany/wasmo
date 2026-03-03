@@ -47,6 +47,9 @@ import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.website.HostPageAction
 import com.wasmo.website.ServerHostPage
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log
@@ -64,6 +67,8 @@ import io.ktor.server.routing.routing
 import kotlin.time.Clock
 import kotlinx.serialization.serializer
 
+@Inject
+@SingleIn(AppScope::class)
 class ActionRouter(
   private val clock: Clock,
   private val deployment: Deployment,

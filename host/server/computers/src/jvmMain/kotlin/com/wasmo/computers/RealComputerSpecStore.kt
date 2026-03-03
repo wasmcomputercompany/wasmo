@@ -5,9 +5,14 @@ import com.wasmo.api.ComputerSlug
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.db.Computer
 import com.wasmo.identifiers.AccountId
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import org.postgresql.util.PSQLException
 
+@Inject
+@SingleIn(AppScope::class)
 class ComputerSpecStore(
   private val clock: Clock,
   private val wasmoDbService: WasmoDbService,

@@ -2,6 +2,7 @@ package com.wasmo.testing
 
 import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.Challenger
+import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
@@ -10,9 +11,13 @@ import com.wasmo.accounts.invite.InviteService
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.PasskeyLinker
 import com.wasmo.accounts.passkeys.RegisterPasskeyAction
+import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.AuthenticatePasskeyRequest
+import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSlug
+import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.CreateComputerRequest
+import com.wasmo.api.InviteTicket
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
@@ -56,31 +61,50 @@ class ClientTester(
     override fun create(routingContext: RoutingContext) = RealRouteCodec(routingContext)
   }
 
-  val callDataServiceFactory = RealCallDataService.Factory(
-    deployment = deployment,
-    authenticatorDatabase = authenticatorDatabase,
-    routeCodecFactory = routeCodecFactory,
-    wasmoDbService = wasmoDbService,
-  )
+  val callDataServiceFactory = object : RealCallDataService.Factory {
+    override fun create(client: Client) = RealCallDataService(
+      deployment = deployment,
+      authenticatorDatabase = authenticatorDatabase,
+      routeCodecFactory = routeCodecFactory,
+      wasmoDbService = wasmoDbService,
+      client = client,
+    )
+  }
 
   val passkeyChecker = RealPasskeyChecker(
     challenger = challenger,
     deployment = deployment,
   )
 
-  val passkeyLinkerFactory = PasskeyLinker.Factory(
-    cookieQueries = wasmoDbService.cookieQueries,
-  )
+  val passkeyLinkerFactory = object : PasskeyLinker.Factory {
+    override fun create(client: Client) = PasskeyLinker(
+      wasmoDbService = wasmoDbService,
+      client = client,
+    )
+  }
 
   val inviteService = InviteService(
     clock = clock,
     wasmoDbService = wasmoDbService,
   )
 
-  val hostPageFactory = RealServerHostPage.Factory(
-    deployment = deployment,
-    stripePublishableKey = stripePublishableKey,
-  )
+  val hostPageFactory = object : RealServerHostPage.Factory {
+    override fun create(
+      routingContext: RoutingContext,
+      accountSnapshot: AccountSnapshot,
+      inviteTicket: InviteTicket?,
+      computerSnapshot: ComputerSnapshot?,
+      computerListSnapshot: ComputerListSnapshot?,
+    ) = RealServerHostPage(
+      deployment = deployment,
+      stripePublishableKey = stripePublishableKey,
+      routingContext = routingContext,
+      accountSnapshot = accountSnapshot,
+      inviteTicket = inviteTicket,
+      computerSnapshot = computerSnapshot,
+      computerListSnapshot = computerListSnapshot,
+    )
+  }
 
   fun routingContext() = RoutingContext(
     rootUrl = deployment.baseUrl.toString(),

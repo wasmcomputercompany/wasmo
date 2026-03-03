@@ -14,6 +14,9 @@ import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.write
 import com.wasmo.framework.writeHtml
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.html.body
 import kotlinx.html.head
 import kotlinx.html.link
@@ -23,14 +26,15 @@ import kotlinx.html.title
 import kotlinx.html.unsafe
 import okio.BufferedSink
 
+@AssistedInject
 class RealServerHostPage(
   override val deployment: Deployment,
   override val stripePublishableKey: StripePublishableKey,
-  override val accountSnapshot: AccountSnapshot,
-  override val routingContext: RoutingContext,
-  override val inviteTicket: InviteTicket?,
-  override val computerSnapshot: ComputerSnapshot?,
-  override val computerListSnapshot: ComputerListSnapshot?,
+  @Assisted override val accountSnapshot: AccountSnapshot,
+  @Assisted override val routingContext: RoutingContext,
+  @Assisted override val inviteTicket: InviteTicket?,
+  @Assisted override val computerSnapshot: ComputerSnapshot?,
+  @Assisted override val computerListSnapshot: ComputerListSnapshot?,
 ) : ServerHostPage, ResponseBody {
   val pageData: MapPageData
     get() = MapPageData.Builder(WasmoJson)
@@ -114,24 +118,14 @@ class RealServerHostPage(
     }
   }
 
-  class Factory(
-    private val deployment: Deployment,
-    private val stripePublishableKey: StripePublishableKey,
-  ) : ServerHostPage.Factory {
+  @AssistedFactory
+  interface Factory : ServerHostPage.Factory {
     override fun create(
       routingContext: RoutingContext,
       accountSnapshot: AccountSnapshot,
       inviteTicket: InviteTicket?,
       computerSnapshot: ComputerSnapshot?,
       computerListSnapshot: ComputerListSnapshot?,
-    ) = RealServerHostPage(
-      deployment = deployment,
-      stripePublishableKey = stripePublishableKey,
-      accountSnapshot = accountSnapshot,
-      routingContext = routingContext,
-      inviteTicket = inviteTicket,
-      computerSnapshot = computerSnapshot,
-      computerListSnapshot = computerListSnapshot,
-    )
+    ): RealServerHostPage
   }
 }

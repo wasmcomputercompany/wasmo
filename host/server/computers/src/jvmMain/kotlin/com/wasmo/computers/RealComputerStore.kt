@@ -13,9 +13,14 @@ import com.wasmo.http.HttpClient
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.objectstore.ObjectStore
 import com.wasmo.objectstore.ScopedObjectStore
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import okhttp3.HttpUrl
 
+@Inject
+@SingleIn(AppScope::class)
 class RealComputerStore(
   private val deployment: Deployment,
   private val clock: Clock,

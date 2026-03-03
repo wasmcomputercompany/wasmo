@@ -3,6 +3,9 @@ package com.wasmo.sendemail.postmark
 import com.wasmo.sendemail.EmailMessage
 import com.wasmo.sendemail.EmailSendFailedException
 import com.wasmo.sendemail.SendEmailService
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -52,6 +55,8 @@ class PostmarkEmailService private constructor(
     }
   }
 
+  @Inject
+  @SingleIn(AppScope::class)
   class Factory(
     private val credentials: PostmarkCredentials,
     private val client: OkHttpClient,

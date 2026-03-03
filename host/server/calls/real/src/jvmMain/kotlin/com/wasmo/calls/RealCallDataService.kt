@@ -18,13 +18,17 @@ import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
-class RealCallDataService private constructor(
+@AssistedInject
+class RealCallDataService(
   private val deployment: Deployment,
   private val routeCodecFactory: RouteCodec.Factory,
   private val authenticatorDatabase: AuthenticatorDatabase,
   private val wasmoDbService: WasmoDbService,
-  private val client: Client,
+  @Assisted private val client: Client,
 ) : CallDataService {
   private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
     context(transactionCallbacks: TransactionCallbacks)
@@ -199,18 +203,8 @@ class RealCallDataService private constructor(
     )
   }
 
-  class Factory(
-    private val deployment: Deployment,
-    private val routeCodecFactory: RouteCodec.Factory,
-    private val authenticatorDatabase: AuthenticatorDatabase,
-    private val wasmoDbService: WasmoDbService,
-  ) : CallDataService.Factory {
-    override fun create(client: Client) = RealCallDataService(
-      deployment = deployment,
-      routeCodecFactory = routeCodecFactory,
-      authenticatorDatabase = authenticatorDatabase,
-      wasmoDbService = wasmoDbService,
-      client = client,
-    )
+  @AssistedFactory
+  interface Factory: CallDataService.Factory {
+    override fun create(client: Client): RealCallDataService
   }
 }
