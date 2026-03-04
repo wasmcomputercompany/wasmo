@@ -35,8 +35,7 @@ class PasskeyActionsTest {
       tester.origin,
     )
 
-    val registerResponse = clientA.call().registerPasskeyAction
-      .register(RegisterPasskeyRequest(registration))
+    val registerResponse = clientA.call().registerPasskey(RegisterPasskeyRequest(registration))
     val passkeySnapshot = PasskeySnapshot(
       authenticator = "Apple Passwords",
       createdAt = tester.clock.now(),
@@ -47,7 +46,7 @@ class PasskeyActionsTest {
       .containsExactly(passkeySnapshot)
 
     val clientB = tester.newClient()
-    val authenticateResponse = clientB.call().authenticatePasskeyAction.authenticate(
+    val authenticateResponse = clientB.call().authenticatePasskey(
       AuthenticatePasskeyRequest(
         onlyPasskey.authentication(
           clientB.createChallenge(),

@@ -40,8 +40,7 @@ class InvitesTest {
   @Test
   fun receiveAndClaimInviteWithPasskeyRegistration() {
     val createdByClient = tester.newClient()
-    val createInviteResponse = createdByClient.call().createInviteAction
-      .create(CreateInviteRequest)
+    val createInviteResponse = createdByClient.call().createInvite(CreateInviteRequest)
 
     val inviteUrl = createInviteResponse.body.inviteUrl.decodeUrl()
     val inviteRoute = createdByClient.call().routeCodec().decode(inviteUrl) as InviteRoute
@@ -52,8 +51,7 @@ class InvitesTest {
     assertThat(appPage.inviteTicket?.code).isEqualTo(inviteRoute.code)
     assertThat(appPage.inviteTicket?.claimed).isEqualTo(false)
 
-    val accountSnapshotResponse = claimedByClient.call().accountSnapshotAction
-      .get(AccountSnapshotRequest)
+    val accountSnapshotResponse = claimedByClient.call().accountSnapshot(AccountSnapshotRequest)
     assertThat(accountSnapshotResponse.body.account.hasInvite).isFalse()
 
     val passkey = tester.newPasskey()
@@ -65,8 +63,7 @@ class InvitesTest {
   @Test
   fun claimInviteIsIdempotent() {
     val createdByClient = tester.newClient()
-    val createInviteResponse = createdByClient.call().createInviteAction
-      .create(CreateInviteRequest)
+    val createInviteResponse = createdByClient.call().createInvite(CreateInviteRequest)
 
     val inviteUrl = createInviteResponse.body.inviteUrl.decodeUrl()
     val inviteRoute = createdByClient.call().routeCodec().decode(inviteUrl) as InviteRoute
@@ -83,8 +80,7 @@ class InvitesTest {
   @Test
   fun claimedTokensAreCaseSensitive() {
     val createdByClient = tester.newClient()
-    val createInviteResponse = createdByClient.call().createInviteAction
-      .create(CreateInviteRequest)
+    val createInviteResponse = createdByClient.call().createInvite(CreateInviteRequest)
 
     val inviteUrl = createInviteResponse.body.inviteUrl.decodeUrl()
     val inviteRoute = createdByClient.call().routeCodec().decode(inviteUrl) as InviteRoute
@@ -105,15 +101,13 @@ class InvitesTest {
     passkeyRegisterClient.register(passkey)
 
     val createdByClient = tester.newClient()
-    val createInviteResponse = createdByClient.call().createInviteAction
-      .create(CreateInviteRequest)
+    val createInviteResponse = createdByClient.call().createInvite(CreateInviteRequest)
 
     val inviteUrl = createInviteResponse.body.inviteUrl.decodeUrl()
     val inviteRoute = createdByClient.call().routeCodec().decode(inviteUrl) as InviteRoute
 
     val claimedByClient = tester.newClient()
-    val accountSnapshotResponse = claimedByClient.call().accountSnapshotAction
-      .get(AccountSnapshotRequest)
+    val accountSnapshotResponse = claimedByClient.call().accountSnapshot(AccountSnapshotRequest)
     assertThat(accountSnapshotResponse.body.account.hasInvite).isFalse()
 
     val authenticateResponse = claimedByClient.call().authenticate(passkey, inviteRoute.code)

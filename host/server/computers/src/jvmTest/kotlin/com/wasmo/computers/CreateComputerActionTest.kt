@@ -31,7 +31,7 @@ class CreateComputerActionTest {
   fun happyPath() {
     val client = tester.newClient()
     val computerSlug = ComputerSlug("jesse99")
-    val createComputerResponse = client.call().createComputerAction.create(
+    val createComputerResponse = client.call().createComputer(
       request = CreateComputerRequest(
         computerSpecToken = "computerspectoken00000001",
         slug = computerSlug,
@@ -40,7 +40,7 @@ class CreateComputerActionTest {
     val checkoutSessionId = client.paymentsService.completePayment(
       createComputerResponse.body.checkoutSessionClientSecret,
     )
-    val afterCheckoutResponse = client.call().afterCheckoutAction.get(checkoutSessionId)
+    val afterCheckoutResponse = client.call().afterCheckout(checkoutSessionId)
 
     assertThat(afterCheckoutResponse.header("Location")).isEqualTo(
       "https://jesse99.wasmo.com/",

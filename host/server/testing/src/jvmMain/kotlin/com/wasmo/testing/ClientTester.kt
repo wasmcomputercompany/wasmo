@@ -31,7 +31,7 @@ class ClientTester(
   fun register(
     passkey: FakePasskey,
     inviteCode: String? = null,
-  ): Response<RegisterPasskeyResponse> = call().registerPasskeyAction.register(
+  ): Response<RegisterPasskeyResponse> = call().registerPasskey(
     request = RegisterPasskeyRequest(
       registration = passkey.registration(
         challenge = createChallenge(),
@@ -43,7 +43,7 @@ class ClientTester(
 
   fun createComputer(slug: ComputerSlug): ComputerTester {
     // Create a ComputerSpec.
-    val createComputerResponse = call().createComputerAction.create(
+    val createComputerResponse = call().createComputer(
       request = CreateComputerRequest(
         computerSpecToken = newToken(),
         slug = slug,
@@ -56,7 +56,7 @@ class ClientTester(
     )
 
     // Sync payment state.
-    call().afterCheckoutAction.get(checkoutSessionId)
+    call().afterCheckout(checkoutSessionId)
 
     return ComputerTester(
       slug = slug,

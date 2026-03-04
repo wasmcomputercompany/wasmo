@@ -41,7 +41,7 @@ class InstallAppActionTest {
     )
     tester.wasmoArtifactServer.apps += helloApp
 
-    val installAppResponse = client.call().installAppAction.install(
+    val installAppResponse = client.call().installApp(
       computerSlug = computer.slug,
       request = InstallAppRequest(
         manifestUrl = tester.deployment.baseUrl.resolve(helloApp.manifestPath)!!.toString(),
