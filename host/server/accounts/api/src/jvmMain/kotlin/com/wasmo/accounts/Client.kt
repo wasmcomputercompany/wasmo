@@ -21,4 +21,4 @@ interface Client : Caller {
   fun invalidate()
 }
 
-abstract class ClientScope private constructor()
+abstract class CallScope private constructor()

@@ -6,12 +6,16 @@ import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.computers.ComputerStore
+import com.wasmo.computers.RealComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.http.HttpClient
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStore
 import com.wasmo.objectstore.ObjectStoreFactory
+import com.wasmo.passkeys.AuthenticatorDatabase
+import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
 import dev.zacsweers.metro.AppScope
@@ -85,6 +89,9 @@ interface WasmoServiceTesterGraph {
   fun provideCookieSecret(): CookieSecret = CookieSecret("secret".encodeUtf8())
 
   @Binds
+  fun bindComputerStore(real: RealComputerStore): ComputerStore
+
+  @Binds
   fun bindClock(real: FakeClock): Clock
 
   @Binds
@@ -101,6 +108,9 @@ interface WasmoServiceTesterGraph {
 
   @Binds
   fun bindHttpClient(real: FakeHttpClient): HttpClient
+
+  @Binds
+  fun bindAuthenticatorDatabase(real: RealAuthenticatorDatabase): AuthenticatorDatabase
 
   @DependencyGraph.Factory
   interface Factory {

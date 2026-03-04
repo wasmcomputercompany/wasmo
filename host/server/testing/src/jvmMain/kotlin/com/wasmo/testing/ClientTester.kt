@@ -1,232 +1,54 @@
 package com.wasmo.testing
 
-import com.wasmo.accounts.AccountSnapshotAction
-import com.wasmo.accounts.Challenger
-import com.wasmo.accounts.Client
 import com.wasmo.accounts.ClientAuthenticator
-import com.wasmo.accounts.ClientScope
-import com.wasmo.accounts.ConfirmEmailAddressAction
-import com.wasmo.accounts.LinkEmailAddressAction
-import com.wasmo.accounts.invite.CreateInviteAction
-import com.wasmo.accounts.invite.InviteService
-import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
-import com.wasmo.accounts.passkeys.PasskeyLinker
-import com.wasmo.accounts.passkeys.RegisterPasskeyAction
-import com.wasmo.api.AccountSnapshot
-import com.wasmo.api.AuthenticatePasskeyRequest
-import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSlug
-import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.CreateComputerRequest
-import com.wasmo.api.InviteTicket
 import com.wasmo.api.RegisterPasskeyRequest
-import com.wasmo.api.routes.Route
-import com.wasmo.api.routes.RouteCodec
-import com.wasmo.api.routes.RoutingContext
-import com.wasmo.api.stripe.StripePublishableKey
-import com.wasmo.calls.RealCallDataService
-import com.wasmo.common.routes.RealRouteCodec
+import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.common.tokens.newToken
-import com.wasmo.computers.AfterCheckoutAction
-import com.wasmo.computers.ComputerSpecStore
-import com.wasmo.computers.ComputerStore
-import com.wasmo.computers.CreateComputerAction
-import com.wasmo.computers.InstallAppAction
-import com.wasmo.computers.SubscriptionUpdater
-import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
-import com.wasmo.passkeys.RealAuthenticatorDatabase
-import com.wasmo.passkeys.RealPasskeyChecker
-import com.wasmo.sendemail.SendEmailService
-import com.wasmo.website.HostPageAction
-import com.wasmo.website.RealServerHostPage
-import com.wasmo.website.ServerHostPage
+import com.wasmo.framework.Response
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import kotlin.time.Clock
+import okio.ByteString
 
 @Inject
 @SingleIn(ClientScope::class)
 class ClientTester(
-  private val clock: Clock,
-  private val wasmoDb: WasmoDb,
   private val deployment: Deployment,
-  private val sendEmailService: SendEmailService,
   private val clientAuthenticator: ClientAuthenticator,
-  private val computerStore: ComputerStore,
-  private val computerSpecStore: ComputerSpecStore,
-  private val subscriptionUpdater: SubscriptionUpdater,
-  private val stripePublishableKey: StripePublishableKey,
   val paymentsService: FakePaymentsService,
-  val challenger: Challenger,
-  val inviteService: InviteService,
+  val callTesterGraphFactory: CallTesterGraph.Factory,
 ) {
-  val authenticatorDatabase = RealAuthenticatorDatabase()
-
-  val routeCodecFactory = object : RouteCodec.Factory {
-    override fun create(routingContext: RoutingContext) = RealRouteCodec(routingContext)
-  }
-
-  fun callDataService(client: Client) = RealCallDataService(
-    deployment = deployment,
-    authenticatorDatabase = authenticatorDatabase,
-    routeCodecFactory = routeCodecFactory,
-    wasmoDb = wasmoDb,
-    client = client,
-  )
-
-  val passkeyChecker = RealPasskeyChecker(
-    challenger = challenger,
-    deployment = deployment,
-  )
-
-  fun passkeyLinker(client: Client) = PasskeyLinker(
-    wasmoDb = wasmoDb,
-    client = client,
-  )
-
-  val hostPageFactory = object : RealServerHostPage.Factory {
-    override fun create(
-      routingContext: RoutingContext,
-      accountSnapshot: AccountSnapshot,
-      inviteTicket: InviteTicket?,
-      computerSnapshot: ComputerSnapshot?,
-      computerListSnapshot: ComputerListSnapshot?,
-    ) = RealServerHostPage(
-      deployment = deployment,
-      stripePublishableKey = stripePublishableKey,
-      routingContext = routingContext,
-      accountSnapshot = accountSnapshot,
-      inviteTicket = inviteTicket,
-      computerSnapshot = computerSnapshot,
-      computerListSnapshot = computerListSnapshot,
-    )
-  }
-
-  fun routingContext() = RoutingContext(
-    rootUrl = deployment.baseUrl.toString(),
-    hasComputers = false,
-    hasInvite = false,
-    isAdmin = false,
-  )
-
-  fun routeCodec(): RouteCodec = routeCodecFactory.create(
-    routingContext = routingContext(),
-  )
-
-  fun accountSnapshotAction() = AccountSnapshotAction(
-    callDataService = callDataService(clientAuthenticator.get()),
-    wasmoDb = wasmoDb,
-  )
-
-  fun linkEmailAddressAction() = LinkEmailAddressAction(
-    deployment = deployment,
-    sendEmailService = sendEmailService,
-  )
-
-  fun confirmEmailAddressAction() = ConfirmEmailAddressAction(
-  )
-
-  fun registerPasskeyAction(): RegisterPasskeyAction {
+  fun call(): CallTester {
     val client = clientAuthenticator.get()
-    return RegisterPasskeyAction(
-      clock = clock,
-      callDataService = callDataService(client),
-      client = client,
-      passkeyChecker = passkeyChecker,
-      wasmoDb = wasmoDb,
-      inviteService = inviteService,
-    )
+    val callTesterGraph = callTesterGraphFactory.create(client)
+    return callTesterGraph.callTester
   }
+
+  fun createChallenge(): ByteString = call().challenger.create()
 
   fun register(
     passkey: FakePasskey,
     inviteCode: String? = null,
-  ) = registerPasskeyAction().register(
+  ): Response<RegisterPasskeyResponse> = call().registerPasskeyAction.register(
     request = RegisterPasskeyRequest(
       registration = passkey.registration(
-        challenge = challenger.create(),
+        challenge = createChallenge(),
         origin = deployment.baseUrl.toString(),
       ),
       inviteCode = inviteCode,
     ),
-  )
-
-  fun hostPageAction() = HostPageAction(
-    callDataService = callDataService(clientAuthenticator.get()),
-    hostPageFactory = hostPageFactory,
-    wasmoDb = wasmoDb,
-  )
-
-  fun hostPage(route: Route): ServerHostPage {
-    val url = routeCodec().encode(route)
-    return hostPageAction().get(url)
-  }
-
-  fun authenticatePasskeyAction(): AuthenticatePasskeyAction {
-    val client = clientAuthenticator.get()
-    return AuthenticatePasskeyAction(
-      callDataService = callDataService(client),
-      client = client,
-      passkeyChecker = passkeyChecker,
-      passkeyLinker = passkeyLinker(client),
-      wasmoDb = wasmoDb,
-      inviteService = inviteService,
-    )
-  }
-
-  fun createComputerAction() = CreateComputerAction(
-    paymentsService = paymentsService,
-    client = clientAuthenticator.get(),
-    wasmoDb = wasmoDb,
-    computerSpecStore = computerSpecStore,
-  )
-
-  fun afterCheckoutAction() = AfterCheckoutAction(
-    paymentsService = paymentsService,
-    subscriptionUpdater = subscriptionUpdater,
-    callDataService = callDataService(clientAuthenticator.get()),
-    wasmoDb = wasmoDb,
-  )
-
-  fun createInviteAction(): CreateInviteAction {
-    val client = clientAuthenticator.get()
-    return CreateInviteAction(
-      client = clientAuthenticator.get(),
-      callDataService = callDataService(client),
-      wasmoDb = wasmoDb,
-      inviteService = inviteService,
-    )
-  }
-
-  fun authenticate(
-    passkey: FakePasskey,
-    inviteCode: String? = null,
-  ) = authenticatePasskeyAction().authenticate(
-    request = AuthenticatePasskeyRequest(
-      authentication = passkey.authentication(
-        challenge = challenger.create(),
-        origin = deployment.baseUrl.toString(),
-      ),
-      inviteCode = inviteCode,
-    ),
-  )
-
-  fun installAppAction() = InstallAppAction(
-    client = clientAuthenticator.get(),
-    computerStore = computerStore,
-    wasmoDb = wasmoDb,
   )
 
   fun createComputer(slug: ComputerSlug): ComputerTester {
     // Create a ComputerSpec.
-    val createComputerResponse = createComputerAction()
-      .create(
-        request = CreateComputerRequest(
-          computerSpecToken = newToken(),
-          slug = slug,
-        ),
-      )
+    val createComputerResponse = call().createComputerAction.create(
+      request = CreateComputerRequest(
+        computerSpecToken = newToken(),
+        slug = slug,
+      ),
+    )
 
     // Pay for it.
     val checkoutSessionId = paymentsService.completePayment(
@@ -234,7 +56,7 @@ class ClientTester(
     )
 
     // Sync payment state.
-    afterCheckoutAction().get(checkoutSessionId)
+    call().afterCheckoutAction.get(checkoutSessionId)
 
     return ComputerTester(
       slug = slug,

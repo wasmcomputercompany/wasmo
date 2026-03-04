@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.accounts.ClientScope
+import com.wasmo.accounts.CallScope
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.toHttpUrl
@@ -21,7 +21,7 @@ import dev.zacsweers.metro.SingleIn
  * or to [ComputerHomeRoute] if payment succeeded.
  */
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class AfterCheckoutAction(
   private val callDataService: CallDataService,
   private val paymentsService: PaymentsService,

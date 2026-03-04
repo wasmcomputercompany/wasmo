@@ -1,7 +1,7 @@
 package com.wasmo.computers
 
+import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
-import com.wasmo.accounts.ClientScope
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
@@ -11,7 +11,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class InstallAppAction(
   private val client: Client,
   private val computerStore: ComputerStore,

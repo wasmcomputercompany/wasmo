@@ -50,7 +50,7 @@ class ActionRouter(
   deployment: Deployment,
   private val application: Application,
   private val clientAuthenticatorFactory: ClientAuthenticator.Factory,
-  private val clientGraphFactory: ClientGraph.Factory,
+  private val callGraphFactory: CallGraph.Factory,
 ) {
   private val rootUrl = deployment.baseUrl.toString().decodeUrl()
 
@@ -71,8 +71,8 @@ class ActionRouter(
     val hostRegex = Regex("${ComputerSlugRegex.pattern}${Regex.escape(suffix)}")
     application.routing {
       host(hostRegex) {
-        get("/") { clientGraph, url, _ ->
-          clientGraph.hostPageAction.get(url).response
+        get("/") { callGraph, url, _ ->
+          callGraph.hostPageAction.get(url).response
         }
       }
     }
@@ -81,13 +81,13 @@ class ActionRouter(
   private fun createPages() {
     application.routing {
       for (path in listOf("/", "/build-yours", "/computers", "/teaser", "/invite/{code}")) {
-        get(path) { clientGraph, url, _ ->
-          clientGraph.hostPageAction.get(url).response
+        get(path) { callGraph, url, _ ->
+          callGraph.hostPageAction.get(url).response
         }
       }
 
-      get("/after-checkout/{checkoutSessionId}") { clientGraph, _, call ->
-        clientGraph.afterCheckoutAction.get(call.pathParameters["checkoutSessionId"]!!)
+      get("/after-checkout/{checkoutSessionId}") { callGraph, _, call ->
+        callGraph.afterCheckoutAction.get(call.pathParameters["checkoutSessionId"]!!)
       }
     }
   }
@@ -96,32 +96,32 @@ class ActionRouter(
     application.routing {
       rpc<CreateInviteRequest, CreateInviteResponse>(
         path = "/create-invite",
-      ) { clientGraph, request, _ ->
-        clientGraph.createInviteAction.create(request)
+      ) { callGraph, request, _ ->
+        callGraph.createInviteAction.create(request)
       }
 
       rpc<AccountSnapshotRequest, AccountSnapshotResponse>(
         path = "/account-snapshot",
-      ) { clientGraph, request, _ ->
-        clientGraph.accountSnapshotAction.get(request)
+      ) { callGraph, request, _ ->
+        callGraph.accountSnapshotAction.get(request)
       }
 
       rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
         path = "/register-passkey",
-      ) { clientGraph, request, _ ->
-        clientGraph.registerPasskeyAction.register(request)
+      ) { callGraph, request, _ ->
+        callGraph.registerPasskeyAction.register(request)
       }
 
       rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
         path = "/authenticate-passkey",
-      ) { clientGraph, request, _ ->
-        clientGraph.authenticatePasskeyAction.authenticate(request)
+      ) { callGraph, request, _ ->
+        callGraph.authenticatePasskeyAction.authenticate(request)
       }
 
       rpc<InstallAppRequest, InstallAppResponse>(
         path = "/computers/{computer}/install-app",
-      ) { clientGraph, request, call ->
-        clientGraph.installAppAction.install(
+      ) { callGraph, request, call ->
+        callGraph.installAppAction.install(
           computerSlug = ComputerSlug(call.pathParameters["computer"]!!),
           request = request,
         )
@@ -129,35 +129,35 @@ class ActionRouter(
 
       rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
         path = "/link-email-address",
-      ) { clientGraph, request, _ ->
-        clientGraph.linkEmailAddressAction.link(request)
+      ) { callGraph, request, _ ->
+        callGraph.linkEmailAddressAction.link(request)
       }
 
       rpc<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse>(
         path = "/confirm-email-address",
-      ) { clientGraph, request, _ ->
-        clientGraph.confirmEmailAddressAction.confirm(request)
+      ) { callGraph, request, _ ->
+        callGraph.confirmEmailAddressAction.confirm(request)
       }
 
       rpc<CreateComputerRequest, CreateComputerResponse>(
         path = "/create-computer",
-      ) { clientGraph, request, _ ->
-        clientGraph.createComputerAction.create(request)
+      ) { callGraph, request, _ ->
+        callGraph.createComputerAction.create(request)
       }
     }
   }
 
   private inline fun Routing.get(
     path: String,
-    crossinline action: suspend (ClientGraph, Url, RoutingCall) -> Response<ResponseBody>,
+    crossinline action: suspend (CallGraph, Url, RoutingCall) -> Response<ResponseBody>,
   ) {
     get(path) {
       val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
       val response = try {
         clientAuthenticator.updateSessionCookie()
-        val clientGraph = clientGraphFactory.create(clientAuthenticator.get())
+        val callGraph = callGraphFactory.create(clientAuthenticator.get())
         val url = wasmoUrl(rootUrl)
-        action(clientGraph, url, call)
+        action(callGraph, url, call)
       } catch (e: HttpException) {
         application.log.info("call failed", e)
         call.respond(e.asResponse())
@@ -169,7 +169,7 @@ class ActionRouter(
 
   private inline fun <reified R, reified S> Routing.rpc(
     path: String,
-    crossinline action: suspend (ClientGraph, R, RoutingCall) -> Response<S>,
+    crossinline action: suspend (CallGraph, R, RoutingCall) -> Response<S>,
   ) {
     val requestAdapter = serializer<R>()
     val responseAdapter = serializer<S>()
@@ -179,8 +179,8 @@ class ActionRouter(
       val response = try {
         val request = requestAdapter.decode(call.request)
         val client = clientAuthenticator.get()
-        val clientGraph = clientGraphFactory.create(client)
-        action(clientGraph, request, call)
+        val callGraph = callGraphFactory.create(client)
+        action(callGraph, request, call)
       } catch (e: HttpException) {
         application.log.info("call failed", e)
         call.respond(e.asResponse())

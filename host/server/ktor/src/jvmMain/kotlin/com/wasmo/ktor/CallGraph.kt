@@ -1,9 +1,9 @@
 package com.wasmo.ktor
 
 import com.wasmo.accounts.AccountSnapshotAction
+import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Challenger
 import com.wasmo.accounts.Client
-import com.wasmo.accounts.ClientScope
 import com.wasmo.accounts.ConfirmEmailAddressAction
 import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.invite.CreateInviteAction
@@ -23,9 +23,9 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 
 @GraphExtension(
-  scope = ClientScope::class,
+  scope = CallScope::class,
 )
-interface ClientGraph {
+interface CallGraph {
   val accountSnapshotAction: AccountSnapshotAction
   val createInviteAction: CreateInviteAction
   val registerPasskeyAction: RegisterPasskeyAction
@@ -38,7 +38,7 @@ interface ClientGraph {
   val afterCheckoutAction: AfterCheckoutAction
 
   @Provides
-  @SingleIn(ClientScope::class)
+  @SingleIn(CallScope::class)
   fun provideChallenger(
     client: Client,
   ): Challenger = client.challenger
@@ -55,6 +55,6 @@ interface ClientGraph {
 
   @GraphExtension.Factory
   interface Factory {
-    fun create(@Provides client: Client): ClientGraph
+    fun create(@Provides client: Client): CallGraph
   }
 }

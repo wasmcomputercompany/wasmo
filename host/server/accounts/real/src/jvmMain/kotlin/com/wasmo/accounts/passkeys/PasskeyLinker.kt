@@ -1,8 +1,8 @@
 package com.wasmo.accounts.passkeys
 
 import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
-import com.wasmo.accounts.ClientScope
 import com.wasmo.db.CookieQueries
 import com.wasmo.db.Passkey
 import com.wasmo.db.WasmoDb
@@ -22,7 +22,7 @@ import dev.zacsweers.metro.SingleIn
  * Note that we *do not* move other passkeys, in case the account already has a passkey.
  */
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class PasskeyLinker(
   private val wasmoDb: WasmoDb,
   private val client: Client,

@@ -1,7 +1,7 @@
 package com.wasmo.passkeys
 
 import com.wasmo.accounts.Challenger
-import com.wasmo.accounts.ClientScope
+import com.wasmo.accounts.CallScope
 import com.wasmo.api.PasskeyAuthentication
 import com.wasmo.api.PasskeyRegistration
 import com.wasmo.deployment.Deployment
@@ -35,7 +35,7 @@ import okio.ByteString.Companion.toByteString
  * https://github.com/webauthn4j/webauthn4j/
  */
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class RealPasskeyChecker(
   private val challenger: Challenger,
   private val deployment: Deployment,

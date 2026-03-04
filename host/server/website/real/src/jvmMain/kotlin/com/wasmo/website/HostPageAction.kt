@@ -1,6 +1,6 @@
 package com.wasmo.website
 
-import com.wasmo.accounts.ClientScope
+import com.wasmo.accounts.CallScope
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
@@ -19,7 +19,7 @@ import dev.zacsweers.metro.SingleIn
  * We serve the same page to most routes, with different embedded page data.
  */
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class HostPageAction(
   private val callDataService: CallDataService,
   private val hostPageFactory: ServerHostPage.Factory,

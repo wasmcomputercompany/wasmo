@@ -7,7 +7,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class ConfirmEmailAddressAction() {
   fun confirm(
     request: ConfirmEmailAddressRequest,

@@ -2,7 +2,7 @@ package com.wasmo.calls
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
-import com.wasmo.accounts.ClientScope
+import com.wasmo.accounts.CallScope
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerListItem
@@ -23,7 +23,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class RealCallDataService(
   private val deployment: Deployment,
   private val routeCodecFactory: RouteCodec.Factory,

@@ -10,7 +10,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class LinkEmailAddressAction(
   private val deployment: Deployment,
   private val sendEmailService: SendEmailService,

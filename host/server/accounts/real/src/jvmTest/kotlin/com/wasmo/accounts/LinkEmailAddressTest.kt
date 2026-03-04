@@ -31,7 +31,7 @@ class LinkEmailAddressTest {
   fun happyPath() = runTest {
     val client = tester.newClient()
 
-    val linkResponse = client.linkEmailAddressAction().link(
+    val linkResponse = client.call().linkEmailAddressAction.link(
       request = LinkEmailAddressRequest(
         unverifiedEmailAddress = "jesse@example.com",
       ),
@@ -49,7 +49,7 @@ class LinkEmailAddressTest {
     assertThat(email.to).isEqualTo("jesse@example.com")
     assertThat(email.subject).matches(Regex("\\QSign in to wasmo.com with code \\E\\d{6}"))
 
-    val confirmResponse = client.confirmEmailAddressAction().confirm(
+    val confirmResponse = client.call().confirmEmailAddressAction.confirm(
       request = ConfirmEmailAddressRequest(
         unverifiedEmailAddress = "jesse@example.com",
         challengeCode = "123123",

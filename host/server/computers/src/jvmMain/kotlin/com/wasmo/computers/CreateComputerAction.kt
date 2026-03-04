@@ -1,7 +1,7 @@
 package com.wasmo.computers
 
 import com.wasmo.accounts.Client
-import com.wasmo.accounts.ClientScope
+import com.wasmo.accounts.CallScope
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.CreateComputerResponse
 import com.wasmo.db.WasmoDb
@@ -12,7 +12,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class CreateComputerAction(
   private val paymentsService: PaymentsService,
   private val client: Client,

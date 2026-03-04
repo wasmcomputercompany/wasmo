@@ -39,7 +39,7 @@ import okhttp3.OkHttpClient
 @DependencyGraph(AppScope::class)
 interface WasmoServiceGraph {
   val wasmoService: WasmoService
-  val clientGraphFactory: ClientGraph.Factory
+  val callGraphFactory: CallGraph.Factory
 
   @Provides
   @SingleIn(AppScope::class)

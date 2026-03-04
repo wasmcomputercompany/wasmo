@@ -31,11 +31,11 @@ class PasskeyActionsTest {
 
     val clientA = tester.newClient()
     val registration = onlyPasskey.registration(
-      clientA.challenger.create(),
+      clientA.createChallenge(),
       tester.origin,
     )
 
-    val registerResponse = clientA.registerPasskeyAction()
+    val registerResponse = clientA.call().registerPasskeyAction
       .register(RegisterPasskeyRequest(registration))
     val passkeySnapshot = PasskeySnapshot(
       authenticator = "Apple Passwords",
@@ -43,14 +43,14 @@ class PasskeyActionsTest {
     )
     assertThat(registerResponse.body.account.passkeys)
       .containsExactly(passkeySnapshot)
-    assertThat(clientA.hostPage(TeaserRoute).accountSnapshot.passkeys)
+    assertThat(clientA.call().hostPage(TeaserRoute).accountSnapshot.passkeys)
       .containsExactly(passkeySnapshot)
 
     val clientB = tester.newClient()
-    val authenticateResponse = clientB.authenticatePasskeyAction().authenticate(
+    val authenticateResponse = clientB.call().authenticatePasskeyAction.authenticate(
       AuthenticatePasskeyRequest(
         onlyPasskey.authentication(
-          clientB.challenger.create(),
+          clientB.createChallenge(),
           tester.origin,
         ),
       ),
@@ -81,8 +81,8 @@ class PasskeyActionsTest {
     clientA.register(onlyPasskey)
 
     val clientB = tester.newClient()
-    val authenticateResponse1 = clientB.authenticate(onlyPasskey)
-    val authenticateResponse2 = clientB.authenticate(onlyPasskey)
+    val authenticateResponse1 = clientB.call().authenticate(onlyPasskey)
+    val authenticateResponse2 = clientB.call().authenticate(onlyPasskey)
     assertThat(authenticateResponse2.body).isEqualTo(authenticateResponse1.body)
   }
 
@@ -94,6 +94,6 @@ class PasskeyActionsTest {
     clientA.register(onlyPasskey)
 
     val clientB = tester.newClient()
-    clientB.authenticate(onlyPasskey)
+    clientB.call().authenticate(onlyPasskey)
   }
 }

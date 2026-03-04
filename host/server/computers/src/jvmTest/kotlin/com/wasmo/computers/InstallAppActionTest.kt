@@ -32,7 +32,6 @@ class InstallAppActionTest {
     val client = tester.newClient()
     val computerSlug = ComputerSlug("jesse124")
     val computer = client.createComputer(computerSlug)
-    val action = client.installAppAction()
     val wasm = "XXXX".encodeUtf8()
     val helloApp = WasmoArtifactServer.App(
       slug = AppSlug("hello"),
@@ -42,7 +41,7 @@ class InstallAppActionTest {
     )
     tester.wasmoArtifactServer.apps += helloApp
 
-    val installAppResponse = action.install(
+    val installAppResponse = client.call().installAppAction.install(
       computerSlug = computer.slug,
       request = InstallAppRequest(
         manifestUrl = tester.deployment.baseUrl.resolve(helloApp.manifestPath)!!.toString(),

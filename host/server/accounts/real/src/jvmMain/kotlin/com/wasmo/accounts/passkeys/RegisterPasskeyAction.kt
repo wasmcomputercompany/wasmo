@@ -2,7 +2,7 @@ package com.wasmo.accounts.passkeys
 
 
 import com.wasmo.accounts.Client
-import com.wasmo.accounts.ClientScope
+import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
@@ -17,7 +17,7 @@ import kotlin.time.Clock
 import org.postgresql.util.PSQLException
 
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class RegisterPasskeyAction(
   private val clock: Clock,
   private val callDataService: CallDataService,

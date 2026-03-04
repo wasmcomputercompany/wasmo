@@ -9,7 +9,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class AccountSnapshotAction(
   private val callDataService: CallDataService,
   private val wasmoDb: WasmoDb,

@@ -1,7 +1,7 @@
 package com.wasmo.accounts.invite
 
+import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
-import com.wasmo.accounts.ClientScope
 import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.CreateInviteResponse
 import com.wasmo.api.routes.InviteRoute
@@ -13,7 +13,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class CreateInviteAction(
   private val client: Client,
   private val callDataService: CallDataService,

@@ -1,7 +1,7 @@
 package com.wasmo.accounts.passkeys
 
 import com.wasmo.accounts.Client
-import com.wasmo.accounts.ClientScope
+import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
@@ -14,7 +14,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(ClientScope::class)
+@SingleIn(CallScope::class)
 class AuthenticatePasskeyAction(
   private val client: Client,
   private val passkeyChecker: PasskeyChecker,
