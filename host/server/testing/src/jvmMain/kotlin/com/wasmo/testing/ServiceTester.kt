@@ -27,6 +27,7 @@ class ServiceTester private constructor(
   val clientAuthenticatorFactory: ClientAuthenticator.Factory,
   val sendEmailService: FakeSendEmailService,
   val wasmoArtifactServer: WasmoArtifactServer,
+  val jobQueueTester: JobQueueTester,
   private val clientGraphFactory: ClientTesterGraph.Factory,
 ) : Closeable by wasmoDb {
   val baseUrl: HttpUrl

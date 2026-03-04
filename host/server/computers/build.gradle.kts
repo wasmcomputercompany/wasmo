@@ -1,5 +1,6 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
+  alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.metro)
   id("wasmo-build")
 }
@@ -24,6 +25,7 @@ kotlin {
         implementation(project(":host:server:deployment"))
         implementation(project(":host:server:downloader"))
         implementation(project(":host:server:identifiers"))
+        implementation(project(":host:server:jobs:api"))
         implementation(project(":host:server:payments:api"))
         implementation(project(":platform:api"))
       }

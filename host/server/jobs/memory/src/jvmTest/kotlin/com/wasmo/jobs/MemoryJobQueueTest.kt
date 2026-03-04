@@ -11,11 +11,12 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.Serializable
 
 class MemoryJobQueueTest {
@@ -37,15 +38,15 @@ class MemoryJobQueueTest {
     val jobQueue = MemoryJobQueue(
       clock = tester.clock,
       serializer = SampleJob.serializer(),
-      executor = SampleJobExecutor(channel),
+      executorLazy = lazyOf(SampleJobExecutor(channel)),
       scope = this,
+      eventListener = tester.jobQueueTester,
     )
 
     tester.wasmoDb.transactionWithResult(noEnclosing = true) {
       jobQueue.enqueue(SampleJob("hello"))
     }
 
-    this.testScheduler.currentTime
     val elapsed = measureTestTime {
       assertThat(channel.receive()).isEqualTo("hello")
     }
@@ -58,8 +59,9 @@ class MemoryJobQueueTest {
     val jobQueue = MemoryJobQueue(
       clock = tester.clock,
       serializer = SampleJob.serializer(),
-      executor = SampleJobExecutor(channel),
+      executorLazy = lazyOf(SampleJobExecutor(channel)),
       scope = this,
+      eventListener = tester.jobQueueTester,
     )
 
     tester.wasmoDb.transactionWithResult(noEnclosing = true) {
@@ -74,12 +76,12 @@ class MemoryJobQueueTest {
 
   @Test
   fun jobNotExecutedWhenTransactionCanceled() = runTest {
-    val channel = Channel<String>(capacity = 1)
     val jobQueue = MemoryJobQueue(
       clock = tester.clock,
       serializer = SampleJob.serializer(),
-      executor = SampleJobExecutor(channel),
+      executorLazy = lazy { error("unexpected call") },
       scope = this,
+      eventListener = tester.jobQueueTester,
     )
 
     assertFailsWith<IllegalStateException> {
@@ -88,12 +90,60 @@ class MemoryJobQueueTest {
         throw IllegalStateException("boom")
       }
     }
+  }
 
-    assertFailsWith<TimeoutCancellationException> {
-      withTimeout(1.seconds) {
-        channel.receive()
+  @Test
+  fun awaitIdleAlreadyIdle() = runTest {
+    val channel = Channel<String>(capacity = Channel.RENDEZVOUS)
+    val jobQueue = MemoryJobQueue(
+      clock = tester.clock,
+      serializer = SampleJob.serializer(),
+      executorLazy = lazyOf(SampleJobExecutor(channel)),
+      scope = this,
+      eventListener = tester.jobQueueTester,
+    )
+
+    tester.wasmoDb.transactionWithResult(noEnclosing = true) {
+      jobQueue.enqueue(SampleJob("hello"))
+    }
+
+    delay(3.seconds)
+    assertThat(channel.receive()).isEqualTo("hello")
+
+    val durationDeferred = async {
+      measureTestTime {
+        tester.jobQueueTester.awaitIdle()
       }
     }
+
+    assertThat(durationDeferred.await()).isEqualTo(Duration.ZERO)
+  }
+
+  @Test
+  fun awaitIdleNeedsToWait() = runTest {
+    val channel = Channel<String>(capacity = Channel.RENDEZVOUS)
+    val jobQueue = MemoryJobQueue(
+      clock = tester.clock,
+      serializer = SampleJob.serializer(),
+      executorLazy = lazyOf(SampleJobExecutor(channel)),
+      scope = this,
+      eventListener = tester.jobQueueTester,
+    )
+
+    tester.wasmoDb.transactionWithResult(noEnclosing = true) {
+      jobQueue.enqueue(SampleJob("hello"))
+    }
+
+    val durationDeferred = async {
+      measureTestTime {
+        tester.jobQueueTester.awaitIdle()
+      }
+    }
+
+    delay(3.seconds)
+    assertThat(channel.receive()).isEqualTo("hello")
+
+    assertThat(durationDeferred.await()).isEqualTo(3.seconds)
   }
 
   @Serializable
@@ -109,9 +159,10 @@ class MemoryJobQueueTest {
     }
   }
 
-  private suspend fun TestScope.measureTestTime(block: suspend () -> Unit): Duration {
-    val startMilliseconds = testScheduler.currentTime
+  private suspend fun CoroutineScope.measureTestTime(block: suspend () -> Unit): Duration {
+    val scheduler = coroutineContext[TestCoroutineScheduler.Key]!!
+    val startMilliseconds = scheduler.currentTime
     block()
-    return (testScheduler.currentTime - startMilliseconds).milliseconds
+    return (scheduler.currentTime - startMilliseconds).milliseconds
   }
 }

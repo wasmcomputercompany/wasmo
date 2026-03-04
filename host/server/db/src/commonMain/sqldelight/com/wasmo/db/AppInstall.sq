@@ -3,6 +3,7 @@ INSERT INTO AppInstall(
   computer_id,
   slug,
   version,
+  manifest_url,
   display_name,
   install_scheduled_at
 )
@@ -10,6 +11,7 @@ VALUES (
   :computer_id,
   :slug,
   :version,
+  :manifest_url,
   :display_name,
   :install_scheduled_at
 ) RETURNING id;
@@ -20,10 +22,15 @@ WHERE computer_id = :computer_id
 ORDER BY id
 LIMIT :limit;
 
+selectAppInstallById:
+SELECT * FROM AppInstall
+WHERE id = :id;
+
 updateAppInstall:
 UPDATE AppInstall
 SET
   version = :new_version,
+  manifest_url = :manifest_url,
   install_completed_at = :install_completed_at,
   install_deleted_at = :install_deleted_at,
   install_incomplete_reason = :install_incomplete_reason

@@ -14,6 +14,7 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(libs.commons.dbcp2)
+        implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okhttp)
         implementation(libs.okio)
@@ -32,6 +33,8 @@ kotlin {
         implementation(project(":host:server:db"))
         implementation(project(":host:server:deployment"))
         implementation(project(":host:server:identifiers"))
+        implementation(project(":host:server:jobs:api"))
+        implementation(project(":host:server:jobs:memory"))
         implementation(project(":host:server:objectstore:api"))
         implementation(project(":host:server:passkeys:api"))
         implementation(project(":host:server:passkeys:real"))

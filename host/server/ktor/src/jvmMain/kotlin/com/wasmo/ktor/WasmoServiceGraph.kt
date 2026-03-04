@@ -9,11 +9,17 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.ComputerStore
+import com.wasmo.computers.InstallAppJob
+import com.wasmo.computers.InstallAppJobExecutor
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.http.HttpClient
 import com.wasmo.http.RealHttpClient
+import com.wasmo.jobs.JobExecutor
+import com.wasmo.jobs.JobQueue
+import com.wasmo.jobs.JobQueueEventListener
+import com.wasmo.jobs.MemoryJobQueue
 import com.wasmo.objectstore.ObjectStore
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.AuthenticatorDatabase
@@ -33,6 +39,9 @@ import dev.zacsweers.metro.SingleIn
 import io.ktor.server.application.Application
 import io.ktor.server.engine.EmbeddedServer
 import kotlin.time.Clock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.KSerializer
 import okhttp3.Call
 import okhttp3.OkHttpClient
 
@@ -114,6 +123,24 @@ interface WasmoServiceGraph {
   fun provideApplication(
     server: EmbeddedServer<*, *>,
   ): Application = server.application
+
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideJobQueueEventListener(): JobQueueEventListener = JobQueueEventListener.None
+
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideInstallAppJobSerializer(): KSerializer<InstallAppJob> = InstallAppJob.serializer()
+
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideCoroutineScope(): CoroutineScope = CoroutineScope(Dispatchers.Default)
+
+  @Binds
+  fun bindJobExecutor(real: InstallAppJobExecutor): JobExecutor<InstallAppJob>
+
+  @Binds
+  fun bind(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
 
   @Binds
   fun bindCallFactory(real: OkHttpClient): Call.Factory

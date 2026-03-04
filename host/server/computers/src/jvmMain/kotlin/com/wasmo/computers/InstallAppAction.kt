@@ -15,20 +15,23 @@ import dev.zacsweers.metro.SingleIn
 class InstallAppAction(
   private val client: Client,
   private val computerStore: ComputerStore,
+  private val manifestLoader: ManifestLoader,
   private val wasmoDb: WasmoDb,
 ) {
   suspend fun install(
     computerSlug: ComputerSlug,
     request: InstallAppRequest,
   ): Response<InstallAppResponse> {
-    val computer = wasmoDb.transactionWithResult(noEnclosing = true) {
-      computerStore.get(client, computerSlug)
-    }
-    computer.installApp(
-      manifest = computer.appLoader.loadManifest(
-        manifestUrl = request.manifestUrl,
-      ),
+    val appManifest = manifestLoader.loadManifest(
+      manifestUrl = request.manifestUrl,
     )
+    wasmoDb.transactionWithResult(noEnclosing = true) {
+      val computer = computerStore.get(client, computerSlug)
+      computer.installApp(
+        manifestUrl = request.manifestUrl,
+        manifest = appManifest,
+      )
+    }
 
     return Response(
       body = InstallAppResponse(

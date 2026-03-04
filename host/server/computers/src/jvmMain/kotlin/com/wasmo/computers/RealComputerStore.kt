@@ -4,13 +4,14 @@ import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.api.AppManifest
 import com.wasmo.api.ComputerSlug
-import com.wasmo.api.WasmoJson
+import com.wasmo.db.Computer
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.framework.BadRequestException
 import com.wasmo.http.HttpClient
 import com.wasmo.identifiers.ComputerId
+import com.wasmo.jobs.JobQueue
 import com.wasmo.objectstore.ObjectStore
 import com.wasmo.objectstore.ScopedObjectStore
 import dev.zacsweers.metro.AppScope
@@ -28,6 +29,7 @@ class RealComputerStore(
   private val httpClient: HttpClient,
   private val objectStoreKeyFactory: ObjectStoreKeyFactory,
   private val wasmoDb: WasmoDb,
+  private val installAppJobQueue: JobQueue<InstallAppJob>,
 ) : ComputerStore {
   context(transactionCallbacks: TransactionCallbacks)
   override fun get(
@@ -43,17 +45,30 @@ class RealComputerStore(
     ).executeAsOneOrNull()
       ?: throw BadRequestException("unexpected computer: $slug")
 
+    return get(computer)
+  }
+
+  context(transactionCallbacks: TransactionCallbacks)
+  override fun get(computerId: ComputerId): WasmoComputer {
+    val computer = wasmoDb.computerQueries.selectComputerById(
+      id = computerId,
+    ).executeAsOne()
+
+    return get(computer)
+  }
+
+  private fun get(
+    computer: Computer,
+  ): RealWasmoComputer {
     val objectStore = ScopedObjectStore(
       delegate = rootObjectStore,
-      prefix = "${slug.value}/",
+      prefix = "${computer.slug.value}/",
     )
     val downloader = RealDownloader(
       httpClient = httpClient,
       objectStore = objectStore,
     )
     val appLoader = AppLoader(
-      json = WasmoJson,
-      httpClient = httpClient,
       downloader = downloader,
       objectStoreKeyFactory = objectStoreKeyFactory,
     )
@@ -61,9 +76,10 @@ class RealComputerStore(
       clock = clock,
       wasmoDb = wasmoDb,
       computerId = computer.id,
-      url = deployment.baseUrl.resolve("/computer/$slug")!!,
+      url = deployment.baseUrl.resolve("/computer/${computer.slug.value}")!!,
       objectStore = objectStore,
       appLoader = appLoader,
+      installAppJobQueue = installAppJobQueue,
     )
   }
 }
@@ -75,18 +91,19 @@ class RealWasmoComputer(
   override val url: HttpUrl,
   override val objectStore: ObjectStore,
   override val appLoader: AppLoader,
+  private val installAppJobQueue: JobQueue<InstallAppJob>,
 ) : WasmoComputer {
-  override suspend fun installApp(manifest: AppManifest) {
-    wasmoDb.transactionWithResult(noEnclosing = true) {
-      wasmoDb.appInstallQueries.insertAppInstall(
-        computer_id = computerId,
-        slug = manifest.slug,
-        display_name = manifest.displayName,
-        version = manifest.version,
-        install_scheduled_at = clock.now(),
-      ).executeAsOne()
-    }
+  context(transactionCallbacks: TransactionCallbacks)
+  override fun installApp(manifestUrl: String, manifest: AppManifest) {
+    val appInstallId = wasmoDb.appInstallQueries.insertAppInstall(
+      computer_id = computerId,
+      slug = manifest.slug,
+      manifest_url = manifest.canonicalUrl ?: manifestUrl,
+      display_name = manifest.displayName,
+      version = manifest.version,
+      install_scheduled_at = clock.now(),
+    ).executeAsOne()
 
-    appLoader.downloadWasm(manifest)
+    installAppJobQueue.enqueue(InstallAppJob(appInstallId))
   }
 }

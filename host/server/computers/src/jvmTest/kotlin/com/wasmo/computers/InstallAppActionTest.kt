@@ -5,8 +5,8 @@ import assertk.assertions.isEqualTo
 import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
-import com.wasmo.testing.WasmoArtifactServer
 import com.wasmo.testing.ServiceTester
+import com.wasmo.testing.WasmoArtifactServer
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -47,6 +47,8 @@ class InstallAppActionTest {
         manifestUrl = tester.deployment.baseUrl.resolve(helloApp.manifestPath)!!.toString(),
       ),
     )
+
+    tester.jobQueueTester.awaitIdle()
 
     assertThat(
       tester.fileSystem.read("/jesse124/apps/hello/v1/app.wasm".toPath()) {
