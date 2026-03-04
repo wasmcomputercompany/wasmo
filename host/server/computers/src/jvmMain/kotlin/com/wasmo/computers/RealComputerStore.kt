@@ -79,11 +79,11 @@ class RealWasmoComputer(
   override suspend fun installApp(manifest: AppManifest) {
     wasmoDb.transactionWithResult(noEnclosing = true) {
       wasmoDb.appInstallQueries.insertAppInstall(
-        created_at = clock.now(),
         computer_id = computerId,
         slug = manifest.slug,
         display_name = manifest.displayName,
         version = manifest.version,
+        install_scheduled_at = clock.now(),
       ).executeAsOne()
     }
 

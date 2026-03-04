@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import com.wasmo.api.CreateComputerRequest
+import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.client.app.FormState
 import com.wasmo.client.app.LocalFormState
@@ -57,7 +57,7 @@ class BuildYoursUi(
             is BuildYoursScreenEvent.ClickCheckOut -> {
               checkoutSessionState = checkoutSessionFactory.create(
                 coroutineScope,
-                CreateComputerRequest(
+                CreateComputerSpecRequest(
                   computerSpecToken = computerSpecToken,
                   slug = it.slug,
                 ),

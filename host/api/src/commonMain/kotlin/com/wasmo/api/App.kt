@@ -1,6 +1,7 @@
 package com.wasmo.api
 
 import kotlin.jvm.JvmInline
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 /** Between 1 and 15 letters or digits, and the first is not a digit. */
@@ -21,6 +22,10 @@ data class InstalledApp(
   val label: String,
   val slug: AppSlug,
   val maskableIconUrl: String,
+  val installScheduledAt: Instant,
+  val installCompletedAt: Instant? = null,
+  val installDeletedAt: Instant? = null,
+  val installIncompleteReason: InstallIncompleteReason? = null,
 )
 
 @Serializable
@@ -31,4 +36,10 @@ value class AppSlug(val value: String) {
       "unexpected app: $value"
     }
   }
+}
+
+enum class InstallIncompleteReason {
+  Unknown,
+  SourceUnavailable,
+  TargetCapacity,
 }

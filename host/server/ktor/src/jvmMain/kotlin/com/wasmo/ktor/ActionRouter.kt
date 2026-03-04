@@ -9,8 +9,8 @@ import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ComputerSlugRegex
 import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
-import com.wasmo.api.CreateComputerRequest
-import com.wasmo.api.CreateComputerResponse
+import com.wasmo.api.CreateComputerSpecRequest
+import com.wasmo.api.CreateComputerSpecResponse
 import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.CreateInviteResponse
 import com.wasmo.api.InstallAppRequest
@@ -139,10 +139,10 @@ class ActionRouter(
         callGraph.confirmEmailAddressAction.confirm(request)
       }
 
-      rpc<CreateComputerRequest, CreateComputerResponse>(
-        path = "/create-computer",
+      rpc<CreateComputerSpecRequest, CreateComputerSpecResponse>(
+        path = "/create-computer-spec",
       ) { callGraph, request, _ ->
-        callGraph.createComputerAction.create(request)
+        callGraph.createComputerSpecAction.create(request)
       }
     }
   }

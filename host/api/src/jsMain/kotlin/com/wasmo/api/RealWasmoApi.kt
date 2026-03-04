@@ -42,10 +42,10 @@ class RealWasmoApi : WasmoApi {
     return call("/confirm-email-address", request)
   }
 
-  override suspend fun createComputer(
-    request: CreateComputerRequest,
-  ): CreateComputerResponse {
-    return call("/create-computer", request)
+  override suspend fun createComputerSpec(
+    request: CreateComputerSpecRequest,
+  ): CreateComputerSpecResponse {
+    return call("/create-computer-spec", request)
   }
 
   suspend inline fun <reified S, reified R> call(

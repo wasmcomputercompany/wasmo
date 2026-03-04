@@ -11,7 +11,7 @@ import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ConfirmEmailAddressRequest
-import com.wasmo.api.CreateComputerRequest
+import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.LinkEmailAddressRequest
@@ -21,7 +21,7 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.Url
 import com.wasmo.computers.AfterCheckoutAction
-import com.wasmo.computers.CreateComputerAction
+import com.wasmo.computers.CreateComputerSpecAction
 import com.wasmo.computers.InstallAppAction
 import com.wasmo.deployment.Deployment
 import com.wasmo.website.HostPageAction
@@ -39,7 +39,7 @@ class CallTester(
   private val registerPasskeyActionProvider: Provider<RegisterPasskeyAction>,
   private val hostPageActionProvider: Provider<HostPageAction>,
   private val authenticatePasskeyActionProvider: Provider<AuthenticatePasskeyAction>,
-  private val createComputerActionProvider: Provider<CreateComputerAction>,
+  private val createComputerSpecActionProvider: Provider<CreateComputerSpecAction>,
   private val afterCheckoutActionProvider: Provider<AfterCheckoutAction>,
   private val createInviteActionProvider: Provider<CreateInviteAction>,
   private val installAppActionProvider: Provider<InstallAppAction>,
@@ -81,8 +81,8 @@ class CallTester(
   fun authenticatePasskey(request: AuthenticatePasskeyRequest) =
     authenticatePasskeyActionProvider().authenticate(request)
 
-  fun createComputer(request: CreateComputerRequest) =
-    createComputerActionProvider().create(request)
+  fun createComputerSpec(request: CreateComputerSpecRequest) =
+    createComputerSpecActionProvider().create(request)
 
   fun afterCheckout(checkoutSessionId: String) =
     afterCheckoutActionProvider().get(checkoutSessionId)

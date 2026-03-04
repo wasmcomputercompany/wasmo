@@ -1,9 +1,9 @@
 package com.wasmo.computers
 
-import com.wasmo.accounts.Client
 import com.wasmo.accounts.CallScope
-import com.wasmo.api.CreateComputerRequest
-import com.wasmo.api.CreateComputerResponse
+import com.wasmo.accounts.Client
+import com.wasmo.api.CreateComputerSpecResponse
+import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.Response
 import com.wasmo.payments.CreateCheckoutSessionRequest
@@ -13,17 +13,17 @@ import dev.zacsweers.metro.SingleIn
 
 @Inject
 @SingleIn(CallScope::class)
-class CreateComputerAction(
+class CreateComputerSpecAction(
   private val paymentsService: PaymentsService,
   private val client: Client,
   private val wasmoDb: WasmoDb,
   private val computerSpecStore: ComputerSpecStore,
 ) {
   fun create(
-    request: CreateComputerRequest,
-  ): Response<CreateComputerResponse> {
+    request: CreateComputerSpecRequest,
+  ): Response<CreateComputerSpecResponse> {
     wasmoDb.transactionWithResult(noEnclosing = true) {
-      computerSpecStore.createSpec(
+      computerSpecStore.insertIfAbsent(
         accountId = client.getOrCreateAccountId(),
         slug = request.slug,
         computerSpecToken = request.computerSpecToken,
@@ -35,7 +35,7 @@ class CreateComputerAction(
     )
 
     return Response(
-      body = CreateComputerResponse(
+      body = CreateComputerSpecResponse(
         checkoutSessionClientSecret = checkoutSession.clientSecret,
       ),
     )

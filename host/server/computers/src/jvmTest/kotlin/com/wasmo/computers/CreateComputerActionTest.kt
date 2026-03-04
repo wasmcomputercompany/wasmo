@@ -6,7 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.wasmo.api.ComputerListItem
 import com.wasmo.api.ComputerSlug
-import com.wasmo.api.CreateComputerRequest
+import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.testing.ServiceTester
@@ -31,8 +31,8 @@ class CreateComputerActionTest {
   fun happyPath() {
     val client = tester.newClient()
     val computerSlug = ComputerSlug("jesse99")
-    val createComputerResponse = client.call().createComputer(
-      request = CreateComputerRequest(
+    val createComputerResponse = client.call().createComputerSpec(
+      request = CreateComputerSpecRequest(
         computerSpecToken = "computerspectoken00000001",
         slug = computerSlug,
       ),

@@ -12,7 +12,7 @@ import com.wasmo.accounts.passkeys.RegisterPasskeyAction
 import com.wasmo.calls.CallDataService
 import com.wasmo.calls.RealCallDataService
 import com.wasmo.computers.AfterCheckoutAction
-import com.wasmo.computers.CreateComputerAction
+import com.wasmo.computers.CreateComputerSpecAction
 import com.wasmo.computers.InstallAppAction
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
@@ -32,7 +32,7 @@ interface CallGraph {
   val authenticatePasskeyAction: AuthenticatePasskeyAction
   val linkEmailAddressAction: LinkEmailAddressAction
   val confirmEmailAddressAction: ConfirmEmailAddressAction
-  val createComputerAction: CreateComputerAction
+  val createComputerSpecAction: CreateComputerSpecAction
   val installAppAction: InstallAppAction
   val hostPageAction: HostPageAction
   val afterCheckoutAction: AfterCheckoutAction

@@ -1,15 +1,33 @@
 insertAppInstall:
 INSERT INTO AppInstall(
-  created_at,
   computer_id,
   slug,
   version,
-  display_name
+  display_name,
+  install_scheduled_at
 )
 VALUES (
-  :created_at,
   :computer_id,
   :slug,
   :version,
-  :display_name
+  :display_name,
+  :install_scheduled_at
 ) RETURNING id;
+
+selectAppInstallsByComputerId:
+SELECT * FROM AppInstall
+WHERE computer_id = :computer_id
+ORDER BY id
+LIMIT :limit;
+
+updateAppInstall:
+UPDATE AppInstall
+SET
+  version = :new_version,
+  install_completed_at = :install_completed_at,
+  install_deleted_at = :install_deleted_at,
+  install_incomplete_reason = :install_incomplete_reason
+WHERE
+  version = :expected_version AND
+  id = :id;
+

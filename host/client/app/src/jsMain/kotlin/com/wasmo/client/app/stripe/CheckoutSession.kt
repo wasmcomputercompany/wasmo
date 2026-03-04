@@ -1,6 +1,6 @@
 package com.wasmo.client.app.stripe
 
-import com.wasmo.api.CreateComputerRequest
+import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.WasmoApi
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.compose.Checkout
@@ -48,14 +48,14 @@ class CheckoutSession private constructor(
   ) {
     fun create(
       coroutineScope: CoroutineScope,
-      createComputerRequest: CreateComputerRequest,
+      createComputerSpecRequest: CreateComputerSpecRequest,
     ): CheckoutSession {
       val stripe = Stripe(stripePublishableKey.publishableKey)
       val deferredCheckout = stripe.initEmbeddedCheckout(
         InitEmbeddedCheckoutOptions(
           fetchClientSecret = {
             coroutineScope.async {
-              val response = wasmoApi.createComputer(createComputerRequest)
+              val response = wasmoApi.createComputerSpec(createComputerSpecRequest)
               response.checkoutSessionClientSecret
             }.asPromise()
           },

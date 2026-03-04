@@ -2,7 +2,7 @@ package com.wasmo.calls
 
 import app.cash.sqldelight.TransactionCallbacks
 
-abstract class DbLazy<T> {
+internal abstract class DbLazy<T> {
   var loaded = false
   var cached: T? = null
 

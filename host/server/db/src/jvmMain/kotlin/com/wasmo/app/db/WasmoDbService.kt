@@ -186,9 +186,11 @@ class WasmoDbService(
 
     private val AppInstallAdapter = AppInstall.Adapter(
       idAdapter = AppInstallIdAdapter,
-      created_atAdapter = InstantAdapter,
       computer_idAdapter = ComputerIdAdapter,
       slugAdapter = AppSlugAdapter,
+      install_scheduled_atAdapter = InstantAdapter,
+      install_completed_atAdapter = InstantAdapter,
+      install_deleted_atAdapter = InstantAdapter,
     )
 
     private val ComputerAdapter = Computer.Adapter(

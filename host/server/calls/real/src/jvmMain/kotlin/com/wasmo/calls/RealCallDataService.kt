@@ -1,8 +1,8 @@
 package com.wasmo.calls
 
 import app.cash.sqldelight.TransactionCallbacks
-import com.wasmo.accounts.Client
 import com.wasmo.accounts.CallScope
+import com.wasmo.accounts.Client
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerListItem
@@ -21,6 +21,7 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import kotlin.time.Instant
 
 @Inject
 @SingleIn(CallScope::class)
@@ -111,7 +112,6 @@ class RealCallDataService(
     }
   }
 
-
   context(transactionCallbacks: TransactionCallbacks)
   override fun routingContext() = routingContext.get()
 
@@ -147,6 +147,8 @@ class RealCallDataService(
     ).executeAsOneOrNull()
       ?: return null
 
+    val installScheduledAt = Instant.fromEpochSeconds(0L)
+
     return ComputerSnapshot(
       slug = computer.slug,
       apps = listOf(
@@ -154,51 +156,61 @@ class RealCallDataService(
           label = "Files",
           slug = AppSlug("files"),
           maskableIconUrl = "/assets/launcher/sample-folder.svg",
+          installScheduledAt = installScheduledAt,
         ),
         InstalledApp(
           label = "Library",
           slug = AppSlug("library"),
           maskableIconUrl = "/assets/launcher/sample-books.svg",
+          installScheduledAt = installScheduledAt,
         ),
         InstalledApp(
           label = "Music",
           slug = AppSlug("music"),
           maskableIconUrl = "/assets/launcher/sample-headphones.svg",
+          installScheduledAt = installScheduledAt,
         ),
         InstalledApp(
           label = "Photos",
           slug = AppSlug("photos"),
           maskableIconUrl = "/assets/launcher/sample-camera.svg",
+          installScheduledAt = installScheduledAt,
         ),
         InstalledApp(
           label = "Pink Journal",
           slug = AppSlug("pink"),
           maskableIconUrl = "/assets/launcher/sample-flower.svg",
+          installScheduledAt = installScheduledAt,
         ),
         InstalledApp(
           label = "Recipes",
           slug = AppSlug("recipes"),
           maskableIconUrl = "/assets/launcher/sample-pancakes.svg",
+          installScheduledAt = installScheduledAt,
         ),
         InstalledApp(
           label = "Smart Home",
           slug = AppSlug("smart"),
           maskableIconUrl = "/assets/launcher/sample-home.svg",
+          installScheduledAt = installScheduledAt,
         ),
         InstalledApp(
           label = "Snake",
           slug = AppSlug("snake"),
           maskableIconUrl = "/assets/launcher/sample-snake.svg",
+          installScheduledAt = installScheduledAt,
         ),
         InstalledApp(
           label = "Writer",
           slug = AppSlug("writer"),
           maskableIconUrl = "/assets/launcher/sample-w.svg",
+          installScheduledAt = installScheduledAt,
         ),
         InstalledApp(
           label = "Zap",
           slug = AppSlug("zap"),
           maskableIconUrl = "/assets/launcher/sample-z.svg",
+          installScheduledAt = installScheduledAt,
         ),
       ),
     )

@@ -18,7 +18,7 @@ class ComputerSpecStore(
   private val wasmoDb: WasmoDb,
 ) {
   context(_: TransactionCallbacks)
-  fun createSpec(
+  fun insertIfAbsent(
     accountId: AccountId,
     slug: ComputerSlug,
     computerSpecToken: String,

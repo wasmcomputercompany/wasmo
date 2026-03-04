@@ -2,7 +2,7 @@ package com.wasmo.testing
 
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.api.ComputerSlug
-import com.wasmo.api.CreateComputerRequest
+import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.common.tokens.newToken
@@ -43,8 +43,8 @@ class ClientTester(
 
   fun createComputer(slug: ComputerSlug): ComputerTester {
     // Create a ComputerSpec.
-    val createComputerResponse = call().createComputer(
-      request = CreateComputerRequest(
+    val createComputerSpecResponse = call().createComputerSpec(
+      request = CreateComputerSpecRequest(
         computerSpecToken = newToken(),
         slug = slug,
       ),
@@ -52,7 +52,7 @@ class ClientTester(
 
     // Pay for it.
     val checkoutSessionId = paymentsService.completePayment(
-      createComputerResponse.body.checkoutSessionClientSecret,
+      createComputerSpecResponse.body.checkoutSessionClientSecret,
     )
 
     // Sync payment state.

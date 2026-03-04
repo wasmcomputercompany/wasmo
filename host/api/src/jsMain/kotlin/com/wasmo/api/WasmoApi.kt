@@ -22,7 +22,7 @@ interface WasmoApi {
     request: ConfirmEmailAddressRequest,
   ): ConfirmEmailAddressResponse
 
-  suspend fun createComputer(
-    request: CreateComputerRequest,
-  ): CreateComputerResponse
+  suspend fun createComputerSpec(
+    request: CreateComputerSpecRequest,
+  ): CreateComputerSpecResponse
 }
