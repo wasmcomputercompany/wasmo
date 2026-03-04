@@ -1,7 +1,7 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeClock
-import com.wasmo.accounts.RealClientAuthenticator
+import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
@@ -15,19 +15,19 @@ import okio.ByteString.Companion.encodeUtf8
 import okio.fakefilesystem.FakeFileSystem
 
 /**
- * Create instances with [WasmoServiceTester.start]
+ * Create instances with [ServiceTester.start]
  */
 @Inject
 @SingleIn(AppScope::class)
-class WasmoServiceTester private constructor(
+class ServiceTester private constructor(
   val wasmoDb: WasmoDbService,
   val deployment: Deployment,
   val clock: FakeClock,
   val fileSystem: FakeFileSystem,
-  val clientAuthenticatorFactory: RealClientAuthenticator.Factory,
+  val clientAuthenticatorFactory: ClientAuthenticator.Factory,
   val sendEmailService: FakeSendEmailService,
   val wasmoArtifactServer: WasmoArtifactServer,
-  val clientGraphFactory: ClientTesterGraph.Factory,
+  private val clientGraphFactory: ClientTesterGraph.Factory,
 ) : Closeable by wasmoDb {
   val baseUrl: HttpUrl
     get() = deployment.baseUrl
@@ -60,7 +60,7 @@ class WasmoServiceTester private constructor(
   }
 
   companion object {
-    fun start(): WasmoServiceTester {
+    fun start(): ServiceTester {
       val wasmoDbService = WasmoDbService.start(
         databaseName = "wasmo_test",
         user = "postgres",
@@ -71,11 +71,11 @@ class WasmoServiceTester private constructor(
       wasmoDbService.clearSchema()
       wasmoDbService.migrate()
 
-      val wasmoServiceTesterGraphFactory = createGraphFactory<WasmoServiceTesterGraph.Factory>()
-      val serviceTesterGraph = wasmoServiceTesterGraphFactory.create(
+      val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
+      val serviceTesterGraph = serviceTesterGraphFactory.create(
         wasmoDbService = wasmoDbService,
       )
-      return serviceTesterGraph.wasmoServiceTester
+      return serviceTesterGraph.serviceTester
     }
   }
 }

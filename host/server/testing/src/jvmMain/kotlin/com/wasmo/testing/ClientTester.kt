@@ -17,8 +17,8 @@ import okio.ByteString
 class ClientTester(
   private val deployment: Deployment,
   private val clientAuthenticator: ClientAuthenticator,
+  private val callTesterGraphFactory: CallTesterGraph.Factory,
   val paymentsService: FakePaymentsService,
-  val callTesterGraphFactory: CallTesterGraph.Factory,
 ) {
   fun call(): CallTester {
     val client = clientAuthenticator.get()
@@ -26,7 +26,7 @@ class ClientTester(
     return callTesterGraph.callTester
   }
 
-  fun createChallenge(): ByteString = call().challenger.create()
+  fun createChallenge(): ByteString = call().createChallenge()
 
   fun register(
     passkey: FakePasskey,

@@ -10,18 +10,18 @@ import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.decodeUrl
 import com.wasmo.framework.BadRequestException
 import com.wasmo.framework.NotFoundException
-import com.wasmo.testing.WasmoServiceTester
+import com.wasmo.testing.ServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class InvitesTest {
-  lateinit var tester: WasmoServiceTester
+  lateinit var tester: ServiceTester
 
   @BeforeTest
   fun setUp() {
-    tester = WasmoServiceTester.start()
+    tester = ServiceTester.start()
   }
 
   @AfterTest

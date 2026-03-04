@@ -7,17 +7,17 @@ import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.routes.TeaserRoute
-import com.wasmo.testing.WasmoServiceTester
+import com.wasmo.testing.ServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class PasskeyActionsTest {
-  lateinit var tester: WasmoServiceTester
+  lateinit var tester: ServiceTester
 
   @BeforeTest
   fun setUp() {
-    tester = WasmoServiceTester.start()
+    tester = ServiceTester.start()
   }
 
   @AfterTest

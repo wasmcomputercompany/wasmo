@@ -6,7 +6,7 @@ import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.testing.WasmoArtifactServer
-import com.wasmo.testing.WasmoServiceTester
+import com.wasmo.testing.ServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -15,11 +15,11 @@ import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
 
 class InstallAppActionTest {
-  private lateinit var tester: WasmoServiceTester
+  private lateinit var tester: ServiceTester
 
   @BeforeTest
   fun setUp() {
-    tester = WasmoServiceTester.start()
+    tester = ServiceTester.start()
   }
 
   @AfterTest

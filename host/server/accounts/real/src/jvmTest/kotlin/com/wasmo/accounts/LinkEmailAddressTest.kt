@@ -8,18 +8,18 @@ import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.framework.Response
-import com.wasmo.testing.WasmoServiceTester
+import com.wasmo.testing.ServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
 class LinkEmailAddressTest {
-  lateinit var tester: WasmoServiceTester
+  lateinit var tester: ServiceTester
 
   @BeforeTest
   fun setUp() {
-    tester = WasmoServiceTester.start()
+    tester = ServiceTester.start()
   }
 
   @AfterTest

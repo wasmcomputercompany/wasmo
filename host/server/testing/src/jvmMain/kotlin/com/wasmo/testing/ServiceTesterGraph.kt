@@ -2,7 +2,9 @@ package com.wasmo.testing
 
 import com.wasmo.FakeClock
 import com.wasmo.FakeHttpClient
+import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.CookieSecret
+import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
@@ -32,8 +34,8 @@ import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 
 @DependencyGraph(AppScope::class)
-interface WasmoServiceTesterGraph {
-  val wasmoServiceTester: WasmoServiceTester
+interface ServiceTesterGraph {
+  val serviceTester: ServiceTester
   val clientTesterGraphFactory: ClientTesterGraph.Factory
 
   @Provides
@@ -112,10 +114,13 @@ interface WasmoServiceTesterGraph {
   @Binds
   fun bindAuthenticatorDatabase(real: RealAuthenticatorDatabase): AuthenticatorDatabase
 
+  @Binds
+  fun bind(real: RealClientAuthenticator.Factory): ClientAuthenticator.Factory
+
   @DependencyGraph.Factory
   interface Factory {
     fun create(
       @Provides wasmoDbService: WasmoDbService,
-    ): WasmoServiceTesterGraph
+    ): ServiceTesterGraph
   }
 }

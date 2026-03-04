@@ -31,19 +31,19 @@ import dev.zacsweers.metro.Provider
 
 @Inject
 class CallTester(
-  val deployment: Deployment,
-  val challenger: Challenger,
-  val accountSnapshotActionProvider: Provider<AccountSnapshotAction>,
-  val linkEmailAddressActionProvider: Provider<LinkEmailAddressAction>,
-  val confirmEmailAddressActionProvider: Provider<ConfirmEmailAddressAction>,
-  val registerPasskeyActionProvider: Provider<RegisterPasskeyAction>,
-  val hostPageActionProvider: Provider<HostPageAction>,
-  val authenticatePasskeyActionProvider: Provider<AuthenticatePasskeyAction>,
-  val createComputerActionProvider: Provider<CreateComputerAction>,
-  val afterCheckoutActionProvider: Provider<AfterCheckoutAction>,
-  val createInviteActionProvider: Provider<CreateInviteAction>,
-  val installAppActionProvider: Provider<InstallAppAction>,
-  val routeCodecFactory: RouteCodec.Factory,
+  private val deployment: Deployment,
+  private val challenger: Challenger,
+  private val accountSnapshotActionProvider: Provider<AccountSnapshotAction>,
+  private val linkEmailAddressActionProvider: Provider<LinkEmailAddressAction>,
+  private val confirmEmailAddressActionProvider: Provider<ConfirmEmailAddressAction>,
+  private val registerPasskeyActionProvider: Provider<RegisterPasskeyAction>,
+  private val hostPageActionProvider: Provider<HostPageAction>,
+  private val authenticatePasskeyActionProvider: Provider<AuthenticatePasskeyAction>,
+  private val createComputerActionProvider: Provider<CreateComputerAction>,
+  private val afterCheckoutActionProvider: Provider<AfterCheckoutAction>,
+  private val createInviteActionProvider: Provider<CreateInviteAction>,
+  private val installAppActionProvider: Provider<InstallAppAction>,
+  private val routeCodecFactory: RouteCodec.Factory,
 ) {
   fun routingContext() = RoutingContext(
     rootUrl = deployment.baseUrl.toString(),
@@ -55,6 +55,8 @@ class CallTester(
   fun routeCodec() = routeCodecFactory.create(
     routingContext = routingContext(),
   )
+
+  fun createChallenge() = challenger.create()
 
   fun accountSnapshot(request: AccountSnapshotRequest) =
     accountSnapshotActionProvider().get(request)
@@ -99,7 +101,7 @@ class CallTester(
   ) = authenticatePasskey(
     request = AuthenticatePasskeyRequest(
       authentication = passkey.authentication(
-        challenge = challenger.create(),
+        challenge = createChallenge(),
         origin = deployment.baseUrl.toString(),
       ),
       inviteCode = inviteCode,

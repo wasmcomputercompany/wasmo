@@ -9,17 +9,17 @@ import com.wasmo.api.ComputerSlug
 import com.wasmo.api.CreateComputerRequest
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
-import com.wasmo.testing.WasmoServiceTester
+import com.wasmo.testing.ServiceTester
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class CreateComputerActionTest {
-  lateinit var tester: WasmoServiceTester
+  lateinit var tester: ServiceTester
 
   @BeforeTest
   fun setUp() {
-    tester = WasmoServiceTester.start()
+    tester = ServiceTester.start()
   }
 
   @AfterTest
