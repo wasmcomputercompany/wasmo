@@ -25,52 +25,62 @@ concurrently.
 S3
 --
 
-The S3 bucket has a `/data` directory where apps can read and write objects directly.
+The S3 bucket has a `/user` directory where apps can read and write objects directly.
 
 ```
 /bucket
-   /data
-      /immich
-         /library
-            /DCIM0001.heif
-            /DCIM0002.heif
-         /thumbnails-512x512
-            /DCIM0001.jpg
-            /DCIM0002.jpg
+    /photos
+        /user
+            /library
+                /DCIM0001.heif
+                /DCIM0002.heif
+            /thumbnails-512x512
+                /DCIM0001.jpg
+                /DCIM0002.jpg
 ```
 
-There's also a `/sqlite` directory where apps' SQLite databases are stored. Apps aren't given direct
+Everything in `/user` is also available to the signed-in user on the web.
+
+```
+https://photos-jesse99.wasmo.com/-/user/library/DCIM0001.heif
+```
+
+The S3 bucket also has a `/public` directory, which is available unauthenticated on the web.
+
+There's an `/sqlite` directory where apps' SQLite databases are stored. Apps aren't given direct
 access to this directory because database access is managed.
 
 ```
 /bucket
-   /sqlite
-      /immich
-         /immich.db
-      /snake
-         /default.db
+    /photos
+        /sqlite
+            /photos.db
+    /snake
+        /sqlite
+            /default.db
 ```
 
-Finally, there's a `/apps` directory where assets from the installed apps go. We copy everything at
+There's an `/app` directory where assets from the installed apps go. We copy everything at
 app install time, so app artifacts don't need to be online when the apps are used.
 
 ```
 /bucket
-   /apps
-      /immich
-         /v2
-            /app.wasm
-            /static
-               /immich.css
-               /immich.html
-               /immich.js
-      /snake
-          /v30
-             /app.wasm
-             /static
-                /snake.css
-                /snake.html
-                /snake.js
+    /photos
+        /app
+            /v2
+                /app.wasm
+                /resources
+                    /photos.css
+                    /photos.html
+                    /photos.js
+    /snake
+        /app
+            /v30
+                /app.wasm
+                /resources
+                    /snake.css
+                    /snake.html
+                    /snake.js
 ```
 
 Backblaze B2

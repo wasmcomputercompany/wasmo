@@ -8,11 +8,11 @@ import com.wasmo.api.ComputerListItem
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.api.InstalledApp
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
+import com.wasmo.computers.ComputerStore
 import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
 import com.wasmo.db.WasmoDb
@@ -20,7 +20,6 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import kotlin.time.Instant
 
 @Inject
 @SingleIn(CallScope::class)
@@ -30,6 +29,7 @@ class RealCallDataService(
   private val authenticatorDatabase: AuthenticatorDatabase,
   private val wasmoDb: WasmoDb,
   private val client: Client,
+  private val computerStore: ComputerStore,
 ) : CallDataService {
   private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
     context(transactionCallbacks: TransactionCallbacks)
@@ -136,33 +136,6 @@ class RealCallDataService(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun computerSnapshotOrNull(slug: ComputerSlug): ComputerSnapshot? {
-    val accountId = client.getAccountIdOrNull()
-      ?: return null
-
-    val computer = wasmoDb.computerQueries.selectComputerByAccountIdAndSlug(
-      account_id = accountId,
-      slug = slug,
-    ).executeAsOneOrNull()
-      ?: return null
-
-    val appInstalls = wasmoDb.appInstallQueries.selectAppInstallsByComputerId(
-      computer_id = computer.id,
-      limit = 100,
-    ).executeAsList()
-
-    val installScheduledAt = Instant.fromEpochSeconds(0L)
-
-    return ComputerSnapshot(
-      slug = computer.slug,
-      apps = appInstalls.map {
-        InstalledApp(
-          slug = it.slug,
-          launcherLabel = it.launcher_label,
-          maskableIconUrl = "/assets/launcher/sample-folder.svg",
-          installScheduledAt = installScheduledAt,
-        )
-      }
-    )
-  }
+  override fun computerSnapshotOrNull(slug: ComputerSlug): ComputerSnapshot? =
+    computerStore.getOrNull(client, slug)?.snapshot()
 }

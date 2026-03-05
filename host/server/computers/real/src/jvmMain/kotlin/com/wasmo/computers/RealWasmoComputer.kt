@@ -2,6 +2,8 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSlug
+import com.wasmo.api.ComputerSnapshot
+import com.wasmo.api.InstalledApp
 import com.wasmo.db.AppInstall
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
@@ -10,6 +12,7 @@ import com.wasmo.jobs.JobQueue
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
+import kotlin.time.Instant
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
@@ -21,7 +24,7 @@ class RealWasmoComputer(
   private val clock: Clock,
   private val deployment: Deployment,
   private val wasmoDb: WasmoDb,
-  override val appLoader: AppLoader,
+  private val appLoader: AppLoader,
   private val installAppJobQueue: JobQueue<InstallAppJob>,
   private val manifestLoader: ManifestLoader,
   private val appCatalog: AppCatalog,
@@ -66,5 +69,27 @@ class RealWasmoComputer(
     val manifestUrl = appInstall.manifest_url.toHttpUrl()
     val manifest = manifestLoader.loadManifest(manifestUrl)
     appLoader.downloadWasm(manifestUrl, manifest)
+  }
+
+  context(transactionCallbacks: TransactionCallbacks)
+  override fun snapshot(): ComputerSnapshot {
+    val appInstalls = wasmoDb.appInstallQueries.selectAppInstallsByComputerId(
+      computer_id = id,
+      limit = 100,
+    ).executeAsList()
+
+    val installScheduledAt = Instant.fromEpochSeconds(0L)
+
+    return ComputerSnapshot(
+      slug = slug,
+      apps = appInstalls.map {
+        InstalledApp(
+          slug = it.slug,
+          launcherLabel = it.launcher_label,
+          maskableIconUrl = "/assets/launcher/sample-folder.svg",
+          installScheduledAt = installScheduledAt,
+        )
+      }
+    )
   }
 }
