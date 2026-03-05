@@ -1,5 +1,6 @@
 package com.wasmo.computers
 
+import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.api.AppSlug
@@ -7,25 +8,14 @@ import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.testing.ServiceTester
 import com.wasmo.testing.WasmoArtifactServer
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
 
 class InstallAppActionTest {
-  private lateinit var tester: ServiceTester
-
-  @BeforeTest
-  fun setUp() {
-    tester = ServiceTester.start()
-  }
-
-  @AfterTest
-  fun tearDown() {
-    tester.close()
-  }
+  @InterceptTest
+  val tester = ServiceTester()
 
   @Test
   fun happyPath() = runTest {

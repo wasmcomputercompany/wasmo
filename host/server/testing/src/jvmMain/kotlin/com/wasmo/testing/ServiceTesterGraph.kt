@@ -33,7 +33,6 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.KSerializer
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -44,7 +43,14 @@ import okio.fakefilesystem.FakeFileSystem
 
 @DependencyGraph(AppScope::class)
 interface ServiceTesterGraph {
-  val serviceTester: ServiceTester
+  val wasmoDb: WasmoDbService
+  val deployment: Deployment
+  val clock: FakeClock
+  val fileSystem: FakeFileSystem
+  val clientAuthenticatorFactory: ClientAuthenticator.Factory
+  val sendEmailService: FakeSendEmailService
+  val wasmoArtifactServer: WasmoArtifactServer
+  val jobQueueTester: JobQueueTester
   val clientTesterGraphFactory: ClientTesterGraph.Factory
 
   @Provides
@@ -101,10 +107,6 @@ interface ServiceTesterGraph {
 
   @Provides
   @SingleIn(AppScope::class)
-  fun provideCoroutineScope(): CoroutineScope = CoroutineScope(Dispatchers.Default)
-
-  @Provides
-  @SingleIn(AppScope::class)
   fun provideInstallAppJob(): KSerializer<InstallAppJob> = InstallAppJob.serializer()
 
   @Binds
@@ -147,6 +149,7 @@ interface ServiceTesterGraph {
   interface Factory {
     fun create(
       @Provides wasmoDbService: WasmoDbService,
+      @Provides coroutineScope: CoroutineScope,
     ): ServiceTesterGraph
   }
 }

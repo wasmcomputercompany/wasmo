@@ -1,5 +1,6 @@
 package com.wasmo.accounts.passkeys
 
+import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
@@ -8,25 +9,15 @@ import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.testing.ServiceTester
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlinx.coroutines.test.runTest
 
 class PasskeyActionsTest {
-  lateinit var tester: ServiceTester
-
-  @BeforeTest
-  fun setUp() {
-    tester = ServiceTester.start()
-  }
-
-  @AfterTest
-  fun tearDown() {
-    tester.close()
-  }
+  @InterceptTest
+  val tester = ServiceTester()
 
   @Test
-  fun happyPath() {
+  fun happyPath() = runTest {
     val onlyPasskey = tester.newPasskey()
 
     val clientA = tester.newClient()
@@ -63,7 +54,7 @@ class PasskeyActionsTest {
   }
 
   @Test
-  fun registerIsIdempotent() {
+  fun registerIsIdempotent() = runTest {
     val onlyPasskey = tester.newPasskey()
 
     val clientA = tester.newClient()
@@ -73,7 +64,7 @@ class PasskeyActionsTest {
   }
 
   @Test
-  fun authenticateIsIdempotent() {
+  fun authenticateIsIdempotent() = runTest {
     val onlyPasskey = tester.newPasskey()
 
     val clientA = tester.newClient()
@@ -86,7 +77,7 @@ class PasskeyActionsTest {
   }
 
   @Test
-  fun authenticatePasskeyGrantsAccessToAssets() {
+  fun authenticatePasskeyGrantsAccessToAssets() = runTest {
     val onlyPasskey = tester.newPasskey()
 
     val clientA = tester.newClient()

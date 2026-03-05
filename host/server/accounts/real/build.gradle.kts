@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.metro)
+  alias(libs.plugins.burst)
   id("wasmo-build")
 }
 
@@ -36,6 +37,7 @@ kotlin {
     }
     val jvmTest by getting {
       dependencies {
+        implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":host:testing"))
         implementation(project(":platform:testing"))

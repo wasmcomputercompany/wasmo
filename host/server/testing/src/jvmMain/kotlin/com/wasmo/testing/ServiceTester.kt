@@ -1,15 +1,14 @@
 package com.wasmo.testing
 
+import app.cash.burst.coroutines.CoroutineTestFunction
+import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.FakeClock
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.createGraphFactory
-import java.io.Closeable
+import kotlinx.coroutines.coroutineScope
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.fakefilesystem.FakeFileSystem
@@ -17,21 +16,28 @@ import okio.fakefilesystem.FakeFileSystem
 /**
  * Create instances with [ServiceTester.start]
  */
-@Inject
-@SingleIn(AppScope::class)
-class ServiceTester private constructor(
-  val wasmoDb: WasmoDbService,
-  val deployment: Deployment,
-  val clock: FakeClock,
-  val fileSystem: FakeFileSystem,
-  val clientAuthenticatorFactory: ClientAuthenticator.Factory,
-  val sendEmailService: FakeSendEmailService,
-  val wasmoArtifactServer: WasmoArtifactServer,
-  val jobQueueTester: JobQueueTester,
-  private val clientGraphFactory: ClientTesterGraph.Factory,
-) : Closeable by wasmoDb {
+class ServiceTester : CoroutineTestInterceptor {
+  private lateinit var graph: ServiceTesterGraph
+
+  val wasmoDb: WasmoDbService
+    get() = graph.wasmoDb
+  val deployment: Deployment
+    get() = graph.deployment
+  val clock: FakeClock
+    get() = graph.clock
+  val fileSystem: FakeFileSystem
+    get() = graph.fileSystem
+  val clientAuthenticatorFactory: ClientAuthenticator.Factory
+    get() = graph.clientAuthenticatorFactory
+  val sendEmailService: FakeSendEmailService
+    get() = graph.sendEmailService
+  val wasmoArtifactServer: WasmoArtifactServer
+    get() = graph.wasmoArtifactServer
+  val jobQueueTester: JobQueueTester
+    get() = graph.jobQueueTester
   val baseUrl: HttpUrl
     get() = deployment.baseUrl
+
   val origin: String
     get() = baseUrl.toString()
 
@@ -41,7 +47,7 @@ class ServiceTester private constructor(
     val userAgent = FakeUserAgent()
     val clientAuthenticator = clientAuthenticatorFactory.create(userAgent)
     val sessionCookie = clientAuthenticator.updateSessionCookie()
-    val clientTesterGraph = clientGraphFactory.create(
+    val clientTesterGraph = graph.clientTesterGraphFactory.create(
       clientAuthenticator = clientAuthenticator,
       sessionCookie = sessionCookie,
     )
@@ -54,29 +60,31 @@ class ServiceTester private constructor(
     aaguid = RealAuthenticatorDatabase.ApplePasswords,
   )
 
-  override fun close() {
-    wasmoDb.close()
-    fileSystem.checkNoOpenFiles()
-    fileSystem.close()
-  }
+  override suspend fun intercept(testFunction: CoroutineTestFunction) {
+    val wasmoDb = WasmoDbService.start(
+      databaseName = "wasmo_test",
+      user = "postgres",
+      password = "password",
+      hostname = "localhost",
+      ssl = false,
+    )
+    wasmoDb.clearSchema()
+    wasmoDb.migrate()
 
-  companion object {
-    fun start(): ServiceTester {
-      val wasmoDbService = WasmoDbService.start(
-        databaseName = "wasmo_test",
-        user = "postgres",
-        password = "password",
-        hostname = "localhost",
-        ssl = false,
-      )
-      wasmoDbService.clearSchema()
-      wasmoDbService.migrate()
+    val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
 
-      val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
-      val serviceTesterGraph = serviceTesterGraphFactory.create(
-        wasmoDbService = wasmoDbService,
-      )
-      return serviceTesterGraph.serviceTester
+    try {
+      coroutineScope {
+        this@ServiceTester.graph = serviceTesterGraphFactory.create(
+          wasmoDbService = wasmoDb,
+          coroutineScope = this,
+        )
+        testFunction()
+      }
+    } finally {
+      wasmoDb.close()
+      fileSystem.checkNoOpenFiles()
+      fileSystem.close()
     }
   }
 }

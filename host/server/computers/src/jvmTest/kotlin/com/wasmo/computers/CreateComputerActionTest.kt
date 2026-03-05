@@ -1,5 +1,6 @@
 package com.wasmo.computers
 
+import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
@@ -10,25 +11,15 @@ import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.testing.ServiceTester
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlinx.coroutines.test.runTest
 
 class CreateComputerActionTest {
-  lateinit var tester: ServiceTester
-
-  @BeforeTest
-  fun setUp() {
-    tester = ServiceTester.start()
-  }
-
-  @AfterTest
-  fun tearDown() {
-    tester.close()
-  }
+  @InterceptTest
+  val tester = ServiceTester()
 
   @Test
-  fun happyPath() {
+  fun happyPath() = runTest {
     val client = tester.newClient()
     val computerSlug = ComputerSlug("jesse99")
     val createComputerResponse = client.call().createComputerSpec(

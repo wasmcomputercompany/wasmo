@@ -1,6 +1,7 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.burst)
   alias(libs.plugins.metro)
   id("wasmo-build")
 }
@@ -13,8 +14,10 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
+        implementation(libs.burst.coroutines)
         implementation(libs.commons.dbcp2)
         implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.coroutines.test)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okhttp)
         implementation(libs.okio)

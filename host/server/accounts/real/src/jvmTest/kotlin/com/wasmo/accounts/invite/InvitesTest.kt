@@ -1,5 +1,6 @@
 package com.wasmo.accounts.invite
 
+import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -11,26 +12,16 @@ import com.wasmo.api.routes.decodeUrl
 import com.wasmo.framework.BadRequestException
 import com.wasmo.framework.NotFoundException
 import com.wasmo.testing.ServiceTester
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.test.runTest
 
 class InvitesTest {
-  lateinit var tester: ServiceTester
-
-  @BeforeTest
-  fun setUp() {
-    tester = ServiceTester.start()
-  }
-
-  @AfterTest
-  fun tearDown() {
-    tester.close()
-  }
+  @InterceptTest
+  val tester = ServiceTester()
 
   @Test
-  fun unknownCode404s() {
+  fun unknownCode404s() = runTest {
     val client = tester.newClient()
     assertFailsWith<NotFoundException> {
       client.call().hostPage(InviteRoute(code = "12345"))
@@ -38,7 +29,7 @@ class InvitesTest {
   }
 
   @Test
-  fun receiveAndClaimInviteWithPasskeyRegistration() {
+  fun receiveAndClaimInviteWithPasskeyRegistration() = runTest {
     val createdByClient = tester.newClient()
     val createInviteResponse = createdByClient.call().createInvite(CreateInviteRequest)
 
@@ -61,7 +52,7 @@ class InvitesTest {
   }
 
   @Test
-  fun claimInviteIsIdempotent() {
+  fun claimInviteIsIdempotent() = runTest {
     val createdByClient = tester.newClient()
     val createInviteResponse = createdByClient.call().createInvite(CreateInviteRequest)
 
@@ -78,7 +69,7 @@ class InvitesTest {
 
   /** We have to be careful that our database 'WHERE' clauses do case-sensitive search on tokens. */
   @Test
-  fun claimedTokensAreCaseSensitive() {
+  fun claimedTokensAreCaseSensitive() = runTest {
     val createdByClient = tester.newClient()
     val createInviteResponse = createdByClient.call().createInvite(CreateInviteRequest)
 
@@ -94,7 +85,7 @@ class InvitesTest {
   }
 
   @Test
-  fun receiveAndClaimInviteWithPasskeyAuthentication() {
+  fun receiveAndClaimInviteWithPasskeyAuthentication() = runTest {
     val passkey = tester.newPasskey()
 
     val passkeyRegisterClient = tester.newClient()

@@ -1,5 +1,6 @@
 package com.wasmo.computers
 
+import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
@@ -10,26 +11,16 @@ import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.framework.UnauthorizedException
 import com.wasmo.testing.ServiceTester
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.test.runTest
 
 class ComputerAccessTest {
-  lateinit var tester: ServiceTester
-
-  @BeforeTest
-  fun setUp() {
-    tester = ServiceTester.start()
-  }
-
-  @AfterTest
-  fun tearDown() {
-    tester.close()
-  }
+  @InterceptTest
+  val tester = ServiceTester()
 
   @Test
-  fun clientsCanSeeTheirOwnComputers() {
+  fun clientsCanSeeTheirOwnComputers() = runTest {
     val clientA = tester.newClient()
     val computerSlug = ComputerSlug("jesse99")
     clientA.createComputer(computerSlug)
@@ -44,7 +35,7 @@ class ComputerAccessTest {
   }
 
   @Test
-  fun clientsCannotSeeOtherUsersComputers() {
+  fun clientsCannotSeeOtherUsersComputers() = runTest {
     val clientA = tester.newClient()
     val computerSlug = ComputerSlug("jesse99")
     clientA.createComputer(computerSlug)

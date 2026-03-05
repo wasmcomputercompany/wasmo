@@ -1,10 +1,9 @@
 package com.wasmo.jobs
 
+import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.testing.ServiceTester
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration
@@ -20,17 +19,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 
 class MemoryJobQueueTest {
-  lateinit var tester: ServiceTester
-
-  @BeforeTest
-  fun setUp() {
-    tester = ServiceTester.start()
-  }
-
-  @AfterTest
-  fun tearDown() {
-    tester.close()
-  }
+  @InterceptTest
+  val tester = ServiceTester()
 
   @Test
   fun happyPath() = runTest {
