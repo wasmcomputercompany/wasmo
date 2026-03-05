@@ -5,8 +5,8 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.AppManifest
 import com.wasmo.api.ComputerSlug
 import com.wasmo.identifiers.ComputerId
-import com.wasmo.objectstore.ObjectStore
 import okhttp3.HttpUrl
+import wasmo.objectstore.ObjectStore
 
 interface WasmoComputer {
   val url: HttpUrl

@@ -4,16 +4,16 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.wasmo.objectstore.BackblazeB2BucketAddress
-import com.wasmo.objectstore.DeleteObjectRequest
-import com.wasmo.objectstore.GetObjectRequest
-import com.wasmo.objectstore.ListObjectsRequest
-import com.wasmo.objectstore.ListObjectsResponse
-import com.wasmo.objectstore.PutObjectRequest
 import kotlin.test.Test
 import kotlin.time.Clock
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 import okio.ByteString.Companion.encodeUtf8
+import wasmo.objectstore.DeleteObjectRequest
+import wasmo.objectstore.GetObjectRequest
+import wasmo.objectstore.ListObjectsRequest
+import wasmo.objectstore.ListObjectsResponse
+import wasmo.objectstore.PutObjectRequest
 
 /**
  * Run this test manually to confirm connectivity to a particular Backblaze bucket.

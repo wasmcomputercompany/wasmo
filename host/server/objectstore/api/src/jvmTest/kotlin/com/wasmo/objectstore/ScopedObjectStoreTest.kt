@@ -7,6 +7,14 @@ import assertk.assertions.isEqualTo
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
+import wasmo.objectstore.DeleteObjectRequest
+import wasmo.objectstore.GetObjectRequest
+import wasmo.objectstore.GetObjectResponse
+import wasmo.objectstore.ListObjectsRequest
+import wasmo.objectstore.ListObjectsResponse
+import wasmo.objectstore.PutObjectRequest
+import wasmo.objectstore.ScopedObjectStore
+import wasmo.objectstore.etag
 
 class ScopedObjectStoreTest : AbstractObjectStoreTest() {
   private val casino = "casino".encodeUtf8()

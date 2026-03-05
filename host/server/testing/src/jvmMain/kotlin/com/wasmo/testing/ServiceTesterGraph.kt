@@ -14,13 +14,11 @@ import com.wasmo.computers.InstallAppJobExecutor
 import com.wasmo.computers.RealComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
-import com.wasmo.http.HttpClient
 import com.wasmo.jobs.JobExecutor
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
-import com.wasmo.objectstore.ObjectStore
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
@@ -40,6 +38,8 @@ import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
+import wasmo.http.HttpClient
+import wasmo.objectstore.ObjectStore
 
 @DependencyGraph(AppScope::class)
 interface ServiceTesterGraph {

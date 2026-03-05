@@ -1,15 +1,5 @@
 package com.wasmo.objectstore.filesystem
 
-import com.wasmo.objectstore.DeleteObjectRequest
-import com.wasmo.objectstore.DeleteObjectResponse
-import com.wasmo.objectstore.GetObjectRequest
-import com.wasmo.objectstore.GetObjectResponse
-import com.wasmo.objectstore.ListObjectsRequest
-import com.wasmo.objectstore.ListObjectsResponse
-import com.wasmo.objectstore.ObjectStore
-import com.wasmo.objectstore.PutObjectRequest
-import com.wasmo.objectstore.PutObjectResponse
-import com.wasmo.objectstore.etag
 import okio.Buffer
 import okio.FileNotFoundException
 import okio.FileSystem
@@ -18,6 +8,16 @@ import okio.IOException
 import okio.Path
 import okio.Sink
 import okio.Timeout
+import wasmo.objectstore.DeleteObjectRequest
+import wasmo.objectstore.DeleteObjectResponse
+import wasmo.objectstore.GetObjectRequest
+import wasmo.objectstore.GetObjectResponse
+import wasmo.objectstore.ListObjectsRequest
+import wasmo.objectstore.ListObjectsResponse
+import wasmo.objectstore.ObjectStore
+import wasmo.objectstore.PutObjectRequest
+import wasmo.objectstore.PutObjectResponse
+import wasmo.objectstore.etag
 
 class FileSystemObjectStore(
   private val fileSystem: FileSystem,

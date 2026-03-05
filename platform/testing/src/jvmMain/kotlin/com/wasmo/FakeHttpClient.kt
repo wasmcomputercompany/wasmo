@@ -1,8 +1,5 @@
 package com.wasmo
 
-import com.wasmo.http.HttpClient
-import com.wasmo.http.HttpRequest
-import com.wasmo.http.HttpResponse
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -10,6 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
+import wasmo.http.HttpClient
+import wasmo.http.HttpRequest
+import wasmo.http.HttpResponse
 
 @Inject
 @SingleIn(AppScope::class)

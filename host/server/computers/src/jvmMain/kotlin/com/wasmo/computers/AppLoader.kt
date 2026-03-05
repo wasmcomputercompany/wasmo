@@ -1,11 +1,11 @@
 package com.wasmo.computers
 
 import com.wasmo.api.AppManifest
-import com.wasmo.downloader.Downloader
-import com.wasmo.downloader.TransferRequest
-import com.wasmo.http.BadRequestException
-import com.wasmo.http.HttpRequest
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import wasmo.downloader.Downloader
+import wasmo.downloader.TransferRequest
+import wasmo.http.BadRequestException
+import wasmo.http.HttpRequest
 
 class AppLoader(
   private val downloader: Downloader,

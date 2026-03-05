@@ -1,9 +1,9 @@
 package com.wasmo.hello.server
 
-import com.wasmo.app.WasmoApp
 import com.wasmo.hello.db.HelloDbService
 import kotlin.time.Clock
 import okio.Closeable
+import wasmo.app.WasmoApp
 
 class HelloWasmoApp(
   private val clock: Clock,

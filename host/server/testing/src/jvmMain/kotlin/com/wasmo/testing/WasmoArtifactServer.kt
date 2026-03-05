@@ -4,12 +4,12 @@ import com.wasmo.FakeHttpClient
 import com.wasmo.api.AppManifest
 import com.wasmo.api.AppSlug
 import com.wasmo.api.WasmoJson
-import com.wasmo.http.HttpRequest
-import com.wasmo.http.HttpResponse
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okio.ByteString
+import wasmo.http.HttpRequest
+import wasmo.http.HttpResponse
 
 /**
  * A fake server that serves `wasmo-manifest.json` and `.wasm` files.

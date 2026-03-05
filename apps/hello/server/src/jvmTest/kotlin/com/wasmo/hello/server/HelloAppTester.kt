@@ -1,10 +1,10 @@
 package com.wasmo.hello.server
 
 import com.wasmo.FakeClock
-import com.wasmo.app.WasmoApp
 import com.wasmo.common.tokens.newToken
 import okio.FileSystem
 import okio.Path
+import wasmo.app.WasmoApp
 
 class HelloAppTester private constructor(
   val fileSystem: FileSystem,

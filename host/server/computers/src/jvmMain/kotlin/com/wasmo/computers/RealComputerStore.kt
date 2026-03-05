@@ -9,16 +9,16 @@ import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.framework.BadRequestException
-import com.wasmo.http.HttpClient
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.jobs.JobQueue
-import com.wasmo.objectstore.ObjectStore
-import com.wasmo.objectstore.ScopedObjectStore
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import okhttp3.HttpUrl
+import wasmo.http.HttpClient
+import wasmo.objectstore.ObjectStore
+import wasmo.objectstore.ScopedObjectStore
 
 @Inject
 @SingleIn(AppScope::class)

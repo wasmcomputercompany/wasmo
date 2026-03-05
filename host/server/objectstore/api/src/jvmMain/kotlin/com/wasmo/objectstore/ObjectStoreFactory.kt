@@ -7,6 +7,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import okhttp3.OkHttpClient
+import wasmo.objectstore.ObjectStore
 
 @Inject
 @SingleIn(AppScope::class)

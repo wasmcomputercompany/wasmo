@@ -1,4 +1,4 @@
-package com.wasmo.app
+package wasmo.app
 
 import okio.FileSystem
 import okio.Path

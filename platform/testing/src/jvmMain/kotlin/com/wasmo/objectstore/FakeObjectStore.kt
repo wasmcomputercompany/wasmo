@@ -2,6 +2,16 @@ package com.wasmo.objectstore
 
 import java.util.TreeMap
 import okio.ByteString
+import wasmo.objectstore.DeleteObjectRequest
+import wasmo.objectstore.DeleteObjectResponse
+import wasmo.objectstore.GetObjectRequest
+import wasmo.objectstore.GetObjectResponse
+import wasmo.objectstore.ListObjectsRequest
+import wasmo.objectstore.ListObjectsResponse
+import wasmo.objectstore.ObjectStore
+import wasmo.objectstore.PutObjectRequest
+import wasmo.objectstore.PutObjectResponse
+import wasmo.objectstore.etag
 
 class FakeObjectStore : ObjectStore {
   private val objects = TreeMap<String, Object>()

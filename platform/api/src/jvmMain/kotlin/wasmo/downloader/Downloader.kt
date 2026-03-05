@@ -1,7 +1,7 @@
-package com.wasmo.downloader
+package wasmo.downloader
 
-import com.wasmo.http.HttpRequest
-import com.wasmo.http.HttpResponse
+import wasmo.http.HttpRequest
+import wasmo.http.HttpResponse
 
 interface Downloader {
   /**

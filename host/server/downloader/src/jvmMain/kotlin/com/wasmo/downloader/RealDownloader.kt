@@ -1,8 +1,11 @@
 package com.wasmo.downloader
 
-import com.wasmo.http.HttpClient
-import com.wasmo.objectstore.ObjectStore
-import com.wasmo.objectstore.PutObjectRequest
+import wasmo.downloader.Downloader
+import wasmo.downloader.TransferRequest
+import wasmo.downloader.TransferResponse
+import wasmo.http.HttpClient
+import wasmo.objectstore.ObjectStore
+import wasmo.objectstore.PutObjectRequest
 
 class RealDownloader(
   val httpClient: HttpClient,

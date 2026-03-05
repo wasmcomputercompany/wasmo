@@ -1,4 +1,4 @@
-package com.wasmo.http
+package wasmo.http
 
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl

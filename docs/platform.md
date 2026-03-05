@@ -1,6 +1,12 @@
 App Platform
 ============
 
+Platform APIs have Kotlin package names that start with `wasmo`, like `wasmo.objectstore`.
+
+This is different from APIs used by different Wasmo supporting code, which use package names
+starting with `com.wasmo`.
+
+
 Inbound HTTP Calls
 ------------------
 
@@ -74,8 +80,8 @@ We should have a maximum parallelism permitted by any application, to avoid fork
 Version Upgrade
 ---------------
 
-When attempting an app update, we call the new application, `/after-update` with information about
-the previous and current installation version. If this command fails, we fail the update.
+After an app update, we call `WasmoApp.afterInstall()` with information about the previous and
+current installation version. If this command fails, we fail the update.
 
 
 Resources

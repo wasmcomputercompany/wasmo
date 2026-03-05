@@ -15,6 +15,10 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.IOException
+import wasmo.http.Header
+import wasmo.http.HttpClient
+import wasmo.http.HttpRequest
+import wasmo.http.HttpResponse
 
 @Inject
 @SingleIn(AppScope::class)

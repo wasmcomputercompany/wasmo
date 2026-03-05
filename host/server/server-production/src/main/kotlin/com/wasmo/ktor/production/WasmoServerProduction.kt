@@ -9,12 +9,12 @@ import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.deployment.Deployment
 import com.wasmo.ktor.WasmoService
 import com.wasmo.ktor.startWasmoService
-import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
 import com.wasmo.stripe.StripeCredentials
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.decodeHex
+import com.wasmo.objectstore.BackblazeB2BucketAddress
 
 fun main(args: Array<String>) {
   val cookieSecret = System.getenv("COOKIE_SECRET")

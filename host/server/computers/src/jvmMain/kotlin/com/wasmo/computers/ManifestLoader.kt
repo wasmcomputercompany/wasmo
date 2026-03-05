@@ -2,12 +2,12 @@ package com.wasmo.computers
 
 import com.wasmo.api.AppManifest
 import com.wasmo.api.WasmoJson
-import com.wasmo.http.BadRequestException
-import com.wasmo.http.ContentType
-import com.wasmo.http.HttpClient
-import com.wasmo.http.HttpRequest
 import dev.zacsweers.metro.Inject
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import wasmo.http.BadRequestException
+import wasmo.http.ContentType
+import wasmo.http.HttpClient
+import wasmo.http.HttpRequest
 
 @Inject
 class ManifestLoader(

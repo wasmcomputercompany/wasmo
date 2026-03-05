@@ -1,15 +1,6 @@
 package com.wasmo.objectstore.s3
 
 import com.wasmo.objectstore.BackblazeB2BucketAddress
-import com.wasmo.objectstore.DeleteObjectRequest
-import com.wasmo.objectstore.DeleteObjectResponse
-import com.wasmo.objectstore.GetObjectRequest
-import com.wasmo.objectstore.GetObjectResponse
-import com.wasmo.objectstore.ListObjectsRequest
-import com.wasmo.objectstore.ListObjectsResponse
-import com.wasmo.objectstore.ObjectStore
-import com.wasmo.objectstore.PutObjectRequest
-import com.wasmo.objectstore.PutObjectResponse
 import jakarta.xml.bind.annotation.XmlAccessType
 import jakarta.xml.bind.annotation.XmlAccessorType
 import jakarta.xml.bind.annotation.XmlRootElement
@@ -28,6 +19,15 @@ import retrofit2.http.GET
 import retrofit2.http.PUT
 import retrofit2.http.Query
 import retrofit2.http.Url
+import wasmo.objectstore.DeleteObjectRequest
+import wasmo.objectstore.DeleteObjectResponse
+import wasmo.objectstore.GetObjectRequest
+import wasmo.objectstore.GetObjectResponse
+import wasmo.objectstore.ListObjectsRequest
+import wasmo.objectstore.ListObjectsResponse
+import wasmo.objectstore.ObjectStore
+import wasmo.objectstore.PutObjectRequest
+import wasmo.objectstore.PutObjectResponse
 
 class S3Client(
   private val clock: Clock,

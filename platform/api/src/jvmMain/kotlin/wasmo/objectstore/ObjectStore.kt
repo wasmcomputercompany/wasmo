@@ -1,4 +1,4 @@
-package com.wasmo.objectstore
+package wasmo.objectstore
 
 import okio.ByteString
 import okio.utf8Size
