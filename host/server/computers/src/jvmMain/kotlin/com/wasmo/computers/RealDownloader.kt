@@ -1,5 +1,7 @@
-package com.wasmo.downloader
+package com.wasmo.computers
 
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import wasmo.downloader.Downloader
 import wasmo.downloader.TransferRequest
 import wasmo.downloader.TransferResponse
@@ -7,9 +9,11 @@ import wasmo.http.HttpClient
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
 
+@Inject
+@SingleIn(ComputerScope::class)
 class RealDownloader(
   val httpClient: HttpClient,
-  val objectStore: ObjectStore,
+  @ForComputer val objectStore: ObjectStore,
 ) : Downloader {
   override suspend fun download(transferRequest: TransferRequest): TransferResponse {
     val httpResponse = httpClient.execute(transferRequest.httpRequest)

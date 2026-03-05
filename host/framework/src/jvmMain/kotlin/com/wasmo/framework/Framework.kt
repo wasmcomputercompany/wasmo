@@ -51,9 +51,9 @@ open class HttpException(
 
 class BadRequestException(message: String) : HttpException(400, message)
 
-class UnauthorizedException(message: String? = null) : HttpException(401, message)
+class UnauthorizedException(message: String = "unauthorized") : HttpException(401, message)
 
-class NotFoundException(message: String? = null) : HttpException(404, message)
+class NotFoundException(message: String = "not found") : HttpException(404, message)
 
 @OptIn(ExperimentalContracts::class)
 fun checkRequest(value: Boolean, lazyMessage: () -> String) {

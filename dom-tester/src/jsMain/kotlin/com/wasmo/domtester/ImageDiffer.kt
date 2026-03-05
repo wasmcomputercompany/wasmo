@@ -70,8 +70,8 @@ internal class ImageDiffer {
     var deltaA = (differentPixels * 255)
 
     // Compare pixels
-    for (y in 0 until minWidth) {
-      for (x in 0 until minHeight) {
+    for (y in 0 until minHeight) {
+      for (x in 0 until minWidth) {
         val i = (y * maxWidth + x) * 4
 
         val expectedR = expectedData.data[i].toInt()

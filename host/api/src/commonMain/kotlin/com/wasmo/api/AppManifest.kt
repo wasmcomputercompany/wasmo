@@ -6,7 +6,6 @@ import okio.ByteString
 
 @Serializable
 data class AppManifest(
-  val canonicalUrl: String?,
   val version: Long,
   val slug: AppSlug,
   val displayName: String,

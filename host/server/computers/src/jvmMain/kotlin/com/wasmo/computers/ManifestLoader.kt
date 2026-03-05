@@ -3,7 +3,7 @@ package com.wasmo.computers
 import com.wasmo.api.AppManifest
 import com.wasmo.api.WasmoJson
 import dev.zacsweers.metro.Inject
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.HttpUrl
 import wasmo.http.BadRequestException
 import wasmo.http.ContentType
 import wasmo.http.HttpClient
@@ -13,14 +13,11 @@ import wasmo.http.HttpRequest
 class ManifestLoader(
   private val httpClient: HttpClient,
 ) {
-  suspend fun loadManifest(manifestUrl: String): AppManifest {
-    val httpUrl = manifestUrl.toHttpUrlOrNull()
-      ?: throw BadRequestException("unexpected manifestUrl")
-
+  suspend fun loadManifest(manifestUrl: HttpUrl): AppManifest {
     val manifestResponse = httpClient.execute(
       HttpRequest(
         method = "GET",
-        url = httpUrl,
+        url = manifestUrl,
       ),
     )
 

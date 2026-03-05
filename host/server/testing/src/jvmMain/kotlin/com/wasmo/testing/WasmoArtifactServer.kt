@@ -25,7 +25,6 @@ class WasmoArtifactServer() : FakeHttpClient.Handler {
         app.manifestPath -> return HttpResponse(
           json = WasmoJson,
           body = AppManifest(
-            canonicalUrl = request.url.resolve(app.manifestPath)!!.toString(),
             version = app.version,
             slug = app.slug,
             displayName = app.displayName,

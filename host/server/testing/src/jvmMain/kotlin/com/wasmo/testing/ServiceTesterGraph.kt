@@ -8,13 +8,12 @@ import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
-import com.wasmo.computers.ComputerStore
+import com.wasmo.computers.ComputerBindings
+import com.wasmo.computers.ComputerGraph
 import com.wasmo.computers.InstallAppJob
-import com.wasmo.computers.InstallAppJobExecutor
-import com.wasmo.computers.RealComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
-import com.wasmo.jobs.JobExecutor
+import com.wasmo.identifiers.ForHost
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
@@ -31,7 +30,6 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.serialization.KSerializer
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okio.ByteString.Companion.encodeUtf8
@@ -41,8 +39,13 @@ import okio.fakefilesystem.FakeFileSystem
 import wasmo.http.HttpClient
 import wasmo.objectstore.ObjectStore
 
-@DependencyGraph(AppScope::class)
+@DependencyGraph(
+  scope = AppScope::class,
+  bindingContainers = [ComputerBindings::class]
+)
 interface ServiceTesterGraph {
+  val computerGraphFactory: ComputerGraph.Factory
+
   val wasmoDb: WasmoDbService
   val deployment: Deployment
   val clock: FakeClock
@@ -82,6 +85,7 @@ interface ServiceTesterGraph {
     StripePublishableKey("pk_test_5544332211")
 
   @Provides
+  @ForHost
   @SingleIn(AppScope::class)
   fun provideObjectStore(
     objectStoreFactory: ObjectStoreFactory,
@@ -105,15 +109,8 @@ interface ServiceTesterGraph {
   @SingleIn(AppScope::class)
   fun provideCookieSecret(): CookieSecret = CookieSecret("secret".encodeUtf8())
 
-  @Provides
-  @SingleIn(AppScope::class)
-  fun provideInstallAppJob(): KSerializer<InstallAppJob> = InstallAppJob.serializer()
-
   @Binds
   fun provideJobQueueEventListener(real: JobQueueTester): JobQueueEventListener
-
-  @Binds
-  fun bindComputerStore(real: RealComputerStore): ComputerStore
 
   @Binds
   fun bindClock(real: FakeClock): Clock
@@ -138,9 +135,6 @@ interface ServiceTesterGraph {
 
   @Binds
   fun bind(real: RealClientAuthenticator.Factory): ClientAuthenticator.Factory
-
-  @Binds
-  fun bind(real: InstallAppJobExecutor): JobExecutor<InstallAppJob>
 
   @Binds
   fun bind(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>

@@ -41,7 +41,7 @@ kotlin {
         implementation(project(":host:server:computers"))
         implementation(project(":host:server:db"))
         implementation(project(":host:server:deployment"))
-        implementation(project(":host:server:downloader"))
+        implementation(project(":host:server:identifiers"))
         implementation(project(":host:server:jobs:api"))
         implementation(project(":host:server:jobs:memory"))
         implementation(project(":host:server:objectstore:api"))

@@ -8,14 +8,13 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.routes.RealRouteCodec
-import com.wasmo.computers.ComputerStore
+import com.wasmo.computers.ComputerBindings
+import com.wasmo.computers.ComputerGraph
 import com.wasmo.computers.InstallAppJob
-import com.wasmo.computers.InstallAppJobExecutor
-import com.wasmo.computers.RealComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.http.RealHttpClient
-import com.wasmo.jobs.JobExecutor
+import com.wasmo.identifiers.ForHost
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
@@ -39,16 +38,19 @@ import io.ktor.server.engine.EmbeddedServer
 import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.KSerializer
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import wasmo.http.HttpClient
 import wasmo.objectstore.ObjectStore
 
-@DependencyGraph(AppScope::class)
-interface WasmoServiceGraph {
+@DependencyGraph(
+  scope = AppScope::class,
+  bindingContainers = [ComputerBindings::class]
+)
+internal interface WasmoServiceGraph {
   val wasmoService: WasmoService
   val callGraphFactory: CallGraph.Factory
+  val computerGraphFactory: ComputerGraph.Factory
 
   @Provides
   @SingleIn(AppScope::class)
@@ -84,6 +86,7 @@ interface WasmoServiceGraph {
     config.stripeCredentials.publishableKey
 
   @Provides
+  @ForHost
   @SingleIn(AppScope::class)
   fun provideObjectStore(
     config: WasmoService.Config,
@@ -130,14 +133,7 @@ interface WasmoServiceGraph {
 
   @Provides
   @SingleIn(AppScope::class)
-  fun provideInstallAppJobSerializer(): KSerializer<InstallAppJob> = InstallAppJob.serializer()
-
-  @Provides
-  @SingleIn(AppScope::class)
   fun provideCoroutineScope(): CoroutineScope = CoroutineScope(Dispatchers.Default)
-
-  @Binds
-  fun bindJobExecutor(real: InstallAppJobExecutor): JobExecutor<InstallAppJob>
 
   @Binds
   fun bind(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
@@ -163,11 +159,6 @@ interface WasmoServiceGraph {
   fun bindAuthenticatorDatabase(
     real: RealAuthenticatorDatabase,
   ): AuthenticatorDatabase
-
-  @Binds
-  fun bindComputerStore(
-    real: RealComputerStore,
-  ): ComputerStore
 
   @Binds
   fun bindPaymentsService(

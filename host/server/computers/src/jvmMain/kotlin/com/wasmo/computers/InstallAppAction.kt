@@ -6,32 +6,34 @@ import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.db.WasmoDb
+import com.wasmo.framework.BadRequestException
 import com.wasmo.framework.Response
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 @Inject
 @SingleIn(CallScope::class)
 class InstallAppAction(
   private val client: Client,
   private val computerStore: ComputerStore,
-  private val manifestLoader: ManifestLoader,
   private val wasmoDb: WasmoDb,
 ) {
   suspend fun install(
     computerSlug: ComputerSlug,
     request: InstallAppRequest,
   ): Response<InstallAppResponse> {
-    val appManifest = manifestLoader.loadManifest(
-      manifestUrl = request.manifestUrl,
-    )
-    wasmoDb.transactionWithResult(noEnclosing = true) {
-      val computer = computerStore.get(client, computerSlug)
-      computer.installApp(
-        manifestUrl = request.manifestUrl,
-        manifest = appManifest,
-      )
+    val computer = wasmoDb.transactionWithResult(noEnclosing = true) {
+      computerStore.getOrNull(client, computerSlug)
+        ?: throw BadRequestException("unexpected computer: ${computerSlug.value}")
     }
+
+    val manifestUrl = request.manifestUrl.toHttpUrlOrNull()
+      ?: throw BadRequestException("unexpected manifest URL: ${request.manifestUrl}")
+
+    computer.enqueueInstallApp(
+      manifestUrl = manifestUrl,
+    )
 
     return Response(
       body = InstallAppResponse(

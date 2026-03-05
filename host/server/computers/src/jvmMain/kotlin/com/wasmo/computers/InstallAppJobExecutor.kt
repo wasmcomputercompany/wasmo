@@ -17,7 +17,6 @@ data class InstallAppJob(
 @SingleIn(AppScope::class)
 class InstallAppJobExecutor(
   private val wasmoDb: WasmoDb,
-  private val manifestLoader: ManifestLoader,
   private val computerStore: ComputerStore,
 ) : JobExecutor<InstallAppJob> {
   override suspend fun execute(job: InstallAppJob) {
@@ -28,7 +27,6 @@ class InstallAppJobExecutor(
       appInstall to computer
     }
 
-    val manifest = manifestLoader.loadManifest(appInstall.manifest_url)
-    computer.appLoader.downloadWasm(manifest)
+    computer.enqueueInstallApp(appInstall)
   }
 }
