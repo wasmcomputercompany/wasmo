@@ -8,13 +8,32 @@ Computer Launcher
 https://jesse99.wasmo.com/
 ```
 
-This is the home page for the computer.
+This is the home page for the computer `jesse99`.
 
 On the home screen we'll show a list of `UserTasks`:
 
  * Welcome
  * ConfirmEmailAddress
  * PaymentOverdue
+
+
+Apps
+----
+
+```
+https://music-jesse99.wasmo.com/
+```
+
+This is the home page for the app `music` on the computer `jesse99`.
+
+Paths prefixed with `/-/` are [dash paths](routes_dash_paths.md) and are processed by Wasmo. The
+application will never receive these requests.
+
+Paths prefixed with `/.well-known/` are [well-known](https://en.wikipedia.org/wiki/Well-known_URI)
+and may be processed by the Wasmo host or routed to the application for processing. Initially there
+is an allowlist of well-known paths that are routed to the application.
+
+All other paths are routed to the application for processing.
 
 
 Invite
