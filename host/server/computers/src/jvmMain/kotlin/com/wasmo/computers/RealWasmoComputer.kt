@@ -1,5 +1,6 @@
 package com.wasmo.computers
 
+import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSlug
 import com.wasmo.db.AppInstall
 import com.wasmo.db.WasmoDb
@@ -15,17 +16,32 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 @Inject
 @SingleIn(ComputerScope::class)
 class RealWasmoComputer(
+  override val id: ComputerId,
+  override val slug: ComputerSlug,
   private val clock: Clock,
   private val deployment: Deployment,
   private val wasmoDb: WasmoDb,
-  private val computerId: ComputerId,
-  private val slug: ComputerSlug,
   override val appLoader: AppLoader,
   private val installAppJobQueue: JobQueue<InstallAppJob>,
   private val manifestLoader: ManifestLoader,
+  private val appCatalog: AppCatalog,
 ) : WasmoComputer {
   override val url: HttpUrl
     get() = deployment.baseUrl.resolve("/computer/${slug.value}")!!
+
+  context(transactionCallbacks: TransactionCallbacks)
+  override fun initialize() {
+    for (entry in appCatalog.entries) {
+      wasmoDb.appInstallQueries.insertAppInstall(
+        computer_id = id,
+        slug = entry.slug,
+        manifest_url = "https://apps.wasmo.com/${slug}/manifest.json",
+        launcher_label = entry.launcherLabel,
+        version = 1L,
+        install_scheduled_at = clock.now(),
+      ).executeAsOne()
+    }
+  }
 
   override suspend fun enqueueInstallApp(manifestUrl: HttpUrl) {
     val manifest = manifestLoader.loadManifest(
@@ -34,10 +50,10 @@ class RealWasmoComputer(
 
     wasmoDb.transaction(noEnclosing = true) {
       val appInstallId = wasmoDb.appInstallQueries.insertAppInstall(
-        computer_id = computerId,
+        computer_id = id,
         slug = manifest.slug,
         manifest_url = manifestUrl.toString(),
-        display_name = manifest.displayName,
+        launcher_label = manifest.launcherLabel,
         version = manifest.version,
         install_scheduled_at = clock.now(),
       ).executeAsOne()

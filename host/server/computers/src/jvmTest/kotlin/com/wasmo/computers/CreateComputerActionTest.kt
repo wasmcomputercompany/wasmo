@@ -5,9 +5,11 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerListItem
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.CreateComputerSpecRequest
+import com.wasmo.api.InstalledApp
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.testing.ServiceTester
@@ -44,5 +46,21 @@ class CreateComputerActionTest {
 
     val computerHostPage = client.call().hostPage(ComputerHomeRoute(computerSlug))
     assertThat(computerHostPage.computerSnapshot?.slug).isEqualTo(computerSlug)
+    assertThat(computerHostPage.computerSnapshot?.apps)
+      .isNotNull()
+      .containsExactly(
+        InstalledApp(
+          slug = AppSlug("music"),
+          launcherLabel = "Music",
+          maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
+          installScheduledAt = tester.clock.now(),
+        ),
+        InstalledApp(
+          slug = AppSlug("snake"),
+          launcherLabel = "Snake",
+          maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
+          installScheduledAt = tester.clock.now(),
+        ),
+      )
   }
 }

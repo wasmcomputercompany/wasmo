@@ -8,6 +8,7 @@ import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerGraph
 import com.wasmo.computers.InstallAppJob
@@ -108,6 +109,10 @@ interface ServiceTesterGraph {
   @Provides
   @SingleIn(AppScope::class)
   fun provideCookieSecret(): CookieSecret = CookieSecret("secret".encodeUtf8())
+
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideAppCatalog(): AppCatalog = TestAppCatalog
 
   @Binds
   fun provideJobQueueEventListener(real: JobQueueTester): JobQueueEventListener

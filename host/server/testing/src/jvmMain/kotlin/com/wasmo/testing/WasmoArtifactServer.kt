@@ -27,7 +27,7 @@ class WasmoArtifactServer() : FakeHttpClient.Handler {
           body = AppManifest(
             version = app.version,
             slug = app.slug,
-            displayName = app.displayName,
+            launcherLabel = app.launcherLabel,
             wasmUrl = request.url.resolve(app.wasmPath)!!.toString(),
             wasmSha256 = app.wasm.sha256(),
           ),
@@ -44,7 +44,7 @@ class WasmoArtifactServer() : FakeHttpClient.Handler {
 
   data class App(
     val slug: AppSlug,
-    val displayName: String,
+    val launcherLabel: String,
     val version: Long,
     val wasm: ByteString,
   ) {

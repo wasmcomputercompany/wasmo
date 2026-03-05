@@ -9,7 +9,7 @@ CREATE TABLE AppInstall (
   slug VARCHAR(255) AS AppSlug NOT NULL,
   version BIGINT NOT NULL,
   manifest_url VARCHAR(65535) NOT NULL,
-  display_name VARCHAR(255) NOT NULL,
+  launcher_label VARCHAR(255) NOT NULL,
   install_scheduled_at TIMESTAMPTZ AS Instant NOT NULL,
   install_completed_at TIMESTAMPTZ AS Instant NULL,
   install_deleted_at TIMESTAMPTZ AS Instant NULL,

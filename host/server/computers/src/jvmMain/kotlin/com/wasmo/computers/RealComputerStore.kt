@@ -17,6 +17,43 @@ class RealComputerStore(
   private val computerGraphFactory: ComputerGraph.Factory,
 ) : ComputerStore {
   context(transactionCallbacks: TransactionCallbacks)
+  override fun initializeFromSpec(computerSpecToken: String): WasmoComputer {
+    val computerSpec = wasmoDb.computerSpecQueries
+      .selectComputerSpecByToken(computerSpecToken)
+      .executeAsOneOrNull()
+      ?: throw IllegalStateException("no such computer spec: $computerSpecToken")
+
+    val computerId = computerSpec.computer_id
+      ?: run {
+        val insertedComputerId = wasmoDb.computerQueries.insertComputer(
+          created_at = computerSpec.created_at,
+          version = 1,
+          slug = computerSpec.slug,
+        ).executeAsOne()
+
+        wasmoDb.computerAccessQueries.insertComputerAccess(
+          created_at = computerSpec.created_at,
+          version = 1,
+          computer_id = insertedComputerId,
+          account_id = computerSpec.account_id,
+        ).executeAsOne()
+
+        wasmoDb.computerSpecQueries.linkComputer(
+          new_version = computerSpec.version + 1,
+          computer_id = insertedComputerId,
+          expected_version = computerSpec.version,
+          id = computerSpec.id,
+        )
+
+        insertedComputerId
+      }
+
+    val result = get(computerId)
+    result.initialize()
+    return result
+  }
+
+  context(transactionCallbacks: TransactionCallbacks)
   override fun getOrNull(
     client: Client,
     slug: ComputerSlug,

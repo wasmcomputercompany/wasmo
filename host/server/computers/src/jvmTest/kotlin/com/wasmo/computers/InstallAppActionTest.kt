@@ -2,10 +2,14 @@ package com.wasmo.computers
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
+import com.wasmo.api.InstalledApp
+import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.testing.ServiceTester
 import com.wasmo.testing.WasmoArtifactServer
 import kotlin.test.Test
@@ -25,7 +29,7 @@ class InstallAppActionTest {
     val wasm = "XXXX".encodeUtf8()
     val helloApp = WasmoArtifactServer.App(
       slug = AppSlug("hello"),
-      displayName = "Hello World",
+      launcherLabel = "Hello World",
       version = 1L,
       wasm = wasm,
     )
@@ -45,5 +49,17 @@ class InstallAppActionTest {
         readByteString()
       },
     ).isEqualTo(wasm)
+
+    val computerHostPage = client.call().hostPage(ComputerHomeRoute(computerSlug))
+    assertThat(computerHostPage.computerSnapshot?.apps)
+      .isNotNull()
+      .contains(
+        InstalledApp(
+          slug = AppSlug("hello"),
+          launcherLabel = "Hello World",
+          maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
+          installScheduledAt = tester.clock.now(),
+        ),
+      )
   }
 }

@@ -33,7 +33,7 @@ class ComputerUi(
     LauncherScreen {
       LauncherIconList {
         for (app in computerSnapshot.apps) {
-          Icon(app.label, app.maskableIconUrl) {
+          Icon(app.launcherLabel, app.maskableIconUrl) {
             router.goTo(AppRoute(slug, app.slug), TransitionDirection.PUSH)
           }
         }

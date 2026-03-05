@@ -19,7 +19,7 @@ class SubscriptionUpdater(
   private val clock: Clock,
   private val paymentsService: PaymentsService,
   private val wasmoDb: WasmoDb,
-  private val computerSpecStore: ComputerSpecStore,
+  private val computerStore: ComputerStore,
 ) {
   fun update(subscriptionId: String): SubscriptionSnapshot {
     val now = clock.now()
@@ -65,7 +65,7 @@ class SubscriptionUpdater(
           limit = 1L,
         ).executeAsOneOrNull()
 
-      val computer = computerSpecStore.getOrCreateComputer(
+      val computer = computerStore.initializeFromSpec(
         computerSpecToken = subscription.computerSpecToken,
       )
 

@@ -19,8 +19,8 @@ data class InstallAppResponse(
 
 @Serializable
 data class InstalledApp(
-  val label: String,
   val slug: AppSlug,
+  val launcherLabel: String,
   val maskableIconUrl: String,
   val installScheduledAt: Instant,
   val installCompletedAt: Instant? = null,

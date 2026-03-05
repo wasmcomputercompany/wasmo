@@ -4,7 +4,7 @@ INSERT INTO AppInstall(
   slug,
   version,
   manifest_url,
-  display_name,
+  launcher_label,
   install_scheduled_at
 )
 VALUES (
@@ -12,7 +12,7 @@ VALUES (
   :slug,
   :version,
   :manifest_url,
-  :display_name,
+  :launcher_label,
   :install_scheduled_at
 ) RETURNING id;
 
@@ -31,6 +31,7 @@ UPDATE AppInstall
 SET
   version = :new_version,
   manifest_url = :manifest_url,
+  launcher_label = :launcher_label,
   install_completed_at = :install_completed_at,
   install_deleted_at = :install_deleted_at,
   install_incomplete_reason = :install_incomplete_reason

@@ -2,7 +2,6 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSlug
-import com.wasmo.db.Computer
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
 import dev.zacsweers.metro.AppScope
@@ -35,42 +34,5 @@ class ComputerSpecStore(
       // TODO: recover from idempotent inserts
       throw e
     }
-  }
-
-  context(_: TransactionCallbacks)
-  fun getOrCreateComputer(computerSpecToken: String): Computer {
-    val computerSpec = wasmoDb.computerSpecQueries
-      .selectComputerSpecByToken(computerSpecToken)
-      .executeAsOneOrNull()
-      ?: throw IllegalStateException("no such computer spec: $computerSpecToken")
-
-    val computerId = computerSpec.computer_id
-      ?: run {
-        val insertedComputerId = wasmoDb.computerQueries.insertComputer(
-          created_at = computerSpec.created_at,
-          version = 1,
-          slug = computerSpec.slug,
-        ).executeAsOne()
-
-        wasmoDb.computerAccessQueries.insertComputerAccess(
-          created_at = computerSpec.created_at,
-          version = 1,
-          computer_id = insertedComputerId,
-          account_id = computerSpec.account_id,
-        ).executeAsOne()
-
-        wasmoDb.computerSpecQueries.linkComputer(
-          new_version = computerSpec.version + 1,
-          computer_id = insertedComputerId,
-          expected_version = computerSpec.version,
-          id = computerSpec.id,
-        )
-
-        insertedComputerId
-      }
-
-    return wasmoDb.computerQueries
-      .selectComputerById(computerId)
-      .executeAsOne()
   }
 }

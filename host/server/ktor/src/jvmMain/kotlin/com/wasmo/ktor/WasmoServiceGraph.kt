@@ -8,8 +8,10 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.routes.RealRouteCodec
+import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerGraph
+import com.wasmo.computers.DefaultAppCatalog
 import com.wasmo.computers.InstallAppJob
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
@@ -134,6 +136,10 @@ internal interface WasmoServiceGraph {
   @Provides
   @SingleIn(AppScope::class)
   fun provideCoroutineScope(): CoroutineScope = CoroutineScope(Dispatchers.Default)
+
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideAppCatalog(): AppCatalog = DefaultAppCatalog
 
   @Binds
   fun bind(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
