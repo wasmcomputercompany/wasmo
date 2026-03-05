@@ -21,10 +21,13 @@ import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.decodeUrl
+import com.wasmo.api.routes.toHttpUrl
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.HttpException
+import com.wasmo.framework.NotFoundException
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
+import com.wasmo.framework.redirect
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -35,7 +38,7 @@ import io.ktor.server.http.content.staticResources
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.request.host
 import io.ktor.server.request.path
-import io.ktor.server.routing.Routing
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext as KtorRoutingContext
 import io.ktor.server.routing.get
@@ -57,97 +60,103 @@ class ActionRouter(
   fun createRoutes() {
     application.install(CallLogging)
 
-    createComputerRoutes()
-    createPages()
-    createRpcs()
+    val suffix = ".${rootUrl.topPrivateDomain}"
+    val computerRegex = Regex("${ComputerSlugRegex.pattern}${Regex.escape(suffix)}")
+
+    application.routing {
+      host(computerRegex) {
+        createComputerRoutes()
+      }
+      host(rootUrl.topPrivateDomain) {
+        createPages()
+        createRpcs()
+      }
+      handle {
+        val response = when {
+          call.request.host() != rootUrl.topPrivateDomain -> redirect(rootUrl.toHttpUrl())
+          else -> NotFoundException().asResponse()
+        }
+        call.respond(response)
+      }
+    }
 
     application.routing {
       staticResources("/", "static")
     }
   }
 
-  private fun createComputerRoutes() {
-    val suffix = ".${rootUrl.topPrivateDomain}"
-    val hostRegex = Regex("${ComputerSlugRegex.pattern}${Regex.escape(suffix)}")
-    application.routing {
-      host(hostRegex) {
-        get("/") { callGraph, url, _ ->
-          callGraph.hostPageAction.get(url).response
-        }
-      }
+  private fun Route.createComputerRoutes() {
+    get("/") { callGraph, url, _ ->
+      callGraph.hostPageAction.get(url).response
     }
   }
 
-  private fun createPages() {
-    application.routing {
-      for (path in listOf("/", "/build-yours", "/computers", "/teaser", "/invite/{code}")) {
-        get(path) { callGraph, url, _ ->
-          callGraph.hostPageAction.get(url).response
-        }
+  private fun Route.createPages() {
+    for (path in listOf("/", "/build-yours", "/computers", "/teaser", "/invite/{code}")) {
+      get(path) { callGraph, url, _ ->
+        callGraph.hostPageAction.get(url).response
       }
+    }
 
-      get("/after-checkout/{checkoutSessionId}") { callGraph, _, call ->
-        callGraph.afterCheckoutAction.get(call.pathParameters["checkoutSessionId"]!!)
-      }
+    get("/after-checkout/{checkoutSessionId}") { callGraph, _, call ->
+      callGraph.afterCheckoutAction.get(call.pathParameters["checkoutSessionId"]!!)
     }
   }
 
-  private fun createRpcs() {
-    application.routing {
-      rpc<CreateInviteRequest, CreateInviteResponse>(
-        path = "/create-invite",
-      ) { callGraph, request, _ ->
-        callGraph.createInviteAction.create(request)
-      }
+  private fun Route.createRpcs() {
+    rpc<CreateInviteRequest, CreateInviteResponse>(
+      path = "/create-invite",
+    ) { callGraph, request, _ ->
+      callGraph.createInviteAction.create(request)
+    }
 
-      rpc<AccountSnapshotRequest, AccountSnapshotResponse>(
-        path = "/account-snapshot",
-      ) { callGraph, request, _ ->
-        callGraph.accountSnapshotAction.get(request)
-      }
+    rpc<AccountSnapshotRequest, AccountSnapshotResponse>(
+      path = "/account-snapshot",
+    ) { callGraph, request, _ ->
+      callGraph.accountSnapshotAction.get(request)
+    }
 
-      rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
-        path = "/register-passkey",
-      ) { callGraph, request, _ ->
-        callGraph.registerPasskeyAction.register(request)
-      }
+    rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
+      path = "/register-passkey",
+    ) { callGraph, request, _ ->
+      callGraph.registerPasskeyAction.register(request)
+    }
 
-      rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
-        path = "/authenticate-passkey",
-      ) { callGraph, request, _ ->
-        callGraph.authenticatePasskeyAction.authenticate(request)
-      }
+    rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
+      path = "/authenticate-passkey",
+    ) { callGraph, request, _ ->
+      callGraph.authenticatePasskeyAction.authenticate(request)
+    }
 
-      rpc<InstallAppRequest, InstallAppResponse>(
-        path = "/computers/{computer}/install-app",
-      ) { callGraph, request, call ->
-        callGraph.installAppAction.install(
-          computerSlug = ComputerSlug(call.pathParameters["computer"]!!),
-          request = request,
-        )
-      }
+    rpc<InstallAppRequest, InstallAppResponse>(
+      path = "/computers/{computer}/install-app",
+    ) { callGraph, request, call ->
+      callGraph.installAppAction.install(
+        computerSlug = ComputerSlug(call.pathParameters["computer"]!!),
+        request = request,
+      )
+    }
 
-      rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
-        path = "/link-email-address",
-      ) { callGraph, request, _ ->
-        callGraph.linkEmailAddressAction.link(request)
-      }
+    rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
+      path = "/link-email-address",
+    ) { callGraph, request, _ ->
+      callGraph.linkEmailAddressAction.link(request)
+    }
 
-      rpc<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse>(
-        path = "/confirm-email-address",
-      ) { callGraph, request, _ ->
-        callGraph.confirmEmailAddressAction.confirm(request)
-      }
+    rpc<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse>(
+      path = "/confirm-email-address",
+    ) { callGraph, request, _ ->
+      callGraph.confirmEmailAddressAction.confirm(request)
+    }
 
-      rpc<CreateComputerSpecRequest, CreateComputerSpecResponse>(
-        path = "/create-computer-spec",
-      ) { callGraph, request, _ ->
-        callGraph.createComputerSpecAction.create(request)
-      }
+    rpc<CreateComputerSpecRequest, CreateComputerSpecResponse>(
+      path = "/create-computer-spec",
+    ) { callGraph, request, _ ->
+      callGraph.createComputerSpecAction.create(request)
     }
   }
 
-  private inline fun Routing.get(
+  private inline fun Route.get(
     path: String,
     crossinline action: suspend (CallGraph, Url, RoutingCall) -> Response<ResponseBody>,
   ) {
@@ -167,7 +176,7 @@ class ActionRouter(
     }
   }
 
-  private inline fun <reified R, reified S> Routing.rpc(
+  private inline fun <reified R, reified S> Route.rpc(
     path: String,
     crossinline action: suspend (CallGraph, R, RoutingCall) -> Response<S>,
   ) {
