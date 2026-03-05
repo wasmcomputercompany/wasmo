@@ -3,6 +3,7 @@ package com.wasmo.ktor
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AccountSnapshotResponse
+import com.wasmo.api.AppSlugRegex
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.api.ComputerSlug
@@ -60,12 +61,16 @@ class ActionRouter(
   fun createRoutes() {
     application.install(CallLogging)
 
-    val suffix = ".${rootUrl.topPrivateDomain}"
-    val computerRegex = Regex("${ComputerSlugRegex.pattern}${Regex.escape(suffix)}")
+    val suffixRegex = Regex.escape(".${rootUrl.topPrivateDomain}")
+    val computerRegex = Regex("${ComputerSlugRegex.pattern}$suffixRegex")
+    val appRegex = Regex("${AppSlugRegex.pattern}-${ComputerSlugRegex.pattern}$suffixRegex")
 
     application.routing {
       host(computerRegex) {
         createComputerRoutes()
+      }
+      host(appRegex) {
+        createAppRoutes()
       }
       host(rootUrl.topPrivateDomain) {
         createPages()
@@ -86,6 +91,13 @@ class ActionRouter(
   }
 
   private fun Route.createComputerRoutes() {
+    get("/") { callGraph, url, _ ->
+      callGraph.hostPageAction.get(url).response
+    }
+  }
+
+  // TODO: replace this with something that invokes app code, or serves app static files.
+  private fun Route.createAppRoutes() {
     get("/") { callGraph, url, _ ->
       callGraph.hostPageAction.get(url).response
     }
