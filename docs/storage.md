@@ -39,15 +39,7 @@ The S3 bucket has a `/user` directory where apps can read and write objects dire
                 /DCIM0002.jpg
 ```
 
-Everything in `/user` is also available to the signed-in user on the web.
-
-```
-https://photos-jesse99.wasmo.com/-/user/library/DCIM0001.heif
-```
-
-The S3 bucket also has a `/public` directory, which is available unauthenticated on the web.
-
-There's an `/sqlite` directory where apps' SQLite databases are stored. Apps aren't given direct
+There's a `/sqlite` directory where apps' SQLite databases are stored. Apps aren't given direct
 access to this directory because database access is managed.
 
 ```
@@ -60,8 +52,8 @@ access to this directory because database access is managed.
             /default.db
 ```
 
-There's an `/app` directory where assets from the installed apps go. We copy everything at
-app install time, so app artifacts don't need to be online when the apps are used.
+There's an `/app` directory where resources from the installed apps go. We copy everything at
+app install time, so app resources don't need to be online when the apps are used.
 
 ```
 /bucket
