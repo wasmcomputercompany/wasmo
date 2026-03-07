@@ -218,6 +218,10 @@ label = 'Recipes'
 maskable_icon_path = '/static/launcher-icon.svg'
 ```
 
+### `label` (Optional)
+
+This is a short string labeling the icon in the launcher. If absent the slug will be used.
+
 ### `maskable_icon_path` (Optional)
 
 The `maskable_icon_path` is a path that will be served by the application. It should be mapped by
