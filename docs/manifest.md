@@ -35,16 +35,25 @@ version = 35
 slug = 'recipes'
 ```
 
+### Target
+
 The `target` must be `https://wasmo.com/sdk/1`. (This is our mechanism to evolve our spec.)
+
+### Version
 
 The `version` is the application's version. It's an int64. When apps are upgraded, a lifecycle
 function is called with the previous and new version, which may be useful to trigger migration code.
 
-The slug is between 1 and 15 ASCII lowercase letters or digits. The first character is not a digit.
-(If you're a regex enjoyer, the regex is `[a-z][a-z0-9]{0,14}`.)
+
+### Slug
+
+The `slug` is between 1 and 15 ASCII lowercase letters or digits. The first character is not a
+digit. (If you're a regex enjoyer, the regex is `[a-z][a-z0-9]{0,14}`.)
 
 This app doesn't do anything and returns HTTP 404 on all calls. Useful apps include executable code
 (`app.wasm`), static resources, or both.
+
+### Base URL
 
 ```toml
 base_url = 'https://example.com/recipes/v35/'
@@ -68,6 +77,8 @@ that's TOML’s Array of Tables syntax!
 Resources are files that are transferred from the Internet to the Wasmo computer when the app is
 installed.
 
+### Content Type
+
 ```toml
 [[resource]]
 url = 'https://example.com/static/icon.svg'
@@ -77,6 +88,8 @@ content_type = 'image/svg+xml'
 Resources may have an optional content-type; otherwise [common media types] will be guessed based on
 their file extension.
 
+### ZIP files
+
 ```toml
 [[resource]]
 url = 'recipes.zip'
@@ -85,6 +98,8 @@ unzip = true
 
 Multiple resources may be aggregated into a `.zip` file for easier distribution. You must use
 `unzip = true` to access items independently.
+
+### Resource Checksum
 
 ```toml
 [[resource]]
@@ -107,6 +122,8 @@ Routes
 
 By default, all HTTP calls to the application invoke the application's code.
 
+### Resource Routes
+
 ```toml
 [[route]]
 path = '/favicon.ico'
@@ -114,6 +131,8 @@ resource_path = '/static/favicon.ico'
 ```
 
 Use routes to directly serve individual files from the application's resources.
+
+### Resource Wildcards
 
 ```toml
 [[route]]
@@ -124,6 +143,8 @@ resource_path = '/static/**'
 If the route path ends with `/**`, and the resource path ends with `/**`, this maps all paths with
 the same prefix.
 
+### Object Store Routes
+
 ```toml
 [[route]]
 path = '/recipe-list.json'
@@ -133,6 +154,8 @@ objects_key = '/my-recipes/recipe-list.json'
 Routes can also serve objects written to the object store. The `objects_key` in the route should
 have a leading `/` followed by the `key` written to the object store.
 
+### Object Store Wildcards
+
 ```toml
 [[route]]
 path = '/my-recipes/**'
@@ -141,9 +164,7 @@ objects_key = '/my-recipes/**'
 
 Prefix mapping can also be used with object store routes.
 
-
-Routes and Access
------------------
+### Access
 
 Above we explained how routes are used to figure out how to fulfill a given network request. Routes
 are also used to configure who has access.
@@ -163,6 +184,8 @@ entire Internet by specifying `access` is `public`.
 path = '/blog/**'
 access = 'public'
 ```
+
+### Access Precedence
 
 You can make a route publicly accessible while retaining its default data source. This configuration
 executes the application to serve code prefixed with `/blog/`.
@@ -194,6 +217,8 @@ Note that unlike `[[resource]]` and `[[route]]`, this item uses single-square br
 label = 'Recipes'
 maskable_icon_path = '/static/launcher-icon.svg'
 ```
+
+### Launcher Icons
 
 The `maskable_icon_path` is a path that will be served by the application. It should be mapped by
 a route, or generated on-demand by the application. This icon does not need to be public.
