@@ -35,17 +35,17 @@ version = 35
 slug = 'recipes'
 ```
 
-### Target
+### `target` (Required)
 
 The `target` must be `https://wasmo.com/sdk/1`. (This is our mechanism to evolve our spec.)
 
-### Version
+### `version` (Required)
 
 The `version` is the application's version. It's an int64. When apps are upgraded, a lifecycle
 function is called with the previous and new version, which may be useful to trigger migration code.
 
 
-### Slug
+### `slug` (Required)
 
 The `slug` is between 1 and 15 ASCII lowercase letters or digits. The first character is not a
 digit. (If you're a regex enjoyer, the regex is `[a-z][a-z0-9]{0,14}`.)
@@ -53,18 +53,18 @@ digit. (If you're a regex enjoyer, the regex is `[a-z][a-z0-9]{0,14}`.)
 This app doesn't do anything and returns HTTP 404 on all calls. Useful apps include executable code
 (`app.wasm`), static resources, or both.
 
-### Base URL
+### `base_url` (Optional)
 
 ```toml
 base_url = 'https://example.com/recipes/v35/'
 ```
 
-The base URL is used to resolve resource URLs in the manifest. It defaults to the URL that the
-manifest was fetched from.
+This URL is used to resolve resource URLs in the manifest. It defaults to the URL that the manifest
+was fetched from.
 
 
-Resources
----------
+`resource` (Array)
+------------------
 
 ```toml
 [[resource]]
@@ -77,7 +77,7 @@ that's TOML’s Array of Tables syntax!
 Resources are files that are transferred from the Internet to the Wasmo computer when the app is
 installed.
 
-### Content Type
+### `content_type` (Optional)
 
 ```toml
 [[resource]]
@@ -88,7 +88,7 @@ content_type = 'image/svg+xml'
 Resources may have an optional content-type; otherwise [common media types] will be guessed based on
 their file extension.
 
-### ZIP files
+### `unzip` archives (Optional)
 
 ```toml
 [[resource]]
@@ -99,7 +99,7 @@ unzip = true
 Multiple resources may be aggregated into a `.zip` file for easier distribution. You must use
 `unzip = true` to access items independently.
 
-### Resource Checksum
+### `sha256` hashes (Optional)
 
 ```toml
 [[resource]]
@@ -111,18 +111,18 @@ Resources can authenticated with a SHA-256 hash. If the hash doesn't match, inst
 fail.
 
 
-WebAssembly
------------
+### The `app.wasm` resource
 
-If the application is executable it must include an `app.wasm` resource.
+If the application is executable it must include a `app.wasm` resource. This special path is loaded
+by the host and executed.
 
 
-Routes
-------
+`route` (Array)
+---------------
 
 By default, all HTTP calls to the application invoke the application's code.
 
-### Resource Routes
+### `resource_path` Routes
 
 ```toml
 [[route]]
@@ -132,7 +132,7 @@ resource_path = '/static/favicon.ico'
 
 Use routes to directly serve individual files from the application's resources.
 
-### Resource Wildcards
+### `resource_path` Wildcards
 
 ```toml
 [[route]]
@@ -143,7 +143,7 @@ resource_path = '/static/**'
 If the route path ends with `/**`, and the resource path ends with `/**`, this maps all paths with
 the same prefix.
 
-### Object Store Routes
+### `objects_key` Routes
 
 ```toml
 [[route]]
@@ -154,7 +154,7 @@ objects_key = '/my-recipes/recipe-list.json'
 Routes can also serve objects written to the object store. The `objects_key` in the route should
 have a leading `/` followed by the `key` written to the object store.
 
-### Object Store Wildcards
+### `objects_key` Wildcards
 
 ```toml
 [[route]]
@@ -164,7 +164,7 @@ objects_key = '/my-recipes/**'
 
 Prefix mapping can also be used with object store routes.
 
-### Access
+### `access` (Optional)
 
 Above we explained how routes are used to figure out how to fulfill a given network request. Routes
 are also used to configure who has access.
@@ -185,7 +185,7 @@ path = '/blog/**'
 access = 'public'
 ```
 
-### Access Precedence
+### `access` Precedence
 
 You can make a route publicly accessible while retaining its default data source. This configuration
 executes the application to serve code prefixed with `/blog/`.
@@ -205,8 +205,8 @@ rules of access rules is ‘longest wins’, so in this case a request for `/blo
 decided by the second route because `/blog/admin/**` is a longer prefix than `/blog/**`.
 
 
-Launcher Appearance
--------------------
+`launcher` (Optional)
+---------------------
 
 Applications control how they look on the Wasmo computer page.
 
@@ -218,7 +218,7 @@ label = 'Recipes'
 maskable_icon_path = '/static/launcher-icon.svg'
 ```
 
-### Launcher Icons
+### `maskable_icon_path` (Optional)
 
 The `maskable_icon_path` is a path that will be served by the application. It should be mapped by
 a route, or generated on-demand by the application. This icon does not need to be public.
