@@ -1,11 +1,9 @@
 package com.wasmo.api
 
+import com.wasmo.packaging.AppSlugRegex
 import kotlin.jvm.JvmInline
 import kotlin.time.Instant
 import kotlinx.serialization.Serializable
-
-/** Between 1 and 15 letters or digits, and the first is not a digit. */
-val AppSlugRegex = Regex("[a-z][a-z0-9]{0,14}")
 
 @Serializable
 data class InstallAppRequest(

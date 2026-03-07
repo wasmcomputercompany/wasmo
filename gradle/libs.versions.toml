@@ -19,6 +19,7 @@ okio = "3.16.4"
 retrofit = "3.0.0"
 sqldelight = "2.2.1"
 stripe = "31.3.0"
+tomlkt = "0.6.0"
 webauthn4j = "0.30.2.RELEASE"
 
 [libraries]
@@ -69,6 +70,7 @@ retrofit-converter-kotlinx-serialization = { module = "com.squareup.retrofit2:co
 sqldelight-jdbc-driver = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqldelight" }
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 stripe = { module = "com.stripe:stripe-java", version.ref = "stripe" }
+tomlkt = { module = "dev.eav.tomlkt:tomlkt", version.ref = "tomlkt" }
 webauthn4j-core = { module = "com.webauthn4j:webauthn4j-core", version.ref = "webauthn4j" }
 
 [plugins]

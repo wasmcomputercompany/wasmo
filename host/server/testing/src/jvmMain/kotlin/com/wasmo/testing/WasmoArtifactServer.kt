@@ -1,7 +1,7 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
-import com.wasmo.api.AppManifest
+import com.wasmo.api.OldAppManifest
 import com.wasmo.api.AppSlug
 import com.wasmo.api.WasmoJson
 import dev.zacsweers.metro.AppScope
@@ -24,7 +24,7 @@ class WasmoArtifactServer() : FakeHttpClient.Handler {
       when (request.url.encodedPath) {
         app.manifestPath -> return HttpResponse(
           json = WasmoJson,
-          body = AppManifest(
+          body = OldAppManifest(
             version = app.version,
             slug = app.slug,
             launcherLabel = app.launcherLabel,

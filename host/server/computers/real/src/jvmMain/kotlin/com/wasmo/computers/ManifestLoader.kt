@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.api.AppManifest
+import com.wasmo.api.OldAppManifest
 import com.wasmo.api.WasmoJson
 import dev.zacsweers.metro.Inject
 import okhttp3.HttpUrl
@@ -13,7 +13,7 @@ import wasmo.http.HttpRequest
 class ManifestLoader(
   private val httpClient: HttpClient,
 ) {
-  suspend fun loadManifest(manifestUrl: HttpUrl): AppManifest {
+  suspend fun loadManifest(manifestUrl: HttpUrl): OldAppManifest {
     val manifestResponse = httpClient.execute(
       HttpRequest(
         method = "GET",
@@ -29,7 +29,7 @@ class ManifestLoader(
     }
 
     return try {
-      WasmoJson.decodeFromString<AppManifest>(manifestResponse.body?.utf8() ?: "")
+      WasmoJson.decodeFromString<OldAppManifest>(manifestResponse.body?.utf8() ?: "")
     } catch (_: IllegalArgumentException) {
       throw BadRequestException("failed to decode manifest")
     }

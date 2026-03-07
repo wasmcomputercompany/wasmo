@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import okio.ByteString
 
 @Serializable
-data class AppManifest(
+data class OldAppManifest(
   val version: Long,
   val slug: AppSlug,
   val launcherLabel: String,

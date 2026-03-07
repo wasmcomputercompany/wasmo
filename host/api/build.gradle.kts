@@ -18,6 +18,7 @@ kotlin {
         implementation(libs.okio)
         implementation(project(":host:json"))
         implementation(project(":host:tokens"))
+        implementation(project(":platform:packaging"))
       }
     }
     jvmMain {

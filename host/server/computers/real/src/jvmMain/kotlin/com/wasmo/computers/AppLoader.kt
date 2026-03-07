@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.api.AppManifest
+import com.wasmo.api.OldAppManifest
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.HttpUrl
@@ -15,7 +15,7 @@ class AppLoader(
   private val downloader: Downloader,
   private val objectStoreKeyFactory: ObjectStoreKeyFactory,
 ) {
-  suspend fun downloadWasm(manifestUrl: HttpUrl, manifest: AppManifest) {
+  suspend fun downloadWasm(manifestUrl: HttpUrl, manifest: OldAppManifest) {
     val wasmUrl = manifestUrl.resolve(manifest.wasmUrl)
       ?: throw BadRequestException("unexpected wasmUrl")
 

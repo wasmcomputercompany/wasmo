@@ -3,7 +3,6 @@ package com.wasmo.ktor
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AccountSnapshotResponse
-import com.wasmo.api.AppSlugRegex
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.api.ComputerSlug
@@ -29,6 +28,7 @@ import com.wasmo.framework.NotFoundException
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.redirect
+import com.wasmo.packaging.AppSlugRegex
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
