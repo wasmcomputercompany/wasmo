@@ -5,7 +5,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import kotlin.test.Test
 
-class ManifestCheckerTest {
+class AppManifestCheckerTest {
   private val manifest = AppManifest(
     target = "https://wasmo.com/sdk/1",
     version = 35,
@@ -83,6 +83,41 @@ class ManifestCheckerTest {
         """
         |unexpected content_type 'zip'
         |must be a RFC 2045 media type
+        """.trimMargin(),
+    )
+
+    assertThat(
+      manifest.copy(
+        resource = listOf(
+          Resource(
+            url = "/",
+          ),
+        ),
+      ),
+    ).failsValidation(
+      context = "resource[0].resource_path",
+      message =
+        """
+        |unexpected resource path '/'
+        |must be the non-empty path to download the resource to
+        """.trimMargin(),
+    )
+
+    assertThat(
+      manifest.copy(
+        resource = listOf(
+          Resource(
+            url = "recipes.zip",
+            resource_path = ""
+          ),
+        ),
+      ),
+    ).failsValidation(
+      context = "resource[0].resource_path",
+      message =
+        """
+        |unexpected resource path ''
+        |must be the non-empty path to download the resource to
         """.trimMargin(),
     )
   }

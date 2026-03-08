@@ -25,12 +25,12 @@ concurrently.
 S3
 --
 
-The S3 bucket has a `/user` directory where apps can read and write objects directly.
+The S3 bucket has a `/data` directory where apps can read and write objects directly.
 
 ```
 /bucket
     /photos
-        /user
+        /data
             /library
                 /DCIM0001.heif
                 /DCIM0002.heif
@@ -52,27 +52,25 @@ access to this directory because database access is managed.
             /default.db
 ```
 
-There's an `/app` directory where resources from the installed apps go. We copy everything at
+There's an `/resources` directory where resources from the installed apps go. We copy everything at
 app install time, so app resources don't need to be online when the apps are used.
 
 ```
 /bucket
     /photos
-        /app
+        /resources
             /v2
                 /app.wasm
-                /resources
-                    /photos.css
-                    /photos.html
-                    /photos.js
+                /photos.css
+                /photos.html
+                /photos.js
     /snake
-        /app
+        /resources
             /v30
                 /app.wasm
-                /resources
-                    /snake.css
-                    /snake.html
-                    /snake.js
+                /snake.css
+                /snake.html
+                /snake.js
 ```
 
 Backblaze B2

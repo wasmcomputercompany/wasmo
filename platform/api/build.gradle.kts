@@ -15,6 +15,7 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okhttp)
         implementation(libs.okio)
+        implementation(libs.tomlkt)
       }
     }
   }

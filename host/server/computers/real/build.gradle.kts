@@ -19,6 +19,7 @@ kotlin {
         implementation(libs.okhttp)
         implementation(libs.okio)
         implementation(libs.postgresql)
+        implementation(libs.tomlkt)
         implementation(project(":host:api"))
         implementation(project(":host:framework"))
         implementation(project(":host:server:accounts:api"))

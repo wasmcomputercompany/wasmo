@@ -77,6 +77,18 @@ that's TOML’s Array of Tables syntax!
 Resources are files that are transferred from the Internet to the Wasmo computer when the app is
 installed.
 
+### `resource_path` (Optional)
+
+The path to download this resource to. This defaults to the path part of the resource `url`.
+
+```toml
+[[resource]]
+url = 'https://cdn.example.com/1234abcd'
+resource_path = 'app.wasm'
+```
+
+If the `url` path part is `/` or empty, then the `resource_path` is required.
+
 ### `content_type` (Optional)
 
 ```toml

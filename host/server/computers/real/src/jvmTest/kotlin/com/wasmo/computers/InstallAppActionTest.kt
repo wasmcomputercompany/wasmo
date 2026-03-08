@@ -45,7 +45,7 @@ class InstallAppActionTest {
     tester.jobQueueTester.awaitIdle()
 
     assertThat(
-      tester.fileSystem.read("/jesse124/apps/hello/v1/app.wasm".toPath()) {
+      tester.fileSystem.read("/jesse124/hello/resources/v1/app.wasm".toPath()) {
         readByteString()
       },
     ).isEqualTo(wasm)

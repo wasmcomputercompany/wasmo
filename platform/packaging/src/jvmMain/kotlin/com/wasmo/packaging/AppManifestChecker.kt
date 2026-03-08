@@ -1,5 +1,6 @@
 package com.wasmo.packaging
 
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okio.ByteString.Companion.decodeHex
 
@@ -91,6 +92,17 @@ private fun IssueCollector.check(resource: Resource) {
       """.trimMargin()
     }
   }
+
+  withContext("resource_path") {
+    val resourcePath = resource.resource_path
+      ?: "https://example.com/".toHttpUrl().resolve(resource.url)?.encodedPath
+    issueCheck(resourcePath != null && resourcePath.removePrefix("/").isNotEmpty()) {
+      """
+      |unexpected resource path '$resourcePath'
+      |must be the non-empty path to download the resource to
+      """.trimMargin()
+    }
+  }
 }
 
 private fun IssueCollector.check(route: Route) {
@@ -174,7 +186,8 @@ private fun IssueCollector.checkPath(
   }
 }
 
-internal val SupportedTargets = setOf("https://wasmo.com/sdk/1")
+const val TargetSdk1 = "https://wasmo.com/sdk/1"
+internal val SupportedTargets = setOf(TargetSdk1)
 internal val SupportedAccessValues = setOf(
   "public",
   "private",

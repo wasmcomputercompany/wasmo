@@ -42,7 +42,7 @@ import wasmo.objectstore.ObjectStore
 
 @DependencyGraph(
   scope = AppScope::class,
-  bindingContainers = [ComputerBindings::class]
+  bindingContainers = [ComputerBindings::class],
 )
 interface ServiceTesterGraph {
   val computerGraphFactory: ComputerGraph.Factory
@@ -139,10 +139,12 @@ interface ServiceTesterGraph {
   fun bindAuthenticatorDatabase(real: RealAuthenticatorDatabase): AuthenticatorDatabase
 
   @Binds
-  fun bind(real: RealClientAuthenticator.Factory): ClientAuthenticator.Factory
+  fun bindClientAuthenticatorFactory(
+    real: RealClientAuthenticator.Factory,
+  ): ClientAuthenticator.Factory
 
   @Binds
-  fun bind(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
+  fun bindAppInstallJobQueue(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
 
   @DependencyGraph.Factory
   interface Factory {

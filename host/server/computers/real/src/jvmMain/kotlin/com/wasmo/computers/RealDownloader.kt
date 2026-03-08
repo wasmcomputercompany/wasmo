@@ -2,6 +2,7 @@ package com.wasmo.computers
 
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import okio.ByteString
 import wasmo.downloader.Downloader
 import wasmo.downloader.TransferRequest
 import wasmo.downloader.TransferResponse
@@ -17,12 +18,12 @@ class RealDownloader(
 ) : Downloader {
   override suspend fun download(transferRequest: TransferRequest): TransferResponse {
     val httpResponse = httpClient.execute(transferRequest.httpRequest)
-    val httpResponseNoBody = httpResponse.copy(body = null)
+    val httpResponseEmptyBody = httpResponse.copy(body = ByteString.EMPTY)
     val body = httpResponse.body
 
-    if (!httpResponse.isSuccessful || body == null) {
+    if (!httpResponse.isSuccessful) {
       return TransferResponse(
-        httpResponse = httpResponseNoBody,
+        httpResponse = httpResponseEmptyBody,
         etag = null,
       )
     }
@@ -35,7 +36,7 @@ class RealDownloader(
     )
 
     return TransferResponse(
-      httpResponse = httpResponseNoBody,
+      httpResponse = httpResponseEmptyBody,
       etag = putObjectResponse.etag,
     )
   }

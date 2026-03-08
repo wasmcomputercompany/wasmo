@@ -29,13 +29,6 @@ interface ComputerGraph {
     prefix = "${slug.value}/",
   )
 
-  @Provides
-  @ForComputer
-  fun provideAppLoader(
-    downloader: Downloader,
-    objectStoreKeyFactory: ObjectStoreKeyFactory,
-  ): AppLoader = AppLoader(downloader, objectStoreKeyFactory)
-
   @Binds
   fun bindDownloader(real: RealDownloader): Downloader
 

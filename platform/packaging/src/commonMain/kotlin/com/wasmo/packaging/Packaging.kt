@@ -16,6 +16,7 @@ data class AppManifest(
 @Serializable
 data class Resource(
   val url: String,
+  val resource_path: String? = null,
   val content_type: String? = null,
   val unzip: Boolean? = null,
   val sha256: String? = null,

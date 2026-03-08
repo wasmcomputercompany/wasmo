@@ -24,6 +24,7 @@ kotlin {
         implementation(libs.okio.fakefilesystem)
         implementation(libs.postgresql)
         implementation(libs.sqldelight.jdbc.driver)
+        implementation(libs.tomlkt)
         implementation(libs.webauthn4j.core)
         implementation(project(":host:api"))
         implementation(project(":host:framework"))

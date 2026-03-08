@@ -1,12 +1,14 @@
 package wasmo.http
 
-import kotlinx.serialization.json.Json
+import dev.eav.tomlkt.Toml
+import kotlinx.serialization.encodeToString
 import okhttp3.HttpUrl
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 
 object ContentType {
   const val Json = "application/json"
+  const val Toml = "application/toml"
 }
 
 interface HttpClient {
@@ -28,7 +30,7 @@ data class Header(
 data class HttpResponse(
   val code: Int = 200,
   val headers: List<Header> = listOf(),
-  val body: ByteString? = null,
+  val body: ByteString,
 ) {
   val isSuccessful: Boolean
     get() = code in 200..299
@@ -38,14 +40,14 @@ data class HttpResponse(
 
   companion object {
     inline operator fun <reified T> invoke(
-      json: Json,
+      toml: Toml,
       code: Int = 200,
       headers: List<Header> = listOf(),
       body: T,
     ) = HttpResponse(
       code = code,
-      headers = headers + Header("Content-Type", ContentType.Json),
-      body = json.encodeToString<T>(body).encodeUtf8(),
+      headers = headers + Header("Content-Type", ContentType.Toml),
+      body = toml.encodeToString<T>(body).encodeUtf8(),
     )
   }
 }

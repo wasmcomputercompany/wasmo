@@ -1,12 +1,17 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
-import com.wasmo.api.OldAppManifest
 import com.wasmo.api.AppSlug
-import com.wasmo.api.WasmoJson
+import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.Launcher
+import com.wasmo.packaging.Resource
+import com.wasmo.packaging.TargetSdk1
+import com.wasmo.packaging.WasmoToml
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
@@ -23,13 +28,21 @@ class WasmoArtifactServer() : FakeHttpClient.Handler {
     for (app in apps) {
       when (request.url.encodedPath) {
         app.manifestPath -> return HttpResponse(
-          json = WasmoJson,
-          body = OldAppManifest(
+          toml = WasmoToml,
+          body = AppManifest(
             version = app.version,
-            slug = app.slug,
-            launcherLabel = app.launcherLabel,
-            wasmUrl = request.url.resolve(app.wasmPath)!!.toString(),
-            wasmSha256 = app.wasm.sha256(),
+            slug = app.slug.value,
+            target = TargetSdk1,
+            base_url = app.baseUrl.toString(),
+            launcher = Launcher(
+              label = app.launcherLabel,
+            ),
+            resource = listOf(
+              Resource(
+                url = app.wasmPath,
+                resource_path = "/app.wasm",
+              ),
+            ),
           ),
         )
 
@@ -48,9 +61,11 @@ class WasmoArtifactServer() : FakeHttpClient.Handler {
     val version: Long,
     val wasm: ByteString,
   ) {
+    val baseUrl: HttpUrl
+      get() = "https://example.com/${slug.value}/v$version/".toHttpUrl()
     val manifestPath: String
-      get() = "/$slug/wasmo-manifest.json"
+      get() = "/${slug.value}/v$version/manifest.toml"
     val wasmPath: String
-      get() = "/$slug/$slug.wasm"
+      get() = "/${slug.value}/v$version/app.wasm"
   }
 }

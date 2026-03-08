@@ -1,6 +1,7 @@
 package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledApp
@@ -24,7 +25,7 @@ class RealWasmoComputer(
   private val clock: Clock,
   private val deployment: Deployment,
   private val wasmoDb: WasmoDb,
-  private val appLoader: AppLoader,
+  private val appInstaller: AppInstaller,
   private val installAppJobQueue: JobQueue<InstallAppJob>,
   private val manifestLoader: ManifestLoader,
   private val appCatalog: AppCatalog,
@@ -54,9 +55,9 @@ class RealWasmoComputer(
     wasmoDb.transaction(noEnclosing = true) {
       val appInstallId = wasmoDb.appInstallQueries.insertAppInstall(
         computer_id = id,
-        slug = manifest.slug,
+        slug = AppSlug(manifest.slug),
         manifest_url = manifestUrl.toString(),
-        launcher_label = manifest.launcherLabel,
+        launcher_label = manifest.launcher?.label,
         version = manifest.version,
         install_scheduled_at = clock.now(),
       ).executeAsOne()
@@ -68,7 +69,7 @@ class RealWasmoComputer(
   override suspend fun enqueueInstallApp(appInstall: AppInstall) {
     val manifestUrl = appInstall.manifest_url.toHttpUrl()
     val manifest = manifestLoader.loadManifest(manifestUrl)
-    appLoader.downloadWasm(manifestUrl, manifest)
+    appInstaller.install(manifestUrl, manifest)
   }
 
   context(transactionCallbacks: TransactionCallbacks)
@@ -85,7 +86,7 @@ class RealWasmoComputer(
       apps = appInstalls.map {
         InstalledApp(
           slug = it.slug,
-          launcherLabel = it.launcher_label,
+          launcherLabel = it.launcher_label ?: it.slug.value,
           maskableIconUrl = "/assets/launcher/sample-folder.svg",
           installScheduledAt = installScheduledAt,
         )

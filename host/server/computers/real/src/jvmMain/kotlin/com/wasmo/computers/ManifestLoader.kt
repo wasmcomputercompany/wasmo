@@ -1,7 +1,8 @@
 package com.wasmo.computers
 
-import com.wasmo.api.OldAppManifest
-import com.wasmo.api.WasmoJson
+import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.WasmoToml
+import com.wasmo.packaging.check
 import dev.zacsweers.metro.Inject
 import okhttp3.HttpUrl
 import wasmo.http.BadRequestException
@@ -13,7 +14,7 @@ import wasmo.http.HttpRequest
 class ManifestLoader(
   private val httpClient: HttpClient,
 ) {
-  suspend fun loadManifest(manifestUrl: HttpUrl): OldAppManifest {
+  suspend fun loadManifest(manifestUrl: HttpUrl): AppManifest {
     val manifestResponse = httpClient.execute(
       HttpRequest(
         method = "GET",
@@ -24,14 +25,24 @@ class ManifestLoader(
     if (!manifestResponse.isSuccessful) {
       throw BadRequestException("failed to fetch manifest")
     }
-    if (manifestResponse.contentType != ContentType.Json) {
-      throw BadRequestException("expected ${ContentType.Json} for manifest content-type")
+    if (manifestResponse.contentType != ContentType.Toml) {
+      throw BadRequestException("expected ${ContentType.Toml} for manifest content-type")
     }
 
-    return try {
-      WasmoJson.decodeFromString<OldAppManifest>(manifestResponse.body?.utf8() ?: "")
+    val result = try {
+      WasmoToml.decodeFromString(
+        AppManifest.serializer(),
+        manifestResponse.body.utf8(),
+      )
     } catch (_: IllegalArgumentException) {
       throw BadRequestException("failed to decode manifest")
     }
+
+    val issues = result.check()
+    if (!issues.isEmpty()) {
+      throw BadRequestException(issues.joinToString(separator = "\n\n"))
+    }
+
+    return result
   }
 }
