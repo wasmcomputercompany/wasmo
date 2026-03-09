@@ -15,7 +15,7 @@ interface InstalledAppTesterGraph {
 
   @Provides
   @SingleIn(InstalledAppScope::class)
-  fun provideAppSlug(testApp: TestApp): AppSlug = testApp.slug
+  fun provideAppSlug(testApp: TestApp): AppSlug = AppSlug(testApp.manifest.slug)
 
   @GraphExtension.Factory
   interface Factory {

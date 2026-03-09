@@ -2,7 +2,6 @@ package com.wasmo.testing.computer
 
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.computers.ComputerScope
-import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.testing.WasmoArtifactServer
 import com.wasmo.testing.apps.TestApp
@@ -18,7 +17,6 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(ComputerScope::class)
 class ComputerTester(
-  private val deployment: Deployment,
   private val wasmoArtifactServer: WasmoArtifactServer,
   private val installedAppTesterGraphFactory: InstalledAppTesterGraph.Factory,
   private val client: ClientTester,
@@ -30,7 +28,7 @@ class ComputerTester(
     client.call().installApp(
       computerSlug = slug,
       request = InstallAppRequest(
-        manifestUrl = deployment.baseUrl.resolve(testApp.manifestPath)!!.toString(),
+        manifestUrl = testApp.manifestUrl.toString(),
       ),
     )
 

@@ -1,10 +1,6 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
-import com.wasmo.packaging.AppManifest
-import com.wasmo.packaging.Launcher
-import com.wasmo.packaging.Resource
-import com.wasmo.packaging.TargetSdk1
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.testing.apps.TestApp
 import dev.zacsweers.metro.AppScope
@@ -23,28 +19,17 @@ class WasmoArtifactServer() : FakeHttpClient.Handler {
 
   override fun handle(request: HttpRequest): HttpResponse? {
     for (app in apps) {
-      when (request.url.encodedPath) {
-        app.manifestPath -> return HttpResponse(
+      if (request.url == app.manifestUrl) {
+        return HttpResponse(
           toml = WasmoToml,
-          body = AppManifest(
-            version = app.version,
-            slug = app.slug.value,
-            target = TargetSdk1,
-            base_url = app.baseUrl.toString(),
-            launcher = Launcher(
-              label = app.launcherLabel,
-            ),
-            resource = listOf(
-              Resource(
-                url = app.wasmPath,
-                resource_path = "/app.wasm",
-              ),
-            ),
-          ),
+          body = app.manifest,
         )
+      }
 
-        app.wasmPath -> return HttpResponse(
-          body = app.wasm,
+      val resource = app.resources[request.url]
+      if (resource != null) {
+        return HttpResponse(
+          body = resource
         )
       }
     }

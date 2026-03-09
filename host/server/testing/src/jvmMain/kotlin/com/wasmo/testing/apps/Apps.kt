@@ -1,6 +1,9 @@
 package com.wasmo.testing.apps
 
-import com.wasmo.identifiers.AppSlug
+import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.Launcher
+import com.wasmo.packaging.Resource
+import com.wasmo.packaging.TargetSdk1
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString
@@ -10,22 +13,34 @@ import okio.ByteString.Companion.encodeUtf8
  * An installable app, not installed on a particular computer.
  */
 data class TestApp(
-  val slug: AppSlug,
-  val launcherLabel: String,
-  val version: Long,
-  val wasm: ByteString,
+  val manifestUrl: HttpUrl,
+  val manifest: AppManifest,
+  val resources: Map<HttpUrl, ByteString>,
 ) {
-  val baseUrl: HttpUrl
-    get() = "https://example.com/${slug.value}/v$version/".toHttpUrl()
-  val manifestPath: String
-    get() = "/${slug.value}/v$version/manifest.toml"
-  val wasmPath: String
-    get() = "/${slug.value}/v$version/app.wasm"
+  val wasm: ByteString?
+    get() = resources.entries
+      .firstOrNull { (key, _) -> key.pathSegments.last() == "app.wasm" }
+      ?.value
 }
 
 val RecipesApp = TestApp(
-  slug = AppSlug("recipes"),
-  launcherLabel = "Recipes",
-  version = 1L,
-  wasm = "I am Wasm data".encodeUtf8(),
+  manifestUrl = "https://example.com/recipes/v1/recipes.wasmo.toml".toHttpUrl(),
+  manifest = AppManifest(
+    version = 1L,
+    slug = "recipes",
+    target = TargetSdk1,
+    base_url = "https://example.com/recipes/v1/",
+    launcher = Launcher(
+      label = "Recipes",
+    ),
+    resource = listOf(
+      Resource(
+        url = "app.wasm",
+        resource_path = "/app.wasm",
+      ),
+    ),
+  ),
+  resources = mapOf(
+    "https://example.com/recipes/v1/app.wasm".toHttpUrl() to "I am Wasm data".encodeUtf8(),
+  ),
 )

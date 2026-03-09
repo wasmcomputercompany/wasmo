@@ -38,7 +38,7 @@ class InstallAppActionTest {
       .contains(
         InstalledApp(
           slug = app.slug,
-          launcherLabel = app.testApp.launcherLabel,
+          launcherLabel = app.testApp.manifest.launcher!!.label!!,
           maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
           installScheduledAt = tester.clock.now(),
         ),
