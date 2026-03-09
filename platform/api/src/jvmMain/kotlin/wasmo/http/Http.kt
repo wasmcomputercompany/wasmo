@@ -51,9 +51,3 @@ data class HttpResponse(
     )
   }
 }
-
-/** HTTP 400. */
-class BadRequestException(message: String) : RuntimeException(message)
-
-/** HTTP 404. */
-class NotFoundException(message: String) : RuntimeException(message)

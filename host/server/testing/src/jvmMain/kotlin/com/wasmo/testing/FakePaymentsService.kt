@@ -1,6 +1,6 @@
 package com.wasmo.testing
 
-import com.wasmo.framework.NotFoundException
+import com.wasmo.framework.NotFoundUserException
 import com.wasmo.payments.Address
 import com.wasmo.payments.CheckoutSession
 import com.wasmo.payments.CheckoutStatus
@@ -50,20 +50,20 @@ class FakePaymentsService(
 
   override fun getCheckoutSession(checkoutSessionId: String): CheckoutSession {
     val entry = entries.firstOrNull { it.checkoutSessionId == checkoutSessionId }
-      ?: throw NotFoundException()
+      ?: throw NotFoundUserException()
     return entry.checkoutSession
   }
 
   override fun getSubscription(subscriptionId: String): Subscription {
     val entry = entries.firstOrNull { it.subscription.id == subscriptionId }
-      ?: throw NotFoundException()
+      ?: throw NotFoundUserException()
     return entry.subscription
   }
 
   /** Returns the checkout session ID of the completed payment. */
   fun completePayment(clientSecret: String): String {
     val entry = entries.firstOrNull { it.clientSecret == clientSecret }
-      ?: throw NotFoundException()
+      ?: throw NotFoundUserException()
     entry.completePayment()
     return entry.checkoutSessionId
   }

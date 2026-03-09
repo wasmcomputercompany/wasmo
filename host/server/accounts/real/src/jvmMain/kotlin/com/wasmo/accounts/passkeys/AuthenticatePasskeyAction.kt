@@ -1,13 +1,13 @@
 package com.wasmo.accounts.passkeys
 
-import com.wasmo.accounts.Client
 import com.wasmo.accounts.CallScope
+import com.wasmo.accounts.Client
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.calls.CallDataService
 import com.wasmo.db.WasmoDb
-import com.wasmo.framework.BadRequestException
+import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
 import dev.zacsweers.metro.Inject
@@ -29,7 +29,7 @@ class AuthenticatePasskeyAction(
     return wasmoDb.transactionWithResult(noEnclosing = true) {
       val passkey = wasmoDb.passkeyQueries.findPasskeyByPasskeyId(request.authentication.id)
         .executeAsOneOrNull()
-        ?: throw BadRequestException("no such passkey")
+        ?: throw ArgumentUserException("no such passkey")
 
       try {
         passkeyChecker.authenticate(
@@ -38,7 +38,7 @@ class AuthenticatePasskeyAction(
         )
       } catch (_: Exception) {
         // TODO: log the exception
-        throw BadRequestException("failed to authenticate passkey")
+        throw ArgumentUserException("failed to authenticate passkey")
       }
 
       passkeyLinker.link(passkey)

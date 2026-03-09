@@ -1,8 +1,6 @@
 package com.wasmo.framework
 
 import java.net.HttpURLConnection
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 import okhttp3.HttpUrl
 import okio.BufferedSink
 
@@ -38,31 +36,18 @@ object ContentTypes {
   val TextPlain = ContentType("text", "plain", "utf-8")
 }
 
-open class HttpException(
-  val code: Int,
-  message: String?,
-) : Exception(message) {
-  fun asResponse(): Response<ResponseBody> = Response(
-    status = 400,
+fun UserException.asResponse(): Response<ResponseBody> {
+  val status = when (this) {
+    is ArgumentUserException -> 400
+    is NotFoundUserException -> 404
+    is UnauthorizedUserException -> 401
+    is StateUserException -> 412
+  }
+  return Response(
+    status = status,
     contentType = ContentTypes.TextPlain,
     body = ResponseBody { sink -> sink.writeUtf8(message ?: "") },
   )
-}
-
-class BadRequestException(message: String) : HttpException(400, message)
-
-class UnauthorizedException(message: String = "unauthorized") : HttpException(401, message)
-
-class NotFoundException(message: String = "not found") : HttpException(404, message)
-
-@OptIn(ExperimentalContracts::class)
-fun checkRequest(value: Boolean, lazyMessage: () -> String) {
-  contract {
-    returns() implies value
-  }
-  if (!value) {
-    throw BadRequestException(lazyMessage())
-  }
 }
 
 fun redirect(url: HttpUrl): Response<ResponseBody> = Response(

@@ -10,8 +10,8 @@ import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.Url
 import com.wasmo.calls.CallDataService
 import com.wasmo.db.WasmoDb
-import com.wasmo.framework.NotFoundException
-import com.wasmo.framework.UnauthorizedException
+import com.wasmo.framework.NotFoundUserException
+import com.wasmo.framework.UnauthorizedUserException
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -39,7 +39,7 @@ class HostPageAction(
       when (route) {
         is ComputerHomeRoute -> {
           computerSnapshot = callDataService.computerSnapshotOrNull(route.slug)
-            ?: throw UnauthorizedException()
+            ?: throw UnauthorizedUserException()
         }
 
         ComputerListRoute -> {
@@ -48,7 +48,7 @@ class HostPageAction(
 
         is InviteRoute -> {
           inviteTicket = callDataService.inviteTicketOrNull(route.code)
-            ?: throw NotFoundException()
+            ?: throw NotFoundUserException()
         }
 
         else -> {

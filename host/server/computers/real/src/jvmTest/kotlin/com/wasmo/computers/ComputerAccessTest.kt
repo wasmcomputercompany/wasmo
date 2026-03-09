@@ -9,7 +9,7 @@ import assertk.assertions.isNotNull
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
-import com.wasmo.framework.UnauthorizedException
+import com.wasmo.framework.UnauthorizedUserException
 import com.wasmo.testing.ServiceTester
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -44,7 +44,7 @@ class ComputerAccessTest {
     val computerListPage = clientB.call().hostPage(ComputerListRoute)
     assertThat(computerListPage.computerListSnapshot?.items).isNotNull().isEmpty()
 
-    assertFailsWith<UnauthorizedException> {
+    assertFailsWith<UnauthorizedUserException> {
       clientB.call().hostPage(ComputerHomeRoute(computerSlug))
     }
   }

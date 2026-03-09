@@ -5,7 +5,8 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.InviteTicket
 import com.wasmo.common.tokens.newToken
 import com.wasmo.db.WasmoDb
-import com.wasmo.framework.BadRequestException
+import com.wasmo.framework.ArgumentUserException
+import com.wasmo.framework.NotFoundUserException
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -36,12 +37,12 @@ class InviteService(
   fun claim(claimedBy: Client, code: String): InviteTicket {
     val invite = wasmoDb.inviteQueries.findInvitesByCode(code)
       .executeAsOneOrNull()
-      ?: throw BadRequestException("unknown invite")
+      ?: throw NotFoundUserException("unknown invite")
 
     val claimedById = claimedBy.getOrCreateAccountId()
 
     if (invite.claimed_by != claimedById) {
-      if (invite.claimed_by != null) throw BadRequestException("already claimed")
+      if (invite.claimed_by != null) throw ArgumentUserException("already claimed")
       wasmoDb.inviteQueries.claimInvite(
         new_version = invite.version + 1,
         claimed_at = clock.now(),

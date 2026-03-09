@@ -9,8 +9,7 @@ import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.decodeUrl
-import com.wasmo.framework.BadRequestException
-import com.wasmo.framework.NotFoundException
+import com.wasmo.framework.NotFoundUserException
 import com.wasmo.testing.ServiceTester
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -23,7 +22,7 @@ class InvitesTest {
   @Test
   fun unknownCode404s() = runTest {
     val client = tester.newClient()
-    assertFailsWith<NotFoundException> {
+    assertFailsWith<NotFoundUserException> {
       client.call().hostPage(InviteRoute(code = "12345"))
     }
   }
@@ -79,7 +78,7 @@ class InvitesTest {
     val claimedByClient = tester.newClient()
 
     val passkey = tester.newPasskey()
-    assertFailsWith<BadRequestException> {
+    assertFailsWith<NotFoundUserException> {
       claimedByClient.register(passkey, inviteRoute.code.uppercase())
     }
   }

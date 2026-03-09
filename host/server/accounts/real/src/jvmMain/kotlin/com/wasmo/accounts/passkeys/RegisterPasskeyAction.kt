@@ -8,7 +8,7 @@ import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.calls.CallDataService
 import com.wasmo.db.WasmoDb
-import com.wasmo.framework.BadRequestException
+import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
 import dev.zacsweers.metro.Inject
@@ -49,7 +49,7 @@ class RegisterPasskeyAction(
             registration_record = registerResult.record,
           ).value
         } catch (_: PSQLException) {
-          throw BadRequestException("already registered")
+          throw ArgumentUserException("already registered")
         }
       }
 

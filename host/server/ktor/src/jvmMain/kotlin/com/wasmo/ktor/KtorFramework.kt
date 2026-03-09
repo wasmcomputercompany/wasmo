@@ -1,7 +1,7 @@
 package com.wasmo.ktor
 
 import com.wasmo.api.WasmoJson
-import com.wasmo.framework.BadRequestException
+import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.ContentType
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
@@ -28,7 +28,7 @@ fun <T> DeserializationStrategy<T>.decode(request: RoutingRequest): T {
       return WasmoJson.decodeFromString(this@decode, source.readUtf8())
     }
   } catch (e: SerializationException) {
-    throw BadRequestException(e.message ?: "failed to decode JSON")
+    throw ArgumentUserException("failed to decode manifest\n\n${e.message}")
   }
 }
 

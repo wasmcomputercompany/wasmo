@@ -14,6 +14,7 @@ kotlin {
       dependencies {
         implementation(libs.okio)
         implementation(libs.kotlinx.serialization.json)
+        implementation(project(":platform:issues"))
       }
     }
     val jvmMain by getting {

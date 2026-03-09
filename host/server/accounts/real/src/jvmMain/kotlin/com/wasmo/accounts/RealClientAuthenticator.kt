@@ -3,7 +3,7 @@ package com.wasmo.accounts
 import com.wasmo.accounts.ClientAuthenticator.UserAgent
 import com.wasmo.common.tokens.newToken
 import com.wasmo.deployment.Deployment
-import com.wasmo.framework.UnauthorizedException
+import com.wasmo.framework.UnauthorizedUserException
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -54,10 +54,10 @@ class RealClientAuthenticator(
 
   override fun get(): Client {
     val sessionCookieString = userAgent.getCookie(sessionCookieSpec.cookieName)
-      ?: throw UnauthorizedException("required session cookie not set")
+      ?: throw UnauthorizedUserException("required session cookie not set")
 
     val sessionCookie = sessionCookieEncoder.decode(sessionCookieString)
-      ?: throw UnauthorizedException("failed to decode session cookie")
+      ?: throw UnauthorizedUserException("failed to decode session cookie")
 
     return cookieClientFactory.create(
       sessionCookie = sessionCookie,

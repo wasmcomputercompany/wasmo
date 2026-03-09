@@ -1,4 +1,4 @@
-package com.wasmo.packaging
+package com.wasmo.issues
 
 data class Issue(
   val context: String?,

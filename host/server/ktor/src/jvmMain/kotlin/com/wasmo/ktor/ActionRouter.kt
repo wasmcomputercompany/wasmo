@@ -23,10 +23,11 @@ import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.decodeUrl
 import com.wasmo.api.routes.toHttpUrl
 import com.wasmo.deployment.Deployment
-import com.wasmo.framework.HttpException
-import com.wasmo.framework.NotFoundException
+import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
+import com.wasmo.framework.UserException
+import com.wasmo.framework.asResponse
 import com.wasmo.framework.redirect
 import com.wasmo.packaging.AppSlugRegex
 import dev.zacsweers.metro.AppScope
@@ -79,7 +80,7 @@ class ActionRouter(
       handle {
         val response = when {
           call.request.host() != rootUrl.topPrivateDomain -> redirect(rootUrl.toHttpUrl())
-          else -> NotFoundException().asResponse()
+          else -> NotFoundUserException().asResponse()
         }
         call.respond(response)
       }
@@ -179,7 +180,7 @@ class ActionRouter(
         val callGraph = callGraphFactory.create(clientAuthenticator.get())
         val url = wasmoUrl(rootUrl)
         action(callGraph, url, call)
-      } catch (e: HttpException) {
+      } catch (e: UserException) {
         application.log.info("call failed", e)
         call.respond(e.asResponse())
         return@get
@@ -202,7 +203,7 @@ class ActionRouter(
         val client = clientAuthenticator.get()
         val callGraph = callGraphFactory.create(client)
         action(callGraph, request, call)
-      } catch (e: HttpException) {
+      } catch (e: UserException) {
         application.log.info("call failed", e)
         call.respond(e.asResponse())
         return@post

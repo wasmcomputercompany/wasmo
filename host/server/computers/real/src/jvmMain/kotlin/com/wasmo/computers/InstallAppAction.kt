@@ -6,7 +6,8 @@ import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.db.WasmoDb
-import com.wasmo.framework.BadRequestException
+import com.wasmo.framework.ArgumentUserException
+import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -25,11 +26,11 @@ class InstallAppAction(
   ): Response<InstallAppResponse> {
     val computer = wasmoDb.transactionWithResult(noEnclosing = true) {
       computerStore.getOrNull(client, computerSlug)
-        ?: throw BadRequestException("unexpected computer: ${computerSlug.value}")
+        ?: throw NotFoundUserException("unexpected computer: ${computerSlug.value}")
     }
 
     val manifestUrl = request.manifestUrl.toHttpUrlOrNull()
-      ?: throw BadRequestException("unexpected manifest URL: ${request.manifestUrl}")
+      ?: throw ArgumentUserException("unexpected manifest URL: ${request.manifestUrl}")
 
     computer.enqueueInstallApp(
       manifestUrl = manifestUrl,

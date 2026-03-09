@@ -1,5 +1,7 @@
 package com.wasmo.packaging
 
+import com.wasmo.issues.Issue
+import com.wasmo.issues.IssueCollector
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okio.ByteString.Companion.decodeHex

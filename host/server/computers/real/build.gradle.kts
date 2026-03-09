@@ -31,6 +31,7 @@ kotlin {
         implementation(project(":host:server:jobs:api"))
         implementation(project(":host:server:payments:api"))
         implementation(project(":platform:api"))
+        implementation(project(":platform:issues"))
         implementation(project(":platform:packaging"))
       }
     }
