@@ -26,12 +26,12 @@ class InstallAppActionTest {
     val client = tester.newClient()
     val computerSlug = ComputerSlug("jesse124")
     val computer = client.createComputer(computerSlug)
-    val wasm = "XXXX".encodeUtf8()
+    val wasmBytes = "I am Wasm data".encodeUtf8()
     val helloApp = WasmoArtifactServer.App(
       slug = AppSlug("hello"),
       launcherLabel = "Hello World",
       version = 1L,
-      wasm = wasm,
+      wasm = wasmBytes,
     )
     tester.wasmoArtifactServer.apps += helloApp
 
@@ -48,7 +48,7 @@ class InstallAppActionTest {
       tester.fileSystem.read("/jesse124/hello/resources/v1/app.wasm".toPath()) {
         readByteString()
       },
-    ).isEqualTo(wasm)
+    ).isEqualTo(wasmBytes)
 
     val computerHostPage = client.call().hostPage(ComputerHomeRoute(computerSlug))
     assertThat(computerHostPage.computerSnapshot?.apps)
