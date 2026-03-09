@@ -34,6 +34,7 @@ dependencies {
   implementation(project(":host:server:computers:real"))
   implementation(project(":host:server:deployment"))
   implementation(project(":host:server:ktor"))
+  implementation(project(":host:server:objectstore:api"))
   implementation(project(":host:server:payments:stripe"))
   implementation(project(":host:server:sendemail:postmark"))
   implementation(project(":host:server:website:real"))
