@@ -5,6 +5,9 @@ We're using [Metro] for dependency injection. We use it in both production code 
 
 Test code does not create production dependency graphs; it's one or the other in each process.
 
+The code below is pseudocode. I'm attempting to show the shape of the DI graphs without the full
+syntax of graph declarations and factories.
+
 
 Production
 ----------
