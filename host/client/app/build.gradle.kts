@@ -46,7 +46,6 @@ kotlin {
       dependencies {
         implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":host:testing"))
         implementation(project(":dom-tester"))
       }
     }

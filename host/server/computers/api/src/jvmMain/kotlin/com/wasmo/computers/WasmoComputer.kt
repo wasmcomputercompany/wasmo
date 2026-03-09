@@ -2,15 +2,18 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.db.AppInstall
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.packaging.AppManifest
 import okhttp3.HttpUrl
 
 interface WasmoComputer {
   val id: ComputerId
   val slug: ComputerSlug
   val url: HttpUrl
+  val manifestLoader: ManifestLoader
+  val appInstaller: AppInstaller
 
   /** Install default apps. */
   context(transactionCallbacks: TransactionCallbacks)
@@ -18,8 +21,19 @@ interface WasmoComputer {
 
   context(transactionCallbacks: TransactionCallbacks)
   fun snapshot(): ComputerSnapshot
+}
 
-  suspend fun enqueueInstallApp(manifestUrl: HttpUrl)
+interface ManifestLoader {
+  suspend fun loadManifest(manifestUrl: HttpUrl): AppManifest
+}
 
-  suspend fun enqueueInstallApp(appInstall: AppInstall)
+interface AppInstaller {
+  suspend fun enqueueInstall(
+    manifestUrl: HttpUrl,
+  )
+
+  suspend fun install(
+    manifestUrl: HttpUrl,
+    appSlug: AppSlug,
+  )
 }

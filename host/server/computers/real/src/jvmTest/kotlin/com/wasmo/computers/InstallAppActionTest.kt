@@ -8,6 +8,7 @@ import assertk.assertions.isNotNull
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstalledApp
 import com.wasmo.api.routes.ComputerHomeRoute
+import com.wasmo.events.AppInstallEvent
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.testing.ServiceTester
@@ -25,10 +26,11 @@ class InstallAppActionTest {
   fun happyPath() = runTest {
     val client = tester.newClient()
     val computerSlug = ComputerSlug("jesse124")
+    val appSlug = AppSlug("hello")
     val computer = client.createComputer(computerSlug)
     val wasmBytes = "I am Wasm data".encodeUtf8()
     val helloApp = WasmoArtifactServer.App(
-      slug = AppSlug("hello"),
+      slug = appSlug,
       launcherLabel = "Hello World",
       version = 1L,
       wasm = wasmBytes,
@@ -55,10 +57,18 @@ class InstallAppActionTest {
       .isNotNull()
       .contains(
         InstalledApp(
-          slug = AppSlug("hello"),
+          slug = appSlug,
           launcherLabel = "Hello World",
           maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
           installScheduledAt = tester.clock.now(),
+        ),
+      )
+
+    assertThat(tester.eventListener.takeEvent())
+      .isEqualTo(
+        AppInstallEvent(
+          computerSlug = computerSlug,
+          appSlug = appSlug,
         ),
       )
   }

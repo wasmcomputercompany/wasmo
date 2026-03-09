@@ -35,7 +35,6 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":host:server:testing"))
-        implementation(project(":host:testing"))
         implementation(project(":platform:testing"))
       }
     }

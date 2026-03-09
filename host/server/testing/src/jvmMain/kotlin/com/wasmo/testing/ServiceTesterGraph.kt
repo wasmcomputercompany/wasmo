@@ -14,6 +14,7 @@ import com.wasmo.computers.ComputerGraph
 import com.wasmo.computers.InstallAppJob
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
+import com.wasmo.events.EventListener
 import com.wasmo.identifiers.ForHost
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
@@ -51,15 +52,16 @@ import wasmo.objectstore.ObjectStore
 interface ServiceTesterGraph {
   val computerGraphFactory: ComputerGraph.Factory
 
-  val wasmoDb: WasmoDbService
-  val deployment: Deployment
-  val clock: FakeClock
-  val fileSystem: FakeFileSystem
   val clientAuthenticatorFactory: ClientAuthenticator.Factory
+  val clientTesterGraphFactory: ClientTesterGraph.Factory
+  val clock: FakeClock
+  val deployment: Deployment
+  val eventListener: FakeEventListener
+  val fileSystem: FakeFileSystem
+  val jobQueueTester: JobQueueTester
   val sendEmailService: FakeSendEmailService
   val wasmoArtifactServer: WasmoArtifactServer
-  val jobQueueTester: JobQueueTester
-  val clientTesterGraphFactory: ClientTesterGraph.Factory
+  val wasmoDb: WasmoDbService
 
   @Provides
   @SingleIn(AppScope::class)
@@ -149,6 +151,9 @@ interface ServiceTesterGraph {
 
   @Binds
   fun bindAppInstallJobQueue(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
+
+  @Binds
+  fun bindEventListener(real: FakeEventListener): EventListener
 
   @DependencyGraph.Factory
   interface Factory {

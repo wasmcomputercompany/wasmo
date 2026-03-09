@@ -32,7 +32,7 @@ class InstallAppAction(
     val manifestUrl = request.manifestUrl.toHttpUrlOrNull()
       ?: throw ArgumentUserException("unexpected manifest URL: ${request.manifestUrl}")
 
-    computer.enqueueInstallApp(
+    computer.appInstaller.enqueueInstall(
       manifestUrl = manifestUrl,
     )
 

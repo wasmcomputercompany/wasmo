@@ -35,6 +35,8 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.wasmoArtifactServer
   val jobQueueTester: JobQueueTester
     get() = graph.jobQueueTester
+  val eventListener: FakeEventListener
+    get() = graph.eventListener
   val baseUrl: HttpUrl
     get() = deployment.baseUrl
 

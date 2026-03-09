@@ -4,14 +4,13 @@ plugins {
 }
 
 wasmoBuild {
-  libraryJvmJs()
+  libraryJvm()
 }
 
 kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        implementation(libs.okio)
         implementation(project(":identifiers"))
       }
     }

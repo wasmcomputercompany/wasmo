@@ -7,6 +7,7 @@ import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.stripe.StripePublishableKey
+import com.wasmo.common.logging.Logger
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
@@ -15,6 +16,8 @@ import com.wasmo.computers.DefaultAppCatalog
 import com.wasmo.computers.InstallAppJob
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
+import com.wasmo.events.EventListener
+import com.wasmo.events.LoggingEventListener
 import com.wasmo.http.RealHttpClient
 import com.wasmo.identifiers.ForHost
 import com.wasmo.jobs.JobQueue
@@ -161,6 +164,12 @@ internal interface WasmoServiceGraph {
 
   @Binds
   fun bindServerHostPageFactory(real: RealServerHostPage.Factory): ServerHostPage.Factory
+
+  @Binds
+  fun bindEventListener(real: LoggingEventListener): EventListener
+
+  @Binds
+  fun bindLogger(real: KtorLogger): Logger
 
   @Binds
   fun bindClientAuthenticatorFactory(

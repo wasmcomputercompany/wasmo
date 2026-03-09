@@ -6,6 +6,7 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.deployment.Deployment
+import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.stripe.StripeCredentials
 import dev.zacsweers.metro.AppScope
@@ -15,7 +16,6 @@ import dev.zacsweers.metro.createGraphFactory
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.netty.EngineMain
 import okio.ByteString
-import com.wasmo.objectstore.ObjectStoreAddress
 
 @Inject
 @SingleIn(AppScope::class)

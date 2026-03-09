@@ -29,7 +29,6 @@ kotlin {
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":host:testing"))
         implementation(project(":platform:testing"))
         implementation(project(":host:server:testing"))
       }

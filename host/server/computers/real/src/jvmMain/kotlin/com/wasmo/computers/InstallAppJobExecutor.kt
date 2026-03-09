@@ -7,6 +7,7 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.serialization.Serializable
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
 @Serializable
 data class InstallAppJob(
@@ -27,6 +28,9 @@ class InstallAppJobExecutor(
       appInstall to computer
     }
 
-    computer.enqueueInstallApp(appInstall)
+    computer.appInstaller.install(
+      manifestUrl = appInstall.manifest_url.toHttpUrl(),
+      appSlug = appInstall.slug,
+    )
   }
 }

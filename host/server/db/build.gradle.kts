@@ -28,7 +28,6 @@ kotlin {
     val jvmTest by getting {
       dependencies {
         implementation(project(":host:server:testing"))
-        implementation(project(":host:testing"))
       }
     }
   }

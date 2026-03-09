@@ -26,3 +26,12 @@ fun requireUser(value: Boolean, lazyMessage: () -> String) {
   }
 }
 
+@OptIn(ExperimentalContracts::class)
+fun checkUser(value: Boolean, lazyMessage: () -> String) {
+  contract {
+    returns() implies value
+  }
+  if (!value) {
+    throw StateUserException(lazyMessage())
+  }
+}

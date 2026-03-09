@@ -35,6 +35,12 @@ interface ComputerGraph {
   @Binds
   fun bindComputer(real: RealWasmoComputer): WasmoComputer
 
+  @Binds
+  fun bindManifestLoader(real: RealManifestLoader): ManifestLoader
+
+  @Binds
+  fun bindAppInstaller(real: RealAppInstaller): AppInstaller
+
   @GraphExtension.Factory
   interface Factory {
     fun create(
