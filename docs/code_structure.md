@@ -16,7 +16,8 @@ We sparingly use small purpose-built open source libraries to integrate specific
  * TOML
  * Stripe
 
-One possible exception to this rule is that we use [Metro] for dependency injection.
+One possible exception to this rule is that we use [Metro](./dependency_injection.md) for dependency
+injection.
 
 
 Exceptions
@@ -38,4 +39,3 @@ All other exceptions are routed to the Wasmo operator should page that person.
 
 
 
-[Metro]: https://github.com/ZacSweers/metro

@@ -35,4 +35,3 @@ class ComputerTester(
 
   fun homePage() = client.call().hostPage(ComputerHomeRoute(slug))
 }
-

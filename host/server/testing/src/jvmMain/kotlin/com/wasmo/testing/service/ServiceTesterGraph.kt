@@ -57,10 +57,10 @@ import wasmo.objectstore.ObjectStore
   ],
 )
 interface ServiceTesterGraph {
+  val clientTesterGraphFactory: ClientTesterGraph.Factory
   val computerGraphFactory: ComputerGraph.Factory
 
   val clientAuthenticatorFactory: ClientAuthenticator.Factory
-  val clientTesterGraphFactory: ClientTesterGraph.Factory
   val clock: FakeClock
   val deployment: Deployment
   val eventListener: FakeEventListener
