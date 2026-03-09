@@ -119,7 +119,7 @@ class RealAppInstaller(
 
     val expectedSha256 = resource.sha256?.decodeHex()
     checkUser(expectedSha256 == null || expectedSha256 == response.body.sha256()) {
-      "response body data didn't match sha256 from manifest"
+      "response body data for $downloadUrl didn't match sha256 from manifest"
     }
 
     // TODO: handle resource.content_type

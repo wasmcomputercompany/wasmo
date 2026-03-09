@@ -12,12 +12,14 @@ import com.wasmo.api.InstalledApp
 import com.wasmo.events.AppInstallEvent
 import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.StateUserException
+import com.wasmo.packaging.Resource
 import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.service.ServiceTester
 import java.io.FileNotFoundException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
 import wasmo.http.Header
@@ -33,22 +35,23 @@ class InstallAppActionTest {
 
     val client = tester.newClient()
     val computer = client.createComputer()
-    val app = computer.installApp(RecipesApp)
+    val installedApp = computer.installApp(RecipesApp)
 
     tester.jobQueueTester.awaitIdle()
 
+    val appWasmPath = "/${computer.slug}/${installedApp.slug}/resources/v1/app.wasm".toPath()
     assertThat(
-      tester.fileSystem.read("/${computer.slug}/${app.slug}/resources/v1/app.wasm".toPath()) {
+      tester.fileSystem.read(appWasmPath) {
         readByteString()
       },
-    ).isEqualTo(app.publishedApp.wasm)
+    ).isEqualTo(installedApp.publishedApp.wasm)
 
     assertThat(computer.homePage().computerSnapshot?.apps)
       .isNotNull()
       .contains(
         InstalledApp(
-          slug = app.slug,
-          launcherLabel = app.publishedApp.manifest.launcher!!.label!!,
+          slug = installedApp.slug,
+          launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
           maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
           installScheduledAt = tester.clock.now(),
         ),
@@ -58,7 +61,7 @@ class InstallAppActionTest {
       .isEqualTo(
         AppInstallEvent(
           computerSlug = computer.slug,
-          appSlug = app.slug,
+          appSlug = installedApp.slug,
         ),
       )
   }
@@ -92,21 +95,23 @@ class InstallAppActionTest {
     ).messageContains("failed to decode manifest")
   }
 
+  /** Publish an app whose served resources are different from its manifest resources. */
   @Test
   fun resource404s() = runTest {
-    tester.publishApp(
-      RecipesApp.copy(resources = mapOf()),
+    val brokenApp = RecipesApp.copy(
+      servedResources = mapOf(),
     )
+    tester.publishApp(brokenApp)
 
     val client = tester.newClient()
     val computer = client.createComputer()
-    val app = computer.installApp(RecipesApp)
+    val installedApp = computer.installApp(brokenApp)
 
     tester.jobQueueTester.awaitIdle()
 
     assertFailsWith<FileNotFoundException> {
       tester.fileSystem.list(
-        "/${computer.slug}/${app.slug}/resources/v1/".toPath(),
+        "/${computer.slug}/${installedApp.slug}/resources/v1/".toPath(),
       )
     }
 
@@ -114,8 +119,8 @@ class InstallAppActionTest {
       .isNotNull()
       .contains(
         InstalledApp(
-          slug = app.slug,
-          launcherLabel = app.publishedApp.manifest.launcher!!.label!!,
+          slug = installedApp.slug,
+          launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
           maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
           installScheduledAt = tester.clock.now(),
         ),
@@ -124,5 +129,78 @@ class InstallAppActionTest {
     assertThat(tester.eventListener.takeEvent().exception)
       .isNotNull()
       .hasMessage("failed to fetch https://example.com/recipes/v1/app.wasm: HTTP 404")
+  }
+
+  @Test
+  fun resourceGoodSha256() = runTest {
+    val pancakesUrl = "https://example.com/pancakes.txt".toHttpUrl()
+    val pancakesData = "this pancakes recipe has a SHA-256 signature".encodeUtf8()
+    val app = RecipesApp.copy(
+      manifest = RecipesApp.manifest.copy(
+        resource = RecipesApp.manifest.resource + listOf(
+          Resource(
+            url = pancakesUrl.toString(),
+            sha256 = pancakesData.sha256().hex(),
+          )
+        )
+      ),
+      servedResources = RecipesApp.servedResources + mapOf(
+        pancakesUrl to pancakesData,
+      )
+    )
+
+    tester.publishApp(app)
+
+    val client = tester.newClient()
+    val computer = client.createComputer()
+    val installedApp = computer.installApp(app)
+
+    tester.jobQueueTester.awaitIdle()
+
+    val pancakesPath = "/${computer.slug}/${installedApp.slug}/resources/v1/pancakes.txt".toPath()
+    assertThat(
+      tester.fileSystem.read(pancakesPath) {
+        readByteString()
+      },
+    ).isEqualTo(pancakesData)
+  }
+
+  @Test
+  fun resourceBadSha256() = runTest {
+    val pancakesUrl = "https://example.com/pancakes.txt".toHttpUrl()
+    val pancakesData1 = "this pancakes recipe has a SHA-256 signature".encodeUtf8()
+    val pancakesData2 = "this pancakes recipe has a SHA-256 signature!".encodeUtf8()
+    val app = RecipesApp.copy(
+      manifest = RecipesApp.manifest.copy(
+        resource = RecipesApp.manifest.resource + listOf(
+          Resource(
+            url = pancakesUrl.toString(),
+            sha256 = pancakesData1.sha256().hex(),
+          )
+        )
+      ),
+      servedResources = RecipesApp.servedResources + mapOf(
+        pancakesUrl to pancakesData2,
+      )
+    )
+
+    tester.publishApp(app)
+
+    val client = tester.newClient()
+    val computer = client.createComputer()
+    val installedApp = computer.installApp(app)
+
+    tester.jobQueueTester.awaitIdle()
+
+    val pancakesPath = "/${computer.slug}/${installedApp.slug}/resources/v1/pancakes.txt".toPath()
+    assertFailsWith<FileNotFoundException> {
+      tester.fileSystem.read(pancakesPath) {
+        readByteString()
+      }
+    }
+
+    assertThat(tester.eventListener.takeEvent().exception)
+      .isNotNull()
+      .hasMessage("response body data for $pancakesUrl didn't match sha256 from manifest")
   }
 }

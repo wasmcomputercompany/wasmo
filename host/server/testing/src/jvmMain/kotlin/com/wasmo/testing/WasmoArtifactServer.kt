@@ -30,7 +30,7 @@ class WasmoArtifactServer() : FakeHttpClient.Handler {
         )
       }
 
-      val resource = app.resources[request.url]
+      val resource = app.servedResources[request.url]
       if (resource != null) {
         return HttpResponse(
           body = resource

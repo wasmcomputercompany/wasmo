@@ -15,10 +15,10 @@ import okio.ByteString.Companion.encodeUtf8
 data class PublishedApp(
   val manifestUrl: HttpUrl,
   val manifest: AppManifest,
-  val resources: Map<HttpUrl, ByteString>,
+  val servedResources: Map<HttpUrl, ByteString>,
 ) {
   val wasm: ByteString?
-    get() = resources.entries
+    get() = servedResources.entries
       .firstOrNull { (key, _) -> key.pathSegments.last() == "app.wasm" }
       ?.value
 }
@@ -40,7 +40,7 @@ val RecipesApp = PublishedApp(
       ),
     ),
   ),
-  resources = mapOf(
+  servedResources = mapOf(
     "https://example.com/recipes/v1/app.wasm".toHttpUrl() to "I am Wasm data".encodeUtf8(),
   ),
 )
