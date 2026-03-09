@@ -22,6 +22,7 @@ kotlin {
         implementation(project(":host:tokens"))
         implementation(project(":host:server:identifiers"))
         implementation(project(":host:server:passkeys:api"))
+        implementation(project(":identifiers"))
       }
     }
     val jvmTest by getting {

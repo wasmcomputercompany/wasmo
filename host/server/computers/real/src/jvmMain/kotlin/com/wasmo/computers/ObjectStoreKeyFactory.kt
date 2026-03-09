@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.api.AppSlug
+import com.wasmo.identifiers.AppSlug
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

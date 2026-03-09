@@ -1,5 +1,5 @@
-import com.wasmo.api.AppSlug;
 import com.wasmo.identifiers.AppInstallId;
+import com.wasmo.identifiers.AppSlug;
 import com.wasmo.identifiers.ComputerId;
 import kotlin.time.Instant;
 

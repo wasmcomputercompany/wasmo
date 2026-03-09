@@ -1,7 +1,6 @@
 package com.wasmo.api
 
-import com.wasmo.packaging.AppSlugRegex
-import kotlin.jvm.JvmInline
+import com.wasmo.identifiers.AppSlug
 import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
@@ -25,16 +24,6 @@ data class InstalledApp(
   val installDeletedAt: Instant? = null,
   val installIncompleteReason: InstallIncompleteReason? = null,
 )
-
-@Serializable
-@JvmInline
-value class AppSlug(val value: String) {
-  init {
-    require(value.matches(AppSlugRegex)) {
-      "unexpected app: $value"
-    }
-  }
-}
 
 enum class InstallIncompleteReason {
   Unknown,

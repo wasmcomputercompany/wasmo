@@ -1,8 +1,8 @@
 package com.wasmo.testing
 
-import com.wasmo.api.AppSlug
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.AppCatalog.Entry
+import com.wasmo.identifiers.AppSlug
 
 val TestAppCatalog = AppCatalog(
   entries = listOf(

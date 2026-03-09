@@ -1,7 +1,6 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotlin.serialization)
-  alias(libs.plugins.metro)
   id("wasmo-build")
 }
 
@@ -14,8 +13,6 @@ kotlin {
     commonMain {
       dependencies {
         implementation(libs.kotlinx.serialization.json)
-        implementation(project(":host:api"))
-        implementation(project(":identifiers"))
       }
     }
   }

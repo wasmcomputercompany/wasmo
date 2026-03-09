@@ -39,6 +39,7 @@ kotlin {
         implementation(project(":host:logging"))
         implementation(project(":host:routes"))
         implementation(project(":host:tokens"))
+        implementation(project(":identifiers"))
       }
     }
     val jsTest by getting {

@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.api.AppSlug
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.computers.AppCatalog.Entry
 
 class AppCatalog(

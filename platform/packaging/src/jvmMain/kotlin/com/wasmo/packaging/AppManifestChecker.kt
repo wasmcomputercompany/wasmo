@@ -1,5 +1,6 @@
 package com.wasmo.packaging
 
+import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.issues.Issue
 import com.wasmo.issues.IssueCollector
 import okhttp3.HttpUrl.Companion.toHttpUrl

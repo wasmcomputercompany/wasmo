@@ -29,7 +29,7 @@ import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.UserException
 import com.wasmo.framework.asResponse
 import com.wasmo.framework.redirect
-import com.wasmo.packaging.AppSlugRegex
+import com.wasmo.identifiers.AppSlugRegex
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

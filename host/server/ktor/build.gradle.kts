@@ -58,6 +58,7 @@ kotlin {
         implementation(project(":host:server:website:api"))
         implementation(project(":host:server:website:real"))
         implementation(project(":host:tokens"))
+        implementation(project(":identifiers"))
         implementation(project(":platform:api"))
         implementation(project(":platform:packaging"))
       }

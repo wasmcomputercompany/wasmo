@@ -51,6 +51,7 @@ kotlin {
         implementation(project(":host:testing"))
         implementation(project(":host:tokens"))
         implementation(project(":platform:api"))
+        implementation(project(":identifiers"))
         implementation(project(":platform:packaging"))
         implementation(project(":platform:testing"))
       }

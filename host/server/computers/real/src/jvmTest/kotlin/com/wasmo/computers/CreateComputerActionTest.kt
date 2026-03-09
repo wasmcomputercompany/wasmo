@@ -5,7 +5,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import com.wasmo.api.AppSlug
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.api.ComputerListItem
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.CreateComputerSpecRequest

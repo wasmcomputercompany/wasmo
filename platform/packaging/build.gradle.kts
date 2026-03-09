@@ -14,6 +14,7 @@ kotlin {
       dependencies {
         implementation(libs.okio)
         implementation(libs.kotlinx.serialization.json)
+        implementation(project(":identifiers"))
         implementation(project(":platform:issues"))
       }
     }

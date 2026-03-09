@@ -3,7 +3,6 @@ package com.wasmo.app.db
 import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.driver.jdbc.JdbcDriver
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
-import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.WasmoJson
 import com.wasmo.db.Account
@@ -19,6 +18,7 @@ import com.wasmo.db.StripeCustomer
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppInstallId
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerAccessId
 import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId

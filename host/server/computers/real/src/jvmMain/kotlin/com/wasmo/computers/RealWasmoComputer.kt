@@ -1,13 +1,13 @@
 package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
-import com.wasmo.api.AppSlug
 import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledApp
 import com.wasmo.db.AppInstall
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.jobs.JobQueue
 import dev.zacsweers.metro.Inject
