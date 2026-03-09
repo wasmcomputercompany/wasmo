@@ -20,6 +20,7 @@ import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreFactory
+import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
 import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
@@ -42,7 +43,10 @@ import wasmo.objectstore.ObjectStore
 
 @DependencyGraph(
   scope = AppScope::class,
-  bindingContainers = [ComputerBindings::class],
+  bindingContainers = [
+    ComputerBindings::class,
+    FileSystemObjectStoreBindings::class,
+  ],
 )
 interface ServiceTesterGraph {
   val computerGraphFactory: ComputerGraph.Factory

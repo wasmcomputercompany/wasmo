@@ -21,6 +21,8 @@ import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
 import com.wasmo.objectstore.ObjectStoreFactory
+import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
+import com.wasmo.objectstore.s3.S3ObjectStoreBindings
 import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
@@ -47,7 +49,11 @@ import wasmo.objectstore.ObjectStore
 
 @DependencyGraph(
   scope = AppScope::class,
-  bindingContainers = [ComputerBindings::class]
+  bindingContainers = [
+    ComputerBindings::class,
+    FileSystemObjectStoreBindings::class,
+    S3ObjectStoreBindings::class,
+  ],
 )
 internal interface WasmoServiceGraph {
   val wasmoService: WasmoService

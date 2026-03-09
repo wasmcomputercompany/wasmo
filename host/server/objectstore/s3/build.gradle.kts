@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotlin.noarg)
   alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.metro)
   id("wasmo-build")
 }
 
@@ -28,6 +29,7 @@ kotlin {
         implementation(libs.retrofit)
         implementation(libs.retrofit.converter.kotlinx.serialization)
         implementation(libs.retrofit.converter.jaxb3)
+        implementation(project(":host:server:objectstore:api"))
         implementation(project(":platform:api"))
       }
     }

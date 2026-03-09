@@ -41,6 +41,7 @@ kotlin {
         implementation(project(":host:server:jobs:api"))
         implementation(project(":host:server:jobs:memory"))
         implementation(project(":host:server:objectstore:api"))
+        implementation(project(":host:server:objectstore:fs"))
         implementation(project(":host:server:passkeys:api"))
         implementation(project(":host:server:passkeys:real"))
         implementation(project(":host:server:payments:api"))

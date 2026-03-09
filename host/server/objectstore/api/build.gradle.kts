@@ -14,8 +14,6 @@ kotlin {
       dependencies {
         implementation(libs.okhttp)
         implementation(libs.okio)
-        implementation(project(":host:server:objectstore:fs"))
-        implementation(project(":host:server:objectstore:s3"))
         implementation(project(":platform:api"))
       }
     }
@@ -23,6 +21,7 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.okio.fakefilesystem)
+        implementation(project(":host:server:objectstore:fs"))
         implementation(project(":platform:testing"))
       }
     }

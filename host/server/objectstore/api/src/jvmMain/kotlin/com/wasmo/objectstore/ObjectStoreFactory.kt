@@ -1,29 +1,17 @@
 package com.wasmo.objectstore
 
-import com.wasmo.objectstore.filesystem.FileSystemObjectStore
-import com.wasmo.objectstore.s3.S3Client
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import kotlin.time.Clock
-import okhttp3.OkHttpClient
 import wasmo.objectstore.ObjectStore
 
 @Inject
 @SingleIn(AppScope::class)
 class ObjectStoreFactory(
-  private val clock: Clock,
-  private val client: OkHttpClient,
+  private val connectors: Set<ObjectStoreConnector>,
 ) {
-  private val s3Client = S3Client(
-    clock = clock,
-    client = client,
-  )
-
   fun open(address: ObjectStoreAddress): ObjectStore {
-    return when (address) {
-      is BackblazeB2BucketAddress -> s3Client.connect(address)
-      is FileSystemObjectStoreAddress -> FileSystemObjectStore(address.fileSystem, address.path)
-    }
+    return connectors.firstNotNullOfOrNull { it.tryConnect(address) }
+      ?: error("no connector for $address")
   }
 }

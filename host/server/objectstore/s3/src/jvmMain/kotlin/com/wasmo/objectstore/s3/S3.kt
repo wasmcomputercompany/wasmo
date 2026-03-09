@@ -1,6 +1,9 @@
 package com.wasmo.objectstore.s3
 
 import com.wasmo.objectstore.BackblazeB2BucketAddress
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import jakarta.xml.bind.annotation.XmlAccessType
 import jakarta.xml.bind.annotation.XmlAccessorType
 import jakarta.xml.bind.annotation.XmlRootElement
@@ -29,7 +32,9 @@ import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
 import wasmo.objectstore.PutObjectResponse
 
-class S3Client(
+@Inject
+@SingleIn(AppScope::class)
+internal class S3Client(
   private val clock: Clock,
   private val client: OkHttpClient,
 ) {
