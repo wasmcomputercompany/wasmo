@@ -8,7 +8,7 @@ import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.routes.TeaserRoute
-import com.wasmo.testing.ServiceTester
+import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 

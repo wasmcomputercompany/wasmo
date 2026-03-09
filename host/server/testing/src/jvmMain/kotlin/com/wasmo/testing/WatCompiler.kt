@@ -11,7 +11,7 @@ import okio.FileSystem
 class WatCompiler() {
   private val fileSystem = FileSystem.SYSTEM
 
-  fun compile(wat: String) : ByteString {
+  fun compile(wat: String): ByteString {
     val data = wat.encodeUtf8()
     val dataHash = data.sha256().base64Url()
     val watCompilerDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "WatCompiler"

@@ -3,7 +3,7 @@ package com.wasmo.jobs
 import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.testing.ServiceTester
+import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration

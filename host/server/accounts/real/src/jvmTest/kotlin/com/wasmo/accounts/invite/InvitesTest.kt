@@ -10,7 +10,7 @@ import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.decodeUrl
 import com.wasmo.framework.NotFoundUserException
-import com.wasmo.testing.ServiceTester
+import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest

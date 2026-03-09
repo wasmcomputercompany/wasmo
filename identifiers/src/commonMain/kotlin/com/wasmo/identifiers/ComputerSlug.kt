@@ -11,6 +11,8 @@ value class ComputerSlug(val value: String) {
       "unexpected computer: $value"
     }
   }
+
+  override fun toString() = value
 }
 
 /** Between 1 and 15 letters or digits, and the first is not a digit. */

@@ -1,18 +1,15 @@
 package com.wasmo.testing
 
 import com.wasmo.FakeHttpClient
-import com.wasmo.identifiers.AppSlug
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.Resource
 import com.wasmo.packaging.TargetSdk1
 import com.wasmo.packaging.WasmoToml
+import com.wasmo.testing.apps.TestApp
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import okhttp3.HttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import okio.ByteString
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
 
@@ -22,7 +19,7 @@ import wasmo.http.HttpResponse
 @Inject
 @SingleIn(AppScope::class)
 class WasmoArtifactServer() : FakeHttpClient.Handler {
-  val apps = mutableListOf<App>()
+  val apps = mutableListOf<TestApp>()
 
   override fun handle(request: HttpRequest): HttpResponse? {
     for (app in apps) {
@@ -53,19 +50,5 @@ class WasmoArtifactServer() : FakeHttpClient.Handler {
     }
 
     return null
-  }
-
-  data class App(
-    val slug: AppSlug,
-    val launcherLabel: String,
-    val version: Long,
-    val wasm: ByteString,
-  ) {
-    val baseUrl: HttpUrl
-      get() = "https://example.com/${slug.value}/v$version/".toHttpUrl()
-    val manifestPath: String
-      get() = "/${slug.value}/v$version/manifest.toml"
-    val wasmPath: String
-      get() = "/${slug.value}/v$version/app.wasm"
   }
 }

@@ -9,7 +9,7 @@ import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.framework.Response
-import com.wasmo.testing.ServiceTester
+import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 

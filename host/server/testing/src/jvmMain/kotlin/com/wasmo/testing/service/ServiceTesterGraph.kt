@@ -1,4 +1,4 @@
-package com.wasmo.testing
+package com.wasmo.testing.service
 
 import com.wasmo.FakeClock
 import com.wasmo.FakeHttpClient
@@ -26,6 +26,13 @@ import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
+import com.wasmo.testing.FakeEventListener
+import com.wasmo.testing.FakePaymentsService
+import com.wasmo.testing.FakeSendEmailService
+import com.wasmo.testing.JobQueueTester
+import com.wasmo.testing.TestAppCatalog
+import com.wasmo.testing.WasmoArtifactServer
+import com.wasmo.testing.client.ClientTesterGraph
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
@@ -60,7 +67,6 @@ interface ServiceTesterGraph {
   val fileSystem: FakeFileSystem
   val jobQueueTester: JobQueueTester
   val sendEmailService: FakeSendEmailService
-  val wasmoArtifactServer: WasmoArtifactServer
   val wasmoDb: WasmoDbService
 
   @Provides

@@ -1,4 +1,4 @@
-package com.wasmo.testing
+package com.wasmo.testing.call
 
 import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.Challenger
@@ -24,11 +24,15 @@ import com.wasmo.computers.CreateComputerSpecAction
 import com.wasmo.computers.InstallAppAction
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.testing.FakePasskey
 import com.wasmo.website.HostPageAction
 import com.wasmo.website.ServerHostPage
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provider
 
+/**
+ * Tests a single API call to the server.
+ */
 @Inject
 class CallTester(
   private val deployment: Deployment,

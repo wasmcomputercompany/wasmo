@@ -11,6 +11,8 @@ value class AppSlug(val value: String) {
       "unexpected app: $value"
     }
   }
+
+  override fun toString() = value
 }
 
 /** Between 1 and 15 letters or digits, and the first is not a digit. */

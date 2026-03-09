@@ -1,4 +1,4 @@
-package com.wasmo.testing
+package com.wasmo.testing.call
 
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Challenger

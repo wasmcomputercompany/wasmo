@@ -1,4 +1,4 @@
-package com.wasmo.testing
+package com.wasmo.testing.service
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
@@ -7,6 +7,12 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
+import com.wasmo.testing.FakeEventListener
+import com.wasmo.testing.FakePasskey
+import com.wasmo.testing.FakeSendEmailService
+import com.wasmo.testing.FakeUserAgent
+import com.wasmo.testing.JobQueueTester
+import com.wasmo.testing.client.ClientTester
 import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.coroutineScope
 import okhttp3.HttpUrl
@@ -14,7 +20,7 @@ import okio.ByteString.Companion.encodeUtf8
 import okio.fakefilesystem.FakeFileSystem
 
 /**
- * Create instances with [ServiceTester.start]
+ * Use this with Burst and [app.cash.burst.InterceptTest].
  */
 class ServiceTester : CoroutineTestInterceptor {
   private lateinit var graph: ServiceTesterGraph
@@ -31,8 +37,6 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.clientAuthenticatorFactory
   val sendEmailService: FakeSendEmailService
     get() = graph.sendEmailService
-  val wasmoArtifactServer: WasmoArtifactServer
-    get() = graph.wasmoArtifactServer
   val jobQueueTester: JobQueueTester
     get() = graph.jobQueueTester
   val eventListener: FakeEventListener

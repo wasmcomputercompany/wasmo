@@ -5,17 +5,13 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstalledApp
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.events.AppInstallEvent
-import com.wasmo.identifiers.AppSlug
-import com.wasmo.identifiers.ComputerSlug
-import com.wasmo.testing.ServiceTester
-import com.wasmo.testing.WasmoArtifactServer
+import com.wasmo.testing.apps.RecipesApp
+import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
-import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
 
 class InstallAppActionTest {
@@ -25,40 +21,24 @@ class InstallAppActionTest {
   @Test
   fun happyPath() = runTest {
     val client = tester.newClient()
-    val computerSlug = ComputerSlug("jesse124")
-    val appSlug = AppSlug("hello")
-    val computer = client.createComputer(computerSlug)
-    val wasmBytes = "I am Wasm data".encodeUtf8()
-    val helloApp = WasmoArtifactServer.App(
-      slug = appSlug,
-      launcherLabel = "Hello World",
-      version = 1L,
-      wasm = wasmBytes,
-    )
-    tester.wasmoArtifactServer.apps += helloApp
-
-    val installAppResponse = client.call().installApp(
-      computerSlug = computer.slug,
-      request = InstallAppRequest(
-        manifestUrl = tester.deployment.baseUrl.resolve(helloApp.manifestPath)!!.toString(),
-      ),
-    )
+    val computer = client.createComputer()
+    val app = computer.installApp(RecipesApp)
 
     tester.jobQueueTester.awaitIdle()
 
     assertThat(
-      tester.fileSystem.read("/jesse124/hello/resources/v1/app.wasm".toPath()) {
+      tester.fileSystem.read("/${computer.slug}/${app.slug}/resources/v1/app.wasm".toPath()) {
         readByteString()
       },
-    ).isEqualTo(wasmBytes)
+    ).isEqualTo(app.testApp.wasm)
 
-    val computerHostPage = client.call().hostPage(ComputerHomeRoute(computerSlug))
+    val computerHostPage = client.call().hostPage(ComputerHomeRoute(computer.slug))
     assertThat(computerHostPage.computerSnapshot?.apps)
       .isNotNull()
       .contains(
         InstalledApp(
-          slug = appSlug,
-          launcherLabel = "Hello World",
+          slug = app.slug,
+          launcherLabel = app.testApp.launcherLabel,
           maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
           installScheduledAt = tester.clock.now(),
         ),
@@ -67,8 +47,8 @@ class InstallAppActionTest {
     assertThat(tester.eventListener.takeEvent())
       .isEqualTo(
         AppInstallEvent(
-          computerSlug = computerSlug,
-          appSlug = appSlug,
+          computerSlug = computer.slug,
+          appSlug = app.slug,
         ),
       )
   }
