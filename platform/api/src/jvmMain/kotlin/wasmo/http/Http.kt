@@ -6,11 +6,6 @@ import okhttp3.HttpUrl
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 
-object ContentType {
-  const val Json = "application/json"
-  const val Toml = "application/toml"
-}
-
 interface HttpClient {
   suspend fun execute(request: HttpRequest): HttpResponse
 }
@@ -46,7 +41,7 @@ data class HttpResponse(
       body: T,
     ) = HttpResponse(
       code = code,
-      headers = headers + Header("Content-Type", ContentType.Toml),
+      headers = headers + Header("Content-Type", "application/toml"),
       body = toml.encodeToString<T>(body).encodeUtf8(),
     )
   }

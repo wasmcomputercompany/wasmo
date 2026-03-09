@@ -1,13 +1,14 @@
 package com.wasmo.computers
 
+import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.StateUserException
+import com.wasmo.framework.checkUser
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.packaging.check
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.HttpUrl
-import wasmo.http.ContentType
 import wasmo.http.HttpClient
 import wasmo.http.HttpRequest
 
@@ -24,11 +25,11 @@ class RealManifestLoader(
       ),
     )
 
-    if (!manifestResponse.isSuccessful) {
-      throw StateUserException("failed to fetch manifest")
+    checkUser(manifestResponse.isSuccessful) {
+      "failed to fetch manifest: HTTP ${manifestResponse.code}"
     }
-    if (manifestResponse.contentType != ContentType.Toml) {
-      throw StateUserException("expected ${ContentType.Toml} for manifest content-type")
+    checkUser(manifestResponse.contentType == ContentTypes.ApplicationToml.toString()) {
+      "expected ${ContentTypes.ApplicationToml} for manifest content-type"
     }
 
     val result = try {
@@ -41,8 +42,8 @@ class RealManifestLoader(
     }
 
     val issues = result.check()
-    if (!issues.isEmpty()) {
-      throw StateUserException("invalid manifest\n\n${issues.joinToString(separator = "\n\n")}")
+    checkUser(issues.isEmpty()) {
+      "invalid manifest\n\n${issues.joinToString(separator = "\n\n")}"
     }
 
     return result

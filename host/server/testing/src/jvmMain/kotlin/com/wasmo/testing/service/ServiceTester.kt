@@ -3,6 +3,7 @@ package com.wasmo.testing.service
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.FakeClock
+import com.wasmo.FakeHttpClient
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.deployment.Deployment
@@ -12,6 +13,8 @@ import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.FakeUserAgent
 import com.wasmo.testing.JobQueueTester
+import com.wasmo.testing.WasmoArtifactServer
+import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.client.ClientTester
 import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.coroutineScope
@@ -41,6 +44,10 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.jobQueueTester
   val eventListener: FakeEventListener
     get() = graph.eventListener
+  val wasmoArtifactServer: WasmoArtifactServer
+    get() = graph.wasmoArtifactServer
+  val fakeHttpClient: FakeHttpClient
+    get() = graph.fakeHttpClient
   val baseUrl: HttpUrl
     get() = deployment.baseUrl
 
@@ -65,6 +72,10 @@ class ServiceTester : CoroutineTestInterceptor {
     id = "passkey-${nextPasskeyId++}".encodeUtf8().base64Url(),
     aaguid = RealAuthenticatorDatabase.ApplePasswords,
   )
+
+  fun publishApp(app: PublishedApp) {
+    wasmoArtifactServer.publish(app)
+  }
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     val wasmoDb = WasmoDbService.start(

@@ -4,9 +4,8 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
+import okio.ByteString.Companion.encodeUtf8
 import wasmo.http.HttpClient
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
@@ -21,14 +20,15 @@ class FakeHttpClient : HttpClient {
   }
 
   override suspend fun execute(request: HttpRequest): HttpResponse {
-    return handlersFlow.mapNotNull { handlers ->
-      handlers.firstNotNullOfOrNull {
-        it.handle(request)
-      }
-    }.first()
+    return handlersFlow.value
+      .firstNotNullOfOrNull { it.handle(request) }
+      ?: HttpResponse(
+        code = 404,
+        body = "no handler for $request".encodeUtf8(),
+      )
   }
 
-  interface Handler {
+  fun interface Handler {
     fun handle(request: HttpRequest): HttpResponse?
   }
 }

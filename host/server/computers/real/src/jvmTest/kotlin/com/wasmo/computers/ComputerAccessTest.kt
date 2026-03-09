@@ -6,7 +6,6 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.framework.UnauthorizedUserException
 import com.wasmo.testing.service.ServiceTester
@@ -28,7 +27,7 @@ class ComputerAccessTest {
       .isNotNull()
       .isNotEmpty()
 
-    val computerHomePage = clientA.call().hostPage(ComputerHomeRoute(computer.slug))
+    val computerHomePage = computer.homePage()
     assertThat(computerHomePage.computerSnapshot?.slug).isEqualTo(computer.slug)
   }
 
@@ -42,7 +41,7 @@ class ComputerAccessTest {
     assertThat(computerListPage.computerListSnapshot?.items).isNotNull().isEmpty()
 
     assertFailsWith<UnauthorizedUserException> {
-      clientB.call().hostPage(ComputerHomeRoute(computer.slug))
+      computer.homePage()
     }
   }
 }

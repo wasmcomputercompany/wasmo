@@ -113,7 +113,9 @@ class RealAppInstaller(
       ),
     )
 
-    check(response.isSuccessful) { "unexpected response: $response" }
+    checkUser(response.isSuccessful) {
+      "failed to fetch $downloadUrl: HTTP ${response.code}"
+    }
 
     val expectedSha256 = resource.sha256?.decodeHex()
     checkUser(expectedSha256 == null || expectedSha256 == response.body.sha256()) {

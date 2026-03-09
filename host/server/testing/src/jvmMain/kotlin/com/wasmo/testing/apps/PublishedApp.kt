@@ -12,7 +12,7 @@ import okio.ByteString.Companion.encodeUtf8
 /**
  * An installable app, not installed on a particular computer.
  */
-data class TestApp(
+data class PublishedApp(
   val manifestUrl: HttpUrl,
   val manifest: AppManifest,
   val resources: Map<HttpUrl, ByteString>,
@@ -23,7 +23,7 @@ data class TestApp(
       ?.value
 }
 
-val RecipesApp = TestApp(
+val RecipesApp = PublishedApp(
   manifestUrl = "https://example.com/recipes/v1/recipes.wasmo.toml".toHttpUrl(),
   manifest = AppManifest(
     version = 1L,

@@ -28,12 +28,18 @@ data class ContentType(
   val type: String,
   val subtype: String,
   val charset: String? = null,
-)
+) {
+  override fun toString(): String = when {
+    charset != null -> "$type/$subtype; charset=$charset"
+    else -> "$type/$subtype"
+  }
+}
 
 object ContentTypes {
   val ImagePng = ContentType("image", "png")
   val TextHtml = ContentType("text", "html", "utf-8")
   val TextPlain = ContentType("text", "plain", "utf-8")
+  val ApplicationToml = ContentType("application", "toml")
 }
 
 fun UserException.asResponse(): Response<ResponseBody> {

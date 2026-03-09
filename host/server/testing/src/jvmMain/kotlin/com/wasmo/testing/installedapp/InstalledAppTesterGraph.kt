@@ -2,7 +2,7 @@ package com.wasmo.testing.installedapp
 
 import com.wasmo.computers.InstalledAppScope
 import com.wasmo.identifiers.AppSlug
-import com.wasmo.testing.apps.TestApp
+import com.wasmo.testing.apps.PublishedApp
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -15,12 +15,12 @@ interface InstalledAppTesterGraph {
 
   @Provides
   @SingleIn(InstalledAppScope::class)
-  fun provideAppSlug(testApp: TestApp): AppSlug = AppSlug(testApp.manifest.slug)
+  fun provideAppSlug(publishedApp: PublishedApp): AppSlug = AppSlug(publishedApp.manifest.slug)
 
   @GraphExtension.Factory
   interface Factory {
     fun create(
-      @Provides testApp: TestApp,
+      @Provides publishedApp: PublishedApp,
     ): InstalledAppTesterGraph
   }
 }

@@ -64,9 +64,11 @@ interface ServiceTesterGraph {
   val clock: FakeClock
   val deployment: Deployment
   val eventListener: FakeEventListener
+  val fakeHttpClient: FakeHttpClient
   val fileSystem: FakeFileSystem
   val jobQueueTester: JobQueueTester
   val sendEmailService: FakeSendEmailService
+  val wasmoArtifactServer: WasmoArtifactServer
   val wasmoDb: WasmoDbService
 
   @Provides
