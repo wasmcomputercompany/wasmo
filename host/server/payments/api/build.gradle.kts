@@ -13,6 +13,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
         implementation(project(":host:api"))
+        implementation(project(":identifiers"))
         implementation(project(":platform:api"))
       }
     }

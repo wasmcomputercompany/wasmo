@@ -1,6 +1,6 @@
 package com.wasmo.payments
 
-import com.wasmo.api.ComputerSlug
+import com.wasmo.identifiers.ComputerSlug
 import kotlin.time.Instant
 
 data class SubscriptionSnapshot(

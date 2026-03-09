@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.wasmo.api.ComputerSlug
 import com.wasmo.client.app.Checkbox
 import com.wasmo.client.app.FinePrint
 import com.wasmo.client.app.FormScreen
@@ -18,6 +17,7 @@ import com.wasmo.client.app.SmallText
 import com.wasmo.client.app.TextField
 import com.wasmo.compose.Toolbar
 import com.wasmo.compose.ToolbarTitle
+import com.wasmo.identifiers.ComputerSlug
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.builders.InputAttrsScope
@@ -325,5 +325,6 @@ sealed interface BuildYoursScreenEvent {
   data class ClickCheckOut(
     val slug: ComputerSlug,
   ) : BuildYoursScreenEvent
+
   object ClickQuestions : BuildYoursScreenEvent
 }

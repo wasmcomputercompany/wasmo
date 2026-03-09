@@ -5,13 +5,13 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import com.wasmo.identifiers.AppSlug
 import com.wasmo.api.ComputerListItem
-import com.wasmo.api.ComputerSlug
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.InstalledApp
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
+import com.wasmo.identifiers.AppSlug
+import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.testing.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest

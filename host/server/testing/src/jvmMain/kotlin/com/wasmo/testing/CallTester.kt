@@ -9,7 +9,6 @@ import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.RegisterPasskeyAction
 import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AuthenticatePasskeyRequest
-import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.CreateInviteRequest
@@ -24,6 +23,7 @@ import com.wasmo.computers.AfterCheckoutAction
 import com.wasmo.computers.CreateComputerSpecAction
 import com.wasmo.computers.InstallAppAction
 import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.website.HostPageAction
 import com.wasmo.website.ServerHostPage
 import dev.zacsweers.metro.Inject

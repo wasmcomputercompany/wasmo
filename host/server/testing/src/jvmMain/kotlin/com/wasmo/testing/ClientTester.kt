@@ -1,13 +1,13 @@
 package com.wasmo.testing
 
 import com.wasmo.accounts.ClientAuthenticator
-import com.wasmo.api.ComputerSlug
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.common.tokens.newToken
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.Response
+import com.wasmo.identifiers.ComputerSlug
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okio.ByteString

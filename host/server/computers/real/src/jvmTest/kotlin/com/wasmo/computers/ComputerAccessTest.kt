@@ -6,10 +6,10 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import com.wasmo.api.ComputerSlug
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.framework.UnauthorizedUserException
+import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.testing.ServiceTester
 import kotlin.test.Test
 import kotlin.test.assertFailsWith

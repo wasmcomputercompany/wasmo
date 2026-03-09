@@ -1,7 +1,7 @@
 package com.wasmo.api.routes
 
-import com.wasmo.api.ComputerSlug
 import com.wasmo.identifiers.AppSlug
+import com.wasmo.identifiers.ComputerSlug
 
 sealed interface Route
 

@@ -1,6 +1,5 @@
 package com.wasmo.common.routes
 
-import com.wasmo.api.ComputerSlug
 import com.wasmo.api.routes.AdminRoute
 import com.wasmo.api.routes.AfterCheckoutRoute
 import com.wasmo.api.routes.AppRoute
@@ -15,6 +14,7 @@ import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.api.routes.Url
 import com.wasmo.identifiers.AppSlug
+import com.wasmo.identifiers.ComputerSlug
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject

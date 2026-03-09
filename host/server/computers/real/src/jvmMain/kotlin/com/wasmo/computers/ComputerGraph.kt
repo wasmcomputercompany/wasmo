@@ -1,7 +1,7 @@
 package com.wasmo.computers
 
-import com.wasmo.api.ComputerSlug
 import com.wasmo.identifiers.ComputerId
+import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ForHost
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension

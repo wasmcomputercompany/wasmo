@@ -1,5 +1,6 @@
 package com.wasmo.api
 
+import com.wasmo.identifiers.ComputerSlug
 import kotlinx.serialization.Serializable
 
 @Serializable

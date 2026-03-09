@@ -1,8 +1,8 @@
 package com.wasmo.client.app.computerlist
 
 import app.cash.burst.InterceptTest
-import com.wasmo.api.ComputerSlug
 import com.wasmo.domtester.SnapshotTester
+import com.wasmo.identifiers.ComputerSlug
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 

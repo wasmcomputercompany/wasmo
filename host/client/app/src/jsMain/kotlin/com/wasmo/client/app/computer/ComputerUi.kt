@@ -1,12 +1,12 @@
 package com.wasmo.client.app.computer
 
 import androidx.compose.runtime.Composable
-import com.wasmo.api.ComputerSlug
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.routes.AppRoute
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
+import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.launcher.Icon
 import com.wasmo.launcher.LauncherIconList
 import com.wasmo.launcher.LauncherScreen

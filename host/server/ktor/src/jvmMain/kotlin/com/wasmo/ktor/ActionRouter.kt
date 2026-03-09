@@ -5,8 +5,6 @@ import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AccountSnapshotResponse
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
-import com.wasmo.api.ComputerSlug
-import com.wasmo.api.ComputerSlugRegex
 import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.CreateComputerSpecRequest
@@ -30,6 +28,8 @@ import com.wasmo.framework.UserException
 import com.wasmo.framework.asResponse
 import com.wasmo.framework.redirect
 import com.wasmo.identifiers.AppSlugRegex
+import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.ComputerSlugRegex
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

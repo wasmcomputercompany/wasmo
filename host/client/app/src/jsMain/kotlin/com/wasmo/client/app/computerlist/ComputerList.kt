@@ -1,8 +1,8 @@
 package com.wasmo.client.app.computerlist
 
 import androidx.compose.runtime.Composable
-import com.wasmo.api.ComputerSlug
 import com.wasmo.client.app.FormScreen
+import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.smartphoneframe.SmartphoneFrame
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.backgroundColor

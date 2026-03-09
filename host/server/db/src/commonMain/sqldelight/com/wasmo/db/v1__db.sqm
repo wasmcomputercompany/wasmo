@@ -1,5 +1,5 @@
-import com.wasmo.api.ComputerSlug;
 import com.wasmo.identifiers.ComputerId;
+import com.wasmo.identifiers.ComputerSlug;
 import kotlin.time.Instant;
 
 CREATE TABLE Computer (

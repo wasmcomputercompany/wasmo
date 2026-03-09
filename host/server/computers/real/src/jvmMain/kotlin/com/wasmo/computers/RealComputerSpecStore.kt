@@ -1,9 +1,9 @@
 package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
-import com.wasmo.api.ComputerSlug
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
+import com.wasmo.identifiers.ComputerSlug
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

@@ -20,6 +20,7 @@ kotlin {
         implementation(project(":host:server:accounts:api"))
         implementation(project(":host:server:db"))
         implementation(project(":host:server:deployment"))
+        implementation(project(":identifiers"))
         implementation(project(":platform:api"))
       }
     }

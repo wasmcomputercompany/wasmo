@@ -2,13 +2,13 @@ package com.wasmo.computers
 
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
-import com.wasmo.api.ComputerSlug
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
+import com.wasmo.identifiers.ComputerSlug
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
