@@ -9,7 +9,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.messageContains
 import com.wasmo.FakeHttpClient
 import com.wasmo.api.InstallIncompleteReason
-import com.wasmo.api.InstalledApp
+import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.events.AppInstallEvent
 import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.StateUserException
@@ -54,7 +54,7 @@ class InstallAppActionTest {
     assertThat(computer.homePage().computerSnapshot?.apps)
       .isNotNull()
       .contains(
-        InstalledApp(
+        InstalledAppSnapshot(
           slug = installedApp.slug,
           launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
           maskableIconUrl = installedApp.iconUrl.toString(),
@@ -124,7 +124,7 @@ class InstallAppActionTest {
     assertThat(computer.homePage().computerSnapshot?.apps)
       .isNotNull()
       .contains(
-        InstalledApp(
+        InstalledAppSnapshot(
           slug = installedApp.slug,
           launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
           maskableIconUrl = installedApp.iconUrl.toString(),

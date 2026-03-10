@@ -8,30 +8,26 @@ import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.packaging.AppManifest
 import okhttp3.HttpUrl
 
-interface WasmoComputer {
+interface ComputerService {
   val id: ComputerId
   val slug: ComputerSlug
   val manifestLoader: ManifestLoader
-  val appInstaller: AppInstaller
+  val url: HttpUrl
 
   /** Install default apps. */
   context(transactionCallbacks: TransactionCallbacks)
   fun initialize()
 
   context(transactionCallbacks: TransactionCallbacks)
+  fun enqueueInstall(manifestUrl: HttpUrl, manifest: AppManifest)
+
+  context(transactionCallbacks: TransactionCallbacks)
   fun snapshot(): ComputerSnapshot
+
+  context(transactionCallbacks: TransactionCallbacks)
+  fun installedApp(appInstall: AppInstall): InstalledAppService
 }
 
 interface ManifestLoader {
   suspend fun loadManifest(manifestUrl: HttpUrl): AppManifest
-}
-
-interface AppInstaller {
-  context(transactionCallbacks: TransactionCallbacks)
-  fun enqueueInstall(
-    manifestUrl: HttpUrl,
-    manifest: AppManifest,
-  )
-
-  suspend fun install(appInstall: AppInstall)
 }

@@ -37,7 +37,7 @@ class InstallAppAction(
     )
 
     wasmoDb.transactionWithResult(noEnclosing = true) {
-      computer.appInstaller.enqueueInstall(
+      computer.enqueueInstall(
         manifestUrl = manifestUrl,
         manifest = manifest,
       )

@@ -2,22 +2,18 @@ package com.wasmo.testing.computer
 
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.routes.ComputerHomeRoute
-import com.wasmo.computers.ComputerScope
+import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.installedapp.InstalledAppTester
-import com.wasmo.testing.installedapp.InstalledAppTesterGraph
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
 
 /**
  * Tests a computer belonging to a single user.
  */
-@Inject
-@SingleIn(ComputerScope::class)
 class ComputerTester(
-  private val installedAppTesterGraphFactory: InstalledAppTesterGraph.Factory,
+  private val deployment: Deployment,
   private val client: ClientTester,
   val slug: ComputerSlug,
 ) {
@@ -32,10 +28,12 @@ class ComputerTester(
     return getApp(publishedApp)
   }
 
-  fun getApp(publishedApp: PublishedApp): InstalledAppTester {
-    val graph = installedAppTesterGraphFactory.create(publishedApp)
-    return graph.installedAppTester
-  }
+  fun getApp(publishedApp: PublishedApp) = InstalledAppTester(
+    deployment = deployment,
+    publishedApp = publishedApp,
+    computerSlug = slug,
+    slug = AppSlug(publishedApp.manifest.slug),
+  )
 
   fun homePage() = client.call().hostPage(ComputerHomeRoute(slug))
 }

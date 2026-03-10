@@ -2,16 +2,16 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.InstallIncompleteReason
+import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.db.AppInstall
 import com.wasmo.db.WasmoDb
+import com.wasmo.deployment.Deployment
 import com.wasmo.events.AppInstallEvent
 import com.wasmo.events.EventListener
 import com.wasmo.framework.StateUserException
 import com.wasmo.framework.checkUser
 import com.wasmo.identifiers.AppSlug
-import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
-import com.wasmo.jobs.JobQueue
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Resource
 import dev.zacsweers.metro.Inject
@@ -34,49 +34,50 @@ import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
 import wasmo.objectstore.ScopedObjectStore
 
-/**
- * Save all resources listed in the manifest to the object store.
- */
 @Inject
-@SingleIn(ComputerScope::class)
-class RealAppInstaller(
-  private val id: ComputerId,
+@SingleIn(InstalledAppScope::class)
+class RealInstalledAppService(
+  private val deployment: Deployment,
+  private val computerSlug: ComputerSlug,
+  private val appInstall: AppInstall,
   private val clock: Clock,
   private val httpClient: HttpClient,
-  private val computerSlug: ComputerSlug,
-  @ForComputer private val computerObjectStore: ObjectStore,
+  @ForInstalledApp private val installedAppObjectStore: ObjectStore,
   private val eventListener: EventListener,
-  private val installAppJobQueue: JobQueue<InstallAppJob>,
-  private val manifestLoader: ManifestLoader,
   private val wasmoDb: WasmoDb,
-) : AppInstaller {
+  override val slug: AppSlug,
+  override val manifest: AppManifest,
+) : InstalledAppService {
+  override val url: HttpUrl
+    get() = deployment.baseUrl.newBuilder()
+      .host("$slug-$computerSlug.${deployment.baseUrl.host}")
+      .build()
+
+  override val maskableIconUrl: HttpUrl
+    get() = manifest.launcher?.maskable_icon_path
+      ?.let { url.resolve(it) }
+      ?: url.resolve("/maskable-icon.svg")!!
+
+  val resourcesObjectStore: ScopedObjectStore = ScopedObjectStore(
+    delegate = installedAppObjectStore,
+    prefix = "resources/v${manifest.version}/",
+  )
+
   context(transactionCallbacks: TransactionCallbacks)
-  override fun enqueueInstall(
-    manifestUrl: HttpUrl,
-    manifest: AppManifest,
-  ) {
-    val appInstallId = wasmoDb.appInstallQueries.insertAppInstall(
-      computer_id = id,
-      slug = AppSlug(manifest.slug),
-      manifest_url = manifestUrl.toString(),
-      manifest_data = manifest,
-      version = manifest.version,
-      install_scheduled_at = clock.now(),
-    ).executeAsOne()
+  override fun snapshot() = InstalledAppSnapshot(
+    slug = slug,
+    launcherLabel = manifest.launcher?.label ?: slug.value,
+    maskableIconUrl = maskableIconUrl.toString(),
+    installScheduledAt = appInstall.install_scheduled_at,
+    installCompletedAt = appInstall.install_completed_at,
+    installDeletedAt = appInstall.install_deleted_at,
+    installIncompleteReason = appInstall.install_incomplete_reason
+      ?.let { InstallIncompleteReason.valueOf(it) },
+  )
 
-    installAppJobQueue.enqueue(InstallAppJob(appInstallId))
-  }
-
-  override suspend fun install(appInstall: AppInstall) {
+  override suspend fun install() {
     val manifestUrl = appInstall.manifest_url.toHttpUrl()
-    val manifest = manifestLoader.loadManifest(manifestUrl)
-
     val baseUrl = manifest.base_url?.toHttpUrlOrNull() ?: manifestUrl
-
-    val resourcesObjectStore = ScopedObjectStore(
-      delegate = computerObjectStore,
-      prefix = "${manifest.slug}/resources/v${manifest.version}/",
-    )
 
     val firstFailure = MutableStateFlow<ResourceResult.Failed?>(null)
 

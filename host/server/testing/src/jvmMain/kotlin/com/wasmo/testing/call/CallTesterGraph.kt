@@ -47,6 +47,7 @@ interface CallTesterGraph {
   interface Factory {
     fun create(
       @Provides client: Client,
+      @Provides sessionCookie: SessionCookie,
     ): CallTesterGraph
   }
 }

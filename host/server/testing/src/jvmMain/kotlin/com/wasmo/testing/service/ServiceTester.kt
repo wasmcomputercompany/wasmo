@@ -60,11 +60,15 @@ class ServiceTester : CoroutineTestInterceptor {
     val userAgent = FakeUserAgent()
     val clientAuthenticator = clientAuthenticatorFactory.create(userAgent)
     val sessionCookie = clientAuthenticator.updateSessionCookie()
-    val clientTesterGraph = graph.clientTesterGraphFactory.create(
+    return ClientTester(
+      deployment = deployment,
       clientAuthenticator = clientAuthenticator,
+      callTesterGraphFactory = graph.callTesterGraphFactory,
       sessionCookie = sessionCookie,
+      jobQueueTester = jobQueueTester,
+      eventListener = eventListener,
+      paymentsService = graph.paymentsService,
     )
-    return clientTesterGraph.clientTester
   }
 
   fun newPasskey() = FakePasskey(

@@ -11,7 +11,7 @@ import com.wasmo.common.logging.Logger
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
-import com.wasmo.computers.ComputerGraph
+import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.DefaultAppCatalog
 import com.wasmo.computers.InstallAppJob
 import com.wasmo.db.WasmoDb
@@ -61,7 +61,7 @@ import wasmo.objectstore.ObjectStore
 internal interface WasmoServiceGraph {
   val wasmoService: WasmoService
   val callGraphFactory: CallGraph.Factory
-  val computerGraphFactory: ComputerGraph.Factory
+  val computerServiceGraphFactory: ComputerServiceGraph.Factory
 
   @Provides
   @SingleIn(AppScope::class)

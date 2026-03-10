@@ -18,4 +18,10 @@ class FakeEventListener : EventListener {
   fun takeEvent(): Event {
     return events.removeFirst()
   }
+
+  fun takeAll(): List<Event> {
+    val result = events.toList()
+    events.clear()
+    return result
+  }
 }

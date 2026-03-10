@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ComputerSnapshot(
   val slug: ComputerSlug,
-  val apps: List<InstalledApp>,
+  val apps: List<InstalledAppSnapshot>,
 )
 

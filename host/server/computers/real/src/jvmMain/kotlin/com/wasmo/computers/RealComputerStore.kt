@@ -14,10 +14,10 @@ import dev.zacsweers.metro.SingleIn
 @SingleIn(AppScope::class)
 class RealComputerStore(
   private val wasmoDb: WasmoDb,
-  private val computerGraphFactory: ComputerGraph.Factory,
+  private val computerServiceGraphFactory: ComputerServiceGraph.Factory,
 ) : ComputerStore {
   context(transactionCallbacks: TransactionCallbacks)
-  override fun initializeFromSpec(computerSpecToken: String): WasmoComputer {
+  override fun initializeFromSpec(computerSpecToken: String): ComputerService {
     val computerSpec = wasmoDb.computerSpecQueries
       .selectComputerSpecByToken(computerSpecToken)
       .executeAsOneOrNull()
@@ -57,7 +57,7 @@ class RealComputerStore(
   override fun getOrNull(
     client: Client,
     slug: ComputerSlug,
-  ): WasmoComputer? {
+  ): ComputerService? {
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
@@ -71,7 +71,7 @@ class RealComputerStore(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun get(computerId: ComputerId): WasmoComputer {
+  override fun get(computerId: ComputerId): ComputerService {
     val computer = wasmoDb.computerQueries.selectComputerById(
       id = computerId,
     ).executeAsOne()
@@ -79,6 +79,6 @@ class RealComputerStore(
     return get(computer)
   }
 
-  private fun get(computer: Computer): WasmoComputer =
-    computerGraphFactory.create(computer.id, computer.slug).computer
+  private fun get(computer: Computer): ComputerService =
+    computerServiceGraphFactory.create(computer).service
 }

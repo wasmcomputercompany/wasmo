@@ -32,13 +32,21 @@ fun WasmoServiceGraph.call(
 ): CallGraph
 
 /**
- * There's also a graph for each Computer.
+ * There's also a graph for each computer.
  */
 @ComputerScope
 fun WasmoServiceGraph.computer(
   computerId: ComputerId,
   slug: ComputerSlug,
-) : ComputerGraph
+) : ComputerServiceGraph
+
+/**
+ * There's also a graph for each installed app.
+ */
+@InstalledAppScope
+fun ComputerServiceGraph.installedApp(
+  appInstall: AppInstall,
+) : InstalledAppServiceGraph
 ```
 
 Testing
@@ -55,37 +63,12 @@ fun serviceTester(
 ): ServiceTesterGraph
 
 /**
- * Tests have a graph for each user. There's no equivalent to this graph for production!
- */
-@ClientScope
-fun ServiceTesterGraph.client(
-  clientAuthenticator: ClientAuthenticator,
-  sessionCookie: SessionCookie,
-): ClientTesterGraph
-
-/**
  * Tests also have a graph for each API call.
  */
 @CallScope
 fun ClientTesterGraph.call(
   client: Client,
 ): CallTesterGraph
-
-/**
- * The computer graph extends the client graph in test. This is different from production!
- */
-@ComputerScope
-fun ClientTesterGraph.computer(
-  slug: ComputerSlug,
-): ComputerTesterGraph
-
-/**
- * The installed app graph extends the computer graph.
- */
-@InstalledAppScope
-fun ComputerTesterGraph.installedApp(
-  publishedApp: PublishedApp,
-): InstalledAppTesterGraph
 ```
 
 [Metro]: https://github.com/ZacSweers/metro

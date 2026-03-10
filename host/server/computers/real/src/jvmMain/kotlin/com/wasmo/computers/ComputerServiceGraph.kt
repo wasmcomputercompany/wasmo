@@ -1,5 +1,6 @@
 package com.wasmo.computers
 
+import com.wasmo.db.Computer
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ForHost
@@ -15,8 +16,9 @@ import wasmo.objectstore.ScopedObjectStore
 @GraphExtension(
   scope = ComputerScope::class,
 )
-interface ComputerGraph {
-  val computer: WasmoComputer
+interface ComputerServiceGraph {
+  val service: ComputerService
+  val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory
 
   @Provides
   @ForComputer
@@ -29,24 +31,32 @@ interface ComputerGraph {
     prefix = "${slug.value}/",
   )
 
+  @Provides
+  @SingleIn(ComputerScope::class)
+  fun provideComputerSlug(
+    computer: Computer,
+  ): ComputerSlug = computer.slug
+
+  @Provides
+  @SingleIn(ComputerScope::class)
+  fun provideComputerId(
+    computer: Computer,
+  ): ComputerId = computer.id
+
   @Binds
   fun bindDownloader(real: RealDownloader): Downloader
 
   @Binds
-  fun bindComputer(real: RealWasmoComputer): WasmoComputer
+  fun bindComputerService(real: RealComputerService): ComputerService
 
   @Binds
   fun bindManifestLoader(real: RealManifestLoader): ManifestLoader
 
-  @Binds
-  fun bindAppInstaller(real: RealAppInstaller): AppInstaller
-
   @GraphExtension.Factory
   interface Factory {
     fun create(
-      @Provides computerId: ComputerId,
-      @Provides slug: ComputerSlug,
-    ): ComputerGraph
+      @Provides computer: Computer,
+    ): ComputerServiceGraph
   }
 }
 

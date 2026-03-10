@@ -10,7 +10,7 @@ import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
-import com.wasmo.computers.ComputerGraph
+import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.InstallAppJob
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
@@ -32,7 +32,7 @@ import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.JobQueueTester
 import com.wasmo.testing.WasmoArtifactServer
 import com.wasmo.testing.apps.TestAppCatalog
-import com.wasmo.testing.client.ClientTesterGraph
+import com.wasmo.testing.call.CallTesterGraph
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
@@ -57,8 +57,8 @@ import wasmo.objectstore.ObjectStore
   ],
 )
 interface ServiceTesterGraph {
-  val clientTesterGraphFactory: ClientTesterGraph.Factory
-  val computerGraphFactory: ComputerGraph.Factory
+  val callTesterGraphFactory: CallTesterGraph.Factory
+  val computerServiceGraphFactory: ComputerServiceGraph.Factory
 
   val clientAuthenticatorFactory: ClientAuthenticator.Factory
   val clock: FakeClock
@@ -70,6 +70,7 @@ interface ServiceTesterGraph {
   val sendEmailService: FakeSendEmailService
   val wasmoArtifactServer: WasmoArtifactServer
   val wasmoDb: WasmoDbService
+  val paymentsService: FakePaymentsService
 
   @Provides
   @SingleIn(AppScope::class)

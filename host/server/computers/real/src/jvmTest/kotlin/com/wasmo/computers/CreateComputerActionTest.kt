@@ -7,7 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.wasmo.api.ComputerListItem
 import com.wasmo.api.CreateComputerSpecRequest
-import com.wasmo.api.InstalledApp
+import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.identifiers.ComputerSlug
@@ -54,13 +54,13 @@ class CreateComputerActionTest {
     assertThat(computerHostPage.computerSnapshot?.apps)
       .isNotNull()
       .containsExactly(
-        InstalledApp(
+        InstalledAppSnapshot(
           slug = installedMusicApp.slug,
           launcherLabel = installedMusicApp.publishedApp.manifest.launcher!!.label!!,
           maskableIconUrl = installedMusicApp.iconUrl.toString(),
           installScheduledAt = tester.clock.now(),
         ),
-        InstalledApp(
+        InstalledAppSnapshot(
           slug = installedSnakeApp.slug,
           launcherLabel = installedSnakeApp.publishedApp.manifest.launcher!!.label!!,
           maskableIconUrl = installedSnakeApp.iconUrl.toString(),

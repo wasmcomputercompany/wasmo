@@ -20,15 +20,13 @@ class InstallAppJobExecutor(
   private val computerStore: ComputerStore,
 ) : JobExecutor<InstallAppJob> {
   override suspend fun execute(job: InstallAppJob) {
-    val (appInstall, computer) = wasmoDb.transactionWithResult(noEnclosing = true) {
+    val installedApp = wasmoDb.transactionWithResult(noEnclosing = true) {
       val appInstall = wasmoDb.appInstallQueries.selectAppInstallById(job.appInstallId)
         .executeAsOne()
       val computer = computerStore.get(appInstall.computer_id)
-      appInstall to computer
+      computer.installedApp(appInstall)
     }
 
-    computer.appInstaller.install(
-      appInstall = appInstall,
-    )
+    installedApp.install()
   }
 }
