@@ -2,6 +2,7 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
+import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.api.InstalledApp
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
@@ -10,7 +11,6 @@ import com.wasmo.identifiers.ComputerSlug
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
-import kotlin.time.Instant
 import okhttp3.HttpUrl
 
 @Inject
@@ -49,16 +49,18 @@ class RealWasmoComputer(
       limit = 100,
     ).executeAsList()
 
-    val installScheduledAt = Instant.fromEpochSeconds(0L)
-
     return ComputerSnapshot(
       slug = slug,
-      apps = appInstalls.map {
+      apps = appInstalls.map { appInstall ->
         InstalledApp(
-          slug = it.slug,
-          launcherLabel = it.launcher_label ?: it.slug.value,
+          slug = appInstall.slug,
+          launcherLabel = appInstall.launcher_label ?: appInstall.slug.value,
           maskableIconUrl = "/assets/launcher/sample-folder.svg",
-          installScheduledAt = installScheduledAt,
+          installScheduledAt = appInstall.install_scheduled_at,
+          installCompletedAt = appInstall.install_completed_at,
+          installDeletedAt = appInstall.install_deleted_at,
+          installIncompleteReason = appInstall.install_incomplete_reason
+            ?.let { InstallIncompleteReason.valueOf(it) },
         )
       },
     )

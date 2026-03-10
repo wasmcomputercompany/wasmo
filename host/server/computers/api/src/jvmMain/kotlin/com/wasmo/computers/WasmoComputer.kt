@@ -2,7 +2,7 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.identifiers.AppSlug
+import com.wasmo.db.AppInstall
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.packaging.AppManifest
@@ -32,8 +32,5 @@ interface AppInstaller {
     manifestUrl: HttpUrl,
   )
 
-  suspend fun install(
-    manifestUrl: HttpUrl,
-    appSlug: AppSlug,
-  )
+  suspend fun install(appInstall: AppInstall)
 }

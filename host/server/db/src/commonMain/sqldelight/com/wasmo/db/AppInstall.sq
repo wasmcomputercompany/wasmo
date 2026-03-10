@@ -26,16 +26,20 @@ selectAppInstallById:
 SELECT * FROM AppInstall
 WHERE id = :id;
 
-updateAppInstall:
+updateAppInstallSetInstallCompletedAt:
 UPDATE AppInstall
 SET
   version = :new_version,
-  manifest_url = :manifest_url,
-  launcher_label = :launcher_label,
-  install_completed_at = :install_completed_at,
-  install_deleted_at = :install_deleted_at,
-  install_incomplete_reason = :install_incomplete_reason
+  install_completed_at = :install_completed_at
 WHERE
   version = :expected_version AND
   id = :id;
 
+updateAppInstallSetInstallIncompleteReason:
+UPDATE AppInstall
+SET
+  version = :new_version,
+  install_incomplete_reason = :install_incomplete_reason
+WHERE
+  version = :expected_version AND
+  id = :id;

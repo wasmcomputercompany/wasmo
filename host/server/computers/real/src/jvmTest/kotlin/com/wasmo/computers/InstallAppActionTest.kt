@@ -8,6 +8,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.messageContains
 import com.wasmo.FakeHttpClient
+import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.api.InstalledApp
 import com.wasmo.events.AppInstallEvent
 import com.wasmo.framework.ContentTypes
@@ -18,6 +19,7 @@ import com.wasmo.testing.service.ServiceTester
 import java.io.FileNotFoundException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.test.runTest
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
@@ -35,8 +37,11 @@ class InstallAppActionTest {
 
     val client = tester.newClient()
     val computer = client.createComputer()
+    val installScheduledAt = tester.clock.now
     val installedApp = computer.installApp(RecipesApp)
 
+    tester.clock.now += 30.minutes
+    val installCompletedAt = tester.clock.now
     tester.jobQueueTester.awaitIdle()
 
     val appWasmPath = "/${computer.slug}/${installedApp.slug}/resources/v1/app.wasm".toPath()
@@ -53,7 +58,8 @@ class InstallAppActionTest {
           slug = installedApp.slug,
           launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
           maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
-          installScheduledAt = tester.clock.now(),
+          installScheduledAt = installScheduledAt,
+          installCompletedAt = installCompletedAt,
         ),
       )
 
@@ -123,6 +129,7 @@ class InstallAppActionTest {
           launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
           maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
           installScheduledAt = tester.clock.now(),
+          installIncompleteReason = InstallIncompleteReason.SourceUnavailable,
         ),
       )
 
