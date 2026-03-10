@@ -1,6 +1,5 @@
 package com.wasmo.computers
 
-import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.StateUserException
 import com.wasmo.framework.checkUser
 import com.wasmo.packaging.AppManifest
@@ -27,9 +26,6 @@ class RealManifestLoader(
 
     checkUser(manifestResponse.isSuccessful) {
       "failed to fetch manifest: HTTP ${manifestResponse.code}"
-    }
-    checkUser(manifestResponse.contentType == ContentTypes.ApplicationToml.toString()) {
-      "expected ${ContentTypes.ApplicationToml} for manifest content-type"
     }
 
     val result = try {

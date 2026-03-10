@@ -57,7 +57,7 @@ class InstallAppActionTest {
         InstalledApp(
           slug = installedApp.slug,
           launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
-          maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
+          maskableIconUrl = installedApp.iconUrl.toString(),
           installScheduledAt = installScheduledAt,
           installCompletedAt = installCompletedAt,
         ),
@@ -127,7 +127,7 @@ class InstallAppActionTest {
         InstalledApp(
           slug = installedApp.slug,
           launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
-          maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
+          maskableIconUrl = installedApp.iconUrl.toString(),
           installScheduledAt = tester.clock.now(),
           installIncompleteReason = InstallIncompleteReason.SourceUnavailable,
         ),

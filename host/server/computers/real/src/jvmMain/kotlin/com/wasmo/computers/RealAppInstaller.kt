@@ -59,8 +59,7 @@ class RealAppInstaller(
       computer_id = id,
       slug = AppSlug(manifest.slug),
       manifest_url = manifestUrl.toString(),
-      launcher_label = manifest.launcher?.label,
-      launcher_maskable_icon_path = manifest.launcher?.maskable_icon_path,
+      manifest_data = manifest,
       version = manifest.version,
       install_scheduled_at = clock.now(),
     ).executeAsOne()

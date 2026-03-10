@@ -17,12 +17,14 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.postgresql)
         implementation(libs.sqldelight.jdbc.driver)
+        implementation(libs.tomlkt)
         implementation(project(":host:api"))
         implementation(project(":host:framework"))
         implementation(project(":host:tokens"))
         implementation(project(":host:server:identifiers"))
         implementation(project(":host:server:passkeys:api"))
         implementation(project(":identifiers"))
+        implementation(project(":platform:packaging"))
       }
     }
     val jvmTest by getting {

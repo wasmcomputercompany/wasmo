@@ -10,8 +10,9 @@ import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.InstalledApp
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
-import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.testing.apps.MusicApp
+import com.wasmo.testing.apps.SnakeApp
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -44,21 +45,25 @@ class CreateComputerActionTest {
       .isNotNull()
       .containsExactly(ComputerListItem(computerSlug))
 
+    val computer = client.getComputer(computerSlug)
+    val installedMusicApp = computer.getApp(MusicApp)
+    val installedSnakeApp = computer.getApp(SnakeApp)
+
     val computerHostPage = client.call().hostPage(ComputerHomeRoute(computerSlug))
     assertThat(computerHostPage.computerSnapshot?.slug).isEqualTo(computerSlug)
     assertThat(computerHostPage.computerSnapshot?.apps)
       .isNotNull()
       .containsExactly(
         InstalledApp(
-          slug = AppSlug("music"),
-          launcherLabel = "Music",
-          maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
+          slug = installedMusicApp.slug,
+          launcherLabel = installedMusicApp.publishedApp.manifest.launcher!!.label!!,
+          maskableIconUrl = installedMusicApp.iconUrl.toString(),
           installScheduledAt = tester.clock.now(),
         ),
         InstalledApp(
-          slug = AppSlug("snake"),
-          launcherLabel = "Snake",
-          maskableIconUrl = "/assets/launcher/sample-folder.svg", // TODO
+          slug = installedSnakeApp.slug,
+          launcherLabel = installedSnakeApp.publishedApp.manifest.launcher!!.label!!,
+          maskableIconUrl = installedSnakeApp.iconUrl.toString(),
           installScheduledAt = tester.clock.now(),
         ),
       )

@@ -39,7 +39,11 @@ class MemoryJobQueue<T>(
         }
 
         val job = WasmoJson.decodeFromString(serializer, encodedJob)
-        executorLazy.value.execute(job)
+        try {
+          executorLazy.value.execute(job)
+        } catch (e: Throwable) {
+          e.printStackTrace() // TODO.
+        }
         eventListener.jobCompleted()
       }
     }

@@ -30,8 +30,8 @@ import com.wasmo.testing.FakeEventListener
 import com.wasmo.testing.FakePaymentsService
 import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.JobQueueTester
-import com.wasmo.testing.TestAppCatalog
 import com.wasmo.testing.WasmoArtifactServer
+import com.wasmo.testing.apps.TestAppCatalog
 import com.wasmo.testing.client.ClientTesterGraph
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds

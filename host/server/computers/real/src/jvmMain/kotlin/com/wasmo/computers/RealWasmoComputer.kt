@@ -42,13 +42,13 @@ class RealWasmoComputer(
       slug = slug,
       apps = appInstalls.map { appInstall ->
         val appUrl = urlFactory.appUrl(appInstall.slug)
-        val maskableIconUrl = appInstall.launcher_maskable_icon_path
+        val maskableIconUrl = appInstall.manifest_data.launcher?.maskable_icon_path
           ?.let { appUrl.resolve(it) }
           ?: appUrl.resolve("/maskable-icon.svg")
 
         InstalledApp(
           slug = appInstall.slug,
-          launcherLabel = appInstall.launcher_label ?: appInstall.slug.value,
+          launcherLabel = appInstall.manifest_data.launcher?.label ?: appInstall.slug.value,
           maskableIconUrl = maskableIconUrl.toString(),
           installScheduledAt = appInstall.install_scheduled_at,
           installCompletedAt = appInstall.install_completed_at,

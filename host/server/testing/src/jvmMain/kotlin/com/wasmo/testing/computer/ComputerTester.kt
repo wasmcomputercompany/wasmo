@@ -29,6 +29,10 @@ class ComputerTester(
       ),
     )
 
+    return getApp(publishedApp)
+  }
+
+  fun getApp(publishedApp: PublishedApp): InstalledAppTester {
     val graph = installedAppTesterGraphFactory.create(publishedApp)
     return graph.installedAppTester
   }

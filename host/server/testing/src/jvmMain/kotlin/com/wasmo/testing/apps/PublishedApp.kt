@@ -1,5 +1,7 @@
 package com.wasmo.testing.apps
 
+import com.wasmo.computers.AppCatalog
+import com.wasmo.computers.AppCatalog.Entry
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.Resource
@@ -43,4 +45,41 @@ val RecipesApp = PublishedApp(
   servedResources = mapOf(
     "https://example.com/recipes/v1/app.wasm".toHttpUrl() to "I am Wasm data".encodeUtf8(),
   ),
+)
+
+val MusicApp = PublishedApp(
+  manifestUrl = "https://example.com/music/v2/music.wasmo.toml".toHttpUrl(),
+  manifest = AppManifest(
+    version = 2L,
+    slug = "music",
+    target = TargetSdk1,
+    base_url = "https://example.com/music/v2/",
+    launcher = Launcher(
+      label = "Music",
+    ),
+  ),
+  servedResources = mapOf(),
+)
+
+val SnakeApp = PublishedApp(
+  manifestUrl = "https://example.com/snake/v3/snake.wasmo.toml".toHttpUrl(),
+  manifest = AppManifest(
+    version = 3L,
+    slug = "snake",
+    target = TargetSdk1,
+    base_url = "https://example.com/snake/v3/",
+    launcher = Launcher(
+      label = "Snake",
+    ),
+  ),
+  servedResources = mapOf(),
+)
+
+val TestAppCatalog = AppCatalog(
+  entries = listOf(MusicApp, SnakeApp).map {
+    Entry(
+      manifestUrl = it.manifestUrl,
+      manifest = it.manifest,
+    )
+  },
 )

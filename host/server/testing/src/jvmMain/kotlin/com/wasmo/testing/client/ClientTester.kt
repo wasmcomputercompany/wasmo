@@ -72,6 +72,10 @@ class ClientTester(
     // Sync payment state.
     call().afterCheckout(checkoutSessionId)
 
+    return getComputer(slug)
+  }
+
+  fun getComputer(slug: ComputerSlug): ComputerTester {
     val graph = computerTesterGraphFactory.create(slug)
     return graph.computerTester
   }

@@ -27,6 +27,8 @@ import com.wasmo.identifiers.CookieId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.identifiers.StripeCustomerId
+import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.WasmoToml
 import com.wasmo.passkeys.RegistrationRecord
 import java.io.Closeable
 import java.time.OffsetDateTime
@@ -180,6 +182,13 @@ class WasmoDbService(
       override fun encode(value: StripeCustomerId) = value.id
     }
 
+    private object AppManifestAdapter : ColumnAdapter<AppManifest, String> {
+      override fun decode(databaseValue: String) =
+        WasmoToml.decodeFromString(AppManifest.serializer(), databaseValue)
+      override fun encode(value: AppManifest) =
+        WasmoToml.encodeToString(AppManifest.serializer(), value)
+    }
+
     private val AccountAdapter = Account.Adapter(
       idAdapter = AccountIdAdapter,
     )
@@ -188,6 +197,7 @@ class WasmoDbService(
       idAdapter = AppInstallIdAdapter,
       computer_idAdapter = ComputerIdAdapter,
       slugAdapter = AppSlugAdapter,
+      manifest_dataAdapter = AppManifestAdapter,
       install_scheduled_atAdapter = InstantAdapter,
       install_completed_atAdapter = InstantAdapter,
       install_deleted_atAdapter = InstantAdapter,
