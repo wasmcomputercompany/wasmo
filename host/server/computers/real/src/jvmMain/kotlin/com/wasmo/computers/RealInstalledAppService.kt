@@ -3,11 +3,11 @@ package com.wasmo.computers
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.api.InstalledAppSnapshot
-import com.wasmo.db.AppInstall
+import com.wasmo.db.InstalledApp
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
-import com.wasmo.events.AppInstallEvent
 import com.wasmo.events.EventListener
+import com.wasmo.events.InstallAppEvent
 import com.wasmo.framework.StateUserException
 import com.wasmo.framework.checkUser
 import com.wasmo.identifiers.AppSlug
@@ -39,7 +39,7 @@ import wasmo.objectstore.ScopedObjectStore
 class RealInstalledAppService(
   private val deployment: Deployment,
   private val computerSlug: ComputerSlug,
-  private val appInstall: AppInstall,
+  private val installedApp: InstalledApp,
   private val clock: Clock,
   private val httpClient: HttpClient,
   @ForInstalledApp private val installedAppObjectStore: ObjectStore,
@@ -68,15 +68,15 @@ class RealInstalledAppService(
     slug = slug,
     launcherLabel = manifest.launcher?.label ?: slug.value,
     maskableIconUrl = maskableIconUrl.toString(),
-    installScheduledAt = appInstall.install_scheduled_at,
-    installCompletedAt = appInstall.install_completed_at,
-    installDeletedAt = appInstall.install_deleted_at,
-    installIncompleteReason = appInstall.install_incomplete_reason
+    installScheduledAt = installedApp.install_scheduled_at,
+    installCompletedAt = installedApp.install_completed_at,
+    installDeletedAt = installedApp.install_deleted_at,
+    installIncompleteReason = installedApp.install_incomplete_reason
       ?.let { InstallIncompleteReason.valueOf(it) },
   )
 
   override suspend fun install() {
-    val manifestUrl = appInstall.manifest_url.toHttpUrl()
+    val manifestUrl = installedApp.manifest_url.toHttpUrl()
     val baseUrl = manifest.base_url?.toHttpUrlOrNull() ?: manifestUrl
 
     val firstFailure = MutableStateFlow<ResourceResult.Failed?>(null)
@@ -102,18 +102,18 @@ class RealInstalledAppService(
 
     wasmoDb.transaction(noEnclosing = true) {
       if (firstFailureValue != null) {
-        val rowCount = wasmoDb.appInstallQueries.updateAppInstallSetInstallIncompleteReason(
-          id = appInstall.id,
-          expected_version = appInstall.version,
-          new_version = appInstall.version + 1L,
+        val rowCount = wasmoDb.installedAppQueries.updateInstalledAppSetInstallIncompleteReason(
+          id = installedApp.id,
+          expected_version = installedApp.version,
+          new_version = installedApp.version + 1L,
           install_incomplete_reason = firstFailureValue.reason.name,
         ).value
         require(rowCount == 1L)
       } else {
-        val rowCount = wasmoDb.appInstallQueries.updateAppInstallSetInstallCompletedAt(
-          id = appInstall.id,
-          expected_version = appInstall.version,
-          new_version = appInstall.version + 1L,
+        val rowCount = wasmoDb.installedAppQueries.updateInstalledAppSetInstallCompletedAt(
+          id = installedApp.id,
+          expected_version = installedApp.version,
+          new_version = installedApp.version + 1L,
           install_completed_at = clock.now(),
         ).value
         require(rowCount == 1L)
@@ -121,8 +121,8 @@ class RealInstalledAppService(
     }
 
     eventListener.onEvent(
-      AppInstallEvent(
-        appSlug = appInstall.slug,
+      InstallAppEvent(
+        appSlug = installedApp.slug,
         computerSlug = computerSlug,
         exception = firstFailureValue?.exception,
       ),

@@ -8,7 +8,7 @@ value class AccountId(val id: Long)
 
 @Serializable
 @JvmInline
-value class AppInstallId(val id: Long)
+value class InstalledAppId(val id: Long)
 
 @Serializable
 @JvmInline

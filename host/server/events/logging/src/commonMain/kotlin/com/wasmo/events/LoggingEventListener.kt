@@ -12,7 +12,7 @@ class LoggingEventListener(
 ) : EventListener {
   override fun onEvent(event: Event) {
     when (event) {
-      is AppInstallEvent -> {
+      is InstallAppEvent -> {
         logger.info(
           message = "Installed on ${event.computerSlug.value}: ${event.appSlug.value}",
           throwable = event.exception,

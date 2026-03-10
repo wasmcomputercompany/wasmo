@@ -5,18 +5,17 @@ import app.cash.sqldelight.driver.jdbc.JdbcDriver
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.api.WasmoJson
 import com.wasmo.db.Account
-import com.wasmo.db.AppInstall
 import com.wasmo.db.Computer
 import com.wasmo.db.ComputerAccess
 import com.wasmo.db.ComputerAllocation
 import com.wasmo.db.ComputerSpec
 import com.wasmo.db.Cookie
+import com.wasmo.db.InstalledApp
 import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
 import com.wasmo.db.StripeCustomer
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
-import com.wasmo.identifiers.AppInstallId
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerAccessId
 import com.wasmo.identifiers.ComputerAllocationId
@@ -24,6 +23,7 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
 import com.wasmo.identifiers.CookieId
+import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.identifiers.StripeCustomerId
@@ -50,12 +50,12 @@ class WasmoDbService(
 ) : Closeable by connectionPool, WasmoDb by WasmoDb.Companion(
   jdbcDriver,
   AccountAdapter,
-  AppInstallAdapter,
   ComputerAccessAdapter,
   ComputerAdapter,
   ComputerAllocationAdapter,
   ComputerSpecAdapter,
   CookieAdapter,
+  InstalledAppAdapter,
   InviteAdapter,
   PasskeyAdapter,
   StripeCustomerAdapter,
@@ -127,11 +127,6 @@ class WasmoDbService(
       override fun encode(value: AccountId) = value.id
     }
 
-    private object AppInstallIdAdapter : ColumnAdapter<AppInstallId, Long> {
-      override fun decode(databaseValue: Long) = AppInstallId(databaseValue)
-      override fun encode(value: AppInstallId) = value.id
-    }
-
     private object AppSlugAdapter : ColumnAdapter<AppSlug, String> {
       override fun decode(databaseValue: String) = AppSlug(databaseValue)
       override fun encode(value: AppSlug) = value.value
@@ -167,6 +162,11 @@ class WasmoDbService(
       override fun encode(value: CookieId) = value.id
     }
 
+    private object InstalledAppIdAdapter : ColumnAdapter<InstalledAppId, Long> {
+      override fun decode(databaseValue: Long) = InstalledAppId(databaseValue)
+      override fun encode(value: InstalledAppId) = value.id
+    }
+
     private object InviteIdAdapter : ColumnAdapter<InviteId, Long> {
       override fun decode(databaseValue: Long) = InviteId(databaseValue)
       override fun encode(value: InviteId) = value.id
@@ -191,16 +191,6 @@ class WasmoDbService(
 
     private val AccountAdapter = Account.Adapter(
       idAdapter = AccountIdAdapter,
-    )
-
-    private val AppInstallAdapter = AppInstall.Adapter(
-      idAdapter = AppInstallIdAdapter,
-      computer_idAdapter = ComputerIdAdapter,
-      slugAdapter = AppSlugAdapter,
-      manifest_dataAdapter = AppManifestAdapter,
-      install_scheduled_atAdapter = InstantAdapter,
-      install_completed_atAdapter = InstantAdapter,
-      install_deleted_atAdapter = InstantAdapter,
     )
 
     private val ComputerAdapter = Computer.Adapter(
@@ -237,6 +227,16 @@ class WasmoDbService(
       idAdapter = CookieIdAdapter,
       created_atAdapter = InstantAdapter,
       account_idAdapter = AccountIdAdapter,
+    )
+
+    private val InstalledAppAdapter = InstalledApp.Adapter(
+      idAdapter = InstalledAppIdAdapter,
+      computer_idAdapter = ComputerIdAdapter,
+      slugAdapter = AppSlugAdapter,
+      manifest_dataAdapter = AppManifestAdapter,
+      install_scheduled_atAdapter = InstantAdapter,
+      install_completed_atAdapter = InstantAdapter,
+      install_deleted_atAdapter = InstantAdapter,
     )
 
     private val InviteAdapter = Invite.Adapter(

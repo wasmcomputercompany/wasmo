@@ -159,7 +159,7 @@ interface ServiceTesterGraph {
   ): ClientAuthenticator.Factory
 
   @Binds
-  fun bindAppInstallJobQueue(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
+  fun bindInstallAppJobQueue(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
 
   @Binds
   fun bindEventListener(real: FakeEventListener): EventListener

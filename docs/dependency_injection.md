@@ -45,7 +45,7 @@ fun WasmoServiceGraph.computer(
  */
 @InstalledAppScope
 fun ComputerServiceGraph.installedApp(
-  appInstall: AppInstall,
+  installedApp: InstalledApp,
 ) : InstalledAppServiceGraph
 ```
 

@@ -16,7 +16,7 @@ sealed interface Event {
     get() = null
 }
 
-data class AppInstallEvent(
+data class InstallAppEvent(
   override val computerSlug: ComputerSlug,
   override val appSlug: AppSlug,
   override val exception: Throwable? = null,

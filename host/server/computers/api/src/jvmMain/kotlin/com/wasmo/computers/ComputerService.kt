@@ -2,7 +2,7 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.db.AppInstall
+import com.wasmo.db.InstalledApp
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.packaging.AppManifest
@@ -25,7 +25,7 @@ interface ComputerService {
   fun snapshot(): ComputerSnapshot
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun installedApp(appInstall: AppInstall): InstalledAppService
+  fun installedApp(installedApp: InstalledApp): InstalledAppService
 }
 
 interface ManifestLoader {

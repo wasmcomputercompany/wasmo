@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.db.AppInstall
+import com.wasmo.db.InstalledApp
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Binds
@@ -31,14 +31,14 @@ interface InstalledAppServiceGraph {
   @Provides
   @SingleIn(InstalledAppScope::class)
   fun provideAppSlug(
-    appInstall: AppInstall,
-  ): AppSlug = appInstall.slug
+    installedApp: InstalledApp,
+  ): AppSlug = installedApp.slug
 
   @Provides
   @SingleIn(InstalledAppScope::class)
   fun provideAppManifest(
-    appInstall: AppInstall,
-  ): AppManifest = appInstall.manifest_data
+    installedApp: InstalledApp,
+  ): AppManifest = installedApp.manifest_data
 
   @Binds
   fun bindInstalledAppService(real: RealInstalledAppService): InstalledAppService
@@ -46,7 +46,7 @@ interface InstalledAppServiceGraph {
   @GraphExtension.Factory
   interface Factory {
     fun create(
-      @Provides appInstall: AppInstall,
+      @Provides installedApp: InstalledApp,
     ): InstalledAppServiceGraph
   }
 }
