@@ -33,6 +33,7 @@ dependencyResolutionManagement {
 include(":apps:hello:api")
 include(":apps:hello:db")
 include(":apps:hello:server")
+include(":apps:samples")
 include(":dom-tester")
 include(":host:api")
 include(":host:catalog")

@@ -1,5 +1,6 @@
 package com.wasmo.computers
 
+import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.db.AppInstall
 import com.wasmo.db.WasmoDb
@@ -11,6 +12,7 @@ import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.jobs.JobQueue
+import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Resource
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -48,23 +50,22 @@ class RealAppInstaller(
   private val manifestLoader: ManifestLoader,
   private val wasmoDb: WasmoDb,
 ) : AppInstaller {
-  override suspend fun enqueueInstall(manifestUrl: HttpUrl) {
-    val manifest = manifestLoader.loadManifest(
-      manifestUrl = manifestUrl,
-    )
+  context(transactionCallbacks: TransactionCallbacks)
+  override fun enqueueInstall(
+    manifestUrl: HttpUrl,
+    manifest: AppManifest,
+  ) {
+    val appInstallId = wasmoDb.appInstallQueries.insertAppInstall(
+      computer_id = id,
+      slug = AppSlug(manifest.slug),
+      manifest_url = manifestUrl.toString(),
+      launcher_label = manifest.launcher?.label,
+      launcher_maskable_icon_path = manifest.launcher?.maskable_icon_path,
+      version = manifest.version,
+      install_scheduled_at = clock.now(),
+    ).executeAsOne()
 
-    wasmoDb.transaction(noEnclosing = true) {
-      val appInstallId = wasmoDb.appInstallQueries.insertAppInstall(
-        computer_id = id,
-        slug = AppSlug(manifest.slug),
-        manifest_url = manifestUrl.toString(),
-        launcher_label = manifest.launcher?.label,
-        version = manifest.version,
-        install_scheduled_at = clock.now(),
-      ).executeAsOne()
-
-      installAppJobQueue.enqueue(InstallAppJob(appInstallId))
-    }
+    installAppJobQueue.enqueue(InstallAppJob(appInstallId))
   }
 
   override suspend fun install(appInstall: AppInstall) {

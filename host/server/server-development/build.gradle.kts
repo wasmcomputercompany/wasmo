@@ -27,6 +27,7 @@ dependencies {
   jsResources(project(":host:client:app-development"))
   implementation(libs.okhttp)
   implementation(libs.okio)
+  implementation(project(":apps:samples"))
   implementation(project(":host:api"))
   implementation(project(":host:catalog"))
   implementation(project(":host:server:accounts:real"))

@@ -11,7 +11,6 @@ import okhttp3.HttpUrl
 interface WasmoComputer {
   val id: ComputerId
   val slug: ComputerSlug
-  val url: HttpUrl
   val manifestLoader: ManifestLoader
   val appInstaller: AppInstaller
 
@@ -28,8 +27,10 @@ interface ManifestLoader {
 }
 
 interface AppInstaller {
-  suspend fun enqueueInstall(
+  context(transactionCallbacks: TransactionCallbacks)
+  fun enqueueInstall(
     manifestUrl: HttpUrl,
+    manifest: AppManifest,
   )
 
   suspend fun install(appInstall: AppInstall)

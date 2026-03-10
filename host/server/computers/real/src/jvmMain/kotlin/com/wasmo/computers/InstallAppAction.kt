@@ -32,9 +32,16 @@ class InstallAppAction(
     val manifestUrl = request.manifestUrl.toHttpUrlOrNull()
       ?: throw ArgumentUserException("unexpected manifest URL: ${request.manifestUrl}")
 
-    computer.appInstaller.enqueueInstall(
+    val manifest = computer.manifestLoader.loadManifest(
       manifestUrl = manifestUrl,
     )
+
+    wasmoDb.transactionWithResult(noEnclosing = true) {
+      computer.appInstaller.enqueueInstall(
+        manifestUrl = manifestUrl,
+        manifest = manifest,
+      )
+    }
 
     return Response(
       body = InstallAppResponse(

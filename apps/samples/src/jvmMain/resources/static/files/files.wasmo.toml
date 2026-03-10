@@ -1,0 +1,14 @@
+target = 'https://wasmo.com/sdk/1'
+version = 1
+slug = 'files'
+
+[[resource]]
+url = 'maskable-icon.svg'
+
+[[route]]
+path = '/maskable-icon.svg'
+resource_path = '/maskable-icon.svg'
+
+[launcher]
+label = 'Files'
+maskable_icon_path = '/static/maskable-icon.svg'

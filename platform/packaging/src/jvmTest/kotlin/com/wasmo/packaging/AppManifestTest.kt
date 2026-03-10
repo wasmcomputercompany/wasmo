@@ -14,7 +14,7 @@ class AppManifestTest {
       |base_url = 'https://example.com/recipes/v35/'
       |
       |[[resource]]
-      |url = "recipes.zip"
+      |url = 'recipes.zip'
       |unzip = true
       |
       |[[route]]
