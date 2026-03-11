@@ -32,6 +32,6 @@ class CallAppAction(
         ?: throw NotFoundUserException()
     }
 
-    return installedApp.call(request)
+    return installedApp.httpService.execute(request)
   }
 }

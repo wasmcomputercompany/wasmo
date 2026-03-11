@@ -46,6 +46,9 @@ interface InstalledAppServiceGraph {
   @Binds
   fun bindInstalledAppService(real: RealInstalledAppService): InstalledAppService
 
+  @Binds
+  fun bindInstalledAppHttpService(real: RealInstalledAppHttpService): InstalledAppHttpService
+
   @GraphExtension.Factory
   interface Factory {
     fun create(

@@ -5,9 +5,6 @@ import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.db.InstalledApp
 import com.wasmo.deployment.Deployment
-import com.wasmo.framework.Request
-import com.wasmo.framework.Response
-import com.wasmo.framework.ResponseBody
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.packaging.AppManifest
@@ -24,6 +21,7 @@ class RealInstalledAppService(
   private val appInstaller: AppInstaller,
   override val slug: AppSlug,
   override val manifest: AppManifest,
+  override val httpService: InstalledAppHttpService,
 ) : InstalledAppService {
   override val url: HttpUrl
     get() = deployment.baseUrl.newBuilder()
@@ -49,13 +47,5 @@ class RealInstalledAppService(
 
   override suspend fun install() {
     appInstaller.install()
-  }
-
-  override suspend fun call(request: Request): Response<ResponseBody> {
-    return Response(
-      body = ResponseBody {
-        it.writeUtf8("hello this is a request for $request on $computerSlug / $slug")
-      },
-    )
   }
 }

@@ -12,7 +12,7 @@ import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerServiceGraph
-import com.wasmo.computers.DefaultAppCatalog
+import com.wasmo.computers.loadDefaultAppCatalogFromResources
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
@@ -48,6 +48,7 @@ import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.Call
+import okhttp3.Dns
 import okhttp3.OkHttpClient
 import wasmo.http.HttpClient
 import wasmo.objectstore.ObjectStore
@@ -73,7 +74,9 @@ internal interface WasmoServiceGraph {
 
   @Provides
   @SingleIn(AppScope::class)
-  fun provideOkHttpClient(): OkHttpClient = OkHttpClient()
+  fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+    .dns(LocalhostSubdomainsDns(Dns.SYSTEM))
+    .build()
 
   @Provides
   @SingleIn(AppScope::class)
@@ -152,7 +155,7 @@ internal interface WasmoServiceGraph {
 
   @Provides
   @SingleIn(AppScope::class)
-  fun provideAppCatalog(): AppCatalog = DefaultAppCatalog
+  fun provideAppCatalog(): AppCatalog = loadDefaultAppCatalogFromResources()
 
   @Binds
   fun bind(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>

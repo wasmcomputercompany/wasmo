@@ -3,12 +3,12 @@ version = 1
 slug = 'pink'
 
 [[resource]]
-url = 'maskable-icon.svg'
+url = 'assets/maskable-icon.svg'
 
 [[route]]
-path = '/maskable-icon.svg'
-resource_path = '/maskable-icon.svg'
+path = '/assets/maskable-icon.svg'
+resource_path = '/assets/maskable-icon.svg'
 
 [launcher]
 label = 'Pink Journal'
-maskable_icon_path = '/static/maskable-icon.svg'
+maskable_icon_path = '/assets/maskable-icon.svg'

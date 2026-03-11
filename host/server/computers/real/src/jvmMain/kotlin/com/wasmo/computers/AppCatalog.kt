@@ -5,8 +5,11 @@ import com.wasmo.identifiers.AppSlug
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.TargetSdk1
+import com.wasmo.packaging.WasmoToml
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okio.FileSystem
+import okio.Path.Companion.toPath
 
 class AppCatalog(
   val entries: List<Entry>,
@@ -20,7 +23,7 @@ class AppCatalog(
         slug: AppSlug,
         label: String,
       ) = Entry(
-        manifestUrl = "http://localhost:8080/$slug/$slug.wasmo.toml".toHttpUrl(),
+        manifestUrl = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml".toHttpUrl(),
         manifest = AppManifest(
           target = TargetSdk1,
           version = 1L,
@@ -35,47 +38,33 @@ class AppCatalog(
   }
 }
 
-val DefaultAppCatalog = AppCatalog(
-  entries = listOf(
-    Entry(
-      slug = AppSlug("files"),
-      label = "Files",
-    ),
-    Entry(
-      slug = AppSlug("library"),
-      label = "Library",
-    ),
-    Entry(
-      slug = AppSlug("music"),
-      label = "Music",
-    ),
-    Entry(
-      slug = AppSlug("photos"),
-      label = "Photos",
-    ),
-    Entry(
-      slug = AppSlug("pink"),
-      label = "Pink Journal",
-    ),
-    Entry(
-      slug = AppSlug("recipes"),
-      label = "Recipes",
-    ),
-    Entry(
-      slug = AppSlug("smart"),
-      label = "Smart Home",
-    ),
-    Entry(
-      slug = AppSlug("snake"),
-      label = "Snake",
-    ),
-    Entry(
-      slug = AppSlug("writer"),
-      label = "Writer",
-    ),
-    Entry(
-      slug = AppSlug("zap"),
-      label = "Zap",
-    ),
-  ),
-)
+fun loadDefaultAppCatalogFromResources(): AppCatalog {
+  val apps = listOf(
+    AppSlug("files"),
+    AppSlug("library"),
+    AppSlug("music"),
+    AppSlug("photos"),
+    AppSlug("pink"),
+    AppSlug("recipes"),
+    AppSlug("smart"),
+    AppSlug("snake"),
+    AppSlug("writer"),
+    AppSlug("zap"),
+  )
+  return AppCatalog(
+    entries = apps.map { loadAppCatalogEntryFromResource(it) },
+  )
+}
+
+fun loadAppCatalogEntryFromResource(slug: AppSlug): Entry {
+  val manifest = FileSystem.RESOURCES.read("/static/$slug/$slug.wasmo.toml".toPath()) {
+    WasmoToml.decodeFromString(
+      AppManifest.serializer(),
+      readUtf8(),
+    )
+  }
+  return Entry(
+    manifestUrl = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml".toHttpUrl(),
+    manifest = manifest,
+  )
+}
