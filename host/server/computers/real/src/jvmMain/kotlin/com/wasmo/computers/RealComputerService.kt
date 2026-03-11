@@ -76,6 +76,17 @@ class RealComputerService(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
+  override fun installedAppOrNull(slug: AppSlug): InstalledAppService? {
+    val installedApp = wasmoDb.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
+      computer_id = id,
+      slug = slug,
+    ).executeAsOneOrNull()
+      ?: return null
+
+    return installedApp(installedApp)
+  }
+
+  context(transactionCallbacks: TransactionCallbacks)
   override fun installedApp(installedApp: InstalledApp): InstalledAppService {
     val graph = installedAppServiceGraphFactory.create(installedApp)
     return graph.service

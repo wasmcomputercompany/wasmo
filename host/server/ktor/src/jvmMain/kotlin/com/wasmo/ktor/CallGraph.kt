@@ -12,6 +12,7 @@ import com.wasmo.accounts.passkeys.RegisterPasskeyAction
 import com.wasmo.calls.CallDataService
 import com.wasmo.calls.RealCallDataService
 import com.wasmo.computers.AfterCheckoutAction
+import com.wasmo.computers.CallAppAction
 import com.wasmo.computers.CreateComputerSpecAction
 import com.wasmo.computers.InstallAppAction
 import com.wasmo.passkeys.PasskeyChecker
@@ -36,6 +37,7 @@ interface CallGraph {
   val installAppAction: InstallAppAction
   val hostPageAction: HostPageAction
   val afterCheckoutAction: AfterCheckoutAction
+  val callAppAction: CallAppAction
 
   @Provides
   @SingleIn(CallScope::class)

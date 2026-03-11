@@ -8,6 +8,9 @@ import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.events.InstallAppEvent
+import com.wasmo.framework.Request
+import com.wasmo.framework.Response
+import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.StateUserException
 import com.wasmo.framework.checkUser
 import com.wasmo.identifiers.AppSlug
@@ -196,5 +199,13 @@ class RealInstalledAppService(
       val reason: InstallIncompleteReason,
       val exception: Throwable,
     ) : ResourceResult
+  }
+
+  override suspend fun call(request: Request): Response<ResponseBody> {
+    return Response(
+      body = ResponseBody {
+        it.writeUtf8("hello this is a request for $request on $computerSlug / $slug")
+      }
+    )
   }
 }

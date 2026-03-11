@@ -17,11 +17,14 @@ import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
+import com.wasmo.api.WasmoJson
 import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.decodeUrl
 import com.wasmo.api.routes.toHttpUrl
 import com.wasmo.deployment.Deployment
+import com.wasmo.framework.Header
 import com.wasmo.framework.NotFoundUserException
+import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.UserException
@@ -33,21 +36,28 @@ import com.wasmo.identifiers.ComputerSlugRegex
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import io.ktor.http.HttpMethod
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.application.log
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.request.host
+import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext as KtorRoutingContext
-import io.ktor.server.routing.get
+import io.ktor.server.routing.RoutingRequest
 import io.ktor.server.routing.host
-import io.ktor.server.routing.post
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import io.ktor.server.util.url
+import io.ktor.utils.io.asSource
+import kotlinx.io.okio.asOkioSource
 import kotlinx.serialization.serializer
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okio.buffer
 
 @Inject
 @SingleIn(AppScope::class)
@@ -69,6 +79,9 @@ class ActionRouter(
     application.routing {
       host(computerRegex) {
         createComputerRoutes()
+
+        // TODO: change the web app to always fetch static resources from the root URL.
+        staticResources("/", "static")
       }
       host(appRegex) {
         createAppRoutes()
@@ -76,43 +89,51 @@ class ActionRouter(
       host(rootUrl.topPrivateDomain) {
         createPages()
         createRpcs()
+        staticResources("/", "static")
       }
-      handle {
-        val response = when {
-          call.request.host() != rootUrl.topPrivateDomain -> redirect(rootUrl.toHttpUrl())
-          else -> NotFoundUserException().asResponse()
+      routeAll {
+        handle {
+          val response = when {
+            call.request.host() != rootUrl.topPrivateDomain -> redirect(rootUrl.toHttpUrl())
+            else -> NotFoundUserException().asResponse()
+          }
+          call.respond(response)
         }
-        call.respond(response)
       }
-    }
-
-    application.routing {
-      staticResources("/", "static")
     }
   }
 
   private fun Route.createComputerRoutes() {
-    get("/") { callGraph, url, _ ->
-      callGraph.hostPageAction.get(url).response
+    route("/", HttpMethod.Get) {
+      handle { callGraph, url, _ ->
+        callGraph.hostPageAction.get(url).response
+      }
     }
   }
 
-  // TODO: replace this with something that invokes app code, or serves app static files.
   private fun Route.createAppRoutes() {
-    get("/") { callGraph, url, _ ->
-      callGraph.hostPageAction.get(url).response
+    routeAll {
+      handle { callGraph, _, call ->
+        callGraph.callAppAction.call(
+          request = call.request.toRequest(),
+        )
+      }
     }
   }
 
   private fun Route.createPages() {
     for (path in listOf("/", "/build-yours", "/computers", "/teaser", "/invite/{code}")) {
-      get(path) { callGraph, url, _ ->
-        callGraph.hostPageAction.get(url).response
+      route(path, HttpMethod.Get) {
+        handle { callGraph, url, _ ->
+          callGraph.hostPageAction.get(url).response
+        }
       }
     }
 
-    get("/after-checkout/{checkoutSessionId}") { callGraph, _, call ->
-      callGraph.afterCheckoutAction.get(call.pathParameters["checkoutSessionId"]!!)
+    route("/after-checkout/{checkoutSessionId}", HttpMethod.Get) {
+      handle { callGraph, _, call ->
+        callGraph.afterCheckoutAction.get(call.pathParameters["checkoutSessionId"]!!)
+      }
     }
   }
 
@@ -169,26 +190,6 @@ class ActionRouter(
     }
   }
 
-  private inline fun Route.get(
-    path: String,
-    crossinline action: suspend (CallGraph, Url, RoutingCall) -> Response<ResponseBody>,
-  ) {
-    get(path) {
-      val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
-      val response = try {
-        clientAuthenticator.updateSessionCookie()
-        val callGraph = callGraphFactory.create(clientAuthenticator.get())
-        val url = wasmoUrl(rootUrl)
-        action(callGraph, url, call)
-      } catch (e: UserException) {
-        application.log.info("call failed", e)
-        call.respond(e.asResponse())
-        return@get
-      }
-      call.respond(response)
-    }
-  }
-
   private inline fun <reified R, reified S> Route.rpc(
     path: String,
     crossinline action: suspend (CallGraph, R, RoutingCall) -> Response<S>,
@@ -196,26 +197,41 @@ class ActionRouter(
     val requestAdapter = serializer<R>()
     val responseAdapter = serializer<S>()
 
-    post(path) {
-      val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
-      val response = try {
+    route(path, HttpMethod.Post) {
+      handle { callGraph, _, call ->
         val request = requestAdapter.decode(call.request)
-        val client = clientAuthenticator.get()
-        val callGraph = callGraphFactory.create(client)
-        action(callGraph, request, call)
-      } catch (e: UserException) {
-        application.log.info("call failed", e)
-        call.respond(e.asResponse())
-        return@post
+        val response = action(callGraph, request, call)
+        Response(
+          status = response.status,
+          headers = response.headers,
+          contentType = response.contentType,
+          body = ResponseBody { sink ->
+            sink.writeUtf8(WasmoJson.encodeToString(responseAdapter, response.body))
+          },
+        )
       }
-      call.respond(
-        serializer = responseAdapter,
-        response = response,
-      )
     }
   }
 
-  private fun KtorRoutingContext.wasmoUrl(rootUrl: Url): Url {
+  private inline fun Route.handle(
+    crossinline action: suspend (CallGraph, Url, RoutingCall) -> Response<ResponseBody>,
+  ) {
+    handle {
+      val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
+      val response = try {
+        clientAuthenticator.updateSessionCookie()
+        val callGraph = callGraphFactory.create(clientAuthenticator.get())
+        action(callGraph, wasmoUrl(), call)
+      } catch (e: UserException) {
+        application.log.info("call failed", e)
+        call.respond(e.asResponse())
+        return@handle
+      }
+      call.respond(response)
+    }
+  }
+
+  private fun KtorRoutingContext.wasmoUrl(): Url {
     val host = call.request.host()
     val dotIndex = host.length - rootUrl.topPrivateDomain.length - 1
     val subdomain = when {
@@ -227,5 +243,24 @@ class ActionRouter(
       subdomain = subdomain,
       path = call.request.path().removePrefix("/").split("/"),
     )
+  }
+
+  private fun RoutingRequest.toRequest() = Request(
+    method = call.request.httpMethod.value,
+    url = call.url().toHttpUrl(),
+    headers = buildList {
+      for ((name, values) in headers.entries()) {
+        for (value in values) {
+          add(Header(name, value))
+        }
+      }
+    },
+    body = receiveChannel().asSource().asOkioSource().buffer().readByteString(),
+  )
+
+  private fun Route.routeAll(build: Route.() -> Unit) {
+    route(Regex("/.*")) {
+      build()
+    }
   }
 }

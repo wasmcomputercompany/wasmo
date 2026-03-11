@@ -22,6 +22,13 @@ WHERE computer_id = :computer_id
 ORDER BY slug
 LIMIT :limit;
 
+selectInstalledAppByComputerIdAndSlug:
+SELECT * FROM InstalledApp
+WHERE
+  computer_id = :computer_id AND
+  slug = :slug
+LIMIT 1;
+
 selectInstalledAppById:
 SELECT * FROM InstalledApp
 WHERE id = :id;

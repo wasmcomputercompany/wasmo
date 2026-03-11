@@ -3,21 +3,23 @@ package com.wasmo.api.routes
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
-actual fun String.decodeUrl(): Url {
-  val httpUrl = toHttpUrl()
-  val (topPrivateDomain, subdomain) = decodeDomain(httpUrl.host)
+actual fun String.decodeUrl(): Url =
+  toHttpUrl().toWasmoUrl()
+
+fun HttpUrl.toWasmoUrl(): Url {
+  val (topPrivateDomain, subdomain) = decodeDomain(host)
 
   val query = mutableListOf<QueryParameter>()
-  for (i in 0 until httpUrl.querySize) {
-    query += QueryParameter(httpUrl.queryParameterName(i), httpUrl.queryParameterValue(i))
+  for (i in 0 until querySize) {
+    query += QueryParameter(queryParameterName(i), queryParameterValue(i))
   }
 
   return Url(
-    scheme = httpUrl.scheme,
+    scheme = scheme,
     topPrivateDomain = topPrivateDomain,
-    port = httpUrl.port,
+    port = port,
     subdomain = subdomain,
-    path = httpUrl.pathSegments,
+    path = pathSegments,
     query = query,
   )
 }

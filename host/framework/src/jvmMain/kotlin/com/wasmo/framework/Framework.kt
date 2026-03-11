@@ -3,6 +3,14 @@ package com.wasmo.framework
 import java.net.HttpURLConnection
 import okhttp3.HttpUrl
 import okio.BufferedSink
+import okio.ByteString
+
+data class Request(
+  val method: String,
+  val url: HttpUrl,
+  val headers: List<Header> = listOf(),
+  val body: ByteString? = null,
+)
 
 data class Response<T>(
   val status: Int = 200,
