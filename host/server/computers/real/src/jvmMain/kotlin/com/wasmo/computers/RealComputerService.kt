@@ -8,6 +8,7 @@ import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.installedapps.InstallAppJob
+import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.jobs.JobQueue
 import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject

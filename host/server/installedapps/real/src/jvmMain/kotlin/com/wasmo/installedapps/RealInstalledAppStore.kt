@@ -1,4 +1,4 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
@@ -6,8 +6,6 @@ import com.wasmo.db.InstalledApp
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
-import com.wasmo.installedapps.InstalledAppService
-import com.wasmo.installedapps.InstalledAppServiceGraph
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

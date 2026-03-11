@@ -13,7 +13,6 @@ import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.DefaultAppCatalog
-import com.wasmo.computers.InstalledAppBindings
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
@@ -21,6 +20,7 @@ import com.wasmo.events.LoggingEventListener
 import com.wasmo.http.RealHttpClient
 import com.wasmo.identifiers.ForHost
 import com.wasmo.installedapps.InstallAppJob
+import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener

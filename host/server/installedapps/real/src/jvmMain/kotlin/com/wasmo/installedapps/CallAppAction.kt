@@ -5,7 +5,6 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.routes.AppRoute
 import com.wasmo.api.routes.toWasmoUrl
 import com.wasmo.calls.CallDataService
-import com.wasmo.computers.InstalledAppStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request

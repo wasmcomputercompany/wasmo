@@ -1,11 +1,10 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.db.InstalledApp
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
-import com.wasmo.installedapps.InstalledAppService
 
 interface InstalledAppStore {
   context(transactionCallbacks: TransactionCallbacks)

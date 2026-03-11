@@ -1,18 +1,10 @@
 package com.wasmo.installedapps
 
-import com.wasmo.computers.InstalledAppStore
 import com.wasmo.db.WasmoDb
-import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.jobs.JobExecutor
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class InstallAppJob(
-  val installedAppId: InstalledAppId,
-)
 
 @Inject
 @SingleIn(AppScope::class)

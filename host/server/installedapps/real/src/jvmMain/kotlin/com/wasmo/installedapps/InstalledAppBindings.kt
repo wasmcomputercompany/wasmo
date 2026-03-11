@@ -1,7 +1,5 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
-import com.wasmo.installedapps.InstallAppJob
-import com.wasmo.installedapps.InstallAppJobExecutor
 import com.wasmo.jobs.JobExecutor
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer

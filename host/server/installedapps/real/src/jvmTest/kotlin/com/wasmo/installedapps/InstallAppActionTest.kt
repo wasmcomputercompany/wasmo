@@ -1,4 +1,4 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat
@@ -148,12 +148,12 @@ class InstallAppActionTest {
           Resource(
             url = pancakesUrl.toString(),
             sha256 = pancakesData.sha256().hex(),
-          )
-        )
+          ),
+        ),
       ),
       servedResources = RecipesApp.servedResources + mapOf(
         pancakesUrl to pancakesData,
-      )
+      ),
     )
 
     tester.publishApp(app)
@@ -183,12 +183,12 @@ class InstallAppActionTest {
           Resource(
             url = pancakesUrl.toString(),
             sha256 = pancakesData1.sha256().hex(),
-          )
-        )
+          ),
+        ),
       ),
       servedResources = RecipesApp.servedResources + mapOf(
         pancakesUrl to pancakesData2,
-      )
+      ),
     )
 
     tester.publishApp(app)

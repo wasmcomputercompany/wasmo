@@ -46,6 +46,8 @@ kotlin {
         implementation(project(":host:server:events:api"))
         implementation(project(":host:server:events:logging"))
         implementation(project(":host:server:identifiers"))
+        implementation(project(":host:server:installedapps:api"))
+        implementation(project(":host:server:installedapps:real"))
         implementation(project(":host:server:jobs:api"))
         implementation(project(":host:server:jobs:memory"))
         implementation(project(":host:server:objectstore:api"))
