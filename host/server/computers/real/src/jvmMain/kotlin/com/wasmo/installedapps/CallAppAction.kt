@@ -1,10 +1,11 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.routes.AppRoute
 import com.wasmo.api.routes.toWasmoUrl
 import com.wasmo.calls.CallDataService
+import com.wasmo.computers.InstalledAppStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
@@ -21,18 +22,14 @@ import dev.zacsweers.metro.SingleIn
 class CallAppAction(
   private val callDataService: CallDataService,
   private val client: Client,
-  private val computerStore: ComputerStore,
   private val wasmoDb: WasmoDb,
+  private val installedAppStore: InstalledAppStore,
 ) {
   suspend fun call(request: Request): Response<ResponseBody> {
     val installedApp = wasmoDb.transactionWithResult(noEnclosing = true) {
       val routeCodec = callDataService.routeCodec()
       val route = routeCodec.decode(request.url.toWasmoUrl()) as AppRoute
-
-      val computerService = computerStore.getOrNull(client, route.computerSlug)
-        ?: throw NotFoundUserException()
-
-      computerService.installedAppOrNull(route.appSlug)
+      installedAppStore.getOrNull(client, route.computerSlug, route.appSlug)
         ?: throw NotFoundUserException()
     }
 

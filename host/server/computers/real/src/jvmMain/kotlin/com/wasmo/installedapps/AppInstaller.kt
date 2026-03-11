@@ -1,4 +1,4 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
 import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.db.InstalledApp

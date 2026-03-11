@@ -1,7 +1,9 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
 import com.wasmo.db.InstalledApp
 import com.wasmo.identifiers.AppSlug
+import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.ForHost
 import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
@@ -21,11 +23,12 @@ interface InstalledAppServiceGraph {
   @ForInstalledApp
   @SingleIn(InstalledAppScope::class)
   fun provideObjectStore(
+    computerSlug: ComputerSlug,
     appSlug: AppSlug,
-    @ForComputer objectStore: ObjectStore,
+    @ForHost objectStore: ObjectStore,
   ): ObjectStore = ScopedObjectStore(
     delegate = objectStore,
-    prefix = "$appSlug/",
+    prefix = "$computerSlug/$appSlug/",
   )
 
   @Provides
@@ -46,6 +49,7 @@ interface InstalledAppServiceGraph {
   @GraphExtension.Factory
   interface Factory {
     fun create(
+      @Provides computerSlug: ComputerSlug,
       @Provides installedApp: InstalledApp,
     ): InstalledAppServiceGraph
   }

@@ -1,5 +1,6 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
+import com.wasmo.computers.InstalledAppStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.jobs.JobExecutor
@@ -17,14 +18,13 @@ data class InstallAppJob(
 @SingleIn(AppScope::class)
 class InstallAppJobExecutor(
   private val wasmoDb: WasmoDb,
-  private val computerStore: ComputerStore,
+  private val installedAppStore: InstalledAppStore,
 ) : JobExecutor<InstallAppJob> {
   override suspend fun execute(job: InstallAppJob) {
     val installedApp = wasmoDb.transactionWithResult(noEnclosing = true) {
       val installedApp = wasmoDb.installedAppQueries.selectInstalledAppById(job.installedAppId)
         .executeAsOne()
-      val computer = computerStore.get(installedApp.computer_id)
-      computer.installedApp(installedApp)
+      installedAppStore.get(installedApp)
     }
 
     installedApp.install()

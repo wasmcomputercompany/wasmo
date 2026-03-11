@@ -1,4 +1,4 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.InstalledAppSnapshot

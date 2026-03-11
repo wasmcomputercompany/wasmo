@@ -1,4 +1,4 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.InstallIncompleteReason
@@ -55,7 +55,7 @@ class RealInstalledAppService(
     return Response(
       body = ResponseBody {
         it.writeUtf8("hello this is a request for $request on $computerSlug / $slug")
-      }
+      },
     )
   }
 }

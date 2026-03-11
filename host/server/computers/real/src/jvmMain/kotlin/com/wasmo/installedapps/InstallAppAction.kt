@@ -1,9 +1,10 @@
-package com.wasmo.computers
+package com.wasmo.installedapps
 
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
+import com.wasmo.computers.ComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.NotFoundUserException

@@ -18,7 +18,6 @@ import wasmo.objectstore.ScopedObjectStore
 )
 interface ComputerServiceGraph {
   val service: ComputerService
-  val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory
 
   @Provides
   @ForComputer
@@ -28,7 +27,7 @@ interface ComputerServiceGraph {
     @ForHost objectStore: ObjectStore,
   ): ObjectStore = ScopedObjectStore(
     delegate = objectStore,
-    prefix = "${slug.value}/",
+    prefix = "$slug/",
   )
 
   @Provides

@@ -13,13 +13,15 @@ import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.DefaultAppCatalog
-import com.wasmo.computers.InstallAppJob
+import com.wasmo.computers.InstalledAppBindings
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.events.LoggingEventListener
 import com.wasmo.http.RealHttpClient
 import com.wasmo.identifiers.ForHost
+import com.wasmo.installedapps.InstallAppJob
+import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
@@ -55,6 +57,7 @@ import wasmo.objectstore.ObjectStore
   bindingContainers = [
     ComputerBindings::class,
     FileSystemObjectStoreBindings::class,
+    InstalledAppBindings::class,
     S3ObjectStoreBindings::class,
   ],
 )
@@ -62,6 +65,7 @@ internal interface WasmoServiceGraph {
   val wasmoService: WasmoService
   val callGraphFactory: CallGraph.Factory
   val computerServiceGraphFactory: ComputerServiceGraph.Factory
+  val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory
 
   @Provides
   @SingleIn(AppScope::class)

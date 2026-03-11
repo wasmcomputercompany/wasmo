@@ -2,12 +2,12 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.db.InstalledApp
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.jobs.JobQueue
 import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject
@@ -22,7 +22,7 @@ class RealComputerService(
   private val clock: Clock,
   private val wasmoDb: WasmoDb,
   private val appCatalog: AppCatalog,
-  private val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory,
+  private val installedAppStore: InstalledAppStore,
   private val installAppJobQueue: JobQueue<InstallAppJob>,
   override val id: ComputerId,
   override val slug: ComputerSlug,
@@ -70,25 +70,8 @@ class RealComputerService(
     return ComputerSnapshot(
       slug = slug,
       apps = installedApps.map { installedApp ->
-        installedApp(installedApp).snapshot()
+        installedAppStore.get(slug, installedApp).snapshot()
       },
     )
-  }
-
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun installedAppOrNull(slug: AppSlug): InstalledAppService? {
-    val installedApp = wasmoDb.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
-      computer_id = id,
-      slug = slug,
-    ).executeAsOneOrNull()
-      ?: return null
-
-    return installedApp(installedApp)
-  }
-
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun installedApp(installedApp: InstalledApp): InstalledAppService {
-    val graph = installedAppServiceGraphFactory.create(installedApp)
-    return graph.service
   }
 }

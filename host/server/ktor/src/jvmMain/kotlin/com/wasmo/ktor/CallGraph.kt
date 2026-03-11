@@ -12,9 +12,9 @@ import com.wasmo.accounts.passkeys.RegisterPasskeyAction
 import com.wasmo.calls.CallDataService
 import com.wasmo.calls.RealCallDataService
 import com.wasmo.computers.AfterCheckoutAction
-import com.wasmo.computers.CallAppAction
 import com.wasmo.computers.CreateComputerSpecAction
-import com.wasmo.computers.InstallAppAction
+import com.wasmo.installedapps.CallAppAction
+import com.wasmo.installedapps.InstallAppAction
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.website.HostPageAction

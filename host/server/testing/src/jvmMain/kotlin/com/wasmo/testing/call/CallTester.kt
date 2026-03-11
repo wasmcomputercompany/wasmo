@@ -21,9 +21,9 @@ import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.Url
 import com.wasmo.computers.AfterCheckoutAction
 import com.wasmo.computers.CreateComputerSpecAction
-import com.wasmo.computers.InstallAppAction
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.installedapps.InstallAppAction
 import com.wasmo.testing.FakePasskey
 import com.wasmo.website.HostPageAction
 import com.wasmo.website.ServerHostPage
