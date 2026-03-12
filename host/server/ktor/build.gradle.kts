@@ -12,6 +12,7 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
+        implementation(libs.commons.dbcp2)
         implementation(libs.kotlinx.html)
         implementation(libs.kotlinx.io)
         implementation(libs.kotlinx.io.okio)
@@ -27,6 +28,7 @@ kotlin {
         implementation(libs.logback.classic)
         implementation(libs.okhttp)
         implementation(libs.okio)
+        implementation(libs.sqldelight.jdbc.driver)
         implementation(libs.stripe)
         implementation(project(":host:api"))
         implementation(project(":host:catalog"))
@@ -60,6 +62,7 @@ kotlin {
         implementation(project(":host:server:payments:stripe"))
         implementation(project(":host:server:sendemail:api"))
         implementation(project(":host:server:sendemail:postmark"))
+        implementation(project(":host:server:sql:jdbc"))
         implementation(project(":host:server:website:api"))
         implementation(project(":host:server:website:real"))
         implementation(project(":host:tokens"))

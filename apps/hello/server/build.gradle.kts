@@ -17,7 +17,6 @@ kotlin {
         implementation(libs.okhttp)
         implementation(libs.okio)
         implementation(project(":apps:hello:api"))
-        implementation(project(":apps:hello:db"))
         implementation(project(":host:tokens"))
         implementation(project(":platform:api"))
       }
@@ -25,8 +24,11 @@ kotlin {
     val jvmTest by getting {
       dependencies {
         implementation(libs.burst.coroutines)
+        implementation(libs.commons.dbcp2)
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":platform:testing"))
+        implementation(project(":host:server:sql:jdbc"))
+        implementation(project(":host:server:testing"))
       }
     }
   }

@@ -1,55 +1,41 @@
 package wasmo.sql
 
 import okio.ByteString
+import okio.Closeable
 
 /**
  * Creates PostgreSQL databases and executes writes and reads on them.
  */
-interface SqlSessionFactory {
+interface SqlService {
   /**
    * Connect to the named database, creating it if necessary. Use 'null' for the application's
    * default database.
    */
-  suspend fun connect(name: String? = null): SqlSession
+  suspend fun getOrCreate(name: String? = null): SqlDatabase
 }
 
 /**
- * Writes on the root session are applied immediately.
+ * Closing a database cancels all in-flight calls.
  */
-interface SqlRootSession : SqlSession {
-  suspend fun beginTransaction(): SqlTransaction
-
-  /**
-   * Disconnect this session and release its resources. Any in-flight transactions will be aborted.
-   */
-  fun close()
+interface SqlDatabase : Closeable {
+  suspend fun newConnection(): SqlConnection
 }
 
-/**
- * Writes on a transaction are staged and not applied until [commit].
- */
-interface SqlTransaction : SqlSession {
-  suspend fun commit()
-  suspend fun rollback()
-}
-
-interface SqlSession {
+interface SqlConnection : Closeable {
   /** Return the number of rows in an UPDATE, INSERT, or DELETE clause. */
   suspend fun execute(
     sql: String,
-    parameterCount: Int,
-    binder: SqlBinder,
+    bindParameters: (SqlBinder.() -> Unit)? = null,
   ): Long
 
   /** Return the rows in a SELECT clause. */
   suspend fun executeQuery(
     sql: String,
-    parameterCount: Int,
-    binder: SqlBinder,
+    bindParameters: (SqlBinder.() -> Unit)? = null,
   ): RowIterator
 }
 
-class SqlException(message: String?): Exception(message)
+class SqlException(message: String?) : Exception(message)
 
 interface RowIterator {
   /** Returns null if there is no next  row. */
@@ -67,9 +53,9 @@ interface SqlRow {
 }
 
 interface SqlBinder {
-  fun bindString(index: Int, string: String?)
-  fun bindLong(index: Int, long: Long?)
-  fun bindBytes(index: Int, bytes: ByteString?)
-  fun bindDouble(index: Int, double: Double?)
-  fun bindBoolean(index: Int, boolean: Boolean?)
+  fun bindString(index: Int, value: String?)
+  fun bindLong(index: Int, value: Long?)
+  fun bindBytes(index: Int, value: ByteString?)
+  fun bindDouble(index: Int, value: Double?)
+  fun bindBoolean(index: Int, value: Boolean?)
 }

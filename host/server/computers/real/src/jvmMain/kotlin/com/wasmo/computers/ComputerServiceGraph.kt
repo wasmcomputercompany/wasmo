@@ -1,6 +1,7 @@
 package com.wasmo.computers
 
 import com.wasmo.db.Computer
+import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ForHost
@@ -10,6 +11,7 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.Qualifier
 import dev.zacsweers.metro.SingleIn
 import wasmo.downloader.Downloader
+import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.ScopedObjectStore
 
@@ -41,6 +43,16 @@ interface ComputerServiceGraph {
   fun provideComputerId(
     computer: Computer,
   ): ComputerId = computer.id
+
+  @Provides
+  @SingleIn(ComputerScope::class)
+  fun provideRealDownloader(
+    httpService: HttpService,
+    @ForComputer objectStore: ObjectStore,
+  ): RealDownloader = RealDownloader(
+    httpService = httpService,
+    objectStore = objectStore,
+  )
 
   @Binds
   fun bindDownloader(real: RealDownloader): Downloader

@@ -1,9 +1,10 @@
 package wasmo.app
 
-import okio.FileSystem
-import okio.Path
+import wasmo.http.HttpService
 
 interface WasmoApp {
+  val httpService: HttpService?
+
   /**
    * Invoked after an app is first installed, and after each version update.
    *
@@ -12,11 +13,5 @@ interface WasmoApp {
   suspend fun afterInstall(
     oldVersion: Long,
     newVersion: Long,
-  )
-
-  data class Install(
-    val appVersion: Long,
-    val dataDirectory: Path,
-    val fileSystem: FileSystem,
   )
 }

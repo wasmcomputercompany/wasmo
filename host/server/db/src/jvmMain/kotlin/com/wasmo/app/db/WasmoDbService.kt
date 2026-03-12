@@ -2,7 +2,6 @@ package com.wasmo.app.db
 
 import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.driver.jdbc.JdbcDriver
-import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.api.WasmoJson
 import com.wasmo.db.Account
 import com.wasmo.db.Computer
@@ -33,21 +32,15 @@ import com.wasmo.passkeys.RegistrationRecord
 import java.io.Closeable
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import java.util.Properties
 import kotlin.time.Instant
 import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
-import org.apache.commons.dbcp2.DriverManagerConnectionFactory
-import org.apache.commons.dbcp2.PoolableConnection
-import org.apache.commons.dbcp2.PoolableConnectionFactory
 import org.apache.commons.dbcp2.PoolingDataSource
-import org.apache.commons.pool2.ObjectPool
-import org.apache.commons.pool2.impl.GenericObjectPool
 
 class WasmoDbService(
-  val connectionPool: ObjectPool<PoolableConnection>,
-  val jdbcDriver: JdbcDriver,
-) : Closeable by connectionPool, WasmoDb by WasmoDb.Companion(
+  private val dataSource: PoolingDataSource<*>,
+  private val jdbcDriver: JdbcDriver,
+) : Closeable, WasmoDb by WasmoDb.Companion(
   jdbcDriver,
   AccountAdapter,
   ComputerAccessAdapter,
@@ -60,13 +53,6 @@ class WasmoDbService(
   PasskeyAdapter,
   StripeCustomerAdapter,
 ) {
-  fun clearSchema() {
-    jdbcDriver.execute(null, "DROP SCHEMA public CASCADE", 0)
-    jdbcDriver.execute(null, "CREATE SCHEMA public", 0)
-    jdbcDriver.execute(null, "GRANT ALL ON SCHEMA public TO postgres", 0)
-    jdbcDriver.execute(null, "GRANT ALL ON SCHEMA public TO public", 0)
-  }
-
   fun migrate(
     oldVersion: Long = 0L,
     newVersion: Long = WasmoDb.Schema.version,
@@ -74,38 +60,11 @@ class WasmoDbService(
     WasmoDb.Schema.migrate(jdbcDriver, oldVersion, newVersion)
   }
 
+  override fun close() {
+    dataSource.close()
+  }
+
   companion object {
-    fun start(
-      hostname: String,
-      databaseName: String,
-      user: String,
-      password: String,
-      ssl: Boolean,
-    ): WasmoDbService {
-      val connectUri = "jdbc:postgresql://${hostname}/${databaseName}"
-      val properties = Properties().apply {
-        setProperty("user", user)
-        setProperty("password", password)
-        setProperty("ssl", ssl.toString())
-      }
-
-      val connectionFactory = PoolableConnectionFactory(
-        DriverManagerConnectionFactory(connectUri, properties),
-        null,
-      )
-
-      val connectionPool = GenericObjectPool(connectionFactory)
-      connectionFactory.pool = connectionPool
-
-      val dataSource = PoolingDataSource(connectionPool)
-      val jdbcDriver = dataSource.asJdbcDriver()
-
-      return WasmoDbService(
-        connectionPool = connectionPool,
-        jdbcDriver = jdbcDriver,
-      )
-    }
-
     private object InstantAdapter : ColumnAdapter<Instant, OffsetDateTime> {
       override fun decode(databaseValue: OffsetDateTime) =
         databaseValue.toInstant().toKotlinInstant()

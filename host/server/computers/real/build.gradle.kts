@@ -27,6 +27,7 @@ kotlin {
         implementation(project(":host:server:computers:api"))
         implementation(project(":host:server:db"))
         implementation(project(":host:server:deployment"))
+        implementation(project(":host:server:downloader:real"))
         implementation(project(":host:server:events:api"))
         implementation(project(":host:server:identifiers"))
         implementation(project(":host:server:installedapps:api"))

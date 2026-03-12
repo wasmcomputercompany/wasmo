@@ -18,6 +18,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.okio.fakefilesystem)
         implementation(libs.okhttp)
+        implementation(project(":host:server:downloader:real"))
         implementation(project(":host:server:objectstore:fs"))
         implementation(project(":platform:api"))
       }

@@ -2,10 +2,12 @@ package com.wasmo.testing.service
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
+import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
+import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.testing.FakeEventListener
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.FakeSendEmailService
@@ -14,6 +16,8 @@ import com.wasmo.testing.JobQueueTester
 import com.wasmo.testing.WasmoArtifactServer
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.client.ClientTester
+import com.wasmo.testing.sql.TestDatabaseAddress
+import com.wasmo.testing.sql.clearSchema
 import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.coroutineScope
 import okhttp3.HttpUrl
@@ -82,14 +86,13 @@ class ServiceTester : CoroutineTestInterceptor {
   }
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    val wasmoDb = WasmoDbService.start(
-      databaseName = "wasmo_test",
-      user = "postgres",
-      password = "password",
-      hostname = "localhost",
-      ssl = false,
+    val dataSource = connectPostgresql(TestDatabaseAddress)
+    dataSource.clearSchema()
+
+    val wasmoDb = WasmoDbService(
+      dataSource = dataSource,
+      jdbcDriver = dataSource.asJdbcDriver(),
     )
-    wasmoDb.clearSchema()
     wasmoDb.migrate()
 
     val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()

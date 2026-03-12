@@ -2,12 +2,15 @@
 
 package com.wasmo.ktor
 
+import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.deployment.Deployment
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
+import com.wasmo.sql.jdbc.PostgresqlAddress
+import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.stripe.StripeCredentials
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
@@ -49,12 +52,18 @@ fun startWasmoService(
 ): WasmoService {
   val server = EngineMain.createServer(args)
 
-  val wasmoDb = WasmoDbService.start(
-    hostname = config.postgresDatabaseHostname,
-    databaseName = config.postgresDatabaseName,
-    user = config.postgresDatabaseUser,
-    password = config.postgresDatabasePassword,
-    ssl = false,
+  val dataSource = connectPostgresql(
+    PostgresqlAddress(
+      hostname = config.postgresDatabaseHostname,
+      databaseName = config.postgresDatabaseName,
+      user = config.postgresDatabaseUser,
+      password = config.postgresDatabasePassword,
+      ssl = false,
+    ),
+  )
+  val wasmoDb = WasmoDbService(
+    dataSource = dataSource,
+    jdbcDriver = dataSource.asJdbcDriver(),
   )
 
   val wasmoServiceGraphFactory = createGraphFactory<WasmoServiceGraph.Factory>()
