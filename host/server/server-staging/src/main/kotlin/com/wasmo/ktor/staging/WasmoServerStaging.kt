@@ -12,6 +12,7 @@ import com.wasmo.ktor.startWasmoService
 import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
+import com.wasmo.sql.jdbc.PostgresqlAddress
 import com.wasmo.stripe.StripeCredentials
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.decodeHex
@@ -51,10 +52,13 @@ fun main(args: Array<String>) {
       secretKey = stripeSecretKey,
     ),
     catalog = DevelopmentCatalog,
-    postgresDatabaseHostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
-    postgresDatabaseName = "wasmo_dev",
-    postgresDatabaseUser = "pscale_api_uh85t8q0waqt.hkqtmgf3pdzi",
-    postgresDatabasePassword = postgresDatabasePassword,
+    postgresqlAddress = PostgresqlAddress(
+      user = "pscale_api_uh85t8q0waqt.hkqtmgf3pdzi",
+      password = postgresDatabasePassword,
+      hostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
+      databaseName = "wasmo_dev",
+      ssl = false,
+    ),
     deployment = Deployment(
       baseUrl = "https://wasmo.dev/".toHttpUrl(),
       sendFromEmailAddress = "noreply@wasmo.dev",

@@ -7,14 +7,6 @@ import org.apache.commons.dbcp2.PoolableConnectionFactory
 import org.apache.commons.dbcp2.PoolingDataSource
 import org.apache.commons.pool2.impl.GenericObjectPool
 
-data class PostgresqlAddress(
-  val user: String,
-  val password: String,
-  val hostname: String,
-  val databaseName: String,
-  val ssl: Boolean,
-)
-
 fun connectPostgresql(
   address: PostgresqlAddress,
 ): PoolingDataSource<PoolableConnection> {

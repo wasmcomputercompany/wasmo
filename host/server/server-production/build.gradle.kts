@@ -37,6 +37,7 @@ dependencies {
   implementation(project(":host:server:objectstore:api"))
   implementation(project(":host:server:payments:stripe"))
   implementation(project(":host:server:sendemail:postmark"))
+  implementation(project(":host:server:sql:api"))
   implementation(project(":host:server:website:real"))
   implementation(project(":platform:api"))
 }

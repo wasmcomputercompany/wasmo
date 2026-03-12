@@ -15,6 +15,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
         implementation(libs.postgresql)
+        implementation(project(":host:server:sql:api"))
         implementation(project(":platform:api"))
       }
     }

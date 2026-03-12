@@ -27,6 +27,7 @@ kotlin {
         implementation(libs.commons.dbcp2)
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":platform:testing"))
+        implementation(project(":host:server:sql:api"))
         implementation(project(":host:server:sql:jdbc"))
         implementation(project(":host:server:testing"))
       }

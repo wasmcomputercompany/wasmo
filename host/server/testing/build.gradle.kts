@@ -49,6 +49,7 @@ kotlin {
         implementation(project(":host:server:passkeys:real"))
         implementation(project(":host:server:payments:api"))
         implementation(project(":host:server:sendemail:api"))
+        implementation(project(":host:server:sql:api"))
         implementation(project(":host:server:sql:jdbc"))
         implementation(project(":host:server:website:api"))
         implementation(project(":host:server:website:real"))

@@ -62,6 +62,7 @@ kotlin {
         implementation(project(":host:server:payments:stripe"))
         implementation(project(":host:server:sendemail:api"))
         implementation(project(":host:server:sendemail:postmark"))
+        implementation(project(":host:server:sql:api"))
         implementation(project(":host:server:sql:jdbc"))
         implementation(project(":host:server:website:api"))
         implementation(project(":host:server:website:real"))

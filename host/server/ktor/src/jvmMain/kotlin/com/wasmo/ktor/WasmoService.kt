@@ -36,10 +36,7 @@ class WasmoService(
     val postmarkCredentials: PostmarkCredentials,
     val stripeCredentials: StripeCredentials,
     val catalog: Catalog,
-    val postgresDatabaseHostname: String,
-    val postgresDatabaseName: String,
-    val postgresDatabaseUser: String,
-    val postgresDatabasePassword: String,
+    val postgresqlAddress: PostgresqlAddress,
     val deployment: Deployment,
     val objectStoreAddress: ObjectStoreAddress,
     val sessionCookieSpec: SessionCookieSpec,
@@ -52,15 +49,7 @@ fun startWasmoService(
 ): WasmoService {
   val server = EngineMain.createServer(args)
 
-  val dataSource = connectPostgresql(
-    PostgresqlAddress(
-      hostname = config.postgresDatabaseHostname,
-      databaseName = config.postgresDatabaseName,
-      user = config.postgresDatabaseUser,
-      password = config.postgresDatabasePassword,
-      ssl = false,
-    ),
-  )
+  val dataSource = connectPostgresql(config.postgresqlAddress)
   val wasmoDb = WasmoDbService(
     dataSource = dataSource,
     jdbcDriver = dataSource.asJdbcDriver(),

@@ -9,12 +9,13 @@ import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.deployment.Deployment
 import com.wasmo.ktor.WasmoService
 import com.wasmo.ktor.startWasmoService
+import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
+import com.wasmo.sql.jdbc.PostgresqlAddress
 import com.wasmo.stripe.StripeCredentials
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.decodeHex
-import com.wasmo.objectstore.BackblazeB2BucketAddress
 
 fun main(args: Array<String>) {
   val cookieSecret = System.getenv("COOKIE_SECRET")
@@ -51,10 +52,13 @@ fun main(args: Array<String>) {
       secretKey = stripeSecretKey,
     ),
     catalog = DevelopmentCatalog,
-    postgresDatabaseHostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
-    postgresDatabaseName = "wasmo_com",
-    postgresDatabaseUser = "pscale_api_eu3kxhe4lp41.7q408njs9kb7",
-    postgresDatabasePassword = postgresDatabasePassword,
+    postgresqlAddress = PostgresqlAddress(
+      user = "pscale_api_eu3kxhe4lp41.7q408njs9kb7",
+      password = postgresDatabasePassword,
+      hostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
+      databaseName = "wasmo_com",
+      ssl = false,
+    ),
     deployment = Deployment(
       baseUrl = "https://wasmo.com/".toHttpUrl(),
       sendFromEmailAddress = "noreply@wasmo.com",

@@ -9,14 +9,15 @@ import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.deployment.Deployment
 import com.wasmo.ktor.WasmoService
 import com.wasmo.ktor.startWasmoService
+import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
+import com.wasmo.sql.jdbc.PostgresqlAddress
 import com.wasmo.stripe.StripeCredentials
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import com.wasmo.objectstore.FileSystemObjectStoreAddress
 
 fun main(args: Array<String>) {
   val stripePublishableKey = System.getenv("STRIPE_PUBLISHABLE_KEY")
@@ -34,10 +35,13 @@ fun main(args: Array<String>) {
       secretKey = stripeSecretKey,
     ),
     catalog = DevelopmentCatalog,
-    postgresDatabaseHostname = "localhost",
-    postgresDatabaseName = "wasmo_development",
-    postgresDatabaseUser = "postgres",
-    postgresDatabasePassword = "password",
+    postgresqlAddress = PostgresqlAddress(
+      user = "postgres",
+      password = "password",
+      hostname = "localhost",
+      databaseName = "wasmo_development",
+      ssl = false,
+    ),
     deployment = Deployment(
       baseUrl = "http://wasmo.localhost:8080/".toHttpUrl(),
       sendFromEmailAddress = "noreply@wasmo.dev",
