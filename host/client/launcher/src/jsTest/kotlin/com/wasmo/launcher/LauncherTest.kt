@@ -20,16 +20,16 @@ class LauncherTest {
     snapshotTester.snapshot {
       LauncherScreen {
         LauncherIconList {
-          Icon("Files", "/assets/launcher/sample-folder.svg")
-          Icon("Library", "/assets/launcher/sample-books.svg")
-          Icon("Music", "/assets/launcher/sample-headphones.svg")
-          Icon("Photos", "/assets/launcher/sample-camera.svg")
-          Icon("Pink Journal", "/assets/launcher/sample-flower.svg")
-          Icon("Recipes", "/assets/launcher/sample-pancakes.svg")
-          Icon("Smart Home", "/assets/launcher/sample-home.svg")
-          Icon("Snake", "/assets/launcher/sample-snake.svg")
-          Icon("Writer", "/assets/launcher/sample-w.svg")
-          Icon("Zap", "/assets/launcher/sample-z.svg")
+          Icon("Files", "/assets/launcher/sample-icon.svg")
+          Icon("Library", "/assets/launcher/sample-icon.svg")
+          Icon("Music", "/assets/launcher/sample-icon.svg")
+          Icon("Photos", "/assets/launcher/sample-icon.svg")
+          Icon("Pink Journal", "/assets/launcher/sample-icon.svg")
+          Icon("Recipes", "/assets/launcher/sample-icon.svg")
+          Icon("Smart Home", "/assets/launcher/sample-icon.svg")
+          Icon("Snake", "/assets/launcher/sample-icon.svg")
+          Icon("Writer", "/assets/launcher/sample-icon.svg")
+          Icon("Zap", "/assets/launcher/sample-icon.svg")
         }
       }
     }
