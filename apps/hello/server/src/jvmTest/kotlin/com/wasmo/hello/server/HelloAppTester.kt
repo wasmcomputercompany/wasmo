@@ -2,12 +2,12 @@ package com.wasmo.hello.server
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
-import com.wasmo.FakeClock
 import com.wasmo.common.tokens.newToken
 import okio.Closeable
 import okio.FileSystem
 import okio.Path
 import wasmo.app.WasmoApp
+import wasmo.time.FakeClock
 
 class HelloAppTester : CoroutineTestInterceptor {
   private var run: Run? = null

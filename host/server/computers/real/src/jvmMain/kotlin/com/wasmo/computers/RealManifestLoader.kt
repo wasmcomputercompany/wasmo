@@ -8,16 +8,16 @@ import com.wasmo.packaging.check
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.HttpUrl
-import wasmo.http.HttpClient
 import wasmo.http.HttpRequest
+import wasmo.http.HttpService
 
 @Inject
 @SingleIn(ComputerScope::class)
 class RealManifestLoader(
-  private val httpClient: HttpClient,
+  private val httpService: HttpService,
 ) : ManifestLoader {
   override suspend fun loadManifest(manifestUrl: HttpUrl): AppManifest {
-    val manifestResponse = httpClient.execute(
+    val manifestResponse = httpService.execute(
       HttpRequest(
         method = "GET",
         url = manifestUrl,

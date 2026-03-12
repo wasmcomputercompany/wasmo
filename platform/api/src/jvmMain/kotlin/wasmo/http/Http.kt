@@ -6,7 +6,7 @@ import okhttp3.HttpUrl
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 
-interface HttpClient {
+interface HttpService {
   suspend fun execute(request: HttpRequest): HttpResponse
 }
 

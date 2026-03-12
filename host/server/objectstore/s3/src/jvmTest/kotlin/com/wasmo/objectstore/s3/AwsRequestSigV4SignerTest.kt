@@ -2,7 +2,6 @@ package com.wasmo.objectstore.s3
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.FakeClock
 import com.wasmo.objectstore.s3.AwsRequestSigV4Signer.Companion.DefaultSignedHeaderNames
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -13,6 +12,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import wasmo.time.FakeClock
 
 /**
  * This test uses golden value from this test:

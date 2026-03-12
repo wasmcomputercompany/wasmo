@@ -2,8 +2,6 @@ package com.wasmo.testing.service
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
-import com.wasmo.FakeClock
-import com.wasmo.FakeHttpClient
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.deployment.Deployment
@@ -21,6 +19,8 @@ import kotlinx.coroutines.coroutineScope
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.fakefilesystem.FakeFileSystem
+import wasmo.http.FakeHttpService
+import wasmo.time.FakeClock
 
 /**
  * Use this with Burst and [app.cash.burst.InterceptTest].
@@ -46,7 +46,7 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.eventListener
   val wasmoArtifactServer: WasmoArtifactServer
     get() = graph.wasmoArtifactServer
-  val fakeHttpClient: FakeHttpClient
+  val fakeHttpClient: FakeHttpService
     get() = graph.fakeHttpClient
   val baseUrl: HttpUrl
     get() = deployment.baseUrl

@@ -24,8 +24,8 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
-import wasmo.http.HttpClient
 import wasmo.http.HttpRequest
+import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
 import wasmo.objectstore.ScopedObjectStore
@@ -36,7 +36,7 @@ class AppInstaller(
   private val computerSlug: ComputerSlug,
   private val installedApp: InstalledApp,
   private val clock: Clock,
-  private val httpClient: HttpClient,
+  private val httpService: HttpService,
   @ForInstalledApp private val installedAppObjectStore: ObjectStore,
   private val eventListener: EventListener,
   private val wasmoDb: WasmoDb,
@@ -117,7 +117,7 @@ class AppInstaller(
         ?: "https://example.com/".toHttpUrl().resolve(resource.url)?.encodedPath
           ?: throw StateUserException("no resource_path: $this")
 
-      val response = httpClient.execute(
+      val response = httpService.execute(
         HttpRequest(
           method = "GET",
           url = downloadUrl,

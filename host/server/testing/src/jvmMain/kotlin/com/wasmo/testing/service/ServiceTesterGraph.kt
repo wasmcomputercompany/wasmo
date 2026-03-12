@@ -1,7 +1,5 @@
 package com.wasmo.testing.service
 
-import com.wasmo.FakeClock
-import com.wasmo.FakeHttpClient
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.RealClientAuthenticator
@@ -48,8 +46,10 @@ import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import wasmo.http.HttpClient
+import wasmo.http.FakeHttpService
+import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
+import wasmo.time.FakeClock
 
 @DependencyGraph(
   scope = AppScope::class,
@@ -68,7 +68,7 @@ interface ServiceTesterGraph {
   val clock: FakeClock
   val deployment: Deployment
   val eventListener: FakeEventListener
-  val fakeHttpClient: FakeHttpClient
+  val fakeHttpClient: FakeHttpService
   val fileSystem: FakeFileSystem
   val jobQueueTester: JobQueueTester
   val sendEmailService: FakeSendEmailService
@@ -95,7 +95,7 @@ interface ServiceTesterGraph {
   @SingleIn(AppScope::class)
   fun provideFakeHttpClient(
     wasmoArtifactServer: WasmoArtifactServer,
-  ): FakeHttpClient = FakeHttpClient().apply {
+  ): FakeHttpService = FakeHttpService().apply {
     this += wasmoArtifactServer
   }
 
@@ -152,7 +152,7 @@ interface ServiceTesterGraph {
   fun bindPaymentsService(real: FakePaymentsService): PaymentsService
 
   @Binds
-  fun bindHttpClient(real: FakeHttpClient): HttpClient
+  fun bindHttpClient(real: FakeHttpService): HttpService
 
   @Binds
   fun bindAuthenticatorDatabase(real: RealAuthenticatorDatabase): AuthenticatorDatabase

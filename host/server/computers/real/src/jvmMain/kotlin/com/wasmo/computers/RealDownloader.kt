@@ -6,18 +6,18 @@ import okio.ByteString
 import wasmo.downloader.Downloader
 import wasmo.downloader.TransferRequest
 import wasmo.downloader.TransferResponse
-import wasmo.http.HttpClient
+import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
 
 @Inject
 @SingleIn(ComputerScope::class)
 class RealDownloader(
-  val httpClient: HttpClient,
+  val httpService: HttpService,
   @ForComputer val objectStore: ObjectStore,
 ) : Downloader {
   override suspend fun download(transferRequest: TransferRequest): TransferResponse {
-    val httpResponse = httpClient.execute(transferRequest.httpRequest)
+    val httpResponse = httpService.execute(transferRequest.httpRequest)
     val httpResponseEmptyBody = httpResponse.copy(body = ByteString.EMPTY)
     val body = httpResponse.body
 

@@ -1,11 +1,11 @@
 package com.wasmo.testing
 
-import com.wasmo.FakeHttpClient
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.testing.apps.PublishedApp
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmo.http.FakeHttpService
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
 
@@ -14,7 +14,7 @@ import wasmo.http.HttpResponse
  */
 @Inject
 @SingleIn(AppScope::class)
-class WasmoArtifactServer() : FakeHttpClient.Handler {
+class WasmoArtifactServer() : FakeHttpService.Handler {
   private val publishedApps = mutableListOf<PublishedApp>()
 
   fun publish(app: PublishedApp) {

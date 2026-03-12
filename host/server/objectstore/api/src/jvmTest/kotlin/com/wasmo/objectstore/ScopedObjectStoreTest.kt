@@ -8,6 +8,7 @@ import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.objectstore.DeleteObjectRequest
+import wasmo.objectstore.FakeObjectStore
 import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.GetObjectResponse
 import wasmo.objectstore.ListObjectsRequest

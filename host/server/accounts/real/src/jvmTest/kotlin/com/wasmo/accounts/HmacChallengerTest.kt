@@ -2,13 +2,13 @@ package com.wasmo.accounts
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.FakeClock
 import com.wasmo.api.CHALLENGE_LIFETIME
 import com.wasmo.api.CHALLENGE_LIFETIME_MAX_STALE
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
+import wasmo.time.FakeClock
 
 class HmacChallengerTest {
   private val clock = FakeClock()

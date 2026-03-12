@@ -16,15 +16,15 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.IOException
 import wasmo.http.Header
-import wasmo.http.HttpClient
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
+import wasmo.http.HttpService
 
 @Inject
 @SingleIn(AppScope::class)
-class RealHttpClient(
+class OkHttpClientHttpService(
   private val callFactory: Call.Factory,
-) : HttpClient {
+) : HttpService {
   override suspend fun execute(request: HttpRequest): HttpResponse {
     val call = callFactory.newCall(request.toOkHttp())
     return suspendCancellableCoroutine { continuation ->

@@ -1,4 +1,4 @@
-package com.wasmo
+package wasmo.time
 
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject

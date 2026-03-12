@@ -17,7 +17,7 @@ import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.events.LoggingEventListener
-import com.wasmo.http.RealHttpClient
+import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.ForHost
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
@@ -50,7 +50,7 @@ import kotlinx.coroutines.Dispatchers
 import okhttp3.Call
 import okhttp3.Dns
 import okhttp3.OkHttpClient
-import wasmo.http.HttpClient
+import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
 
 @DependencyGraph(
@@ -164,7 +164,7 @@ internal interface WasmoServiceGraph {
   fun bindCallFactory(real: OkHttpClient): Call.Factory
 
   @Binds
-  fun bindHttpClient(real: RealHttpClient): HttpClient
+  fun bindHttpClient(real: OkHttpClientHttpService): HttpService
 
   @Binds
   fun bindRouteCodecFactory(real: RealRouteCodec.Factory): RouteCodec.Factory

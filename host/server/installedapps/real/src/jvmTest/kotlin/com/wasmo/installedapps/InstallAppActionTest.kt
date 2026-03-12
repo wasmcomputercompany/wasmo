@@ -7,7 +7,6 @@ import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.messageContains
-import com.wasmo.FakeHttpClient
 import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.events.InstallAppEvent
@@ -24,6 +23,7 @@ import kotlinx.coroutines.test.runTest
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
+import wasmo.http.FakeHttpService
 import wasmo.http.Header
 import wasmo.http.HttpResponse
 
@@ -85,7 +85,7 @@ class InstallAppActionTest {
 
   @Test
   fun manifestIsMalformedToml() = runTest {
-    tester.fakeHttpClient += FakeHttpClient.Handler { request ->
+    tester.fakeHttpClient += FakeHttpService.Handler { request ->
       HttpResponse(
         headers = listOf(Header("Content-Type", ContentTypes.ApplicationToml.toString())),
         body = "[[[this is not valid toml]]]".encodeUtf8(),
