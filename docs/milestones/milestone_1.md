@@ -16,14 +16,14 @@ It's a simple program that can receive an inbound HTTP request and respond with 
 HTML response.
 
 
-Server
-------
+Host Server
+-----------
 
-The server has the following capabilities:
+The host server has the following capabilities:
 
 1. Create accounts and computers.
 2. Install apps into computers
-3. Run the Hello World endpoint
+3. Run the Hello World endpoint, implemented in Kotlin (and not WebAssembly)
 
 
 Implementation
@@ -36,19 +36,14 @@ I'm comfortable with Kotlin, so I intend to start there for both client and serv
  * [Ktor] for the server's own web serving
  * [SQLDelight] for SQL
 
+We're going to start by faking the WebAssembly integration and embed Kotlin instead. This way we
+can focus on bringing integrations online, and save WebAssembly to a later milestone.
+
 
 Challenges
 ----------
 
 [WIT] doesn’t have a Kotlin implementation, though one is [coming soon][KT-64569].
-
-
-Out of Scope
-------------
-
-Doing reasonable things with DNS names. Ultimately we want DNS to direct everything on
-`*.example.com` to our server, and let HTTP sort it out.
-
 
 
 [Chasm]: https://github.com/CharlieTap/chasm

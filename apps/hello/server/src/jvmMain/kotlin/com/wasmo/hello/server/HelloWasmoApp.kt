@@ -26,7 +26,7 @@ class HelloWasmoApp(
     helloDbService = helloDbService,
   )
 
-  override fun afterInstall(
+  override suspend fun afterInstall(
     oldVersion: Long,
     newVersion: Long,
   ) {

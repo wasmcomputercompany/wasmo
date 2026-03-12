@@ -1,5 +1,5 @@
-Development Setup: Wasm
-=======================
+Wasm
+====
 
 We use the [WebAssembly Binary Toolkit][wabt] in our tests.
 

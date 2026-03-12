@@ -1,27 +1,16 @@
 package com.wasmo.hello.server
 
+import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import com.wasmo.hello.api.GreetRequest
-import com.wasmo.hello.server.HelloAppTester
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.runTest
 
 class GreetActionTest {
-  private lateinit var tester: HelloAppTester
-
-  @BeforeTest
-  fun setUp() {
-    tester = HelloAppTester.start()
-  }
-
-  @AfterTest
-  fun tearDown() {
-    tester.close()
-  }
+  @InterceptTest
+  val tester = HelloAppTester()
 
   @Test
   fun happyPath() = runTest {

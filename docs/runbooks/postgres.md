@@ -1,5 +1,5 @@
-Postgres Runbook
-================
+Postgres
+========
 
 Our databases are on Planetscale.
 

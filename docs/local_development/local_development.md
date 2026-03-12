@@ -1,5 +1,5 @@
-Development Setup: Interactive
-==============================
+Local Development
+=================
 
 Run a local server:
 

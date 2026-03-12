@@ -1,5 +1,5 @@
-Development Setup: Services
-===========================
+Local Development Services
+==========================
 
 For best connectivity, configure all the different services Wasmo uses.
 

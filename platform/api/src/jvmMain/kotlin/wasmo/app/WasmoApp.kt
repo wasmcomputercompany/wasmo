@@ -9,7 +9,7 @@ interface WasmoApp {
    *
    * @param oldVersion will be 0 if this is the first install of the app.
    */
-  fun afterInstall(
+  suspend fun afterInstall(
     oldVersion: Long,
     newVersion: Long,
   )
