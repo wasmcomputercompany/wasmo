@@ -12,7 +12,7 @@ import com.wasmo.ktor.startWasmoService
 import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
-import com.wasmo.sql.jdbc.PostgresqlAddress
+import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.stripe.StripeCredentials
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.decodeHex

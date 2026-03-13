@@ -1,4 +1,4 @@
-package com.wasmo.sql.jdbc
+package com.wasmo.sql
 
 data class PostgresqlAddress(
   val user: String,

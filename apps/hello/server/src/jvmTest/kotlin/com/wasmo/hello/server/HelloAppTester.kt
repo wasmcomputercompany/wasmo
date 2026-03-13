@@ -2,8 +2,10 @@ package com.wasmo.hello.server
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
-import com.wasmo.sql.jdbc.asSqlService
-import com.wasmo.sql.jdbc.connectPostgresql
+import com.wasmo.hello.db.HelloDbService
+import com.wasmo.sql.r2dbc.asSqlService
+import com.wasmo.sql.r2dbc.connectPostgresqlAsync
+import com.wasmo.sqldelight.driver
 import com.wasmo.testing.sql.TestDatabaseAddress
 import com.wasmo.testing.sql.clearSchema
 import wasmo.app.FakePlatform
@@ -18,17 +20,19 @@ class HelloAppTester : CoroutineTestInterceptor {
     get() = run!!.app
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    val dataSource = connectPostgresql(TestDatabaseAddress)
+    val dataSource = connectPostgresqlAsync(TestDatabaseAddress)
+    val sqlService = dataSource.asSqlService()
     dataSource.clearSchema()
 
     val platform = FakePlatform(
-      sqlService = dataSource.asSqlService(),
+      sqlService = sqlService,
     )
-    val sqlDatabase = platform.sqlService.getOrCreate()
-
+    val helloDbService = HelloDbService(
+      driver = platform.sqlService.getOrCreate().driver(),
+    )
     val app = HelloWasmoApp(
       platform = platform,
-      sqlDatabase = sqlDatabase,
+      helloDb = helloDbService,
     )
 
     val run = Run(

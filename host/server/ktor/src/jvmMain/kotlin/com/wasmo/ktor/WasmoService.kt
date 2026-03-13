@@ -9,7 +9,7 @@ import com.wasmo.common.catalog.Catalog
 import com.wasmo.deployment.Deployment
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
-import com.wasmo.sql.jdbc.PostgresqlAddress
+import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.stripe.StripeCredentials
 import dev.zacsweers.metro.AppScope

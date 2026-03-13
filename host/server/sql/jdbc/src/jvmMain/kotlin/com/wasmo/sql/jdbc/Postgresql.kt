@@ -1,5 +1,6 @@
 package com.wasmo.sql.jdbc
 
+import com.wasmo.sql.PostgresqlAddress
 import java.util.Properties
 import org.apache.commons.dbcp2.DriverManagerConnectionFactory
 import org.apache.commons.dbcp2.PoolableConnection
