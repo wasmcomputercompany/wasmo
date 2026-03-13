@@ -3,18 +3,16 @@ package com.wasmo.jobs
 import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.testing.measureTestTime
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 
@@ -147,12 +145,5 @@ class MemoryJobQueueTest {
     override suspend fun execute(job: SampleJob) {
       channel.send(job.message)
     }
-  }
-
-  private suspend fun CoroutineScope.measureTestTime(block: suspend () -> Unit): Duration {
-    val scheduler = coroutineContext[TestCoroutineScheduler.Key]!!
-    val startMilliseconds = scheduler.currentTime
-    block()
-    return (scheduler.currentTime - startMilliseconds).milliseconds
   }
 }

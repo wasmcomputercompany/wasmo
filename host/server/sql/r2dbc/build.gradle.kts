@@ -23,5 +23,11 @@ kotlin {
         implementation(project(":platform:api"))
       }
     }
+    val jvmTest by getting {
+      dependencies {
+        implementation(libs.kotlinx.coroutines.test)
+        implementation(project(":host:server:testing"))
+      }
+    }
   }
 }
