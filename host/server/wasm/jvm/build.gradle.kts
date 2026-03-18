@@ -1,6 +1,6 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.metro)
   id("wasmo-build")
 }
 
@@ -12,18 +12,18 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
-        implementation(libs.kotlinx.html)
-        implementation(libs.kotlinx.serialization.json)
+        implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okhttp)
         implementation(libs.okio)
-        implementation(project(":host:api"))
-        implementation(project(":host:framework"))
-        implementation(project(":host:server:accounts:api"))
-        implementation(project(":host:server:db"))
-        implementation(project(":host:server:identifiers"))
+        implementation(project(":host:server:wasm:api"))
         implementation(project(":identifiers"))
         implementation(project(":platform:api"))
         implementation(project(":platform:packaging"))
+      }
+    }
+    val jvmTest by getting {
+      dependencies {
+        implementation(project(":host:server:testing"))
       }
     }
   }

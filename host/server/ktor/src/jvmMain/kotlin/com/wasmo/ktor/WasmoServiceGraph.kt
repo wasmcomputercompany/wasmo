@@ -17,7 +17,9 @@ import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.events.LoggingEventListener
+import com.wasmo.hello.server.HelloWasmoApp
 import com.wasmo.http.OkHttpClientHttpService
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ForHost
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
@@ -35,6 +37,8 @@ import com.wasmo.sendemail.SendEmailService
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.stripe.StripePaymentsService
+import com.wasmo.wasm.AppLoader
+import com.wasmo.wasm.JvmAppLoader
 import com.wasmo.website.RealServerHostPage
 import com.wasmo.website.ServerHostPage
 import dev.zacsweers.metro.AppScope
@@ -50,6 +54,7 @@ import kotlinx.coroutines.Dispatchers
 import okhttp3.Call
 import okhttp3.Dns
 import okhttp3.OkHttpClient
+import wasmo.app.WasmoApp
 import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
 
@@ -157,6 +162,12 @@ internal interface WasmoServiceGraph {
   @SingleIn(AppScope::class)
   fun provideAppCatalog(): AppCatalog = loadDefaultAppCatalogFromResources()
 
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideWasmoAppFactories(): Map<AppSlug, WasmoApp.Factory> = mapOf(
+    AppSlug("music") to HelloWasmoApp.Factory(),
+  )
+
   @Binds
   fun bind(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
 
@@ -192,6 +203,9 @@ internal interface WasmoServiceGraph {
   fun bindPaymentsService(
     real: StripePaymentsService,
   ): PaymentsService
+
+  @Binds
+  fun bindAppLoader(real: JvmAppLoader): AppLoader
 
   @DependencyGraph.Factory
   interface Factory {

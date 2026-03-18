@@ -14,4 +14,8 @@ interface WasmoApp {
     oldVersion: Long,
     newVersion: Long,
   )
+
+  interface Factory {
+    suspend fun create(platform: Platform): WasmoApp
+  }
 }

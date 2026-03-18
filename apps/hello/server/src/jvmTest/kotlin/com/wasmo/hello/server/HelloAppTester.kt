@@ -2,10 +2,8 @@ package com.wasmo.hello.server
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
-import com.wasmo.hello.db.HelloDbService
 import com.wasmo.sql.r2dbc.asSqlService
 import com.wasmo.sql.r2dbc.connectPostgresqlAsync
-import com.wasmo.sqldelight.driver
 import com.wasmo.testing.sql.TestDatabaseAddress
 import com.wasmo.testing.sql.clearSchema
 import wasmo.app.FakePlatform
@@ -27,13 +25,7 @@ class HelloAppTester : CoroutineTestInterceptor {
     val platform = FakePlatform(
       sqlService = sqlService,
     )
-    val helloDbService = HelloDbService(
-      driver = platform.sqlService.getOrCreate().driver(),
-    )
-    val app = HelloWasmoApp(
-      platform = platform,
-      helloDb = helloDbService,
-    )
+    val app = HelloWasmoApp.Factory().create(platform)
 
     val run = Run(
       platform = platform,
