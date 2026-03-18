@@ -3,7 +3,8 @@ package com.wasmo.installedapps
 import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.testing.apps.RecipesApp
+import com.wasmo.testing.apps.MusicApp
+import com.wasmo.testing.apps.SnakeApp
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -21,14 +22,12 @@ class InstalledAppObjectStoreTest {
 
   @Test
   fun readAndWriteObjects() = runTest {
-    tester.publishApp(RecipesApp.PublishedApp)
-
     val client = tester.newClient()
     val computer = client.createComputer()
-    val installedApp = computer.installApp(RecipesApp.PublishedApp)
+    val installedApp = computer.getApp(SnakeApp.PublishedApp)
 
-    val recipesApp = installedApp.load() as RecipesApp
-    val store = recipesApp.platform.objectStore
+    val wasmoApp = installedApp.load() as SnakeApp
+    val store = wasmoApp.platform.objectStore
 
     store.put(PutObjectRequest("shows/pokerface/s1e1.mp4", casino))
     store.put(PutObjectRequest("shows/pokerface/s1e2.mp4", subway))
@@ -37,5 +36,50 @@ class InstalledAppObjectStoreTest {
       .isEqualTo(GetObjectResponse(casino))
     assertThat(store.get(GetObjectRequest("shows/pokerface/s1e2.mp4")))
       .isEqualTo(GetObjectResponse(subway))
+  }
+
+  @Test
+  fun independentAppsHaveIndependentStores() = runTest {
+    val client = tester.newClient()
+    val computer = client.createComputer()
+
+    val installedApp1 = computer.getApp(SnakeApp.PublishedApp)
+    val wasmoApp1 = installedApp1.load() as SnakeApp
+    val store1 = wasmoApp1.platform.objectStore
+
+    val installedApp2 = computer.getApp(MusicApp.PublishedApp)
+    val wasmoApp2 = installedApp2.load() as MusicApp
+    val store2 = wasmoApp2.platform.objectStore
+
+    store1.put(PutObjectRequest("data.txt", "snake high score".encodeUtf8()))
+    store2.put(PutObjectRequest("data.txt", "music playlist".encodeUtf8()))
+
+    assertThat(store1.get(GetObjectRequest("data.txt")))
+      .isEqualTo(GetObjectResponse("snake high score".encodeUtf8()))
+    assertThat(store2.get(GetObjectRequest("data.txt")))
+      .isEqualTo(GetObjectResponse("music playlist".encodeUtf8()))
+  }
+
+  @Test
+  fun independentComputersHaveIndependentStores() = runTest {
+    val client = tester.newClient()
+    val computer1 = client.createComputer()
+    val computer2 = client.createComputer()
+
+    val installedApp1 = computer1.getApp(SnakeApp.PublishedApp)
+    val wasmoApp1 = installedApp1.load() as SnakeApp
+    val store1 = wasmoApp1.platform.objectStore
+
+    val installedApp2 = computer2.getApp(SnakeApp.PublishedApp)
+    val wasmoApp2 = installedApp2.load() as SnakeApp
+    val store2 = wasmoApp2.platform.objectStore
+
+    store1.put(PutObjectRequest("data.txt", "snake high score on computer 1 is 500".encodeUtf8()))
+    store2.put(PutObjectRequest("data.txt", "snake high score on computer 2 is 900".encodeUtf8()))
+
+    assertThat(store1.get(GetObjectRequest("data.txt")))
+      .isEqualTo(GetObjectResponse("snake high score on computer 1 is 500".encodeUtf8()))
+    assertThat(store2.get(GetObjectRequest("data.txt")))
+      .isEqualTo(GetObjectResponse("snake high score on computer 2 is 900".encodeUtf8()))
   }
 }

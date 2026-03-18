@@ -37,11 +37,9 @@ interface SqlConnection : Closeable {
 
 class SqlException(message: String?) : Exception(message)
 
-interface RowIterator {
+interface RowIterator : Closeable {
   /** Returns null if there is no next row. */
   suspend fun next(): SqlRow?
-
-  fun close()
 }
 
 interface SqlRow {

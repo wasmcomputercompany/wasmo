@@ -1,7 +1,9 @@
 package com.wasmo.testing
 
 import com.wasmo.packaging.AppManifest
+import com.wasmo.testing.apps.MusicApp
 import com.wasmo.testing.apps.PublishedApp
+import com.wasmo.testing.apps.SnakeApp
 import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
@@ -16,7 +18,10 @@ import wasmo.http.FakeHttpService
 @Inject
 @SingleIn(AppScope::class)
 class FakeAppPublisher : AppLoader {
-  private val publishedApps = mutableListOf<PublishedApp>()
+  private val publishedApps = mutableListOf(
+    MusicApp.PublishedApp,
+    SnakeApp.PublishedApp,
+  )
 
   val httpHandler: FakeHttpService.Handler
     get() = FakeHttpService.Handler { request ->

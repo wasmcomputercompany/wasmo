@@ -45,8 +45,9 @@ class CreateComputerActionTest {
       .isNotNull()
       .containsExactly(ComputerListItem(computerSlug))
 
+    // Apps from TestAppCatalog are installed by default.
     val computer = client.getComputer(computerSlug)
-    val installedMusicApp = computer.getApp(MusicApp.App)
+    val installedMusicApp = computer.getApp(MusicApp.PublishedApp)
     val installedSnakeApp = computer.getApp(SnakeApp.PublishedApp)
 
     val computerHostPage = client.call().hostPage(ComputerHomeRoute(computerSlug))

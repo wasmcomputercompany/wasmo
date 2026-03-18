@@ -43,7 +43,7 @@ data class PublishedApp(
 }
 
 val TestAppCatalog = AppCatalog(
-  entries = listOf(MusicApp.App, SnakeApp.PublishedApp).map {
+  entries = listOf(MusicApp.PublishedApp, SnakeApp.PublishedApp).map {
     Entry(
       manifestUrl = it.manifestUrl,
       manifest = it.manifest,

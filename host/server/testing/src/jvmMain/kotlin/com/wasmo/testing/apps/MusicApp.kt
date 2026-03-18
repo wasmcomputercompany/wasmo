@@ -32,7 +32,7 @@ class MusicApp(
       ),
     )
 
-    val App = PublishedApp(
+    val PublishedApp = PublishedApp(
       manifestUrl = "https://example.com/music/v2/music.wasmo.toml".toHttpUrl(),
       manifest = Manifest,
       servedResources = mapOf(),
