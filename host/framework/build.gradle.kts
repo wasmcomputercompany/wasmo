@@ -20,6 +20,7 @@ kotlin {
     jvmMain {
       dependencies {
         implementation(libs.okhttp)
+        implementation(project(":platform:api"))
       }
     }
   }

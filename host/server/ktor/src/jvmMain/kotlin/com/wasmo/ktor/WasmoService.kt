@@ -11,6 +11,8 @@ import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.jdbc.connectPostgresql
+import com.wasmo.sql.r2dbc.asSqlService
+import com.wasmo.sql.r2dbc.connectPostgresqlAsync
 import com.wasmo.stripe.StripeCredentials
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
@@ -36,7 +38,8 @@ class WasmoService(
     val postmarkCredentials: PostmarkCredentials,
     val stripeCredentials: StripeCredentials,
     val catalog: Catalog,
-    val postgresqlAddress: PostgresqlAddress,
+    val hostPostgresqlAddress: PostgresqlAddress,
+    val guestPostgresqlAddress: PostgresqlAddress,
     val deployment: Deployment,
     val objectStoreAddress: ObjectStoreAddress,
     val sessionCookieSpec: SessionCookieSpec,
@@ -49,17 +52,21 @@ fun startWasmoService(
 ): WasmoService {
   val server = EngineMain.createServer(args)
 
-  val dataSource = connectPostgresql(config.postgresqlAddress)
+  val hostDataSource = connectPostgresql(config.hostPostgresqlAddress)
   val wasmoDb = WasmoDbService(
-    dataSource = dataSource,
-    jdbcDriver = dataSource.asJdbcDriver(),
+    dataSource = hostDataSource,
+    jdbcDriver = hostDataSource.asJdbcDriver(),
   )
+
+  val sqlService = connectPostgresqlAsync(config.guestPostgresqlAddress)
+    .asSqlService()
 
   val wasmoServiceGraphFactory = createGraphFactory<WasmoServiceGraph.Factory>()
   val serviceGraph = wasmoServiceGraphFactory.create(
     config = config,
     server = server,
     wasmoDb = wasmoDb,
+    sqlService = sqlService,
   )
 
   serviceGraph.wasmoService.start()

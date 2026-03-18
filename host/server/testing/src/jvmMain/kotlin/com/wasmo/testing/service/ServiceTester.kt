@@ -8,12 +8,14 @@ import com.wasmo.app.db.WasmoDbService
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sql.jdbc.connectPostgresql
+import com.wasmo.sql.r2dbc.asSqlService
+import com.wasmo.sql.r2dbc.connectPostgresqlAsync
+import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakeEventListener
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.FakeUserAgent
 import com.wasmo.testing.JobQueueTester
-import com.wasmo.testing.WasmoArtifactServer
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.sql.TestDatabaseAddress
@@ -48,8 +50,8 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.jobQueueTester
   val eventListener: FakeEventListener
     get() = graph.eventListener
-  val wasmoArtifactServer: WasmoArtifactServer
-    get() = graph.wasmoArtifactServer
+  val appPublisher: FakeAppPublisher
+    get() = graph.appPublisher
   val fakeHttpClient: FakeHttpService
     get() = graph.fakeHttpClient
   val baseUrl: HttpUrl
@@ -82,7 +84,7 @@ class ServiceTester : CoroutineTestInterceptor {
   )
 
   fun publishApp(app: PublishedApp) {
-    wasmoArtifactServer.publish(app)
+    appPublisher.publish(app)
   }
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
@@ -95,12 +97,16 @@ class ServiceTester : CoroutineTestInterceptor {
     )
     wasmoDb.migrate()
 
+    val sqlService = connectPostgresqlAsync(TestDatabaseAddress)
+      .asSqlService()
+
     val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
 
     try {
       coroutineScope {
         this@ServiceTester.graph = serviceTesterGraphFactory.create(
           wasmoDbService = wasmoDb,
+          sqlService = sqlService,
           coroutineScope = this,
         )
         testFunction()

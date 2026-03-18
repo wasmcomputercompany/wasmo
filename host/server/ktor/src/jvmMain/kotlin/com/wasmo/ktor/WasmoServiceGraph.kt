@@ -57,6 +57,7 @@ import okhttp3.OkHttpClient
 import wasmo.app.WasmoApp
 import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
+import wasmo.sql.SqlService
 
 @DependencyGraph(
   scope = AppScope::class,
@@ -213,6 +214,7 @@ internal interface WasmoServiceGraph {
       @Provides config: WasmoService.Config,
       @Provides server: EmbeddedServer<*, *>,
       @Provides wasmoDb: WasmoDb,
+      @Provides sqlService: SqlService,
     ): WasmoServiceGraph
   }
 }

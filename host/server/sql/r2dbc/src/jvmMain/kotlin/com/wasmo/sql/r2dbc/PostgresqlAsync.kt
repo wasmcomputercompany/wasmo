@@ -5,7 +5,7 @@ import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.postgresql.client.SSLMode
 
-suspend fun connectPostgresqlAsync(
+fun connectPostgresqlAsync(
   address: PostgresqlAddress,
 ): PostgresqlConnectionFactory {
   val configuration = PostgresqlConnectionConfiguration.builder()

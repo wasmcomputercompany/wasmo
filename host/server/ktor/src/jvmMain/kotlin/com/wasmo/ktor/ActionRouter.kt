@@ -22,7 +22,6 @@ import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.decodeUrl
 import com.wasmo.api.routes.toHttpUrl
 import com.wasmo.deployment.Deployment
-import com.wasmo.framework.Header
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
@@ -58,6 +57,7 @@ import kotlinx.io.okio.asOkioSource
 import kotlinx.serialization.serializer
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.buffer
+import wasmo.http.Header
 
 @Inject
 @SingleIn(AppScope::class)

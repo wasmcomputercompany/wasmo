@@ -46,8 +46,8 @@ class CreateComputerActionTest {
       .containsExactly(ComputerListItem(computerSlug))
 
     val computer = client.getComputer(computerSlug)
-    val installedMusicApp = computer.getApp(MusicApp)
-    val installedSnakeApp = computer.getApp(SnakeApp)
+    val installedMusicApp = computer.getApp(MusicApp.App)
+    val installedSnakeApp = computer.getApp(SnakeApp.PublishedApp)
 
     val computerHostPage = client.call().hostPage(ComputerHomeRoute(computerSlug))
     assertThat(computerHostPage.computerSnapshot?.slug).isEqualTo(computerSlug)

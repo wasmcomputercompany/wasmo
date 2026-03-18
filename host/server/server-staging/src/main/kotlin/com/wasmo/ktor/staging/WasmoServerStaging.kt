@@ -41,6 +41,13 @@ fun main(args: Array<String>) {
   val postgresDatabasePassword = System.getenv("PGPASSWORD")
     ?: error("required env PGPASSWORD not set")
 
+  val sharedPostgresqlAddress = PostgresqlAddress(
+    user = "pscale_api_uh85t8q0waqt.hkqtmgf3pdzi",
+    password = postgresDatabasePassword,
+    hostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
+    databaseName = "wasmo_dev",
+    ssl = false,
+  )
   val config = WasmoService.Config(
     cookieSecret = cookieSecret.decodeHex(),
     postmarkCredentials = PostmarkCredentials(
@@ -52,13 +59,8 @@ fun main(args: Array<String>) {
       secretKey = stripeSecretKey,
     ),
     catalog = DevelopmentCatalog,
-    postgresqlAddress = PostgresqlAddress(
-      user = "pscale_api_uh85t8q0waqt.hkqtmgf3pdzi",
-      password = postgresDatabasePassword,
-      hostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
-      databaseName = "wasmo_dev",
-      ssl = false,
-    ),
+    hostPostgresqlAddress = sharedPostgresqlAddress,
+    guestPostgresqlAddress = sharedPostgresqlAddress,
     deployment = Deployment(
       baseUrl = "https://wasmo.dev/".toHttpUrl(),
       sendFromEmailAddress = "noreply@wasmo.dev",

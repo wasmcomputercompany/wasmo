@@ -2,8 +2,11 @@ package com.wasmo.framework
 
 import java.net.HttpURLConnection
 import okhttp3.HttpUrl
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okio.BufferedSink
 import okio.ByteString
+import wasmo.http.Header
 
 data class Request(
   val method: String,
@@ -15,7 +18,7 @@ data class Request(
 data class Response<T>(
   val status: Int = 200,
   val headers: List<Header> = listOf(),
-  val contentType: ContentType? = null,
+  val contentType: MediaType? = null,
   val body: T,
 ) {
   fun header(name: String): String? {
@@ -27,27 +30,12 @@ fun interface ResponseBody {
   fun write(sink: BufferedSink)
 }
 
-data class Header(
-  val name: String,
-  val value: String,
-)
-
-data class ContentType(
-  val type: String,
-  val subtype: String,
-  val charset: String? = null,
-) {
-  override fun toString(): String = when {
-    charset != null -> "$type/$subtype; charset=$charset"
-    else -> "$type/$subtype"
-  }
-}
-
 object ContentTypes {
-  val ImagePng = ContentType("image", "png")
-  val TextHtml = ContentType("text", "html", "utf-8")
-  val TextPlain = ContentType("text", "plain", "utf-8")
-  val ApplicationToml = ContentType("application", "toml")
+  val ImagePng = "image/png".toMediaType()
+  val ImageSvg = "image/svg+xml".toMediaType()
+  val TextHtml = "text/html; charset=utf-8".toMediaType()
+  val TextPlain = "text/plain; charset=utf-8".toMediaType()
+  val ApplicationToml = "application/toml".toMediaType()
 }
 
 fun UserException.asResponse(): Response<ResponseBody> {

@@ -26,13 +26,14 @@ import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
+import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakeEventListener
 import com.wasmo.testing.FakePaymentsService
 import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.JobQueueTester
-import com.wasmo.testing.WasmoArtifactServer
 import com.wasmo.testing.apps.TestAppCatalog
 import com.wasmo.testing.call.CallTesterGraph
+import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
@@ -49,6 +50,7 @@ import okio.fakefilesystem.FakeFileSystem
 import wasmo.http.FakeHttpService
 import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
+import wasmo.sql.SqlService
 import wasmo.time.FakeClock
 
 @DependencyGraph(
@@ -72,7 +74,7 @@ interface ServiceTesterGraph {
   val fileSystem: FakeFileSystem
   val jobQueueTester: JobQueueTester
   val sendEmailService: FakeSendEmailService
-  val wasmoArtifactServer: WasmoArtifactServer
+  val appPublisher: FakeAppPublisher
   val wasmoDb: WasmoDbService
   val paymentsService: FakePaymentsService
 
@@ -94,9 +96,9 @@ interface ServiceTesterGraph {
   @Provides
   @SingleIn(AppScope::class)
   fun provideFakeHttpClient(
-    wasmoArtifactServer: WasmoArtifactServer,
+    appPublisher: FakeAppPublisher,
   ): FakeHttpService = FakeHttpService().apply {
-    this += wasmoArtifactServer
+    this += appPublisher.httpHandler
   }
 
   @Provides
@@ -168,10 +170,14 @@ interface ServiceTesterGraph {
   @Binds
   fun bindEventListener(real: FakeEventListener): EventListener
 
+  @Binds
+  fun bindAppLoader(real: FakeAppPublisher): AppLoader
+
   @DependencyGraph.Factory
   interface Factory {
     fun create(
       @Provides wasmoDbService: WasmoDbService,
+      @Provides sqlService: SqlService,
       @Provides coroutineScope: CoroutineScope,
     ): ServiceTesterGraph
   }

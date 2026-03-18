@@ -1,6 +1,7 @@
 package com.wasmo.installedapps
 
 import com.wasmo.db.InstalledApp
+import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ForHost
@@ -10,8 +11,12 @@ import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.Qualifier
 import dev.zacsweers.metro.SingleIn
+import wasmo.app.Platform
+import wasmo.downloader.Downloader
+import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.ScopedObjectStore
+import wasmo.sql.SqlService
 
 @GraphExtension(
   scope = InstalledAppScope::class,
@@ -43,11 +48,29 @@ interface InstalledAppServiceGraph {
     installedApp: InstalledApp,
   ): AppManifest = installedApp.manifest_data
 
+  @Provides
+  @ForInstalledApp
+  fun provideDownloader(
+    @ForInstalledApp httpService: HttpService,
+    @ForInstalledApp objectStore: ObjectStore,
+  ): Downloader = RealDownloader(httpService, objectStore)
+
   @Binds
   fun bindInstalledAppService(real: RealInstalledAppService): InstalledAppService
 
   @Binds
   fun bindInstalledAppHttpService(real: RealInstalledAppHttpService): InstalledAppHttpService
+
+  @Binds
+  fun bindPlatform(real: RealPlatform): Platform
+
+  @Binds
+  @ForInstalledApp
+  fun bindHttpService(real: HttpService): HttpService
+
+  @Binds
+  @ForInstalledApp
+  fun bindSqlService(real: SqlService): SqlService
 
   @GraphExtension.Factory
   interface Factory {

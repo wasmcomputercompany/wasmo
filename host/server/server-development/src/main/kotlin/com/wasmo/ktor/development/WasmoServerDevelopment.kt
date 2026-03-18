@@ -24,6 +24,13 @@ fun main(args: Array<String>) {
     ?: error("required env STRIPE_PUBLISHABLE_KEY not set")
   val stripeSecretKey = System.getenv("STRIPE_SECRET_KEY")
     ?: error("required env STRIPE_SECRET_KEY not set")
+  val sharedPostgresqlAddress = PostgresqlAddress(
+    user = "postgres",
+    password = "password",
+    hostname = "localhost",
+    databaseName = "wasmo_development",
+    ssl = false,
+  )
   val config = WasmoService.Config(
     cookieSecret = "butters".encodeUtf8(),
     postmarkCredentials = PostmarkCredentials(
@@ -35,13 +42,8 @@ fun main(args: Array<String>) {
       secretKey = stripeSecretKey,
     ),
     catalog = DevelopmentCatalog,
-    postgresqlAddress = PostgresqlAddress(
-      user = "postgres",
-      password = "password",
-      hostname = "localhost",
-      databaseName = "wasmo_development",
-      ssl = false,
-    ),
+    hostPostgresqlAddress = sharedPostgresqlAddress,
+    guestPostgresqlAddress = sharedPostgresqlAddress,
     deployment = Deployment(
       baseUrl = "http://wasmo.localhost:8080/".toHttpUrl(),
       sendFromEmailAddress = "noreply@wasmo.dev",

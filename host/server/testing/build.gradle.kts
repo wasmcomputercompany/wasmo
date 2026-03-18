@@ -54,6 +54,8 @@ kotlin {
         implementation(project(":host:server:sql:api"))
         implementation(project(":host:server:sql:r2dbc"))
         implementation(project(":host:server:sql:jdbc"))
+        implementation(project(":host:server:wasm:api"))
+        implementation(project(":host:server:wasm:jvm"))
         implementation(project(":host:server:website:api"))
         implementation(project(":host:server:website:real"))
         implementation(project(":host:tokens"))

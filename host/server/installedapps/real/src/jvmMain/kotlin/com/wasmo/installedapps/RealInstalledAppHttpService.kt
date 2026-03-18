@@ -1,14 +1,20 @@
 package com.wasmo.installedapps
 
-import com.wasmo.framework.Header
+import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Route
+import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import wasmo.app.Platform
+import wasmo.http.Header as PlatformHeader
+import wasmo.http.HttpRequest
+import wasmo.http.HttpResponse
 import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.ObjectStore
 
@@ -18,6 +24,8 @@ import wasmo.objectstore.ObjectStore
 @Inject
 @SingleIn(InstalledAppScope::class)
 class RealInstalledAppHttpService(
+  private val loader: AppLoader,
+  private val platform: Platform,
   @ForInstalledApp private val objectStore: ObjectStore,
   private val manifest: AppManifest,
 ) : InstalledAppHttpService {
@@ -34,6 +42,19 @@ class RealInstalledAppHttpService(
         request = request,
       )
     }
+
+    val objectsKey = selectedRoute.objects_key
+    if (objectsKey != null) {
+      throw NotFoundUserException()
+    }
+
+    val loadedApp = loader.load(platform, manifest)
+    val loadedAppHttpService = loadedApp?.httpService
+    if (loadedAppHttpService != null) {
+      val execute = loadedAppHttpService.execute(request.toPlatformHttpRequest())
+      return execute.toHostHttpResponse()
+    }
+
 
     throw NotFoundUserException()
   }
@@ -67,9 +88,8 @@ class RealInstalledAppHttpService(
       ?: throw NotFoundUserException()
 
     return Response(
-      headers = listOf(
-        Header("Content-Type", "image/svg+xml"), // TODO: get this from the object store.
-      ),
+      headers = listOf(),
+      contentType = ContentTypes.ImageSvg, // TODO: get this from the object store.
       body = ResponseBody {
         it.write(responseBody)
       },
@@ -82,4 +102,18 @@ class RealInstalledAppHttpService(
       else -> routePath == urlPath
     }
   }
+
+  private fun Request.toPlatformHttpRequest() = HttpRequest(
+    method = method,
+    url = url,
+    headers = headers.map { PlatformHeader(it.name, it.value) },
+    body = body,
+  )
+
+  private fun HttpResponse.toHostHttpResponse(): Response<ResponseBody> = Response(
+    status = this.code,
+    headers = this.headers,
+    contentType = this.contentType?.toMediaTypeOrNull(),
+    body = ResponseBody { sink -> sink.write(body) },
+  )
 }

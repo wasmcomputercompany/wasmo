@@ -2,7 +2,6 @@ package com.wasmo.ktor
 
 import com.wasmo.api.WasmoJson
 import com.wasmo.framework.ArgumentUserException
-import com.wasmo.framework.ContentType
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import io.ktor.http.ContentType as KtorContentType
@@ -14,12 +13,12 @@ import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingRequest
 import io.ktor.utils.io.asSink
 import io.ktor.utils.io.asSource
-import io.ktor.utils.io.charsets.Charset
 import kotlinx.io.okio.asOkioSink
 import kotlinx.io.okio.asOkioSource
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.SerializationStrategy
+import okhttp3.MediaType
 import okio.buffer
 
 fun <T> DeserializationStrategy<T>.decode(request: RoutingRequest): T {
@@ -63,13 +62,14 @@ suspend fun RoutingCall.respond(response: Response<ResponseBody>) {
   )
 }
 
-private fun ContentType.toKtor(): KtorContentType {
+private fun MediaType.toKtor(): KtorContentType {
   var result = KtorContentType(
     contentType = type,
     contentSubtype = subtype,
   )
-  if (this.charset != null) {
-    result = result.withCharset(Charset.forName(this.charset))
+  val charset = charset(null)
+  if (charset != null) {
+    result = result.withCharset(charset)
   }
   return result
 }

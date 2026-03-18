@@ -33,12 +33,12 @@ class InstallAppActionTest {
 
   @Test
   fun happyPath() = runTest {
-    tester.publishApp(RecipesApp)
+    tester.publishApp(RecipesApp.PublishedApp)
 
     val client = tester.newClient()
     val computer = client.createComputer()
     val installScheduledAt = tester.clock.now
-    val installedApp = computer.installApp(RecipesApp)
+    val installedApp = computer.installApp(RecipesApp.PublishedApp)
 
     tester.clock.now += 30.minutes
     val installCompletedAt = tester.clock.now
@@ -78,7 +78,7 @@ class InstallAppActionTest {
     val computer = client.createComputer()
     assertThat(
       assertFailsWith<StateUserException> {
-        computer.installApp(RecipesApp)
+        computer.installApp(RecipesApp.PublishedApp)
       },
     ).hasMessage("failed to fetch manifest: HTTP 404")
   }
@@ -96,7 +96,7 @@ class InstallAppActionTest {
     val computer = client.createComputer()
     assertThat(
       assertFailsWith<StateUserException> {
-        computer.installApp(RecipesApp)
+        computer.installApp(RecipesApp.PublishedApp)
       },
     ).messageContains("failed to decode manifest")
   }
@@ -104,7 +104,7 @@ class InstallAppActionTest {
   /** Publish an app whose served resources are different from its manifest resources. */
   @Test
   fun resource404s() = runTest {
-    val brokenApp = RecipesApp.copy(
+    val brokenApp = RecipesApp.PublishedApp.copy(
       servedResources = mapOf(),
     )
     tester.publishApp(brokenApp)
@@ -142,16 +142,17 @@ class InstallAppActionTest {
   fun resourceGoodSha256() = runTest {
     val pancakesUrl = "https://example.com/pancakes.txt".toHttpUrl()
     val pancakesData = "this pancakes recipe has a SHA-256 signature".encodeUtf8()
-    val app = RecipesApp.copy(
-      manifest = RecipesApp.manifest.copy(
-        resource = RecipesApp.manifest.resource + listOf(
+    val original = RecipesApp.PublishedApp
+    val app = original.copy(
+      manifest = original.manifest.copy(
+        resource = original.manifest.resource + listOf(
           Resource(
             url = pancakesUrl.toString(),
             sha256 = pancakesData.sha256().hex(),
           ),
         ),
       ),
-      servedResources = RecipesApp.servedResources + mapOf(
+      servedResources = original.servedResources + mapOf(
         pancakesUrl to pancakesData,
       ),
     )
@@ -177,16 +178,17 @@ class InstallAppActionTest {
     val pancakesUrl = "https://example.com/pancakes.txt".toHttpUrl()
     val pancakesData1 = "this pancakes recipe has a SHA-256 signature".encodeUtf8()
     val pancakesData2 = "this pancakes recipe has a SHA-256 signature!".encodeUtf8()
-    val app = RecipesApp.copy(
-      manifest = RecipesApp.manifest.copy(
-        resource = RecipesApp.manifest.resource + listOf(
+    val original = RecipesApp.PublishedApp
+    val app = original.copy(
+      manifest = original.manifest.copy(
+        resource = original.manifest.resource + listOf(
           Resource(
             url = pancakesUrl.toString(),
             sha256 = pancakesData1.sha256().hex(),
           ),
         ),
       ),
-      servedResources = RecipesApp.servedResources + mapOf(
+      servedResources = original.servedResources + mapOf(
         pancakesUrl to pancakesData2,
       ),
     )
