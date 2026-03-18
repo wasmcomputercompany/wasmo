@@ -11,6 +11,7 @@ import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.HttpUrl
+import wasmo.app.Platform
 
 @Inject
 @SingleIn(InstalledAppScope::class)
@@ -22,6 +23,7 @@ class RealInstalledAppService(
   override val slug: AppSlug,
   override val manifest: AppManifest,
   override val httpService: InstalledAppHttpService,
+  override val platform: Platform,
 ) : InstalledAppService {
   override val url: HttpUrl
     get() = deployment.baseUrl.newBuilder()

@@ -16,19 +16,24 @@ import com.wasmo.testing.JobQueueTester
 import com.wasmo.testing.call.CallTester
 import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.computer.ComputerTester
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import okio.ByteString
 
 /**
  * Tests on behalf of a single user.
  */
+@AssistedInject
 class ClientTester(
   private val deployment: Deployment,
-  private val clientAuthenticator: ClientAuthenticator,
   private val callTesterGraphFactory: CallTesterGraph.Factory,
-  private val sessionCookie: SessionCookie,
   private val jobQueueTester: JobQueueTester,
   private val eventListener: FakeEventListener,
+  private val computerTesterFactory: ComputerTester.Factory,
   val paymentsService: FakePaymentsService,
+  @Assisted private val clientAuthenticator: ClientAuthenticator,
+  @Assisted private val sessionCookie: SessionCookie,
 ) {
   private var nextComputerSlug: Int = 100
 
@@ -79,9 +84,17 @@ class ClientTester(
     return getComputer(slug)
   }
 
-  fun getComputer(slug: ComputerSlug) = ComputerTester(
-    deployment = deployment,
+  fun getComputer(slug: ComputerSlug) = computerTesterFactory.create(
+    clientAuthenticator = clientAuthenticator,
     client = this,
     slug = slug,
   )
+
+  @AssistedFactory
+  interface Factory {
+    fun create(
+      clientAuthenticator: ClientAuthenticator,
+      sessionCookie: SessionCookie,
+    ): ClientTester
+  }
 }

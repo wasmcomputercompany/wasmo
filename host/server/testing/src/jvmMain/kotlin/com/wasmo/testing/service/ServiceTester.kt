@@ -38,6 +38,8 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.wasmoDb
   val deployment: Deployment
     get() = graph.deployment
+  val clientTesterFactory: ClientTester.Factory
+    get() = graph.clientTesterFactory
   val clock: FakeClock
     get() = graph.clock
   val fileSystem: FakeFileSystem
@@ -66,14 +68,9 @@ class ServiceTester : CoroutineTestInterceptor {
     val userAgent = FakeUserAgent()
     val clientAuthenticator = clientAuthenticatorFactory.create(userAgent)
     val sessionCookie = clientAuthenticator.updateSessionCookie()
-    return ClientTester(
-      deployment = deployment,
+    return clientTesterFactory.create(
       clientAuthenticator = clientAuthenticator,
-      callTesterGraphFactory = graph.callTesterGraphFactory,
       sessionCookie = sessionCookie,
-      jobQueueTester = jobQueueTester,
-      eventListener = eventListener,
-      paymentsService = graph.paymentsService,
     )
   }
 

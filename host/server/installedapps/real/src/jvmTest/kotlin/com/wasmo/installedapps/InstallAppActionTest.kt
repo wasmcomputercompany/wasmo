@@ -38,7 +38,10 @@ class InstallAppActionTest {
     val client = tester.newClient()
     val computer = client.createComputer()
     val installScheduledAt = tester.clock.now
-    val installedApp = computer.installApp(RecipesApp.PublishedApp)
+    val installedApp = computer.installApp(
+      publishedApp = RecipesApp.PublishedApp,
+      waitForInstall = false,
+    )
 
     tester.clock.now += 30.minutes
     val installCompletedAt = tester.clock.now
@@ -113,8 +116,6 @@ class InstallAppActionTest {
     val computer = client.createComputer()
     val installedApp = computer.installApp(brokenApp)
 
-    tester.jobQueueTester.awaitIdle()
-
     assertFailsWith<FileNotFoundException> {
       tester.fileSystem.list(
         "/${computer.slug}/${installedApp.slug}/resources/v1/".toPath(),
@@ -163,8 +164,6 @@ class InstallAppActionTest {
     val computer = client.createComputer()
     val installedApp = computer.installApp(app)
 
-    tester.jobQueueTester.awaitIdle()
-
     val pancakesPath = "/${computer.slug}/${installedApp.slug}/resources/v1/pancakes.txt".toPath()
     assertThat(
       tester.fileSystem.read(pancakesPath) {
@@ -198,8 +197,6 @@ class InstallAppActionTest {
     val client = tester.newClient()
     val computer = client.createComputer()
     val installedApp = computer.installApp(app)
-
-    tester.jobQueueTester.awaitIdle()
 
     val pancakesPath = "/${computer.slug}/${installedApp.slug}/resources/v1/pancakes.txt".toPath()
     assertFailsWith<FileNotFoundException> {

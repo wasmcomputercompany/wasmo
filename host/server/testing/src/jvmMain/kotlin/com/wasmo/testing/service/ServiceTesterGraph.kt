@@ -33,6 +33,7 @@ import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.JobQueueTester
 import com.wasmo.testing.apps.TestAppCatalog
 import com.wasmo.testing.call.CallTesterGraph
+import com.wasmo.testing.client.ClientTester
 import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
@@ -68,6 +69,7 @@ interface ServiceTesterGraph {
 
   val clientAuthenticatorFactory: ClientAuthenticator.Factory
   val clock: FakeClock
+  val clientTesterFactory: ClientTester.Factory
   val deployment: Deployment
   val eventListener: FakeEventListener
   val fakeHttpClient: FakeHttpService
@@ -76,7 +78,6 @@ interface ServiceTesterGraph {
   val sendEmailService: FakeSendEmailService
   val appPublisher: FakeAppPublisher
   val wasmoDb: WasmoDbService
-  val paymentsService: FakePaymentsService
 
   @Provides
   @SingleIn(AppScope::class)
