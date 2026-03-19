@@ -22,7 +22,9 @@ import com.wasmo.api.routes.Url
 import com.wasmo.computers.AfterCheckoutAction
 import com.wasmo.computers.CreateComputerSpecAction
 import com.wasmo.deployment.Deployment
+import com.wasmo.framework.Request
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.installedapps.CallAppAction
 import com.wasmo.installedapps.InstallAppAction
 import com.wasmo.testing.FakePasskey
 import com.wasmo.website.HostPageAction
@@ -47,6 +49,7 @@ class CallTester(
   private val afterCheckoutActionProvider: Provider<AfterCheckoutAction>,
   private val createInviteActionProvider: Provider<CreateInviteAction>,
   private val installAppActionProvider: Provider<InstallAppAction>,
+  private val callAppActionProvider: Provider<CallAppAction>,
   private val routeCodecFactory: RouteCodec.Factory,
 ) {
   fun routingContext() = RoutingContext(
@@ -98,6 +101,9 @@ class CallTester(
     computerSlug: ComputerSlug,
     request: InstallAppRequest,
   ) = installAppActionProvider().install(computerSlug, request)
+
+  suspend fun callApp(request: Request) =
+    callAppActionProvider().call(request)
 
   fun authenticate(
     passkey: FakePasskey,

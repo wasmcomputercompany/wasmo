@@ -5,7 +5,6 @@ import app.cash.burst.coroutines.CoroutineTestInterceptor
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
-import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.sql.r2dbc.asSqlService
@@ -34,30 +33,29 @@ import wasmo.time.FakeClock
 class ServiceTester : CoroutineTestInterceptor {
   private lateinit var graph: ServiceTesterGraph
 
+  private val clientAuthenticatorFactory: ClientAuthenticator.Factory
+    get() = graph.clientAuthenticatorFactory
+  private val clientTesterFactory: ClientTester.Factory
+    get() = graph.clientTesterFactory
+  private val baseUrl: HttpUrl
+    get() = graph.deployment.baseUrl
+  private val appPublisher: FakeAppPublisher
+    get() = graph.appPublisher
+
   val wasmoDb: WasmoDbService
     get() = graph.wasmoDb
-  val deployment: Deployment
-    get() = graph.deployment
-  val clientTesterFactory: ClientTester.Factory
-    get() = graph.clientTesterFactory
   val clock: FakeClock
     get() = graph.clock
   val fileSystem: FakeFileSystem
     get() = graph.fileSystem
-  val clientAuthenticatorFactory: ClientAuthenticator.Factory
-    get() = graph.clientAuthenticatorFactory
   val sendEmailService: FakeSendEmailService
     get() = graph.sendEmailService
   val jobQueueTester: JobQueueTester
     get() = graph.jobQueueTester
   val eventListener: FakeEventListener
     get() = graph.eventListener
-  val appPublisher: FakeAppPublisher
-    get() = graph.appPublisher
   val fakeHttpClient: FakeHttpService
     get() = graph.fakeHttpClient
-  val baseUrl: HttpUrl
-    get() = deployment.baseUrl
 
   val origin: String
     get() = baseUrl.toString()
