@@ -12,7 +12,6 @@ import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.framework.snapshot
 import com.wasmo.testing.service.ServiceTester
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -23,7 +22,6 @@ class InstalledAppResourceRouteTest {
   val tester = ServiceTester()
 
   @Test
-  @Ignore("content-type is wrong")
   fun happyPath() = runTest {
     val client = tester.newClient()
     val computer = client.createComputer()

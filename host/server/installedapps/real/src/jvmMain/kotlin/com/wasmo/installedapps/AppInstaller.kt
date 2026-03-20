@@ -108,6 +108,7 @@ class AppInstaller(
   ): ResourceResult {
     val resourcePath: String
     val resourceBytes: ByteString
+    val responseContentType: String?
     try {
       val downloadUrl = resource.url.toHttpUrlOrNull()
         ?: baseUrl.resolve(resource.url)
@@ -134,6 +135,7 @@ class AppInstaller(
       }
 
       resourceBytes = response.body
+      responseContentType = response.contentType
     } catch (e: Exception) {
       return ResourceResult.Failed(
         reason = InstallIncompleteReason.SourceUnavailable,
@@ -141,7 +143,6 @@ class AppInstaller(
       )
     }
 
-    // TODO: handle resource.content_type
     // TODO: handle resource.unzip
 
     try {
@@ -149,6 +150,7 @@ class AppInstaller(
         PutObjectRequest(
           key = resourcePath.removePrefix("/"),
           value = resourceBytes,
+          contentType = resource.content_type ?: responseContentType,
         ),
       )
     } catch (e: Exception) {

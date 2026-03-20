@@ -31,7 +31,7 @@ data class HttpResponse(
     get() = code in 200..299
 
   val contentType: String?
-    get() = headers.firstOrNull { it.name.equals(other = "Content-Type", ignoreCase = true) }?.value
+    get() = headers.firstOrNull { it.name.equals(other = "content-type", ignoreCase = true) }?.value
 
   companion object {
     inline operator fun <reified T> invoke(
@@ -41,7 +41,7 @@ data class HttpResponse(
       body: T,
     ) = HttpResponse(
       code = code,
-      headers = headers + Header("Content-Type", "application/toml"),
+      headers = headers + Header("content-type", "application/toml"),
       body = toml.encodeToString<T>(body).encodeUtf8(),
     )
   }

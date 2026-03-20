@@ -1,6 +1,5 @@
 package com.wasmo.installedapps
 
-import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
@@ -77,11 +76,10 @@ class RealInstalledAppHttpService(
 
     check(key.startsWith("/"))
 
-    val getObjectRequest = GetObjectRequest(
-      key = "resources/v${manifest.version}$key",
-    )
     val getObjectResponse = objectStore.get(
-      getObjectRequest,
+      request = GetObjectRequest(
+        key = "resources/v${manifest.version}$key",
+      )
     )
 
     val responseBody = getObjectResponse.value
@@ -89,7 +87,7 @@ class RealInstalledAppHttpService(
 
     return Response(
       headers = listOf(),
-      contentType = ContentTypes.ImageSvg, // TODO: get this from the object store.
+      contentType = getObjectResponse.contentType?.toMediaTypeOrNull(),
       body = ResponseBody {
         it.write(responseBody)
       },
