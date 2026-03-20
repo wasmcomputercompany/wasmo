@@ -2,7 +2,6 @@ package com.wasmo.objectstore
 
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okio.FileSystem
 import okio.Path
 
 sealed interface ObjectStoreAddress
@@ -20,7 +19,6 @@ data class BackblazeB2BucketAddress(
 }
 
 data class FileSystemObjectStoreAddress(
-  val fileSystem: FileSystem,
   val path: Path,
 ) : ObjectStoreAddress {
   override fun toString() = path.toString()

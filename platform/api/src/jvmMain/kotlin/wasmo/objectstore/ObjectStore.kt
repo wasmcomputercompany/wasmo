@@ -33,6 +33,7 @@ interface ObjectStore {
 data class PutObjectRequest(
   val key: String,
   val value: ByteString,
+  val contentType: String? = null,
 ) {
   init {
     key.validateKey()
@@ -54,6 +55,7 @@ data class GetObjectRequest(
 data class GetObjectResponse(
   val value: ByteString?,
   val etag: String? = value?.etag,
+  val contentType: String? = null,
 )
 
 data class DeleteObjectRequest(

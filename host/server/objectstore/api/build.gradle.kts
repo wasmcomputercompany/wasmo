@@ -22,6 +22,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.okio.fakefilesystem)
         implementation(project(":host:server:objectstore:fs"))
+        implementation(project(":host:tokens"))
         implementation(project(":platform:testing"))
       }
     }

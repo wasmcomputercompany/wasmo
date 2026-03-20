@@ -23,8 +23,8 @@ import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.coroutineScope
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encodeUtf8
-import okio.fakefilesystem.FakeFileSystem
 import wasmo.http.FakeHttpService
+import wasmo.objectstore.FakeObjectStore
 import wasmo.time.FakeClock
 
 /**
@@ -46,8 +46,8 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.wasmoDb
   val clock: FakeClock
     get() = graph.clock
-  val fileSystem: FakeFileSystem
-    get() = graph.fileSystem
+  val objectStore: FakeObjectStore
+    get() = graph.objectStore
   val sendEmailService: FakeSendEmailService
     get() = graph.sendEmailService
   val jobQueueTester: JobQueueTester
@@ -108,8 +108,6 @@ class ServiceTester : CoroutineTestInterceptor {
       }
     } finally {
       wasmoDb.close()
-      fileSystem.checkNoOpenFiles()
-      fileSystem.close()
     }
   }
 }

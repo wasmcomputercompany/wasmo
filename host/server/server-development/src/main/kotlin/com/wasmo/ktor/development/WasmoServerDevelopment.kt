@@ -16,7 +16,6 @@ import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.stripe.StripeCredentials
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
-import okio.FileSystem
 import okio.Path.Companion.toPath
 
 fun main(args: Array<String>) {
@@ -49,7 +48,6 @@ fun main(args: Array<String>) {
       sendFromEmailAddress = "noreply@wasmo.dev",
     ),
     objectStoreAddress = FileSystemObjectStoreAddress(
-      fileSystem = FileSystem.SYSTEM,
       path = System.getProperty("user.home").toPath() / ".wasmo",
     ),
     sessionCookieSpec = SessionCookieSpec.Http,

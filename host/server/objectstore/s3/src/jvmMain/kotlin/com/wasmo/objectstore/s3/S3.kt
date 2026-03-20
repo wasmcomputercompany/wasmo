@@ -19,6 +19,7 @@ import retrofit2.create
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.PUT
 import retrofit2.http.Query
 import retrofit2.http.Url
@@ -71,10 +72,11 @@ internal class S3ObjectStore(
   override suspend fun put(request: PutObjectRequest): PutObjectResponse {
     val response = service.put(
       key = request.key,
+      contentType = request.contentType,
       requestBody = request.value.toRequestBody(),
     )
     return PutObjectResponse(
-      etag = response.headers()["ETag"]!!,
+      etag = response.headers()["etag"]!!,
     )
   }
 
@@ -83,8 +85,9 @@ internal class S3ObjectStore(
       key = request.key,
     )
     return GetObjectResponse(
-      etag = response.headers()["ETag"]!!,
       value = response.body()!!.byteString(),
+      etag = response.headers()["etag"]!!,
+      contentType = response.headers()["content-type"],
     )
   }
 
@@ -123,6 +126,7 @@ internal interface SimpleStorageService {
   @PUT
   suspend fun put(
     @Url key: String,
+    @Header("content-type") contentType: String?,
     @Body requestBody: RequestBody,
   ): Response<Unit>
 

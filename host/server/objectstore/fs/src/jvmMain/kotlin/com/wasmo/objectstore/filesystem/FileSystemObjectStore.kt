@@ -1,5 +1,11 @@
 package com.wasmo.objectstore.filesystem
 
+import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
+import java.nio.file.FileSystemException
+import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.nio.file.attribute.UserDefinedFileAttributeView
 import okio.Buffer
 import okio.FileNotFoundException
 import okio.FileSystem
@@ -19,30 +25,46 @@ import wasmo.objectstore.PutObjectRequest
 import wasmo.objectstore.PutObjectResponse
 import wasmo.objectstore.etag
 
+/**
+ * This attempts to store file metadata in extended attributes.
+ *
+ * The file system doesn't guarantee to support this, and if it doesn't, that metadata will be lost.
+ * It's likely we'll need to later support an alternative place for metadata, such as sidecar files.
+ *
+ * https://man7.org/linux/man-pages/man7/xattr.7.html
+ */
 class FileSystemObjectStore(
-  private val fileSystem: FileSystem,
   private val path: Path,
 ) : ObjectStore {
+  private val fileSystem = FileSystem.SYSTEM
+
   override suspend fun put(request: PutObjectRequest): PutObjectResponse {
     val path = request.key.toPath()
     fileSystem.createDirectories(path.parent!!)
-    return fileSystem.write(path) {
+    fileSystem.write(path) {
       write(request.value)
-      PutObjectResponse(request.value.etag)
     }
+
+    path.userAttributes?.writeAttributeUtf8("user.mimetype", request.contentType)
+
+    return PutObjectResponse(request.value.etag)
   }
 
   override suspend fun get(request: GetObjectRequest): GetObjectResponse {
-    val value = try {
-      fileSystem.read(request.key.toPath()) {
+    val path = request.key.toPath()
+    try {
+      val value = fileSystem.read(path) {
         readByteString()
       }
+      return GetObjectResponse(
+        value = value,
+        contentType = path.userAttributes?.readAttributeUtf8("user.mimetype"),
+      )
     } catch (_: FileNotFoundException) {
-      null
+      return GetObjectResponse(
+        value = null,
+      )
     }
-    return GetObjectResponse(
-      value = value,
-    )
   }
 
   override suspend fun delete(request: DeleteObjectRequest): DeleteObjectResponse {
@@ -83,6 +105,37 @@ class FileSystemObjectStore(
 
   private fun Path.toKey(): String {
     return relativeTo(path).toString()
+  }
+
+  private val Path.userAttributes: UserDefinedFileAttributeView?
+    get() = Files.getFileAttributeView(
+      toNioPath(),
+      UserDefinedFileAttributeView::class.java,
+      LinkOption.NOFOLLOW_LINKS,
+    )
+
+  private fun UserDefinedFileAttributeView.readAttributeUtf8(name: String): String? {
+    try {
+      val byteArray = ByteArray(1024)
+      val byteCount = read(name, ByteBuffer.wrap(byteArray))
+      return when {
+        byteCount != 0 -> String(byteArray, 0, byteCount, StandardCharsets.UTF_8)
+        else -> null
+      }
+    } catch (_: FileSystemException) {
+      return null
+    }
+  }
+
+  private fun UserDefinedFileAttributeView.writeAttributeUtf8(name: String, value: String?) {
+    try {
+      when {
+        value.isNullOrEmpty() -> delete(name)
+        else -> write(name, ByteBuffer.wrap(value.toByteArray(StandardCharsets.UTF_8)))
+      }
+    } catch (_: FileSystemException) {
+      // Best-effort only.
+    }
   }
 
   private class CountingSink : Sink {

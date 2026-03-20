@@ -18,7 +18,7 @@ object FileSystemObjectStoreBindings {
   internal fun provideObjectStoreConnector(): ObjectStoreConnector = object : ObjectStoreConnector {
     override fun tryConnect(address: ObjectStoreAddress): ObjectStore? {
       if (address !is FileSystemObjectStoreAddress) return null
-      return FileSystemObjectStore(address.fileSystem, address.path)
+      return FileSystemObjectStore(address.path)
     }
   }
 }

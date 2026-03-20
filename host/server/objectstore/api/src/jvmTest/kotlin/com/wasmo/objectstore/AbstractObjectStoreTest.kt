@@ -36,6 +36,92 @@ abstract class AbstractObjectStoreTest {
   }
 
   @Test
+  fun contentTypeIsPreserved() = runTest {
+    store.put(
+      PutObjectRequest(
+        key = "one",
+        value = "this is plain text".encodeUtf8(),
+        contentType = "text/plain; charset=utf-8",
+      ),
+    )
+    store.put(
+      PutObjectRequest(
+        key = "two",
+        value = "<html>this is HTML</html>".encodeUtf8(),
+        contentType = "text/html",
+      ),
+    )
+
+    assertThat(store.get(GetObjectRequest("one")))
+      .isEqualTo(
+        GetObjectResponse(
+          value = "this is plain text".encodeUtf8(),
+          contentType = "text/plain; charset=utf-8",
+        ),
+      )
+    assertThat(store.get(GetObjectRequest("two")))
+      .isEqualTo(
+        GetObjectResponse(
+          value = "<html>this is HTML</html>".encodeUtf8(),
+          contentType = "text/html",
+        ),
+      )
+  }
+
+  @Test
+  fun contentTypeIsUpdated() = runTest {
+    store.put(
+      PutObjectRequest(
+        key = "one",
+        value = "this is plain text".encodeUtf8(),
+        contentType = "text/plain; charset=utf-8",
+      ),
+    )
+    store.put(
+      PutObjectRequest(
+        key = "one",
+        value = "this is plain text".encodeUtf8(),
+        contentType = "text/html",
+      ),
+    )
+
+    assertThat(store.get(GetObjectRequest("one")))
+      .isEqualTo(
+        GetObjectResponse(
+          value = "this is plain text".encodeUtf8(),
+          contentType = "text/html",
+        ),
+      )
+  }
+
+  @Test
+  fun contentTypeIsRemoved() = runTest {
+    store.put(
+      PutObjectRequest(
+        key = "one",
+        value = "this is plain text".encodeUtf8(),
+        contentType = "text/plain; charset=utf-8",
+      ),
+    )
+    store.put(
+      PutObjectRequest(
+        key = "one",
+        value = "this is plain text".encodeUtf8(),
+        contentType = null,
+      ),
+    )
+
+    assertThat(store.get(GetObjectRequest("one")))
+      .isEqualTo(
+        GetObjectResponse(
+          value = "this is plain text".encodeUtf8(),
+          contentType = null,
+        ),
+      )
+  }
+
+
+  @Test
   fun list() = runTest {
     store.put(PutObjectRequest("shows/pokerface/s1e1.mp4", casino))
     store.put(PutObjectRequest("shows/pokerface/s1e2.mp4", subway))

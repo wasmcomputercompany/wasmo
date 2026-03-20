@@ -4,8 +4,10 @@ import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.hasMessage
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import assertk.assertions.messageContains
 import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.api.InstalledAppSnapshot
@@ -15,14 +17,12 @@ import com.wasmo.framework.StateUserException
 import com.wasmo.packaging.Resource
 import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.service.ServiceTester
-import java.io.FileNotFoundException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.test.runTest
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
-import okio.Path.Companion.toPath
 import wasmo.http.FakeHttpService
 import wasmo.http.Header
 import wasmo.http.HttpResponse
@@ -47,12 +47,8 @@ class InstallAppActionTest {
     val installCompletedAt = tester.clock.now
     tester.jobQueueTester.awaitIdle()
 
-    val appWasmPath = "/${computer.slug}/${installedApp.slug}/resources/v1/app.wasm".toPath()
-    assertThat(
-      tester.fileSystem.read(appWasmPath) {
-        readByteString()
-      },
-    ).isEqualTo(installedApp.publishedApp.wasm)
+    val appWasmKey = "${computer.slug}/${installedApp.slug}/resources/v1/app.wasm"
+    assertThat(tester.objectStore[appWasmKey]).isEqualTo(installedApp.publishedApp.wasm)
 
     assertThat(computer.homePage().computerSnapshot?.apps)
       .isNotNull()
@@ -116,11 +112,8 @@ class InstallAppActionTest {
     val computer = client.createComputer()
     val installedApp = computer.installApp(brokenApp)
 
-    assertFailsWith<FileNotFoundException> {
-      tester.fileSystem.list(
-        "/${computer.slug}/${installedApp.slug}/resources/v1/".toPath(),
-      )
-    }
+    assertThat(tester.objectStore.list("${computer.slug}/${installedApp.slug}/resources/v1/"))
+      .isEmpty()
 
     assertThat(computer.homePage().computerSnapshot?.apps)
       .isNotNull()
@@ -164,12 +157,8 @@ class InstallAppActionTest {
     val computer = client.createComputer()
     val installedApp = computer.installApp(app)
 
-    val pancakesPath = "/${computer.slug}/${installedApp.slug}/resources/v1/pancakes.txt".toPath()
-    assertThat(
-      tester.fileSystem.read(pancakesPath) {
-        readByteString()
-      },
-    ).isEqualTo(pancakesData)
+    val pancakesKey = "${computer.slug}/${installedApp.slug}/resources/v1/pancakes.txt"
+    assertThat(tester.objectStore[pancakesKey]).isEqualTo(pancakesData)
   }
 
   @Test
@@ -198,12 +187,8 @@ class InstallAppActionTest {
     val computer = client.createComputer()
     val installedApp = computer.installApp(app)
 
-    val pancakesPath = "/${computer.slug}/${installedApp.slug}/resources/v1/pancakes.txt".toPath()
-    assertFailsWith<FileNotFoundException> {
-      tester.fileSystem.read(pancakesPath) {
-        readByteString()
-      }
-    }
+    val pancakesKey = "${computer.slug}/${installedApp.slug}/resources/v1/pancakes.txt"
+    assertThat(tester.objectStore[pancakesKey]).isNull()
 
     assertThat(tester.eventListener.takeEvent().exception)
       .isNotNull()

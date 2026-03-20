@@ -46,6 +46,7 @@ class BackblazeB2ConnectivityTest {
       PutObjectRequest(
         key = key,
         value = value,
+        contentType = "text/plain;charset=utf-8",
       ),
     )
 
@@ -56,6 +57,7 @@ class BackblazeB2ConnectivityTest {
     )
     assertThat(getObjectResponse.value).isEqualTo(value)
     assertThat(getObjectResponse.etag).isEqualTo(putObjectResponse.etag)
+    assertThat(getObjectResponse.contentType).isEqualTo("text/plain;charset=utf-8")
 
     val list = objectStore.list(ListObjectsRequest())
 

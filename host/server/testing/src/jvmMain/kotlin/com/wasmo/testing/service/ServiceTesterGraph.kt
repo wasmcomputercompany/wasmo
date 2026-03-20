@@ -19,9 +19,6 @@ import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
-import com.wasmo.objectstore.FileSystemObjectStoreAddress
-import com.wasmo.objectstore.ObjectStoreFactory
-import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
 import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
@@ -46,10 +43,10 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
-import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 import wasmo.http.FakeHttpService
 import wasmo.http.HttpService
+import wasmo.objectstore.FakeObjectStore
 import wasmo.objectstore.ObjectStore
 import wasmo.sql.SqlService
 import wasmo.time.FakeClock
@@ -59,7 +56,6 @@ import wasmo.time.FakeClock
   bindingContainers = [
     ComputerBindings::class,
     InstalledAppBindings::class,
-    FileSystemObjectStoreBindings::class,
   ],
 )
 interface ServiceTesterGraph {
@@ -73,7 +69,7 @@ interface ServiceTesterGraph {
   val deployment: Deployment
   val eventListener: FakeEventListener
   val fakeHttpClient: FakeHttpService
-  val fileSystem: FakeFileSystem
+  val objectStore: FakeObjectStore
   val jobQueueTester: JobQueueTester
   val sendEmailService: FakeSendEmailService
   val appPublisher: FakeAppPublisher
@@ -108,23 +104,6 @@ interface ServiceTesterGraph {
     StripePublishableKey("pk_test_5544332211")
 
   @Provides
-  @ForHost
-  @SingleIn(AppScope::class)
-  fun provideObjectStore(
-    objectStoreFactory: ObjectStoreFactory,
-    fileSystem: FakeFileSystem,
-  ): ObjectStore = objectStoreFactory.open(
-    FileSystemObjectStoreAddress(
-      fileSystem = fileSystem,
-      path = "/".toPath(),
-    ),
-  )
-
-  @Provides
-  @SingleIn(AppScope::class)
-  fun provideFileSystem(): FakeFileSystem = FakeFileSystem()
-
-  @Provides
   @SingleIn(AppScope::class)
   fun provideSessionCookieSpec(): SessionCookieSpec = SessionCookieSpec.Https
 
@@ -136,8 +115,12 @@ interface ServiceTesterGraph {
   @SingleIn(AppScope::class)
   fun provideAppCatalog(): AppCatalog = TestAppCatalog
 
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideFakeObjectStore(): FakeObjectStore = FakeObjectStore()
+
   @Binds
-  fun provideJobQueueEventListener(real: JobQueueTester): JobQueueEventListener
+  fun bindJobQueueEventListener(real: JobQueueTester): JobQueueEventListener
 
   @Binds
   fun bindClock(real: FakeClock): Clock
@@ -173,6 +156,10 @@ interface ServiceTesterGraph {
 
   @Binds
   fun bindAppLoader(real: FakeAppPublisher): AppLoader
+
+  @Binds
+  @ForHost
+  fun bindObjectStore(real: FakeObjectStore): ObjectStore
 
   @DependencyGraph.Factory
   interface Factory {
