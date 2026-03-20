@@ -31,9 +31,8 @@ class RealInstalledAppHttpService(
   override suspend fun execute(request: Request): Response<ResponseBody> {
     val selectedRoute = manifest.route
       .firstOrNull { route -> pathMatches(route.path, request.url.encodedPath) }
-      ?: throw NotFoundUserException()
 
-    val resourcePath = selectedRoute.resource_path
+    val resourcePath = selectedRoute?.resource_path
     if (resourcePath != null) {
       return executeResourcePath(
         selectedRoute = selectedRoute,
@@ -42,7 +41,7 @@ class RealInstalledAppHttpService(
       )
     }
 
-    val objectsKey = selectedRoute.objects_key
+    val objectsKey = selectedRoute?.objects_key
     if (objectsKey != null) {
       throw NotFoundUserException()
     }
@@ -53,7 +52,6 @@ class RealInstalledAppHttpService(
       val execute = loadedAppHttpService.execute(request.toPlatformHttpRequest())
       return execute.toHostHttpResponse()
     }
-
 
     throw NotFoundUserException()
   }

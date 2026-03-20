@@ -7,6 +7,7 @@ import okio.ByteString.Companion.encodeUtf8
 import okio.Closeable
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
+import wasmo.http.Header
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
 import wasmo.http.HttpService
@@ -32,6 +33,9 @@ class JournalWasmoApp(
 
   override suspend fun execute(request: HttpRequest): HttpResponse {
     return HttpResponse(
+      headers = listOf(
+        Header("content-type", "text/html"),
+      ),
       body = "hello world".encodeUtf8(),
     )
   }
