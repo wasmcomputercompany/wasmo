@@ -30,9 +30,9 @@ dependencyResolutionManagement {
   }
 }
 
-include(":apps:hello:api")
-include(":apps:hello:db")
-include(":apps:hello:server")
+include(":apps:journal:api")
+include(":apps:journal:db")
+include(":apps:journal:server")
 include(":apps:samples")
 include(":dom-tester")
 include(":host:api")

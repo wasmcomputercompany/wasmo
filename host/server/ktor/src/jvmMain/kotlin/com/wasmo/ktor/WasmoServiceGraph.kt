@@ -17,7 +17,6 @@ import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.events.LoggingEventListener
-import com.wasmo.hello.server.HelloWasmoApp
 import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ForHost
@@ -27,6 +26,7 @@ import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
+import com.wasmo.journal.server.JournalWasmoApp
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
 import com.wasmo.objectstore.s3.S3ObjectStoreBindings
@@ -166,7 +166,7 @@ internal interface WasmoServiceGraph {
   @Provides
   @SingleIn(AppScope::class)
   fun provideWasmoAppFactories(): Map<AppSlug, WasmoApp.Factory> = mapOf(
-    AppSlug("music") to HelloWasmoApp.Factory(),
+    AppSlug("pink") to JournalWasmoApp.Factory(),
   )
 
   @Binds

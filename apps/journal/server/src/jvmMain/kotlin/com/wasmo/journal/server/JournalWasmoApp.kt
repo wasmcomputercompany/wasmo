@@ -1,0 +1,54 @@
+package com.wasmo.journal.server
+
+import com.wasmo.journal.db.JournalDbService
+import com.wasmo.sqldelight.driver
+import kotlin.time.Clock
+import okio.ByteString.Companion.encodeUtf8
+import okio.Closeable
+import wasmo.app.Platform
+import wasmo.app.WasmoApp
+import wasmo.http.HttpRequest
+import wasmo.http.HttpResponse
+import wasmo.http.HttpService
+
+class JournalWasmoApp(
+  private val clock: Clock,
+  private val journalDb: JournalDbService,
+) : Closeable, WasmoApp, HttpService {
+  override val httpService: HttpService
+    get() = this
+
+  fun greetAction() = GreetAction(
+    clock = clock,
+    journalDb = journalDb,
+  )
+
+  override suspend fun afterInstall(
+    oldVersion: Long,
+    newVersion: Long,
+  ) {
+    journalDb.migrate()
+  }
+
+  override suspend fun execute(request: HttpRequest): HttpResponse {
+    return HttpResponse(
+      body = "hello world".encodeUtf8(),
+    )
+  }
+
+  override fun close() {
+    journalDb.close()
+  }
+
+  class Factory : WasmoApp.Factory {
+    override suspend fun create(platform: Platform): JournalWasmoApp {
+      val dbService = JournalDbService(
+        driver = platform.sqlService.getOrCreate().driver(),
+      )
+      return JournalWasmoApp(
+        clock = platform.clock,
+        journalDb = dbService,
+      )
+    }
+  }
+}

@@ -32,7 +32,7 @@ kotlin {
         implementation(libs.r2dbc.postgresql)
         implementation(libs.sqldelight.jdbc.driver)
         implementation(libs.stripe)
-        implementation(project(":apps:hello:server"))
+        implementation(project(":apps:journal:server"))
         implementation(project(":host:api"))
         implementation(project(":host:catalog"))
         implementation(project(":host:client:app"))
