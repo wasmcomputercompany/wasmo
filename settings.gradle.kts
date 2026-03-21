@@ -31,6 +31,7 @@ dependencyResolutionManagement {
 }
 
 include(":apps:journal:api")
+include(":apps:journal:client")
 include(":apps:journal:db")
 include(":apps:journal:server")
 include(":apps:samples")

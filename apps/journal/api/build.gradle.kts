@@ -5,12 +5,12 @@ plugins {
 }
 
 wasmoBuild {
-  libraryJvm()
+  libraryJvmJs()
 }
 
 kotlin {
   sourceSets {
-    val jvmMain by getting {
+    val commonMain by getting {
       dependencies {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
