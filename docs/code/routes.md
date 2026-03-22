@@ -27,8 +27,8 @@ https://music-jesse99.wasmo.com/
 This is the home page for the app `music` on the computer `jesse99`.
 
 Paths prefixed with `/.well-known/` are [well-known](https://en.wikipedia.org/wiki/Well-known_URI)
-and may be processed by the Wasmo host or routed to the application for processing. Initially there
-is an allowlist of well-known paths that are routed to the application.
+and may be processed by Wasmo OS or routed to the application for processing. Initially there is an
+allowlist of well-known paths that are routed to the application.
 
 All other paths are routed to the application for processing.
 

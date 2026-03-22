@@ -46,7 +46,7 @@ Build migrations `.sql` files:
 
 ```bash
 $ cd ../..
-$ ./gradlew :host:server:db:generateMainWasmoDbMigrations
+$ ./gradlew :os:server:db:generateMainWasmoDbMigrations
 ```
 
 Run all migrations:
@@ -54,7 +54,7 @@ Run all migrations:
 ```bash
 $ cd ../..
 $ export PGPASSWORD=password
-$ find ./host/server/db/build/resources/main/migrations \
+$ find ./os/server/db/build/resources/main/migrations \
   -name '*.sql' \
   | sort --version-sort \
   | xargs -n 1 \
@@ -68,7 +68,7 @@ Run an individual migration:
 
 ```bash
 $ cd ../..
-$ ./gradlew :host:server:db:generateMainWasmoDbMigrations
+$ ./gradlew :os:server:db:generateMainWasmoDbMigrations
 ```
 
 Replace _XXX_ with the migration number.
@@ -77,5 +77,5 @@ Replace _XXX_ with the migration number.
 $ cd ../..
 $ export PGPASSWORD=password
 $ psql "host=localhost dbname=wasmo_development user=postgres" -a -f \
-     ./host/server/db/build/resources/main/migrations/vXXX__db.sql
+     ./os/server/db/build/resources/main/migrations/vXXX__db.sql
 ```

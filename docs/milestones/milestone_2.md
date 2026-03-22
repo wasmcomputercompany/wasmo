@@ -11,8 +11,8 @@ Build out the journal web app with the following capabilities:
  - Attach an image to an entry
  - Publish an entry to the Internet (a blog post)
 
-Wasmo Host
-----------
+Wasmo OS
+--------
 
 Support the preinstalled journal app.
 

@@ -21,7 +21,7 @@ kotlin {
         implementation(libs.r2dbc.postgresql)
         implementation(project(":apps:journal:api"))
         implementation(project(":apps:journal:db"))
-        implementation(project(":host:tokens"))
+        implementation(project(":os:tokens"))
         implementation(project(":platform:api"))
         implementation(project(":platform:sqldelight"))
       }
@@ -32,9 +32,9 @@ kotlin {
         implementation(libs.commons.dbcp2)
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":platform:testing"))
-        implementation(project(":host:server:sql:api"))
-        implementation(project(":host:server:sql:r2dbc"))
-        implementation(project(":host:server:testing"))
+        implementation(project(":os:server:sql:api"))
+        implementation(project(":os:server:sql:r2dbc"))
+        implementation(project(":os:server:testing"))
       }
     }
   }

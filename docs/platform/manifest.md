@@ -125,8 +125,8 @@ fail.
 
 ### The `app.wasm` resource
 
-If the application is executable it must include a `app.wasm` resource. This special path is loaded
-by the host and executed.
+If the application is executable it must include an `app.wasm` resource. This special path is loaded
+by Wasmo OS and executed.
 
 
 `route` (Array)

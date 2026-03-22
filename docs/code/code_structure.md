@@ -32,7 +32,7 @@ For example:
  * A slug that's longer than permitted
  * A resource referenced by a manifest cannot be downloaded
 
-These errors are not problems with host service and shouldn't page the Wasmo operator. But they
+These errors are not problems with the OS and shouldn't page the Wasmo OS operator. But they
 should be surfaced to the end user or developer.
 
 All other exceptions are routed to the Wasmo operator should page that person.
