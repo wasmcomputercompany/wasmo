@@ -3,13 +3,14 @@ plugins {
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJs()
 }
 
 kotlin {
-  js {
-    browser()
-  }
-
   sourceSets {
     val jsMain by getting {
       dependencies {

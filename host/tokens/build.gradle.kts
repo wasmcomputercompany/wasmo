@@ -1,10 +1,8 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
+  id("wasmo-build")
 }
 
-kotlin {
-  js {
-    browser()
-  }
-  jvm()
+wasmoBuild {
+  libraryJvmJs()
 }

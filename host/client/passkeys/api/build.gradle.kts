@@ -1,12 +1,13 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
+  id("wasmo-build")
+}
+
+wasmoBuild {
+  libraryJs()
 }
 
 kotlin {
-  js {
-    browser()
-  }
-
   sourceSets {
     val commonMain by getting {
       dependencies {

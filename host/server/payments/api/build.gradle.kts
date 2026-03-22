@@ -6,6 +6,7 @@ plugins {
 wasmoBuild {
   libraryJvm()
 }
+
 kotlin {
   sourceSets {
     val jvmMain by getting {
