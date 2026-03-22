@@ -45,14 +45,16 @@ $ psql "host=localhost user=postgres" \
 Build migrations `.sql` files:
 
 ```bash
-$ ../gradlew --project-dir .. :host:server:db:generateMainWasmoDbMigrations
+$ cd ../..
+$ ./gradlew :host:server:db:generateMainWasmoDbMigrations
 ```
 
 Run all migrations:
 
 ```bash
+$ cd ../..
 $ export PGPASSWORD=password
-$ find ../host/server/db/build/resources/main/migrations \
+$ find ./host/server/db/build/resources/main/migrations \
   -name '*.sql' \
   | sort --version-sort \
   | xargs -n 1 \
@@ -65,13 +67,15 @@ Database Migrations
 Run an individual migration:
 
 ```bash
-$ ../gradlew --project-dir .. :host:server:db:generateMainWasmoDbMigrations
+$ cd ../..
+$ ./gradlew :host:server:db:generateMainWasmoDbMigrations
 ```
 
 Replace _XXX_ with the migration number.
 
 ```bash
+$ cd ../..
 $ export PGPASSWORD=password
 $ psql "host=localhost dbname=wasmo_development user=postgres" -a -f \
-     ../host/server/db/build/resources/main/migrations/vXXX__db.sql
+     ./host/server/db/build/resources/main/migrations/vXXX__db.sql
 ```

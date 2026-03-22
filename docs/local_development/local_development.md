@@ -4,6 +4,7 @@ Local Development
 Run a local server:
 
 ```bash
+$ cd ../..
 $ ./gradlew host:server:server-development:run
 ```
 

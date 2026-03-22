@@ -4,6 +4,7 @@ slug = 'smart'
 
 [[resource]]
 url = 'assets/maskable-icon.svg'
+content_type = 'image/svg+xml'
 
 [[route]]
 path = '/assets/maskable-icon.svg'
