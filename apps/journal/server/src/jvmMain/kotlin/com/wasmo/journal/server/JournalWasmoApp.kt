@@ -32,12 +32,18 @@ class JournalWasmoApp(
   }
 
   override suspend fun execute(request: HttpRequest): HttpResponse {
-    return HttpResponse(
-      headers = listOf(
-        Header("content-type", "text/html"),
-      ),
-      body = "hello world".encodeUtf8(),
-    )
+    return when (request.url.encodedPath) {
+      "/" -> HomeAction().home()
+
+      else -> {
+        HttpResponse(
+          headers = listOf(
+            Header("content-type", "text/html"),
+          ),
+          body = "hello world".encodeUtf8(),
+        )
+      }
+    }
   }
 
   override fun close() {

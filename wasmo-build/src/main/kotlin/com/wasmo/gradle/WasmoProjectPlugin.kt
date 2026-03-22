@@ -11,6 +11,7 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackOutput
 
 class WasmoProjectPlugin : Plugin<Project> {
@@ -82,7 +83,9 @@ internal class RealWasmoBuildExtension(
     }
   }
 
-  override fun consumeJsResources() {
+  override fun consumeJsResources(
+    path: String,
+  ) {
     val jsResources = project.configurations.create("jsResources") {
       isCanBeResolved = true
       isCanBeConsumed = false
@@ -93,12 +96,22 @@ internal class RealWasmoBuildExtension(
 
     val copyJsResources = project.tasks.register("copyJsResources", Copy::class.java) {
       from(jsResources)
-      into(project.layout.buildDirectory.dir("jsResources/static/assets"))
+      into(project.layout.buildDirectory.dir("jsResources/$path"))
     }
 
     val sourceSets = project.extensions.getByName("sourceSets") as SourceSetContainer
-    sourceSets.named("main").configure {
-      resources.srcDir(copyJsResources.map { project.layout.buildDirectory.dir("jsResources") })
+
+    // If the project is multiplatform, the JVM source set is jvmMain.
+    project.plugins.withType<KotlinMultiplatformPluginWrapper> {
+      sourceSets.named("jvmMain").configure {
+        resources.srcDir(copyJsResources.map { project.layout.buildDirectory.dir("jsResources") })
+      }
+    }
+    // Otherwise it's main.
+    project.plugins.withType<KotlinPluginWrapper> {
+      sourceSets.named("main").configure {
+        resources.srcDir(copyJsResources.map { project.layout.buildDirectory.dir("jsResources") })
+      }
     }
   }
 

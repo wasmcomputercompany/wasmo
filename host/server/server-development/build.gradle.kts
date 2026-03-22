@@ -5,7 +5,7 @@ plugins {
 }
 
 wasmoBuild {
-  consumeJsResources()
+  consumeJsResources("static/assets")
 }
 
 application {

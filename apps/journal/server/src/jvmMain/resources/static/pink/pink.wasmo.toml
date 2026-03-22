@@ -6,9 +6,17 @@ slug = 'pink'
 url = 'assets/maskable-icon.svg'
 content_type = 'image/svg+xml'
 
+[[resource]]
+url = 'assets/journal.js'
+content_type = 'text/javascript'
+
+[[resource]]
+url = 'assets/journal.js.map'
+content_type = 'application/json'
+
 [[route]]
-path = '/assets/maskable-icon.svg'
-resource_path = '/assets/maskable-icon.svg'
+path = '/assets/**'
+resource_path = '/assets/**'
 
 [launcher]
 label = 'Pink Journal'

@@ -6,6 +6,7 @@ plugins {
 
 wasmoBuild {
   libraryJvm()
+  consumeJsResources("static/pink/assets")
 }
 
 kotlin {
@@ -13,6 +14,7 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.html)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okhttp)
         implementation(libs.okio)
@@ -36,4 +38,8 @@ kotlin {
       }
     }
   }
+}
+
+dependencies {
+  add("jsResources", project(":apps:journal:client"))
 }
