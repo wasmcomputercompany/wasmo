@@ -242,5 +242,23 @@ a route, or generated on-demand by the application. This icon does not need to b
 See [the icons guide](./launcher_icons.md) for guidance on styling the launcher icons.
 
 
+`dev_mode` (Optional)
+---------------------
+
+This configuration is ignored unless Wasmo OS is running in dev mode.
+
+```toml
+[dev_mode]
+hot_reload = true
+```
+
+### `hot_reload` (Optional, default is false)
+
+True to automatically reload the app when its code or resources change. This is implemented by
+dangerously rewriting the application's HTML to add a reload trigger.
+
+See [the dev mode guide](./dev_mode.md) for details.
+
+
 [TOML]: https://toml.io/en/
 [common media types]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types/Common_types
