@@ -27,6 +27,22 @@ a:hover {
   vertical-align: middle;
 }
 
+/* ScreenContentWidth */
+
+/* Phones */
+@media (max-width: 480px) {
+  .ScreenContentWidth {
+    width: 320px;
+  }
+}
+
+/* Not phones */
+@media (min-width: 481px) {
+  .ScreenContentWidth {
+    width: 640px;
+  }
+}
+
 /* FormScreen */
 
 .FormScreen h1, .FormScreen h2, .FormScreen h3 {
@@ -169,19 +185,26 @@ a:hover {
 
 .Toolbar {
   height: 64px;
-  padding: 0 24px;
   box-sizing: border-box;
   margin-bottom: 16px;
 }
 
 .ToolbarTitle {
   font-size: 24px;
-  color: rgb(255 255 255 / 0.9)
+  color: rgb(255 255 255);
+  opacity: 0.7;
 }
 
 .ToolbarImageButton {
+  background-color: rgb(255 255 255);
   width: 40px;
   height: 64px;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.ToolbarImageButton:hover {
+  opacity: 1;
 }
 
 /* Scrim */
@@ -208,10 +231,10 @@ a:hover {
 /* Menu */
 
 .Menu {
-  background-color: rgba(255 255 255 / 0.9);
+  background-color: rgb(255 255 255);
+  color: rgb(0 0 0);
   border-top-left-radius: 16px;
   border-bottom-left-radius: 16px;
-  color: rgba(0 0 0 / 0.9);
   width: 240px;
   transition: all 300ms ease-in;
 }
@@ -232,6 +255,26 @@ a:hover {
   height: 64px;
   padding: 0 24px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  font-size: 18px;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.MenuItem:hover {
+  opacity: 1;
+}
+
+.Menu .Toolbar {
+  padding: 0 12px;
+  margin-bottom: 0;
+}
+
+.Menu .ToolbarImageButton {
+  background-color: rgb(0 0 0);
 }
 
 /* TeaserScreen */
@@ -271,4 +314,105 @@ a:hover {
 .SmartphoneFrame:hover .NameOverlay {
   color: rgba(255 255 255 / 1.0);
   background-color: rgba(0 0 0 / 0.3);
+}
+
+/* Launcher */
+
+.LauncherScreen {
+  font-family: "Outfit", sans-serif;
+  background: #1d72c2;
+  background: linear-gradient(135deg, rgba(29, 114, 194, 1) 0%, rgba(70, 112, 75, 1) 56%, rgba(35, 9, 74, 1) 100%);
+}
+
+.LauncherIconList {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  flex-wrap: wrap;
+}
+
+.LauncherIcon {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: start;
+  cursor: pointer;
+}
+
+.LauncherIconImage {
+  mask-image: url('/assets/launcher/mask.svg');
+  transition: all 200ms ease-in;
+}
+
+.LauncherIconLabel {
+  box-sizing: border-box;
+  text-align: center;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  color: rgb(255 255 255 / 0.8);
+  transition: all 200ms ease-in;
+}
+
+.LauncherIcon:hover .LauncherIconImage {
+  transform: scale(1.1, 1.1);
+}
+
+.LauncherIcon:hover .LauncherIconLabel {
+  color: rgb(255 255 255 / 1.0);
+}
+
+/* Launcher on Phones */
+@media (max-width: 480px) {
+  .LauncherIcon {
+    margin-top: 12px;
+    width: 80px;
+    height: 96px;
+  }
+
+  .LauncherIconImage {
+    mask-size: 64px 64px;
+    margin: 0 8px;
+    width: 64px;
+    height: 64px;
+  }
+
+  .LauncherIconLabel {
+    font-size: 10px;
+    padding-top: 4px;
+    width: 80px;
+    height: 32px;
+  }
+
+  .LauncherIcon:hover .LauncherIconImage {
+    mask-size: 68px 68px;
+    mask-position: -2px -2px;
+  }
+}
+
+/* Launcher on not phones */
+@media (min-width: 481px) {
+  .LauncherIcon {
+    margin-top: 24px;
+    width: 160px;
+    height: 192px;
+  }
+
+  .LauncherIconImage {
+    mask-size: 128px 128px;
+    margin: 0 16px;
+    width: 128px;
+    height: 128px;
+  }
+
+  .LauncherIconLabel {
+    font-size: 16px;
+    padding-top: 4px;
+    width: 160px;
+    height: 64px;
+  }
+
+  .LauncherIcon:hover .LauncherIconImage {
+    mask-size: 136px 136px;
+    mask-position: -4px -4px;
+  }
 }

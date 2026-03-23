@@ -36,7 +36,6 @@ kotlin {
         implementation(project(":os:api"))
         implementation(project(":os:catalog"))
         implementation(project(":os:client:app"))
-        implementation(project(":os:client:launcher"))
         implementation(project(":os:framework"))
         implementation(project(":os:logging"))
         implementation(project(":os:routes"))

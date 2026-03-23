@@ -59,7 +59,7 @@ fun Menu(
       Toolbar(
         attrs = {},
         title = {},
-        right = { toolbarChildAttrs ->
+        left = { toolbarChildAttrs ->
           ToolbarImageButton(
             attrs = toolbarChildAttrs,
             image40x64Path = "/assets/close40x64.svg",

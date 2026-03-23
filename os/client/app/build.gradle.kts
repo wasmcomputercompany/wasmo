@@ -31,7 +31,6 @@ kotlin {
         implementation(project(":os:api"))
         implementation(project(":os:client:compose"))
         implementation(project(":os:client:framework"))
-        implementation(project(":os:client:launcher"))
         implementation(project(":os:client:passkeys:api"))
         implementation(project(":os:client:passkeys:real"))
         implementation(project(":os:client:smartphoneframe"))

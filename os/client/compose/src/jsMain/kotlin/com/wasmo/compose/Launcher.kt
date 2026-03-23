@@ -1,4 +1,4 @@
-package com.wasmo.launcher
+package com.wasmo.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.web.events.SyntheticMouseEvent
@@ -49,7 +49,7 @@ fun LauncherIconList(
 ) {
   Div(
     attrs = {
-      classes("LauncherIconList")
+      classes("LauncherIconList", "ScreenContentWidth")
       attrs()
     },
   ) {

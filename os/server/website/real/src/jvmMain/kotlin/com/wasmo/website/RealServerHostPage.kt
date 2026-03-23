@@ -100,7 +100,6 @@ class RealServerHostPage(
         link(rel = "icon", href = "/icon.svg", type = "image/svg+xml")
         link(rel = "apple-touch-icon", href = "/apple-touch-icon.png")
         link(rel = "stylesheet", href = "/assets/Wasmo.css")
-        link(rel = "stylesheet", href = "/assets/launcher/Launcher.css")
 
         script(src = "/assets/wasmo.js") {}
         script(src = "https://js.stripe.com/clover/stripe.js") {}

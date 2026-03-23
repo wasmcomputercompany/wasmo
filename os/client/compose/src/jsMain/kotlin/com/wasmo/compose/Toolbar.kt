@@ -17,10 +17,8 @@ import org.jetbrains.compose.web.css.marginRight
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.DOMScope
 import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.Img
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLImageElement
 
 @Composable
 fun Toolbar(
@@ -89,18 +87,20 @@ fun ToolbarTitle(
 
 @Composable
 fun ToolbarImageButton(
-  attrs: AttrsScope<HTMLImageElement>.() -> Unit = {},
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   image40x64Path: String,
   altLabel: String,
   onClick: ((SyntheticMouseEvent) -> Unit)? = null,
 ) {
-  Img(
-    src = image40x64Path,
-    alt = altLabel,
+  Div(
     attrs = {
       classes("ToolbarImageButton")
+      style {
+        property("mask", "url('$image40x64Path')")
+      }
       if (onClick != null) {
         onClick { event ->
+          event.stopPropagation()
           onClick(event)
         }
       }

@@ -1,4 +1,4 @@
-package com.wasmo.launcher
+package com.wasmo.compose
 
 import app.cash.burst.InterceptTest
 import com.wasmo.domtester.SnapshotTester
@@ -11,7 +11,6 @@ class LauncherTest {
     stylesheetsUrls = listOf(
       "https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap",
       "/assets/Wasmo.css",
-      "/assets/launcher/Launcher.css",
     ),
   )
 
