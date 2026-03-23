@@ -8,9 +8,9 @@ import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun Scrim(
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   visible: Boolean,
   onClick: ((SyntheticMouseEvent) -> Unit)? = null,
-  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
 ) {
   Div(
     attrs = {

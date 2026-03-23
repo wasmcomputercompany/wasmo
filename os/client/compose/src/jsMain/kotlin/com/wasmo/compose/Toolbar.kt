@@ -1,6 +1,7 @@
 package com.wasmo.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.web.events.SyntheticMouseEvent
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
@@ -16,8 +17,10 @@ import org.jetbrains.compose.web.css.marginRight
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.DOMScope
 import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.Img
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLImageElement
 
 @Composable
 fun Toolbar(
@@ -82,4 +85,26 @@ fun ToolbarTitle(
   ) {
     content()
   }
+}
+
+@Composable
+fun ToolbarImageButton(
+  attrs: AttrsScope<HTMLImageElement>.() -> Unit = {},
+  image40x64Path: String,
+  altLabel: String,
+  onClick: ((SyntheticMouseEvent) -> Unit)? = null,
+) {
+  Img(
+    src = image40x64Path,
+    alt = altLabel,
+    attrs = {
+      classes("ToolbarImageButton")
+      if (onClick != null) {
+        onClick { event ->
+          onClick(event)
+        }
+      }
+      attrs()
+    },
+  )
 }
