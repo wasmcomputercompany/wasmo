@@ -166,7 +166,7 @@ internal interface WasmoServiceGraph {
   @Provides
   @SingleIn(AppScope::class)
   fun provideWasmoAppFactories(): Map<AppSlug, WasmoApp.Factory> = mapOf(
-    AppSlug("pink") to JournalWasmoApp.Factory(),
+    AppSlug("journal") to JournalWasmoApp.Factory(),
   )
 
   @Binds

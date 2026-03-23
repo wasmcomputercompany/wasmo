@@ -44,7 +44,6 @@ fun loadDefaultAppCatalogFromResources(): AppCatalog {
     AppSlug("library"),
     AppSlug("music"),
     AppSlug("photos"),
-    AppSlug("pink"),
     AppSlug("recipes"),
     AppSlug("smart"),
     AppSlug("snake"),

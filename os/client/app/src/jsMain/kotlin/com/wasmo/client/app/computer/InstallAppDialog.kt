@@ -27,7 +27,9 @@ fun InstallAppDialog(
   eventListener: (InstallAppDialogEvent) -> Unit,
 ) {
   val formState = model?.formState ?: FormState.Busy
-  var appUrlState by remember { mutableStateOf("") }
+  var appUrlState by remember {
+    mutableStateOf("http://wasmo.localhost:8080/journal/journal.wasmo.toml")
+  }
 
   CompositionLocalProvider(LocalFormState provides formState) {
     Dialog(

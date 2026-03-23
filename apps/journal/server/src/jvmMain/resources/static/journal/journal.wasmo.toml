@@ -1,6 +1,6 @@
 target = 'https://wasmo.com/sdk/1'
 version = 1
-slug = 'pink'
+slug = 'journal'
 
 [[resource]]
 url = 'assets/maskable-icon.svg'
@@ -19,5 +19,5 @@ path = '/assets/**'
 resource_path = '/assets/**'
 
 [launcher]
-label = 'Pink Journal'
+label = 'Journal'
 maskable_icon_path = '/assets/maskable-icon.svg'

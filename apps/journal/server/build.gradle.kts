@@ -6,7 +6,7 @@ plugins {
 
 wasmoBuild {
   libraryJvm()
-  consumeJsResources("static/pink/assets")
+  consumeJsResources("static/journal/assets")
 }
 
 kotlin {
