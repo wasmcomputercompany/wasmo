@@ -10,7 +10,6 @@ interface WasmoApi {
   ): AuthenticatePasskeyResponse
 
   suspend fun installApp(
-    computer: String,
     request: InstallAppRequest,
   ): InstallAppResponse
 

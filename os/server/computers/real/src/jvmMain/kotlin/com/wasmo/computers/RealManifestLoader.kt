@@ -8,6 +8,7 @@ import com.wasmo.packaging.check
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.HttpUrl
+import okio.IOException
 import wasmo.http.HttpRequest
 import wasmo.http.HttpService
 
@@ -17,12 +18,16 @@ class RealManifestLoader(
   private val httpService: HttpService,
 ) : ManifestLoader {
   override suspend fun loadManifest(manifestUrl: HttpUrl): AppManifest {
-    val manifestResponse = httpService.execute(
-      HttpRequest(
-        method = "GET",
-        url = manifestUrl,
-      ),
-    )
+    val manifestResponse = try {
+      httpService.execute(
+        HttpRequest(
+          method = "GET",
+          url = manifestUrl,
+        ),
+      )
+    } catch (e: IOException) {
+      throw StateUserException("failed to fetch manifest", e)
+    }
 
     checkUser(manifestResponse.isSuccessful) {
       "failed to fetch manifest: HTTP ${manifestResponse.code}"

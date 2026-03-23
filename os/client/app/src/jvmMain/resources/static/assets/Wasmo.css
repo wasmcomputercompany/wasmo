@@ -236,6 +236,7 @@ a:hover {
   color: rgb(255 255 255);
   border-radius: 24px;
   transition: all 300ms ease-in;
+  width: min(100%, 420px);
 }
 
 .DialogVisible {
@@ -257,20 +258,6 @@ a:hover {
 
 .Dialog .ToolbarImageButton {
   background-color: rgb(255 255 255);
-}
-
-/* Dialog on phones */
-@media (max-width: 480px) {
-  .Dialog {
-    width: 320px;
-  }
-}
-
-/* Dialog on not phones */
-@media (min-width: 481px) {
-  .Dialog {
-    width: 640px;
-  }
 }
 
 /* Menu */

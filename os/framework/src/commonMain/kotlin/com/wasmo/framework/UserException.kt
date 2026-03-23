@@ -3,12 +3,18 @@ package com.wasmo.framework
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-sealed class UserException(message: String?) : Exception(message)
+sealed class UserException(
+  message: String?,
+  cause: Throwable? = null,
+) : Exception(message, cause)
 
 class NotFoundUserException(message: String = "not found") : UserException(message)
 
 /** Thrown when a call fails because of a precondition in the subject state. */
-class StateUserException(message: String) : UserException(message)
+class StateUserException(
+  message: String,
+  cause: Throwable? = null,
+) : UserException(message, cause)
 
 /** Thrown when the user's argument is invalid. */
 class ArgumentUserException(message: String) : UserException(message)

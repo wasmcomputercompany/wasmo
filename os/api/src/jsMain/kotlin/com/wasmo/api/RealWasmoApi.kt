@@ -24,10 +24,9 @@ class RealWasmoApi : WasmoApi {
   }
 
   override suspend fun installApp(
-    computer: String,
     request: InstallAppRequest,
   ): InstallAppResponse {
-    return call("/computers/${computer}/install-app", request)
+    return call("/install-app", request)
   }
 
   override suspend fun linkEmailAddress(

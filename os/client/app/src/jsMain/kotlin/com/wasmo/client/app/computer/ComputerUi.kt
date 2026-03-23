@@ -6,28 +6,35 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.routes.AppRoute
+import com.wasmo.client.app.FormState
+import com.wasmo.client.app.data.ComputerDataService
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
+import com.wasmo.common.logging.Logger
 import com.wasmo.identifiers.ComputerSlug
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
 @AssistedInject
 class ComputerUi(
   @Assisted private val slug: ComputerSlug,
+  private val coroutineScope: CoroutineScope,
+  private val logger: Logger,
   private val router: Router,
+  private val computerDataService: ComputerDataService,
   computerSnapshot: ComputerSnapshot?,
 ) : Ui {
-
   private val computerSnapshot: ComputerSnapshot = computerSnapshot
     ?: error("unexpected call of ComputerUi.Factory.create(), snapshot is absent")
 
-  private var menuVisible by mutableStateOf(false)
-  private var installAppDialogVisible by mutableStateOf(false)
+  private var menuModel by mutableStateOf<ComputerMenuModel?>(null)
+  private var installAppDialogModel by mutableStateOf<InstallAppDialogModel?>(null)
 
   @Composable
   override fun Show(
@@ -35,63 +42,78 @@ class ComputerUi(
   ) {
     Computer(
       attrs = attrs,
-      scrimVisible = menuVisible || installAppDialogVisible,
-      eventListener = { event ->
-        when (event) {
-          ComputerEvent.ClickShowMenu -> {
-            menuVisible = true
-          }
-
-          ComputerEvent.ClickDismissMenu -> menuVisible = false
-          is ComputerEvent.ClickApp -> {
-            router.goTo(AppRoute(slug, event.app), TransitionDirection.PUSH)
-          }
-
-          ComputerEvent.ClickScrim -> {
-            installAppDialogVisible = false
-            menuVisible = false
-          }
-        }
-      },
+      scrimVisible = menuModel != null || installAppDialogModel != null,
+      eventListener = ::onComputerEvent,
       overlays = { computerChildAttrs ->
         ComputerMenu(
           attrs = computerChildAttrs,
-          visible = menuVisible,
-          eventListener = { event ->
-            when (event) {
-              ComputerMenuEvent.ClickDismiss -> {
-                menuVisible = false
-              }
-
-              ComputerMenuEvent.ClickInstallApp -> {
-                menuVisible = false
-                installAppDialogVisible = true
-              }
-
-              ComputerMenuEvent.ClickSettings -> {
-                menuVisible = false
-              }
-            }
-          },
+          model = menuModel,
+          eventListener = ::onComputerMenuEvent,
         )
         InstallAppDialog(
           attrs = computerChildAttrs,
-          visible = installAppDialogVisible,
-          eventListener = { event ->
-            when (event) {
-              InstallAppDialogEvent.ClickDismiss -> {
-                installAppDialogVisible = false
-              }
-
-              is InstallAppDialogEvent.ClickInstall -> {
-                installAppDialogVisible = false
-              }
-            }
-          },
+          model = installAppDialogModel,
+          eventListener = ::onInstallAppDialogEvent,
         )
       },
       snapshot = computerSnapshot,
     )
+  }
+
+  private fun onComputerEvent(event: ComputerEvent) {
+    when (event) {
+      ComputerEvent.ClickShowMenu -> {
+        menuModel = ComputerMenuModel()
+      }
+
+      ComputerEvent.ClickDismissMenu -> menuModel = null
+      is ComputerEvent.ClickApp -> {
+        router.goTo(AppRoute(slug, event.app), TransitionDirection.PUSH)
+      }
+
+      ComputerEvent.ClickScrim -> {
+        installAppDialogModel = null
+        menuModel = null
+      }
+    }
+  }
+
+  private fun onComputerMenuEvent(event: ComputerMenuEvent) {
+    when (event) {
+      ComputerMenuEvent.ClickDismiss -> {
+        menuModel = null
+      }
+
+      ComputerMenuEvent.ClickInstallApp -> {
+        menuModel = null
+        installAppDialogModel = InstallAppDialogModel(FormState.Ready)
+      }
+
+      ComputerMenuEvent.ClickSettings -> {
+        menuModel = null
+      }
+    }
+  }
+
+  private fun onInstallAppDialogEvent(event: InstallAppDialogEvent) {
+    when (event) {
+      InstallAppDialogEvent.ClickDismiss -> {
+        installAppDialogModel = null
+      }
+
+      is InstallAppDialogEvent.ClickInstall -> {
+        installAppDialogModel = InstallAppDialogModel(FormState.Busy)
+        coroutineScope.launch {
+          try {
+            computerDataService.install(event.appUrl)
+            installAppDialogModel = null
+          } catch (e: Exception) {
+            logger.info("failed to install app", e)
+            installAppDialogModel = InstallAppDialogModel(FormState.Ready)
+          }
+        }
+      }
+    }
   }
 
   @AssistedFactory

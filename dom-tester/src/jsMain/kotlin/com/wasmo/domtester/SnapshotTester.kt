@@ -35,12 +35,21 @@ class SnapshotTester(
   private var testFunction: CoroutineTestFunction? = null
   private var snapshotCount = 0
 
+  /** Don't throw exceptions immediately; collect them all and then throw. */
+  private var queuedException: SnapshotMismatchException? = null
+
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     this.testFunction = testFunction
     val stylesheetLinkElements = (document.documentElement as HTMLElement)
       .addStylesheets(stylesheetsUrls)
     try {
       testFunction()
+
+      val exceptionThrow = queuedException
+      if (exceptionThrow != null) {
+        queuedException = null
+        throw exceptionThrow
+      }
     } finally {
       this.testFunction = null
       for (element in stylesheetLinkElements) {
@@ -72,7 +81,7 @@ class SnapshotTester(
 
     if (images.any { it == null }) {
       snapshotStore.put(htmlPath, Blob(arrayOf(html)), writeToBuildDir = true)
-      throw SnapshotMismatchException("html2canvas returned null for $pathPrefix.png")
+      return addException("html2canvas returned null for $pathPrefix.png")
     }
 
     var createdNewSnapshot = false
@@ -96,7 +105,7 @@ class SnapshotTester(
         // Save the delta image and wrapped HTML so the developer can see what's different.
         snapshotStore.put("$pathPrefix.diff.png", diffResult.deltaImage!!, writeToBuildDir = true)
 
-        throw SnapshotMismatchException(
+        return addException(
           "Current snapshot does not match the existing file $pngPath " +
             "(${diffResult.percentDifference}% different, ${diffResult.numDifferentPixels} pixels)",
         )
@@ -104,7 +113,7 @@ class SnapshotTester(
     }
 
     if (createdNewSnapshot) {
-      throw SnapshotMismatchException("Created new snapshot file $pathPrefix.png")
+      return addException("Created new snapshot file $pathPrefix.png")
     }
   }
 
@@ -145,6 +154,14 @@ class SnapshotTester(
     if (name != null) {
       append("-")
       append(name)
+    }
+  }
+
+  private fun addException(message: String) {
+    val exception = SnapshotMismatchException(message)
+    when (val existing = queuedException) {
+      null -> queuedException = exception
+      else -> existing.addSuppressed(exception)
     }
   }
 }

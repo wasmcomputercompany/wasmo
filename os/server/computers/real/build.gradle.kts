@@ -22,6 +22,7 @@ kotlin {
         implementation(libs.tomlkt)
         implementation(project(":os:api"))
         implementation(project(":os:framework"))
+        implementation(project(":os:logging"))
         implementation(project(":os:server:accounts:api"))
         implementation(project(":os:server:calls:api"))
         implementation(project(":os:server:computers:api"))

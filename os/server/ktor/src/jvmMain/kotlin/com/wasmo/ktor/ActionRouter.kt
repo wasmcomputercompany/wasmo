@@ -109,6 +109,15 @@ class ActionRouter(
         callGraph.hostPageAction.get(url).response
       }
     }
+
+    rpc<InstallAppRequest, InstallAppResponse>(
+      path = "/install-app",
+    ) { callGraph, request, wasmoUrl, _ ->
+      callGraph.installAppAction.install(
+        computerSlug = ComputerSlug(wasmoUrl.subdomain ?: throw NotFoundUserException()),
+        request = request,
+      )
+    }
   }
 
   private fun Route.createAppRoutes() {
@@ -140,67 +149,58 @@ class ActionRouter(
   private fun Route.createRpcs() {
     rpc<CreateInviteRequest, CreateInviteResponse>(
       path = "/create-invite",
-    ) { callGraph, request, _ ->
+    ) { callGraph, request, _, _ ->
       callGraph.createInviteAction.create(request)
     }
 
     rpc<AccountSnapshotRequest, AccountSnapshotResponse>(
       path = "/account-snapshot",
-    ) { callGraph, request, _ ->
+    ) { callGraph, request, _, _ ->
       callGraph.accountSnapshotAction.get(request)
     }
 
     rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
       path = "/register-passkey",
-    ) { callGraph, request, _ ->
+    ) { callGraph, request, _, _ ->
       callGraph.registerPasskeyAction.register(request)
     }
 
     rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
       path = "/authenticate-passkey",
-    ) { callGraph, request, _ ->
+    ) { callGraph, request, _, _ ->
       callGraph.authenticatePasskeyAction.authenticate(request)
-    }
-
-    rpc<InstallAppRequest, InstallAppResponse>(
-      path = "/computers/{computer}/install-app",
-    ) { callGraph, request, call ->
-      callGraph.installAppAction.install(
-        computerSlug = ComputerSlug(call.pathParameters["computer"]!!),
-        request = request,
-      )
     }
 
     rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
       path = "/link-email-address",
-    ) { callGraph, request, _ ->
+    ) { callGraph, request, _, _ ->
       callGraph.linkEmailAddressAction.link(request)
     }
 
     rpc<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse>(
       path = "/confirm-email-address",
-    ) { callGraph, request, _ ->
+    ) { callGraph, request, _, _ ->
       callGraph.confirmEmailAddressAction.confirm(request)
     }
 
     rpc<CreateComputerSpecRequest, CreateComputerSpecResponse>(
       path = "/create-computer-spec",
-    ) { callGraph, request, _ ->
+    ) { callGraph, request, _, _ ->
       callGraph.createComputerSpecAction.create(request)
     }
   }
 
   private inline fun <reified R, reified S> Route.rpc(
     path: String,
-    crossinline action: suspend (CallGraph, R, RoutingCall) -> Response<S>,
+    crossinline action: suspend (CallGraph, R, Url, RoutingCall) -> Response<S>,
   ) {
     val requestAdapter = serializer<R>()
     val responseAdapter = serializer<S>()
 
     route(path, HttpMethod.Post) {
-      handle { callGraph, _, call ->
+      handle { callGraph, wasmoUrl, call ->
         val request = requestAdapter.decode(call.request)
-        val response = action(callGraph, request, call)
+        val response = action(callGraph, request, wasmoUrl, call)
         Response(
           status = response.status,
           headers = response.headers,

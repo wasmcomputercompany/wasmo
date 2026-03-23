@@ -17,12 +17,12 @@
 
 package com.wasmo.domtester
 
-import app.cash.burst.Burst
-import app.cash.burst.InterceptTest
+import app.cash.burst.coroutines.CoroutineTestFunction
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.browser.document
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.dom.appendElement
 import kotlinx.dom.appendText
@@ -31,11 +31,10 @@ import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.Text
 
 /**
- * This isn't a proper unit test for [SnapshotTester], it's just a sample.
+ * Note that this doesn't apply [SnapshotTester] with Burst. Instead, it sets up the interceptor
+ * manually in order to confirm exceptions are propagated properly.
  */
-@Burst
 internal class SnapshotTesterSampleTest {
-  @InterceptTest
   private val snapshotTester = SnapshotTester()
 
   @AfterTest
@@ -45,42 +44,66 @@ internal class SnapshotTesterSampleTest {
 
   @Test
   fun happyPath() = runTest {
-    val helloWorld = document.body!!.apply {
-      appendElement("h1") {
-        appendText("hello world")
+    interceptTest("happyPath") {
+      val helloWorld = document.body!!.apply {
+        appendElement("h1") {
+          appendText("hello world")
+        }
       }
-    }
 
-    snapshotTester.snapshot(helloWorld, Frame.Iphone14)
+      snapshotTester.snapshot(helloWorld, Frame.Iphone14)
+    }
   }
 
   @Test
   fun compose() = runTest {
-    snapshotTester.snapshot {
-      H1 {
-        Text("hello compose")
+    interceptTest("compose") {
+      snapshotTester.snapshot {
+        H1 {
+          Text("hello compose")
+        }
       }
     }
   }
 
   @Test
   fun mismatchedSnapshot() = runTest {
-    val body = document.body!!
-    body.apply {
-      appendElement("h1") {
-        appendText("hello world")
+    interceptTest("mismatchedSnapshot") {
+      val body = document.body!!
+      body.apply {
+        appendElement("h1") {
+          appendText("hello world")
+        }
       }
-    }
-    snapshotTester.snapshot(body, Frame.Iphone14, "mismatch")
-
-    body.apply {
-      clear()
-      appendElement("h2") {
-        appendText("hello world")
-      }
-    }
-    assertFailsWith<SnapshotMismatchException> {
       snapshotTester.snapshot(body, Frame.Iphone14, "mismatch")
     }
+
+    assertFailsWith<SnapshotMismatchException> {
+      interceptTest("mismatchedSnapshot") {
+        val body = document.body!!
+        body.apply {
+          clear()
+          appendElement("h2") {
+            appendText("hello world")
+          }
+        }
+        snapshotTester.snapshot(body, Frame.Iphone14, "mismatch")
+      }
+    }
+  }
+
+  private suspend fun TestScope.interceptTest(functionName: String, body: suspend () -> Unit) {
+    snapshotTester.intercept(
+      object : CoroutineTestFunction(
+        scope = this,
+        packageName = "com.wasmo.domtester",
+        className = "SnapshotTesterSampleTest",
+        functionName = functionName,
+      ) {
+        override suspend fun invoke() {
+          body()
+        }
+      },
+    )
   }
 }

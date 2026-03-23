@@ -9,12 +9,12 @@ import org.w3c.dom.HTMLDivElement
 @Composable
 fun ComputerMenu(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
-  visible: Boolean,
+  model: ComputerMenuModel?,
   eventListener: (ComputerMenuEvent) -> Unit,
 ) {
   Menu(
     attrs = attrs,
-    visible = visible,
+    visible = model != null,
     onDismiss = {
       eventListener(ComputerMenuEvent.ClickDismiss)
     },

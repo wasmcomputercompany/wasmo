@@ -27,6 +27,13 @@ To debug, HTML is written to `build/dom-tester-snapshots`. Because these files d
 or other resources, run the service at `http://localhost:8080` while browsing these snapshots.
 
 
+### Delayed Failures
+
+When a call to [snapshot] detects a mismatch, that failure is queued until the test completes. This
+is intended to avoid a usability problem for tests that take multiple snapshots. In such tests all
+snapshots are emitted before any failures are reported.
+
+
 [Karma]: https://karma-runner.github.io/0.13/config/configuration-file.html
 [html-to-image]: https://github.com/bubkoo/html-to-image
 [redwood]: https://github.com/cashapp/redwood/

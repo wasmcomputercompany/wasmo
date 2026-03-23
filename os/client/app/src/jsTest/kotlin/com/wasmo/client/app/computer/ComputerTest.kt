@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import app.cash.burst.InterceptTest
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledAppSnapshot
+import com.wasmo.client.app.FormState
 import com.wasmo.domtester.SnapshotTester
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -23,8 +24,8 @@ class ComputerTest {
     ),
   )
 
-  private var menuVisible by mutableStateOf(false)
-  private var installAppDialogVisible by mutableStateOf(false)
+  private var menuModel by mutableStateOf<ComputerMenuModel?>(null)
+  private var installAppDialogModel by mutableStateOf<InstallAppDialogModel?>(null)
 
   @Test
   fun happyPath() = runTest {
@@ -32,13 +33,13 @@ class ComputerTest {
       Subject()
     }
 
-    menuVisible = true
+    menuModel = ComputerMenuModel()
     snapshotTester.snapshot(name = "menuVisible") {
       Subject()
     }
 
-    menuVisible = false
-    installAppDialogVisible = true
+    menuModel = null
+    installAppDialogModel = InstallAppDialogModel(formState = FormState.Ready)
     snapshotTester.snapshot(name = "installAppDialogVisible") {
       Subject()
     }
@@ -47,7 +48,7 @@ class ComputerTest {
   @Composable
   fun Subject() {
     Computer(
-      scrimVisible = menuVisible || installAppDialogVisible,
+      scrimVisible = menuModel != null || installAppDialogModel != null,
       snapshot = ComputerSnapshot(
         slug = ComputerSlug("jesse99"),
         apps = listOf(
@@ -68,12 +69,12 @@ class ComputerTest {
       overlays = { computerChildAttrs ->
         ComputerMenu(
           attrs = computerChildAttrs,
-          visible = menuVisible,
+          model = menuModel,
           eventListener = {},
         )
         InstallAppDialog(
           attrs = computerChildAttrs,
-          visible = installAppDialogVisible,
+          model = installAppDialogModel,
           eventListener = {},
         )
       },

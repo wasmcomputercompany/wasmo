@@ -11,6 +11,7 @@ interface AccountDataService {
   val accountSnapshotState: StateFlow<AccountSnapshot>
   val accountSnapshot: AccountSnapshot
 
+  /** Call this when a new account snapshot is received. */
   fun receiveAccountSnapshot(snapshot: AccountSnapshot)
 }
 
