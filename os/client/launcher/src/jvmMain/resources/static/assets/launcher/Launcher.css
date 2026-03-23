@@ -20,7 +20,6 @@
 }
 
 .LauncherIconImage {
-  z-index: 1;
   mask-image: url('/assets/launcher/mask.svg');
   transition: all 200ms ease-in;
 }

@@ -89,7 +89,7 @@ fun BuildYoursScreen(
 
     if (showBuildForm) {
       SmallText {
-        Text("jesse99.wasmo.com is available.")
+        Text("$nameState.wasmo.com is available.")
       }
       SmallText {
         Text("Names may use lowercase a-z characters and 0-9 numbers. No spaces or punctuation!")
@@ -312,8 +312,10 @@ fun BuildYoursToolbar(
       }
       attrs()
     },
-    title = {
-      ToolbarTitle {
+    title = { toolbarChildAttrs ->
+      ToolbarTitle(
+        attrs = toolbarChildAttrs,
+      ) {
         Text("")
       }
     },

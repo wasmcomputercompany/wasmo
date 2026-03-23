@@ -1,7 +1,7 @@
 package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
-import com.wasmo.compose.ComposableElement
+import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.backgroundColor
@@ -15,11 +15,12 @@ import org.jetbrains.compose.web.css.rgb
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.HTMLElement
 
 @Composable
 fun EnvironmentFrame(
   environment: Environment,
-  content: ComposableElement,
+  content: @Composable (attrs: AttrsScope<HTMLElement>.() -> Unit) -> Unit,
 ) {
   val warningLabel = environment.warningLabel
   if (warningLabel == null) {

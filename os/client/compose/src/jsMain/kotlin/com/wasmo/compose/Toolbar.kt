@@ -14,15 +14,23 @@ import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.marginLeft
 import org.jetbrains.compose.web.css.marginRight
 import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.dom.DOMScope
 import org.jetbrains.compose.web.dom.Div
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLElement
 
 @Composable
 fun Toolbar(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
-  left: ComposableElement? = null,
-  title: ComposableElement = {},
-  right: ComposableElement? = null,
+  left: (@Composable DOMScope<HTMLDivElement>.(
+    attrs: AttrsScope<HTMLElement>.() -> Unit,
+  ) -> Unit)? = null,
+  title: @Composable DOMScope<HTMLDivElement>.(
+    attrs: AttrsScope<HTMLElement>.() -> Unit,
+  ) -> Unit,
+  right: (@Composable DOMScope<HTMLDivElement>.(
+    attrs: AttrsScope<HTMLElement>.() -> Unit,
+  ) -> Unit)? = null,
 ) {
   Div(
     attrs = {
@@ -36,7 +44,7 @@ fun Toolbar(
       attrs()
     },
   ) {
-    left?.invoke {
+    left?.invoke(this) {
     }
     title {
       style {
@@ -56,7 +64,7 @@ fun Toolbar(
         )
       }
     }
-    right?.invoke {
+    right?.invoke(this) {
     }
   }
 }
