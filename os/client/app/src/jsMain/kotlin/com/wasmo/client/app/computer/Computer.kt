@@ -5,8 +5,6 @@ import com.wasmo.api.ComputerSnapshot
 import com.wasmo.compose.Icon
 import com.wasmo.compose.LauncherIconList
 import com.wasmo.compose.LauncherScreen
-import com.wasmo.compose.Menu
-import com.wasmo.compose.MenuItem
 import com.wasmo.compose.OverlayContainer
 import com.wasmo.compose.Toolbar
 import com.wasmo.compose.ToolbarImageButton
@@ -20,6 +18,7 @@ import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
+import org.jetbrains.compose.web.dom.DOMScope
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
@@ -27,9 +26,12 @@ import org.w3c.dom.HTMLElement
 @Composable
 fun Computer(
   attrs: AttrsScope<HTMLElement>.() -> Unit = {},
-  menuVisible: Boolean,
+  scrimVisible: Boolean,
   snapshot: ComputerSnapshot,
   eventListener: (ComputerEvent) -> Unit,
+  overlays: @Composable DOMScope<HTMLDivElement>.(
+    attrs: AttrsScope<HTMLElement>.() -> Unit,
+  ) -> Unit = {},
 ) {
   OverlayContainer(
     attrs = {
@@ -40,16 +42,12 @@ fun Computer(
       }
       attrs()
     },
-    showScrim = menuVisible,
+    showScrim = scrimVisible,
     onClickScrim = {
-      eventListener(ComputerEvent.ClickDismissMenu)
+      eventListener(ComputerEvent.ClickScrim)
     },
     overlay = { zstackChildAttrs ->
-      ComputerMenu(
-        attrs = zstackChildAttrs,
-        menuVisible = menuVisible,
-        eventListener = eventListener,
-      )
+      overlays(zstackChildAttrs)
     },
   ) { zstackChildAttrs ->
     LauncherScreen(
@@ -69,35 +67,6 @@ fun Computer(
       }
     }
   }
-}
-
-@Composable
-fun ComputerMenu(
-  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
-  menuVisible: Boolean,
-  eventListener: (ComputerEvent) -> Unit,
-) {
-  Menu(
-    attrs = attrs,
-    visible = menuVisible,
-    onDismiss = {
-      eventListener(ComputerEvent.ClickDismissMenu)
-    },
-    content = {
-      MenuItem(
-        label = "Install App",
-        onClick = {
-          eventListener(ComputerEvent.ClickInstallApp)
-        },
-      )
-      MenuItem(
-        label = "Settings",
-        onClick = {
-          eventListener(ComputerEvent.ClickSettings)
-        },
-      )
-    },
-  )
 }
 
 @Composable
@@ -136,7 +105,6 @@ sealed interface ComputerEvent {
   ) : ComputerEvent
 
   object ClickShowMenu : ComputerEvent
+  object ClickScrim : ComputerEvent
   object ClickDismissMenu : ComputerEvent
-  object ClickInstallApp : ComputerEvent
-  object ClickSettings : ComputerEvent
 }

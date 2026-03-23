@@ -54,17 +54,8 @@ fun FormScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   content: @Composable () -> Unit,
 ) {
-  val localFormState = LocalFormState.current
-
   Div(
     attrs = {
-      classes(
-        "FormScreen",
-        when (localFormState) {
-          FormState.Ready -> "FormScreenReady"
-          FormState.Busy -> "FormScreenBusy"
-        },
-      )
       style {
         width(100.percent)
         height(100.percent)
@@ -78,13 +69,9 @@ fun FormScreen(
       attrs()
     },
   ) {
-    Div(
+    Form(
       attrs = {
         style {
-          display(DisplayStyle.Flex)
-          flexDirection(FlexDirection.Column)
-          alignItems(AlignItems.Stretch)
-          justifyContent(JustifyContent.Start)
           boxSizing("border-box")
           property("margin", "auto 0")
           property("width", "min(100%, 420px)")
@@ -93,6 +80,34 @@ fun FormScreen(
     ) {
       content()
     }
+  }
+}
+
+@Composable
+fun Form(
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
+  content: @Composable () -> Unit,
+) {
+  val localFormState = LocalFormState.current
+  Div(
+    attrs = {
+      classes(
+        "Form",
+        when (localFormState) {
+          FormState.Ready -> "FormReady"
+          FormState.Busy -> "FormBusy"
+        },
+      )
+      style {
+        display(DisplayStyle.Flex)
+        flexDirection(FlexDirection.Column)
+        alignItems(AlignItems.Stretch)
+        justifyContent(JustifyContent.Start)
+      }
+      attrs()
+    },
+  ) {
+    content()
   }
 }
 

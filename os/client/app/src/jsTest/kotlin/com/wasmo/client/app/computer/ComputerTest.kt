@@ -24,6 +24,7 @@ class ComputerTest {
   )
 
   private var menuVisible by mutableStateOf(false)
+  private var installAppDialogVisible by mutableStateOf(false)
 
   @Test
   fun happyPath() = runTest {
@@ -35,12 +36,18 @@ class ComputerTest {
     snapshotTester.snapshot(name = "menuVisible") {
       Subject()
     }
+
+    menuVisible = false
+    installAppDialogVisible = true
+    snapshotTester.snapshot(name = "installAppDialogVisible") {
+      Subject()
+    }
   }
 
   @Composable
   fun Subject() {
     Computer(
-      menuVisible = menuVisible,
+      scrimVisible = menuVisible || installAppDialogVisible,
       snapshot = ComputerSnapshot(
         slug = ComputerSlug("jesse99"),
         apps = listOf(
@@ -57,6 +64,18 @@ class ComputerTest {
         ),
       ),
       eventListener = {
+      },
+      overlays = { computerChildAttrs ->
+        ComputerMenu(
+          attrs = computerChildAttrs,
+          visible = menuVisible,
+          eventListener = {},
+        )
+        InstallAppDialog(
+          attrs = computerChildAttrs,
+          visible = installAppDialogVisible,
+          eventListener = {},
+        )
       },
     )
   }

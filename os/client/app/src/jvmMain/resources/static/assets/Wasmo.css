@@ -43,27 +43,27 @@ a:hover {
   }
 }
 
-/* FormScreen */
+/* Form */
 
-.FormScreen h1, .FormScreen h2, .FormScreen h3 {
+.Form h1, .Form h2, .Form h3 {
   color: rgba(255 255 255 / 0.9);
   font-weight: 400;
 }
 
-.FormScreen, .FormScreen input, .FormScreen button {
+.Form, .Form input, .Form button {
   color: rgba(255 255 255 / 0.9);
   font-size: 18px;
 }
 
-.FormScreenReady button {
+.FormReady button {
   cursor: pointer;
 }
 
-.FormScreenBusy input, .FormScreenBusy button {
+.FormBusy input, .FormBusy button {
   cursor: progress;
 }
 
-.FormScreen button {
+.Form button {
   margin-top: 8px;
   margin-bottom: 8px;
   background-color: transparent;
@@ -74,29 +74,29 @@ a:hover {
   border-radius: 16px;
 }
 
-.FormScreen button.Primary {
+.Form button.Primary {
   font-size: 22px;
   padding: 8px;
   border-color: rgba(255 255 255 / 0.8);
 }
 
-.FormScreen button.Secondary {
+.Form button.Secondary {
   font-size: 20px;
   padding: 6px;
   color: rgba(255 255 255 / 0.8);
   border-color: rgba(255 255 255 / 0.0);
 }
 
-.FormScreen button:hover {
+.Form button:hover {
   border-color: rgba(255 255 255 / 1.0);
   color: rgba(255 255 255 / 1.0);
 }
 
-.FormScreen button[disabled] {
+.Form button[disabled] {
   color: rgba(255 255 255 / 0.3);
 }
 
-.FormScreen input[type="text"] {
+.Form input[type="text"] {
   background: rgb(235 235 235);
   border-radius: 16px;
   border: none;
@@ -105,54 +105,54 @@ a:hover {
   padding-right: 18px;
 }
 
-.FormScreen input[type="text"], .FormScreen .TextFieldSuffix {
+.Form input[type="text"], .Form .TextFieldSuffix {
   font-size: 28px;
   padding-top: 6px;
   padding-bottom: 6px;
 }
 
-.FormScreen .TextFieldSuffix {
+.Form .TextFieldSuffix {
   padding-left: 8px;
   padding-right: 0;
 }
 
-.FormScreen > div > * {
+.Form > * {
   margin: 8px 24px;
 }
 
-.FormScreen > div > .Toolbar {
+.Form > .Toolbar {
   margin-left: 0;
   margin-right: 0;
 }
 
-.FormScreen p {
+.Form p {
   color: rgba(255 255 255 / 0.8);
   margin-top: 4px;
   margin-bottom: 12px;
 }
 
-.FormScreen .SectionTitle {
+.Form .SectionTitle {
   font-size: 22px;
   color: rgba(255 255 255 / 0.75);
   margin-top: 32px;
   margin-bottom: 12px;
 }
 
-.FormScreen h3.CheckboxLabel {
+.Form h3.CheckboxLabel {
   color: rgba(255 255 255 / 1.0);
   margin: 4px 0;
   font-size: 22px;
 }
 
-.FormScreen input[type="checkbox"], .FormScreen input[type="radio"] {
+.Form input[type="checkbox"], .Form input[type="radio"] {
   transform: scale(1.5);
 }
 
-.FormScreen .SmallText {
+.Form .SmallText {
   font-size: 14px;
 }
 
-.FormScreen .FinePrint {
+.Form .FinePrint {
   font-size: 14px;
   color: rgba(255 255 255 / 0.6);
 }
@@ -228,11 +228,56 @@ a:hover {
   pointer-events: none;
 }
 
+/* Dialog */
+
+.Dialog {
+  margin: 16px;
+  background-color: rgb(36 36 36);
+  color: rgb(255 255 255);
+  border-radius: 24px;
+  transition: all 300ms ease-in;
+}
+
+.DialogVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1.0);
+}
+
+.DialogInvisible {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95);
+}
+
+.Dialog .Toolbar {
+  padding: 0 12px;
+  margin-bottom: 0;
+}
+
+.Dialog .ToolbarImageButton {
+  background-color: rgb(255 255 255);
+}
+
+/* Dialog on phones */
+@media (max-width: 480px) {
+  .Dialog {
+    width: 320px;
+  }
+}
+
+/* Dialog on not phones */
+@media (min-width: 481px) {
+  .Dialog {
+    width: 640px;
+  }
+}
+
 /* Menu */
 
 .Menu {
-  background-color: rgb(255 255 255);
-  color: rgb(0 0 0);
+  background-color: rgb(36 36 36);
+  color: rgb(255 255 255);
   border-top-left-radius: 16px;
   border-bottom-left-radius: 16px;
   width: 240px;
@@ -274,7 +319,7 @@ a:hover {
 }
 
 .Menu .ToolbarImageButton {
-  background-color: rgb(0 0 0);
+  background-color: rgb(255 255 255);
 }
 
 /* TeaserScreen */

@@ -27,6 +27,7 @@ class ComputerUi(
     ?: error("unexpected call of ComputerUi.Factory.create(), snapshot is absent")
 
   private var menuVisible by mutableStateOf(false)
+  private var installAppDialogVisible by mutableStateOf(false)
 
   @Composable
   override fun Show(
@@ -34,24 +35,60 @@ class ComputerUi(
   ) {
     Computer(
       attrs = attrs,
-      menuVisible = menuVisible,
+      scrimVisible = menuVisible || installAppDialogVisible,
       eventListener = { event ->
         when (event) {
           ComputerEvent.ClickShowMenu -> {
             menuVisible = true
           }
 
-          ComputerEvent.ClickDismissMenu -> {
-            menuVisible = false
-          }
-
+          ComputerEvent.ClickDismissMenu -> menuVisible = false
           is ComputerEvent.ClickApp -> {
             router.goTo(AppRoute(slug, event.app), TransitionDirection.PUSH)
           }
 
-          ComputerEvent.ClickInstallApp -> {}
-          ComputerEvent.ClickSettings -> {}
+          ComputerEvent.ClickScrim -> {
+            installAppDialogVisible = false
+            menuVisible = false
+          }
         }
+      },
+      overlays = { computerChildAttrs ->
+        ComputerMenu(
+          attrs = computerChildAttrs,
+          visible = menuVisible,
+          eventListener = { event ->
+            when (event) {
+              ComputerMenuEvent.ClickDismiss -> {
+                menuVisible = false
+              }
+
+              ComputerMenuEvent.ClickInstallApp -> {
+                menuVisible = false
+                installAppDialogVisible = true
+              }
+
+              ComputerMenuEvent.ClickSettings -> {
+                menuVisible = false
+              }
+            }
+          },
+        )
+        InstallAppDialog(
+          attrs = computerChildAttrs,
+          visible = installAppDialogVisible,
+          eventListener = { event ->
+            when (event) {
+              InstallAppDialogEvent.ClickDismiss -> {
+                installAppDialogVisible = false
+              }
+
+              is InstallAppDialogEvent.ClickInstall -> {
+                installAppDialogVisible = false
+              }
+            }
+          },
+        )
       },
       snapshot = computerSnapshot,
     )
