@@ -1,6 +1,6 @@
 package com.wasmo.testing.apps
 
-import com.wasmo.computers.ManifestAddress.Companion.toManifestAddress
+import com.wasmo.computers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.Resource
@@ -52,7 +52,8 @@ class RecipesApp(
     )
 
     val PublishedApp = PublishedApp(
-      manifestAddress = "https://example.com/recipes/v1/recipes.wasmo.toml".toManifestAddress(),
+      appManifestAddress = "https://example.com/recipes/v1/recipes.wasmo.toml"
+        .toAppManifestAddress(),
       manifest = Manifest,
       resources = mapOf(
         "app.wasm" to "I am Wasm data".encodeUtf8(),

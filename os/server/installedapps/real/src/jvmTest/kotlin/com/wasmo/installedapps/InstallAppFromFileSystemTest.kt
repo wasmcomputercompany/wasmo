@@ -6,9 +6,8 @@ import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.wasmo.api.InstalledAppSnapshot
-import com.wasmo.computers.ManifestAddress
+import com.wasmo.computers.AppManifestAddress
 import com.wasmo.events.InstallAppEvent
-import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.Response
 import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
@@ -23,7 +22,9 @@ class InstallAppFromFileSystemTest {
   @Test
   fun happyPath() = runTest {
     val publishedApp = RecipesApp.PublishedApp.copy(
-      manifestAddress = ManifestAddress.FileSystem(tester.testDirectory / "recipes.wasmo.toml"),
+      appManifestAddress = AppManifestAddress.FileSystem(
+        tester.testDirectory / "recipes.wasmo.toml",
+      ),
     )
     tester.publishApp(publishedApp)
 
@@ -59,7 +60,6 @@ class InstallAppFromFileSystemTest {
     assertThat(response)
       .isEqualTo(
         Response(
-          contentType = ContentTypes.TextHtml,
           body = ResponseBodySnapshot("Welcome to the recipes app"),
         ),
       )

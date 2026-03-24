@@ -18,14 +18,16 @@ class RealManifestLoader(
   private val fileSystem: FileSystem,
   private val httpService: HttpService,
 ) : ManifestLoader {
-  override suspend fun load(manifestAddress: ManifestAddress): AppManifest {
-    val manifestString = when (manifestAddress) {
-      is ManifestAddress.Http -> {
+  override suspend fun load(
+    appManifestAddress: AppManifestAddress,
+  ): AppManifest {
+    val appManifestString = when (appManifestAddress) {
+      is AppManifestAddress.Http -> {
         val manifestResponse = try {
           httpService.execute(
             HttpRequest(
               method = "GET",
-              url = manifestAddress.url,
+              url = appManifestAddress.url,
             ),
           )
         } catch (e: IOException) {
@@ -39,8 +41,8 @@ class RealManifestLoader(
         manifestResponse.body.utf8()
       }
 
-      is ManifestAddress.FileSystem -> {
-        fileSystem.read(manifestAddress.path) {
+      is AppManifestAddress.FileSystem -> {
+        fileSystem.read(appManifestAddress.path) {
           readUtf8()
         }
       }
@@ -49,7 +51,7 @@ class RealManifestLoader(
     val result = try {
       WasmoToml.decodeFromString(
         AppManifest.serializer(),
-        manifestString,
+        appManifestString,
       )
     } catch (e: Throwable) {
       throw StateUserException("failed to decode manifest\n\n${e.message}")

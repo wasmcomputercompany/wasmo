@@ -4,8 +4,8 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
+import com.wasmo.computers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.computers.ComputerStore
-import com.wasmo.computers.ManifestAddress.Companion.toManifestAddress
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
@@ -29,16 +29,16 @@ class InstallAppAction(
         ?: throw NotFoundUserException("unexpected computer: ${computerSlug.value}")
     }
 
-    val manifestAddress = request.manifestAddress.toManifestAddress()
+    val appManifestAddress = request.appManifestAddress.toAppManifestAddress()
 
     val manifest = computer.manifestLoader.load(
-      manifestAddress = manifestAddress,
+      appManifestAddress = appManifestAddress,
     )
 
     wasmoDb.transactionWithResult(noEnclosing = true) {
       computer.enqueueInstall(
-        manifestAddress = manifestAddress,
-        manifest = manifest,
+        appManifestAddress = appManifestAddress,
+        appManifest = manifest,
       )
     }
 

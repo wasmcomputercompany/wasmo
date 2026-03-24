@@ -38,23 +38,23 @@ class RealComputerService(
   override fun initialize() {
     for (entry in appCatalog.entries) {
       enqueueInstall(
-        manifestAddress = entry.manifestAddress,
-        manifest = entry.manifest,
+        appManifestAddress = entry.appManifestAddress,
+        appManifest = entry.manifest,
       )
     }
   }
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun enqueueInstall(
-    manifestAddress: ManifestAddress,
-    manifest: AppManifest,
+    appManifestAddress: AppManifestAddress,
+    appManifest: AppManifest,
   ) {
     val installedAppId = wasmoDb.installedAppQueries.insertInstalledApp(
       computer_id = id,
-      slug = AppSlug(manifest.slug),
-      manifest_address = manifestAddress.toString(),
-      manifest_data = manifest,
-      version = manifest.version,
+      slug = AppSlug(appManifest.slug),
+      manifest_address = appManifestAddress.toString(),
+      manifest_data = appManifest,
+      version = appManifest.version,
       install_scheduled_at = clock.now(),
     ).executeAsOne()
 

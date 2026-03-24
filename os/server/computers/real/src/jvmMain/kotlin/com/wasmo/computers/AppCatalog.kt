@@ -1,7 +1,7 @@
 package com.wasmo.computers
 
 import com.wasmo.computers.AppCatalog.Entry
-import com.wasmo.computers.ManifestAddress.Companion.toManifestAddress
+import com.wasmo.computers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
@@ -14,7 +14,7 @@ class AppCatalog(
   val entries: List<Entry>,
 ) {
   data class Entry(
-    val manifestAddress: ManifestAddress,
+    val appManifestAddress: AppManifestAddress,
     val manifest: AppManifest,
   ) {
     companion object {
@@ -22,7 +22,8 @@ class AppCatalog(
         slug: AppSlug,
         label: String,
       ) = Entry(
-        manifestAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml".toManifestAddress(),
+        appManifestAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml"
+          .toAppManifestAddress(),
         manifest = AppManifest(
           target = TargetSdk1,
           version = 1L,
@@ -62,7 +63,8 @@ fun loadAppCatalogEntryFromResource(slug: AppSlug): Entry {
     )
   }
   return Entry(
-    manifestAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml".toManifestAddress(),
+    appManifestAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml"
+      .toAppManifestAddress(),
     manifest = manifest,
   )
 }

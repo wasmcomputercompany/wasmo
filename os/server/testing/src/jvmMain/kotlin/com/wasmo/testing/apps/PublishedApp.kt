@@ -2,7 +2,7 @@ package com.wasmo.testing.apps
 
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.AppCatalog.Entry
-import com.wasmo.computers.ManifestAddress
+import com.wasmo.computers.AppManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.WasmoToml
 import okhttp3.HttpUrl
@@ -15,7 +15,7 @@ import wasmo.http.HttpResponse
  * An installable app, not installed on a particular computer.
  */
 data class PublishedApp(
-  val manifestAddress: ManifestAddress,
+  val appManifestAddress: AppManifestAddress,
   val manifest: AppManifest,
   val resources: Map<String, ByteString>,
   val factory: WasmoApp.Factory,
@@ -23,10 +23,10 @@ data class PublishedApp(
   val wasm: ByteString?
     get() = resources["app.wasm"]
 
-  val manifestUrl: HttpUrl? = (manifestAddress as? ManifestAddress.Http)?.url
+  val appManifestUrl: HttpUrl? = (appManifestAddress as? AppManifestAddress.Http)?.url
 
   private val resourcesByUrl = buildMap {
-    val manifestUrl = manifestUrl ?: return@buildMap
+    val manifestUrl = appManifestUrl ?: return@buildMap
     for ((key, value) in resources) {
       put(manifestUrl.resolve(key), value)
     }
@@ -40,7 +40,7 @@ data class PublishedApp(
           body = resource,
         )
 
-        request.url == manifestUrl -> HttpResponse(
+        request.url == appManifestUrl -> HttpResponse(
           toml = WasmoToml,
           body = manifest,
         )
@@ -53,7 +53,7 @@ data class PublishedApp(
 val TestAppCatalog = AppCatalog(
   entries = listOf(MusicApp.PublishedApp, SnakeApp.PublishedApp).map {
     Entry(
-      manifestAddress = it.manifestAddress,
+      appManifestAddress = it.appManifestAddress,
       manifest = it.manifest,
     )
   },

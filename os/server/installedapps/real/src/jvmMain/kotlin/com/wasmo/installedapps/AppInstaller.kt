@@ -1,8 +1,8 @@
 package com.wasmo.installedapps
 
 import com.wasmo.api.InstallIncompleteReason
-import com.wasmo.computers.ManifestAddress
-import com.wasmo.computers.ManifestAddress.Companion.toManifestAddress
+import com.wasmo.computers.AppManifestAddress
+import com.wasmo.computers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.db.InstalledApp
 import com.wasmo.db.WasmoDb
 import com.wasmo.events.EventListener
@@ -55,44 +55,19 @@ class AppInstaller(
   )
 
   suspend fun install() {
-    val loader = when (val manifestAddress = installedApp.manifest_address.toManifestAddress()) {
-      is ManifestAddress.Http -> HttpLoader(
-        baseUrl = manifest.base_url?.toHttpUrlOrNull() ?: manifestAddress.url,
-      )
-
-      is ManifestAddress.FileSystem -> FileSystemLoader(
-        basePath = manifestAddress.path.parent!!,
-      )
+    val appManifestAddress = installedApp.manifest_address.toAppManifestAddress()
+    val installResult = when (appManifestAddress) {
+      is AppManifestAddress.Http -> install(appManifestAddress)
+      is AppManifestAddress.FileSystem -> install(appManifestAddress)
     }
-
-    val firstFailure = MutableStateFlow<ResourceResult.Failed?>(null)
-
-    supervisorScope {
-      try {
-        coroutineScope {
-          for (resource in manifest.resource) {
-            async {
-              val resourceResult = installResource(loader, resource, resourcesObjectStore)
-              if (resourceResult is ResourceResult.Failed) {
-                firstFailure.compareAndSet(null, resourceResult)
-                this@coroutineScope.cancel() // Cancel all other calls to installResource().
-              }
-            }
-          }
-        }
-      } catch (_: CancellationException) {
-      }
-    }
-
-    val firstFailureValue = firstFailure.value
 
     wasmoDb.transaction(noEnclosing = true) {
-      if (firstFailureValue != null) {
+      if (installResult is ResourceResult.Failed) {
         val rowCount = wasmoDb.installedAppQueries.updateInstalledAppSetInstallIncompleteReason(
           id = installedApp.id,
           expected_version = installedApp.version,
           new_version = installedApp.version + 1L,
-          install_incomplete_reason = firstFailureValue.reason.name,
+          install_incomplete_reason = installResult.reason.name,
         ).value
         require(rowCount == 1L)
       } else {
@@ -110,18 +85,42 @@ class AppInstaller(
       InstallAppEvent(
         appSlug = installedApp.slug,
         computerSlug = computerSlug,
-        exception = firstFailureValue?.exception,
+        exception = (installResult as? ResourceResult.Failed)?.exception,
       ),
     )
   }
 
-  internal suspend fun installResource(
-    loader: Loader,
+  private suspend fun install(
+    appManifestAddress: AppManifestAddress.Http,
+  ): ResourceResult {
+    val baseUrl = manifest.base_url?.toHttpUrlOrNull() ?: appManifestAddress.url
+    val firstFailure = MutableStateFlow<ResourceResult.Failed?>(null)
+    supervisorScope {
+      try {
+        coroutineScope {
+          for (resource in manifest.resource) {
+            async {
+              val resourceResult = installResource(baseUrl, resource, resourcesObjectStore)
+              if (resourceResult is ResourceResult.Failed) {
+                firstFailure.compareAndSet(null, resourceResult)
+                this@coroutineScope.cancel() // Cancel all other calls to installResource().
+              }
+            }
+          }
+        }
+      } catch (_: CancellationException) {
+      }
+    }
+    return firstFailure.value ?: ResourceResult.Success
+  }
+
+  private suspend fun installResource(
+    baseUrl: HttpUrl,
     resource: Resource,
     resourcesObjectStore: ScopedObjectStore,
   ): ResourceResult {
     val loadedResource = try {
-      loader.load(resource)
+      loadResource(baseUrl, resource)
     } catch (e: Exception) {
       return ResourceResult.Failed(
         reason = InstallIncompleteReason.SourceUnavailable,
@@ -132,10 +131,12 @@ class AppInstaller(
     // TODO: handle resource.unzip
 
     try {
-      storeResource(
-        resourcesObjectStore = resourcesObjectStore,
-        resource = resource,
-        loadedResource = loadedResource,
+      resourcesObjectStore.put(
+        PutObjectRequest(
+          key = loadedResource.path,
+          value = loadedResource.bytes,
+          contentType = resource.content_type ?: loadedResource.contentType,
+        ),
       )
     } catch (e: Exception) {
       return ResourceResult.Failed(
@@ -147,76 +148,72 @@ class AppInstaller(
     return ResourceResult.Success
   }
 
-  internal interface Loader {
-    suspend fun load(
-      resource: Resource,
-    ): LoadedResource
-  }
-
-  internal inner class HttpLoader(
-    private val baseUrl: HttpUrl,
-  ) : Loader {
-    override suspend fun load(resource: Resource): LoadedResource {
-      val resourcePath = resource.bestResourcePath()
-      val downloadUrl = resource.url.toHttpUrlOrNull()
-        ?: baseUrl.resolve(resource.url)
-        ?: throw StateUserException("unexpected resource URL: '${resource.url}'")
-
-      val response = httpService.execute(
-        HttpRequest(
-          method = "GET",
-          url = downloadUrl,
-        ),
-      )
-
-      checkUser(response.isSuccessful) {
-        "failed to fetch $downloadUrl: HTTP ${response.code}"
-      }
-
-      val expectedSha256 = resource.sha256?.decodeHex()
-      checkUser(expectedSha256 == null || expectedSha256 == response.body.sha256()) {
-        "response body data for $resourcePath didn't match sha256 from manifest"
-      }
-
-      return LoadedResource(
-        path = resourcePath,
-        bytes = response.body,
-        contentType = response.contentType,
-      )
-    }
-  }
-
-  internal inner class FileSystemLoader(
-    private val basePath: Path,
-  ) : Loader {
-    override suspend fun load(resource: Resource): LoadedResource {
-      return withContext(Dispatchers.IO) {
-        fileSystem.read(basePath.resolve(resource.url)) {
-          LoadedResource(
-            path = resource.bestResourcePath(),
-            bytes = readByteString(),
-            contentType = null,
-          )
-        }
-      }
-    }
-  }
-
-  private suspend fun storeResource(
-    resourcesObjectStore: ScopedObjectStore,
+  private suspend fun loadResource(
+    baseUrl: HttpUrl,
     resource: Resource,
-    loadedResource: LoadedResource,
-  ) {
-    resourcesObjectStore.put(
-      PutObjectRequest(
-        key = loadedResource.path,
-        value = loadedResource.bytes,
-        contentType = resource.content_type ?: loadedResource.contentType,
+  ): LoadedResource {
+    val resourcePath = resource.bestResourcePath()
+    val downloadUrl = resource.url.toHttpUrlOrNull()
+      ?: baseUrl.resolve(resource.url)
+      ?: throw StateUserException("unexpected resource URL: '${resource.url}'")
+
+    val response = httpService.execute(
+      HttpRequest(
+        method = "GET",
+        url = downloadUrl,
       ),
+    )
+
+    checkUser(response.isSuccessful) {
+      "failed to fetch $downloadUrl: HTTP ${response.code}"
+    }
+
+    val expectedSha256 = resource.sha256?.decodeHex()
+    checkUser(expectedSha256 == null || expectedSha256 == response.body.sha256()) {
+      "response body data for $resourcePath didn't match sha256 from manifest"
+    }
+
+    return LoadedResource(
+      path = resourcePath,
+      bytes = response.body,
+      contentType = response.contentType,
     )
   }
 
-  internal class LoadedResource(
+  private suspend fun install(
+    appManifestAddress: AppManifestAddress.FileSystem,
+  ): ResourceResult {
+    return withContext(Dispatchers.IO) {
+      for (resource in manifest.resource) {
+        val resourceResult = checkResource(
+          basePath = appManifestAddress.basePath,
+          resource = resource,
+        )
+        if (resourceResult is ResourceResult.Failed) {
+          return@withContext resourceResult
+        }
+      }
+      return@withContext ResourceResult.Success
+    }
+  }
+
+  private fun checkResource(
+    basePath: Path,
+    resource: Resource,
+  ): ResourceResult {
+    return try {
+      fileSystem.read(basePath.resolve(resource.url)) {
+        return ResourceResult.Success
+      }
+    } catch (e: Exception) {
+      ResourceResult.Failed(
+        reason = InstallIncompleteReason.SourceUnavailable,
+        exception = e,
+      )
+    }
+  }
+
+  private class LoadedResource(
     val path: String,
     val bytes: ByteString,
     val contentType: String?,

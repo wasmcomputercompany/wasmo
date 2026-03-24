@@ -18,7 +18,10 @@ interface ComputerService {
   fun initialize()
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun enqueueInstall(manifestAddress: ManifestAddress, manifest: AppManifest)
+  fun enqueueInstall(
+    appManifestAddress: AppManifestAddress,
+    appManifest: AppManifest,
+  )
 
   context(transactionCallbacks: TransactionCallbacks)
   fun snapshot(): ComputerSnapshot

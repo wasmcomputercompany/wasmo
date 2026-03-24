@@ -1,5 +1,6 @@
 package com.wasmo.installedapps
 
+import com.wasmo.computers.AppManifestAddress
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
@@ -10,6 +11,8 @@ import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okio.FileNotFoundException
+import okio.FileSystem
 import wasmo.app.Platform
 import wasmo.http.Header as PlatformHeader
 import wasmo.http.HttpRequest
@@ -26,10 +29,12 @@ class RealInstalledAppHttpService(
   private val loader: AppLoader,
   private val platform: Platform,
   @ForInstalledApp private val objectStore: ObjectStore,
-  private val manifest: AppManifest,
+  private val fileSystem: FileSystem,
+  private val appManifest: AppManifest,
+  private val appManifestAddress: AppManifestAddress,
 ) : InstalledAppHttpService {
   override suspend fun execute(request: Request): Response<ResponseBody> {
-    val selectedRoute = manifest.route
+    val selectedRoute = appManifest.route
       .firstOrNull { route -> pathMatches(route.path, request.url.encodedPath) }
 
     val resourcePath = selectedRoute?.resource_path
@@ -46,7 +51,7 @@ class RealInstalledAppHttpService(
       throw NotFoundUserException()
     }
 
-    val loadedApp = loader.load(platform, manifest)
+    val loadedApp = loader.load(platform, appManifest)
     val loadedAppHttpService = loadedApp?.httpService
     if (loadedAppHttpService != null) {
       val execute = loadedAppHttpService.execute(request.toPlatformHttpRequest())
@@ -74,22 +79,43 @@ class RealInstalledAppHttpService(
 
     check(key.startsWith("/"))
 
-    val getObjectResponse = objectStore.get(
-      request = GetObjectRequest(
-        key = "resources/v${manifest.version}$key",
-      )
-    )
+    return when (appManifestAddress) {
+      is AppManifestAddress.FileSystem -> {
+        val body = try {
+          fileSystem.read(appManifestAddress.basePath / key.removePrefix("/")) {
+            readByteString()
+          }
+        } catch (_: FileNotFoundException) {
+          throw NotFoundUserException()
+        }
 
-    val responseBody = getObjectResponse.value
-      ?: throw NotFoundUserException()
+        Response(
+          headers = listOf(),
+          body = ResponseBody {
+            it.write(body)
+          },
+        )
+      }
 
-    return Response(
-      headers = listOf(),
-      contentType = getObjectResponse.contentType?.toMediaTypeOrNull(),
-      body = ResponseBody {
-        it.write(responseBody)
-      },
-    )
+      is AppManifestAddress.Http -> {
+        val getObjectResponse = objectStore.get(
+          request = GetObjectRequest(
+            key = "resources/v${appManifest.version}$key",
+          ),
+        )
+
+        val responseBody = getObjectResponse.value
+          ?: throw NotFoundUserException()
+
+        Response(
+          headers = listOf(),
+          contentType = getObjectResponse.contentType?.toMediaTypeOrNull(),
+          body = ResponseBody {
+            it.write(responseBody)
+          },
+        )
+      }
+    }
   }
 
   fun pathMatches(routePath: String, urlPath: String): Boolean {
