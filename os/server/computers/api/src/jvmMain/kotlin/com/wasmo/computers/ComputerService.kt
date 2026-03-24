@@ -18,12 +18,9 @@ interface ComputerService {
   fun initialize()
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun enqueueInstall(manifestUrl: HttpUrl, manifest: AppManifest)
+  fun enqueueInstall(manifestAddress: ManifestAddress, manifest: AppManifest)
 
   context(transactionCallbacks: TransactionCallbacks)
   fun snapshot(): ComputerSnapshot
 }
 
-interface ManifestLoader {
-  suspend fun loadManifest(manifestUrl: HttpUrl): AppManifest
-}

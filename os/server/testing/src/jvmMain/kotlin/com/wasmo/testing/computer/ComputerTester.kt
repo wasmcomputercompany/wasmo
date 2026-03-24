@@ -34,7 +34,7 @@ class ComputerTester private constructor(
     client.call().installApp(
       computerSlug = slug,
       request = InstallAppRequest(
-        manifestUrl = publishedApp.manifestUrl.toString(),
+        manifestAddress = publishedApp.manifestAddress.toString(),
       ),
     )
 

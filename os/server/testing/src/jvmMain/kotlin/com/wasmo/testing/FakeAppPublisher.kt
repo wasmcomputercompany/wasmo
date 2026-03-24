@@ -1,6 +1,8 @@
 package com.wasmo.testing
 
+import com.wasmo.computers.ManifestAddress
 import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.WasmoToml
 import com.wasmo.testing.apps.MusicApp
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.SnakeApp
@@ -8,6 +10,8 @@ import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import kotlinx.serialization.encodeToString
+import okio.FileSystem
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
 import wasmo.http.FakeHttpService
@@ -17,7 +21,9 @@ import wasmo.http.FakeHttpService
  */
 @Inject
 @SingleIn(AppScope::class)
-class FakeAppPublisher : AppLoader {
+class FakeAppPublisher(
+  private val fileSystem: FileSystem,
+) : AppLoader {
   private val publishedApps = mutableListOf(
     MusicApp.PublishedApp,
     SnakeApp.PublishedApp,
@@ -29,7 +35,27 @@ class FakeAppPublisher : AppLoader {
     }
 
   fun publish(app: PublishedApp) {
+    publishedApps.removeAll { it.manifest.slug == app.manifest.slug }
     publishedApps += app
+
+    if (app.manifestAddress is ManifestAddress.FileSystem) {
+      val publishedAppDirectory = app.manifestAddress.path.parent!!
+      fileSystem.deleteRecursively(publishedAppDirectory)
+
+      fileSystem.createDirectories(publishedAppDirectory)
+
+      fileSystem.write(app.manifestAddress.path) {
+        writeUtf8(WasmoToml.encodeToString(app.manifest))
+      }
+
+      for ((key, value) in app.resources) {
+        val resourcePath = publishedAppDirectory / key
+        fileSystem.createDirectories(resourcePath.parent!!)
+        fileSystem.write(resourcePath) {
+          write(value)
+        }
+      }
+    }
   }
 
   override suspend fun load(

@@ -1,10 +1,10 @@
 package com.wasmo.testing.apps
 
+import com.wasmo.computers.ManifestAddress.Companion.toManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.Resource
 import com.wasmo.packaging.TargetSdk1
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
@@ -41,10 +41,10 @@ class RecipesApp(
     )
 
     val PublishedApp = PublishedApp(
-      manifestUrl = "https://example.com/recipes/v1/recipes.wasmo.toml".toHttpUrl(),
+      manifestAddress = "https://example.com/recipes/v1/recipes.wasmo.toml".toManifestAddress(),
       manifest = Manifest,
-      servedResources = mapOf(
-        "https://example.com/recipes/v1/app.wasm".toHttpUrl() to "I am Wasm data".encodeUtf8(),
+      resources = mapOf(
+        "app.wasm" to "I am Wasm data".encodeUtf8(),
       ),
       factory = Factory(),
     )

@@ -1,13 +1,12 @@
 package com.wasmo.computers
 
 import com.wasmo.computers.AppCatalog.Entry
+import com.wasmo.computers.ManifestAddress.Companion.toManifestAddress
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.TargetSdk1
 import com.wasmo.packaging.WasmoToml
-import okhttp3.HttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
@@ -15,7 +14,7 @@ class AppCatalog(
   val entries: List<Entry>,
 ) {
   data class Entry(
-    val manifestUrl: HttpUrl,
+    val manifestAddress: ManifestAddress,
     val manifest: AppManifest,
   ) {
     companion object {
@@ -23,7 +22,7 @@ class AppCatalog(
         slug: AppSlug,
         label: String,
       ) = Entry(
-        manifestUrl = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml".toHttpUrl(),
+        manifestAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml".toManifestAddress(),
         manifest = AppManifest(
           target = TargetSdk1,
           version = 1L,
@@ -63,7 +62,7 @@ fun loadAppCatalogEntryFromResource(slug: AppSlug): Entry {
     )
   }
   return Entry(
-    manifestUrl = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml".toHttpUrl(),
+    manifestAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml".toManifestAddress(),
     manifest = manifest,
   )
 }

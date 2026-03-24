@@ -5,6 +5,7 @@ import app.cash.burst.coroutines.CoroutineTestInterceptor
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
+import com.wasmo.common.tokens.newToken
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.sql.r2dbc.asSqlService
@@ -23,6 +24,8 @@ import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.coroutineScope
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encodeUtf8
+import okio.FileSystem
+import okio.Path
 import wasmo.http.FakeHttpService
 import wasmo.objectstore.FakeObjectStore
 import wasmo.time.FakeClock
@@ -56,6 +59,10 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.eventListener
   val fakeHttpClient: FakeHttpService
     get() = graph.fakeHttpClient
+  val fileSystem: FileSystem
+    get() = graph.fileSystem
+  val testDirectory: Path
+    get() = graph.testDirectory
 
   val origin: String
     get() = baseUrl.toString()
@@ -86,6 +93,10 @@ class ServiceTester : CoroutineTestInterceptor {
     val dataSource = connectPostgresql(TestDatabaseAddress)
     dataSource.clearSchema()
 
+    val fileSystem = FileSystem.SYSTEM
+    val testDirectory = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / testFunction.toString() / newToken()
+    fileSystem.createDirectories(testDirectory)
+
     val wasmoDb = WasmoDbService(
       dataSource = dataSource,
       jdbcDriver = dataSource.asJdbcDriver(),
@@ -103,6 +114,8 @@ class ServiceTester : CoroutineTestInterceptor {
           wasmoDbService = wasmoDb,
           sqlService = sqlService,
           coroutineScope = this,
+          fileSystem = fileSystem,
+          testDirectory = testDirectory
         )
         testFunction()
       }

@@ -9,7 +9,7 @@ CREATE TABLE InstalledApp (
   computer_id BIGINT AS ComputerId NOT NULL,
   slug VARCHAR(255) AS AppSlug NOT NULL,
   version BIGINT NOT NULL,
-  manifest_url VARCHAR(65535) NOT NULL,
+  manifest_address VARCHAR(65535) NOT NULL,
   manifest_data VARCHAR(65535) AS AppManifest NOT NULL,
   install_scheduled_at TIMESTAMPTZ AS Instant NOT NULL,
   install_completed_at TIMESTAMPTZ AS Instant NULL,

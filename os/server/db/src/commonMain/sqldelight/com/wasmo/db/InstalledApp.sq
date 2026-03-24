@@ -3,7 +3,7 @@ INSERT INTO InstalledApp(
   computer_id,
   slug,
   version,
-  manifest_url,
+  manifest_address,
   manifest_data,
   install_scheduled_at
 )
@@ -11,7 +11,7 @@ VALUES (
   :computer_id,
   :slug,
   :version,
-  :manifest_url,
+  :manifest_address,
   :manifest_data,
   :install_scheduled_at
 ) RETURNING id;

@@ -5,14 +5,13 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.computers.ComputerStore
+import com.wasmo.computers.ManifestAddress.Companion.toManifestAddress
 import com.wasmo.db.WasmoDb
-import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.ComputerSlug
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 @Inject
 @SingleIn(CallScope::class)
@@ -30,16 +29,15 @@ class InstallAppAction(
         ?: throw NotFoundUserException("unexpected computer: ${computerSlug.value}")
     }
 
-    val manifestUrl = request.manifestUrl.toHttpUrlOrNull()
-      ?: throw ArgumentUserException("unexpected manifest URL: ${request.manifestUrl}")
+    val manifestAddress = request.manifestAddress.toManifestAddress()
 
-    val manifest = computer.manifestLoader.loadManifest(
-      manifestUrl = manifestUrl,
+    val manifest = computer.manifestLoader.load(
+      manifestAddress = manifestAddress,
     )
 
     wasmoDb.transactionWithResult(noEnclosing = true) {
       computer.enqueueInstall(
-        manifestUrl = manifestUrl,
+        manifestAddress = manifestAddress,
         manifest = manifest,
       )
     }

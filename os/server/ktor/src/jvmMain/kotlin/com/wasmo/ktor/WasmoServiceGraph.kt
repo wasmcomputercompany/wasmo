@@ -54,6 +54,7 @@ import kotlinx.coroutines.Dispatchers
 import okhttp3.Call
 import okhttp3.Dns
 import okhttp3.OkHttpClient
+import okio.FileSystem
 import wasmo.app.WasmoApp
 import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
@@ -162,6 +163,10 @@ internal interface WasmoServiceGraph {
   @Provides
   @SingleIn(AppScope::class)
   fun provideAppCatalog(): AppCatalog = loadDefaultAppCatalogFromResources()
+
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideFileSystem(): FileSystem = FileSystem.SYSTEM
 
   @Provides
   @SingleIn(AppScope::class)

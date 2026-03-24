@@ -43,7 +43,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
-import okio.fakefilesystem.FakeFileSystem
+import okio.Path
 import wasmo.http.FakeHttpService
 import wasmo.http.HttpService
 import wasmo.objectstore.FakeObjectStore
@@ -69,6 +69,8 @@ interface ServiceTesterGraph {
   val deployment: Deployment
   val eventListener: FakeEventListener
   val fakeHttpClient: FakeHttpService
+  val fileSystem: FileSystem
+  val testDirectory: Path
   val objectStore: FakeObjectStore
   val jobQueueTester: JobQueueTester
   val sendEmailService: FakeSendEmailService
@@ -126,9 +128,6 @@ interface ServiceTesterGraph {
   fun bindClock(real: FakeClock): Clock
 
   @Binds
-  fun bindFileSystem(real: FakeFileSystem): FileSystem
-
-  @Binds
   fun bindWasmoDb(real: WasmoDbService): WasmoDb
 
   @Binds
@@ -167,6 +166,8 @@ interface ServiceTesterGraph {
       @Provides wasmoDbService: WasmoDbService,
       @Provides sqlService: SqlService,
       @Provides coroutineScope: CoroutineScope,
+      @Provides fileSystem: FileSystem,
+      @Provides testDirectory: Path,
     ): ServiceTesterGraph
   }
 }

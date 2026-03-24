@@ -21,7 +21,6 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.test.runTest
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.http.FakeHttpService
 import wasmo.http.Header
@@ -104,7 +103,7 @@ class InstallAppActionTest {
   @Test
   fun resource404s() = runTest {
     val brokenApp = RecipesApp.PublishedApp.copy(
-      servedResources = mapOf(),
+      resources = mapOf(),
     )
     tester.publishApp(brokenApp)
 
@@ -134,20 +133,19 @@ class InstallAppActionTest {
 
   @Test
   fun resourceGoodSha256() = runTest {
-    val pancakesUrl = "https://example.com/pancakes.txt".toHttpUrl()
     val pancakesData = "this pancakes recipe has a SHA-256 signature".encodeUtf8()
     val original = RecipesApp.PublishedApp
     val app = original.copy(
       manifest = original.manifest.copy(
         resource = original.manifest.resource + listOf(
           Resource(
-            url = pancakesUrl.toString(),
+            url = "pancakes.txt",
             sha256 = pancakesData.sha256().hex(),
           ),
         ),
       ),
-      servedResources = original.servedResources + mapOf(
-        pancakesUrl to pancakesData,
+      resources = original.resources + mapOf(
+        "pancakes.txt" to pancakesData,
       ),
     )
 
@@ -163,7 +161,6 @@ class InstallAppActionTest {
 
   @Test
   fun resourceBadSha256() = runTest {
-    val pancakesUrl = "https://example.com/pancakes.txt".toHttpUrl()
     val pancakesData1 = "this pancakes recipe has a SHA-256 signature".encodeUtf8()
     val pancakesData2 = "this pancakes recipe has a SHA-256 signature!".encodeUtf8()
     val original = RecipesApp.PublishedApp
@@ -171,13 +168,13 @@ class InstallAppActionTest {
       manifest = original.manifest.copy(
         resource = original.manifest.resource + listOf(
           Resource(
-            url = pancakesUrl.toString(),
+            url = "pancakes.txt",
             sha256 = pancakesData1.sha256().hex(),
           ),
         ),
       ),
-      servedResources = original.servedResources + mapOf(
-        pancakesUrl to pancakesData2,
+      resources = original.resources + mapOf(
+        "pancakes.txt" to pancakesData2,
       ),
     )
 
@@ -192,6 +189,6 @@ class InstallAppActionTest {
 
     assertThat(tester.eventListener.takeEvent().exception)
       .isNotNull()
-      .hasMessage("response body data for $pancakesUrl didn't match sha256 from manifest")
+      .hasMessage("response body data for pancakes.txt didn't match sha256 from manifest")
   }
 }

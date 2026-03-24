@@ -1,9 +1,9 @@
 package com.wasmo.testing.apps
 
+import com.wasmo.computers.ManifestAddress.Companion.toManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.TargetSdk1
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
 import wasmo.http.HttpService
@@ -32,9 +32,9 @@ class SnakeApp(
       ),
     )
     val PublishedApp = PublishedApp(
-      manifestUrl = "https://example.com/snake/v3/snake.wasmo.toml".toHttpUrl(),
+      manifestAddress = "https://example.com/snake/v3/snake.wasmo.toml".toManifestAddress(),
       manifest = Manifest,
-      servedResources = mapOf(),
+      resources = mapOf(),
       factory = Factory(),
     )
   }

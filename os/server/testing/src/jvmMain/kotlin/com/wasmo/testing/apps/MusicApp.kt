@@ -1,9 +1,9 @@
 package com.wasmo.testing.apps
 
+import com.wasmo.computers.ManifestAddress.Companion.toManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.TargetSdk1
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
 import wasmo.http.HttpService
@@ -33,9 +33,9 @@ class MusicApp(
     )
 
     val PublishedApp = PublishedApp(
-      manifestUrl = "https://example.com/music/v2/music.wasmo.toml".toHttpUrl(),
+      manifestAddress = "https://example.com/music/v2/music.wasmo.toml".toManifestAddress(),
       manifest = Manifest,
-      servedResources = mapOf(),
+      resources = mapOf(),
       factory = Factory(),
     )
   }

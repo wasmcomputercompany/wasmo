@@ -14,7 +14,6 @@ import com.wasmo.testing.framework.snapshot
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 
 class InstalledAppResourceRouteTest {
@@ -41,8 +40,8 @@ class InstalledAppResourceRouteTest {
           ),
         ),
       ),
-      servedResources = RecipesApp.PublishedApp.servedResources + mapOf(
-        "https://example.com/recipes/v1/cookies.txt".toHttpUrl() to "cookie recipe!".encodeUtf8(),
+      resources = RecipesApp.PublishedApp.resources + mapOf(
+        "cookies.txt" to "cookie recipe!".encodeUtf8(),
       ),
     )
     tester.publishApp(publishedApp)
