@@ -27,10 +27,14 @@ import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.installedapps.CallAppAction
 import com.wasmo.installedapps.InstallAppAction
 import com.wasmo.testing.FakePasskey
+import com.wasmo.testing.framework.snapshot
 import com.wasmo.website.HostPageAction
 import com.wasmo.website.ServerHostPage
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provider
+import okhttp3.HttpUrl
+import okio.ByteString
+import wasmo.http.Header
 
 /**
  * Tests a single API call to the server.
@@ -103,7 +107,21 @@ class CallTester(
   ) = installAppActionProvider().install(computerSlug, request)
 
   suspend fun callApp(request: Request) =
-    callAppActionProvider().call(request)
+    callAppActionProvider().call(request).snapshot()
+
+  suspend fun callApp(
+    method: String = "GET",
+    url: HttpUrl,
+    headers: List<Header> = listOf(),
+    body: ByteString? = null,
+  ) = callApp(
+    Request(
+      method = method,
+      url = url,
+      headers = headers,
+      body = body,
+    ),
+  )
 
   fun authenticate(
     passkey: FakePasskey,

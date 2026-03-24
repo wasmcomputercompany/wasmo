@@ -5,6 +5,7 @@ import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.installedapps.InstalledAppService
 import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.wasm.AppLoader
@@ -36,12 +37,16 @@ class InstalledAppTester private constructor(
     get() = url.resolve("/maskable-icon.svg")!!
 
   suspend fun load(): WasmoApp {
-    val client = clientAuthenticator.get()
-    val installedAppService = wasmoDb.transactionWithResult(noEnclosing = true) {
-      installedAppStore.getOrNull(client, computerSlug, slug)!!
-    }
+    val installedAppService = installedAppService()
     return appLoader.load(installedAppService.platform, installedAppService.manifest)
       ?: error("failed to load ${installedAppService.slug}")
+  }
+
+  private fun installedAppService(): InstalledAppService {
+    val client = clientAuthenticator.get()
+    return wasmoDb.transactionWithResult(noEnclosing = true) {
+      installedAppStore.getOrNull(client, computerSlug, slug)!!
+    }
   }
 
   @AssistedFactory

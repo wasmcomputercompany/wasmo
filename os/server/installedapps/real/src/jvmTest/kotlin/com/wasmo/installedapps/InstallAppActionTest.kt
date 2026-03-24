@@ -13,9 +13,11 @@ import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.events.InstallAppEvent
 import com.wasmo.framework.ContentTypes
+import com.wasmo.framework.Response
 import com.wasmo.framework.StateUserException
 import com.wasmo.packaging.Resource
 import com.wasmo.testing.apps.RecipesApp
+import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -66,6 +68,17 @@ class InstallAppActionTest {
         InstallAppEvent(
           computerSlug = computer.slug,
           appSlug = installedApp.slug,
+        ),
+      )
+
+    val response = client.call().callApp(
+      url = installedApp.url.resolve("/")!!,
+    )
+    assertThat(response)
+      .isEqualTo(
+        Response(
+          contentType = ContentTypes.TextHtml,
+          body = ResponseBodySnapshot("Welcome to the recipes app"),
         ),
       )
   }

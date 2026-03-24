@@ -4,6 +4,7 @@ import com.wasmo.computers.ManifestAddress.Companion.toManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.Resource
+import com.wasmo.packaging.Route
 import com.wasmo.packaging.TargetSdk1
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.app.Platform
@@ -37,6 +38,16 @@ class RecipesApp(
           url = "app.wasm",
           resource_path = "/app.wasm",
         ),
+        Resource(
+          url = "index.html",
+          content_type = "text/html; charset=utf-8",
+        ),
+      ),
+      route = listOf(
+        Route(
+          path = "/",
+          resource_path = "/index.html",
+        ),
       ),
     )
 
@@ -45,6 +56,7 @@ class RecipesApp(
       manifest = Manifest,
       resources = mapOf(
         "app.wasm" to "I am Wasm data".encodeUtf8(),
+        "index.html" to "Welcome to the recipes app".encodeUtf8(),
       ),
       factory = Factory(),
     )

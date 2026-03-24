@@ -9,7 +9,7 @@ import okio.ByteString
 import wasmo.http.Header
 
 data class Request(
-  val method: String,
+  val method: String = "GET",
   val url: HttpUrl,
   val headers: List<Header> = listOf(),
   val body: ByteString? = null,

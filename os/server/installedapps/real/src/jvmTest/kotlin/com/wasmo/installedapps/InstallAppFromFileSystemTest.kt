@@ -8,7 +8,10 @@ import assertk.assertions.isNotNull
 import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.computers.ManifestAddress
 import com.wasmo.events.InstallAppEvent
+import com.wasmo.framework.ContentTypes
+import com.wasmo.framework.Response
 import com.wasmo.testing.apps.RecipesApp
+import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -30,9 +33,6 @@ class InstallAppFromFileSystemTest {
       publishedApp = publishedApp,
     )
 
-    val appWasmKey = "${computer.slug}/${installedApp.slug}/resources/v1/app.wasm"
-    assertThat(tester.objectStore[appWasmKey]).isEqualTo(installedApp.publishedApp.wasm)
-
     assertThat(computer.homePage().computerSnapshot?.apps)
       .isNotNull()
       .contains(
@@ -50,6 +50,17 @@ class InstallAppFromFileSystemTest {
         InstallAppEvent(
           computerSlug = computer.slug,
           appSlug = installedApp.slug,
+        ),
+      )
+
+    val response = client.call().callApp(
+      url = installedApp.url.resolve("/")!!,
+    )
+    assertThat(response)
+      .isEqualTo(
+        Response(
+          contentType = ContentTypes.TextHtml,
+          body = ResponseBodySnapshot("Welcome to the recipes app"),
         ),
       )
   }
