@@ -1,4 +1,4 @@
-package com.wasmo.computers
+package com.wasmo.identifiers
 
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull

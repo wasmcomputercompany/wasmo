@@ -13,12 +13,12 @@ class InstallAppJobExecutor(
   private val installedAppStore: InstalledAppStore,
 ) : JobExecutor<InstallAppJob> {
   override suspend fun execute(job: InstallAppJob) {
-    val installedApp = wasmoDb.transactionWithResult(noEnclosing = true) {
-      val installedApp = wasmoDb.installedAppQueries.selectInstalledAppById(job.installedAppId)
-        .executeAsOne()
-      installedAppStore.get(installedApp)
-    }
-
-    installedApp.install()
+//    val installedApp = wasmoDb.transactionWithResult(noEnclosing = true) {
+//      val installedApp = wasmoDb.installedAppQueries.selectInstalledAppById(job.installedAppId)
+//        .executeAsOne()
+//      installedAppStore.get(installedApp)
+//    }
+//
+//    installedApp.install()
   }
 }

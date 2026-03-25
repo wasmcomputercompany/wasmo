@@ -1,11 +1,10 @@
 package com.wasmo.testing.apps
 
-import com.wasmo.computers.AppManifestAddress.Companion.toAppManifestAddress
+import com.wasmo.computers.packaging.TargetSdk1
+import com.wasmo.identifiers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
-import com.wasmo.packaging.Resource
 import com.wasmo.packaging.Route
-import com.wasmo.packaging.TargetSdk1
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
@@ -29,19 +28,8 @@ class RecipesApp(
       version = 1L,
       slug = "recipes",
       target = TargetSdk1,
-      base_url = "https://example.com/recipes/v1/",
       launcher = Launcher(
         label = "Recipes",
-      ),
-      resource = listOf(
-        Resource(
-          url = "app.wasm",
-          resource_path = "/app.wasm",
-        ),
-        Resource(
-          url = "index.html",
-          content_type = "text/html; charset=utf-8",
-        ),
       ),
       route = listOf(
         Route(

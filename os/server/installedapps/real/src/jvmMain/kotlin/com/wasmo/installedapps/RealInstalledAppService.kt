@@ -19,7 +19,6 @@ class RealInstalledAppService(
   private val deployment: Deployment,
   private val computerSlug: ComputerSlug,
   private val installedApp: InstalledApp,
-  private val appInstaller: AppInstaller,
   override val slug: AppSlug,
   override val manifest: AppManifest,
   override val httpService: InstalledAppHttpService,
@@ -46,8 +45,4 @@ class RealInstalledAppService(
     installIncompleteReason = installedApp.install_incomplete_reason
       ?.let { InstallIncompleteReason.valueOf(it) },
   )
-
-  override suspend fun install() {
-    appInstaller.install()
-  }
 }

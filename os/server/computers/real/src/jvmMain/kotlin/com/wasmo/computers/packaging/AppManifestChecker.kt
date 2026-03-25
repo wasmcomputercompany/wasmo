@@ -1,11 +1,12 @@
-package com.wasmo.packaging
+package com.wasmo.computers.packaging
 
 import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.issues.Issue
 import com.wasmo.issues.IssueCollector
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okio.ByteString.Companion.decodeHex
+import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.ExternalResource
+import com.wasmo.packaging.Launcher
+import com.wasmo.packaging.Route
 
 /**
  * Validates a manifest against our spec.
@@ -22,7 +23,7 @@ fun AppManifest.check(): List<Issue> {
   }
 }
 
-private fun IssueCollector.check(manifest: AppManifest) {
+fun IssueCollector.check(manifest: AppManifest) {
   withContext("target") {
     issueCheck(manifest.target in SupportedTargets) {
       """
@@ -50,7 +51,7 @@ private fun IssueCollector.check(manifest: AppManifest) {
     }
   }
 
-  for ((index, resource) in manifest.resource.withIndex()) {
+  for ((index, resource) in manifest.external_resource.withIndex()) {
     withContext("resource[$index]") {
       check(resource)
     }
@@ -70,42 +71,42 @@ private fun IssueCollector.check(manifest: AppManifest) {
   }
 }
 
-private fun IssueCollector.check(resource: Resource) {
-  withContext("sha256") {
-    val sha256 = resource.sha256
-    val validSha256 = try {
-      sha256 == null || sha256.decodeHex().size == 32
-    } catch (_: Exception) {
-      false
-    }
-    issueCheck(validSha256) {
-      """
-      |unexpected sha256 '${resource.sha256}'
-      |must be 64 hex digits (32 bytes)
-      """.trimMargin()
-    }
-  }
+private fun IssueCollector.check(externalResource: ExternalResource) {
+//  withContext("sha256") {
+//    val sha256 = externalResource.sha256
+//    val validSha256 = try {
+//      sha256 == null || sha256.decodeHex().size == 32
+//    } catch (_: Exception) {
+//      false
+//    }
+//    issueCheck(validSha256) {
+//      """
+//      |unexpected sha256 '${externalResource.sha256}'
+//      |must be 64 hex digits (32 bytes)
+//      """.trimMargin()
+//    }
+//  }
 
-  withContext("content_type") {
-    val contentType = resource.content_type
-    issueCheck(contentType == null || contentType.toMediaTypeOrNull() != null) {
-      """
-      |unexpected content_type '${resource.content_type}'
-      |must be a RFC 2045 media type
-      """.trimMargin()
-    }
-  }
+//  withContext("content_type") {
+//    val contentType = externalResource.content_type
+//    issueCheck(contentType == null || contentType.toMediaTypeOrNull() != null) {
+//      """
+//      |unexpected content_type '${externalResource.content_type}'
+//      |must be a RFC 2045 media type
+//      """.trimMargin()
+//    }
+//  }
 
-  withContext("resource_path") {
-    val resourcePath = resource.resource_path
-      ?: "https://example.com/".toHttpUrl().resolve(resource.url)?.encodedPath
-    issueCheck(resourcePath != null && resourcePath.removePrefix("/").isNotEmpty()) {
-      """
-      |unexpected resource path '$resourcePath'
-      |must be the non-empty path to download the resource to
-      """.trimMargin()
-    }
-  }
+//  withContext("resource_path") {
+//    val resourcePath = externalResource.resource_path
+//      ?: "https://example.com/".toHttpUrl().resolve(externalResource.url)?.encodedPath
+//    issueCheck(resourcePath != null && resourcePath.removePrefix("/").isNotEmpty()) {
+//      """
+//      |unexpected resource path '$resourcePath'
+//      |must be the non-empty path to download the resource to
+//      """.trimMargin()
+//    }
+//  }
 }
 
 private fun IssueCollector.check(route: Route) {
@@ -159,7 +160,7 @@ private fun IssueCollector.check(launcher: Launcher) {
   if (maskableIconPath != null) {
     withContext("maskable_icon_path") {
       checkPath(
-        path = launcher.maskable_icon_path,
+        path = maskableIconPath,
       )
     }
   }

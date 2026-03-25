@@ -73,6 +73,11 @@ app install time, so app resources don't need to be online when the apps are use
                 /snake.js
 ```
 
+Note that in dev mode, it is possible to install apps with a manifest address on the file system,
+instead of as a URL. In this case we do not copy resources into the `/resources` folder. That way,
+edits to local resources are immediately reflected when those resources are served.
+
+
 Backblaze B2
 ------------
 

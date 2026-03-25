@@ -1,10 +1,41 @@
-Manifest
-========
+.wasmo files
+============
 
-Wasmo apps are distributed using a manifest file plus a set of attached resources.
+Wasmo apps are distributed as `.wasmo` archives (ZIP files). When you install an app, Wasmo OS
+copies the contents of the archive to the target computer.
 
-The manifest is a [TOML] file. It is typically named with the `.wasmo.toml` suffix, like
-`recipes.wasmo.toml`.
+Here's a sample layout of a `.wasmo` archive:
+
+```
+recipes.wasmo/
+ |- app.wasm
+ |- wasmo-manifest.toml
+ '- static/
+     |- launcher-icon.svg
+     '- recipes.css
+```
+
+In [dev mode](./dev_mode.md), Wasmo OS can run applications directly from a directory on the local
+file system. This way when you make a change to a resource or `.wasm` file, that file change is
+reflected immediately in the running application.
+
+In either mode, the archive or directory’s contents are available as _resources_ that can be used
+by the application.
+
+
+`app.wasm`
+----------
+
+If the application is executable it must include an `app.wasm` resource. This special path is loaded
+by Wasmo OS and executed.
+
+(Applications that don't include an `app.wasm` file may serve static resources only.)
+
+
+`wasmo-manifest.toml`
+---------------------
+
+At the root of the archive/directory there must be a [TOML] file with this name.
 
 This is a sample:
 
@@ -14,9 +45,10 @@ version = 35
 slug = 'recipes'
 base_url = 'https://example.com/recipes/v35/'
 
-[[resource]]
-url = 'recipes.zip'
-unzip = true
+[[external_resource]]
+from = '../build/dist/js/developmentExecutable'
+to = '/static'
+include = ['**/*.js', '**/*.js.map']
 
 [[route]]
 path = '/static/**'
@@ -44,7 +76,6 @@ The `target` must be `https://wasmo.com/sdk/1`. (This is our mechanism to evolve
 The `version` is the application's version. It's an int64. When apps are upgraded, a lifecycle
 function is called with the previous and new version, which may be useful to trigger migration code.
 
-
 ### `slug` (Required)
 
 The `slug` is between 1 and 15 ASCII lowercase letters or digits. The first character is not a
@@ -53,80 +84,40 @@ digit. (If you're a regex enjoyer, the regex is `[a-z][a-z0-9]{0,14}`.)
 This app doesn't do anything and returns HTTP 404 on all calls. Useful apps include executable code
 (`app.wasm`), static resources, or both.
 
-### `base_url` (Optional)
+
+`external_resource` (Array)
+---------------------------
 
 ```toml
-base_url = 'https://example.com/recipes/v35/'
+[[external_resource]]
+from = '../build/dist/js/developmentExecutable'
+to = '/static'
+include = ['**/*.js', '**/*.js.map']
 ```
 
-This URL is used to resolve resource URLs in the manifest. It defaults to the URL that the manifest
-was fetched from.
+This is only used in dev mode.
+
+The manifest contains an array of external resources. Note the double square braces on
+`[[external_resource]]`: that's TOML’s Array of Tables syntax!
+
+This item maps resources on the local file system so they can be used by the application.
+
+When the Wasmo CLI packages a directory into a `.wasmo` archive, it will copy external resources
+into the archive (and omit the `[[external_resource]]` item).
 
 
-`resource` (Array)
-------------------
+### `from`
 
-```toml
-[[resource]]
-url = 'app.wasm'
-```
+The local file or directory to copy resources from. This may be an absolute or relative path.
 
-The manifest contains an array of resources. Note the double square braces on `[[resource]]`:
-that's TOML’s Array of Tables syntax!
+### `to`
 
-Resources are files that are transferred from the Internet to the Wasmo computer when the app is
-installed.
+The path to copy resources to. This must start with `/`.
 
-### `resource_path` (Optional)
+### `include` (optional, default is `['**/*']`)
 
-The path to download this resource to. This defaults to the path part of the resource `url`.
-
-```toml
-[[resource]]
-url = 'https://cdn.example.com/1234abcd'
-resource_path = 'app.wasm'
-```
-
-If the `url` path part is `/` or empty, then the `resource_path` is required.
-
-### `content_type` (Optional)
-
-```toml
-[[resource]]
-url = 'https://example.com/static/icon.svg'
-content_type = 'image/svg+xml'
-```
-
-Resources may have an optional content-type; otherwise [common media types] will be guessed based on
-their file extension.
-
-### `unzip` archives (Optional)
-
-```toml
-[[resource]]
-url = 'recipes.zip'
-unzip = true
-```
-
-Multiple resources may be aggregated into a `.zip` file for easier distribution. You must use
-`unzip = true` to access items independently.
-
-### `sha256` hashes (Optional)
-
-```toml
-[[resource]]
-url = 'app.wasm'
-sha256 = '21c14de150041aa8d5cf1c10bab6147b9fa9c60c324ea3e7fff22b293519fe81'
-```
-
-Resources can authenticated with a SHA-256 hash. If the hash doesn't match, installing the app will
-fail.
-
-
-### The `app.wasm` resource
-
-If the application is executable it must include an `app.wasm` resource. This special path is loaded
-by Wasmo OS and executed.
+A pattern to select which paths to copy. Use `*` to match any sequence of characters in a path
+segment (no slashes), and `**` to match any number of path segments (including none).
 
 
 `route` (Array)

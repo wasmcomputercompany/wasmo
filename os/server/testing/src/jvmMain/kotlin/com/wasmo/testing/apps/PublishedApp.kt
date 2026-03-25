@@ -2,7 +2,7 @@ package com.wasmo.testing.apps
 
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.AppCatalog.Entry
-import com.wasmo.computers.AppManifestAddress
+import com.wasmo.identifiers.AppManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.WasmoToml
 import okhttp3.HttpUrl
@@ -54,7 +54,6 @@ val TestAppCatalog = AppCatalog(
   entries = listOf(MusicApp.PublishedApp, SnakeApp.PublishedApp).map {
     Entry(
       appManifestAddress = it.appManifestAddress,
-      manifest = it.manifest,
     )
   },
 )

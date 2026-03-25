@@ -1,9 +1,9 @@
 package com.wasmo.testing.apps
 
-import com.wasmo.computers.AppManifestAddress.Companion.toAppManifestAddress
+import com.wasmo.computers.packaging.TargetSdk1
+import com.wasmo.identifiers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
-import com.wasmo.packaging.TargetSdk1
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
 import wasmo.http.HttpService
@@ -26,7 +26,6 @@ class SnakeApp(
       version = 3L,
       slug = "snake",
       target = TargetSdk1,
-      base_url = "https://example.com/snake/v3/",
       launcher = Launcher(
         label = "Snake",
       ),

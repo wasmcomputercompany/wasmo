@@ -1,7 +1,11 @@
-package com.wasmo.packaging
+package com.wasmo.computers.packaging
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.Launcher
+import com.wasmo.packaging.Route
+import com.wasmo.packaging.WasmoToml
 import kotlin.test.Test
 
 class AppManifestTest {
@@ -36,12 +40,11 @@ class AppManifestTest {
         target = "https://wasmo.com/sdk/1",
         version = 35,
         slug = "recipes",
-        base_url = "https://example.com/recipes/v35/",
-        resource = listOf(
-          Resource(
-            url = "recipes.zip",
-            unzip = true,
-          ),
+        external_resource = listOf(
+//          ExternalResource(
+//            url = "recipes.zip",
+//            unzip = true,
+//          ),
         ),
         route = listOf(
           Route(

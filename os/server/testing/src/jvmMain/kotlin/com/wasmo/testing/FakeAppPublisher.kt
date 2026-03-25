@@ -1,6 +1,6 @@
 package com.wasmo.testing
 
-import com.wasmo.computers.AppManifestAddress
+import com.wasmo.identifiers.AppManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.testing.apps.MusicApp

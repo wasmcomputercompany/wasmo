@@ -1,9 +1,9 @@
 package com.wasmo.installedapps
 
-import com.wasmo.identifiers.InstalledAppId
+import com.wasmo.identifiers.AppManifestAddress
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class InstallAppJob(
-  val installedAppId: InstalledAppId,
+  val appManifestAddress: AppManifestAddress,
 )

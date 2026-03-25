@@ -9,10 +9,10 @@ import assertk.assertions.isNotNull
 import assertk.assertions.message
 import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.api.InstalledAppSnapshot
-import com.wasmo.computers.AppManifestAddress
 import com.wasmo.events.InstallAppEvent
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
+import com.wasmo.identifiers.AppManifestAddress
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.framework.ResponseBodySnapshot

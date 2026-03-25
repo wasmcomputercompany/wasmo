@@ -4,11 +4,11 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
-import com.wasmo.computers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.computers.ComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
+import com.wasmo.identifiers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.identifiers.ComputerSlug
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -31,15 +31,8 @@ class InstallAppAction(
 
     val appManifestAddress = request.appManifestAddress.toAppManifestAddress()
 
-    val manifest = computer.manifestLoader.load(
-      appManifestAddress = appManifestAddress,
-    )
-
     wasmoDb.transactionWithResult(noEnclosing = true) {
-      computer.enqueueInstall(
-        appManifestAddress = appManifestAddress,
-        appManifest = manifest,
-      )
+      computer.enqueueInstall(appManifestAddress)
     }
 
     return Response(

@@ -1,10 +1,10 @@
 package com.wasmo.installedapps
 
-import com.wasmo.computers.AppManifestAddress
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
+import com.wasmo.identifiers.AppManifestAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Route
 import com.wasmo.wasm.AppLoader
