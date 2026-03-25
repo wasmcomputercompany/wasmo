@@ -48,7 +48,7 @@ class RealComputerService(
   override fun enqueueInstall(
     appManifestAddress: AppManifestAddress,
   ) {
-    installAppJobQueue.enqueue(InstallAppJob(appManifestAddress))
+    installAppJobQueue.enqueue(InstallAppJob(id, appManifestAddress))
   }
 
   context(transactionCallbacks: TransactionCallbacks)

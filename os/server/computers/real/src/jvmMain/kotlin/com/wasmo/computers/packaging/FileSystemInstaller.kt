@@ -1,7 +1,11 @@
 package com.wasmo.computers.packaging
 
+import com.wasmo.issues.IssueCollector
+import com.wasmo.packaging.AppManifest
+
 internal class FileSystemInstaller : Installer {
-  override suspend fun install(): InstallResult {
-    TODO("Not yet implemented")
+  context(issueCollector: IssueCollector)
+  override suspend fun install(): AppManifest? {
+    TODO()
   }
 }

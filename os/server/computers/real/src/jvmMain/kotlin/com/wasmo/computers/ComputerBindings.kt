@@ -4,8 +4,8 @@ import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 
 @BindingContainer
-interface ComputerBindings {
+abstract class ComputerBindings {
 
   @Binds
-  fun bindComputerStore(real: RealComputerStore): ComputerStore
+  abstract fun bindComputerStore(real: RealComputerStore): ComputerStore
 }

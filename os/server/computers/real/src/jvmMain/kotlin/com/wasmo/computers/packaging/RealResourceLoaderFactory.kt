@@ -8,7 +8,7 @@ import dev.zacsweers.metro.SingleIn
 
 @Inject
 @SingleIn(ComputerScope::class)
-internal class RealResourceLoaderFactory : ResourceLoader.Factory {
+class RealResourceLoaderFactory : ResourceLoader.Factory {
   override fun create(
     manifest: AppManifest,
     manifestAddress: AppManifestAddress,

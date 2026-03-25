@@ -3,6 +3,7 @@ package com.wasmo.computers.packaging
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.ExternalResource
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.Route
 import com.wasmo.packaging.WasmoToml
@@ -15,11 +16,11 @@ class AppManifestTest {
       |target = 'https://wasmo.com/sdk/1'
       |version = 35
       |slug = 'recipes'
-      |base_url = 'https://example.com/recipes/v35/'
       |
-      |[[resource]]
-      |url = 'recipes.zip'
-      |unzip = true
+      |[[external_resource]]
+      |from = '../build/dist/js/developmentExecutable'
+      |to = '/static'
+      |include = ['**/*.js', '**/*.js.map']
       |
       |[[route]]
       |path = '/static/**'
@@ -41,10 +42,11 @@ class AppManifestTest {
         version = 35,
         slug = "recipes",
         external_resource = listOf(
-//          ExternalResource(
-//            url = "recipes.zip",
-//            unzip = true,
-//          ),
+          ExternalResource(
+            from = "../build/dist/js/developmentExecutable",
+            to = "/static",
+            include = listOf("**/*.js", "**/*.js.map"),
+          ),
         ),
         route = listOf(
           Route(

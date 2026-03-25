@@ -22,34 +22,34 @@ class AppManifestCheckerTest {
     assertThat(
       manifest.copy(target = "https://wasmo.com/sdk/0"),
     ).failsValidation(
-      context = "target",
       message =
         """
         |unsupported target 'https://wasmo.com/sdk/0'
         |expected one of $SupportedTargets
         """.trimMargin(),
+      href = "target",
     )
 
     assertThat(
       manifest.copy(version = 0),
     ).failsValidation(
-      context = "version",
       message =
         """
         |unexpected version 0
         |expected a positive integer
         """.trimMargin(),
+      href = "version",
     )
 
     assertThat(
       manifest.copy(slug = "aaaaabbbbbcccccd"),
     ).failsValidation(
-      context = "slug",
       message =
         """
         |unexpected app slug 'aaaaabbbbbcccccd'
         |must be 1-15 characters and match ${AppSlugRegex.pattern}
         """.trimMargin(),
+      href = "slug",
     )
   }
 
@@ -138,8 +138,8 @@ class AppManifestCheckerTest {
         ),
       ),
     ).failsValidation(
-      context = "route[0].path",
       message = "string must start with /",
+      href = "route[0].path",
     )
 
     assertThat(
@@ -151,8 +151,8 @@ class AppManifestCheckerTest {
         ),
       ),
     ).failsValidation(
-      context = "route[0].path",
       message = "string may not contain '*', except in a wildcard at the end",
+      href = "route[0].path",
     )
 
     assertThat(
@@ -165,8 +165,8 @@ class AppManifestCheckerTest {
         ),
       ),
     ).failsValidation(
-      context = "route[0].resource_path",
       message = "string may not contain '*'",
+      href = "route[0].resource_path",
     )
 
     assertThat(
@@ -179,8 +179,8 @@ class AppManifestCheckerTest {
         ),
       ),
     ).failsValidation(
-      context = "route[0].resource_path",
       message = "string must end with '/**'",
+      href = "route[0].resource_path",
     )
 
     assertThat(
@@ -194,8 +194,8 @@ class AppManifestCheckerTest {
         ),
       ),
     ).failsValidation(
-      context = "route[0]",
       message = "route may have a resource_path and an objects_key, but not both",
+      href = "route[0]",
     )
 
     assertThat(
@@ -208,8 +208,8 @@ class AppManifestCheckerTest {
         ),
       ),
     ).failsValidation(
-      context = "route[0].objects_key",
       message = "string must start with /",
+      href = "route[0].objects_key",
     )
 
     assertThat(
@@ -222,11 +222,11 @@ class AppManifestCheckerTest {
         ),
       ),
     ).failsValidation(
-      context = "route[0].access",
       message = """
       |unsupported access 'secret'
       |expected one of $SupportedAccessValues
       """.trimMargin(),
+      href = "route[0].access",
     )
   }
 
@@ -240,13 +240,13 @@ class AppManifestCheckerTest {
         ),
       ),
     ).failsValidation(
-      context = "launcher.maskable_icon_path",
       message = "string must start with /",
+      href = "launcher.maskable_icon_path",
     )
   }
 }
 
-fun Assert<AppManifest>.failsValidation(context: String, message: String) {
+fun Assert<AppManifest>.failsValidation(href: String, message: String) {
   transform { manifest -> manifest.check() }
-    .containsExactly(Issue(context, message))
+    .containsExactly(Issue(href = href, message = message))
 }

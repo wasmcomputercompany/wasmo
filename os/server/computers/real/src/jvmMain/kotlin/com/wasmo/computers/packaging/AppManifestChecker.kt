@@ -3,6 +3,7 @@ package com.wasmo.computers.packaging
 import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.issues.Issue
 import com.wasmo.issues.IssueCollector
+import com.wasmo.issues.issueCheck
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.ExternalResource
 import com.wasmo.packaging.Launcher
@@ -19,12 +20,13 @@ import com.wasmo.packaging.Route
  */
 fun AppManifest.check(): List<Issue> {
   return IssueCollector.collect {
-    check(this@check)
+    check(this)
   }
 }
 
-fun IssueCollector.check(manifest: AppManifest) {
-  withContext("target") {
+context(issueCollector: IssueCollector)
+fun check(manifest: AppManifest) {
+  context(issueCollector.href("target")) {
     issueCheck(manifest.target in SupportedTargets) {
       """
       |unsupported target '${manifest.target}'
@@ -33,7 +35,7 @@ fun IssueCollector.check(manifest: AppManifest) {
     }
   }
 
-  withContext("version") {
+  context(issueCollector.href("version")) {
     issueCheck(manifest.version >= 1) {
       """
       |unexpected version ${manifest.version}
@@ -42,7 +44,7 @@ fun IssueCollector.check(manifest: AppManifest) {
     }
   }
 
-  withContext("slug") {
+  context(issueCollector.href("slug")) {
     issueCheck(manifest.slug.matches(AppSlugRegex)) {
       """
       |unexpected app slug '${manifest.slug}'
@@ -52,26 +54,27 @@ fun IssueCollector.check(manifest: AppManifest) {
   }
 
   for ((index, resource) in manifest.external_resource.withIndex()) {
-    withContext("resource[$index]") {
+    context(issueCollector.href("resource[$index]")) {
       check(resource)
     }
   }
 
   for ((index, route) in manifest.route.withIndex()) {
-    withContext("route[$index]") {
+    context(issueCollector.href("route[$index]")) {
       check(route)
     }
   }
 
   val launcher = manifest.launcher
   if (launcher != null) {
-    withContext("launcher") {
+    context(issueCollector.href("launcher")) {
       check(launcher)
     }
   }
 }
 
-private fun IssueCollector.check(externalResource: ExternalResource) {
+context(issueCollector: IssueCollector)
+private fun check(externalResource: ExternalResource) {
 //  withContext("sha256") {
 //    val sha256 = externalResource.sha256
 //    val validSha256 = try {
@@ -109,8 +112,9 @@ private fun IssueCollector.check(externalResource: ExternalResource) {
 //  }
 }
 
-private fun IssueCollector.check(route: Route) {
-  withContext("path") {
+context(issueCollector: IssueCollector)
+private fun check(route: Route) {
+  context(issueCollector.href("path")) {
     checkPath(
       path = route.path,
       allowTrailingWildcard = true,
@@ -126,7 +130,7 @@ private fun IssueCollector.check(route: Route) {
   }
 
   if (resourcePath != null) {
-    withContext("resource_path") {
+    context(issueCollector.href("resource_path")) {
       checkPath(
         path = resourcePath,
         allowTrailingWildcard = pathHasTrailingWildcard,
@@ -136,7 +140,7 @@ private fun IssueCollector.check(route: Route) {
   }
 
   if (objectsKey != null) {
-    withContext("objects_key") {
+    context(issueCollector.href("objects_key")) {
       checkPath(
         path = objectsKey,
         allowTrailingWildcard = pathHasTrailingWildcard,
@@ -145,7 +149,7 @@ private fun IssueCollector.check(route: Route) {
     }
   }
 
-  withContext("access") {
+  context(issueCollector.href("access")) {
     issueCheck(route.access == null || route.access in SupportedAccessValues) {
       """
       |unsupported access '${route.access}'
@@ -155,10 +159,11 @@ private fun IssueCollector.check(route: Route) {
   }
 }
 
-private fun IssueCollector.check(launcher: Launcher) {
+context(issueCollector: IssueCollector)
+private fun check(launcher: Launcher) {
   val maskableIconPath = launcher.maskable_icon_path
   if (maskableIconPath != null) {
-    withContext("maskable_icon_path") {
+    context(issueCollector.href("maskable_icon_path")) {
       checkPath(
         path = maskableIconPath,
       )
@@ -166,7 +171,8 @@ private fun IssueCollector.check(launcher: Launcher) {
   }
 }
 
-private fun IssueCollector.checkPath(
+context(issueCollector: IssueCollector)
+private fun checkPath(
   path: String,
   allowTrailingWildcard: Boolean = false,
   requireTrailingWildcard: Boolean = false,

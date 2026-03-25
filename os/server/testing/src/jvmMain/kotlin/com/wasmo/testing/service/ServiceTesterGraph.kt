@@ -9,6 +9,10 @@ import com.wasmo.app.db.WasmoDbService
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerServiceGraph
+import com.wasmo.computers.packaging.Installer
+import com.wasmo.computers.packaging.RealInstallerFactory
+import com.wasmo.computers.packaging.RealResourceLoaderFactory
+import com.wasmo.computers.packaging.ResourceLoader
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener

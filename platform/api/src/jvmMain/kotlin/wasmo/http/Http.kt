@@ -11,7 +11,7 @@ interface HttpService {
 }
 
 data class HttpRequest(
-  val method: String,
+  val method: String = "GET",
   val url: HttpUrl,
   val headers: List<Header> = listOf(),
   val body: ByteString? = null,

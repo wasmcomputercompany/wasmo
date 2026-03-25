@@ -1,5 +1,9 @@
 package com.wasmo.computers
 
+import com.wasmo.computers.packaging.Installer
+import com.wasmo.computers.packaging.RealInstallerFactory
+import com.wasmo.computers.packaging.RealResourceLoaderFactory
+import com.wasmo.computers.packaging.ResourceLoader
 import com.wasmo.db.Computer
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.ComputerId
@@ -7,7 +11,6 @@ import com.wasmo.identifiers.ComputerScope
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ForComputer
 import com.wasmo.identifiers.ForHost
-import com.wasmo.computers.packaging.PackagingBindings
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
@@ -19,9 +22,6 @@ import wasmo.objectstore.ScopedObjectStore
 
 @GraphExtension(
   scope = ComputerScope::class,
-  bindingContainers = [
-    PackagingBindings::class
-  ],
 )
 interface ComputerServiceGraph {
   val service: ComputerService
@@ -64,6 +64,12 @@ interface ComputerServiceGraph {
 
   @Binds
   fun bindComputerService(real: RealComputerService): ComputerService
+
+  @Binds
+  fun bindInstallerFactory(real: RealInstallerFactory): Installer.Factory
+
+  @Binds
+  fun bindResourceLoaderFactory(real: RealResourceLoaderFactory): ResourceLoader.Factory
 
   @GraphExtension.Factory
   interface Factory {

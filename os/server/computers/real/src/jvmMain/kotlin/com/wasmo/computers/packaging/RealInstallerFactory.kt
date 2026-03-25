@@ -7,7 +7,7 @@ import dev.zacsweers.metro.SingleIn
 
 @Inject
 @SingleIn(ComputerScope::class)
-internal class RealInstallerFactory : Installer.Factory {
+class RealInstallerFactory : Installer.Factory {
   override fun create(manifestAddress: AppManifestAddress): Installer {
     TODO("Not yet implemented")
   }
