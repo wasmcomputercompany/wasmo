@@ -1,5 +1,8 @@
 package com.wasmo.journal.server
 
+import com.wasmo.journal.api.GreetRequest
+import com.wasmo.journal.api.GreetResponse
+import com.wasmo.journal.api.JournalJson
 import com.wasmo.journal.db.JournalDbService
 import com.wasmo.sqldelight.driver
 import kotlin.time.Clock
@@ -34,6 +37,21 @@ class JournalWasmoApp(
   override suspend fun execute(request: HttpRequest): HttpResponse {
     return when (request.url.encodedPath) {
       "/" -> HomeAction().home()
+
+      "/greet" -> {
+        val request = JournalJson.decodeFromString(
+          GreetRequest.serializer(),
+          request.body!!.utf8(),
+        )
+        val response = GreetAction(clock, journalDb).greet(request)
+        val responseBody = JournalJson.encodeToString(
+          GreetResponse.serializer(),
+          response,
+        )
+        HttpResponse(
+          body = responseBody.encodeUtf8(),
+        )
+      }
 
       else -> {
         HttpResponse(
