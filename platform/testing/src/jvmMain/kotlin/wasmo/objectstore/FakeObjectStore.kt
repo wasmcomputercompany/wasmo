@@ -4,12 +4,14 @@ import java.util.TreeMap
 import okio.ByteString
 
 class FakeObjectStore : ObjectStore {
+  var nextException: Exception? = null
   private val objects = TreeMap<String, Object>()
 
   operator fun get(key: String): ByteString? =
     objects[key]?.value
 
   override suspend fun put(request: PutObjectRequest): PutObjectResponse {
+    throwIfNecessary()
     val o = objects.getOrPut(request.key) {
       Object(
         key = request.key,
@@ -23,6 +25,7 @@ class FakeObjectStore : ObjectStore {
   }
 
   override suspend fun get(request: GetObjectRequest): GetObjectResponse {
+    throwIfNecessary()
     val o = objects[request.key]
     return GetObjectResponse(
       value = o?.value,
@@ -31,6 +34,7 @@ class FakeObjectStore : ObjectStore {
   }
 
   override suspend fun delete(request: DeleteObjectRequest): DeleteObjectResponse {
+    throwIfNecessary()
     objects.remove(request.key)
     return DeleteObjectResponse
   }
@@ -41,6 +45,7 @@ class FakeObjectStore : ObjectStore {
   // TODO: honor delimiter.
   // TODO: limit the result count.
   override suspend fun list(request: ListObjectsRequest): ListObjectsResponse {
+    throwIfNecessary()
     val objects = listObjects(request.prefix)
     return ListObjectsResponse(
       entries = objects.map {
@@ -68,6 +73,14 @@ class FakeObjectStore : ObjectStore {
     }
 
     return list
+  }
+
+  private fun throwIfNecessary() {
+    val toThrow = nextException
+    if (toThrow != null) {
+      nextException = null
+      throw toThrow
+    }
   }
 
   private class Object(

@@ -17,9 +17,4 @@ interface InstalledAppService {
 
   context(transactionCallbacks: TransactionCallbacks)
   fun snapshot(): InstalledAppSnapshot
-
-  /**
-   * Save all resources listed in the manifest to the object store.
-   */
-  suspend fun install()
 }

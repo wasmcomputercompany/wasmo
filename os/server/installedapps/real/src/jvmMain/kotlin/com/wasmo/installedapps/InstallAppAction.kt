@@ -4,12 +4,13 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
-import com.wasmo.computers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.computers.ComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
+import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -24,21 +25,24 @@ class InstallAppAction(
     computerSlug: ComputerSlug,
     request: InstallAppRequest,
   ): Response<InstallAppResponse> {
+    check(request.appSlug.value.matches(AppSlugRegex)) {
+      """
+      |unexpected app slug '${request.appSlug}'
+      |must be 1-15 characters and match ${AppSlugRegex.pattern}
+      """.trimMargin()
+    }
+
     val computer = wasmoDb.transactionWithResult(noEnclosing = true) {
       computerStore.getOrNull(client, computerSlug)
         ?: throw NotFoundUserException("unexpected computer: ${computerSlug.value}")
     }
 
-    val appManifestAddress = request.appManifestAddress.toAppManifestAddress()
-
-    val manifest = computer.manifestLoader.load(
-      appManifestAddress = appManifestAddress,
-    )
+    val wasmoFileAddress = request.appManifestAddress.toWasmoFileAddress()
 
     wasmoDb.transactionWithResult(noEnclosing = true) {
       computer.enqueueInstall(
-        appManifestAddress = appManifestAddress,
-        appManifest = manifest,
+        wasmoFileAddress = wasmoFileAddress,
+        slug = request.appSlug,
       )
     }
 

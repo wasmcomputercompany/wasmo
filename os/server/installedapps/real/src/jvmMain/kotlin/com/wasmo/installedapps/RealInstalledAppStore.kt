@@ -35,6 +35,7 @@ class RealInstalledAppStore(
     val installedApp = wasmoDb.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
       computer_id = computer.id,
       slug = appSlug,
+      active = true,
     ).executeAsOneOrNull()
       ?: return null
 

@@ -3,7 +3,6 @@ package com.wasmo.testing.computer
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.routes.ComputerHomeRoute
-import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.testing.JobQueueTester
 import com.wasmo.testing.apps.PublishedApp
@@ -19,7 +18,7 @@ import dev.zacsweers.metro.AssistedInject
 @AssistedInject
 class ComputerTester private constructor(
   private val installedAppTesterFactory: InstalledAppTester.Factory,
-  private val jobQueueTester: JobQueueTester,
+  val jobQueueTester: JobQueueTester,
   @Assisted private val clientAuthenticator: ClientAuthenticator,
   @Assisted private val client: ClientTester,
   @Assisted val slug: ComputerSlug,
@@ -34,7 +33,8 @@ class ComputerTester private constructor(
     client.call().installApp(
       computerSlug = slug,
       request = InstallAppRequest(
-        appManifestAddress = publishedApp.appManifestAddress.toString(),
+        appManifestAddress = publishedApp.wasmoFileAddress.toString(),
+        appSlug = publishedApp.slug,
       ),
     )
 
@@ -49,7 +49,6 @@ class ComputerTester private constructor(
     clientAuthenticator = clientAuthenticator,
     publishedApp = publishedApp,
     computerSlug = slug,
-    slug = AppSlug(publishedApp.manifest.slug),
   )
 
   fun homePage() = client.call().hostPage(ComputerHomeRoute(slug))

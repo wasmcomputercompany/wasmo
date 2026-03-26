@@ -7,8 +7,8 @@ Wasmo OS can run in dev mode. It adds features to help develop new apps.
 Install from the File System
 ----------------------------
 
-In addition to installing apps from a URL, like `https://example.com/recipes/v1/recipes.wasmo.toml`,
-apps can also be installed from the file system, like `/Users/jesse/Development/journal/build/journal.wasmo.toml`.
+In addition to installing apps from a URL, like `https://example.com/recipes/v1/recipes.wasmo`,
+apps can also be installed from the file system, like `/Users/jesse/Development/recipes/build/recipes.wasmo`.
 
 
 Updates without version changes
@@ -27,7 +27,7 @@ system and install updates automatically.
 Hot Reloading
 -------------
 
-This requires an opt-in in the [manifest](./manifest.md).
+This requires an opt-in in the [manifest](wasmo_files.md).
 
 Served HTML will be rewritten to add a hot reloading hook. This will trigger automatic page
 refreshes when the app is updated.

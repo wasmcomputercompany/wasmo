@@ -6,20 +6,16 @@ import kotlinx.serialization.Serializable
 data class AppManifest(
   val target: String,
   val version: Long,
-  val slug: String,
-  val base_url: String? = null,
-  val resource: List<Resource> = listOf(),
+  val external_resource: List<ExternalResource> = listOf(),
   val route: List<Route> = listOf(),
   val launcher: Launcher? = null,
 )
 
 @Serializable
-data class Resource(
-  val url: String,
-  val resource_path: String? = null,
-  val content_type: String? = null,
-  val unzip: Boolean? = null,
-  val sha256: String? = null,
+data class ExternalResource(
+  val from: String,
+  val to: String,
+  val include: List<String>,
 )
 
 @Serializable

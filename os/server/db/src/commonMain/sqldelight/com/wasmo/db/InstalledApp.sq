@@ -2,23 +2,25 @@ insertInstalledApp:
 INSERT INTO InstalledApp(
   computer_id,
   slug,
+  active,
   version,
-  manifest_address,
-  manifest_data,
-  install_scheduled_at
+  wasmo_file_address,
+  manifest_data
 )
 VALUES (
   :computer_id,
   :slug,
+  :active,
   :version,
-  :manifest_address,
-  :manifest_data,
-  :install_scheduled_at
+  :wasmo_file_address,
+  :manifest_data
 ) RETURNING id;
 
 selectInstalledAppsByComputerId:
 SELECT * FROM InstalledApp
-WHERE computer_id = :computer_id
+WHERE
+  computer_id = :computer_id AND
+  active = :active
 ORDER BY slug
 LIMIT :limit;
 
@@ -26,27 +28,6 @@ selectInstalledAppByComputerIdAndSlug:
 SELECT * FROM InstalledApp
 WHERE
   computer_id = :computer_id AND
-  slug = :slug
+  slug = :slug AND
+  active = :active
 LIMIT 1;
-
-selectInstalledAppById:
-SELECT * FROM InstalledApp
-WHERE id = :id;
-
-updateInstalledAppSetInstallCompletedAt:
-UPDATE InstalledApp
-SET
-  version = :new_version,
-  install_completed_at = :install_completed_at
-WHERE
-  version = :expected_version AND
-  id = :id;
-
-updateInstalledAppSetInstallIncompleteReason:
-UPDATE InstalledApp
-SET
-  version = :new_version,
-  install_incomplete_reason = :install_incomplete_reason
-WHERE
-  version = :expected_version AND
-  id = :id;

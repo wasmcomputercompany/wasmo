@@ -12,6 +12,7 @@ kotlin {
     commonMain {
       dependencies {
         implementation(libs.okio)
+        implementation(project(":platform:issues"))
       }
     }
   }

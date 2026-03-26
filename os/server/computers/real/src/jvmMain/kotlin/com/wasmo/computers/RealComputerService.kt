@@ -2,15 +2,17 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
+import com.wasmo.computers.packaging.ResourceInstaller
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
+import com.wasmo.identifiers.ComputerScope
 import com.wasmo.identifiers.ComputerSlug
-import com.wasmo.installedapps.InstallAppJob
+import com.wasmo.identifiers.InstallAppJobId
 import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.jobs.JobQueue
-import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
@@ -24,10 +26,10 @@ class RealComputerService(
   private val wasmoDb: WasmoDb,
   private val appCatalog: AppCatalog,
   private val installedAppStore: InstalledAppStore,
-  private val installAppJobQueue: JobQueue<InstallAppJob>,
+  private val installAppJobQueue: JobQueue<InstallAppJobId>,
   override val id: ComputerId,
   override val slug: ComputerSlug,
-  override val manifestLoader: ManifestLoader,
+  override val resourceInstallerFactory: ResourceInstaller.Factory,
 ) : ComputerService {
   override val url: HttpUrl
     get() = deployment.baseUrl.newBuilder()
@@ -38,33 +40,33 @@ class RealComputerService(
   override fun initialize() {
     for (entry in appCatalog.entries) {
       enqueueInstall(
-        appManifestAddress = entry.appManifestAddress,
-        appManifest = entry.manifest,
+        wasmoFileAddress = entry.wasmoFileAddress,
+        slug = entry.slug,
       )
     }
   }
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun enqueueInstall(
-    appManifestAddress: AppManifestAddress,
-    appManifest: AppManifest,
+    wasmoFileAddress: WasmoFileAddress,
+    slug: AppSlug,
   ) {
-    val installedAppId = wasmoDb.installedAppQueries.insertInstalledApp(
+    val installAppJobId = wasmoDb.installAppJobQueries.insertInstalledAppJob(
       computer_id = id,
-      slug = AppSlug(appManifest.slug),
-      manifest_address = appManifestAddress.toString(),
-      manifest_data = appManifest,
-      version = appManifest.version,
-      install_scheduled_at = clock.now(),
+      slug = slug,
+      active = true,
+      version = 1L,
+      wasmo_file_address = wasmoFileAddress,
+      scheduled_at = clock.now(),
     ).executeAsOne()
-
-    installAppJobQueue.enqueue(InstallAppJob(installedAppId))
+    installAppJobQueue.enqueue(installAppJobId)
   }
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun snapshot(): ComputerSnapshot {
     val installedApps = wasmoDb.installedAppQueries.selectInstalledAppsByComputerId(
       computer_id = id,
+      active = true,
       limit = 100,
     ).executeAsList()
 

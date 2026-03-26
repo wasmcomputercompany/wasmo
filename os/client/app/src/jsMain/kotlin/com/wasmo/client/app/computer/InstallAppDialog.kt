@@ -30,6 +30,9 @@ fun InstallAppDialog(
   var appUrlState by remember {
     mutableStateOf("http://wasmo.localhost:8080/journal/journal.wasmo.toml")
   }
+  var appSlugState by remember {
+    mutableStateOf("journal")
+  }
 
   CompositionLocalProvider(LocalFormState provides formState) {
     Dialog(
@@ -60,6 +63,15 @@ fun InstallAppDialog(
             Text("Paste the URL of the app to install.")
           }
 
+          TextField(
+            label = "App Name",
+          ) {
+            value(appSlugState)
+            onInput { event ->
+              appSlugState = event.value
+            }
+          }
+
           PrimaryButton(
             attrs = {
               style {
@@ -67,7 +79,12 @@ fun InstallAppDialog(
                 marginBottom(24.px)
               }
               onClick {
-                eventListener(InstallAppDialogEvent.ClickInstall(appUrlState))
+                eventListener(
+                  InstallAppDialogEvent.ClickInstall(
+                    appUrl = appUrlState,
+                    slug = appSlugState,
+                  ),
+                )
               }
             },
           ) {
@@ -81,5 +98,8 @@ fun InstallAppDialog(
 
 sealed interface InstallAppDialogEvent {
   object ClickDismiss : InstallAppDialogEvent
-  data class ClickInstall(val appUrl: String) : InstallAppDialogEvent
+  data class ClickInstall(
+    val appUrl: String,
+    val slug: String,
+  ) : InstallAppDialogEvent
 }

@@ -1,12 +1,11 @@
 package com.wasmo.installedapps
 
-import com.wasmo.computers.AppManifestAddress
-import com.wasmo.computers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.db.InstalledApp
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ForHost
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
@@ -52,9 +51,9 @@ interface InstalledAppServiceGraph {
 
   @Provides
   @SingleIn(InstalledAppScope::class)
-  fun provideAppManifestAddress(
+  fun provideWasmoFileAddress(
     installedApp: InstalledApp,
-  ): AppManifestAddress = installedApp.manifest_address.toAppManifestAddress()
+  ): WasmoFileAddress = installedApp.wasmo_file_address
 
   @Provides
   @ForInstalledApp
@@ -79,6 +78,9 @@ interface InstalledAppServiceGraph {
   @Binds
   @ForInstalledApp
   fun bindSqlService(real: SqlService): SqlService
+
+  @Binds
+  fun bindResourceLoaderFactory(real: RealResourceLoaderFactory): ResourceLoader.Factory
 
   @GraphExtension.Factory
   interface Factory {

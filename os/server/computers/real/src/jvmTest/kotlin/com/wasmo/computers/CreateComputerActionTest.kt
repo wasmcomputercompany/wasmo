@@ -47,6 +47,8 @@ class CreateComputerActionTest {
 
     // Apps from TestAppCatalog are installed by default.
     val computer = client.getComputer(computerSlug)
+    computer.jobQueueTester.awaitIdle() // TODO: serve InstallAppJobs while waiting.
+
     val installedMusicApp = computer.getApp(MusicApp.PublishedApp)
     val installedSnakeApp = computer.getApp(SnakeApp.PublishedApp)
 
@@ -57,15 +59,13 @@ class CreateComputerActionTest {
       .containsExactly(
         InstalledAppSnapshot(
           slug = installedMusicApp.slug,
-          launcherLabel = installedMusicApp.publishedApp.manifest.launcher!!.label!!,
+          launcherLabel = installedMusicApp.publishedApp.appManifest.launcher!!.label!!,
           maskableIconUrl = installedMusicApp.iconUrl.toString(),
-          installScheduledAt = tester.clock.now(),
         ),
         InstalledAppSnapshot(
           slug = installedSnakeApp.slug,
-          launcherLabel = installedSnakeApp.publishedApp.manifest.launcher!!.label!!,
+          launcherLabel = installedSnakeApp.publishedApp.appManifest.launcher!!.label!!,
           maskableIconUrl = installedSnakeApp.iconUrl.toString(),
-          installScheduledAt = tester.clock.now(),
         ),
       )
   }

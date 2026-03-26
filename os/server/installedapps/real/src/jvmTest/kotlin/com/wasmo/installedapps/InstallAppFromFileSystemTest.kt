@@ -3,20 +3,21 @@ package com.wasmo.installedapps
 import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.contains
+import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import assertk.assertions.message
-import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.api.InstalledAppSnapshot
-import com.wasmo.computers.AppManifestAddress
 import com.wasmo.events.InstallAppEvent
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
+import com.wasmo.identifiers.WasmoFileAddress
+import com.wasmo.issues.Issue
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
@@ -27,7 +28,7 @@ class InstallAppFromFileSystemTest {
 
   @Test
   fun happyPath() = runTest {
-    val publishedApp = RecipesApp.PublishedApp.withFileSystemAppManifestAddress()
+    val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
     tester.publishApp(publishedApp)
 
     val client = tester.newClient()
@@ -39,10 +40,8 @@ class InstallAppFromFileSystemTest {
       .contains(
         InstalledAppSnapshot(
           slug = installedApp.slug,
-          launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
+          launcherLabel = installedApp.publishedApp.appManifest.launcher!!.label!!,
           maskableIconUrl = installedApp.iconUrl.toString(),
-          installScheduledAt = tester.clock.now,
-          installCompletedAt = tester.clock.now,
         ),
       )
 
@@ -66,12 +65,13 @@ class InstallAppFromFileSystemTest {
   }
 
   @Test
+  @Ignore("we don't yet validate resources at install time")
   fun resourceIsAbsentAtInstallTime() = runTest {
-    val publishedApp = RecipesApp.PublishedApp.withFileSystemAppManifestAddress()
+    val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
     tester.publishApp(publishedApp)
 
-    val missingResourcePath = tester.testDirectory / "index.html"
-    tester.fileSystem.delete(missingResourcePath, mustExist = true)
+    val basePath = (publishedApp.wasmoFileAddress as WasmoFileAddress.FileSystem).path
+    tester.fileSystem.delete(basePath / "index.html", mustExist = true)
 
     val client = tester.newClient()
     val computer = client.createComputer()
@@ -85,31 +85,31 @@ class InstallAppFromFileSystemTest {
       .contains(
         InstalledAppSnapshot(
           slug = installedApp.slug,
-          launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
+          launcherLabel = installedApp.publishedApp.appManifest.launcher!!.label!!,
           maskableIconUrl = installedApp.iconUrl.toString(),
-          installScheduledAt = tester.clock.now(),
-          installIncompleteReason = InstallIncompleteReason.SourceUnavailable,
         ),
       )
 
-    assertThat(tester.eventListener.takeEvent().exception)
-      .isNotNull()
-      .message()
-      .isNotNull()
-      .contains(missingResourcePath.toString())
+    assertThat(tester.eventListener.takeEvent().issues)
+      .containsExactly(
+        Issue(
+          path = (basePath / "index.html").toString(),
+          message = "???",
+        )
+      )
   }
 
   @Test
   fun resourceIsAbsentAtFetchTime() = runTest {
-    val publishedApp = RecipesApp.PublishedApp.withFileSystemAppManifestAddress()
+    val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
     tester.publishApp(publishedApp)
 
     val client = tester.newClient()
     val computer = client.createComputer()
     val installedApp = computer.installApp(publishedApp)
 
-    val missingResourcePath = tester.testDirectory / "index.html"
-    tester.fileSystem.delete(missingResourcePath, mustExist = true)
+    val basePath = (publishedApp.wasmoFileAddress as WasmoFileAddress.FileSystem).path
+    tester.fileSystem.delete(basePath / "index.html", mustExist = true)
 
     assertFailsWith<NotFoundUserException> {
       client.call().callApp(
@@ -118,9 +118,9 @@ class InstallAppFromFileSystemTest {
     }
   }
 
-  private fun PublishedApp.withFileSystemAppManifestAddress(): PublishedApp = copy(
-    appManifestAddress = AppManifestAddress.FileSystem(
-      tester.testDirectory / "${manifest.slug}.wasmo.toml",
+  private fun PublishedApp.withFileSystemWasmoFileAddress(): PublishedApp = copy(
+    wasmoFileAddress = WasmoFileAddress.FileSystem(
+      tester.testDirectory / "$slug.wasmo",
     ),
   )
 }

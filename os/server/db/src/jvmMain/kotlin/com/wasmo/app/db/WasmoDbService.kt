@@ -9,6 +9,7 @@ import com.wasmo.db.ComputerAccess
 import com.wasmo.db.ComputerAllocation
 import com.wasmo.db.ComputerSpec
 import com.wasmo.db.Cookie
+import com.wasmo.db.InstallAppJob
 import com.wasmo.db.InstalledApp
 import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
@@ -22,10 +23,13 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
 import com.wasmo.identifiers.CookieId
+import com.wasmo.identifiers.InstallAppJobId
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.identifiers.StripeCustomerId
+import com.wasmo.identifiers.WasmoFileAddress
+import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.passkeys.RegistrationRecord
@@ -48,6 +52,7 @@ class WasmoDbService(
   ComputerAllocationAdapter,
   ComputerSpecAdapter,
   CookieAdapter,
+  InstallAppJobAdapter,
   InstalledAppAdapter,
   InviteAdapter,
   PasskeyAdapter,
@@ -79,6 +84,11 @@ class WasmoDbService(
 
       override fun encode(value: RegistrationRecord) =
         WasmoJson.encodeToString(value)
+    }
+
+    private object WasmoFileAddressAdapter : ColumnAdapter<WasmoFileAddress, String> {
+      override fun decode(databaseValue: String) = databaseValue.toWasmoFileAddress()
+      override fun encode(value: WasmoFileAddress) = value.toString()
     }
 
     private object AccountIdAdapter : ColumnAdapter<AccountId, Long> {
@@ -119,6 +129,11 @@ class WasmoDbService(
     private object CookieIdAdapter : ColumnAdapter<CookieId, Long> {
       override fun decode(databaseValue: Long) = CookieId(databaseValue)
       override fun encode(value: CookieId) = value.id
+    }
+
+    private object InstallAppJobIdAdapter : ColumnAdapter<InstallAppJobId, Long> {
+      override fun decode(databaseValue: Long) = InstallAppJobId(databaseValue)
+      override fun encode(value: InstallAppJobId) = value.id
     }
 
     private object InstalledAppIdAdapter : ColumnAdapter<InstalledAppId, Long> {
@@ -188,14 +203,22 @@ class WasmoDbService(
       account_idAdapter = AccountIdAdapter,
     )
 
+    private val InstallAppJobAdapter = InstallAppJob.Adapter(
+      idAdapter = InstallAppJobIdAdapter,
+      computer_idAdapter = ComputerIdAdapter,
+      slugAdapter = AppSlugAdapter,
+      wasmo_file_addressAdapter = WasmoFileAddressAdapter,
+      scheduled_atAdapter = InstantAdapter,
+      completed_atAdapter = InstantAdapter,
+      installed_app_idAdapter = InstalledAppIdAdapter,
+    )
+
     private val InstalledAppAdapter = InstalledApp.Adapter(
       idAdapter = InstalledAppIdAdapter,
       computer_idAdapter = ComputerIdAdapter,
       slugAdapter = AppSlugAdapter,
+      wasmo_file_addressAdapter = WasmoFileAddressAdapter,
       manifest_dataAdapter = AppManifestAdapter,
-      install_scheduled_atAdapter = InstantAdapter,
-      install_completed_atAdapter = InstantAdapter,
-      install_deleted_atAdapter = InstantAdapter,
     )
 
     private val InviteAdapter = Invite.Adapter(

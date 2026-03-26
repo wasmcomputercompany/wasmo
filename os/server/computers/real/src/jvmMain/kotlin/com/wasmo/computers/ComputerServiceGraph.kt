@@ -1,14 +1,17 @@
 package com.wasmo.computers
 
+import com.wasmo.computers.packaging.RealInstallerFactory
+import com.wasmo.computers.packaging.ResourceInstaller
 import com.wasmo.db.Computer
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.ComputerId
+import com.wasmo.identifiers.ComputerScope
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.ForComputer
 import com.wasmo.identifiers.ForHost
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.Qualifier
 import dev.zacsweers.metro.SingleIn
 import wasmo.downloader.Downloader
 import wasmo.http.HttpService
@@ -61,7 +64,7 @@ interface ComputerServiceGraph {
   fun bindComputerService(real: RealComputerService): ComputerService
 
   @Binds
-  fun bindManifestLoader(real: RealManifestLoader): ManifestLoader
+  fun bindInstallerFactory(real: RealInstallerFactory): ResourceInstaller.Factory
 
   @GraphExtension.Factory
   interface Factory {
@@ -70,8 +73,3 @@ interface ComputerServiceGraph {
     ): ComputerServiceGraph
   }
 }
-
-abstract class ComputerScope private constructor()
-
-@Qualifier
-annotation class ForComputer

@@ -14,7 +14,6 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
-        implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okhttp)
         implementation(libs.okio)
@@ -42,6 +41,7 @@ kotlin {
     }
     val jvmTest by getting {
       dependencies {
+        implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.okio.fakefilesystem)
         implementation(project(":platform:testing"))

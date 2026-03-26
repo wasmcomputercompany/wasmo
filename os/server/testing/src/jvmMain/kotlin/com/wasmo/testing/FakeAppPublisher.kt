@@ -1,7 +1,7 @@
 package com.wasmo.testing
 
-import com.wasmo.computers.AppManifestAddress
-import com.wasmo.packaging.AppManifest
+import com.wasmo.identifiers.AppSlug
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.testing.apps.MusicApp
 import com.wasmo.testing.apps.PublishedApp
@@ -35,21 +35,19 @@ class FakeAppPublisher(
     }
 
   fun publish(app: PublishedApp) {
-    publishedApps.removeAll { it.manifest.slug == app.manifest.slug }
+    publishedApps.removeAll { it.slug == app.slug }
     publishedApps += app
 
-    if (app.appManifestAddress is AppManifestAddress.FileSystem) {
-      val basePath = app.appManifestAddress.basePath
-      fileSystem.deleteRecursively(basePath)
+    if (app.wasmoFileAddress is WasmoFileAddress.FileSystem) {
+      fileSystem.deleteRecursively(app.wasmoFileAddress.path)
+      fileSystem.createDirectories(app.wasmoFileAddress.path)
 
-      fileSystem.createDirectories(basePath)
-
-      fileSystem.write(app.appManifestAddress.path) {
-        writeUtf8(WasmoToml.encodeToString(app.manifest))
+      fileSystem.write(app.wasmoFileAddress.path / "wasmo-manifest.toml") {
+        writeUtf8(WasmoToml.encodeToString(app.appManifest))
       }
 
       for ((key, value) in app.resources) {
-        val resourcePath = basePath / key
+        val resourcePath = app.wasmoFileAddress.path / key
         fileSystem.createDirectories(resourcePath.parent!!)
         fileSystem.write(resourcePath) {
           write(value)
@@ -60,9 +58,9 @@ class FakeAppPublisher(
 
   override suspend fun load(
     platform: Platform,
-    manifest: AppManifest,
+    appSlug: AppSlug,
   ): WasmoApp? {
-    val publishedApp = publishedApps.firstOrNull { it.manifest.slug == manifest.slug }
+    val publishedApp = publishedApps.firstOrNull { it.slug == appSlug }
       ?: return null
     return publishedApp.factory.create(platform)
   }

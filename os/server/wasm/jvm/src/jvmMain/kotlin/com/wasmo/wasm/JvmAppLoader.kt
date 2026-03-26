@@ -1,7 +1,6 @@
 package com.wasmo.wasm
 
 import com.wasmo.identifiers.AppSlug
-import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -18,9 +17,8 @@ class JvmAppLoader(
 ) : AppLoader {
   override suspend fun load(
     platform: Platform,
-    manifest: AppManifest,
+    appSlug: AppSlug,
   ): WasmoApp? {
-    val appSlug = AppSlug(manifest.slug)
     return factories[appSlug]?.create(platform)
   }
 }

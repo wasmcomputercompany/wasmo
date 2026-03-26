@@ -12,6 +12,7 @@ import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import com.wasmo.common.logging.Logger
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -105,7 +106,7 @@ class ComputerUi(
         installAppDialogModel = InstallAppDialogModel(FormState.Busy)
         coroutineScope.launch {
           try {
-            computerDataService.install(event.appUrl)
+            computerDataService.install(event.appUrl, AppSlug(event.slug))
             installAppDialogModel = null
           } catch (e: Exception) {
             logger.info("failed to install app", e)
