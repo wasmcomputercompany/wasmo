@@ -1,7 +1,5 @@
 package com.wasmo.computers
 
-import com.wasmo.computers.packaging.RealInstallerFactory
-import com.wasmo.computers.packaging.ResourceInstaller
 import com.wasmo.db.Computer
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.ComputerId

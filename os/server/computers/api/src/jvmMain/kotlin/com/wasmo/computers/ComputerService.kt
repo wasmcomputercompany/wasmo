@@ -2,7 +2,6 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.computers.packaging.ResourceInstaller
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug

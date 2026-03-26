@@ -1,4 +1,4 @@
-package com.wasmo.computers.packaging
+package com.wasmo.computers
 
 import assertk.Assert
 import assertk.assertThat
