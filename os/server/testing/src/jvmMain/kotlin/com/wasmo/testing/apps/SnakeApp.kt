@@ -1,7 +1,7 @@
 package com.wasmo.testing.apps
 
 import com.wasmo.computers.packaging.TargetSdk1
-import com.wasmo.identifiers.AppManifestAddress.Companion.toAppManifestAddress
+import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import wasmo.app.Platform
@@ -31,7 +31,7 @@ class SnakeApp(
       ),
     )
     val PublishedApp = PublishedApp(
-      appManifestAddress = "https://example.com/snake/v3/snake.wasmo.toml".toAppManifestAddress(),
+      wasmoFileAddress = "https://example.com/snake/v3/snake.wasmo".toWasmoFileAddress(),
       appManifest = Manifest,
       resources = mapOf(),
       factory = Factory(),

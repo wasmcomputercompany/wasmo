@@ -4,7 +4,7 @@ INSERT INTO InstallAppJob(
   slug,
   active,
   version,
-  app_manifest_address,
+  wasmo_file_address,
   scheduled_at
 )
 VALUES (
@@ -12,7 +12,7 @@ VALUES (
   :slug,
   :active,
   :version,
-  :app_manifest_address,
+  :wasmo_file_address,
   :scheduled_at
 ) RETURNING id;
 

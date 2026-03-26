@@ -1,7 +1,7 @@
 package com.wasmo.computers.packaging
 
-import com.wasmo.identifiers.AppManifestAddress
 import com.wasmo.identifiers.ComputerScope
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -11,7 +11,7 @@ import dev.zacsweers.metro.SingleIn
 class RealResourceLoaderFactory : ResourceLoader.Factory {
   override fun create(
     manifest: AppManifest,
-    manifestAddress: AppManifestAddress,
+    wasmoFileAddress: WasmoFileAddress,
   ): ResourceLoader {
     TODO("Not yet implemented")
   }

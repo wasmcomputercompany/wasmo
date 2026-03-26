@@ -5,7 +5,7 @@ import com.wasmo.api.ComputerSnapshot
 import com.wasmo.computers.packaging.Installer
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
-import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerScope
@@ -40,7 +40,7 @@ class RealComputerService(
   override fun initialize() {
     for (entry in appCatalog.entries) {
       enqueueInstall(
-        appManifestAddress = entry.appManifestAddress,
+        wasmoFileAddress = entry.wasmoFileAddress,
         slug = entry.slug,
       )
     }
@@ -48,7 +48,7 @@ class RealComputerService(
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun enqueueInstall(
-    appManifestAddress: AppManifestAddress,
+    wasmoFileAddress: WasmoFileAddress,
     slug: AppSlug,
   ) {
     val installAppJobId = wasmoDb.installAppJobQueries.insertInstalledAppJob(
@@ -56,7 +56,7 @@ class RealComputerService(
       slug = slug,
       active = true,
       version = 1L,
-      app_manifest_address = appManifestAddress,
+      wasmo_file_address = wasmoFileAddress,
       scheduled_at = clock.now(),
     ).executeAsOne()
     installAppJobQueue.enqueue(installAppJobId)

@@ -1,7 +1,7 @@
 package com.wasmo.testing.apps
 
 import com.wasmo.computers.packaging.TargetSdk1
-import com.wasmo.identifiers.AppManifestAddress.Companion.toAppManifestAddress
+import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import wasmo.app.Platform
@@ -32,7 +32,7 @@ class MusicApp(
     )
 
     val PublishedApp = PublishedApp(
-      appManifestAddress = "https://example.com/music/v2/music.wasmo.toml".toAppManifestAddress(),
+      wasmoFileAddress = "https://example.com/music/v2/music.wasmo".toWasmoFileAddress(),
       appManifest = Manifest,
       resources = mapOf(),
       factory = Factory(),

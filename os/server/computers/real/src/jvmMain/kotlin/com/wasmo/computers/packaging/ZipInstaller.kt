@@ -1,10 +1,14 @@
 package com.wasmo.computers.packaging
 
-import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.identifiers.ForComputer
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.IssueCollector
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.WasmoToml
 import dev.eav.tomlkt.decodeFromNativeReader
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
@@ -25,14 +29,15 @@ import wasmo.objectstore.ScopedObjectStore
 /**
  * Downloads a `.wasmo` ZIP file from the Internet and writes it to the object store.
  */
-internal class ZipInstaller(
-  private val computerObjectStore: ObjectStore,
-  private val manifestAddress: AppManifestAddress.Http,
+@AssistedInject
+class ZipInstaller(
+  @ForComputer private val computerObjectStore: ObjectStore,
   private val httpService: HttpService,
+  @Assisted private val wasmoFileAddress: WasmoFileAddress.Http,
 ) : Installer {
   context(issueCollector: IssueCollector)
   override suspend fun install(): AppManifest? {
-    context(issueCollector.url(manifestAddress.url.toString())) {
+    context(issueCollector.url(wasmoFileAddress.url.toString())) {
       return installInternal()
     }
   }
@@ -42,7 +47,7 @@ internal class ZipInstaller(
     val httpResponse = try {
       httpService.execute(
         HttpRequest(
-          url = manifestAddress.url,
+          url = wasmoFileAddress.url,
         ),
       )
     } catch (e: IOException) {
@@ -147,6 +152,11 @@ internal class ZipInstaller(
     } catch (e: IOException) {
       issueCollector.add("Storing resource failed", e)
     }
+  }
+
+  @AssistedFactory
+  interface Factory {
+    fun create(wasmoFileAddress: WasmoFileAddress.Http): ZipInstaller
   }
 }
 

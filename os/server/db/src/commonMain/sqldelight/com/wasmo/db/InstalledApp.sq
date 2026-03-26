@@ -4,7 +4,7 @@ INSERT INTO InstalledApp(
   slug,
   active,
   version,
-  app_manifest_address,
+  wasmo_file_address,
   manifest_data
 )
 VALUES (
@@ -12,7 +12,7 @@ VALUES (
   :slug,
   :active,
   :version,
-  :app_manifest_address,
+  :wasmo_file_address,
   :manifest_data
 ) RETURNING id;
 

@@ -47,6 +47,8 @@ class CreateComputerActionTest {
 
     // Apps from TestAppCatalog are installed by default.
     val computer = client.getComputer(computerSlug)
+    computer.jobQueueTester.awaitIdle() // TODO: serve InstallAppJobs while waiting.
+
     val installedMusicApp = computer.getApp(MusicApp.PublishedApp)
     val installedSnakeApp = computer.getApp(SnakeApp.PublishedApp)
 

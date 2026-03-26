@@ -1,7 +1,7 @@
-import com.wasmo.identifiers.AppManifestAddress;
 import com.wasmo.identifiers.AppSlug;
 import com.wasmo.identifiers.ComputerId;
 import com.wasmo.identifiers.InstalledAppId;
+import com.wasmo.identifiers.WasmoFileAddress;
 import com.wasmo.packaging.AppManifest;
 import kotlin.time.Instant;
 
@@ -11,7 +11,7 @@ CREATE TABLE InstalledApp (
   slug VARCHAR(255) AS AppSlug NOT NULL,
   active BOOLEAN NULL,
   version BIGINT NOT NULL,
-  app_manifest_address VARCHAR(65535) AS AppManifestAddress NOT NULL,
+  wasmo_file_address VARCHAR(65535) AS WasmoFileAddress NOT NULL,
   manifest_data VARCHAR(65535) AS AppManifest NOT NULL
 );
 

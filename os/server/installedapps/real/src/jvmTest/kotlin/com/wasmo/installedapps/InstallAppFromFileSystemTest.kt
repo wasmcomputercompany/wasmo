@@ -11,7 +11,7 @@ import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.events.InstallAppEvent
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
-import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.Issue
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.RecipesApp
@@ -27,7 +27,7 @@ class InstallAppFromFileSystemTest {
 
   @Test
   fun happyPath() = runTest {
-    val publishedApp = RecipesApp.PublishedApp.withFileSystemAppManifestAddress()
+    val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
     tester.publishApp(publishedApp)
 
     val client = tester.newClient()
@@ -65,7 +65,7 @@ class InstallAppFromFileSystemTest {
 
   @Test
   fun resourceIsAbsentAtInstallTime() = runTest {
-    val publishedApp = RecipesApp.PublishedApp.withFileSystemAppManifestAddress()
+    val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
     tester.publishApp(publishedApp)
 
     val missingResourcePath = tester.testDirectory / "index.html"
@@ -99,7 +99,7 @@ class InstallAppFromFileSystemTest {
 
   @Test
   fun resourceIsAbsentAtFetchTime() = runTest {
-    val publishedApp = RecipesApp.PublishedApp.withFileSystemAppManifestAddress()
+    val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
     tester.publishApp(publishedApp)
 
     val client = tester.newClient()
@@ -116,9 +116,9 @@ class InstallAppFromFileSystemTest {
     }
   }
 
-  private fun PublishedApp.withFileSystemAppManifestAddress(): PublishedApp = copy(
-    appManifestAddress = AppManifestAddress.FileSystem(
-      tester.testDirectory / "${appManifest.slug}.wasmo.toml",
+  private fun PublishedApp.withFileSystemWasmoFileAddress(): PublishedApp = copy(
+    wasmoFileAddress = WasmoFileAddress.FileSystem(
+      tester.testDirectory / "${appManifest.slug}.wasmo",
     ),
   )
 }

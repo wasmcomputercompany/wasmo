@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.Issue
 import com.wasmo.issues.IssueCollector
 import com.wasmo.packaging.AppManifest
@@ -25,11 +25,11 @@ import wasmo.objectstore.FakeObjectStore
 class ZipInstallerTest {
   private val url = "https://example.com/hello.wasmo".toHttpUrl()
   private val objectStore = FakeObjectStore()
-  private val manifestAddress = AppManifestAddress.Http(url)
+  private val wasmoFileAddress = WasmoFileAddress.Http(url)
   private val httpService = FakeHttpService()
   private val zipInstaller = ZipInstaller(
     computerObjectStore = objectStore,
-    manifestAddress = manifestAddress,
+    wasmoFileAddress = wasmoFileAddress,
     httpService = httpService,
   )
 

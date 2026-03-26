@@ -1,6 +1,6 @@
 package com.wasmo.computers.packaging
 
-import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import okio.ByteString
 
@@ -11,7 +11,7 @@ interface ResourceLoader {
   interface Factory {
     fun create(
       manifest: AppManifest,
-      manifestAddress: AppManifestAddress,
+      wasmoFileAddress: WasmoFileAddress,
     ): ResourceLoader
   }
 }

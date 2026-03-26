@@ -8,8 +8,8 @@ import com.wasmo.computers.ComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
-import com.wasmo.identifiers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -29,10 +29,13 @@ class InstallAppAction(
         ?: throw NotFoundUserException("unexpected computer: ${computerSlug.value}")
     }
 
-    val appManifestAddress = request.appManifestAddress.toAppManifestAddress()
+    val wasmoFileAddress = request.appManifestAddress.toWasmoFileAddress()
 
     wasmoDb.transactionWithResult(noEnclosing = true) {
-      computer.enqueueInstall(appManifestAddress, request.appSlug)
+      computer.enqueueInstall(
+        wasmoFileAddress = wasmoFileAddress,
+        slug = request.appSlug,
+      )
     }
 
     return Response(

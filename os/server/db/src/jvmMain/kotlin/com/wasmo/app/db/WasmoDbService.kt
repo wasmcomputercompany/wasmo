@@ -16,8 +16,6 @@ import com.wasmo.db.Passkey
 import com.wasmo.db.StripeCustomer
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
-import com.wasmo.identifiers.AppManifestAddress
-import com.wasmo.identifiers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerAccessId
 import com.wasmo.identifiers.ComputerAllocationId
@@ -30,6 +28,8 @@ import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.identifiers.StripeCustomerId
+import com.wasmo.identifiers.WasmoFileAddress
+import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.passkeys.RegistrationRecord
@@ -86,9 +86,9 @@ class WasmoDbService(
         WasmoJson.encodeToString(value)
     }
 
-    private object AppManifestAddressAdapter : ColumnAdapter<AppManifestAddress, String> {
-      override fun decode(databaseValue: String) = databaseValue.toAppManifestAddress()
-      override fun encode(value: AppManifestAddress) = value.toString()
+    private object WasmoFileAddressAdapter : ColumnAdapter<WasmoFileAddress, String> {
+      override fun decode(databaseValue: String) = databaseValue.toWasmoFileAddress()
+      override fun encode(value: WasmoFileAddress) = value.toString()
     }
 
     private object AccountIdAdapter : ColumnAdapter<AccountId, Long> {
@@ -207,7 +207,7 @@ class WasmoDbService(
       idAdapter = InstallAppJobIdAdapter,
       computer_idAdapter = ComputerIdAdapter,
       slugAdapter = AppSlugAdapter,
-      app_manifest_addressAdapter = AppManifestAddressAdapter,
+      wasmo_file_addressAdapter = WasmoFileAddressAdapter,
       scheduled_atAdapter = InstantAdapter,
       completed_atAdapter = InstantAdapter,
       installed_app_idAdapter = InstalledAppIdAdapter,
@@ -217,7 +217,7 @@ class WasmoDbService(
       idAdapter = InstalledAppIdAdapter,
       computer_idAdapter = ComputerIdAdapter,
       slugAdapter = AppSlugAdapter,
-      app_manifest_addressAdapter = AppManifestAddressAdapter,
+      wasmo_file_addressAdapter = WasmoFileAddressAdapter,
       manifest_dataAdapter = AppManifestAdapter,
     )
 

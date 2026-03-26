@@ -4,15 +4,13 @@ import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
-import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Route
 import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okio.FileNotFoundException
-import okio.FileSystem
 import wasmo.app.Platform
 import wasmo.http.Header as PlatformHeader
 import wasmo.http.HttpRequest
@@ -29,9 +27,8 @@ class RealInstalledAppHttpService(
   private val loader: AppLoader,
   private val platform: Platform,
   @ForInstalledApp private val objectStore: ObjectStore,
-  private val fileSystem: FileSystem,
   private val appManifest: AppManifest,
-  private val appManifestAddress: AppManifestAddress,
+  private val wasmoFileAddress: WasmoFileAddress,
 ) : InstalledAppHttpService {
   override suspend fun execute(request: Request): Response<ResponseBody> {
     val selectedRoute = appManifest.route
@@ -79,25 +76,12 @@ class RealInstalledAppHttpService(
 
     check(key.startsWith("/"))
 
-    return when (appManifestAddress) {
-      is AppManifestAddress.FileSystem -> {
-        val body = try {
-          fileSystem.read(appManifestAddress.basePath / key.removePrefix("/")) {
-            readByteString()
-          }
-        } catch (_: FileNotFoundException) {
-          throw NotFoundUserException()
-        }
-
-        Response(
-          headers = listOf(),
-          body = ResponseBody {
-            it.write(body)
-          },
-        )
+    return when (wasmoFileAddress) {
+      is WasmoFileAddress.FileSystem -> {
+        TODO()
       }
 
-      is AppManifestAddress.Http -> {
+      is WasmoFileAddress.Http -> {
         val getObjectResponse = objectStore.get(
           request = GetObjectRequest(
             key = "resources/v${appManifest.version}$key",

@@ -19,7 +19,7 @@ import dev.zacsweers.metro.AssistedInject
 @AssistedInject
 class ComputerTester private constructor(
   private val installedAppTesterFactory: InstalledAppTester.Factory,
-  private val jobQueueTester: JobQueueTester,
+  val jobQueueTester: JobQueueTester,
   @Assisted private val clientAuthenticator: ClientAuthenticator,
   @Assisted private val client: ClientTester,
   @Assisted val slug: ComputerSlug,
@@ -34,7 +34,7 @@ class ComputerTester private constructor(
     client.call().installApp(
       computerSlug = slug,
       request = InstallAppRequest(
-        appManifestAddress = publishedApp.appManifestAddress.toString(),
+        appManifestAddress = publishedApp.wasmoFileAddress.toString(),
         appSlug = AppSlug(publishedApp.appManifest.slug),
       ),
     )

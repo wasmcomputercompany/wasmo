@@ -1,15 +1,15 @@
 package com.wasmo.computers
 
 import com.wasmo.computers.AppCatalog.Entry
-import com.wasmo.identifiers.AppManifestAddress
-import com.wasmo.identifiers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.identifiers.AppSlug
+import com.wasmo.identifiers.WasmoFileAddress
+import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 
 class AppCatalog(
   val entries: List<Entry>,
 ) {
   data class Entry(
-    val appManifestAddress: AppManifestAddress,
+    val wasmoFileAddress: WasmoFileAddress,
     val slug: AppSlug,
   ) {
     companion object {
@@ -37,8 +37,8 @@ fun loadDefaultAppCatalogFromResources(): AppCatalog {
 
 fun resourceAppAsCatalogEntry(slug: AppSlug): Entry {
   return Entry(
-    appManifestAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml"
-      .toAppManifestAddress(),
+    wasmoFileAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo"
+      .toWasmoFileAddress(),
     slug = slug,
   )
 }

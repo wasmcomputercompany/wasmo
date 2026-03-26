@@ -27,7 +27,7 @@ class InstallAppJobExecutor(
       installAppJob to computerStore.get(installAppJob.computer_id)
     }
 
-    val installer = computerService.installerFactory.create(installAppJob.app_manifest_address)
+    val installer = computerService.installerFactory.create(installAppJob.wasmo_file_address)
 
     val issueCollector = IssueCollector()
     val installedManifest = context(issueCollector) {
@@ -44,7 +44,7 @@ class InstallAppJobExecutor(
             slug = installAppJob.slug,
             active = true,
             version = 1L,
-            app_manifest_address = installAppJob.app_manifest_address,
+            wasmo_file_address = installAppJob.wasmo_file_address,
             manifest_data = installedManifest,
           ).executeAsOne()
           val rowCount = wasmoDb.installAppJobQueries.updateInstallAppJobSetCompletedAt(

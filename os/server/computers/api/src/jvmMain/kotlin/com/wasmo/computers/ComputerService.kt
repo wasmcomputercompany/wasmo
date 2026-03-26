@@ -3,10 +3,10 @@ package com.wasmo.computers
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.computers.packaging.Installer
-import com.wasmo.identifiers.AppManifestAddress
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.WasmoFileAddress
 import okhttp3.HttpUrl
 
 interface ComputerService {
@@ -21,7 +21,7 @@ interface ComputerService {
 
   context(transactionCallbacks: TransactionCallbacks)
   fun enqueueInstall(
-    appManifestAddress: AppManifestAddress,
+    wasmoFileAddress: WasmoFileAddress,
     slug: AppSlug,
   )
 

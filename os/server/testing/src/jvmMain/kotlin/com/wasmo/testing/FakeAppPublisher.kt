@@ -1,6 +1,6 @@
 package com.wasmo.testing
 
-import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.testing.apps.MusicApp
@@ -38,18 +38,16 @@ class FakeAppPublisher(
     publishedApps.removeAll { it.appManifest.slug == app.appManifest.slug }
     publishedApps += app
 
-    if (app.appManifestAddress is AppManifestAddress.FileSystem) {
-      val basePath = app.appManifestAddress.basePath
-      fileSystem.deleteRecursively(basePath)
+    if (app.wasmoFileAddress is WasmoFileAddress.FileSystem) {
+      fileSystem.deleteRecursively(app.wasmoFileAddress.path)
+      fileSystem.createDirectories(app.wasmoFileAddress.path)
 
-      fileSystem.createDirectories(basePath)
-
-      fileSystem.write(app.appManifestAddress.path) {
+      fileSystem.write(app.wasmoFileAddress.path / "wasmo-manifest.toml") {
         writeUtf8(WasmoToml.encodeToString(app.appManifest))
       }
 
       for ((key, value) in app.resources) {
-        val resourcePath = basePath / key
+        val resourcePath = app.wasmoFileAddress.path / key
         fileSystem.createDirectories(resourcePath.parent!!)
         fileSystem.write(resourcePath) {
           write(value)
