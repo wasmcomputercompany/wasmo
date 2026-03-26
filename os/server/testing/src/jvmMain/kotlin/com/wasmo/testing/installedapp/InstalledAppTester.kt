@@ -27,25 +27,27 @@ class InstalledAppTester private constructor(
   @Assisted private val clientAuthenticator: ClientAuthenticator,
   @Assisted val publishedApp: PublishedApp,
   @Assisted val computerSlug: ComputerSlug,
-  @Assisted val slug: AppSlug,
 ) {
+  val slug: AppSlug
+    get() = publishedApp.slug
+
   val url: HttpUrl
     get() = deployment.baseUrl.newBuilder()
-      .host("$slug-$computerSlug.${deployment.baseUrl.host}")
+      .host("${publishedApp.slug}-$computerSlug.${deployment.baseUrl.host}")
       .build()
   val iconUrl: HttpUrl
     get() = url.resolve("/maskable-icon.svg")!!
 
   suspend fun load(): WasmoApp {
     val installedAppService = installedAppService()
-    return appLoader.load(installedAppService.platform, installedAppService.manifest)
+    return appLoader.load(installedAppService.platform, publishedApp.slug)
       ?: error("failed to load ${installedAppService.slug}")
   }
 
   private fun installedAppService(): InstalledAppService {
     val client = clientAuthenticator.get()
     return wasmoDb.transactionWithResult(noEnclosing = true) {
-      installedAppStore.getOrNull(client, computerSlug, slug)!!
+      installedAppStore.getOrNull(client, computerSlug, publishedApp.slug)!!
     }
   }
 
@@ -55,7 +57,6 @@ class InstalledAppTester private constructor(
       clientAuthenticator: ClientAuthenticator,
       publishedApp: PublishedApp,
       computerSlug: ComputerSlug,
-      slug: AppSlug,
     ): InstalledAppTester
   }
 }

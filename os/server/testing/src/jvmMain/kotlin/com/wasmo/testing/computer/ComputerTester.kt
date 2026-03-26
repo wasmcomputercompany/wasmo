@@ -3,7 +3,6 @@ package com.wasmo.testing.computer
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.routes.ComputerHomeRoute
-import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.testing.JobQueueTester
 import com.wasmo.testing.apps.PublishedApp
@@ -35,7 +34,7 @@ class ComputerTester private constructor(
       computerSlug = slug,
       request = InstallAppRequest(
         appManifestAddress = publishedApp.wasmoFileAddress.toString(),
-        appSlug = AppSlug(publishedApp.appManifest.slug),
+        appSlug = publishedApp.slug,
       ),
     )
 
@@ -50,7 +49,6 @@ class ComputerTester private constructor(
     clientAuthenticator = clientAuthenticator,
     publishedApp = publishedApp,
     computerSlug = slug,
-    slug = AppSlug(publishedApp.appManifest.slug),
   )
 
   fun homePage() = client.call().hostPage(ComputerHomeRoute(slug))

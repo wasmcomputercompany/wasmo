@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.Issue
 import com.wasmo.issues.IssueCollector
@@ -31,13 +32,13 @@ class ZipInstallerTest {
     computerObjectStore = objectStore,
     wasmoFileAddress = wasmoFileAddress,
     httpService = httpService,
+    appSlug = AppSlug("music"),
   )
 
   @Test
   fun happyPath() = runTest {
     val manifest = AppManifest(
       version = 1L,
-      slug = "music",
       target = TargetSdk1,
     )
 
@@ -54,9 +55,9 @@ class ZipInstallerTest {
 
     assertThat(installedManifest).isEqualTo(manifest)
     assertThat(issueCollector.issues).isEmpty()
-    assertThat(objectStore["resources/v1/wasmo-manifest.toml"])
+    assertThat(objectStore["music/resources/v1/wasmo-manifest.toml"])
       .isEqualTo(WasmoToml.encodeToString(manifest).encodeUtf8())
-    assertThat(objectStore["resources/v1/assets/index.html"])
+    assertThat(objectStore["music/resources/v1/assets/index.html"])
       .isEqualTo("<title>Music!</title>".encodeUtf8())
   }
 
@@ -138,7 +139,6 @@ class ZipInstallerTest {
   fun invalidManifest() = runTest {
     val manifest = AppManifest(
       version = -1L,
-      slug = "",
       target = "https://wasmo.com/sdk/foo",
     )
 
@@ -171,15 +171,6 @@ class ZipInstallerTest {
         path = "wasmo-manifest.toml",
         href = "version",
       ),
-      Issue(
-        message = """
-          |unexpected app slug ''
-          |must be 1-15 characters and match [a-z][a-z0-9]{0,14}
-          """.trimMargin(),
-        url = url.toString(),
-        path = "wasmo-manifest.toml",
-        href = "slug",
-      ),
     )
   }
 
@@ -188,7 +179,6 @@ class ZipInstallerTest {
   fun invalidZipArchive() = runTest {
     val manifest = AppManifest(
       version = 1L,
-      slug = "music",
       target = TargetSdk1,
     )
 
@@ -227,7 +217,6 @@ class ZipInstallerTest {
   fun objectStoreRejectsWrite() = runTest {
     val manifest = AppManifest(
       version = 1L,
-      slug = "music",
       target = TargetSdk1,
     )
 

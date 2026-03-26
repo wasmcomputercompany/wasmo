@@ -8,6 +8,7 @@ import com.wasmo.computers.ComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
+import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import dev.zacsweers.metro.Inject
@@ -24,6 +25,13 @@ class InstallAppAction(
     computerSlug: ComputerSlug,
     request: InstallAppRequest,
   ): Response<InstallAppResponse> {
+    check(request.appSlug.value.matches(AppSlugRegex)) {
+      """
+      |unexpected app slug '${request.appSlug}'
+      |must be 1-15 characters and match ${AppSlugRegex.pattern}
+      """.trimMargin()
+    }
+
     val computer = wasmoDb.transactionWithResult(noEnclosing = true) {
       computerStore.getOrNull(client, computerSlug)
         ?: throw NotFoundUserException("unexpected computer: ${computerSlug.value}")

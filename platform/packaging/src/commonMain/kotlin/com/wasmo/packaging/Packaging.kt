@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 data class AppManifest(
   val target: String,
   val version: Long,
-  val slug: String,
   val external_resource: List<ExternalResource> = listOf(),
   val route: List<Route> = listOf(),
   val launcher: Launcher? = null,

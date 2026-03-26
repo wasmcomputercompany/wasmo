@@ -1,5 +1,6 @@
 package com.wasmo.computers.packaging
 
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ForComputer
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.IssueCollector
@@ -34,6 +35,7 @@ class ZipInstaller(
   @ForComputer private val computerObjectStore: ObjectStore,
   private val httpService: HttpService,
   @Assisted private val wasmoFileAddress: WasmoFileAddress.Http,
+  @Assisted private val appSlug: AppSlug,
 ) : Installer {
   context(issueCollector: IssueCollector)
   override suspend fun install(): AppManifest? {
@@ -111,7 +113,7 @@ class ZipInstaller(
   ) {
     val resourcesObjectStore = ScopedObjectStore(
       delegate = computerObjectStore,
-      prefix = "resources/v${appManifest.version}/",
+      prefix = "$appSlug/resources/v${appManifest.version}/",
     )
 
     try {
@@ -156,7 +158,10 @@ class ZipInstaller(
 
   @AssistedFactory
   interface Factory {
-    fun create(wasmoFileAddress: WasmoFileAddress.Http): ZipInstaller
+    fun create(
+      appSlug: AppSlug,
+      wasmoFileAddress: WasmoFileAddress.Http,
+    ): ZipInstaller
   }
 }
 

@@ -4,6 +4,7 @@ import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Route
@@ -28,6 +29,7 @@ class RealInstalledAppHttpService(
   private val platform: Platform,
   @ForInstalledApp private val objectStore: ObjectStore,
   private val appManifest: AppManifest,
+  private val appSlug: AppSlug,
   private val wasmoFileAddress: WasmoFileAddress,
 ) : InstalledAppHttpService {
   override suspend fun execute(request: Request): Response<ResponseBody> {
@@ -48,7 +50,7 @@ class RealInstalledAppHttpService(
       throw NotFoundUserException()
     }
 
-    val loadedApp = loader.load(platform, appManifest)
+    val loadedApp = loader.load(platform, appSlug)
     val loadedAppHttpService = loadedApp?.httpService
     if (loadedAppHttpService != null) {
       val execute = loadedAppHttpService.execute(request.toPlatformHttpRequest())

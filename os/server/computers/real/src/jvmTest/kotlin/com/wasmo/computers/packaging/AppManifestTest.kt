@@ -40,7 +40,6 @@ class AppManifestTest {
       AppManifest(
         target = "https://wasmo.com/sdk/1",
         version = 35,
-        slug = "recipes",
         external_resource = listOf(
           ExternalResource(
             from = "../build/dist/js/developmentExecutable",

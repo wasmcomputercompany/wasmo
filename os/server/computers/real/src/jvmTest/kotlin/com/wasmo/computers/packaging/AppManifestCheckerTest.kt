@@ -3,7 +3,6 @@ package com.wasmo.computers.packaging
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.containsExactly
-import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.issues.Issue
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
@@ -14,7 +13,6 @@ class AppManifestCheckerTest {
   private val manifest = AppManifest(
     target = "https://wasmo.com/sdk/1",
     version = 35,
-    slug = "recipes",
   )
 
   @Test
@@ -39,17 +37,6 @@ class AppManifestCheckerTest {
         |expected a positive integer
         """.trimMargin(),
       href = "version",
-    )
-
-    assertThat(
-      manifest.copy(slug = "aaaaabbbbbcccccd"),
-    ).failsValidation(
-      message =
-        """
-        |unexpected app slug 'aaaaabbbbbcccccd'
-        |must be 1-15 characters and match ${AppSlugRegex.pattern}
-        """.trimMargin(),
-      href = "slug",
     )
   }
 

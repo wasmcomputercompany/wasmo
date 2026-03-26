@@ -118,7 +118,7 @@ class InstallAppFromFileSystemTest {
 
   private fun PublishedApp.withFileSystemWasmoFileAddress(): PublishedApp = copy(
     wasmoFileAddress = WasmoFileAddress.FileSystem(
-      tester.testDirectory / "${appManifest.slug}.wasmo",
+      tester.testDirectory / "$slug.wasmo",
     ),
   )
 }

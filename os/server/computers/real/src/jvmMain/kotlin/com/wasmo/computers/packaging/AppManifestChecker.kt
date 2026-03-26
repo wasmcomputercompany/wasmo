@@ -1,6 +1,5 @@
 package com.wasmo.computers.packaging
 
-import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.issues.Issue
 import com.wasmo.issues.IssueCollector
 import com.wasmo.issues.issueCheck
@@ -40,15 +39,6 @@ fun check(manifest: AppManifest) {
       """
       |unexpected version ${manifest.version}
       |expected a positive integer
-      """.trimMargin()
-    }
-  }
-
-  context(issueCollector.href("slug")) {
-    issueCheck(manifest.slug.matches(AppSlugRegex)) {
-      """
-      |unexpected app slug '${manifest.slug}'
-      |must be 1-15 characters and match ${AppSlugRegex.pattern}
       """.trimMargin()
     }
   }

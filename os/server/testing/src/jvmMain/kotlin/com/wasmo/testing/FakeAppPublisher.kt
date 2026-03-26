@@ -1,7 +1,7 @@
 package com.wasmo.testing
 
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.testing.apps.MusicApp
 import com.wasmo.testing.apps.PublishedApp
@@ -35,7 +35,7 @@ class FakeAppPublisher(
     }
 
   fun publish(app: PublishedApp) {
-    publishedApps.removeAll { it.appManifest.slug == app.appManifest.slug }
+    publishedApps.removeAll { it.slug == app.slug }
     publishedApps += app
 
     if (app.wasmoFileAddress is WasmoFileAddress.FileSystem) {
@@ -58,9 +58,9 @@ class FakeAppPublisher(
 
   override suspend fun load(
     platform: Platform,
-    manifest: AppManifest,
+    appSlug: AppSlug,
   ): WasmoApp? {
-    val publishedApp = publishedApps.firstOrNull { it.appManifest.slug == manifest.slug }
+    val publishedApp = publishedApps.firstOrNull { it.slug == appSlug }
       ?: return null
     return publishedApp.factory.create(platform)
   }

@@ -17,6 +17,7 @@ import wasmo.http.HttpResponse
  */
 data class PublishedApp(
   val wasmoFileAddress: WasmoFileAddress,
+  val slug: AppSlug,
   val appManifest: AppManifest,
   val resources: Map<String, ByteString>,
   val factory: WasmoApp.Factory,
@@ -47,7 +48,7 @@ val TestAppCatalog = AppCatalog(
   entries = listOf(MusicApp.PublishedApp, SnakeApp.PublishedApp).map {
     Entry(
       wasmoFileAddress = it.wasmoFileAddress,
-      slug = AppSlug(it.appManifest.slug),
+      slug = it.slug,
     )
   },
 )

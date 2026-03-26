@@ -42,7 +42,6 @@ This is a sample:
 ```toml
 target = 'https://wasmo.com/sdk/1'
 version = 35
-slug = 'recipes'
 base_url = 'https://example.com/recipes/v35/'
 
 [[external_resource]]
@@ -64,7 +63,6 @@ We'll tour manifest's data, starting with the smallest possible manifest:
 ```toml
 target = 'https://wasmo.com/sdk/1'
 version = 35
-slug = 'recipes'
 ```
 
 ### `target` (Required)
@@ -75,11 +73,6 @@ The `target` must be `https://wasmo.com/sdk/1`. (This is our mechanism to evolve
 
 The `version` is the application's version. It's an int64. When apps are upgraded, a lifecycle
 function is called with the previous and new version, which may be useful to trigger migration code.
-
-### `slug` (Required)
-
-The `slug` is between 1 and 15 ASCII lowercase letters or digits. The first character is not a
-digit. (If you're a regex enjoyer, the regex is `[a-z][a-z0-9]{0,14}`.)
 
 This app doesn't do anything and returns HTTP 404 on all calls. Useful apps include executable code
 (`app.wasm`), static resources, or both.
@@ -223,7 +216,7 @@ maskable_icon_path = '/static/launcher-icon.svg'
 
 ### `label` (Optional)
 
-This is a short string labeling the icon in the launcher. If absent the slug will be used.
+This is a short string labeling the icon in the launcher.
 
 ### `maskable_icon_path` (Optional)
 

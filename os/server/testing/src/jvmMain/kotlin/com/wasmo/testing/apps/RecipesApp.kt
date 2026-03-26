@@ -1,6 +1,7 @@
 package com.wasmo.testing.apps
 
 import com.wasmo.computers.packaging.TargetSdk1
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
@@ -26,7 +27,6 @@ class RecipesApp(
   companion object {
     val Manifest = AppManifest(
       version = 1L,
-      slug = "recipes",
       target = TargetSdk1,
       launcher = Launcher(
         label = "Recipes",
@@ -41,6 +41,7 @@ class RecipesApp(
 
     val PublishedApp = PublishedApp(
       wasmoFileAddress = "https://example.com/recipes/v1/recipes.wasmo".toWasmoFileAddress(),
+      slug = AppSlug("recipes"),
       appManifest = Manifest,
       resources = mapOf(
         "app.wasm" to "I am Wasm data".encodeUtf8(),
