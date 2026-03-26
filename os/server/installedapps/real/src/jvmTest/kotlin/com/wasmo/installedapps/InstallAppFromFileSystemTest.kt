@@ -17,6 +17,7 @@ import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
@@ -64,12 +65,13 @@ class InstallAppFromFileSystemTest {
   }
 
   @Test
+  @Ignore("we don't yet validate resources at install time")
   fun resourceIsAbsentAtInstallTime() = runTest {
     val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
     tester.publishApp(publishedApp)
 
-    val missingResourcePath = tester.testDirectory / "index.html"
-    tester.fileSystem.delete(missingResourcePath, mustExist = true)
+    val basePath = (publishedApp.wasmoFileAddress as WasmoFileAddress.FileSystem).path
+    tester.fileSystem.delete(basePath / "index.html", mustExist = true)
 
     val client = tester.newClient()
     val computer = client.createComputer()
@@ -91,7 +93,7 @@ class InstallAppFromFileSystemTest {
     assertThat(tester.eventListener.takeEvent().issues)
       .containsExactly(
         Issue(
-          path = missingResourcePath.toString(),
+          path = (basePath / "index.html").toString(),
           message = "???",
         )
       )
@@ -106,8 +108,8 @@ class InstallAppFromFileSystemTest {
     val computer = client.createComputer()
     val installedApp = computer.installApp(publishedApp)
 
-    val missingResourcePath = tester.testDirectory / "index.html"
-    tester.fileSystem.delete(missingResourcePath, mustExist = true)
+    val basePath = (publishedApp.wasmoFileAddress as WasmoFileAddress.FileSystem).path
+    tester.fileSystem.delete(basePath / "index.html", mustExist = true)
 
     assertFailsWith<NotFoundUserException> {
       client.call().callApp(

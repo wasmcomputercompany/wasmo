@@ -15,13 +15,12 @@ import okio.FileSystem
 import okio.Path
 
 @AssistedInject
-internal class FileSystemResourceInstaller(
+class FileSystemResourceInstaller(
   private val fileSystem: FileSystem,
   @Assisted private val wasmoFileAddress: WasmoFileAddress.FileSystem,
 ) : ResourceInstaller {
   context(issueCollector: IssueCollector)
   override suspend fun install(): AppManifest? {
-
     context(issueCollector.path(wasmoFileAddress.path.toString())) {
       issueCheck(fileSystem.metadataOrNull(wasmoFileAddress.path)?.isDirectory == true) {
         "Not a directory"

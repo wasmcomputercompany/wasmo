@@ -79,6 +79,9 @@ interface InstalledAppServiceGraph {
   @ForInstalledApp
   fun bindSqlService(real: SqlService): SqlService
 
+  @Binds
+  fun bindResourceLoaderFactory(real: RealResourceLoaderFactory): ResourceLoader.Factory
+
   @GraphExtension.Factory
   interface Factory {
     fun create(
