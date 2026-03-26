@@ -65,41 +65,7 @@ fun check(manifest: AppManifest) {
 
 context(issueCollector: IssueCollector)
 private fun check(externalResource: ExternalResource) {
-//  withContext("sha256") {
-//    val sha256 = externalResource.sha256
-//    val validSha256 = try {
-//      sha256 == null || sha256.decodeHex().size == 32
-//    } catch (_: Exception) {
-//      false
-//    }
-//    issueCheck(validSha256) {
-//      """
-//      |unexpected sha256 '${externalResource.sha256}'
-//      |must be 64 hex digits (32 bytes)
-//      """.trimMargin()
-//    }
-//  }
-
-//  withContext("content_type") {
-//    val contentType = externalResource.content_type
-//    issueCheck(contentType == null || contentType.toMediaTypeOrNull() != null) {
-//      """
-//      |unexpected content_type '${externalResource.content_type}'
-//      |must be a RFC 2045 media type
-//      """.trimMargin()
-//    }
-//  }
-
-//  withContext("resource_path") {
-//    val resourcePath = externalResource.resource_path
-//      ?: "https://example.com/".toHttpUrl().resolve(externalResource.url)?.encodedPath
-//    issueCheck(resourcePath != null && resourcePath.removePrefix("/").isNotEmpty()) {
-//      """
-//      |unexpected resource path '$resourcePath'
-//      |must be the non-empty path to download the resource to
-//      """.trimMargin()
-//    }
-//  }
+  // TODO.
 }
 
 context(issueCollector: IssueCollector)

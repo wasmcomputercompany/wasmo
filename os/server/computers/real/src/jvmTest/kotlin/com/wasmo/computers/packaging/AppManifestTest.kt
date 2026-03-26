@@ -15,7 +15,6 @@ class AppManifestTest {
     val wasmoManifestString = """
       |target = 'https://wasmo.com/sdk/1'
       |version = 35
-      |slug = 'recipes'
       |
       |[[external_resource]]
       |from = '../build/dist/js/developmentExecutable'

@@ -1,6 +1,5 @@
 target = 'https://wasmo.com/sdk/1'
 version = 1
-slug = 'files'
 
 [[resource]]
 url = 'assets/maskable-icon.svg'

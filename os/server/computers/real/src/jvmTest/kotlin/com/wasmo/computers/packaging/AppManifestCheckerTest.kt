@@ -42,76 +42,7 @@ class AppManifestCheckerTest {
 
   @Test
   fun checkResource() {
-//    assertThat(
-//      manifest.copy(
-//        resource = listOf(
-//          ExternalResource(
-//            url = "recipes.zip",
-//            sha256 = "0102030405060708",
-//          ),
-//        ),
-//      ),
-//    ).failsValidation(
-//      context = "resource[0].sha256",
-//      message =
-//        """
-//        |unexpected sha256 '0102030405060708'
-//        |must be 64 hex digits (32 bytes)
-//        """.trimMargin(),
-//    )
-
-//    assertThat(
-//      manifest.copy(
-//        resource = listOf(
-//          ExternalResource(
-//            url = "recipes.zip",
-//            content_type = "zip",
-//          ),
-//        ),
-//      ),
-//    ).failsValidation(
-//      context = "resource[0].content_type",
-//      message =
-//        """
-//        |unexpected content_type 'zip'
-//        |must be a RFC 2045 media type
-//        """.trimMargin(),
-//    )
-//
-//    assertThat(
-//      manifest.copy(
-//        resource = listOf(
-//          ExternalResource(
-//            url = "/",
-//          ),
-//        ),
-//      ),
-//    ).failsValidation(
-//      context = "resource[0].resource_path",
-//      message =
-//        """
-//        |unexpected resource path '/'
-//        |must be the non-empty path to download the resource to
-//        """.trimMargin(),
-//    )
-//
-//    assertThat(
-//      manifest.copy(
-//        resource = listOf(
-//          ExternalResource(
-//            url = "recipes.zip",
-//            resource_path = ""
-//          ),
-//        ),
-//      ),
-//    ).failsValidation(
-//      context = "resource[0].resource_path",
-//      message =
-//        """
-//        |unexpected resource path ''
-//        |must be the non-empty path to download the resource to
-//        """.trimMargin(),
-//    )
+    // TODO.
   }
 
   @Test
