@@ -4,21 +4,16 @@ import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.containsExactly
-import assertk.assertions.hasMessage
-import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import assertk.assertions.messageContains
 import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.events.InstallAppEvent
 import com.wasmo.framework.Response
-import com.wasmo.framework.StateUserException
 import com.wasmo.issues.Issue
 import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.http.FakeHttpService
@@ -72,19 +67,23 @@ class InstallAppActionTest {
   }
 
   @Test
-  fun manifestIsAbsent() = runTest {
+  fun wasmoFileIsAbsent() = runTest {
     val app = RecipesApp.PublishedApp
     val client = tester.newClient()
     val computer = client.createComputer()
-    assertThat(
-      assertFailsWith<StateUserException> {
-        computer.installApp(app)
-      },
-    ).hasMessage("failed to fetch manifest: HTTP 404")
+    computer.installApp(app)
+
+    assertThat(tester.eventListener.takeEvent().issues)
+      .containsExactly(
+        Issue(
+          url = app.wasmoFileAddress.toString(),
+          message = "HTTP request failed: 404",
+        ),
+      )
   }
 
   @Test
-  fun manifestIsMalformedZip() = runTest {
+  fun wasmoFileIsMalformedZip() = runTest {
     val app = RecipesApp.PublishedApp
     tester.fakeHttpClient += FakeHttpService.Handler {
       HttpResponse(
@@ -94,42 +93,13 @@ class InstallAppActionTest {
 
     val client = tester.newClient()
     val computer = client.createComputer()
-    assertThat(
-      assertFailsWith<StateUserException> {
-        computer.installApp(app)
-      },
-    ).messageContains("failed to decode manifest")
-  }
-
-  /** Publish an app whose served resources are different from its manifest resources. */
-  @Test
-  fun resource404s() = runTest {
-    val app = RecipesApp.PublishedApp.copy(
-      resources = mapOf(),
-    )
-    tester.publishApp(app)
-
-    val client = tester.newClient()
-    val computer = client.createComputer()
-    val installedApp = computer.installApp(app)
-
-    assertThat(tester.objectStore.list("${computer.slug}/${installedApp.slug}/resources/v1/"))
-      .isEmpty()
-
-    assertThat(computer.homePage().computerSnapshot?.apps)
-      .isNotNull()
-      .contains(
-        InstalledAppSnapshot(
-          slug = installedApp.slug,
-          launcherLabel = installedApp.publishedApp.appManifest.launcher!!.label!!,
-          maskableIconUrl = installedApp.iconUrl.toString(),
-        ),
-      )
+    computer.installApp(app)
 
     assertThat(tester.eventListener.takeEvent().issues)
       .containsExactly(
         Issue(
-          message = "failed to fetch https://example.com/recipes/v1/app.wasm: HTTP 404",
+          url = app.wasmoFileAddress.toString(),
+          message = "No wasmo-manifest.toml file in .wasmo archive",
         ),
       )
   }

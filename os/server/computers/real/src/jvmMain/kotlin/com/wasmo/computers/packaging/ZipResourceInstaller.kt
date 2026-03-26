@@ -31,12 +31,12 @@ import wasmo.objectstore.ScopedObjectStore
  * Downloads a `.wasmo` ZIP file from the Internet and writes it to the object store.
  */
 @AssistedInject
-class ZipInstaller(
+class ZipResourceInstaller(
   @ForComputer private val computerObjectStore: ObjectStore,
   private val httpService: HttpService,
-  @Assisted private val wasmoFileAddress: WasmoFileAddress.Http,
   @Assisted private val appSlug: AppSlug,
-) : Installer {
+  @Assisted private val wasmoFileAddress: WasmoFileAddress.Http,
+) : ResourceInstaller {
   context(issueCollector: IssueCollector)
   override suspend fun install(): AppManifest? {
     context(issueCollector.url(wasmoFileAddress.url.toString())) {
@@ -62,9 +62,9 @@ class ZipInstaller(
       return null
     }
 
-    val appManifest = loadManifest(
-      zip = httpResponse.body,
-    ) ?: return null
+    val zip = httpResponse.body
+    val appManifest = loadManifest(zip = zip)
+      ?: return null
 
     context(issueCollector.path("wasmo-manifest.toml")) {
       check(appManifest)
@@ -73,7 +73,7 @@ class ZipInstaller(
 
     copyZipEntriesToObjectStore(
       appManifest = appManifest,
-      zip = httpResponse.body,
+      zip = zip,
     )
     if (issueCollector.issues.isNotEmpty()) return null
 
@@ -161,7 +161,7 @@ class ZipInstaller(
     fun create(
       appSlug: AppSlug,
       wasmoFileAddress: WasmoFileAddress.Http,
-    ): ZipInstaller
+    ): ZipResourceInstaller
   }
 }
 

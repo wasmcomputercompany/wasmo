@@ -23,12 +23,12 @@ import okio.IOException
 import wasmo.http.FakeHttpService
 import wasmo.objectstore.FakeObjectStore
 
-class ZipInstallerTest {
+class ZipResourceInstallerTest {
   private val url = "https://example.com/hello.wasmo".toHttpUrl()
   private val objectStore = FakeObjectStore()
   private val wasmoFileAddress = WasmoFileAddress.Http(url)
   private val httpService = FakeHttpService()
-  private val zipInstaller = ZipInstaller(
+  private val installer = ZipResourceInstaller(
     computerObjectStore = objectStore,
     wasmoFileAddress = wasmoFileAddress,
     httpService = httpService,
@@ -50,7 +50,7 @@ class ZipInstallerTest {
 
     val issueCollector = IssueCollector()
     val installedManifest = with(issueCollector) {
-      zipInstaller.install()
+      installer.install()
     }
 
     assertThat(installedManifest).isEqualTo(manifest)
@@ -69,7 +69,7 @@ class ZipInstallerTest {
 
     val issueCollector = IssueCollector()
     with(issueCollector) {
-      zipInstaller.install()
+      installer.install()
     }
 
     assertThat(issueCollector.issues).containsExactly(
@@ -84,7 +84,7 @@ class ZipInstallerTest {
   fun zipHttpNotFound() = runTest {
     val issueCollector = IssueCollector()
     with(issueCollector) {
-      zipInstaller.install()
+      installer.install()
     }
 
     assertThat(issueCollector.issues).containsExactly(
@@ -103,7 +103,7 @@ class ZipInstallerTest {
 
     val issueCollector = IssueCollector()
     with(issueCollector) {
-      zipInstaller.install()
+      installer.install()
     }
 
     assertThat(issueCollector.issues.stripExceptions()).containsExactly(
@@ -123,7 +123,7 @@ class ZipInstallerTest {
 
     val issueCollector = IssueCollector()
     with(issueCollector) {
-      zipInstaller.install()
+      installer.install()
     }
 
     assertThat(issueCollector.issues.stripExceptions()).containsExactly(
@@ -149,7 +149,7 @@ class ZipInstallerTest {
 
     val issueCollector = IssueCollector()
     with(issueCollector) {
-      zipInstaller.install()
+      installer.install()
     }
 
     assertThat(issueCollector.issues).containsExactly(
@@ -201,7 +201,7 @@ class ZipInstallerTest {
 
     val issueCollector = IssueCollector()
     with(issueCollector) {
-      zipInstaller.install()
+      installer.install()
     }
 
     assertThat(issueCollector.issues.stripExceptions()).containsExactly(
@@ -228,7 +228,7 @@ class ZipInstallerTest {
 
     val issueCollector = IssueCollector()
     with(issueCollector) {
-      zipInstaller.install()
+      installer.install()
     }
 
     assertThat(issueCollector.issues.stripExceptions()).containsExactly(

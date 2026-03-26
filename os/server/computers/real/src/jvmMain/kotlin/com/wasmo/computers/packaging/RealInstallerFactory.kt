@@ -9,12 +9,12 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(ComputerScope::class)
 class RealInstallerFactory(
-  private val zipInstallerFactory: ZipInstaller.Factory,
-) : Installer.Factory {
+  private val zipInstallerFactory: ZipResourceInstaller.Factory,
+) : ResourceInstaller.Factory {
   override fun create(
     appSlug: AppSlug,
     wasmoFileAddress: WasmoFileAddress,
-  ): Installer {
+  ): ResourceInstaller {
     return when (wasmoFileAddress) {
       is WasmoFileAddress.FileSystem -> TODO()
       is WasmoFileAddress.Http -> zipInstallerFactory.create(appSlug, wasmoFileAddress)

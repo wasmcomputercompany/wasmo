@@ -27,7 +27,7 @@ class InstallAppJobExecutor(
       installAppJob to computerStore.get(installAppJob.computer_id)
     }
 
-    val installer = computerService.installerFactory.create(
+    val installer = computerService.resourceInstallerFactory.create(
       appSlug = installAppJob.slug,
       wasmoFileAddress = installAppJob.wasmo_file_address,
     )

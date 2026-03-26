@@ -1,8 +1,8 @@
 package com.wasmo.computers
 
-import com.wasmo.computers.packaging.Installer
 import com.wasmo.computers.packaging.RealInstallerFactory
 import com.wasmo.computers.packaging.RealResourceLoaderFactory
+import com.wasmo.computers.packaging.ResourceInstaller
 import com.wasmo.computers.packaging.ResourceLoader
 import com.wasmo.db.Computer
 import com.wasmo.downloader.RealDownloader
@@ -66,7 +66,7 @@ interface ComputerServiceGraph {
   fun bindComputerService(real: RealComputerService): ComputerService
 
   @Binds
-  fun bindInstallerFactory(real: RealInstallerFactory): Installer.Factory
+  fun bindInstallerFactory(real: RealInstallerFactory): ResourceInstaller.Factory
 
   @Binds
   fun bindResourceLoaderFactory(real: RealResourceLoaderFactory): ResourceLoader.Factory

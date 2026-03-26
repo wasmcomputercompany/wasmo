@@ -2,7 +2,7 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.computers.packaging.Installer
+import com.wasmo.computers.packaging.ResourceInstaller
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.WasmoFileAddress
@@ -29,7 +29,7 @@ class RealComputerService(
   private val installAppJobQueue: JobQueue<InstallAppJobId>,
   override val id: ComputerId,
   override val slug: ComputerSlug,
-  override val installerFactory: Installer.Factory,
+  override val resourceInstallerFactory: ResourceInstaller.Factory,
 ) : ComputerService {
   override val url: HttpUrl
     get() = deployment.baseUrl.newBuilder()

@@ -5,7 +5,7 @@ import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.IssueCollector
 import com.wasmo.packaging.AppManifest
 
-interface Installer {
+interface ResourceInstaller {
   context(issueCollector: IssueCollector)
   suspend fun install(): AppManifest?
 
@@ -13,6 +13,6 @@ interface Installer {
     fun create(
       appSlug: AppSlug,
       wasmoFileAddress: WasmoFileAddress,
-    ): Installer
+    ): ResourceInstaller
   }
 }
