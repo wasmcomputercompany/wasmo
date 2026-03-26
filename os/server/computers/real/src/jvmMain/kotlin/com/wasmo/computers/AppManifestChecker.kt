@@ -1,4 +1,4 @@
-package com.wasmo.computers.packaging
+package com.wasmo.computers
 
 import com.wasmo.issues.Issue
 import com.wasmo.issues.IssueCollector

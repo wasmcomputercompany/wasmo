@@ -1,6 +1,6 @@
 package com.wasmo.testing.apps
 
-import com.wasmo.computers.packaging.TargetSdk1
+import com.wasmo.computers.TargetSdk1
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest

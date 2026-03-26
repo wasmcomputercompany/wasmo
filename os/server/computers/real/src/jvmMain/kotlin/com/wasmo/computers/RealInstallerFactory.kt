@@ -1,4 +1,4 @@
-package com.wasmo.computers.packaging
+package com.wasmo.computers
 
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerScope

@@ -1,4 +1,4 @@
-package com.wasmo.computers.packaging
+package com.wasmo.computers
 
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress
@@ -11,8 +11,8 @@ interface ResourceInstaller {
 
   interface Factory {
     fun create(
-      appSlug: AppSlug,
-      wasmoFileAddress: WasmoFileAddress,
+        appSlug: AppSlug,
+        wasmoFileAddress: WasmoFileAddress,
     ): ResourceInstaller
   }
 }
