@@ -32,7 +32,7 @@ class SnakeApp(
     )
     val PublishedApp = PublishedApp(
       appManifestAddress = "https://example.com/snake/v3/snake.wasmo.toml".toAppManifestAddress(),
-      manifest = Manifest,
+      appManifest = Manifest,
       resources = mapOf(),
       factory = Factory(),
     )

@@ -12,7 +12,6 @@ import com.wasmo.domtester.SnapshotTester
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import kotlin.test.Test
-import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
 
 class ComputerTest {
@@ -85,6 +84,5 @@ class ComputerTest {
     slug = AppSlug("app"),
     launcherLabel = launcherLabel,
     maskableIconUrl = "/assets/launcher/sample-icon.svg",
-    installScheduledAt = Instant.fromEpochSeconds(0L),
   )
 }

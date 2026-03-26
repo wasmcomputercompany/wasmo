@@ -35,6 +35,7 @@ class ComputerTester private constructor(
       computerSlug = slug,
       request = InstallAppRequest(
         appManifestAddress = publishedApp.appManifestAddress.toString(),
+        appSlug = AppSlug(publishedApp.appManifest.slug),
       ),
     )
 
@@ -49,7 +50,7 @@ class ComputerTester private constructor(
     clientAuthenticator = clientAuthenticator,
     publishedApp = publishedApp,
     computerSlug = slug,
-    slug = AppSlug(publishedApp.manifest.slug),
+    slug = AppSlug(publishedApp.appManifest.slug),
   )
 
   fun homePage() = client.call().hostPage(ComputerHomeRoute(slug))

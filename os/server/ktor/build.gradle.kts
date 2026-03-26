@@ -74,6 +74,7 @@ kotlin {
         implementation(project(":os:tokens"))
         implementation(project(":identifiers"))
         implementation(project(":platform:api"))
+        implementation(project(":platform:issues"))
         implementation(project(":platform:packaging"))
       }
     }

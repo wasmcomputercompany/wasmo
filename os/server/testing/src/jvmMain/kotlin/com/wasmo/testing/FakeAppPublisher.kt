@@ -35,7 +35,7 @@ class FakeAppPublisher(
     }
 
   fun publish(app: PublishedApp) {
-    publishedApps.removeAll { it.manifest.slug == app.manifest.slug }
+    publishedApps.removeAll { it.appManifest.slug == app.appManifest.slug }
     publishedApps += app
 
     if (app.appManifestAddress is AppManifestAddress.FileSystem) {
@@ -45,7 +45,7 @@ class FakeAppPublisher(
       fileSystem.createDirectories(basePath)
 
       fileSystem.write(app.appManifestAddress.path) {
-        writeUtf8(WasmoToml.encodeToString(app.manifest))
+        writeUtf8(WasmoToml.encodeToString(app.appManifest))
       }
 
       for ((key, value) in app.resources) {
@@ -62,7 +62,7 @@ class FakeAppPublisher(
     platform: Platform,
     manifest: AppManifest,
   ): WasmoApp? {
-    val publishedApp = publishedApps.firstOrNull { it.manifest.slug == manifest.slug }
+    val publishedApp = publishedApps.firstOrNull { it.appManifest.slug == manifest.slug }
       ?: return null
     return publishedApp.factory.create(platform)
   }

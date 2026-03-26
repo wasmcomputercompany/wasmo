@@ -6,10 +6,11 @@ import com.wasmo.computers.packaging.Installer
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerScope
 import com.wasmo.identifiers.ComputerSlug
-import com.wasmo.installedapps.InstallAppJob
+import com.wasmo.identifiers.InstallAppJobId
 import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.jobs.JobQueue
 import dev.zacsweers.metro.Inject
@@ -25,7 +26,7 @@ class RealComputerService(
   private val wasmoDb: WasmoDb,
   private val appCatalog: AppCatalog,
   private val installedAppStore: InstalledAppStore,
-  private val installAppJobQueue: JobQueue<InstallAppJob>,
+  private val installAppJobQueue: JobQueue<InstallAppJobId>,
   override val id: ComputerId,
   override val slug: ComputerSlug,
   override val installerFactory: Installer.Factory,
@@ -40,6 +41,7 @@ class RealComputerService(
     for (entry in appCatalog.entries) {
       enqueueInstall(
         appManifestAddress = entry.appManifestAddress,
+        slug = entry.slug,
       )
     }
   }
@@ -47,14 +49,24 @@ class RealComputerService(
   context(transactionCallbacks: TransactionCallbacks)
   override fun enqueueInstall(
     appManifestAddress: AppManifestAddress,
+    slug: AppSlug,
   ) {
-    installAppJobQueue.enqueue(InstallAppJob(id, appManifestAddress))
+    val installAppJobId = wasmoDb.installAppJobQueries.insertInstalledAppJob(
+      computer_id = id,
+      slug = slug,
+      active = true,
+      version = 1L,
+      app_manifest_address = appManifestAddress,
+      scheduled_at = clock.now(),
+    ).executeAsOne()
+    installAppJobQueue.enqueue(installAppJobId)
   }
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun snapshot(): ComputerSnapshot {
     val installedApps = wasmoDb.installedAppQueries.selectInstalledAppsByComputerId(
       computer_id = id,
+      active = true,
       limit = 100,
     ).executeAsList()
 

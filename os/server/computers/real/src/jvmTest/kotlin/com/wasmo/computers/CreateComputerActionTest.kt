@@ -57,15 +57,13 @@ class CreateComputerActionTest {
       .containsExactly(
         InstalledAppSnapshot(
           slug = installedMusicApp.slug,
-          launcherLabel = installedMusicApp.publishedApp.manifest.launcher!!.label!!,
+          launcherLabel = installedMusicApp.publishedApp.appManifest.launcher!!.label!!,
           maskableIconUrl = installedMusicApp.iconUrl.toString(),
-          installScheduledAt = tester.clock.now(),
         ),
         InstalledAppSnapshot(
           slug = installedSnakeApp.slug,
-          launcherLabel = installedSnakeApp.publishedApp.manifest.launcher!!.label!!,
+          launcherLabel = installedSnakeApp.publishedApp.appManifest.launcher!!.label!!,
           maskableIconUrl = installedSnakeApp.iconUrl.toString(),
-          installScheduledAt = tester.clock.now(),
         ),
       )
   }

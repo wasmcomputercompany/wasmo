@@ -6,7 +6,29 @@ data class Issue(
   val path: String? = null,
   val href: String? = null,
   val exception: Throwable? = null,
-)
+) {
+  override fun toString() = buildString {
+    if (url != null) {
+      append(url)
+    }
+    if (path != null) {
+      if (isNotEmpty()) append(" ")
+      append(path)
+    }
+    if (href != null) {
+      if (isNotEmpty()) append(" ")
+      append(href)
+    }
+
+    if (isNotEmpty()) append(": ")
+    append(message)
+
+    if (exception != null) {
+      append("\n  ")
+      append(exception.stackTraceToString().replace("\n", "\n  "))
+    }
+  }
+}
 
 class IssueCollector @PublishedApi internal constructor(
   val issues: MutableList<Issue>,

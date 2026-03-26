@@ -3,6 +3,7 @@ package com.wasmo.testing.apps
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.AppCatalog.Entry
 import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.WasmoToml
 import okhttp3.HttpUrl
@@ -16,7 +17,7 @@ import wasmo.http.HttpResponse
  */
 data class PublishedApp(
   val appManifestAddress: AppManifestAddress,
-  val manifest: AppManifest,
+  val appManifest: AppManifest,
   val resources: Map<String, ByteString>,
   val factory: WasmoApp.Factory,
 ) {
@@ -42,7 +43,7 @@ data class PublishedApp(
 
         request.url == appManifestUrl -> HttpResponse(
           toml = WasmoToml,
-          body = manifest,
+          body = appManifest,
         )
 
         else -> null
@@ -54,6 +55,7 @@ val TestAppCatalog = AppCatalog(
   entries = listOf(MusicApp.PublishedApp, SnakeApp.PublishedApp).map {
     Entry(
       appManifestAddress = it.appManifestAddress,
+      slug = AppSlug(it.appManifest.slug),
     )
   },
 )

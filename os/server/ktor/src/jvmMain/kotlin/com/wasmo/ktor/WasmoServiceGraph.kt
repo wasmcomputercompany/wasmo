@@ -20,7 +20,7 @@ import com.wasmo.events.LoggingEventListener
 import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ForHost
-import com.wasmo.installedapps.InstallAppJob
+import com.wasmo.identifiers.InstallAppJobId
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.jobs.JobQueue
@@ -175,7 +175,7 @@ internal interface WasmoServiceGraph {
   )
 
   @Binds
-  fun bind(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
+  fun bind(real: MemoryJobQueue<InstallAppJobId>): JobQueue<InstallAppJobId>
 
   @Binds
   fun bindCallFactory(real: OkHttpClient): Call.Factory

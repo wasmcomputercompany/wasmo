@@ -32,7 +32,7 @@ class InstallAppAction(
     val appManifestAddress = request.appManifestAddress.toAppManifestAddress()
 
     wasmoDb.transactionWithResult(noEnclosing = true) {
-      computer.enqueueInstall(appManifestAddress)
+      computer.enqueueInstall(appManifestAddress, request.appSlug)
     }
 
     return Response(

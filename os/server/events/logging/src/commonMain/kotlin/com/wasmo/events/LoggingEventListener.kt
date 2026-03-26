@@ -15,7 +15,7 @@ class LoggingEventListener(
       is InstallAppEvent -> {
         logger.info(
           message = "Installed on ${event.computerSlug.value}: ${event.appSlug.value}",
-          throwable = event.exception,
+          issues = event.issues,
         )
       }
     }

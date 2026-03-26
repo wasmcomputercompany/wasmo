@@ -3,7 +3,6 @@ package com.wasmo.installedapps
 import com.wasmo.db.InstalledApp
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.AppManifestAddress
-import com.wasmo.identifiers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ForHost
@@ -54,7 +53,7 @@ interface InstalledAppServiceGraph {
   @SingleIn(InstalledAppScope::class)
   fun provideAppManifestAddress(
     installedApp: InstalledApp,
-  ): AppManifestAddress = installedApp.manifest_address.toAppManifestAddress()
+  ): AppManifestAddress = installedApp.app_manifest_address
 
   @Provides
   @ForInstalledApp

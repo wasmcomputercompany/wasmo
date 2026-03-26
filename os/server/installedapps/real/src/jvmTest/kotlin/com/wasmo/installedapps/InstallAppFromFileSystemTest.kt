@@ -3,16 +3,16 @@ package com.wasmo.installedapps
 import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.contains
+import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import assertk.assertions.message
-import com.wasmo.api.InstallIncompleteReason
 import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.events.InstallAppEvent
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.issues.Issue
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
@@ -39,10 +39,8 @@ class InstallAppFromFileSystemTest {
       .contains(
         InstalledAppSnapshot(
           slug = installedApp.slug,
-          launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
+          launcherLabel = installedApp.publishedApp.appManifest.launcher!!.label!!,
           maskableIconUrl = installedApp.iconUrl.toString(),
-          installScheduledAt = tester.clock.now,
-          installCompletedAt = tester.clock.now,
         ),
       )
 
@@ -85,18 +83,18 @@ class InstallAppFromFileSystemTest {
       .contains(
         InstalledAppSnapshot(
           slug = installedApp.slug,
-          launcherLabel = installedApp.publishedApp.manifest.launcher!!.label!!,
+          launcherLabel = installedApp.publishedApp.appManifest.launcher!!.label!!,
           maskableIconUrl = installedApp.iconUrl.toString(),
-          installScheduledAt = tester.clock.now(),
-          installIncompleteReason = InstallIncompleteReason.SourceUnavailable,
         ),
       )
 
-    assertThat(tester.eventListener.takeEvent().exception)
-      .isNotNull()
-      .message()
-      .isNotNull()
-      .contains(missingResourcePath.toString())
+    assertThat(tester.eventListener.takeEvent().issues)
+      .containsExactly(
+        Issue(
+          path = missingResourcePath.toString(),
+          message = "???",
+        )
+      )
   }
 
   @Test
@@ -120,7 +118,7 @@ class InstallAppFromFileSystemTest {
 
   private fun PublishedApp.withFileSystemAppManifestAddress(): PublishedApp = copy(
     appManifestAddress = AppManifestAddress.FileSystem(
-      tester.testDirectory / "${manifest.slug}.wasmo.toml",
+      tester.testDirectory / "${appManifest.slug}.wasmo.toml",
     ),
   )
 }

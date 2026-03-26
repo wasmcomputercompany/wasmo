@@ -1,0 +1,50 @@
+insertInstalledAppJob:
+INSERT INTO InstallAppJob(
+  computer_id,
+  slug,
+  active,
+  version,
+  app_manifest_address,
+  scheduled_at
+)
+VALUES (
+  :computer_id,
+  :slug,
+  :active,
+  :version,
+  :app_manifest_address,
+  :scheduled_at
+) RETURNING id;
+
+selectInstallAppJobsByComputerId:
+SELECT * FROM InstalledApp
+WHERE
+  computer_id = :computer_id AND
+  active = :active
+ORDER BY slug
+LIMIT :limit;
+
+selectInstallAppJobById:
+SELECT * FROM InstallAppJob
+WHERE id = :id;
+
+updateInstallAppJobSetCompletedAt:
+UPDATE InstallAppJob
+SET
+  version = :new_version,
+  completed_at = :completed_at,
+  active = :active,
+  installed_app_id = :installed_app_id
+WHERE
+  version = :expected_version AND
+  id = :id;
+
+updateInstallAppJobSetIncompleteReason:
+UPDATE InstallAppJob
+SET
+  version = :new_version,
+  incomplete_reason = :incomplete_reason,
+  active = :active
+WHERE
+  version = :expected_version AND
+  id = :id;

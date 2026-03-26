@@ -9,12 +9,15 @@ import com.wasmo.db.ComputerAccess
 import com.wasmo.db.ComputerAllocation
 import com.wasmo.db.ComputerSpec
 import com.wasmo.db.Cookie
+import com.wasmo.db.InstallAppJob
 import com.wasmo.db.InstalledApp
 import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
 import com.wasmo.db.StripeCustomer
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
+import com.wasmo.identifiers.AppManifestAddress
+import com.wasmo.identifiers.AppManifestAddress.Companion.toAppManifestAddress
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerAccessId
 import com.wasmo.identifiers.ComputerAllocationId
@@ -22,6 +25,7 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
 import com.wasmo.identifiers.CookieId
+import com.wasmo.identifiers.InstallAppJobId
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
@@ -48,6 +52,7 @@ class WasmoDbService(
   ComputerAllocationAdapter,
   ComputerSpecAdapter,
   CookieAdapter,
+  InstallAppJobAdapter,
   InstalledAppAdapter,
   InviteAdapter,
   PasskeyAdapter,
@@ -79,6 +84,11 @@ class WasmoDbService(
 
       override fun encode(value: RegistrationRecord) =
         WasmoJson.encodeToString(value)
+    }
+
+    private object AppManifestAddressAdapter : ColumnAdapter<AppManifestAddress, String> {
+      override fun decode(databaseValue: String) = databaseValue.toAppManifestAddress()
+      override fun encode(value: AppManifestAddress) = value.toString()
     }
 
     private object AccountIdAdapter : ColumnAdapter<AccountId, Long> {
@@ -119,6 +129,11 @@ class WasmoDbService(
     private object CookieIdAdapter : ColumnAdapter<CookieId, Long> {
       override fun decode(databaseValue: Long) = CookieId(databaseValue)
       override fun encode(value: CookieId) = value.id
+    }
+
+    private object InstallAppJobIdAdapter : ColumnAdapter<InstallAppJobId, Long> {
+      override fun decode(databaseValue: Long) = InstallAppJobId(databaseValue)
+      override fun encode(value: InstallAppJobId) = value.id
     }
 
     private object InstalledAppIdAdapter : ColumnAdapter<InstalledAppId, Long> {
@@ -188,14 +203,22 @@ class WasmoDbService(
       account_idAdapter = AccountIdAdapter,
     )
 
+    private val InstallAppJobAdapter = InstallAppJob.Adapter(
+      idAdapter = InstallAppJobIdAdapter,
+      computer_idAdapter = ComputerIdAdapter,
+      slugAdapter = AppSlugAdapter,
+      app_manifest_addressAdapter = AppManifestAddressAdapter,
+      scheduled_atAdapter = InstantAdapter,
+      completed_atAdapter = InstantAdapter,
+      installed_app_idAdapter = InstalledAppIdAdapter,
+    )
+
     private val InstalledAppAdapter = InstalledApp.Adapter(
       idAdapter = InstalledAppIdAdapter,
       computer_idAdapter = ComputerIdAdapter,
       slugAdapter = AppSlugAdapter,
+      app_manifest_addressAdapter = AppManifestAddressAdapter,
       manifest_dataAdapter = AppManifestAdapter,
-      install_scheduled_atAdapter = InstantAdapter,
-      install_completed_atAdapter = InstantAdapter,
-      install_deleted_atAdapter = InstantAdapter,
     )
 
     private val InviteAdapter = Invite.Adapter(

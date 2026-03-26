@@ -10,24 +10,10 @@ class AppCatalog(
 ) {
   data class Entry(
     val appManifestAddress: AppManifestAddress,
+    val slug: AppSlug,
   ) {
     companion object {
-      operator fun invoke(
-        slug: AppSlug,
-        label: String,
-      ) = Entry(
-        appManifestAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml"
-          .toAppManifestAddress(),
-//        manifest = AppManifest(
-//          target = TargetSdk1,
-//          version = 1L,
-//          slug = slug.value,
-//          launcher = Launcher(
-//            label = label,
-//            maskable_icon_path = "/maskable-icon.svg",
-//          ),
-//        ),
-      )
+      operator fun invoke(slug: AppSlug) = resourceAppAsCatalogEntry(slug)
     }
   }
 }
@@ -45,20 +31,14 @@ fun loadDefaultAppCatalogFromResources(): AppCatalog {
     AppSlug("zap"),
   )
   return AppCatalog(
-    entries = apps.map { loadAppCatalogEntryFromResource(it) },
+    entries = apps.map { resourceAppAsCatalogEntry(it) },
   )
 }
 
-fun loadAppCatalogEntryFromResource(slug: AppSlug): Entry {
-//  val manifest = FileSystem.RESOURCES.read("/static/$slug/$slug.wasmo.toml".toPath()) {
-//    WasmoToml.decodeFromString(
-//      AppManifest.serializer(),
-//      readUtf8(),
-//    )
-//  }
+fun resourceAppAsCatalogEntry(slug: AppSlug): Entry {
   return Entry(
     appManifestAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo.toml"
       .toAppManifestAddress(),
-//    manifest = manifest,
+    slug = slug,
   )
 }

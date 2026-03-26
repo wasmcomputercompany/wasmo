@@ -33,7 +33,7 @@ class MusicApp(
 
     val PublishedApp = PublishedApp(
       appManifestAddress = "https://example.com/music/v2/music.wasmo.toml".toAppManifestAddress(),
-      manifest = Manifest,
+      appManifest = Manifest,
       resources = mapOf(),
       factory = Factory(),
     )

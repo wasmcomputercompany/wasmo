@@ -42,7 +42,7 @@ class RecipesApp(
     val PublishedApp = PublishedApp(
       appManifestAddress = "https://example.com/recipes/v1/recipes.wasmo.toml"
         .toAppManifestAddress(),
-      manifest = Manifest,
+      appManifest = Manifest,
       resources = mapOf(
         "app.wasm" to "I am Wasm data".encodeUtf8(),
         "index.html" to "Welcome to the recipes app".encodeUtf8(),
