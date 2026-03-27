@@ -1,14 +1,10 @@
-package com.wasmo.computers
+package com.wasmo.packaging
 
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import com.wasmo.issues.Issue
 import com.wasmo.issues.IssueCollector
-import com.wasmo.packaging.AppManifest
-import com.wasmo.packaging.ExternalResource
-import com.wasmo.packaging.Launcher
-import com.wasmo.packaging.Route
 import kotlin.test.Test
 
 class AppManifestCheckerTest {

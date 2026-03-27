@@ -10,6 +10,7 @@ import com.wasmo.issues.IssueCollector
 import com.wasmo.issues.Severity
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.ExternalResource
+import com.wasmo.packaging.TargetSdk1
 import com.wasmo.packaging.WasmoToml
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest

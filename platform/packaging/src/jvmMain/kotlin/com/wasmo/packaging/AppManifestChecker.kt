@@ -1,11 +1,7 @@
-package com.wasmo.computers
+package com.wasmo.packaging
 
 import com.wasmo.issues.IssueCollector
 import com.wasmo.issues.issueCheck
-import com.wasmo.packaging.AppManifest
-import com.wasmo.packaging.ExternalResource
-import com.wasmo.packaging.Launcher
-import com.wasmo.packaging.Route
 
 /**
  * Validates a manifest against our spec.

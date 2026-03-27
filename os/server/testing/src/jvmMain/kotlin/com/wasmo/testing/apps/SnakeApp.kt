@@ -1,10 +1,10 @@
 package com.wasmo.testing.apps
 
-import com.wasmo.computers.TargetSdk1
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
+import com.wasmo.packaging.TargetSdk1
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
 import wasmo.http.HttpService

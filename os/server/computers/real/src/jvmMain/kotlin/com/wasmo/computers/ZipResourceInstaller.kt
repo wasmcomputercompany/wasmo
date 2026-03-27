@@ -5,6 +5,7 @@ import com.wasmo.identifiers.ForComputer
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.IssueCollector
 import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.AppManifestChecker
 import com.wasmo.packaging.WasmoToml
 import dev.eav.tomlkt.decodeFromNativeReader
 import dev.zacsweers.metro.Assisted

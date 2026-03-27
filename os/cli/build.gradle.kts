@@ -5,26 +5,21 @@ plugins {
 }
 
 wasmoBuild {
-  libraryJvmJs()
+  libraryJvm()
 }
 
 kotlin {
   sourceSets {
-    val commonMain by getting {
+    jvmMain {
       dependencies {
+        implementation(libs.clikt)
         implementation(libs.okio)
-        implementation(libs.kotlinx.serialization.json)
-        implementation(project(":identifiers"))
-        implementation(project(":platform:issues"))
-      }
-    }
-    val jvmMain by getting {
-      dependencies {
-        implementation(libs.okhttp)
         implementation(libs.tomlkt)
+        implementation(project(":platform:issues"))
+        implementation(project(":platform:packaging"))
       }
     }
-    val jvmTest by getting {
+    jvmTest {
       dependencies {
         implementation(libs.okio.fakefilesystem)
       }

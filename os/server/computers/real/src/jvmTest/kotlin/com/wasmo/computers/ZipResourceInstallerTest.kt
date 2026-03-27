@@ -9,6 +9,7 @@ import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.Issue
 import com.wasmo.issues.IssueCollector
 import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.TargetSdk1
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.testing.buildZip
 import kotlin.random.Random
