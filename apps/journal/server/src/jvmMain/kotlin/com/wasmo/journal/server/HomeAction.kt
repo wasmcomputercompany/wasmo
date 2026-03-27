@@ -4,6 +4,7 @@ import java.io.StringWriter
 import kotlinx.html.body
 import kotlinx.html.head
 import kotlinx.html.html
+import kotlinx.html.link
 import kotlinx.html.meta
 import kotlinx.html.script
 import kotlinx.html.stream.appendHTML
@@ -22,6 +23,7 @@ class HomeAction {
         meta(charset = "utf-8")
         title("Journal")
         script(src = "/assets/journal.js") {}
+        link(rel = "stylesheet", href = "/assets/journal.css")
         script {
           unsafe {
             raw("""journal.startOnLoad();""")
