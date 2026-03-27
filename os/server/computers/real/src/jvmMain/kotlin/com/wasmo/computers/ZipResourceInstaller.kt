@@ -67,7 +67,7 @@ class ZipResourceInstaller(
       ?: return null
 
     context(issueCollector.path("wasmo-manifest.toml")) {
-      check(appManifest)
+      AppManifestChecker().check(appManifest)
     }
     if (issueCollector.issues.isNotEmpty()) return null
 

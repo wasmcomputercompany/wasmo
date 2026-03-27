@@ -4,7 +4,9 @@ import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import com.wasmo.issues.Issue
+import com.wasmo.issues.IssueCollector
 import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.ExternalResource
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.Route
 import kotlin.test.Test
@@ -41,8 +43,43 @@ class AppManifestCheckerTest {
   }
 
   @Test
-  fun checkResource() {
-    // TODO.
+  fun checkExternalResourceNotPermittedByDefault() {
+    assertThat(
+      manifest.copy(
+        external_resource = listOf(
+          ExternalResource(
+            from = "../client/build/dist/js/productionExecutable",
+            to = "/assets",
+            include = listOf("**/*.js", "**/*.js.map"),
+          ),
+        ),
+      ),
+    ).failsValidation(
+      message = "external resources are not permitted for this manifest",
+      href = "external_resource",
+    )
+  }
+
+  @Test
+  fun checkExternalResource() {
+    val appManifestChecker = AppManifestChecker(
+      allowExternalResources = true,
+    )
+    assertThat(
+      manifest.copy(
+        external_resource = listOf(
+          ExternalResource(
+            from = "../client/build/dist/js/productionExecutable",
+            to = "../assets",
+            include = listOf("**/*.js", "**/*.js.map"),
+          ),
+        ),
+      ),
+    ).failsValidation(
+      message = "target directory must not contain '..' path traversal operators",
+      href = "external_resource[0].to",
+      appManifestChecker = appManifestChecker,
+    )
   }
 
   @Test
@@ -164,7 +201,14 @@ class AppManifestCheckerTest {
   }
 }
 
-fun Assert<AppManifest>.failsValidation(href: String, message: String) {
-  transform { manifest -> manifest.check() }
-    .containsExactly(Issue(href = href, message = message))
+fun Assert<AppManifest>.failsValidation(
+  href: String,
+  message: String,
+  appManifestChecker: AppManifestChecker = AppManifestChecker(),
+) {
+  transform { manifest ->
+    IssueCollector.collect {
+      appManifestChecker.check(manifest)
+    }
+  }.containsExactly(Issue(href = href, message = message))
 }

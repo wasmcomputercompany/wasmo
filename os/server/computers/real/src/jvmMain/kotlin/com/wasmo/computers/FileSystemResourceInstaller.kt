@@ -34,7 +34,7 @@ class FileSystemResourceInstaller(
     } ?: return null
 
     context(issueCollector.path(manifestPath.toString())) {
-      check(appManifest)
+      AppManifestChecker().check(appManifest)
     }
     if (issueCollector.issues.isNotEmpty()) return null
 
