@@ -70,7 +70,7 @@ class AppManifestCheckerTest {
         external_resource = listOf(
           ExternalResource(
             from = "../client/build/dist/js/productionExecutable",
-            to = "../assets",
+            to = "/assets/../..",
             include = listOf("**/*.js", "**/*.js.map"),
           ),
         ),
@@ -78,6 +78,37 @@ class AppManifestCheckerTest {
     ).failsValidation(
       message = "target directory must not contain '..' path traversal operators",
       href = "external_resource[0].to",
+      appManifestChecker = appManifestChecker,
+    )
+
+    assertThat(
+      manifest.copy(
+        external_resource = listOf(
+          ExternalResource(
+            from = "../client/build/dist/js/productionExecutable",
+            to = "assets",
+          ),
+        ),
+      ),
+    ).failsValidation(
+      message = "target directory must start with '/'",
+      href = "external_resource[0].to",
+      appManifestChecker = appManifestChecker,
+    )
+
+    assertThat(
+      manifest.copy(
+        external_resource = listOf(
+          ExternalResource(
+            from = "/Volumes/media",
+            to = "/assets",
+            include = listOf("/**/*.mp3"),
+          ),
+        ),
+      ),
+    ).failsValidation(
+      message = "include must not start with '/'",
+      href = "external_resource[0].include[0]",
       appManifestChecker = appManifestChecker,
     )
   }

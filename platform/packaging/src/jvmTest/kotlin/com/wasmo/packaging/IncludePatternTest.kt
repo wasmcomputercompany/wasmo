@@ -1,4 +1,4 @@
-package com.wasmo.computers
+package com.wasmo.packaging
 
 import assertk.assertThat
 import assertk.assertions.isFalse
@@ -26,6 +26,12 @@ class IncludePatternTest {
 
     assertThat(includePattern.matches("/.mp3")).isTrue()
     assertThat(includePattern.matches("//.mp3")).isTrue()
+  }
+
+  @Test
+  fun leadingSlash() {
+    val includePattern = IncludePattern("*.mp3")
+    assertThat(includePattern.matches("/abc.mp3")).isTrue()
   }
 
   @Test
@@ -67,6 +73,7 @@ class IncludePatternTest {
   fun multipleStarStarPatterns() {
     val includePattern = IncludePattern("a/**/b/**/c")
     assertThat(includePattern.matches("a/b/c")).isTrue()
+    assertThat(includePattern.matches("/a/b/c")).isTrue()
     assertThat(includePattern.matches("a/b/c/b/c")).isTrue()
     assertThat(includePattern.matches("a/b/c/a/b/c")).isTrue()
     assertThat(includePattern.matches("a/x/b/c")).isTrue()
@@ -78,7 +85,6 @@ class IncludePatternTest {
     assertThat(includePattern.matches("aa/b/c")).isFalse()
     assertThat(includePattern.matches("a/bb/c")).isFalse()
     assertThat(includePattern.matches("a/b/cc")).isFalse()
-    assertThat(includePattern.matches("/a/b/c")).isFalse()
     assertThat(includePattern.matches("a/b/c/")).isFalse()
   }
 
@@ -96,9 +102,17 @@ class IncludePatternTest {
   fun starPatternAtEnd() {
     val includePattern = IncludePattern("a/**")
     assertThat(includePattern.matches("a")).isTrue()
+    assertThat(includePattern.matches("a/b")).isTrue()
+    assertThat(includePattern.matches("/a")).isTrue()
+    assertThat(includePattern.matches("/a/")).isTrue()
+    assertThat(includePattern.matches("/a/b")).isTrue()
+    assertThat(includePattern.matches("/a/b/")).isTrue()
     assertThat(includePattern.matches("a/b/c")).isTrue()
+    assertThat(includePattern.matches("a/b/c/")).isTrue()
+    assertThat(includePattern.matches("/a/b/c")).isTrue()
+    assertThat(includePattern.matches("/a/b/c/")).isTrue()
     assertThat(includePattern.matches("aa")).isFalse()
-    assertThat(includePattern.matches("/a")).isFalse()
-    assertThat(includePattern.matches("/a/b")).isFalse()
+    assertThat(includePattern.matches("x/a")).isFalse()
+    assertThat(includePattern.matches("./a")).isFalse()
   }
 }

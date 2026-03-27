@@ -17,6 +17,10 @@ data class Issue(
   val exception: Throwable? = null,
 ) {
   override fun toString() = buildString {
+    when (severity) {
+      Severity.Fatal -> {}
+      Severity.Warning -> append("⚠️")
+    }
     if (url != null) {
       append(url)
     }

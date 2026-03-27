@@ -6,11 +6,13 @@ import com.wasmo.issues.Severity
 import com.wasmo.issues.issueCheck
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.ExternalResource
+import com.wasmo.packaging.IncludePattern
 import com.wasmo.packaging.WasmoToml
 import dev.eav.tomlkt.decodeFromString
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import java.io.IOException
 import kotlinx.serialization.SerializationException
 import okio.FileNotFoundException
 import okio.FileSystem
@@ -79,7 +81,7 @@ class FileSystemResourceInstaller(
           else -> unmatchedFileCount++
         }
       }
-    } catch (_: FileNotFoundException) {
+    } catch (_: IOException) {
       // Report "No files found" below.
     }
 

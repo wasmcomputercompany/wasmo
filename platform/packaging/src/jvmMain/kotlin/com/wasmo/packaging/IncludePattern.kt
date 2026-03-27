@@ -1,4 +1,4 @@
-package com.wasmo.computers
+package com.wasmo.packaging
 
 /**
  * A pattern to select files in a directory tree.
@@ -8,6 +8,8 @@ package com.wasmo.computers
  *
  * Matching is case-insensitive.
  *
+ * If the input contains '/' at the beginning, that is ignored.
+ *
  * This is implemented by converting the pattern to a regex. Otherwise, handling patterns like
  * 'a/**/b' is particularly difficult. In particular, we'd need NFA stuff to handle inputs like
  * 'a/b' (matches), 'a/b/' (doesn't match), and 'a/b/b' (matches).
@@ -15,9 +17,15 @@ package com.wasmo.computers
 class IncludePattern(
   val pattern: String,
 ) {
+  init {
+    require(!pattern.startsWith("/")) { "Unexpected pattern: $pattern" }
+  }
+
   private val regex: Regex by lazy {
     Regex(
       buildString {
+        append("/?") // Consume a leading '/' on the input, if any.
+
         var first = true
         for (pathSegment in pattern.split("/")) {
           // '**' wants a trailing '/' at the beginning of a pattern, and a leading '/' otherwise.

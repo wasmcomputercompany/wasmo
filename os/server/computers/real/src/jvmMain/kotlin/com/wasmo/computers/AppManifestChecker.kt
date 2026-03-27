@@ -73,6 +73,18 @@ class AppManifestChecker(
       issueCheck(".." !in externalResource.to.split("/")) {
         "target directory must not contain '..' path traversal operators"
       }
+
+      issueCheck(externalResource.to.startsWith("/")) {
+        "target directory must start with '/'"
+      }
+
+      for ((index, include) in externalResource.include.withIndex()) {
+        context(issueCollector.href("include[$index]")) {
+          issueCheck(!include.startsWith("/")) {
+            "include must not start with '/'"
+          }
+        }
+      }
     }
   }
 

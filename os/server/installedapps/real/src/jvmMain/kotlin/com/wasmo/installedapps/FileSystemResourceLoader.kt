@@ -2,6 +2,8 @@ package com.wasmo.installedapps
 
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.ExternalResource
+import com.wasmo.packaging.IncludePattern
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -18,9 +20,24 @@ class FileSystemResourceLoader(
   override suspend fun loadManifest() = appManifest
 
   override suspend fun loadOrNull(resourcePath: String): ByteString? {
-    // TODO: honor external_resource paths.
+    for (externalResource in appManifest.external_resource) {
+      if (!resourcePath.startsWith(externalResource.to)) continue
 
-    val path = wasmoFileAddress.path / resourcePath.substring(1)
+      val includePath = resourcePath.substring(externalResource.to.length)
+      if (externalResource.includeMatches(includePath)) {
+        val loaded = loadResolved(externalResource.from + includePath)
+        if (loaded != null) return loaded
+      }
+    }
+
+    return loadResolved(resourcePath.substring(1))
+  }
+
+  private fun ExternalResource.includeMatches(path: String): Boolean =
+    include.isEmpty() || include.any { IncludePattern(it).matches(path) }
+
+  private fun loadResolved(resourcePath: String): ByteString? {
+    val path = wasmoFileAddress.path / resourcePath
     return try {
       fileSystem.read(path) {
         readByteString()

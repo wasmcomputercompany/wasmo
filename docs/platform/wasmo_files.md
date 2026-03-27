@@ -101,7 +101,8 @@ into the archive (and omit the `[[external_resource]]` item).
 
 ### `from`
 
-The local file or directory to copy resources from. This may be an absolute or relative path.
+The local file or directory to copy resources from. This may be an absolute or relative path. If it
+is a relative path, it is relative to the directory that contains the `wasmo-manifest.toml` file.
 
 ### `to`
 

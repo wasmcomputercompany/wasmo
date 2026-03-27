@@ -15,7 +15,7 @@ data class AppManifest(
 data class ExternalResource(
   val from: String,
   val to: String,
-  val include: List<String>,
+  val include: List<String> = listOf(),
 )
 
 @Serializable
