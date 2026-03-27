@@ -30,6 +30,7 @@ import com.wasmo.testing.FakeEventListener
 import com.wasmo.testing.FakePaymentsService
 import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.JobQueueTester
+import com.wasmo.testing.TestDirectory
 import com.wasmo.testing.apps.TestAppCatalog
 import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.client.ClientTester
@@ -72,7 +73,7 @@ interface ServiceTesterGraph {
   val eventListener: FakeEventListener
   val fakeHttpClient: FakeHttpService
   val fileSystem: FileSystem
-  val testDirectory: Path
+  @TestDirectory val testDirectory: Path
   val objectStore: FakeObjectStore
   val jobQueueTester: JobQueueTester
   val sendEmailService: FakeSendEmailService
@@ -173,7 +174,7 @@ interface ServiceTesterGraph {
       @Provides sqlService: SqlService,
       @Provides coroutineScope: CoroutineScope,
       @Provides fileSystem: FileSystem,
-      @Provides testDirectory: Path,
+      @Provides @TestDirectory testDirectory: Path,
     ): ServiceTesterGraph
   }
 }

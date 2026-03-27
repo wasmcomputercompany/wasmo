@@ -2,8 +2,10 @@ package com.wasmo.computers
 
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.IssueCollector
+import com.wasmo.issues.Severity
 import com.wasmo.issues.issueCheck
 import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.ExternalResource
 import com.wasmo.packaging.WasmoToml
 import dev.eav.tomlkt.decodeFromString
 import dev.zacsweers.metro.Assisted
@@ -26,7 +28,7 @@ class FileSystemResourceInstaller(
         "Not a directory"
       }
     }
-    if (issueCollector.issues.isNotEmpty()) return null
+    if (issueCollector.hasFatalIssues) return null
 
     val manifestPath = wasmoFileAddress.path / "wasmo-manifest.toml"
     val appManifest = context(issueCollector.path(manifestPath.toString())) {
@@ -34,9 +36,15 @@ class FileSystemResourceInstaller(
     } ?: return null
 
     context(issueCollector.path(manifestPath.toString())) {
-      AppManifestChecker().check(appManifest)
+      AppManifestChecker(allowExternalResources = true).check(appManifest)
     }
-    if (issueCollector.issues.isNotEmpty()) return null
+    if (issueCollector.hasFatalIssues) return null
+
+    for ((index, value) in appManifest.external_resource.withIndex()) {
+      context(issueCollector.href("external_resource[$index]")) {
+        checkNotEmpty(value)
+      }
+    }
 
     return appManifest
   }
@@ -56,6 +64,36 @@ class FileSystemResourceInstaller(
     }
   }
 
+  context(issueCollector: IssueCollector)
+  private suspend fun checkNotEmpty(externalResource: ExternalResource) {
+    val from = wasmoFileAddress.path / externalResource.from
+    var unmatchedFileCount = 0
+    val includePatterns = externalResource.include.map { IncludePattern(it) }
+
+    try {
+      for (path in fileSystem.listRecursively(from)) {
+        val pathString = path.relativeTo(from).toString()
+        when {
+          includePatterns.isEmpty() -> return // Empty matches everything.
+          includePatterns.any { it.matches(pathString) } -> return
+          else -> unmatchedFileCount++
+        }
+      }
+    } catch (_: FileNotFoundException) {
+      // Report "No files found" below.
+    }
+
+    issueCollector
+      .path(from.toString())
+      .severity(Severity.Warning)
+      .add(
+        when {
+          unmatchedFileCount > 0 -> "No files match pattern ${externalResource.include}"
+          else -> "No files found"
+        },
+      )
+  }
+
   @AssistedFactory
   interface Factory {
     fun create(
@@ -63,3 +101,4 @@ class FileSystemResourceInstaller(
     ): FileSystemResourceInstaller
   }
 }
+

@@ -7,7 +7,9 @@ import assertk.assertions.isEqualTo
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.Issue
 import com.wasmo.issues.IssueCollector
+import com.wasmo.issues.Severity
 import com.wasmo.packaging.AppManifest
+import com.wasmo.packaging.ExternalResource
 import com.wasmo.packaging.WasmoToml
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -50,7 +52,116 @@ class FileSystemResourceInstallerTest {
 
     assertThat(installedManifest).isEqualTo(manifest)
     assertThat(issueCollector.issues).isEmpty()
-    assertThat(objectStore.list("music/resources/v1/wasmo-manifest.toml")).isEmpty()
+    assertThat(objectStore.list("music/resources/v1/")).isEmpty()
+  }
+
+  @Test
+  fun externalResourceIsPresent() = runTest {
+    val manifest = AppManifest(
+      version = 1L,
+      target = TargetSdk1,
+      external_resource = listOf(
+        ExternalResource(
+          from = "/Media/sound-effects",
+          to = "sounds",
+          include = listOf("**/*.mp3", "**/*.midi"),
+        ),
+      ),
+    )
+
+    fileSystem.createDirectories(wasmoFileAddress.path)
+    fileSystem.write(wasmoFileAddress.path / "wasmo-manifest.toml") {
+      writeUtf8(WasmoToml.encodeToString<AppManifest>(manifest))
+    }
+    val beepsBoops = "/Media/sound-effects/beeps-boops".toPath()
+    fileSystem.createDirectories(beepsBoops)
+    fileSystem.write(beepsBoops / "welcome.midi") {
+      writeUtf8("This is a sound effect")
+    }
+
+    val issueCollector = IssueCollector()
+    val installedManifest = with(issueCollector) {
+      installer.install()
+    }
+
+    assertThat(installedManifest).isEqualTo(manifest)
+    assertThat(issueCollector.issues).isEmpty()
+    assertThat(objectStore.list("music/resources/v1/")).isEmpty()
+  }
+
+  @Test
+  fun externalResourceDoesntMatch() = runTest {
+    val manifest = AppManifest(
+      version = 1L,
+      target = TargetSdk1,
+      external_resource = listOf(
+        ExternalResource(
+          from = "/Media/sound-effects",
+          to = "sounds",
+          include = listOf("**/*.mp3", "**/*.midi"),
+        ),
+      ),
+    )
+
+    fileSystem.createDirectories(wasmoFileAddress.path)
+    fileSystem.write(wasmoFileAddress.path / "wasmo-manifest.toml") {
+      writeUtf8(WasmoToml.encodeToString<AppManifest>(manifest))
+    }
+    val beepsBoops = "/Media/sound-effects/beeps-boops".toPath()
+    fileSystem.createDirectories(beepsBoops)
+    fileSystem.write(beepsBoops / "welcome.aac") {
+      writeUtf8("This file isn't matched by the include filter")
+    }
+
+    val issueCollector = IssueCollector()
+    val installedManifest = with(issueCollector) {
+      installer.install()
+    }
+
+    assertThat(installedManifest).isEqualTo(manifest)
+    assertThat(issueCollector.issues).containsExactly(
+      Issue(
+        message = "No files match pattern [**/*.mp3, **/*.midi]",
+        path = "/Media/sound-effects",
+        href = "external_resource[0]",
+        severity = Severity.Warning,
+      ),
+    )
+  }
+
+  @Test
+  fun externalResourceIsAbsent() = runTest {
+    val manifest = AppManifest(
+      version = 1L,
+      target = TargetSdk1,
+      external_resource = listOf(
+        ExternalResource(
+          from = "/Media/sound-effects",
+          to = "sounds",
+          include = listOf("**/*.mp3", "**/*.midi"),
+        ),
+      ),
+    )
+
+    fileSystem.createDirectories(wasmoFileAddress.path)
+    fileSystem.write(wasmoFileAddress.path / "wasmo-manifest.toml") {
+      writeUtf8(WasmoToml.encodeToString<AppManifest>(manifest))
+    }
+
+    val issueCollector = IssueCollector()
+    val installedManifest = with(issueCollector) {
+      installer.install()
+    }
+
+    assertThat(installedManifest).isEqualTo(manifest)
+    assertThat(issueCollector.issues).containsExactly(
+      Issue(
+        message = "No files found",
+        path = "/Media/sound-effects",
+        href = "external_resource[0]",
+        severity = Severity.Warning,
+      ),
+    )
   }
 
   @Test

@@ -69,13 +69,13 @@ class ZipResourceInstaller(
     context(issueCollector.path("wasmo-manifest.toml")) {
       AppManifestChecker().check(appManifest)
     }
-    if (issueCollector.issues.isNotEmpty()) return null
+    if (issueCollector.hasFatalIssues) return null
 
     copyZipEntriesToObjectStore(
       appManifest = appManifest,
       zip = zip,
     )
-    if (issueCollector.issues.isNotEmpty()) return null
+    if (issueCollector.hasFatalIssues) return null
 
     return appManifest
   }
@@ -122,7 +122,7 @@ class ZipResourceInstaller(
           val zipEntryName = zipEntry.name
           context(issueCollector.path(zipEntryName)) {
             copyZipEntryToObjectStore(zipInputStream, resourcesObjectStore, zipEntryName)
-            if (issueCollector.issues.isNotEmpty()) return
+            if (issueCollector.hasFatalIssues) return
           }
         }
       }

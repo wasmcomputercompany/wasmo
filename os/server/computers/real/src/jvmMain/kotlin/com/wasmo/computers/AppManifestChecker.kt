@@ -70,7 +70,7 @@ class AppManifestChecker(
   context(issueCollector: IssueCollector)
   private fun check(externalResource: ExternalResource) {
     context(issueCollector.href("to")) {
-      issueCheck(".." in externalResource.to.split(".")) {
+      issueCheck(".." !in externalResource.to.split("/")) {
         "target directory must not contain '..' path traversal operators"
       }
     }

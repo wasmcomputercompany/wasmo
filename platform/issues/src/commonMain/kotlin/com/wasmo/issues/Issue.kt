@@ -1,10 +1,19 @@
 package com.wasmo.issues
 
+enum class Severity {
+  /** Fail the operation. */
+  Fatal,
+
+  /** Alert the operator that the system is degraded but may proceed. */
+  Warning,
+}
+
 data class Issue(
   val message: String,
   val url: String? = null,
   val path: String? = null,
   val href: String? = null,
+  val severity: Severity = Severity.Fatal,
   val exception: Throwable? = null,
 ) {
   override fun toString() = buildString {
@@ -31,33 +40,45 @@ data class Issue(
 }
 
 class IssueCollector @PublishedApi internal constructor(
-  val issues: MutableList<Issue>,
-  val url: String? = null,
-  val path: String? = null,
-  val href: String? = null,
+  private val mutableIssues: MutableList<Issue>,
+  private val url: String? = null,
+  private val path: String? = null,
+  private val href: String? = null,
+  private val severity: Severity = Severity.Fatal,
 ) {
-  constructor() : this(issues = mutableListOf())
+  val issues: List<Issue>
+    get() = mutableIssues.toList()
+
+  val hasFatalIssues: Boolean
+    get() = mutableIssues.any { it.severity == Severity.Fatal }
+
+  constructor() : this(mutableIssues = mutableListOf())
 
   private fun copy(
     url: String? = this.url,
     path: String? = this.path,
     href: String? = this.href,
+    severity: Severity = this.severity,
   ) = IssueCollector(
-    issues = issues,
+    mutableIssues = mutableIssues,
     url = url,
     path = path,
     href = href,
+    severity = severity,
   )
 
   fun add(message: String, exception: Throwable? = null) {
-    issues += Issue(
+    mutableIssues += Issue(
       message = message,
       url = url,
       path = path,
       href = href,
+      severity = severity,
       exception = exception,
     )
   }
+
+  fun severity(severity: Severity) = copy(severity = severity)
 
   fun url(url: String) = copy(url = url)
 
