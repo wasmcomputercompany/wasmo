@@ -21,6 +21,7 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
+import okhttp3.MediaType.Companion.toMediaType
 
 class InstallAppFromFileSystemTest {
   @InterceptTest
@@ -59,6 +60,7 @@ class InstallAppFromFileSystemTest {
     assertThat(response)
       .isEqualTo(
         Response(
+          contentType = "text/html".toMediaType(),
           body = ResponseBodySnapshot("Welcome to the recipes app"),
         ),
       )

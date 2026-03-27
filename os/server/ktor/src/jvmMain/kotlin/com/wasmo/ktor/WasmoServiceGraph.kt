@@ -17,6 +17,8 @@ import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.events.LoggingEventListener
+import com.wasmo.framework.ContentTypeDatabase
+import com.wasmo.framework.MDN
 import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ForHost
@@ -173,6 +175,10 @@ internal interface WasmoServiceGraph {
   fun provideWasmoAppFactories(): Map<AppSlug, WasmoApp.Factory> = mapOf(
     AppSlug("journal") to JournalWasmoApp.Factory(),
   )
+
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideContentTypeDatabase(): ContentTypeDatabase = ContentTypeDatabase.MDN
 
   @Binds
   fun bind(real: MemoryJobQueue<InstallAppJobId>): JobQueue<InstallAppJobId>

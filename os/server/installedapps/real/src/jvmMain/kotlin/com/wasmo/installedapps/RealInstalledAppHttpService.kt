@@ -1,5 +1,6 @@
 package com.wasmo.installedapps
 
+import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
@@ -27,6 +28,7 @@ class RealInstalledAppHttpService(
   private val pathMatcher: PathMatcher,
   private val appManifest: AppManifest,
   private val appSlug: AppSlug,
+  private val contentTypeDatabase: ContentTypeDatabase,
 ) : InstalledAppHttpService {
   override suspend fun execute(request: Request): Response<ResponseBody> {
     val urlPath = request.url.encodedPath
@@ -40,6 +42,7 @@ class RealInstalledAppHttpService(
         ?: throw NotFoundUserException()
       return Response(
         headers = listOf(),
+        contentType = contentTypeDatabase[match.path],
         body = ResponseBody {
           it.write(resource)
         },

@@ -12,6 +12,8 @@ import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
+import com.wasmo.framework.ContentTypeDatabase
+import com.wasmo.framework.MDN
 import com.wasmo.identifiers.ForHost
 import com.wasmo.identifiers.InstallAppJobId
 import com.wasmo.installedapps.InstalledAppBindings
@@ -120,6 +122,10 @@ interface ServiceTesterGraph {
   @Provides
   @SingleIn(AppScope::class)
   fun provideFakeObjectStore(): FakeObjectStore = FakeObjectStore()
+
+  @Provides
+  @SingleIn(AppScope::class)
+  fun provideContentTypeDatabase(): ContentTypeDatabase = ContentTypeDatabase.MDN
 
   @Binds
   fun bindJobQueueEventListener(real: JobQueueTester): JobQueueEventListener

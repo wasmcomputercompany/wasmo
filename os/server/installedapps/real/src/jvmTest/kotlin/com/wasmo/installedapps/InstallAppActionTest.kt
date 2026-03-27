@@ -15,6 +15,7 @@ import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
+import okhttp3.MediaType.Companion.toMediaType
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.http.FakeHttpService
 import wasmo.http.HttpResponse
@@ -61,6 +62,7 @@ class InstallAppActionTest {
     assertThat(response)
       .isEqualTo(
         Response(
+          contentType = "text/html".toMediaType(),
           body = ResponseBodySnapshot("Welcome to the recipes app"),
         ),
       )
