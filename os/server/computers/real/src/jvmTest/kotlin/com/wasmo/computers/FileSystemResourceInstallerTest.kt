@@ -64,7 +64,7 @@ class FileSystemResourceInstallerTest {
       external_resource = listOf(
         ExternalResource(
           from = "/Media/sound-effects",
-          to = "sounds",
+          to = "/sounds",
           include = listOf("**/*.mp3", "**/*.midi"),
         ),
       ),
@@ -98,7 +98,7 @@ class FileSystemResourceInstallerTest {
       external_resource = listOf(
         ExternalResource(
           from = "/Media/sound-effects",
-          to = "sounds",
+          to = "/sounds",
           include = listOf("**/*.mp3", "**/*.midi"),
         ),
       ),
@@ -138,7 +138,7 @@ class FileSystemResourceInstallerTest {
       external_resource = listOf(
         ExternalResource(
           from = "/Media/sound-effects",
-          to = "sounds",
+          to = "/sounds",
           include = listOf("**/*.mp3", "**/*.midi"),
         ),
       ),
