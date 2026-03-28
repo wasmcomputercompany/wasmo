@@ -32,6 +32,9 @@ abstract class WasmoFileTask : DefaultTask() {
 
   @TaskAction
   fun task() {
+    // TODO: call the moose cli
+    // https://github.com/cashapp/redwood/blob/trunk/redwood-gradle-plugin/src/main/kotlin/app/cash/redwood/gradle/RedwoodGeneratorTask.kt
+
     val fileSystem = FileSystem.SYSTEM
     val inputDirectoryPath = inputDirectory.asFile.get().toOkioPath()
     val outputDirectoryPath = outputDirectory.asFile.get().toOkioPath()

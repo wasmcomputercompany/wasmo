@@ -1,6 +1,6 @@
 plugins {
-  alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.kotlin.jvm)
+  id("org.gradle.application")
   id("wasmo-build")
 }
 
@@ -8,21 +8,16 @@ wasmoBuild {
   libraryJvm()
 }
 
-kotlin {
-  sourceSets {
-    jvmMain {
-      dependencies {
-        implementation(libs.clikt)
-        implementation(libs.okio)
-        implementation(libs.tomlkt)
-        implementation(project(":platform:issues"))
-        implementation(project(":platform:packaging"))
-      }
-    }
-    jvmTest {
-      dependencies {
-        implementation(libs.okio.fakefilesystem)
-      }
-    }
-  }
+application {
+  applicationName = "moose"
+  mainClass.set("com.wasmo.cli.WasmoCommandKt")
+}
+
+dependencies {
+  implementation(libs.clikt)
+  implementation(libs.okio)
+  implementation(libs.tomlkt)
+  implementation(project(":platform:issues"))
+  implementation(project(":platform:packaging"))
+  testImplementation(libs.okio.fakefilesystem)
 }
