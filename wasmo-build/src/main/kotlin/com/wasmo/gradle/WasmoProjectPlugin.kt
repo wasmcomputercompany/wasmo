@@ -1,13 +1,18 @@
 package com.wasmo.gradle
 
 import org.gradle.accessors.dm.LibrariesForLibs
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.attributes.Usage
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.Sync
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.project
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
@@ -152,6 +157,26 @@ internal class RealWasmoBuildExtension(
       jsResources.outgoing.artifact(
         project.tasks.named(artifactTaskName).map { (it as Sync).destinationDir },
       )
+    }
+  }
+
+  override fun createWasmoFileTask(slug: String): TaskProvider<WasmoFileTask> {
+    val cliConfiguration = try {
+      project.configurations.create("cliConfiguration") {
+        isCanBeResolved = true
+      }.also { cliConfiguration ->
+        project.dependencies {
+          cliConfiguration(project(":os:cli"))
+        }
+      }
+    } catch (_: InvalidUserDataException) {
+      // This configuration already exists.
+      project.configurations.named("cliConfiguration")
+    }
+
+    return project.tasks.register("${slug}DotWasmo", WasmoFileTask::class) {
+      classpath.setFrom(cliConfiguration)
+      setSlug(slug)
     }
   }
 }

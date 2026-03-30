@@ -28,7 +28,7 @@ fun InstallAppDialog(
 ) {
   val formState = model?.formState ?: FormState.Busy
   var appUrlState by remember {
-    mutableStateOf("http://wasmo.localhost:8080/journal/journal.wasmo.toml")
+    mutableStateOf("http://wasmo.localhost:8080/journal/journal.wasmo")
   }
   var appSlugState by remember {
     mutableStateOf("journal")

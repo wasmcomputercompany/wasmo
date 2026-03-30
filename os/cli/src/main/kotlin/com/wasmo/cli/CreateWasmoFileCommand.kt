@@ -17,7 +17,7 @@ class CreateWasmoFileCommand : CliktCommand(
     .path(mustExist = true, canBeFile = true, canBeDir = true)
     .help("either a directory containing a wasmo-manifest.toml file, or a wasmo-manifest.toml file")
   val outputFile: Path by argument()
-    .path(canBeDir = false, mustBeWritable = true)
+    .path(canBeDir = false)
     .help("location of the output .wasmo archive")
 
   override fun run() {

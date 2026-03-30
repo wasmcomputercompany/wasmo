@@ -9,6 +9,15 @@ wasmoBuild {
   consumeJsResources("static/journal/assets")
 }
 
+val journalDotWasmo = wasmoBuild.createWasmoFileTask("journal")
+  .apply {
+    // Force the JS artifacts to build. This is pretty clumsy because we also package the .js in the
+    // server artifact, which it doesn't need.
+    configure {
+      dependsOn("copyJsResources")
+    }
+  }
+
 kotlin {
   sourceSets {
     val jvmMain by getting {
@@ -24,6 +33,7 @@ kotlin {
         implementation(project(":os:tokens"))
         implementation(project(":platform:api"))
         implementation(project(":platform:sqldelight"))
+        resources.srcDir(journalDotWasmo)
       }
     }
     val jvmTest by getting {

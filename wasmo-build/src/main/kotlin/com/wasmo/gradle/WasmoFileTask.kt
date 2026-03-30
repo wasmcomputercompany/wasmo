@@ -1,26 +1,28 @@
 package com.wasmo.gradle
 
-import java.io.FileNotFoundException
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-import okio.FileSystem
-import okio.Path.Companion.toOkioPath
-import okio.sink
+import java.io.File
+import javax.inject.Inject
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 
 /**
- * Zips the contents of a directory to create a `.wasmo` file.
- *
- * Later this should confirm the existence of a `wasmo-manifest.toml` file, and include its external
- * resources.
+ * Runs the `create-wasmo-file` CLI.
  */
 abstract class WasmoFileTask : DefaultTask() {
+  @get:Inject
+  abstract val execOperations: ExecOperations
+
+  @get:Classpath
+  abstract val classpath: ConfigurableFileCollection
+
   @get:InputDirectory
   abstract val inputDirectory: DirectoryProperty
 
@@ -30,32 +32,27 @@ abstract class WasmoFileTask : DefaultTask() {
   @get:Input
   abstract val wasmoFilePath: Property<String>
 
+  init {
+    group = "wasmo"
+    description = "builds a .wasmo archive from a directory"
+  }
+
+  fun setSlug(slug: String) {
+    inputDirectory.set(File(project.projectDir, "$slug.wasmo"))
+    outputDirectory.set(project.layout.buildDirectory.dir("wasmo/$slug"))
+    wasmoFilePath.set("static/$slug/$slug.wasmo")
+  }
+
   @TaskAction
   fun task() {
-    // TODO: call the moose cli
-    // https://github.com/cashapp/redwood/blob/trunk/redwood-gradle-plugin/src/main/kotlin/app/cash/redwood/gradle/RedwoodGeneratorTask.kt
-
-    val fileSystem = FileSystem.SYSTEM
-    val inputDirectoryPath = inputDirectory.asFile.get().toOkioPath()
-    val outputDirectoryPath = outputDirectory.asFile.get().toOkioPath()
-    val outputFilePath = outputDirectoryPath / wasmoFilePath.get()
-
-    fileSystem.deleteRecursively(outputDirectoryPath)
-    fileSystem.createDirectories(outputFilePath.parent!!)
-
-    fileSystem.write(outputFilePath) {
-      ZipOutputStream(outputStream()).use { zipOutputStream ->
-        for (path in fileSystem.listRecursively(inputDirectoryPath)) {
-          try {
-            fileSystem.read(path) {
-              zipOutputStream.putNextEntry(ZipEntry(path.relativeTo(inputDirectoryPath).toString()))
-              readAll(zipOutputStream.sink())
-            }
-          } catch (_: FileNotFoundException) {
-            // Probably a directory entry.
-          }
-        }
-      }
+    execOperations.javaexec {
+      classpath(this@WasmoFileTask.classpath)
+      mainClass.set("com.wasmo.cli.WasmoCommandKt")
+      args = listOf(
+        "create-wasmo-file",
+        "${inputDirectory.get()}",
+        "${outputDirectory.get()}/${wasmoFilePath.get()}",
+      )
     }
   }
 }
