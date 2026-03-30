@@ -52,5 +52,5 @@ kotlin {
 }
 
 dependencies {
-  add("jsResources", project(":apps:journal:client"))
+  add("jsResources", project(":apps:journal:admin-web-app"))
 }

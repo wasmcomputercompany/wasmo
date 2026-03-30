@@ -16,6 +16,7 @@ dependencies {
   add("jsResources", project(":os:client:app-development"))
   implementation(libs.okhttp)
   implementation(libs.okio)
+  implementation(project(":apps:journal:wasmo-app"))
   implementation(project(":apps:samples"))
   implementation(project(":os:api"))
   implementation(project(":os:catalog"))

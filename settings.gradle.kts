@@ -30,10 +30,10 @@ dependencyResolutionManagement {
   }
 }
 
+include(":apps:journal:admin-web-app")
 include(":apps:journal:api")
-include(":apps:journal:client")
 include(":apps:journal:db")
-include(":apps:journal:server")
+include(":apps:journal:wasmo-app")
 include(":apps:samples")
 include(":dom-tester")
 include(":os:api")

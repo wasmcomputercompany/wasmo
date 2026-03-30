@@ -2,7 +2,7 @@ target = 'https://wasmo.com/sdk/1'
 version = 1
 
 [[external_resource]]
-from = '../../client/build/dist/js/productionExecutable'
+from = '../../admin-web-app/build/dist/js/productionExecutable'
 to = '/assets'
 include = ['**/*.js', '**/*.js.map']
 

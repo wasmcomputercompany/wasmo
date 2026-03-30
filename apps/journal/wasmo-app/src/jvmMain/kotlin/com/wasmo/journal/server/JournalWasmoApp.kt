@@ -7,6 +7,7 @@ import com.wasmo.journal.api.ListEntriesResponse
 import com.wasmo.journal.api.SaveEntryRequest
 import com.wasmo.journal.api.SaveEntryResponse
 import com.wasmo.journal.db.JournalDbService
+import com.wasmo.journal.server.admin.AdminPageAction
 import com.wasmo.journal.server.admin.GetEntryAction
 import com.wasmo.journal.server.admin.ListEntriesAction
 import com.wasmo.journal.server.admin.SaveEntryAction
@@ -33,7 +34,7 @@ class JournalWasmoApp(
   override val httpService: HttpService
     get() = this
 
-  fun homePage() = HomePage()
+  fun adminPageAction() = AdminPageAction()
 
   fun listEntriesAction() = ListEntriesAction(
     journalDb = journalDb,
@@ -66,15 +67,13 @@ class JournalWasmoApp(
 
   override suspend fun execute(request: HttpRequest): HttpResponse {
     if (request.method == "POST") {
-      val saveEntryMatch = SaveEntryAction.PathRegex.matchEntire(request.url.encodedPath)
-      if (saveEntryMatch != null) {
+      SaveEntryAction.PathRegex.matchEntire(request.url.encodedPath)?.let { match ->
         return postApi<SaveEntryRequest, SaveEntryResponse>(request) { requestBody ->
-          saveEntryAction().save(saveEntryMatch, requestBody)
+          saveEntryAction().save(match, requestBody)
         }
       }
 
-      val listEntriesMatch = ListEntriesAction.PathRegex.matchEntire(request.url.encodedPath)
-      if (listEntriesMatch != null) {
+      ListEntriesAction.PathRegex.matchEntire(request.url.encodedPath)?.let {
         return postApi<ListEntriesRequest, ListEntriesResponse>(request) {
           listEntriesAction().list(it)
         }
@@ -82,15 +81,17 @@ class JournalWasmoApp(
     }
 
     if (request.method == "GET") {
-      val homeMatch = HomePage.PathRegex.matchEntire(request.url.encodedPath)
-      if (homeMatch != null) {
-        return homePage().home()
+      AdminPageAction.AdminHomePathRegex.matchEntire(request.url.encodedPath)?.let {
+        return adminPageAction().admin()
       }
 
-      val getEntryMatch = GetEntryAction.PathRegex.matchEntire(request.url.encodedPath)
-      if (getEntryMatch != null) {
+      AdminPageAction.AdminEntryPathRegex.matchEntire(request.url.encodedPath)?.let {
+        return adminPageAction().admin()
+      }
+
+      GetEntryAction.PathRegex.matchEntire(request.url.encodedPath)?.let { match ->
         return getApi<EntrySnapshot> {
-          getEntryAction().get(getEntryMatch)
+          getEntryAction().get(match)
         }
       }
     }

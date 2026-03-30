@@ -1,4 +1,4 @@
-package com.wasmo.journal.server
+package com.wasmo.journal.server.admin
 
 import java.io.StringWriter
 import kotlinx.html.body
@@ -14,19 +14,19 @@ import okio.ByteString.Companion.encodeUtf8
 import wasmo.http.Header
 import wasmo.http.HttpResponse
 
-class HomePage {
-  suspend fun home(): HttpResponse {
+class AdminPageAction {
+  suspend fun admin(): HttpResponse {
     val appendable = StringWriter()
     appendable.write("<!DOCTYPE html>")
     appendable.appendHTML().html {
       head {
         meta(charset = "utf-8")
         title("Journal")
-        script(src = "/assets/journal.js") {}
-        link(rel = "stylesheet", href = "/assets/journal.css")
+        script(src = "/assets/admin.js") {}
+        link(rel = "stylesheet", href = "/assets/admin.css")
         script {
           unsafe {
-            raw("""journal.startOnLoad();""")
+            raw("""admin.startOnLoad();""")
           }
         }
       }
@@ -43,6 +43,7 @@ class HomePage {
   }
 
   companion object {
-    val PathRegex = Regex("/")
+    val AdminHomePathRegex = Regex("/admin")
+    val AdminEntryPathRegex = Regex("/admin/entries/([^/]+)")
   }
 }

@@ -7,7 +7,7 @@ plugins {
 }
 
 wasmoBuild {
-  applicationJs("journal", "jsBrowserDistribution")
+  applicationJs("admin", "jsBrowserDistribution")
 }
 
 kotlin {
