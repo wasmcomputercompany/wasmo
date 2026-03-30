@@ -25,7 +25,7 @@ data class Header(
 data class HttpResponse(
   val code: Int = 200,
   val headers: List<Header> = listOf(),
-  val body: ByteString,
+  val body: ByteString = ByteString.EMPTY,
 ) {
   val isSuccessful: Boolean
     get() = code in 200..299

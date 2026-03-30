@@ -1,7 +1,9 @@
 package com.wasmo.journal.server.attachments
 
-import com.wasmo.journal.db.JournalDb
+import wasmo.http.Header
 import wasmo.http.HttpResponse
+import wasmo.objectstore.GetObjectRequest
+import wasmo.objectstore.ObjectStore
 
 /**
  * ```
@@ -9,12 +11,29 @@ import wasmo.http.HttpResponse
  * ```
  */
 class GetAttachmentAction(
-  private val journalDb: JournalDb,
+  private val objectStore: ObjectStore,
 ) {
-  suspend fun save(
+  suspend fun get(
     entryToken: String,
     attachmentToken: String,
   ): HttpResponse {
-    TODO()
+    val response = objectStore.get(
+      GetObjectRequest(
+        key = "attachments/${entryToken}/${attachmentToken}",
+      ),
+    )
+
+    val value = response.value
+      ?: return HttpResponse(code = 404)
+
+    val headers = mutableListOf<Header>()
+    response.contentType?.let { contentType ->
+      headers += Header("content-type", contentType)
+    }
+
+    return HttpResponse(
+      headers = headers,
+      body = value,
+    )
   }
 }

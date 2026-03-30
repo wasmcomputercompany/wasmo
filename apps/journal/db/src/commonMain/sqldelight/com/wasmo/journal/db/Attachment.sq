@@ -1,0 +1,20 @@
+insertAttachment:
+INSERT INTO Attachment(
+  entry_token,
+  attachment_token,
+  posted_at
+)
+VALUES (
+  :entry_token,
+  :attachment_token,
+  :posted_at
+);
+
+selectAttachmentsByEntryToken:
+SELECT *
+FROM Attachment
+WHERE entry_token = :entry_token
+ORDER BY
+  posted_at,
+  attachment_token
+LIMIT :limit;

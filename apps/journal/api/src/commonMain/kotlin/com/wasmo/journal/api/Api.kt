@@ -13,7 +13,7 @@ data class EntrySnapshot(
   val title: String,
   val date: Instant,
   val body: String,
-  val attachments: List<Attachment> = listOf(),
+  val attachments: List<AttachmentSnapshot> = listOf(),
 )
 
 @Serializable
@@ -39,7 +39,7 @@ sealed class SaveEntryError {
 }
 
 @Serializable
-data class Attachment(
+data class AttachmentSnapshot(
   val token: String,
 )
 

@@ -48,11 +48,13 @@ class JournalWasmoApp(
   )
 
   fun getAttachmentAction() = GetAttachmentAction(
-    journalDb = journalDb,
+    objectStore = objectStore,
   )
 
   fun postAttachmentAction() = PostAttachmentAction(
+    clock = clock,
     journalDb = journalDb,
+    objectStore = objectStore,
   )
 
   override suspend fun afterInstall(
