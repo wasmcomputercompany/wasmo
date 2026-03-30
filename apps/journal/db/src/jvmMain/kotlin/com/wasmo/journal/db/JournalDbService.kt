@@ -1,13 +1,15 @@
 package com.wasmo.journal.db
 
 import app.cash.sqldelight.ColumnAdapter
+import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
+import com.wasmo.journal.api.Visibility
 import java.io.Closeable
 import kotlin.time.Instant
 
 class JournalDbService(
   private val driver: SqlDriver,
-) : JournalDb by JournalDb.Companion(driver, PersonAdapter), Closeable by driver {
+) : JournalDb by JournalDb.Companion(driver, EntryAdapter), Closeable by driver {
 
   suspend fun migrate() {
     JournalDb.Schema.migrate(driver, 0L, JournalDb.Schema.version).await()
@@ -19,14 +21,15 @@ class JournalDbService(
       override fun encode(value: Instant) = value.toString()
     }
 
-    private object PersonIdAdapter : ColumnAdapter<PersonId, Long> {
-      override fun decode(databaseValue: Long) = PersonId(databaseValue)
-      override fun encode(value: PersonId) = value.id
+    private object EntryIdAdapter : ColumnAdapter<EntryId, Long> {
+      override fun decode(databaseValue: Long) = EntryId(databaseValue)
+      override fun encode(value: EntryId) = value.id
     }
 
-    private val PersonAdapter = Person.Adapter(
-      idAdapter = PersonIdAdapter,
-      created_atAdapter = InstantAdapter,
+    private val EntryAdapter = Entry.Adapter(
+      idAdapter = EntryIdAdapter,
+      dateAdapter = InstantAdapter,
+      visibilityAdapter = EnumColumnAdapter<Visibility>(),
     )
   }
 }

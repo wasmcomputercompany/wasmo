@@ -13,6 +13,7 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(libs.okio)
+        implementation(project(":apps:journal:api"))
         implementation(project(":platform:api"))
         implementation(project(":platform:sqldelight"))
       }

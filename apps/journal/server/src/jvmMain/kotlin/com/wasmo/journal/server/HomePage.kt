@@ -14,7 +14,7 @@ import okio.ByteString.Companion.encodeUtf8
 import wasmo.http.Header
 import wasmo.http.HttpResponse
 
-class HomeAction {
+class HomePage {
   suspend fun home(): HttpResponse {
     val appendable = StringWriter()
     appendable.write("<!DOCTYPE html>")
@@ -40,5 +40,9 @@ class HomeAction {
       ),
       body = appendable.toString().encodeUtf8(),
     )
+  }
+
+  companion object {
+    val PathRegex = Regex("/")
   }
 }

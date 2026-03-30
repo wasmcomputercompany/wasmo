@@ -1,0 +1,44 @@
+insertEntry:
+INSERT INTO Entry(
+  token,
+  version,
+  visibility,
+  date,
+  slug,
+  title,
+  body
+)
+VALUES (
+  :token,
+  :version,
+  :visibility,
+  :date,
+  :slug,
+  :title,
+  :body
+);
+
+saveEntry:
+UPDATE Entry
+SET
+  version = :new_version,
+  visibility = :new_visibility,
+  date = :new_date,
+  slug = :new_slug,
+  title = :new_title,
+  body = :new_body
+WHERE
+  version = :expected_version AND
+  token = :token;
+
+findEntries:
+SELECT *
+FROM Entry
+ORDER BY
+  date DESC
+LIMIT :limit;
+
+findEntryByToken:
+SELECT *
+FROM Entry
+WHERE token = :token;
