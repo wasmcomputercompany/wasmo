@@ -5,7 +5,7 @@ import com.wasmo.domtester.SnapshotTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
-class EditEntryTest {
+class EntryListTest {
   @InterceptTest
   val snapshotTester = SnapshotTester(
     stylesheetsUrls = listOf(
@@ -16,14 +16,14 @@ class EditEntryTest {
 
   @Test
   fun happyPath() = runTest {
-    val sample = SampleEntries.WasmIsLikeJson
     snapshotTester.snapshot {
-      EditEntry(
-        saveState = SaveState.Saved,
-        title = sample.title,
-        slug = sample.slug,
-        visibility = sample.visibility,
-        body = sample.body,
+      EntryList(
+        entries = listOf(
+          SampleEntries.WasmIsLikeJson.toSummary(),
+          SampleEntries.MultipleColumnInClause.toSummary(),
+          SampleEntries.WasmIsLikeJson.toSummary(),
+          SampleEntries.MultipleColumnInClause.toSummary(),
+        ),
         eventListener = {},
       )
     }
