@@ -18,6 +18,7 @@ import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
+import org.jetbrains.compose.web.dom.A
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Input
@@ -49,7 +50,22 @@ fun EditEntry(
       attrs()
     },
   ) {
+    A(
+      attrs = {
+        onClick {
+          eventListener(EditEntryEvent.ClickBack)
+        }
+      }
+    ) {
+      Text("<- Back")
+    }
+
     when (saveState) {
+      SaveState.Loading -> {
+        P {
+          Text("loading...")
+        }
+      }
       is SaveState.Error -> {
         P {
           Text("save error")
@@ -60,7 +76,7 @@ fun EditEntry(
           Text("saved")
         }
       }
-      SaveState.Saving -> {
+      SaveState.Dirty -> {
         P {
           Text("saving...")
         }
@@ -133,13 +149,8 @@ fun EditEntry(
   }
 }
 
-sealed interface SaveState {
-  data object Saved : SaveState
-  data object Saving : SaveState
-  data class Error(val message: String) : SaveState
-}
-
 sealed interface EditEntryEvent {
+  data object ClickBack: EditEntryEvent
   data class EditTitle(val value: String): EditEntryEvent
   data class EditSlug(val value: String): EditEntryEvent
   data class EditBody(val value: String): EditEntryEvent
