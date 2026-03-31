@@ -29,7 +29,7 @@ import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun EditEntry(
-  saveState: SaveState,
+  syncState: SyncState,
   title: String,
   slug: String,
   body: String,
@@ -60,23 +60,23 @@ fun EditEntry(
       Text("<- Back")
     }
 
-    when (saveState) {
-      SaveState.Loading -> {
+    when (syncState) {
+      SyncState.Loading -> {
         P {
           Text("loading...")
         }
       }
-      is SaveState.Error -> {
+      is SyncState.Error -> {
         P {
           Text("save error")
         }
       }
-      SaveState.Saved -> {
+      SyncState.Ready -> {
         P {
           Text("saved")
         }
       }
-      SaveState.Dirty -> {
+      SyncState.Dirty -> {
         P {
           Text("saving...")
         }

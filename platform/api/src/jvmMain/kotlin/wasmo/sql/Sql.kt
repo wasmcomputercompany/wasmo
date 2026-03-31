@@ -35,7 +35,13 @@ interface SqlConnection : Closeable {
   ): RowIterator
 }
 
-class SqlException(message: String?) : Exception(message)
+open class SqlException(
+  message: String?,
+) : Exception(message)
+
+class ConstraintViolationException(
+  val constraintName: String,
+) : SqlException("violated constraint: $constraintName")
 
 interface RowIterator : Closeable {
   /** Returns null if there is no next row. */

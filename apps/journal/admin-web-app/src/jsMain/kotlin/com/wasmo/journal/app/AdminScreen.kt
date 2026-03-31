@@ -1,10 +1,9 @@
 package com.wasmo.journal.app
 
 import androidx.compose.runtime.Composable
-import com.wasmo.journal.api.EntrySummary
-import com.wasmo.journal.api.Visibility
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.wasmo.journal.app.util.Router
-import kotlin.time.Instant
 
 class AdminScreen(
   private val journalDataService: JournalDataService,
@@ -12,18 +11,10 @@ class AdminScreen(
 ) {
   @Composable
   fun Show() {
-    val entries = listOf(
-      EntrySummary(
-        token = "aaaaabbbbbcccccdddddeeeee",
-        visibility = Visibility.Private,
-        slug = "wasm",
-        title = "WebAssembly is like JSON for behaviour",
-        date = Instant.fromEpochSeconds(0L),
-      ),
-    )
+    val listViewModel by journalDataService.summaries.value.collectAsState()
 
     EntryList(
-      entries = entries,
+      entries = listViewModel.entries,
       eventListener = { event ->
         when (event) {
           is EntryListEvent.ClickEntry -> {

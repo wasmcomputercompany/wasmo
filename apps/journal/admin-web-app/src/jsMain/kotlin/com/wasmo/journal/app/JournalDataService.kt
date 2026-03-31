@@ -52,12 +52,47 @@ class JournalDataService(
   }
 
   inner class EntrySummariesService {
-    val value = MutableStateFlow<List<EntrySummary>>(listOf())
+    private val mutableValue = MutableStateFlow(
+      EntryListViewModel(
+        syncState = SyncState.Loading,
+        entries = listOf(),
+      ),
+    )
+
+    val value: StateFlow<EntryListViewModel>
+      get() = mutableValue
+
+    fun onEntrySaved(entry: EntrySnapshot) {
+      mutableValue.update { oldViewModel ->
+        val index = oldViewModel.entries.indexOfFirst { it.token == entry.token }
+        if (index == -1) {
+          oldViewModel.copy(
+            entries = listOf(entry.toSummary()) + oldViewModel.entries,
+            syncState = SyncState.Loading,
+          )
+        } else {
+          val newEntries = oldViewModel.entries.toMutableList()
+          newEntries[index] = entry.toSummary()
+          oldViewModel.copy(entries = newEntries)
+        }
+      }
+    }
 
     fun start() {
       scope.launch {
-        val response = api.listEntries(ListEntriesRequest())
-        value.value = response.entries
+        value
+          .filter { it.syncState == SyncState.Loading }
+          .collectLatest { viewModel ->
+            val response = api.listEntries(ListEntriesRequest())
+            mutableValue.value = EntryListViewModel(
+              syncState = SyncState.Ready,
+              entries = response.entries,
+            )
+
+            mutableValue.update {
+              if (it == viewModel) it.copy(syncState = SyncState.Ready) else it
+            }
+          }
       }
     }
   }
@@ -67,8 +102,8 @@ class JournalDataService(
     val initialValue: EntrySnapshot? = null,
   ) {
     private val mutableValue = MutableStateFlow(
-      initialValue?.toViewModel(SaveState.Saved)
-        ?: EntryViewModel(saveState = SaveState.Loading),
+      initialValue?.toViewModel(SyncState.Ready)
+        ?: EntryViewModel(syncState = SyncState.Loading),
     )
 
     val value: StateFlow<EntryViewModel>
@@ -77,7 +112,7 @@ class JournalDataService(
     fun setVisibility(visibility: Visibility) {
       mutableValue.update {
         it.copy(
-          saveState = SaveState.Dirty,
+          syncState = SyncState.Dirty,
           visibility = visibility,
         )
       }
@@ -86,7 +121,7 @@ class JournalDataService(
     fun setSlug(slug: String) {
       mutableValue.update {
         it.copy(
-          saveState = SaveState.Dirty,
+          syncState = SyncState.Dirty,
           slug = slug,
         )
       }
@@ -95,7 +130,7 @@ class JournalDataService(
     fun setTitle(title: String) {
       mutableValue.update {
         it.copy(
-          saveState = SaveState.Dirty,
+          syncState = SyncState.Dirty,
           title = title,
         )
       }
@@ -104,7 +139,7 @@ class JournalDataService(
     fun setBody(body: String) {
       mutableValue.update {
         it.copy(
-          saveState = SaveState.Dirty,
+          syncState = SyncState.Dirty,
           body = body,
         )
       }
@@ -115,13 +150,13 @@ class JournalDataService(
         var latest = initialValue
           ?: run {
             val response = api.getEntry(token)
-            mutableValue.value = response.toViewModel(SaveState.Saved)
+            mutableValue.value = response.toViewModel(SyncState.Ready)
             response
           }
 
         value
           .debounce(500.milliseconds)
-          .filter { it.saveState == SaveState.Dirty }
+          .filter { it.syncState == SyncState.Dirty }
           .collectLatest { viewModel ->
             val request = SaveEntryRequest(
               expectedVersion = latest.version,
@@ -135,23 +170,40 @@ class JournalDataService(
             )
 
             if (request.entry != latest) {
-              api.saveEntry(token, request)
+              try {
+                api.saveEntry(token, request)
+              } catch (e: Exception) {
+                mutableValue.update {
+                  it.copy(syncState = SyncState.Error(message = e.toString()))
+                }
+                return@collectLatest
+              }
               latest = request.entry
+
+              summaries.onEntrySaved(request.entry)
             }
 
             mutableValue.update {
-              if (it == viewModel) it.copy(saveState = SaveState.Saved) else it
+              if (it == viewModel) it.copy(syncState = SyncState.Ready) else it
             }
           }
       }
     }
   }
 
-  private fun EntrySnapshot.toViewModel(saveState: SaveState) = EntryViewModel(
-    saveState = saveState,
+  private fun EntrySnapshot.toViewModel(syncState: SyncState) = EntryViewModel(
+    syncState = syncState,
     visibility = visibility,
     slug = slug,
     title = title,
     body = body,
+  )
+
+  private fun EntrySnapshot.toSummary() = EntrySummary(
+    token = token,
+    visibility = visibility,
+    slug = slug,
+    title = title,
+    date = date,
   )
 }

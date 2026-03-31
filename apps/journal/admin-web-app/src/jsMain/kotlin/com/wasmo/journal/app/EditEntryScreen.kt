@@ -15,7 +15,7 @@ class EditEntryScreen(
   fun Show() {
     val viewModel by entryDataService.value.collectAsState()
     EditEntry(
-      saveState = viewModel.saveState,
+      syncState = viewModel.syncState,
       title = viewModel.title,
       slug = viewModel.slug,
       visibility = viewModel.visibility,

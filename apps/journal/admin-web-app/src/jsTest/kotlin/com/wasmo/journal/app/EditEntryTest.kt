@@ -19,7 +19,7 @@ class EditEntryTest {
     val sample = SampleEntries.WasmIsLikeJson
     snapshotTester.snapshot {
       EditEntry(
-        saveState = SaveState.Saved,
+        syncState = SyncState.Ready,
         title = sample.title,
         slug = sample.slug,
         visibility = sample.visibility,
