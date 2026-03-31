@@ -3,11 +3,17 @@ plugins {
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
+  alias(libs.plugins.burst)
   id("wasmo-build")
+  id("dom-tester")
 }
 
 wasmoBuild {
   applicationJs("admin", "jsBrowserDistribution")
+}
+
+domTester {
+  domTester()
 }
 
 kotlin {
@@ -22,6 +28,13 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
         implementation(project(":apps:journal:api"))
+      }
+    }
+    val jsTest by getting {
+      dependencies {
+        implementation(libs.burst.coroutines)
+        implementation(libs.kotlinx.coroutines.test)
+        implementation(project(":dom-tester"))
       }
     }
   }

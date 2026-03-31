@@ -39,18 +39,18 @@ internal class RealWasmoBuildExtension(
   private val libs: LibrariesForLibs,
 ) : WasmoBuildExtension {
   override fun libraryJs() {
-    libraryMultiplatform(js = true)
+    multiplatformConvention(js = true)
   }
 
   override fun libraryJvmJs() {
-    libraryMultiplatform(jvm = true, js = true)
+    multiplatformConvention(jvm = true, js = true)
   }
 
   override fun libraryJvm() {
-    libraryMultiplatform(jvm = true)
+    multiplatformConvention(jvm = true)
   }
 
-  private fun libraryMultiplatform(
+  private fun multiplatformConvention(
     jvm: Boolean = false,
     js: Boolean = false,
   ) {
@@ -124,6 +124,8 @@ internal class RealWasmoBuildExtension(
     name: String,
     artifactTaskName: String,
   ) {
+    multiplatformConvention(js = true)
+
     val jsResources = project.configurations.create("jsResources") {
       isCanBeResolved = false
       isCanBeConsumed = true
