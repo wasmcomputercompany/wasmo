@@ -33,6 +33,7 @@ kotlin {
         implementation(libs.sqldelight.jdbc.driver)
         implementation(libs.stripe)
         implementation(project(":apps:journal:wasmo-app"))
+        implementation(project(":identifiers"))
         implementation(project(":os:api"))
         implementation(project(":os:catalog"))
         implementation(project(":os:client:app"))
@@ -67,15 +68,14 @@ kotlin {
         implementation(project(":os:server:sql:api"))
         implementation(project(":os:server:sql:jdbc"))
         implementation(project(":os:server:sql:r2dbc"))
-        implementation(project(":os:server:website:api"))
-        implementation(project(":os:server:website:real"))
         implementation(project(":os:server:wasm:api"))
         implementation(project(":os:server:wasm:jvm"))
-        implementation(project(":os:tokens"))
-        implementation(project(":identifiers"))
+        implementation(project(":os:server:website:api"))
+        implementation(project(":os:server:website:real"))
         implementation(project(":platform:api"))
         implementation(project(":platform:issues"))
         implementation(project(":platform:packaging"))
+        implementation(project(":support:tokens"))
       }
     }
   }

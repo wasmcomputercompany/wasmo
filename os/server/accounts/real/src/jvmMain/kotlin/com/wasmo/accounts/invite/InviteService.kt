@@ -3,10 +3,10 @@ package com.wasmo.accounts.invite
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.api.InviteTicket
-import com.wasmo.common.tokens.newToken
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.NotFoundUserException
+import com.wasmo.support.tokens.newToken
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

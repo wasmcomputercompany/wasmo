@@ -1,7 +1,7 @@
 package com.wasmo.objectstore.filesystem
 
-import com.wasmo.common.tokens.newToken
 import com.wasmo.objectstore.AbstractObjectStoreTest
+import com.wasmo.support.tokens.newToken
 import kotlin.test.AfterTest
 import okio.FileSystem
 

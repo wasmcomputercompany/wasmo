@@ -1,4 +1,4 @@
-package com.wasmo.common.tokens
+package com.wasmo.support.tokens
 
 import java.security.SecureRandom
 

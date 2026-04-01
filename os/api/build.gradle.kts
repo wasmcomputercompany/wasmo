@@ -17,9 +17,9 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
         implementation(project(":os:json"))
-        implementation(project(":os:tokens"))
         implementation(project(":identifiers"))
         implementation(project(":platform:packaging"))
+        implementation(project(":support:tokens"))
       }
     }
     jvmMain {

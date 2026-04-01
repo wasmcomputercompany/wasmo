@@ -5,10 +5,10 @@ import com.wasmo.accounts.SessionCookie
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
-import com.wasmo.common.tokens.newToken
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeEventListener
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.FakePaymentsService

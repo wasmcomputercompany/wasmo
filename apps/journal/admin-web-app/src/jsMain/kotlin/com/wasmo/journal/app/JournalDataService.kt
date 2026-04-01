@@ -1,11 +1,11 @@
 package com.wasmo.journal.app
 
-import com.wasmo.common.tokens.newToken
 import com.wasmo.journal.api.EntrySnapshot
 import com.wasmo.journal.api.EntrySummary
 import com.wasmo.journal.api.ListEntriesRequest
 import com.wasmo.journal.api.SaveEntryRequest
 import com.wasmo.journal.api.Visibility
+import com.wasmo.support.tokens.newToken
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope

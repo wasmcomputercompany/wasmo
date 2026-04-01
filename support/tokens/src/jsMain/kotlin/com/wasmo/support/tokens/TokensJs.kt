@@ -1,4 +1,4 @@
-package com.wasmo.common.tokens
+package com.wasmo.support.tokens
 
 actual fun nextBytes(array: ByteArray) = crypto.getRandomValues(array)
 

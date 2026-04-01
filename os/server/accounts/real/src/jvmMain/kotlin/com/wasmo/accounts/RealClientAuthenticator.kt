@@ -1,9 +1,9 @@
 package com.wasmo.accounts
 
 import com.wasmo.accounts.ClientAuthenticator.UserAgent
-import com.wasmo.common.tokens.newToken
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.UnauthorizedUserException
+import com.wasmo.support.tokens.newToken
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject

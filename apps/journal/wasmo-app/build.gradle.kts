@@ -31,7 +31,7 @@ kotlin {
         implementation(libs.sqldelight.async.extensions)
         implementation(project(":apps:journal:api"))
         implementation(project(":apps:journal:db"))
-        implementation(project(":os:tokens"))
+        implementation(project(":support:tokens"))
         implementation(project(":platform:api"))
         implementation(project(":platform:sqldelight"))
         resources.srcDir(journalDotWasmo)

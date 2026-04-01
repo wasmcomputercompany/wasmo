@@ -16,7 +16,7 @@ import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.app.stripe.CheckoutScreen
 import com.wasmo.client.app.stripe.CheckoutSession
 import com.wasmo.client.framework.Ui
-import com.wasmo.common.tokens.newToken
+import com.wasmo.support.tokens.newToken
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import org.jetbrains.compose.web.attributes.AttrsScope

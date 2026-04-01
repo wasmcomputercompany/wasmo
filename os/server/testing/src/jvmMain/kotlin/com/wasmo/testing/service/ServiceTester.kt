@@ -5,11 +5,11 @@ import app.cash.burst.coroutines.CoroutineTestInterceptor
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
-import com.wasmo.common.tokens.newToken
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.sql.r2dbc.asSqlService
 import com.wasmo.sql.r2dbc.connectPostgresqlAsync
+import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakeEventListener
 import com.wasmo.testing.FakePasskey

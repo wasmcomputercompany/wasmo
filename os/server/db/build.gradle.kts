@@ -18,14 +18,14 @@ kotlin {
         implementation(libs.postgresql)
         implementation(libs.sqldelight.jdbc.driver)
         implementation(libs.tomlkt)
+        implementation(project(":identifiers"))
         implementation(project(":os:api"))
         implementation(project(":os:framework"))
-        implementation(project(":os:tokens"))
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:passkeys:api"))
         implementation(project(":os:server:sql:jdbc"))
-        implementation(project(":identifiers"))
         implementation(project(":platform:packaging"))
+        implementation(project(":support:tokens"))
       }
     }
     val jvmTest by getting {

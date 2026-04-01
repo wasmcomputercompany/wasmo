@@ -28,6 +28,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core.js)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
+        implementation(project(":identifiers"))
         implementation(project(":os:api"))
         implementation(project(":os:client:compose"))
         implementation(project(":os:client:framework"))
@@ -37,8 +38,7 @@ kotlin {
         implementation(project(":os:framework"))
         implementation(project(":os:logging"))
         implementation(project(":os:routes"))
-        implementation(project(":os:tokens"))
-        implementation(project(":identifiers"))
+        implementation(project(":support:tokens"))
       }
     }
     val jsTest by getting {

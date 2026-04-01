@@ -31,8 +31,8 @@ kotlin {
         implementation(project(":os:server:sendemail:api"))
         implementation(project(":os:server:website:api"))
         implementation(project(":os:server:website:real"))
-        implementation(project(":os:tokens"))
         implementation(project(":platform:api"))
+        implementation(project(":support:tokens"))
       }
     }
     val jvmTest by getting {

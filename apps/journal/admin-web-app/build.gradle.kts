@@ -28,7 +28,7 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
         implementation(project(":apps:journal:api"))
-        implementation(project(":os:tokens"))
+        implementation(project(":support:tokens"))
       }
     }
     val jsTest by getting {

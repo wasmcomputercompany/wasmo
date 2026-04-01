@@ -1,4 +1,4 @@
-package com.wasmo.common.tokens
+package com.wasmo.support.tokens
 
 private const val base32 = "0123456789abcdefghjkmnpqrstvwxyz"
 
