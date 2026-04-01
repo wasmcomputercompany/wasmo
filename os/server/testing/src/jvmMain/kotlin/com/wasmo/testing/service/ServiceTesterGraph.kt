@@ -26,7 +26,6 @@ import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.testing.FakeAppPublisher
-import com.wasmo.testing.FakeEventListener
 import com.wasmo.testing.FakePaymentsService
 import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.JobQueueTester
@@ -34,7 +33,7 @@ import com.wasmo.testing.TestDirectory
 import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.client.ClientTester
-import com.wasmo.testing.events.TestEventQueue
+import com.wasmo.testing.events.FakeEventListener
 import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
@@ -81,7 +80,6 @@ interface ServiceTesterGraph {
   val appPublisher: FakeAppPublisher
   val wasmoDb: WasmoDbService
   val sampleApps: SampleApps
-  val testEventQueue: TestEventQueue
 
   @Provides
   @SingleIn(AppScope::class)

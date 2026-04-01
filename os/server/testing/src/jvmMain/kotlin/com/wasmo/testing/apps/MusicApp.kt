@@ -1,12 +1,12 @@
 package com.wasmo.testing.apps
 
+import com.wasmo.events.EventListener
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.TargetSdk1
 import com.wasmo.testing.events.AfterInstallEvent
-import com.wasmo.testing.events.TestEventQueue
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -15,14 +15,14 @@ import wasmo.app.WasmoApp
 import wasmo.http.HttpService
 
 class MusicApp(
-  val eventQueue: TestEventQueue,
+  val eventListener: EventListener,
   val platform: Platform,
 ) : WasmoApp {
   override val httpService: HttpService?
     get() = null
 
   override suspend fun afterInstall(oldVersion: Long, newVersion: Long) {
-    eventQueue.send(
+    eventListener.onEvent(
       AfterInstallEvent(
         appSlug = Slug,
         oldVersion = oldVersion,
@@ -34,7 +34,7 @@ class MusicApp(
   @Inject
   @SingleIn(AppScope::class)
   class Factory(
-    val eventQueue: TestEventQueue,
+    val eventListener: EventListener,
   ) : WasmoApp.Factory {
     val appManifest = AppManifest(
       version = 2L,
@@ -53,7 +53,7 @@ class MusicApp(
     )
 
     override suspend fun create(platform: Platform) = MusicApp(
-      eventQueue = eventQueue,
+      eventListener = eventListener,
       platform = platform,
     )
   }

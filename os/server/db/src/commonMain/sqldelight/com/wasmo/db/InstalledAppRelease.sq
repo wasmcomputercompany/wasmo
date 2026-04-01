@@ -13,3 +13,8 @@ VALUES (
   :app_version,
   :app_manifest_data
 ) RETURNING id;
+
+selectInstalledAppReleaseById:
+SELECT * FROM InstalledAppRelease
+WHERE id = :id
+LIMIT 1;

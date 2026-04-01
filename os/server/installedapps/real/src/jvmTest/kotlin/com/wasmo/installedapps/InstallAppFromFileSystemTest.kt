@@ -48,7 +48,7 @@ class InstallAppFromFileSystemTest {
         ),
       )
 
-    assertThat(tester.eventListener.takeEvent())
+    assertThat(tester.eventListener.receive<InstallAppEvent>())
       .isEqualTo(
         InstallAppEvent(
           computerSlug = computer.slug,
@@ -145,7 +145,7 @@ class InstallAppFromFileSystemTest {
         ),
       )
 
-    assertThat(tester.eventListener.takeEvent().issues)
+    assertThat(tester.eventListener.receive<InstallAppEvent>().issues)
       .containsExactly(
         Issue(
           message = "No files found",

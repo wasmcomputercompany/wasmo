@@ -58,7 +58,6 @@ class RealInstalledAppStore(
     return get(computer.slug, installedApp, installedAppRelease)
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
   override fun get(
     computerSlug: ComputerSlug,
     installedApp: InstalledApp,

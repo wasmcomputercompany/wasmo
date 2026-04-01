@@ -4,6 +4,7 @@ import com.wasmo.identifiers.AppSlug
 import com.wasmo.packaging.AppManifest
 import okhttp3.HttpUrl
 import wasmo.app.Platform
+import wasmo.app.WasmoApp
 
 interface InstalledAppService {
   val slug: AppSlug
@@ -12,4 +13,6 @@ interface InstalledAppService {
   val maskableIconUrl: HttpUrl
   val httpService: InstalledAppHttpService
   val platform: Platform
+
+  suspend fun app(): WasmoApp?
 }

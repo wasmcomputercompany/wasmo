@@ -47,7 +47,7 @@ class InstallAppActionTest {
         ),
       )
 
-    assertThat(tester.eventListener.takeEvent())
+    assertThat(tester.eventListener.receive<InstallAppEvent>())
       .isEqualTo(
         InstallAppEvent(
           computerSlug = computer.slug,
@@ -74,7 +74,7 @@ class InstallAppActionTest {
     val computer = client.createComputer()
     computer.installApp(app)
 
-    assertThat(tester.eventListener.takeEvent().issues)
+    assertThat(tester.eventListener.receive<InstallAppEvent>().issues)
       .containsExactly(
         Issue(
           url = app.wasmoFileAddress.toString(),
@@ -96,7 +96,7 @@ class InstallAppActionTest {
     val computer = client.createComputer()
     computer.installApp(app)
 
-    assertThat(tester.eventListener.takeEvent().issues)
+    assertThat(tester.eventListener.receive<InstallAppEvent>().issues)
       .containsExactly(
         Issue(
           url = app.wasmoFileAddress.toString(),

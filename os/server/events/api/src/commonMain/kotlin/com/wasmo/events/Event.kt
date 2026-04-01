@@ -8,7 +8,7 @@ interface EventListener {
   fun onEvent(event: Event)
 }
 
-sealed interface Event {
+interface Event {
   val computerSlug: ComputerSlug?
     get() = null
   val appSlug: AppSlug?

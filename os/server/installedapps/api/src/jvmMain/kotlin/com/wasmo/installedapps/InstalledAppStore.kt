@@ -17,7 +17,6 @@ interface InstalledAppStore {
     installedAppRelease: InstalledAppRelease,
   ): InstalledAppService
 
-  context(transactionCallbacks: TransactionCallbacks)
   fun get(
     computerSlug: ComputerSlug,
     installedApp: InstalledApp,

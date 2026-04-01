@@ -1,6 +1,7 @@
 package com.wasmo.installedapps
 
 import com.wasmo.computers.ComputerStore
+import com.wasmo.db.InstalledAppRelease
 import com.wasmo.db.WasmoDb
 import com.wasmo.events.EventListener
 import com.wasmo.events.InstallAppEvent
@@ -18,6 +19,7 @@ class InstallAppJobExecutor(
   private val wasmoDb: WasmoDb,
   private val computerStore: ComputerStore,
   private val eventListener: EventListener,
+  private val installedAppStore: InstalledAppStore,
 ) : JobExecutor<InstallAppJob> {
   override suspend fun execute(job: InstallAppJob) {
     val (installedApp, computerService) = wasmoDb.transactionWithResult(noEnclosing = true) {
@@ -39,19 +41,39 @@ class InstallAppJobExecutor(
     val completedAt = clock.now()
 
     if (installedManifest != null) {
-      wasmoDb.transaction(noEnclosing = true) {
-        val installedAppReleaseId = wasmoDb.installedAppReleaseQueries.insertInstalledAppRelease(
+      val release = wasmoDb.transactionWithResult(noEnclosing = true) {
+        val releaseId = wasmoDb.installedAppReleaseQueries.insertInstalledAppRelease(
           first_active_at = completedAt,
           computer_id = computerService.id,
           installed_app_id = installedApp.id,
           app_version = installedManifest.version,
           app_manifest_data = installedManifest,
         ).executeAsOne()
+
+        InstalledAppRelease(
+          id = releaseId,
+          first_active_at = completedAt,
+          computer_id = computerService.id,
+          installed_app_id = installedApp.id,
+          app_version = installedManifest.version,
+          app_manifest_data = installedManifest,
+        )
+      }
+
+      val service = installedAppStore.get(
+        computerSlug = computerService.slug,
+        installedApp = installedApp,
+        installedAppRelease = release,
+      )
+
+      service.app()?.afterInstall(0L, installedManifest.version)
+
+      wasmoDb.transaction(noEnclosing = true) {
         val rowCount = wasmoDb.installedAppQueries.setRelease(
           id = installedApp.id,
           expected_version = installedApp.version,
           new_version = installedApp.version + 1L,
-          active_release_id = installedAppReleaseId,
+          active_release_id = release.id,
         ).value
         require(rowCount == 1L)
       }

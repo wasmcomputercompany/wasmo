@@ -5,13 +5,10 @@ import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
-import com.wasmo.identifiers.AppSlug
 import com.wasmo.packaging.AppManifest
-import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import wasmo.app.Platform
 import wasmo.http.Header as PlatformHeader
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
@@ -22,12 +19,10 @@ import wasmo.http.HttpResponse
 @Inject
 @SingleIn(InstalledAppScope::class)
 class RealInstalledAppHttpService(
-  private val loader: AppLoader,
-  private val platform: Platform,
+  private val installedAppService: InstalledAppService,
   private val resourceLoaderFactory: ResourceLoader.Factory,
   private val pathMatcher: PathMatcher,
   private val appManifest: AppManifest,
-  private val appSlug: AppSlug,
   private val contentTypeDatabase: ContentTypeDatabase,
 ) : InstalledAppHttpService {
   override suspend fun execute(request: Request): Response<ResponseBody> {
@@ -53,8 +48,7 @@ class RealInstalledAppHttpService(
       throw NotFoundUserException()
     }
 
-    val loadedApp = loader.load(platform, appSlug)
-    val loadedAppHttpService = loadedApp?.httpService
+    val loadedAppHttpService = installedAppService.app()?.httpService
     if (loadedAppHttpService != null) {
       val execute = loadedAppHttpService.execute(request.toPlatformHttpRequest())
       return execute.toHostHttpResponse()
