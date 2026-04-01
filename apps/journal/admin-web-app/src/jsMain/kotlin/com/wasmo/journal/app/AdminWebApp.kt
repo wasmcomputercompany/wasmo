@@ -1,7 +1,7 @@
 package com.wasmo.journal.app
 
 import androidx.compose.runtime.Composable
-import com.wasmo.journal.app.util.Router
+import com.wasmo.support.router.Router
 import kotlin.time.Clock
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
@@ -26,16 +26,16 @@ fun start() {
     api = journalApi,
   )
 
-  val router = Router(JournalRoute)
+  val router = Router(Route)
   router.start()
 
   renderComposableInBody {
     when (val route = router.current.value) {
-      is JournalRoute.AdminRoute -> {
+      is Route.Admin -> {
         AdminScreen(journalDataService, router).Show()
       }
 
-      is JournalRoute.EditEntryRoute -> {
+      is Route.EditEntry -> {
         EditEntryScreen(router, journalDataService.entry(route.token)).Show()
       }
 

@@ -5,10 +5,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.wasmo.journal.api.Visibility
 import com.wasmo.journal.app.JournalDataService.EntryDataService
-import com.wasmo.journal.app.util.Router
+import com.wasmo.support.router.Router
 
 class EditEntryScreen(
-  private val router: Router<JournalRoute>,
+  private val router: Router<Route>,
   private val entryDataService: EntryDataService,
 ) {
   @Composable
@@ -43,7 +43,7 @@ class EditEntryScreen(
           }
 
           EditEntryEvent.ClickBack -> {
-            router.goTo(JournalRoute.AdminRoute, Router.Direction.Pop)
+            router.goTo(Route.Admin, Router.Direction.Pop)
           }
         }
       },

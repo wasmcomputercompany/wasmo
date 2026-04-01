@@ -28,6 +28,7 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
         implementation(project(":apps:journal:api"))
+        implementation(project(":support:router"))
         implementation(project(":support:tokens"))
       }
     }

@@ -1,4 +1,4 @@
-package com.wasmo.journal.app.util
+package com.wasmo.support.router
 
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.browser.window

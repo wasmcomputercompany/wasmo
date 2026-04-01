@@ -3,11 +3,11 @@ package com.wasmo.journal.app
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.wasmo.journal.app.util.Router
+import com.wasmo.support.router.Router
 
 class AdminScreen(
   private val journalDataService: JournalDataService,
-  private val router: Router<JournalRoute>,
+  private val router: Router<Route>,
 ) {
   @Composable
   fun Show() {
@@ -19,7 +19,7 @@ class AdminScreen(
         when (event) {
           is EntryListEvent.ClickEntry -> {
             router.goTo(
-              route = JournalRoute.EditEntryRoute(event.token),
+              route = Route.EditEntry(event.token),
               direction = Router.Direction.Push,
             )
           }
@@ -27,7 +27,7 @@ class AdminScreen(
           EntryListEvent.NewEntry -> {
             val newEntry = journalDataService.newEntry()
             router.goTo(
-              route = JournalRoute.EditEntryRoute(newEntry.token),
+              route = Route.EditEntry(newEntry.token),
               direction = Router.Direction.Push,
             )
           }
