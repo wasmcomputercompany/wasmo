@@ -90,24 +90,24 @@ Wasmo docs are in [docs](docs/).
 Project layout
 --------------
 
-| Directory               | What it's for                                                           |
-|:------------------------|:------------------------------------------------------------------------|
-| `apps`                  | Wasm-packaged applications that use the framework.                      |
-| ` '- journal`           | A sample app                                                            |
-| `docs`                  |                                                                         |
-| ` '- code`              | Design docs for Wasmo OS                                                |
-| ` '- local_development` | Run Wasmo OS locally                                                    |
-| ` '- platform`          | Build Wasmo apps                                                        |
-| ` '- runbooks`          | Operate the hosted Wasmo service                                        |
-| `dom-tester`            | A standalone library for snapshot testing HTML elements                 |
-| `os`                    | Wasmo OS, a cloud service that hosts computers and apps                 |
-| ` '- api`               | HTTP APIs and data models shared by client and server                   |
-| ` '- catalog`           | The catalog of Wasmo products that may be purchased                     |
-| ` '- client`            | The frontend JavaScript application of the OS                           |
-| ` '- framework`         | Wasmo OS's own web framework, built on Kotlin and Ktor                  |
-| ` '- logging`           | A small-enough logging API for client and server                        |
-| ` '- routes`            | Encode and decode Wasmo OS's URLs as values                             |
-| ` '- server`            | The backend Kotlin server of Wasmo OS                                   |
-| `platform`              | APIs exposed by Wasmo OS to its apps.                                   |
-| `support`               | Self-contained support libraries. This is not intended as a stable API. |
-| `wasmo-build`           | Gradle stuff for building this project                                  |
+| Directory               | What it's for                                                       |
+|:------------------------|:--------------------------------------------------------------------|
+| `apps`                  | Wasm-packaged applications that use the framework.                  |
+| ` '- journal`           | A sample app                                                        |
+| `docs`                  |                                                                     |
+| ` '- code`              | Design docs for Wasmo OS                                            |
+| ` '- local_development` | Run Wasmo OS locally                                                |
+| ` '- platform`          | Build Wasmo apps                                                    |
+| ` '- runbooks`          | Operate the hosted Wasmo service                                    |
+| `os`                    | Wasmo OS, a cloud service that hosts computers and apps             |
+| ` '- api`               | HTTP APIs and data models shared by client and server               |
+| ` '- catalog`           | The catalog of Wasmo products that may be purchased                 |
+| ` '- client`            | The frontend JavaScript application of the OS                       |
+| ` '- framework`         | Wasmo OS's own web framework, built on Kotlin and Ktor              |
+| ` '- logging`           | A small-enough logging API for client and server                    |
+| ` '- routes`            | Encode and decode Wasmo OS's URLs as values                         |
+| ` '- server`            | The backend Kotlin server of Wasmo OS                               |
+| `platform`              | APIs exposed by Wasmo OS to its apps.                               |
+| `support`               | Standalone support libraries. This is not intended as a stable API. |
+| ` '- dom-tester`        | A library for snapshot testing HTML elements                        |
+| `wasmo-build`           | Gradle stuff for building this project                              |

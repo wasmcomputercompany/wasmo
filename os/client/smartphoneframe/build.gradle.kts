@@ -29,7 +29,7 @@ kotlin {
       dependencies {
         implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":dom-tester"))
+        implementation(project(":support:dom-tester"))
       }
     }
   }

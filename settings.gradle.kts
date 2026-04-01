@@ -1,7 +1,7 @@
 rootProject.name = "wasmo"
 
 includeBuild("wasmo-build")
-includeBuild("dom-tester-gradle-plugin")
+includeBuild("support/dom-tester/gradle-plugin")
 
 pluginManagement {
   repositories {
@@ -35,7 +35,7 @@ include(":apps:journal:api")
 include(":apps:journal:db")
 include(":apps:journal:wasmo-app")
 include(":apps:samples")
-include(":dom-tester")
+include(":identifiers")
 include(":os:api")
 include(":os:catalog")
 include(":os:cli")
@@ -93,10 +93,10 @@ include(":os:server:wasm:jvm")
 include(":os:server:wasm:real")
 include(":os:server:website:api")
 include(":os:server:website:real")
-include(":identifiers")
 include(":platform:api")
 include(":platform:issues")
 include(":platform:packaging")
 include(":platform:sqldelight")
 include(":platform:testing")
+include(":support:dom-tester")
 include(":support:tokens")
