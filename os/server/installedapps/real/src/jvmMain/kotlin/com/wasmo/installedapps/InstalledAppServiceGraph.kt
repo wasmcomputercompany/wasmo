@@ -1,6 +1,7 @@
 package com.wasmo.installedapps
 
 import com.wasmo.db.InstalledApp
+import com.wasmo.db.InstalledAppRelease
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -47,7 +48,8 @@ interface InstalledAppServiceGraph {
   @SingleIn(InstalledAppScope::class)
   fun provideAppManifest(
     installedApp: InstalledApp,
-  ): AppManifest = installedApp.manifest_data
+    installedAppRelease: InstalledAppRelease,
+  ): AppManifest = installedAppRelease.app_manifest_data
 
   @Provides
   @SingleIn(InstalledAppScope::class)
@@ -87,6 +89,7 @@ interface InstalledAppServiceGraph {
     fun create(
       @Provides computerSlug: ComputerSlug,
       @Provides installedApp: InstalledApp,
+      @Provides installedAppRelease: InstalledAppRelease,
     ): InstalledAppServiceGraph
   }
 }

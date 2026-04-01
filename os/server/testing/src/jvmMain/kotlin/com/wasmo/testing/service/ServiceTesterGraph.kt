@@ -15,7 +15,7 @@ import com.wasmo.events.EventListener
 import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.MDN
 import com.wasmo.identifiers.ForHost
-import com.wasmo.identifiers.InstallAppJobId
+import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.jobs.JobQueue
@@ -155,7 +155,7 @@ interface ServiceTesterGraph {
   ): ClientAuthenticator.Factory
 
   @Binds
-  fun bindInstallAppJobQueue(real: MemoryJobQueue<InstallAppJobId>): JobQueue<InstallAppJobId>
+  fun bindInstallAppJobQueue(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
 
   @Binds
   fun bindEventListener(real: FakeEventListener): EventListener

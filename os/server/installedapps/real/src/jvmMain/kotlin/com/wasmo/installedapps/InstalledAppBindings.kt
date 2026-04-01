@@ -1,6 +1,5 @@
 package com.wasmo.installedapps
 
-import com.wasmo.identifiers.InstallAppJobId
 import com.wasmo.jobs.JobExecutor
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
@@ -15,12 +14,12 @@ interface InstalledAppBindings {
   fun bindInstalledAppStore(real: RealInstalledAppStore): InstalledAppStore
 
   @Binds
-  fun bindJobExecutor(real: InstallAppJobExecutor): JobExecutor<InstallAppJobId>
+  fun bindJobExecutor(real: InstallAppJobExecutor): JobExecutor<InstallAppJob>
 
   companion object {
     @Provides
     @SingleIn(AppScope::class)
-    fun provideInstallAppJobIdSerializer(): KSerializer<InstallAppJobId> =
-      InstallAppJobId.serializer()
+    fun provideInstallAppJobSerializer(): KSerializer<InstallAppJob> =
+      InstallAppJob.serializer()
   }
 }

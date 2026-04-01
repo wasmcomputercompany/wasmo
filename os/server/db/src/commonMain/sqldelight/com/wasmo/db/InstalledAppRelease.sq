@@ -1,0 +1,15 @@
+insertInstalledAppRelease:
+INSERT INTO InstalledAppRelease(
+  first_active_at,
+  computer_id,
+  installed_app_id,
+  app_version,
+  app_manifest_data
+)
+VALUES (
+  :first_active_at,
+  :computer_id,
+  :installed_app_id,
+  :app_version,
+  :app_manifest_data
+) RETURNING id;

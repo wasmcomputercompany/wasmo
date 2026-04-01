@@ -3,6 +3,8 @@ package com.wasmo.installedapps
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.db.InstalledApp
+import com.wasmo.db.InstalledAppRelease
+import com.wasmo.db.SelectInstalledAppByComputerIdAndSlug
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -32,26 +34,65 @@ class RealInstalledAppStore(
     ).executeAsOneOrNull()
       ?: return null
 
-    val installedApp = wasmoDb.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
+    val row = wasmoDb.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
       computer_id = computer.id,
       slug = appSlug,
       active = true,
     ).executeAsOneOrNull()
       ?: return null
 
-    return get(computer.slug, installedApp)
+    return get(
+      computerSlug = computer.slug,
+      installedApp = row.installedApp,
+      installedAppRelease = row.installedAppRelease ?: return null,
+    )
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun get(installedApp: InstalledApp): InstalledAppService {
+  override fun get(
+    installedApp: InstalledApp,
+    installedAppRelease: InstalledAppRelease,
+  ): InstalledAppService {
     val computer = wasmoDb.computerQueries.selectComputerById(installedApp.computer_id)
       .executeAsOne()
-    return get(computer.slug, installedApp)
+    return get(computer.slug, installedApp, installedAppRelease)
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun get(computerSlug: ComputerSlug, installedApp: InstalledApp): InstalledAppService {
-    val graph = installedAppServiceGraphFactory.create(computerSlug, installedApp)
+  override fun get(
+    computerSlug: ComputerSlug,
+    installedApp: InstalledApp,
+    installedAppRelease: InstalledAppRelease,
+  ): InstalledAppService {
+    val graph = installedAppServiceGraphFactory.create(
+      computerSlug = computerSlug,
+      installedApp = installedApp,
+      installedAppRelease = installedAppRelease,
+    )
     return graph.service
   }
+
+  private val SelectInstalledAppByComputerIdAndSlug.installedApp: InstalledApp
+    get() = InstalledApp(
+      id = id,
+      installed_at = installed_at,
+      computer_id = computer_id,
+      slug = slug,
+      active = active,
+      version = version,
+      wasmo_file_address = wasmo_file_address,
+      active_release_id = active_release_id,
+    )
+
+  private val SelectInstalledAppByComputerIdAndSlug.installedAppRelease: InstalledAppRelease?
+    get() {
+      return InstalledAppRelease(
+        id = id_ ?: return null,
+        first_active_at = first_active_at ?: return null,
+        computer_id = computer_id_ ?: return null,
+        installed_app_id = installed_app_id ?: return null,
+        app_version = app_version ?: return null,
+        app_manifest_data = app_manifest_data ?: return null,
+      )
+    }
 }

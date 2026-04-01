@@ -22,7 +22,7 @@ import com.wasmo.framework.MDN
 import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ForHost
-import com.wasmo.identifiers.InstallAppJobId
+import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.jobs.JobQueue
@@ -181,7 +181,7 @@ internal interface WasmoServiceGraph {
   fun provideContentTypeDatabase(): ContentTypeDatabase = ContentTypeDatabase.MDN
 
   @Binds
-  fun bind(real: MemoryJobQueue<InstallAppJobId>): JobQueue<InstallAppJobId>
+  fun bind(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
 
   @Binds
   fun bindCallFactory(real: OkHttpClient): Call.Factory

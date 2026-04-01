@@ -1,7 +1,5 @@
 package com.wasmo.installedapps
 
-import app.cash.sqldelight.TransactionCallbacks
-import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.packaging.AppManifest
 import okhttp3.HttpUrl
@@ -14,7 +12,4 @@ interface InstalledAppService {
   val maskableIconUrl: HttpUrl
   val httpService: InstalledAppHttpService
   val platform: Platform
-
-  context(transactionCallbacks: TransactionCallbacks)
-  fun snapshot(): InstalledAppSnapshot
 }

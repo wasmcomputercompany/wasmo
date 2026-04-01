@@ -9,8 +9,8 @@ import com.wasmo.db.ComputerAccess
 import com.wasmo.db.ComputerAllocation
 import com.wasmo.db.ComputerSpec
 import com.wasmo.db.Cookie
-import com.wasmo.db.InstallAppJob
 import com.wasmo.db.InstalledApp
+import com.wasmo.db.InstalledAppRelease
 import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
 import com.wasmo.db.StripeCustomer
@@ -23,8 +23,8 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
 import com.wasmo.identifiers.CookieId
-import com.wasmo.identifiers.InstallAppJobId
 import com.wasmo.identifiers.InstalledAppId
+import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.identifiers.StripeCustomerId
@@ -52,8 +52,8 @@ class WasmoDbService(
   ComputerAllocationAdapter,
   ComputerSpecAdapter,
   CookieAdapter,
-  InstallAppJobAdapter,
   InstalledAppAdapter,
+  InstalledAppReleaseAdapter,
   InviteAdapter,
   PasskeyAdapter,
   StripeCustomerAdapter,
@@ -131,14 +131,14 @@ class WasmoDbService(
       override fun encode(value: CookieId) = value.id
     }
 
-    private object InstallAppJobIdAdapter : ColumnAdapter<InstallAppJobId, Long> {
-      override fun decode(databaseValue: Long) = InstallAppJobId(databaseValue)
-      override fun encode(value: InstallAppJobId) = value.id
-    }
-
     private object InstalledAppIdAdapter : ColumnAdapter<InstalledAppId, Long> {
       override fun decode(databaseValue: Long) = InstalledAppId(databaseValue)
       override fun encode(value: InstalledAppId) = value.id
+    }
+
+    private object InstalledAppReleaseIdAdapter : ColumnAdapter<InstalledAppReleaseId, Long> {
+      override fun decode(databaseValue: Long) = InstalledAppReleaseId(databaseValue)
+      override fun encode(value: InstalledAppReleaseId) = value.id
     }
 
     private object InviteIdAdapter : ColumnAdapter<InviteId, Long> {
@@ -203,22 +203,21 @@ class WasmoDbService(
       account_idAdapter = AccountIdAdapter,
     )
 
-    private val InstallAppJobAdapter = InstallAppJob.Adapter(
-      idAdapter = InstallAppJobIdAdapter,
-      computer_idAdapter = ComputerIdAdapter,
-      slugAdapter = AppSlugAdapter,
-      wasmo_file_addressAdapter = WasmoFileAddressAdapter,
-      scheduled_atAdapter = InstantAdapter,
-      completed_atAdapter = InstantAdapter,
-      installed_app_idAdapter = InstalledAppIdAdapter,
-    )
-
     private val InstalledAppAdapter = InstalledApp.Adapter(
       idAdapter = InstalledAppIdAdapter,
+      installed_atAdapter = InstantAdapter,
       computer_idAdapter = ComputerIdAdapter,
       slugAdapter = AppSlugAdapter,
       wasmo_file_addressAdapter = WasmoFileAddressAdapter,
-      manifest_dataAdapter = AppManifestAdapter,
+      active_release_idAdapter = InstalledAppReleaseIdAdapter,
+    )
+
+    private val InstalledAppReleaseAdapter = InstalledAppRelease.Adapter(
+      idAdapter = InstalledAppReleaseIdAdapter,
+      first_active_atAdapter = InstantAdapter,
+      computer_idAdapter = ComputerIdAdapter,
+      installed_app_idAdapter = InstalledAppIdAdapter,
+      app_manifest_dataAdapter = AppManifestAdapter,
     )
 
     private val InviteAdapter = Invite.Adapter(

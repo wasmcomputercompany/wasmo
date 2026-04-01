@@ -1,7 +1,5 @@
 package com.wasmo.installedapps
 
-import app.cash.sqldelight.TransactionCallbacks
-import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -30,11 +28,4 @@ class RealInstalledAppService(
     get() = manifest.launcher?.maskable_icon_path
       ?.let { url.resolve(it) }
       ?: url.resolve("/maskable-icon.svg")!!
-
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun snapshot() = InstalledAppSnapshot(
-    slug = slug,
-    launcherLabel = manifest.launcher?.label ?: slug.value,
-    maskableIconUrl = maskableIconUrl.toString(),
-  )
 }

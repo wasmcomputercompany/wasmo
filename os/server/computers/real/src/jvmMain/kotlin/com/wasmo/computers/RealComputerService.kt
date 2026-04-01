@@ -2,15 +2,16 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
+import com.wasmo.api.InstalledAppSnapshot
+import com.wasmo.db.SelectInstalledAppsByComputerId
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerScope
 import com.wasmo.identifiers.ComputerSlug
-import com.wasmo.identifiers.InstallAppJobId
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.installedapps.InstalledAppStore
+import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.jobs.JobQueue
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -24,8 +25,7 @@ class RealComputerService(
   private val clock: Clock,
   private val wasmoDb: WasmoDb,
   private val appCatalog: AppCatalog,
-  private val installedAppStore: InstalledAppStore,
-  private val installAppJobQueue: JobQueue<InstallAppJobId>,
+  private val installAppJobQueue: JobQueue<InstallAppJob>,
   override val id: ComputerId,
   override val slug: ComputerSlug,
   override val resourceInstallerFactory: ResourceInstaller.Factory,
@@ -50,15 +50,15 @@ class RealComputerService(
     wasmoFileAddress: WasmoFileAddress,
     slug: AppSlug,
   ) {
-    val installAppJobId = wasmoDb.installAppJobQueries.insertInstalledAppJob(
+    val installedAppId = wasmoDb.installedAppQueries.insertInstalledApp(
+      installed_at = clock.now(),
       computer_id = id,
       slug = slug,
       active = true,
       version = 1L,
       wasmo_file_address = wasmoFileAddress,
-      scheduled_at = clock.now(),
     ).executeAsOne()
-    installAppJobQueue.enqueue(installAppJobId)
+    installAppJobQueue.enqueue(InstallAppJob(installedAppId))
   }
 
   context(transactionCallbacks: TransactionCallbacks)
@@ -71,9 +71,23 @@ class RealComputerService(
 
     return ComputerSnapshot(
       slug = slug,
-      apps = installedApps.map { installedApp ->
-        installedAppStore.get(slug, installedApp).snapshot()
+      apps = installedApps.map { row ->
+        InstalledAppSnapshot(
+          slug = row.slug,
+          launcherLabel = row.app_manifest_data?.launcher?.label ?: row.slug.value,
+          maskableIconUrl = row.maskableIconUrl.toString(),
+        )
       },
     )
   }
+
+  private val SelectInstalledAppsByComputerId.appUrl: HttpUrl
+    get() = deployment.baseUrl.newBuilder()
+      .host("$slug-${this@RealComputerService.slug}.${deployment.baseUrl.host}")
+      .build()
+
+  private val SelectInstalledAppsByComputerId.maskableIconUrl: HttpUrl
+    get() = app_manifest_data?.launcher?.maskable_icon_path
+      ?.let { appUrl.resolve(it) }
+      ?: appUrl.resolve("/maskable-icon.svg")!!
 }

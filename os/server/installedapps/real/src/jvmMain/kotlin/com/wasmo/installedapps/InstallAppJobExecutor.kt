@@ -4,7 +4,6 @@ import com.wasmo.computers.ComputerStore
 import com.wasmo.db.WasmoDb
 import com.wasmo.events.EventListener
 import com.wasmo.events.InstallAppEvent
-import com.wasmo.identifiers.InstallAppJobId
 import com.wasmo.issues.IssueCollector
 import com.wasmo.jobs.JobExecutor
 import dev.zacsweers.metro.AppScope
@@ -19,17 +18,17 @@ class InstallAppJobExecutor(
   private val wasmoDb: WasmoDb,
   private val computerStore: ComputerStore,
   private val eventListener: EventListener,
-) : JobExecutor<InstallAppJobId> {
-  override suspend fun execute(job: InstallAppJobId) {
-    val (installAppJob, computerService) = wasmoDb.transactionWithResult(noEnclosing = true) {
-      val installAppJob = wasmoDb.installAppJobQueries.selectInstallAppJobById(job)
+) : JobExecutor<InstallAppJob> {
+  override suspend fun execute(job: InstallAppJob) {
+    val (installedApp, computerService) = wasmoDb.transactionWithResult(noEnclosing = true) {
+      val installedApp = wasmoDb.installedAppQueries.selectInstalledAppById(job.installedAppId)
         .executeAsOne()
-      installAppJob to computerStore.get(installAppJob.computer_id)
+      installedApp to computerStore.get(installedApp.computer_id)
     }
 
     val installer = computerService.resourceInstallerFactory.create(
-      appSlug = installAppJob.slug,
-      wasmoFileAddress = installAppJob.wasmo_file_address,
+      appSlug = installedApp.slug,
+      wasmoFileAddress = installedApp.wasmo_file_address,
     )
 
     val issueCollector = IssueCollector()
@@ -39,41 +38,30 @@ class InstallAppJobExecutor(
 
     val completedAt = clock.now()
 
-    wasmoDb.transaction(noEnclosing = true) {
-      if (installedManifest != null) {
-        val installedAppId = wasmoDb.installedAppQueries.insertInstalledApp(
+    if (installedManifest != null) {
+      wasmoDb.transaction(noEnclosing = true) {
+        val installedAppReleaseId = wasmoDb.installedAppReleaseQueries.insertInstalledAppRelease(
+          first_active_at = completedAt,
           computer_id = computerService.id,
-          slug = installAppJob.slug,
-          active = true,
-          version = 1L,
-          wasmo_file_address = installAppJob.wasmo_file_address,
-          manifest_data = installedManifest,
+          installed_app_id = installedApp.id,
+          app_version = installedManifest.version,
+          app_manifest_data = installedManifest,
         ).executeAsOne()
-        val rowCount = wasmoDb.installAppJobQueries.updateInstallAppJobSetCompletedAt(
-          id = installAppJob.id,
-          expected_version = installAppJob.version,
-          new_version = installAppJob.version + 1L,
-          completed_at = completedAt,
-          active = false,
-          installed_app_id = installedAppId,
-        ).value
-        require(rowCount == 1L)
-
-      } else {
-        val rowCount = wasmoDb.installAppJobQueries.updateInstallAppJobSetIncompleteReason(
-          id = installAppJob.id,
-          expected_version = installAppJob.version,
-          new_version = installAppJob.version + 1L,
-          incomplete_reason = issueCollector.issues.firstOrNull()?.toString(),
-          active = false,
+        val rowCount = wasmoDb.installedAppQueries.setRelease(
+          id = installedApp.id,
+          expected_version = installedApp.version,
+          new_version = installedApp.version + 1L,
+          active_release_id = installedAppReleaseId,
         ).value
         require(rowCount == 1L)
       }
+    } else {
+      // TODO: Retry later?
     }
 
     eventListener.onEvent(
       InstallAppEvent(
-        appSlug = installAppJob.slug,
+        appSlug = installedApp.slug,
         computerSlug = computerService.slug,
         issues = issueCollector.issues.toList(),
       ),
