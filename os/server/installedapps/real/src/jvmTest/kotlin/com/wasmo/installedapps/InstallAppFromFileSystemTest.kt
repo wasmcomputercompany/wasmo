@@ -43,8 +43,9 @@ class InstallAppFromFileSystemTest {
       .contains(
         InstalledAppSnapshot(
           slug = installedApp.slug,
-          launcherLabel = installedApp.publishedApp.appManifest.launcher!!.label!!,
-          maskableIconUrl = installedApp.iconUrl.toString(),
+          launcherLabel = "Recipes",
+          maskableIconUrl = "https://recipes-${computer.slug}.wasmo.com/maskable-icon.svg",
+          homeUrl = "https://recipes-${computer.slug}.wasmo.com/home",
         ),
       )
 
@@ -140,8 +141,9 @@ class InstallAppFromFileSystemTest {
       .contains(
         InstalledAppSnapshot(
           slug = installedApp.slug,
-          launcherLabel = installedApp.publishedApp.appManifest.launcher!!.label!!,
-          maskableIconUrl = installedApp.iconUrl.toString(),
+          launcherLabel = "Recipes",
+          maskableIconUrl = "https://recipes-${computer.slug}.wasmo.com/maskable-icon.svg",
+          homeUrl = "https://recipes-${computer.slug}.wasmo.com/home",
         ),
       )
 

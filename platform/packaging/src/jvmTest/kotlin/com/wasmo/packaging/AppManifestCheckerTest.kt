@@ -225,6 +225,30 @@ class AppManifestCheckerTest {
       message = "string must start with /",
       href = "launcher.maskable_icon_path",
     )
+
+    assertThat(
+      manifest.copy(
+        launcher = Launcher(
+          label = "Recipes",
+          home_path = "home",
+        ),
+      ),
+    ).failsValidation(
+      message = "string must start with /",
+      href = "launcher.home_path",
+    )
+
+    assertThat(
+      manifest.copy(
+        launcher = Launcher(
+          label = "Recipes",
+          home_path = "//home",
+        ),
+      ),
+    ).failsValidation(
+      message = "string must not start with //",
+      href = "launcher.home_path",
+    )
   }
 }
 

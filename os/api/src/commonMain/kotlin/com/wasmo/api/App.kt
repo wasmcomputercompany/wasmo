@@ -20,6 +20,7 @@ data class InstalledAppSnapshot(
   val slug: AppSlug,
   val launcherLabel: String,
   val maskableIconUrl: String,
+  val homeUrl: String,
 )
 
 enum class InstallIncompleteReason {

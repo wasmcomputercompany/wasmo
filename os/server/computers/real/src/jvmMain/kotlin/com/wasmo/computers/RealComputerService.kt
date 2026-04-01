@@ -76,6 +76,7 @@ class RealComputerService(
           slug = row.slug,
           launcherLabel = row.app_manifest_data?.launcher?.label ?: row.slug.value,
           maskableIconUrl = row.maskableIconUrl.toString(),
+          homeUrl = row.homeUrl.toString()
         )
       },
     )
@@ -90,4 +91,9 @@ class RealComputerService(
     get() = app_manifest_data?.launcher?.maskable_icon_path
       ?.let { appUrl.resolve(it) }
       ?: appUrl.resolve("/maskable-icon.svg")!!
+
+  private val SelectInstalledAppsByComputerId.homeUrl: HttpUrl
+    get() = app_manifest_data?.launcher?.home_path
+      ?.let { appUrl.resolve(it) }
+      ?: appUrl
 }

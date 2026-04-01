@@ -141,6 +141,15 @@ class AppManifestChecker(
         )
       }
     }
+
+    val homePath = launcher.home_path
+    if (homePath != null) {
+      context(issueCollector.href("home_path")) {
+        checkPath(
+          path = homePath,
+        )
+      }
+    }
   }
 
   context(issueCollector: IssueCollector)
@@ -151,6 +160,10 @@ class AppManifestChecker(
   ) {
     issueCheck(path.startsWith("/")) {
       "string must start with /"
+    }
+
+    issueCheck(!path.startsWith("//")) {
+      "string must not start with //"
     }
 
     issueCheck(!requireTrailingWildcard || path.endsWith("/**")) {

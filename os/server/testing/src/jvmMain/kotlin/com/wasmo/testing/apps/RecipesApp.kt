@@ -43,6 +43,7 @@ class RecipesApp(
       target = TargetSdk1,
       launcher = Launcher(
         label = "Recipes",
+        home_path = "/home",
       ),
       route = listOf(
         Route(

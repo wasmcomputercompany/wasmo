@@ -84,5 +84,6 @@ class ComputerTest {
     slug = AppSlug("app"),
     launcherLabel = launcherLabel,
     maskableIconUrl = "/assets/launcher/sample-icon.svg",
+    homeUrl = "/",
   )
 }

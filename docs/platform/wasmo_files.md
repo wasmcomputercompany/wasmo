@@ -213,6 +213,7 @@ Note that unlike `[[resource]]` and `[[route]]`, this item uses single-square br
 [launcher]
 label = 'Recipes'
 maskable_icon_path = '/static/launcher-icon.svg'
+home_path = '/home'
 ```
 
 ### `label` (Optional)
@@ -225,6 +226,10 @@ The `maskable_icon_path` is a path that will be served by the application. It sh
 a route, or generated on-demand by the application. This icon does not need to be public.
 
 See [the icons guide](./launcher_icons.md) for guidance on styling the launcher icons.
+
+### `home_path` (Optional, default value is `/`)
+
+This is the path that the launcher will navigate to when launching the application.
 
 
 `dev_mode` (Optional)

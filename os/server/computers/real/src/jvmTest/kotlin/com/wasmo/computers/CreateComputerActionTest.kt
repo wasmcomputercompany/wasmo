@@ -11,6 +11,8 @@ import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.testing.apps.MusicApp
+import com.wasmo.testing.apps.SnakeApp
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -47,23 +49,22 @@ class CreateComputerActionTest {
     val computer = client.getComputer(computerSlug)
     computer.jobQueueTester.awaitIdle() // TODO: serve InstallAppJobs while waiting.
 
-    val installedMusicApp = computer.getApp(tester.sampleApps.music.publishedApp)
-    val installedSnakeApp = computer.getApp(tester.sampleApps.snake.publishedApp)
-
     val computerHostPage = client.call().hostPage(ComputerHomeRoute(computerSlug))
     assertThat(computerHostPage.computerSnapshot?.slug).isEqualTo(computerSlug)
     assertThat(computerHostPage.computerSnapshot?.apps)
       .isNotNull()
       .containsExactly(
         InstalledAppSnapshot(
-          slug = installedMusicApp.slug,
-          launcherLabel = installedMusicApp.publishedApp.appManifest.launcher!!.label!!,
-          maskableIconUrl = installedMusicApp.iconUrl.toString(),
+          slug = MusicApp.Slug,
+          launcherLabel = "Music",
+          maskableIconUrl = "https://music-jesse99.wasmo.com/maskable-icon.svg",
+          homeUrl = "https://music-jesse99.wasmo.com/",
         ),
         InstalledAppSnapshot(
-          slug = installedSnakeApp.slug,
-          launcherLabel = installedSnakeApp.publishedApp.appManifest.launcher!!.label!!,
-          maskableIconUrl = installedSnakeApp.iconUrl.toString(),
+          slug = SnakeApp.Slug,
+          launcherLabel = "Snake",
+          maskableIconUrl = "https://snake-jesse99.wasmo.com/maskable-icon.svg",
+          homeUrl = "https://snake-jesse99.wasmo.com/",
         ),
       )
   }

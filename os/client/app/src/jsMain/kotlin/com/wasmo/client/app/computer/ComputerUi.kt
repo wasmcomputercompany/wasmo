@@ -5,7 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.api.routes.AppRoute
+import com.wasmo.api.routes.RouteCodec
+import com.wasmo.api.routes.decodeUrl
 import com.wasmo.client.app.FormState
 import com.wasmo.client.app.data.ComputerDataService
 import com.wasmo.client.app.routing.Router
@@ -28,6 +29,7 @@ class ComputerUi(
   private val coroutineScope: CoroutineScope,
   private val logger: Logger,
   private val router: Router,
+  private val routeCodec: RouteCodec,
   private val computerDataService: ComputerDataService,
   computerSnapshot: ComputerSnapshot?,
 ) : Ui {
@@ -69,7 +71,11 @@ class ComputerUi(
 
       ComputerEvent.ClickDismissMenu -> menuModel = null
       is ComputerEvent.ClickApp -> {
-        router.goTo(AppRoute(slug, event.app), TransitionDirection.PUSH)
+        val appSnapshot = computerSnapshot.apps.single { it.slug == event.app }
+        router.goTo(
+          route = routeCodec.decode(appSnapshot.homeUrl.decodeUrl()),
+          transitionDirection = TransitionDirection.PUSH,
+        )
       }
 
       ComputerEvent.ClickScrim -> {

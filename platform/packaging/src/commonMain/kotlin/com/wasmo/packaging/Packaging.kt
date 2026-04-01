@@ -30,4 +30,5 @@ data class Route(
 data class Launcher(
   val label: String? = null,
   val maskable_icon_path: String? = null,
+  val home_path: String? = null,
 )
