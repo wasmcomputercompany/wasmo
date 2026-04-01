@@ -11,8 +11,6 @@ import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.identifiers.ComputerSlug
-import com.wasmo.testing.apps.MusicApp
-import com.wasmo.testing.apps.SnakeApp
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -49,8 +47,8 @@ class CreateComputerActionTest {
     val computer = client.getComputer(computerSlug)
     computer.jobQueueTester.awaitIdle() // TODO: serve InstallAppJobs while waiting.
 
-    val installedMusicApp = computer.getApp(MusicApp.PublishedApp)
-    val installedSnakeApp = computer.getApp(SnakeApp.PublishedApp)
+    val installedMusicApp = computer.getApp(tester.sampleApps.music.publishedApp)
+    val installedSnakeApp = computer.getApp(tester.sampleApps.snake.publishedApp)
 
     val computerHostPage = client.call().hostPage(ComputerHomeRoute(computerSlug))
     assertThat(computerHostPage.computerSnapshot?.slug).isEqualTo(computerSlug)

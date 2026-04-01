@@ -17,7 +17,9 @@ import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.FakeUserAgent
 import com.wasmo.testing.JobQueueTester
 import com.wasmo.testing.apps.PublishedApp
+import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.client.ClientTester
+import com.wasmo.testing.events.TestEventQueue
 import com.wasmo.testing.sql.TestDatabaseAddress
 import com.wasmo.testing.sql.clearSchema
 import dev.zacsweers.metro.createGraphFactory
@@ -63,6 +65,10 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.fileSystem
   val testDirectory: Path
     get() = graph.testDirectory
+  val sampleApps: SampleApps
+    get() = graph.sampleApps
+  val testEventQueue: TestEventQueue
+    get() = graph.testEventQueue
 
   val origin: String
     get() = baseUrl.toString()

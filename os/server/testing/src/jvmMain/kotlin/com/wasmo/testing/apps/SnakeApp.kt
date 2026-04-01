@@ -5,37 +5,59 @@ import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.TargetSdk1
+import com.wasmo.testing.events.AfterInstallEvent
+import com.wasmo.testing.events.TestEventQueue
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
 import wasmo.http.HttpService
 
 class SnakeApp(
+  val eventQueue: TestEventQueue,
   val platform: Platform,
 ) : WasmoApp {
   override val httpService: HttpService?
     get() = null
 
   override suspend fun afterInstall(oldVersion: Long, newVersion: Long) {
+    eventQueue.send(
+      AfterInstallEvent(
+        appSlug = Slug,
+        oldVersion = oldVersion,
+        newVersion = newVersion,
+      ),
+    )
   }
 
-  class Factory : WasmoApp.Factory {
-    override suspend fun create(platform: Platform) = SnakeApp(platform)
-  }
-
-  companion object {
-    val Manifest = AppManifest(
+  @Inject
+  @SingleIn(AppScope::class)
+  class Factory(
+    val eventQueue: TestEventQueue,
+  ) : WasmoApp.Factory {
+    val appManifest = AppManifest(
       version = 3L,
       target = TargetSdk1,
       launcher = Launcher(
         label = "Snake",
       ),
     )
-    val PublishedApp = PublishedApp(
+    val publishedApp = PublishedApp(
       wasmoFileAddress = "https://example.com/snake/v3/snake.wasmo".toWasmoFileAddress(),
-      slug = AppSlug("snake"),
-      appManifest = Manifest,
+      slug = Slug,
+      appManifest = appManifest,
       resources = mapOf(),
-      factory = Factory(),
+      factory = this,
     )
+
+    override suspend fun create(platform: Platform) = SnakeApp(
+      eventQueue = eventQueue,
+      platform = platform,
+    )
+  }
+
+  companion object {
+    val Slug = AppSlug("snake")
   }
 }

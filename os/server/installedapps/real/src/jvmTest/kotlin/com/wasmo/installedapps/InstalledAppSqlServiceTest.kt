@@ -19,7 +19,7 @@ class InstalledAppSqlServiceTest {
   fun readAndWriteSql() = runTest {
     val client = tester.newClient()
     val computer = client.createComputer()
-    val installedApp = computer.getApp(SnakeApp.PublishedApp)
+    val installedApp = computer.getApp(tester.sampleApps.snake.publishedApp)
 
     val wasmoApp = installedApp.load() as SnakeApp
     val sqlDatabase = wasmoApp.platform.sqlService.getOrCreate()
@@ -38,12 +38,12 @@ class InstalledAppSqlServiceTest {
     val client = tester.newClient()
     val computer = client.createComputer()
 
-    val installedApp1 = computer.getApp(SnakeApp.PublishedApp)
+    val installedApp1 = computer.getApp(tester.sampleApps.snake.publishedApp)
     val wasmoApp1 = installedApp1.load() as SnakeApp
     val sqlDatabase1 = wasmoApp1.platform.sqlService.getOrCreate()
     sqlDatabase1.createKeyValueTable()
 
-    val installedApp2 = computer.getApp(MusicApp.PublishedApp)
+    val installedApp2 = computer.getApp(tester.sampleApps.music.publishedApp)
     val wasmoApp2 = installedApp2.load() as MusicApp
     val sqlDatabase2 = wasmoApp2.platform.sqlService.getOrCreate()
     sqlDatabase2.createKeyValueTable()
@@ -61,13 +61,13 @@ class InstalledAppSqlServiceTest {
     val client = tester.newClient()
 
     val computer1 = client.createComputer()
-    val installedApp1 = computer1.getApp(SnakeApp.PublishedApp)
+    val installedApp1 = computer1.getApp(tester.sampleApps.snake.publishedApp)
     val wasmoApp1 = installedApp1.load() as SnakeApp
     val sqlDatabase1 = wasmoApp1.platform.sqlService.getOrCreate()
     sqlDatabase1.createKeyValueTable()
 
     val computer2 = client.createComputer()
-    val installedApp2 = computer2.getApp(SnakeApp.PublishedApp)
+    val installedApp2 = computer2.getApp(tester.sampleApps.snake.publishedApp)
     val wasmoApp2 = installedApp2.load() as SnakeApp
     val sqlDatabase2 = wasmoApp2.platform.sqlService.getOrCreate()
     sqlDatabase2.createKeyValueTable()
@@ -78,7 +78,6 @@ class InstalledAppSqlServiceTest {
     assertThat(sqlDatabase1.getValue("data")).isEqualTo("snake high score on computer 1 is 500")
     assertThat(sqlDatabase2.getValue("data")).isEqualTo("snake high score on computer 2 is 900")
   }
-
 
   private suspend fun SqlDatabase.createKeyValueTable() {
     newConnection().use { connection ->

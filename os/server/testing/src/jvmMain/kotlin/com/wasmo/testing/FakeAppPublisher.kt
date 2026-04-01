@@ -3,9 +3,8 @@ package com.wasmo.testing
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.WasmoToml
-import com.wasmo.testing.apps.MusicApp
 import com.wasmo.testing.apps.PublishedApp
-import com.wasmo.testing.apps.SnakeApp
+import com.wasmo.testing.apps.SampleApps
 import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
@@ -23,10 +22,11 @@ import wasmo.http.FakeHttpService
 @SingleIn(AppScope::class)
 class FakeAppPublisher(
   private val fileSystem: FileSystem,
+  private val sampleApps: SampleApps,
 ) : AppLoader {
   private val publishedApps = mutableListOf(
-    MusicApp.PublishedApp,
-    SnakeApp.PublishedApp,
+    sampleApps.music.publishedApp,
+    sampleApps.snake.publishedApp,
   )
 
   val httpHandler: FakeHttpService.Handler

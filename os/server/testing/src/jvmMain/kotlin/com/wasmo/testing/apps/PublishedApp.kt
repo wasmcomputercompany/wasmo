@@ -1,7 +1,5 @@
 package com.wasmo.testing.apps
 
-import com.wasmo.computers.AppCatalog
-import com.wasmo.computers.AppCatalog.Entry
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
@@ -43,12 +41,3 @@ data class PublishedApp(
       }
     }
 }
-
-val TestAppCatalog = AppCatalog(
-  entries = listOf(MusicApp.PublishedApp, SnakeApp.PublishedApp).map {
-    Entry(
-      wasmoFileAddress = it.wasmoFileAddress,
-      slug = it.slug,
-    )
-  },
-)

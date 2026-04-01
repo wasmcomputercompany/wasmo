@@ -6,26 +6,39 @@ import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.Route
 import com.wasmo.packaging.TargetSdk1
+import com.wasmo.testing.events.AfterInstallEvent
+import com.wasmo.testing.events.TestEventQueue
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
 import wasmo.http.HttpService
 
 class RecipesApp(
+  val eventQueue: TestEventQueue,
   val platform: Platform,
 ) : WasmoApp {
   override val httpService: HttpService?
     get() = null
 
   override suspend fun afterInstall(oldVersion: Long, newVersion: Long) {
+    eventQueue.send(
+      AfterInstallEvent(
+        appSlug = Slug,
+        oldVersion = oldVersion,
+        newVersion = newVersion,
+      ),
+    )
   }
 
-  class Factory : WasmoApp.Factory {
-    override suspend fun create(platform: Platform) = RecipesApp(platform)
-  }
-
-  companion object {
-    val Manifest = AppManifest(
+  @Inject
+  @SingleIn(AppScope::class)
+  class Factory(
+    val eventQueue: TestEventQueue,
+  ) : WasmoApp.Factory {
+    val appManifest = AppManifest(
       version = 1L,
       target = TargetSdk1,
       launcher = Launcher(
@@ -39,15 +52,24 @@ class RecipesApp(
       ),
     )
 
-    val PublishedApp = PublishedApp(
+    val publishedApp = PublishedApp(
       wasmoFileAddress = "https://example.com/recipes/v1/recipes.wasmo".toWasmoFileAddress(),
-      slug = AppSlug("recipes"),
-      appManifest = Manifest,
+      slug = Slug,
+      appManifest = appManifest,
       resources = mapOf(
         "app.wasm" to "I am Wasm data".encodeUtf8(),
         "index.html" to "Welcome to the recipes app".encodeUtf8(),
       ),
-      factory = Factory(),
+      factory = this,
     )
+
+    override suspend fun create(platform: Platform) = RecipesApp(
+      eventQueue = eventQueue,
+      platform = platform,
+    )
+  }
+
+  companion object {
+    val Slug = AppSlug("recipes")
   }
 }

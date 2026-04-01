@@ -16,7 +16,6 @@ import com.wasmo.issues.Severity
 import com.wasmo.packaging.ExternalResource
 import com.wasmo.packaging.Route
 import com.wasmo.testing.apps.PublishedApp
-import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
@@ -31,7 +30,8 @@ class InstallAppFromFileSystemTest {
 
   @Test
   fun happyPath() = runTest {
-    val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
+    val publishedApp = tester.sampleApps.recipes.publishedApp
+      .withFileSystemWasmoFileAddress()
     tester.publishApp(publishedApp)
 
     val client = tester.newClient()
@@ -76,10 +76,12 @@ class InstallAppFromFileSystemTest {
       to = "/graphics",
       include = listOf("*.svg"),
     )
-    val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
+    val originalApp = tester.sampleApps.recipes.publishedApp
+    val publishedApp = originalApp
+      .withFileSystemWasmoFileAddress()
       .copy(
-        appManifest = RecipesApp.PublishedApp.appManifest.copy(
-          route = RecipesApp.PublishedApp.appManifest.route + listOf(
+        appManifest = originalApp.appManifest.copy(
+          route = originalApp.appManifest.route + listOf(
             Route(
               path = "/media/**",
               resource_path = "/graphics/**",
@@ -89,7 +91,7 @@ class InstallAppFromFileSystemTest {
             externalResource,
           ),
         ),
-        resources = RecipesApp.PublishedApp.resources + mapOf(
+        resources = originalApp.resources + mapOf(
           externalResourcePath.toString() to "I am an SVG".encodeUtf8(),
         ),
       )
@@ -118,9 +120,10 @@ class InstallAppFromFileSystemTest {
       from = externalResourcePath.toString(),
       to = "/logo.svg",
     )
-    val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
+    val originalApp = tester.sampleApps.recipes.publishedApp
+    val publishedApp = originalApp.withFileSystemWasmoFileAddress()
       .copy(
-        appManifest = RecipesApp.PublishedApp.appManifest.copy(
+        appManifest = originalApp.appManifest.copy(
           external_resource = listOf(
             externalResource,
           ),
@@ -155,7 +158,8 @@ class InstallAppFromFileSystemTest {
 
   @Test
   fun resourceIsAbsentAtFetchTime() = runTest {
-    val publishedApp = RecipesApp.PublishedApp.withFileSystemWasmoFileAddress()
+    val publishedApp = tester.sampleApps.recipes.publishedApp
+      .withFileSystemWasmoFileAddress()
     tester.publishApp(publishedApp)
 
     val client = tester.newClient()

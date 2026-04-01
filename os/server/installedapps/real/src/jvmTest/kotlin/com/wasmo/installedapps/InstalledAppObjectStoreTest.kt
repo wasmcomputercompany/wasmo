@@ -24,7 +24,7 @@ class InstalledAppObjectStoreTest {
   fun readAndWriteObjects() = runTest {
     val client = tester.newClient()
     val computer = client.createComputer()
-    val installedApp = computer.getApp(SnakeApp.PublishedApp)
+    val installedApp = computer.getApp(tester.sampleApps.snake.publishedApp)
 
     val wasmoApp = installedApp.load() as SnakeApp
     val store = wasmoApp.platform.objectStore
@@ -43,11 +43,11 @@ class InstalledAppObjectStoreTest {
     val client = tester.newClient()
     val computer = client.createComputer()
 
-    val installedApp1 = computer.getApp(SnakeApp.PublishedApp)
+    val installedApp1 = computer.getApp(tester.sampleApps.snake.publishedApp)
     val wasmoApp1 = installedApp1.load() as SnakeApp
     val store1 = wasmoApp1.platform.objectStore
 
-    val installedApp2 = computer.getApp(MusicApp.PublishedApp)
+    val installedApp2 = computer.getApp(tester.sampleApps.music.publishedApp)
     val wasmoApp2 = installedApp2.load() as MusicApp
     val store2 = wasmoApp2.platform.objectStore
 
@@ -66,11 +66,11 @@ class InstalledAppObjectStoreTest {
     val computer1 = client.createComputer()
     val computer2 = client.createComputer()
 
-    val installedApp1 = computer1.getApp(SnakeApp.PublishedApp)
+    val installedApp1 = computer1.getApp(tester.sampleApps.snake.publishedApp)
     val wasmoApp1 = installedApp1.load() as SnakeApp
     val store1 = wasmoApp1.platform.objectStore
 
-    val installedApp2 = computer2.getApp(SnakeApp.PublishedApp)
+    val installedApp2 = computer2.getApp(tester.sampleApps.snake.publishedApp)
     val wasmoApp2 = installedApp2.load() as SnakeApp
     val store2 = wasmoApp2.platform.objectStore
 

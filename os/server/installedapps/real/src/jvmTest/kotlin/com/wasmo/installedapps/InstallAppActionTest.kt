@@ -10,7 +10,6 @@ import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.events.InstallAppEvent
 import com.wasmo.framework.Response
 import com.wasmo.issues.Issue
-import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
@@ -26,7 +25,7 @@ class InstallAppActionTest {
 
   @Test
   fun happyPath() = runTest {
-    val app = RecipesApp.PublishedApp
+    val app = tester.sampleApps.recipes.publishedApp
     tester.publishApp(app)
 
     val client = tester.newClient()
@@ -70,7 +69,7 @@ class InstallAppActionTest {
 
   @Test
   fun wasmoFileIsAbsent() = runTest {
-    val app = RecipesApp.PublishedApp
+    val app = tester.sampleApps.recipes.publishedApp
     val client = tester.newClient()
     val computer = client.createComputer()
     computer.installApp(app)
@@ -86,7 +85,7 @@ class InstallAppActionTest {
 
   @Test
   fun wasmoFileIsMalformedZip() = runTest {
-    val app = RecipesApp.PublishedApp
+    val app = tester.sampleApps.recipes.publishedApp
     tester.fakeHttpClient += FakeHttpService.Handler {
       HttpResponse(
         body = "this is not a .wasmo file".encodeUtf8(),
