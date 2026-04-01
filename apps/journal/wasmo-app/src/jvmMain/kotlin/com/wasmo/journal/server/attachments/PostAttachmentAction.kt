@@ -4,6 +4,7 @@ import com.wasmo.journal.db.JournalDb
 import kotlin.time.Clock
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
+import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
@@ -18,7 +19,7 @@ class PostAttachmentAction(
   private val objectStore: ObjectStore,
   private val journalDb: JournalDb,
 ) {
-  suspend fun save(
+  suspend fun post(
     entryToken: String,
     attachmentToken: String,
     request: ByteString,
@@ -41,5 +42,19 @@ class PostAttachmentAction(
     return HttpResponse(
       body = "{}".encodeUtf8(),
     )
+  }
+
+  suspend fun post(
+    match: MatchResult,
+    request: HttpRequest,
+  ) = post(
+    entryToken = match.groups[1]!!.value,
+    attachmentToken = match.groups[2]!!.value,
+    request = request.body ?: ByteString.EMPTY,
+    contentType = request.contentType,
+  )
+
+  companion object {
+    val PathRegex = Regex("/api/entries/([^/]+)/attachments/([^/]+)")
   }
 }

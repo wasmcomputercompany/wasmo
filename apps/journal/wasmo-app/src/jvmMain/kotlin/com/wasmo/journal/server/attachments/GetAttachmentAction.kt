@@ -36,4 +36,15 @@ class GetAttachmentAction(
       body = value,
     )
   }
+
+  suspend fun get(
+    match: MatchResult,
+  ) = get(
+    entryToken = match.groups[1]!!.value,
+    attachmentToken = match.groups[2]!!.value,
+  )
+
+  companion object {
+    val PathRegex = Regex("/api/entries/([^/]+)/attachments/([^/]+)")
+  }
 }

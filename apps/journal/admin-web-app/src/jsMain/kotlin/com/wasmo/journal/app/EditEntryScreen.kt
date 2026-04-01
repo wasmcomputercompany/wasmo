@@ -14,12 +14,14 @@ class EditEntryScreen(
   @Composable
   fun Show() {
     val viewModel by entryDataService.value.collectAsState()
+    val uploads by entryDataService.uploads.collectAsState()
     EditEntry(
       syncState = viewModel.syncState,
       title = viewModel.title,
       slug = viewModel.slug,
       visibility = viewModel.visibility,
       body = viewModel.body,
+      uploads = uploads,
       eventListener = { event ->
         when (event) {
           EditEntryEvent.ClickPublish -> {
@@ -44,6 +46,10 @@ class EditEntryScreen(
 
           EditEntryEvent.ClickBack -> {
             router.goTo(Route.Admin, Router.Direction.Pop)
+          }
+
+          is EditEntryEvent.AddAttachments -> {
+            entryDataService.addAttachments(event.files)
           }
         }
       },

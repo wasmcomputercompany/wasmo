@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import org.w3c.files.FileList
+import org.w3c.files.get
 
 class JournalDataService(
   val clock: Clock,
@@ -109,6 +112,11 @@ class JournalDataService(
     val value: StateFlow<EntryViewModel>
       get() = mutableValue
 
+    private val mutableUploads = MutableStateFlow(mapOf<String, UploadViewModel>())
+
+    val uploads: StateFlow<Map<String, UploadViewModel>>
+      get() = mutableUploads
+
     fun setVisibility(visibility: Visibility) {
       mutableValue.update {
         it.copy(
@@ -189,6 +197,39 @@ class JournalDataService(
           }
       }
     }
+
+    fun addAttachments(files: FileList) {
+      for (i in 0 until files.length) {
+        val file = files[i] ?: continue
+        val attachmentToken = newToken()
+        scope.launch {
+          supervisorScope {
+            mutableUploads[attachmentToken] = UploadViewModel.Progress()
+            val job = launch {
+              api.addAttachment(
+                entryToken = token,
+                attachmentToken = attachmentToken,
+                file = file,
+                onProgress = { loaded, total ->
+                  mutableUploads[attachmentToken] = UploadViewModel.Progress(
+                    loaded = loaded.toDouble(),
+                    total = total.toDouble(),
+                  )
+                },
+              )
+            }
+            job.invokeOnCompletion { throwable ->
+              mutableUploads[attachmentToken] = when {
+                throwable != null -> UploadViewModel.Failed(throwable)
+                else -> UploadViewModel.Success(
+                  url = "/api/entries/$token/attachments/$attachmentToken",
+                )
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   private fun EntrySnapshot.toViewModel(syncState: SyncState) = EntryViewModel(
@@ -206,4 +247,10 @@ class JournalDataService(
     title = title,
     date = date,
   )
+
+  operator fun <K, V> MutableStateFlow<Map<K, V>>.set(key: K, value: V) {
+    update {
+      it + mapOf(key to value)
+    }
+  }
 }

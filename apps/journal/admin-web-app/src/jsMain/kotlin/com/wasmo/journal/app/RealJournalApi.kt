@@ -6,11 +6,17 @@ import com.wasmo.journal.api.ListEntriesRequest
 import com.wasmo.journal.api.ListEntriesResponse
 import com.wasmo.journal.api.SaveEntryRequest
 import com.wasmo.journal.api.SaveEntryResponse
+import kotlin.coroutines.resume
 import kotlinx.browser.window
 import kotlinx.coroutines.await
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromDynamic
 import kotlinx.serialization.serializer
+import okio.IOException
+import org.w3c.files.File
+import org.w3c.files.FileReader
+import org.w3c.xhr.XMLHttpRequest
 
 @OptIn(ExperimentalSerializationApi::class)
 class RealJournalApi : JournalApi {
@@ -26,6 +32,57 @@ class RealJournalApi : JournalApi {
     token: String,
     request: SaveEntryRequest,
   ): SaveEntryResponse = post("/api/entries/$token", request)
+
+  override suspend fun addAttachment(
+    entryToken: String,
+    attachmentToken: String,
+    file: File,
+    onProgress: (loaded: Number, total: Number) -> Unit,
+  ) {
+    suspendCancellableCoroutine { continuation ->
+      val xmlHttpRequest = XMLHttpRequest()
+        .apply {
+          onprogress = {
+            if (it.lengthComputable) {
+              onProgress(it.loaded, it.total)
+            }
+            onload = {
+              if (status in 200 until 299) {
+                continuation.resume(Unit)
+              } else {
+                continuation.cancel(IOException("upload failed, status=${status}"))
+              }
+            }
+            onabort = {
+              continuation.cancel()
+            }
+          }
+        }
+
+      val reader = FileReader()
+        .apply {
+          onabort = {
+            continuation.cancel()
+          }
+          onload = {
+            xmlHttpRequest.send(result)
+          }
+        }
+
+      continuation.invokeOnCancellation {
+        xmlHttpRequest.abort()
+        reader.abort()
+      }
+
+      xmlHttpRequest.open("POST", "/api/entries/$entryToken/attachments/$attachmentToken")
+      if (file.type.isNotEmpty()) {
+        xmlHttpRequest.setRequestHeader("content-type", file.type)
+      }
+      xmlHttpRequest.overrideMimeType("text/plain; charset=x-user-defined") // Force binary.
+
+      reader.readAsArrayBuffer(file)
+    }
+  }
 
   suspend inline fun <reified S, reified R> post(
     path: String,

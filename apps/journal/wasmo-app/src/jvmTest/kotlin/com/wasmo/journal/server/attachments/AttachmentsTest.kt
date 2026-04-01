@@ -19,7 +19,7 @@ class AttachmentsTest {
     val entryToken = "aaaaabbbbbcccccdddddeeeee"
     val attachmentToken = "fffffggggghhhhhiiiiijjjjj"
     assertThat(
-      tester.app.postAttachmentAction().save(
+      tester.app.postAttachmentAction().post(
         entryToken = entryToken,
         attachmentToken = attachmentToken,
         request = "this is an attachment!".encodeUtf8(),
@@ -50,7 +50,7 @@ class AttachmentsTest {
   fun contentTypeAbsent() = runTest {
     val entryToken = "aaaaabbbbbcccccdddddeeeee"
     val attachmentToken = "fffffggggghhhhhiiiiijjjjj"
-    tester.app.postAttachmentAction().save(
+    tester.app.postAttachmentAction().post(
       entryToken = entryToken,
       attachmentToken = attachmentToken,
       request = "this is an attachment!".encodeUtf8(),

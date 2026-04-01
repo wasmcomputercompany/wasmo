@@ -15,7 +15,10 @@ data class HttpRequest(
   val url: HttpUrl,
   val headers: List<Header> = listOf(),
   val body: ByteString? = null,
-)
+) {
+  val contentType: String?
+    get() = headers.firstOrNull { it.name.equals(other = "content-type", ignoreCase = true) }?.value
+}
 
 data class Header(
   val name: String,

@@ -95,12 +95,12 @@ class JournalAdminTest {
     val entryToken = "aaaaabbbbbcccccdddddeeeee"
     val attachment1 = "fffffggggghhhhhiiiiijjjjj"
     val attachment2 = "kkkkklllllmmmmmnnnnnooooo"
-    tester.app.postAttachmentAction().save(
+    tester.app.postAttachmentAction().post(
       entryToken = entryToken,
       attachmentToken = attachment1,
       request = "this is an attachment!".encodeUtf8(),
     )
-    tester.app.postAttachmentAction().save(
+    tester.app.postAttachmentAction().post(
       entryToken = entryToken,
       attachmentToken = attachment2,
       request = "this is another attachment!".encodeUtf8(),

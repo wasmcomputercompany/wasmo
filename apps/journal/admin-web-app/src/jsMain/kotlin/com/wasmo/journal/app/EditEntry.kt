@@ -1,9 +1,15 @@
 package com.wasmo.journal.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import com.wasmo.journal.api.Visibility
+import com.wasmo.support.tokens.newToken
+import kotlinx.browser.document
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.attributes.accept
+import org.jetbrains.compose.web.attributes.href
+import org.jetbrains.compose.web.attributes.multiple
 import org.jetbrains.compose.web.attributes.size
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
@@ -26,6 +32,7 @@ import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.dom.TextArea
 import org.w3c.dom.HTMLDivElement
+import org.w3c.files.FileList
 
 @Composable
 fun EditEntry(
@@ -34,6 +41,7 @@ fun EditEntry(
   slug: String,
   body: String,
   visibility: Visibility,
+  uploads: Map<String, UploadViewModel>,
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (EditEntryEvent) -> Unit,
 ) {
@@ -55,7 +63,7 @@ fun EditEntry(
         onClick {
           eventListener(EditEntryEvent.ClickBack)
         }
-      }
+      },
     ) {
       Text("<- Back")
     }
@@ -66,16 +74,19 @@ fun EditEntry(
           Text("loading...")
         }
       }
+
       is SyncState.Error -> {
         P {
           Text("save error")
         }
       }
+
       SyncState.Ready -> {
         P {
           Text("saved")
         }
       }
+
       SyncState.Dirty -> {
         P {
           Text("saving...")
@@ -102,6 +113,54 @@ fun EditEntry(
       defaultValue(slug)
       onInput { event ->
         eventListener(EditEntryEvent.EditSlug(event.value))
+      }
+    }
+
+
+    val id = remember { "files-${newToken()}" }
+    Input(
+      type = InputType.File,
+      attrs = {
+        id(id)
+        multiple()
+        accept("image/*")
+        style {
+          display(DisplayStyle.None)
+        }
+        onChange {
+          val files = it.target.files
+          if (files != null) {
+            eventListener(EditEntryEvent.AddAttachments(files))
+          }
+        }
+      },
+    )
+    Button(
+      attrs = {
+        onClick {
+          val fileInput = document.getElementById(id)
+          fileInput.asDynamic().click()
+        }
+      },
+    ) {
+      Text("Add Images")
+    }
+
+    for (upload in uploads.values) {
+      P {
+        when (upload) {
+          is UploadViewModel.Failed -> Text("Upload failed (${upload.throwable.message})")
+          is UploadViewModel.Progress -> Text("${upload.loaded} / ${upload.total}")
+          is UploadViewModel.Success -> {
+            A(
+              attrs = {
+                href(upload.url)
+              }
+            ) {
+              Text("Upload success")
+            }
+          }
+        }
       }
     }
 
@@ -150,10 +209,11 @@ fun EditEntry(
 }
 
 sealed interface EditEntryEvent {
-  data object ClickBack: EditEntryEvent
-  data class EditTitle(val value: String): EditEntryEvent
-  data class EditSlug(val value: String): EditEntryEvent
-  data class EditBody(val value: String): EditEntryEvent
-  data object ClickPublish: EditEntryEvent
-  data object ClickUnpublish: EditEntryEvent
+  data object ClickBack : EditEntryEvent
+  data class EditTitle(val value: String) : EditEntryEvent
+  data class EditSlug(val value: String) : EditEntryEvent
+  data class EditBody(val value: String) : EditEntryEvent
+  data object ClickPublish : EditEntryEvent
+  data object ClickUnpublish : EditEntryEvent
+  data class AddAttachments(val files: FileList) : EditEntryEvent
 }

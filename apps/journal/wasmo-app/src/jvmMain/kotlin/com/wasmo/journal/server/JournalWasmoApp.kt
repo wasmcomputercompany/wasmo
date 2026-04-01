@@ -78,6 +78,10 @@ class JournalWasmoApp(
           listEntriesAction().list(it)
         }
       }
+
+      PostAttachmentAction.PathRegex.matchEntire(request.url.encodedPath)?.let {
+        return postAttachmentAction().post(it, request)
+      }
     }
 
     if (request.method == "GET") {
@@ -93,6 +97,10 @@ class JournalWasmoApp(
         return getApi<EntrySnapshot> {
           getEntryAction().get(match)
         }
+      }
+
+      GetAttachmentAction.PathRegex.matchEntire(request.url.encodedPath)?.let {
+        return getAttachmentAction().get(it)
       }
     }
 
