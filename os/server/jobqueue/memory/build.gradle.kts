@@ -14,6 +14,7 @@ kotlin {
       dependencies {
         implementation(libs.okio)
         implementation(libs.kotlinx.coroutines.core)
+        implementation(project(":os:server:db"))
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:installedapps:api"))
         implementation(project(":os:server:jobqueue:api"))
@@ -23,6 +24,8 @@ kotlin {
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
+        implementation(project(":os:server:testing"))
+        implementation(project(":platform:testing"))
       }
     }
   }

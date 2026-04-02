@@ -18,8 +18,9 @@ import com.wasmo.identifiers.ForHost
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
-import com.wasmo.jobqueue.InMemoryJobStore
 import com.wasmo.jobqueue.JobStore
+import com.wasmo.jobqueue.MemoryJobStore
+import com.wasmo.jobqueue.RealJobStoreHandler
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
@@ -163,7 +164,10 @@ interface ServiceTesterGraph {
   fun bindInstallAppJobQueue(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
 
   @Binds
-  fun bind(real: InMemoryJobStore): JobStore
+  fun bindJobStore(real: MemoryJobStore): JobStore
+
+  @Binds
+  fun bindJobHandler(real: RealJobStoreHandler): JobStore.Handler
 
   @Binds
   fun bindEventListener(real: FakeEventListener): EventListener

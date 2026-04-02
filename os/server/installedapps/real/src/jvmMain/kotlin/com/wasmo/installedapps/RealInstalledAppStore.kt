@@ -8,6 +8,7 @@ import com.wasmo.db.SelectInstalledAppByComputerIdAndSlug
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.InstalledAppId
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -45,6 +46,19 @@ class RealInstalledAppStore(
       computerSlug = computer.slug,
       installedApp = row.installedApp,
       installedAppRelease = row.installedAppRelease ?: return null,
+    )
+  }
+
+  context(transactionCallbacks: TransactionCallbacks)
+  override fun get(installedAppId: InstalledAppId): InstalledAppService? {
+    val installedApp = wasmoDb.installedAppQueries.selectInstalledAppById(installedAppId)
+      .executeAsOne()
+    val installedAppRelease = wasmoDb.installedAppReleaseQueries
+      .selectInstalledAppReleaseById(installedApp.active_release_id ?: return null)
+      .executeAsOne()
+    return get(
+      installedApp = installedApp,
+      installedAppRelease = installedAppRelease,
     )
   }
 
