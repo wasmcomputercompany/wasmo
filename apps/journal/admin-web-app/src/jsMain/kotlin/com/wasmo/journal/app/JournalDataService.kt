@@ -8,6 +8,7 @@ import com.wasmo.journal.api.Visibility
 import com.wasmo.support.tokens.newToken
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.browser.document
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.files.FileList
 import org.w3c.files.get
 
@@ -198,10 +200,24 @@ class JournalDataService(
       }
     }
 
-    fun addAttachments(files: FileList) {
+    fun addAttachments(bodyElementId: String, files: FileList) {
       for (i in 0 until files.length) {
         val file = files[i] ?: continue
         val attachmentToken = newToken()
+        val url = "/api/entries/$token/attachments/$attachmentToken"
+
+        // Add an <img> tag to the document body that links to the image being uploaded. If the
+        // upload fails, this will be a broken link! Our Compose input elements use 'uncontrolled'
+        // mode, so they won't show a new value if we edit it through a state variable.
+        val bodyElement = document.getElementById(bodyElementId) as HTMLTextAreaElement?
+        if (bodyElement != null) {
+          bodyElement.value += """
+            |
+            |<img src="$url">
+            |
+            """.trimMargin()
+        }
+
         scope.launch {
           supervisorScope {
             mutableUploads[attachmentToken] = UploadViewModel.Progress()
@@ -221,9 +237,7 @@ class JournalDataService(
             job.invokeOnCompletion { throwable ->
               mutableUploads[attachmentToken] = when {
                 throwable != null -> UploadViewModel.Failed(throwable)
-                else -> UploadViewModel.Success(
-                  url = "/api/entries/$token/attachments/$attachmentToken",
-                )
+                else -> UploadViewModel.Success(url)
               }
             }
           }

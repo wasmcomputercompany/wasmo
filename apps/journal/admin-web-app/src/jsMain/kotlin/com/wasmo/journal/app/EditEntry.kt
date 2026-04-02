@@ -116,12 +116,12 @@ fun EditEntry(
       }
     }
 
-
-    val id = remember { "files-${newToken()}" }
+    val fileInputElementId = remember { "files-${newToken()}" }
+    val bodyElementId = remember { "body-${newToken()}" }
     Input(
       type = InputType.File,
       attrs = {
-        id(id)
+        id(fileInputElementId)
         multiple()
         accept("image/*")
         style {
@@ -130,7 +130,12 @@ fun EditEntry(
         onChange {
           val files = it.target.files
           if (files != null) {
-            eventListener(EditEntryEvent.AddAttachments(files))
+            eventListener(
+              EditEntryEvent.AddAttachments(
+                bodyElementId = bodyElementId,
+                files = files,
+              ),
+            )
           }
         }
       },
@@ -138,7 +143,7 @@ fun EditEntry(
     Button(
       attrs = {
         onClick {
-          val fileInput = document.getElementById(id)
+          val fileInput = document.getElementById(fileInputElementId)
           fileInput.asDynamic().click()
         }
       },
@@ -155,7 +160,7 @@ fun EditEntry(
             A(
               attrs = {
                 href(upload.url)
-              }
+              },
             ) {
               Text("Upload success")
             }
@@ -168,6 +173,7 @@ fun EditEntry(
     TextArea(
       attrs = {
         defaultValue(body)
+        id(bodyElementId)
         style {
           flex(100, 100, 0.px)
         }
@@ -215,5 +221,8 @@ sealed interface EditEntryEvent {
   data class EditBody(val value: String) : EditEntryEvent
   data object ClickPublish : EditEntryEvent
   data object ClickUnpublish : EditEntryEvent
-  data class AddAttachments(val files: FileList) : EditEntryEvent
+  data class AddAttachments(
+    val bodyElementId: String,
+    val files: FileList,
+  ) : EditEntryEvent
 }

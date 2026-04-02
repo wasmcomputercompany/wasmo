@@ -49,7 +49,7 @@ class EditEntryScreen(
           }
 
           is EditEntryEvent.AddAttachments -> {
-            entryDataService.addAttachments(event.files)
+            entryDataService.addAttachments(event.bodyElementId, event.files)
           }
         }
       },
