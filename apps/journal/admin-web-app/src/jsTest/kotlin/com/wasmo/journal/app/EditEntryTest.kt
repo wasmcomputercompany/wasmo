@@ -22,8 +22,9 @@ class EditEntryTest {
         syncState = SyncState.Ready,
         title = sample.title,
         slug = sample.slug,
-        visibility = sample.visibility,
         body = sample.body,
+        visibility = sample.visibility,
+        uploads = mapOf(),
         eventListener = {},
       )
     }

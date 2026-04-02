@@ -11,8 +11,8 @@ interface ResourceInstaller {
 
   interface Factory {
     fun create(
-        appSlug: AppSlug,
-        wasmoFileAddress: WasmoFileAddress,
+      appSlug: AppSlug,
+      wasmoFileAddress: WasmoFileAddress,
     ): ResourceInstaller
   }
 }

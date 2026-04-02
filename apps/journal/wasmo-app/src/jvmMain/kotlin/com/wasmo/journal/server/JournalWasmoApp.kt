@@ -30,7 +30,7 @@ class JournalWasmoApp(
   private val clock: Clock,
   private val objectStore: ObjectStore,
   private val journalDb: JournalDbService,
-) : Closeable, WasmoApp, HttpService {
+) : Closeable, WasmoApp(), HttpService {
   override val httpService: HttpService
     get() = this
 

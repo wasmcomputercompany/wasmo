@@ -6,6 +6,7 @@ import kotlin.time.Clock
 import wasmo.app.Platform
 import wasmo.downloader.Downloader
 import wasmo.http.HttpService
+import wasmo.jobs.JobQueue
 import wasmo.objectstore.ObjectStore
 import wasmo.sql.SqlService
 
@@ -17,4 +18,5 @@ class RealPlatform(
   @ForInstalledApp override val objectStore: ObjectStore,
   @ForInstalledApp override val downloader: Downloader,
   @ForInstalledApp override val sqlService: SqlService,
+  @ForInstalledApp override val jobQueue: JobQueue,
 ) : Platform

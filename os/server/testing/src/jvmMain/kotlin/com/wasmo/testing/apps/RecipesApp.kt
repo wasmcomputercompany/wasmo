@@ -14,15 +14,11 @@ import dev.zacsweers.metro.SingleIn
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
-import wasmo.http.HttpService
 
 class RecipesApp(
   val eventListener: EventListener,
   val platform: Platform,
-) : WasmoApp {
-  override val httpService: HttpService?
-    get() = null
-
+) : WasmoApp() {
   override suspend fun afterInstall(oldVersion: Long, newVersion: Long) {
     eventListener.onEvent(
       AfterInstallEvent(

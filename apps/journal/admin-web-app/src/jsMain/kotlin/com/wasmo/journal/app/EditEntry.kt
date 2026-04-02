@@ -172,7 +172,7 @@ fun EditEntry(
     Text("body")
     TextArea(
       attrs = {
-        defaultValue(body)
+        value(body)
         id(bodyElementId)
         style {
           flex(100, 100, 0.px)

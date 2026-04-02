@@ -6,6 +6,7 @@ import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ForHost
+import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Binds
@@ -16,6 +17,7 @@ import dev.zacsweers.metro.SingleIn
 import wasmo.app.Platform
 import wasmo.downloader.Downloader
 import wasmo.http.HttpService
+import wasmo.jobs.JobQueue
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.ScopedObjectStore
 import wasmo.sql.SqlService
@@ -43,6 +45,12 @@ interface InstalledAppServiceGraph {
   fun provideAppSlug(
     installedApp: InstalledApp,
   ): AppSlug = installedApp.slug
+
+  @Provides
+  @SingleIn(InstalledAppScope::class)
+  fun provideInstalledAppId(
+    installedApp: InstalledApp,
+  ): InstalledAppId = installedApp.id
 
   @Provides
   @SingleIn(InstalledAppScope::class)
@@ -76,6 +84,10 @@ interface InstalledAppServiceGraph {
   @Binds
   @ForInstalledApp
   fun bindHttpService(real: HttpService): HttpService
+
+  @Binds
+  @ForInstalledApp
+  fun bindJobQueue(real: InstalledAppJobQueue): JobQueue
 
   @Binds
   @ForInstalledApp

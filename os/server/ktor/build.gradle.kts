@@ -53,6 +53,8 @@ kotlin {
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:installedapps:api"))
         implementation(project(":os:server:installedapps:real"))
+        implementation(project(":os:server:jobqueue:api"))
+        implementation(project(":os:server:jobqueue:memory"))
         implementation(project(":os:server:jobs:api"))
         implementation(project(":os:server:jobs:memory"))
         implementation(project(":os:server:objectstore:api"))
