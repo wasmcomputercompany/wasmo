@@ -1,9 +1,10 @@
 package com.wasmo.jobqueue
 
-import com.wasmo.identifiers.ComputerId
+import com.wasmo.api.Base64UrlSerializer
 import com.wasmo.identifiers.InstalledAppId
 import kotlin.time.Instant
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import okio.ByteString
 
 interface JobStore {
@@ -11,31 +12,55 @@ interface JobStore {
   fun cancel(job: Job)
 
   interface Handler<J : Job> {
-    /** Returns the launched coroutines job, or null if the job could not be launched. */
-    context(scope: CoroutineScope)
-    suspend fun execute(job: J): kotlinx.coroutines.Job?
+    suspend fun execute(job: J)
   }
 }
 
-sealed interface Job {
-  val handlerId: HandlerId
+interface JobQueueEventListener {
+  fun jobEnqueued(instant: Instant?)
+  fun jobCompleted()
 
-  data class OsJob<T>(
-    override val handlerId: HandlerId,
-    val computerId: ComputerId,
-    val data: T,
-  ) : Job
+  companion object {
+    val None = object : JobQueueEventListener {
+      override fun jobEnqueued(instant: Instant?) {
+      }
 
-  data class ApplicationJob(
-    val installedAppId: InstalledAppId,
-    val queueName: String,
-    val data: ByteString,
-  ) : Job {
-    override val handlerId: HandlerId
-      get() = HandlerId.Application
+      override fun jobCompleted() {
+      }
+    }
   }
 }
 
-enum class HandlerId {
-  Application,
+interface HandlerId<J : Job> {
+  val serializer: KSerializer<J>
+
+  object Application : HandlerId<ApplicationJob> {
+    override val serializer = ApplicationJob.serializer()
+  }
+
+  object InstallApp : HandlerId<InstallAppJob> {
+    override val serializer = InstallAppJob.serializer()
+  }
+}
+
+interface Job {
+  val handlerId: HandlerId<*>
+}
+
+@Serializable
+data class ApplicationJob(
+  val installedAppId: InstalledAppId,
+  val queueName: String,
+  val data: @Serializable(Base64UrlSerializer::class) ByteString,
+) : Job {
+  override val handlerId: HandlerId<ApplicationJob>
+    get() = HandlerId.Application
+}
+
+@Serializable
+data class InstallAppJob(
+  val installedAppId: InstalledAppId,
+) : Job {
+  override val handlerId: HandlerId<InstallAppJob>
+    get() = HandlerId.InstallApp
 }

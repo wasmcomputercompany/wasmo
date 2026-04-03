@@ -1,7 +1,7 @@
 package com.wasmo.installedapps
 
 import com.wasmo.identifiers.InstalledAppId
-import com.wasmo.jobqueue.Job.ApplicationJob
+import com.wasmo.jobqueue.ApplicationJob
 import com.wasmo.jobqueue.JobStore
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

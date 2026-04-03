@@ -1,6 +1,6 @@
 package com.wasmo.testing
 
-import com.wasmo.jobs.JobQueueEventListener
+import com.wasmo.jobqueue.JobQueueEventListener
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

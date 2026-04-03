@@ -1,12 +1,17 @@
 package com.wasmo.jobqueue
 
+import com.wasmo.api.WasmoJson
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Clock
 import kotlin.time.Instant
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job as CoroutinesJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.serialization.KSerializer
 
 /**
  * A simple job queue.
@@ -14,37 +19,47 @@ import kotlinx.coroutines.supervisorScope
 @Inject
 @SingleIn(AppScope::class)
 class MemoryJobStore(
+  private val scope: CoroutineScope,
   private val clock: Clock,
-  private val jobHandlerMap: Map<HandlerId, JobStore.Handler<*>>,
+  private val jobHandlerMap: Map<HandlerId<*>, JobStore.Handler<*>>,
+  private val eventListener: JobQueueEventListener,
 ) : JobStore {
-  private val entry = LinkedBlockingQueue<Entry>()
+  private val jobs = ConcurrentHashMap<Job, CoroutinesJob>()
 
   override fun enqueue(job: Job, executeAt: Instant?) {
+    eventListener.jobEnqueued(executeAt)
+
     cancel(job)
-    entry += Entry(job, executeAt)
+
+    val serializer = job.handlerId.serializer as KSerializer<Job>
+    val encodedJob = WasmoJson.encodeToString(serializer, job)
+
+    jobs[job] = enqueueEncoded(serializer, encodedJob, executeAt)
   }
 
   override fun cancel(job: Job) {
-    entry.removeAll { it.job == job }
+    jobs.remove(job)?.cancel()
   }
 
-  suspend fun executeReadyJobs() {
-    supervisorScope {
-      val now = clock.now()
-      val i = entry.iterator()
-      while (i.hasNext()) {
-        val entry = i.next()
-        if (entry.executeAt != null && entry.executeAt > now) continue
-
-        val handler = jobHandlerMap[entry.job.handlerId] ?: continue
-        if ((handler as JobStore.Handler<Job>).execute(entry.job) == null) continue
-        i.remove()
+  private fun enqueueEncoded(
+    serializer: KSerializer<Job>,
+    encodedJob: String,
+    executeAt: Instant?,
+  ): CoroutinesJob {
+    return scope.launch {
+      if (executeAt != null) {
+        val duration = executeAt - clock.now()
+        delay(duration)
       }
+
+      val job = WasmoJson.decodeFromString(serializer, encodedJob)
+      try {
+        val handler = jobHandlerMap[job.handlerId] as JobStore.Handler<Job>?
+        handler?.execute(job)
+      } catch (e: Throwable) {
+        e.printStackTrace() // TODO.
+      }
+      eventListener.jobCompleted()
     }
   }
-
-  private class Entry(
-    val job: Job,
-    val executeAt: Instant?,
-  )
 }

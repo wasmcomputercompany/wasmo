@@ -32,7 +32,6 @@ kotlin {
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:installedapps:api"))
         implementation(project(":os:server:jobqueue:api"))
-        implementation(project(":os:server:jobs:api"))
         implementation(project(":os:server:payments:api"))
         implementation(project(":os:server:wasm:api"))
         implementation(project(":identifiers"))
