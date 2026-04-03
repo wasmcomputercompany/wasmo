@@ -3,7 +3,7 @@ package com.wasmo.jobs
 import com.wasmo.api.WasmoJson
 import com.wasmo.identifiers.HandlerId
 import com.wasmo.identifiers.Job
-import dev.zacsweers.metro.AppScope
+import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import java.util.concurrent.ConcurrentHashMap
@@ -18,7 +18,7 @@ import kotlinx.serialization.KSerializer
  * A simple job queue.
  */
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class MemoryJobStore(
   private val scope: CoroutineScope,
   private val clock: Clock,

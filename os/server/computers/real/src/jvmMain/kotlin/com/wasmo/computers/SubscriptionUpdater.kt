@@ -1,11 +1,11 @@
 package com.wasmo.computers
 
 import com.wasmo.db.WasmoDb
+import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.payments.ComputerAllocationSnapshot
 import com.wasmo.payments.PaymentsService
 import com.wasmo.payments.SubscriptionSnapshot
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
@@ -14,7 +14,7 @@ import kotlin.time.Clock
  * Call the Stripe API and sync a subscription to the database.
  */
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class SubscriptionUpdater(
   private val clock: Clock,
   private val paymentsService: PaymentsService,

@@ -21,8 +21,9 @@ import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.MDN
 import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
-import com.wasmo.identifiers.ForHost
+import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.HandlerId
+import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.ApplicationJob
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
@@ -46,7 +47,6 @@ import com.wasmo.wasm.AppLoader
 import com.wasmo.wasm.JvmAppLoader
 import com.wasmo.website.RealServerHostPage
 import com.wasmo.website.ServerHostPage
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -66,7 +66,7 @@ import wasmo.objectstore.ObjectStore
 import wasmo.sql.SqlService
 
 @DependencyGraph(
-  scope = AppScope::class,
+  scope = OsScope::class,
   bindingContainers = [
     ComputerBindings::class,
     FileSystemObjectStoreBindings::class,
@@ -81,50 +81,50 @@ internal interface WasmoServiceGraph {
   val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideClock(): Clock = Clock.System
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
     .dns(LocalhostSubdomainsDns(Dns.SYSTEM))
     .build()
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideCookieSecret(config: WasmoService.Config): CookieSecret =
     CookieSecret(config.cookieSecret)
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideDeployment(config: WasmoService.Config): Deployment =
     config.deployment
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideSessionCookieSpec(config: WasmoService.Config): SessionCookieSpec =
     config.sessionCookieSpec
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun providePostmarkCredentials(config: WasmoService.Config): PostmarkCredentials =
     config.postmarkCredentials
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideStripePublishableKey(config: WasmoService.Config): StripePublishableKey =
     config.stripeCredentials.publishableKey
 
   @Provides
-  @ForHost
-  @SingleIn(AppScope::class)
+  @ForOs
+  @SingleIn(OsScope::class)
   fun provideObjectStore(
     config: WasmoService.Config,
     objectStoreFactory: ObjectStoreFactory,
   ): ObjectStore = objectStoreFactory.open(config.objectStoreAddress)
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideStripeClient(
     config: WasmoService.Config,
   ): StripeClient {
@@ -134,7 +134,7 @@ internal interface WasmoServiceGraph {
   }
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideStripePaymentsService(
     config: WasmoService.Config,
     stripeClient: StripeClient,
@@ -146,45 +146,45 @@ internal interface WasmoServiceGraph {
   )
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideSendEmailService(
     factory: PostmarkEmailService.Factory,
   ): SendEmailService = factory.create()
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideApplication(
     server: EmbeddedServer<*, *>,
   ): Application = server.application
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideJobQueueEventListener(): JobQueueEventListener = JobQueueEventListener.None
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideCoroutineScope(): CoroutineScope = CoroutineScope(Dispatchers.Default)
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideAppCatalog(): AppCatalog = loadDefaultAppCatalogFromResources()
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideFileSystem(): FileSystem = FileSystem.SYSTEM
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideWasmoAppFactories(): Map<AppSlug, WasmoApp.Factory> = mapOf(
     AppSlug("journal") to JournalWasmoApp.Factory(),
   )
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideContentTypeDatabase(): ContentTypeDatabase = ContentTypeDatabase.MDN
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun bindJobHandlerMap(
     applicationJobHandler: JobStore.Handler<ApplicationJob>,
     installAppJobHandler: JobStore.Handler<InstallAppJob>,

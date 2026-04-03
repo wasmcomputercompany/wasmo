@@ -4,14 +4,14 @@ import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerSlug
-import dev.zacsweers.metro.AppScope
+import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import org.postgresql.util.PSQLException
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class ComputerSpecStore(
   private val clock: Clock,
   private val wasmoDb: WasmoDb,

@@ -18,6 +18,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.retrofit)
         implementation(libs.retrofit.converter.kotlinx.serialization)
+        implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:sendemail:api"))
       }
     }

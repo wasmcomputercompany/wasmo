@@ -5,15 +5,15 @@ import com.wasmo.db.InstalledAppRelease
 import com.wasmo.db.WasmoDb
 import com.wasmo.events.EventListener
 import com.wasmo.events.InstallAppEvent
+import com.wasmo.identifiers.OsScope
 import com.wasmo.issues.IssueCollector
 import com.wasmo.jobs.JobStore
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class InstallAppJobHandler(
   private val clock: Clock,
   private val wasmoDb: WasmoDb,

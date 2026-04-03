@@ -1,7 +1,7 @@
 package com.wasmo.testing.jobs
 
+import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.JobQueueEventListener
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Instant
@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class JobQueueTester : JobQueueEventListener {
   private val jobCount = MutableStateFlow(0)
 

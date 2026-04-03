@@ -15,8 +15,9 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okhttp)
         implementation(libs.okio)
-        implementation(project(":os:server:wasm:api"))
         implementation(project(":identifiers"))
+        implementation(project(":os:server:identifiers"))
+        implementation(project(":os:server:wasm:api"))
         implementation(project(":platform:api"))
         implementation(project(":platform:packaging"))
       }

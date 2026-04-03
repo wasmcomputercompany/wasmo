@@ -60,7 +60,7 @@ import okio.buffer
 import wasmo.http.Header
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(com.wasmo.identifiers.OsScope::class)
 class ActionRouter(
   deployment: Deployment,
   private val application: Application,

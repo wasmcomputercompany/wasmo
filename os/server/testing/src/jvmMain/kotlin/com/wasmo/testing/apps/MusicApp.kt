@@ -2,13 +2,13 @@ package com.wasmo.testing.apps
 
 import com.wasmo.events.EventListener
 import com.wasmo.identifiers.AppSlug
+import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
 import com.wasmo.packaging.TargetSdk1
 import com.wasmo.testing.events.AfterInstallEvent
 import com.wasmo.testing.jobs.FakeJobHandler
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.app.Platform
@@ -33,7 +33,7 @@ class MusicApp(
   }
 
   @Inject
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   class Factory(
     val eventListener: EventListener,
   ) : WasmoApp.Factory {

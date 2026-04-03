@@ -1,7 +1,7 @@
 package com.wasmo.wasm
 
 import com.wasmo.identifiers.AppSlug
-import dev.zacsweers.metro.AppScope
+import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.app.Platform
@@ -11,7 +11,7 @@ import wasmo.app.WasmoApp
  * This app loader requires the `WamsoApp.Factory` instance is callable in-process.
  */
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class JvmAppLoader(
   private val factories: Map<AppSlug, WasmoApp.Factory>,
 ) : AppLoader {

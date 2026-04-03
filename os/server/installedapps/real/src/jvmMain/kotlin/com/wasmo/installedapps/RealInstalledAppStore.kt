@@ -9,12 +9,12 @@ import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
-import dev.zacsweers.metro.AppScope
+import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class RealInstalledAppStore(
   private val wasmoDb: WasmoDb,
   private val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory,

@@ -6,6 +6,9 @@ import dev.zacsweers.metro.Qualifier
 annotation class ForComputer
 
 @Qualifier
-annotation class ForHost
+annotation class ForOs
 
 abstract class ComputerScope private constructor()
+
+/** Singleton for the operating system. It is the parent to app and computer scopes. */
+abstract class OsScope private constructor()

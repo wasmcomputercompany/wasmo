@@ -16,6 +16,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.okhttp)
         implementation(libs.okhttp.coroutines)
+        implementation(project(":os:server:identifiers"))
         implementation(project(":platform:api"))
       }
     }

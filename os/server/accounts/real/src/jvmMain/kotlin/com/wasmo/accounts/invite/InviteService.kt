@@ -6,14 +6,14 @@ import com.wasmo.api.InviteTicket
 import com.wasmo.db.WasmoDb
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.NotFoundUserException
+import com.wasmo.identifiers.OsScope
 import com.wasmo.support.tokens.newToken
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class InviteService(
   private val clock: Clock,
   private val wasmoDb: WasmoDb,

@@ -14,8 +14,9 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.MDN
-import com.wasmo.identifiers.ForHost
+import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.HandlerId
+import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.ApplicationJob
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
@@ -31,14 +32,13 @@ import com.wasmo.sendemail.SendEmailService
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePaymentsService
 import com.wasmo.testing.FakeSendEmailService
-import com.wasmo.testing.jobs.JobQueueTester
 import com.wasmo.testing.TestDirectory
 import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.FakeEventListener
+import com.wasmo.testing.jobs.JobQueueTester
 import com.wasmo.wasm.AppLoader
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -58,7 +58,7 @@ import wasmo.sql.SqlService
 import wasmo.time.FakeClock
 
 @DependencyGraph(
-  scope = AppScope::class,
+  scope = OsScope::class,
   bindingContainers = [
     ComputerBindings::class,
     InstalledAppBindings::class,
@@ -87,22 +87,22 @@ interface ServiceTesterGraph {
   val sampleApps: SampleApps
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideDeployment(): Deployment = Deployment(
     baseUrl = "https://wasmo.com/".toHttpUrl(),
     sendFromEmailAddress = "noreply@wasmo.com",
   )
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideClock(): FakeClock = FakeClock()
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideOkHttpClient(): OkHttpClient = OkHttpClient()
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideFakeHttpClient(
     appPublisher: FakeAppPublisher,
   ): FakeHttpService = FakeHttpService().apply {
@@ -110,34 +110,34 @@ interface ServiceTesterGraph {
   }
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideStripePublishableKey(): StripePublishableKey =
     StripePublishableKey("pk_test_5544332211")
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideSessionCookieSpec(): SessionCookieSpec = SessionCookieSpec.Https
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideCookieSecret(): CookieSecret = CookieSecret("secret".encodeUtf8())
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideAppCatalog(
     sampleApps: SampleApps,
   ): AppCatalog = sampleApps.appCatalog
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideFakeObjectStore(): FakeObjectStore = FakeObjectStore()
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun provideContentTypeDatabase(): ContentTypeDatabase = ContentTypeDatabase.MDN
 
   @Provides
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   fun bindJobHandlerMap(
     applicationJobHandler: JobStore.Handler<ApplicationJob>,
     installAppJobHandler: JobStore.Handler<InstallAppJob>,
@@ -185,7 +185,7 @@ interface ServiceTesterGraph {
   fun bindAppLoader(real: FakeAppPublisher): AppLoader
 
   @Binds
-  @ForHost
+  @ForOs
   fun bindObjectStore(real: FakeObjectStore): ObjectStore
 
   @DependencyGraph.Factory

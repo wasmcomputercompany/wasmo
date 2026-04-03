@@ -7,6 +7,7 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.OsScope
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
@@ -14,7 +15,6 @@ import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.sql.r2dbc.asSqlService
 import com.wasmo.sql.r2dbc.connectPostgresqlAsync
 import com.wasmo.stripe.StripeCredentials
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.createGraphFactory
@@ -23,7 +23,7 @@ import io.ktor.server.netty.EngineMain
 import okio.ByteString
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class WasmoService(
   private val server: EmbeddedServer<*, *>,
   private val actionRouter: ActionRouter,

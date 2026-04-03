@@ -2,8 +2,8 @@ package com.wasmo.testing.events
 
 import com.wasmo.events.Event
 import com.wasmo.events.EventListener
+import com.wasmo.identifiers.OsScope
 import com.wasmo.testing.jobs.JobQueueTester
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Duration.Companion.seconds
@@ -14,7 +14,7 @@ import kotlinx.coroutines.withTimeout
  * Receives events from both production and test facets, and allows tests to consume those events.
  */
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class FakeEventListener(
   private val lazyJobQueueTester: Lazy<JobQueueTester>,
 ) : EventListener {

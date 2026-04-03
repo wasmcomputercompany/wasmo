@@ -1,6 +1,6 @@
 package com.wasmo.http
 
-import dev.zacsweers.metro.AppScope
+import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.coroutines.resume
@@ -21,7 +21,7 @@ import wasmo.http.HttpResponse
 import wasmo.http.HttpService
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class OkHttpClientHttpService(
   private val callFactory: Call.Factory,
 ) : HttpService {

@@ -1,8 +1,8 @@
 package com.wasmo.installedapps
 
 import com.wasmo.db.WasmoDb
+import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.JobStore
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -11,7 +11,7 @@ import dev.zacsweers.metro.SingleIn
  *   for execution when the app is upgrading.
  */
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class RealApplicationJobHandler(
   private val wasmoDb: WasmoDb,
   private val installedAppStore: InstalledAppStore,

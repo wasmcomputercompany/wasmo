@@ -1,12 +1,12 @@
 package com.wasmo.objectstore
 
-import dev.zacsweers.metro.AppScope
+import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.objectstore.ObjectStore
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class ObjectStoreFactory(
   private val connectors: Set<ObjectStoreConnector>,
 ) {

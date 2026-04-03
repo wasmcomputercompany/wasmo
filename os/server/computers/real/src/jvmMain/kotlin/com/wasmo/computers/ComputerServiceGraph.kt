@@ -6,7 +6,7 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerScope
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ForComputer
-import com.wasmo.identifiers.ForHost
+import com.wasmo.identifiers.ForOs
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
@@ -27,7 +27,7 @@ interface ComputerServiceGraph {
   @SingleIn(ComputerScope::class)
   fun provideObjectStore(
     slug: ComputerSlug,
-    @ForHost objectStore: ObjectStore,
+    @ForOs objectStore: ObjectStore,
   ): ObjectStore = ScopedObjectStore(
     delegate = objectStore,
     prefix = "$slug/",

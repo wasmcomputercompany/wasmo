@@ -1,6 +1,6 @@
 package wasmo.http
 
-import dev.zacsweers.metro.AppScope
+import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,7 +10,7 @@ import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class FakeHttpService : HttpService {
   private val handlersFlow = MutableStateFlow(listOf<Handler>())
   private val responses = mutableMapOf<HttpUrl, HttpResponse>()

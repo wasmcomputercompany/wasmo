@@ -1,9 +1,9 @@
 package com.wasmo.sendemail.postmark
 
+import com.wasmo.identifiers.OsScope
 import com.wasmo.sendemail.EmailMessage
 import com.wasmo.sendemail.EmailSendFailedException
 import com.wasmo.sendemail.SendEmailService
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Instant
@@ -56,7 +56,7 @@ class PostmarkEmailService private constructor(
   }
 
   @Inject
-  @SingleIn(AppScope::class)
+  @SingleIn(OsScope::class)
   class Factory(
     private val credentials: PostmarkCredentials,
     private val client: OkHttpClient,

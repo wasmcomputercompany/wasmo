@@ -1,13 +1,13 @@
 package com.wasmo.testing
 
+import com.wasmo.identifiers.OsScope
 import com.wasmo.sendemail.EmailMessage
 import com.wasmo.sendemail.SendEmailService
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class FakeSendEmailService : SendEmailService {
   val emails = ArrayDeque<EmailMessage>()
 

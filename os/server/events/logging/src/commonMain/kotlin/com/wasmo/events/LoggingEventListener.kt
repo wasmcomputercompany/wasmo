@@ -1,12 +1,12 @@
 package com.wasmo.events
 
 import com.wasmo.common.logging.Logger
-import dev.zacsweers.metro.AppScope
+import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class LoggingEventListener(
   private val logger: Logger,
 ) : EventListener {

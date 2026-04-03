@@ -14,6 +14,7 @@ kotlin {
       dependencies {
         implementation(libs.okhttp)
         implementation(libs.okio)
+        implementation(project(":os:server:identifiers"))
         implementation(project(":platform:api"))
       }
     }

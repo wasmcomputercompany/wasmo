@@ -5,7 +5,7 @@ import com.wasmo.db.InstalledAppRelease
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
-import com.wasmo.identifiers.ForHost
+import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
@@ -34,7 +34,7 @@ interface InstalledAppServiceGraph {
   fun provideObjectStore(
     computerSlug: ComputerSlug,
     appSlug: AppSlug,
-    @ForHost objectStore: ObjectStore,
+    @ForOs objectStore: ObjectStore,
   ): ObjectStore = ScopedObjectStore(
     delegate = objectStore,
     prefix = "$computerSlug/$appSlug/",

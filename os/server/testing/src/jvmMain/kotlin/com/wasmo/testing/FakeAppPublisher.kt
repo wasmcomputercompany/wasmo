@@ -1,12 +1,12 @@
 package com.wasmo.testing
 
 import com.wasmo.identifiers.AppSlug
+import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.WasmoToml
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.SampleApps
 import com.wasmo.wasm.AppLoader
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.serialization.encodeToString
@@ -19,7 +19,7 @@ import wasmo.http.FakeHttpService
  * A fake server that serves `wasmo-manifest.json` and `.wasm` files.
  */
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(OsScope::class)
 class FakeAppPublisher(
   private val fileSystem: FileSystem,
   private val sampleApps: SampleApps,
