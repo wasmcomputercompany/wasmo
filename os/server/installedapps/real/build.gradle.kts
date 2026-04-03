@@ -20,6 +20,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.postgresql)
         implementation(libs.tomlkt)
+        implementation(project(":identifiers"))
         implementation(project(":os:api"))
         implementation(project(":os:framework"))
         implementation(project(":os:server:accounts:api"))
@@ -34,10 +35,9 @@ kotlin {
         implementation(project(":os:server:jobs:api"))
         implementation(project(":os:server:payments:api"))
         implementation(project(":os:server:wasm:api"))
-        implementation(project(":identifiers"))
         implementation(project(":platform:api"))
-        implementation(project(":platform:issues"))
         implementation(project(":platform:packaging"))
+        implementation(project(":support:issues"))
       }
     }
     val jvmTest by getting {

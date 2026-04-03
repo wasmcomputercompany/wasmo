@@ -12,10 +12,10 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-        implementation(libs.okio)
         implementation(libs.kotlinx.serialization.json)
+        implementation(libs.okio)
         implementation(project(":identifiers"))
-        implementation(project(":platform:issues"))
+        implementation(project(":support:issues"))
       }
     }
     val jvmMain by getting {

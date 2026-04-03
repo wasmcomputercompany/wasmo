@@ -17,7 +17,7 @@ kotlin {
         implementation(project(":os:logging"))
         implementation(project(":os:server:events:api"))
         implementation(project(":os:server:identifiers"))
-        implementation(project(":platform:issues"))
+        implementation(project(":support:issues"))
       }
     }
   }

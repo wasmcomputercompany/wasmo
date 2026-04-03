@@ -73,8 +73,8 @@ kotlin {
         implementation(project(":os:server:website:api"))
         implementation(project(":os:server:website:real"))
         implementation(project(":platform:api"))
-        implementation(project(":platform:issues"))
         implementation(project(":platform:packaging"))
+        implementation(project(":support:issues"))
         implementation(project(":support:tokens"))
       }
     }

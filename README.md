@@ -110,4 +110,7 @@ Project layout
 | `platform`              | APIs exposed by Wasmo OS to its apps.                               |
 | `support`               | Standalone support libraries. This is not intended as a stable API. |
 | ` '- dom-tester`        | A library for snapshot testing HTML elements                        |
+| ` '- issues`            | A library for modeling warnings and errors                          |
+| ` '- router`            | A library for typesafe navigation in web apps                       |
+| ` '- tokens`            | A library for generating unguessable tokens for identifiers         |
 | `wasmo-build`           | Gradle stuff for building this project                              |

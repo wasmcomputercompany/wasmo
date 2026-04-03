@@ -12,7 +12,7 @@ kotlin {
     commonMain {
       dependencies {
         implementation(project(":identifiers"))
-        implementation(project(":platform:issues"))
+        implementation(project(":support:issues"))
       }
     }
   }

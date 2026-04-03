@@ -19,6 +19,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.postgresql)
         implementation(libs.tomlkt)
+        implementation(project(":identifiers"))
         implementation(project(":os:api"))
         implementation(project(":os:framework"))
         implementation(project(":os:logging"))
@@ -33,10 +34,9 @@ kotlin {
         implementation(project(":os:server:installedapps:api"))
         implementation(project(":os:server:jobs:api"))
         implementation(project(":os:server:payments:api"))
-        implementation(project(":identifiers"))
         implementation(project(":platform:api"))
-        implementation(project(":platform:issues"))
         implementation(project(":platform:packaging"))
+        implementation(project(":support:issues"))
       }
     }
     val jvmTest by getting {
@@ -44,10 +44,10 @@ kotlin {
         implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.okio.fakefilesystem)
-        implementation(project(":platform:testing"))
         implementation(project(":os:server:testing"))
         implementation(project(":os:server:website:api"))
         implementation(project(":os:server:website:real"))
+        implementation(project(":platform:testing"))
       }
     }
   }
