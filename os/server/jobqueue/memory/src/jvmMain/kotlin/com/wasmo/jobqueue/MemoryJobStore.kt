@@ -1,6 +1,8 @@
 package com.wasmo.jobqueue
 
 import com.wasmo.api.WasmoJson
+import com.wasmo.identifiers.HandlerId
+import com.wasmo.identifiers.Job
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

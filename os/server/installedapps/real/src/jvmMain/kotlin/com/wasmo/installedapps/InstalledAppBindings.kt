@@ -1,6 +1,5 @@
 package com.wasmo.installedapps
 
-import com.wasmo.jobqueue.InstallAppJob
 import com.wasmo.jobqueue.JobStore
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds

@@ -11,7 +11,7 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerScope
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.jobqueue.InstallAppJob
+import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.jobqueue.JobStore
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

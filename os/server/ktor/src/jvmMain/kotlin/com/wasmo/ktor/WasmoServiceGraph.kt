@@ -22,11 +22,11 @@ import com.wasmo.framework.MDN
 import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ForHost
+import com.wasmo.identifiers.HandlerId
+import com.wasmo.installedapps.ApplicationJob
+import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
-import com.wasmo.jobqueue.ApplicationJob
-import com.wasmo.jobqueue.HandlerId
-import com.wasmo.jobqueue.InstallAppJob
 import com.wasmo.jobqueue.JobQueueEventListener
 import com.wasmo.jobqueue.JobStore
 import com.wasmo.jobqueue.MemoryJobStore
@@ -189,8 +189,8 @@ internal interface WasmoServiceGraph {
     applicationJobHandler: JobStore.Handler<ApplicationJob>,
     installAppJobHandler: JobStore.Handler<InstallAppJob>,
   ): Map<HandlerId<*>, JobStore.Handler<*>> = mapOf(
-    HandlerId.Application to applicationJobHandler,
-    HandlerId.InstallApp to installAppJobHandler,
+    ApplicationJob.HandlerId to applicationJobHandler,
+    InstallAppJob.HandlerId to installAppJobHandler,
   )
 
   @Binds

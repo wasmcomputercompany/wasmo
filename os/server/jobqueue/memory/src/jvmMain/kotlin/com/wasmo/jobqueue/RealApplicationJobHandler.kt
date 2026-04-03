@@ -1,6 +1,7 @@
 package com.wasmo.jobqueue
 
 import com.wasmo.db.WasmoDb
+import com.wasmo.installedapps.ApplicationJob
 import com.wasmo.installedapps.InstalledAppStore
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject

@@ -3,6 +3,8 @@ package com.wasmo.jobqueue
 import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.identifiers.HandlerId
+import com.wasmo.identifiers.Job
 import com.wasmo.testing.measureTestTime
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test

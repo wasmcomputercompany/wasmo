@@ -6,7 +6,6 @@ import com.wasmo.db.WasmoDb
 import com.wasmo.events.EventListener
 import com.wasmo.events.InstallAppEvent
 import com.wasmo.issues.IssueCollector
-import com.wasmo.jobqueue.InstallAppJob
 import com.wasmo.jobqueue.JobStore
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
