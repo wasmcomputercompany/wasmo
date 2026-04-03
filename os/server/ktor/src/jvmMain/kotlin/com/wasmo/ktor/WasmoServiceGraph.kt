@@ -22,7 +22,7 @@ import com.wasmo.framework.MDN
 import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ForOs
-import com.wasmo.identifiers.HandlerId
+import com.wasmo.identifiers.JobHandlerId
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.ApplicationJob
 import com.wasmo.installedapps.ApplicationJobHandler
@@ -189,7 +189,7 @@ internal interface WasmoServiceGraph {
   fun bindJobHandlerMap(
     applicationJobHandler: OsJobHandler<ApplicationJob>,
     installAppJobHandler: OsJobHandler<InstallAppJob>,
-  ): Map<HandlerId<*>, OsJobHandler<*>> = mapOf(
+  ): Map<JobHandlerId<*>, OsJobHandler<*>> = mapOf(
     ApplicationJob.HandlerId to applicationJobHandler,
     InstallAppJob.HandlerId to installAppJobHandler,
   )

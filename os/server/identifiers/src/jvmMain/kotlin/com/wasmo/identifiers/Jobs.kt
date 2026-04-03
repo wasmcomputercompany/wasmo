@@ -2,10 +2,10 @@ package com.wasmo.identifiers
 
 import kotlinx.serialization.KSerializer
 
-interface HandlerId<J : Job> {
-  val serializer: KSerializer<J>
+interface Job {
+  val handlerId: JobHandlerId<*>
 }
 
-interface Job {
-  val handlerId: HandlerId<*>
+interface JobHandlerId<J : Job> {
+  val serializer: KSerializer<J>
 }

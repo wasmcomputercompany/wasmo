@@ -16,6 +16,8 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okhttp)
         implementation(libs.okio)
+        implementation(project(":identifiers"))
+        implementation(project(":support:issues"))
       }
     }
   }

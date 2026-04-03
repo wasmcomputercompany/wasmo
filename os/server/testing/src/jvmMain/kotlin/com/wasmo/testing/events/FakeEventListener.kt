@@ -1,7 +1,7 @@
 package com.wasmo.testing.events
 
-import com.wasmo.events.Event
 import com.wasmo.events.EventListener
+import com.wasmo.identifiers.Event
 import com.wasmo.identifiers.OsScope
 import com.wasmo.testing.jobs.JobQueueTester
 import dev.zacsweers.metro.Inject

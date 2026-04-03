@@ -1,8 +1,8 @@
 package com.wasmo.jobs
 
 import com.wasmo.api.WasmoJson
-import com.wasmo.identifiers.HandlerId
 import com.wasmo.identifiers.Job
+import com.wasmo.identifiers.JobHandlerId
 import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -20,10 +20,11 @@ import kotlinx.serialization.KSerializer
  */
 @Inject
 @SingleIn(OsScope::class)
+@Suppress("UNCHECKED_CAST") // The handler map is type-keyed so we need unchecked casts.
 class MemoryOsJobQueue(
   private val scope: CoroutineScope,
   private val clock: Clock,
-  private val jobHandlerMap: Map<HandlerId<*>, OsJobHandler<*>>,
+  private val jobHandlerMap: Map<JobHandlerId<*>, OsJobHandler<*>>,
   private val eventListener: JobQueueEventListener,
 ) : OsJobQueue {
   private val jobs = ConcurrentHashMap<Job, CoroutinesJob>()

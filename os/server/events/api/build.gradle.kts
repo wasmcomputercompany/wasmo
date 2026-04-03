@@ -12,6 +12,7 @@ kotlin {
     commonMain {
       dependencies {
         implementation(project(":identifiers"))
+        implementation(project(":os:server:identifiers"))
         implementation(project(":support:issues"))
       }
     }

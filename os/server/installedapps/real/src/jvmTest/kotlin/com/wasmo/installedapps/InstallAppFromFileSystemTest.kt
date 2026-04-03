@@ -7,7 +7,6 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.wasmo.api.InstalledAppSnapshot
-import com.wasmo.events.InstallAppEvent
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.WasmoFileAddress

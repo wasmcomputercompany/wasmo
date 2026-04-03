@@ -24,6 +24,7 @@ kotlin {
         implementation(project(":identifiers"))
         implementation(project(":platform:api"))
         implementation(project(":platform:packaging"))
+        implementation(project(":support:issues"))
       }
     }
   }

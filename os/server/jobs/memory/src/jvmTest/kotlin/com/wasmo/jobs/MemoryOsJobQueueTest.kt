@@ -3,8 +3,8 @@ package com.wasmo.jobs
 import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.identifiers.HandlerId
 import com.wasmo.identifiers.Job
+import com.wasmo.identifiers.JobHandlerId
 import com.wasmo.testing.measureTestTime
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
@@ -125,7 +125,7 @@ class MemoryOsJobQueueTest {
     assertThat(durationDeferred.await()).isEqualTo(3.seconds)
   }
 
-  object SampleJobHandlerId : HandlerId<SampleJob> {
+  object SampleJobHandlerId : JobHandlerId<SampleJob> {
     override val serializer: KSerializer<SampleJob>
       get() = SampleJob.serializer()
   }
@@ -134,7 +134,7 @@ class MemoryOsJobQueueTest {
   data class SampleJob(
     val message: String,
   ) : Job {
-    override val handlerId: HandlerId<*>
+    override val handlerId: JobHandlerId<*>
       get() = SampleJobHandlerId
   }
 

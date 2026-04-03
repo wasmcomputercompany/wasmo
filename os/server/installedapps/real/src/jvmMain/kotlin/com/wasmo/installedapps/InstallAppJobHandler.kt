@@ -4,7 +4,6 @@ import com.wasmo.computers.ComputerStore
 import com.wasmo.db.InstalledAppRelease
 import com.wasmo.db.WasmoDb
 import com.wasmo.events.EventListener
-import com.wasmo.events.InstallAppEvent
 import com.wasmo.identifiers.OsScope
 import com.wasmo.issues.IssueCollector
 import com.wasmo.jobs.OsJobHandler

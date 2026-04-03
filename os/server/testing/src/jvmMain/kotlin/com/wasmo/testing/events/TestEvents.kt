@@ -1,7 +1,7 @@
 package com.wasmo.testing.events
 
-import com.wasmo.events.Event
 import com.wasmo.identifiers.AppSlug
+import com.wasmo.identifiers.Event
 import okio.ByteString
 
 data class AfterInstallEvent(

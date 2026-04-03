@@ -1,7 +1,9 @@
 package com.wasmo.events
 
 import com.wasmo.common.logging.Logger
+import com.wasmo.identifiers.Event
 import com.wasmo.identifiers.OsScope
+import com.wasmo.installedapps.InstallAppEvent
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
