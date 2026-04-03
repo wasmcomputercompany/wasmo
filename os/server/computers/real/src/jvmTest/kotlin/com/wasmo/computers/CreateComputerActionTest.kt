@@ -40,7 +40,7 @@ class CreateComputerActionTest {
       "https://jesse99.wasmo.com/",
     )
 
-    val computerListPage = client.call().hostPage(ComputerListRoute)
+    val computerListPage = client.call().osPage(ComputerListRoute)
     assertThat(computerListPage.computerListSnapshot?.items)
       .isNotNull()
       .containsExactly(ComputerListItem(computerSlug))
@@ -49,7 +49,7 @@ class CreateComputerActionTest {
     val computer = client.getComputer(computerSlug)
     computer.jobQueueTester.awaitIdle() // TODO: serve InstallAppJobs while waiting.
 
-    val computerHostPage = client.call().hostPage(ComputerHomeRoute(computerSlug))
+    val computerHostPage = client.call().osPage(ComputerHomeRoute(computerSlug))
     assertThat(computerHostPage.computerSnapshot?.slug).isEqualTo(computerSlug)
     assertThat(computerHostPage.computerSnapshot?.apps)
       .isNotNull()

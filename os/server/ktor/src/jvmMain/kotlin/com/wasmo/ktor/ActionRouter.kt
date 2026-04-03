@@ -32,7 +32,6 @@ import com.wasmo.framework.redirect
 import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSlugRegex
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import io.ktor.http.HttpMethod
@@ -106,7 +105,7 @@ class ActionRouter(
   private fun Route.createComputerRoutes() {
     route("/", HttpMethod.Get) {
       handle { callGraph, url, _ ->
-        callGraph.hostPageAction.get(url).response
+        callGraph.osPageAction.get(url).response
       }
     }
 
@@ -134,7 +133,7 @@ class ActionRouter(
     for (path in listOf("/", "/build-yours", "/computers", "/teaser", "/invite/{code}")) {
       route(path, HttpMethod.Get) {
         handle { callGraph, url, _ ->
-          callGraph.hostPageAction.get(url).response
+          callGraph.osPageAction.get(url).response
         }
       }
     }

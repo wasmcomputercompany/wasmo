@@ -17,7 +17,7 @@ import com.wasmo.installedapps.CallAppAction
 import com.wasmo.installedapps.InstallAppAction
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
-import com.wasmo.website.HostPageAction
+import com.wasmo.website.OsPageAction
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
@@ -35,7 +35,7 @@ interface CallGraph {
   val confirmEmailAddressAction: ConfirmEmailAddressAction
   val createComputerSpecAction: CreateComputerSpecAction
   val installAppAction: InstallAppAction
-  val hostPageAction: HostPageAction
+  val osPageAction: OsPageAction
   val afterCheckoutAction: AfterCheckoutAction
   val callAppAction: CallAppAction
 

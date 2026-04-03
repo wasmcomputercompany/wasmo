@@ -20,12 +20,12 @@ import dev.zacsweers.metro.SingleIn
  */
 @Inject
 @SingleIn(CallScope::class)
-class HostPageAction(
+class OsPageAction(
   private val callDataService: CallDataService,
-  private val hostPageFactory: ServerHostPage.Factory,
+  private val osPageFactory: ServerOsPage.Factory,
   private val wasmoDb: WasmoDb,
 ) {
-  fun get(url: Url): ServerHostPage {
+  fun get(url: Url): ServerOsPage {
     return wasmoDb.transactionWithResult(noEnclosing = true) {
       val accountSnapshot = callDataService.accountSnapshot()
       val routingContext = callDataService.routingContext()
@@ -55,7 +55,7 @@ class HostPageAction(
         }
       }
 
-      hostPageFactory.create(
+      osPageFactory.create(
         routingContext = routingContext,
         accountSnapshot = accountSnapshot,
         inviteTicket = inviteTicket,

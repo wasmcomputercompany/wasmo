@@ -23,7 +23,7 @@ class ComputerAccessTest {
     val clientA = tester.newClient()
     val computer = clientA.createComputer()
 
-    val computerListPage = clientA.call().hostPage(ComputerListRoute)
+    val computerListPage = clientA.call().osPage(ComputerListRoute)
     assertThat(computerListPage.computerListSnapshot?.items)
       .isNotNull()
       .isNotEmpty()
@@ -38,11 +38,11 @@ class ComputerAccessTest {
     val computer = clientA.createComputer()
 
     val clientB = tester.newClient()
-    val computerListPage = clientB.call().hostPage(ComputerListRoute)
+    val computerListPage = clientB.call().osPage(ComputerListRoute)
     assertThat(computerListPage.computerListSnapshot?.items).isNotNull().isEmpty()
 
     assertFailsWith<UnauthorizedUserException> {
-      clientB.call().hostPage(ComputerHomeRoute(computer.slug))
+      clientB.call().osPage(ComputerHomeRoute(computer.slug))
     }
   }
 }

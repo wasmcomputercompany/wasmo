@@ -46,8 +46,8 @@ import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.stripe.StripePaymentsService
 import com.wasmo.wasm.AppLoader
 import com.wasmo.wasm.JvmAppLoader
-import com.wasmo.website.RealServerHostPage
-import com.wasmo.website.ServerHostPage
+import com.wasmo.website.RealServerOsPage
+import com.wasmo.website.ServerOsPage
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -210,7 +210,7 @@ internal interface WasmoServiceGraph {
   fun bindRouteCodecFactory(real: RealRouteCodec.Factory): RouteCodec.Factory
 
   @Binds
-  fun bindServerHostPageFactory(real: RealServerHostPage.Factory): ServerHostPage.Factory
+  fun bindServerOsPageFactory(real: RealServerOsPage.Factory): ServerOsPage.Factory
 
   @Binds
   fun bindEventListener(real: LoggingEventListener): EventListener

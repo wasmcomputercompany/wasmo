@@ -28,8 +28,8 @@ import com.wasmo.installedapps.CallAppAction
 import com.wasmo.installedapps.InstallAppAction
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.framework.snapshot
-import com.wasmo.website.HostPageAction
-import com.wasmo.website.ServerHostPage
+import com.wasmo.website.OsPageAction
+import com.wasmo.website.ServerOsPage
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provider
 import okhttp3.HttpUrl
@@ -47,7 +47,7 @@ class CallTester(
   private val linkEmailAddressActionProvider: Provider<LinkEmailAddressAction>,
   private val confirmEmailAddressActionProvider: Provider<ConfirmEmailAddressAction>,
   private val registerPasskeyActionProvider: Provider<RegisterPasskeyAction>,
-  private val hostPageActionProvider: Provider<HostPageAction>,
+  private val osPageActionProvider: Provider<OsPageAction>,
   private val authenticatePasskeyActionProvider: Provider<AuthenticatePasskeyAction>,
   private val createComputerSpecActionProvider: Provider<CreateComputerSpecAction>,
   private val afterCheckoutActionProvider: Provider<AfterCheckoutAction>,
@@ -81,13 +81,12 @@ class CallTester(
   fun registerPasskey(request: RegisterPasskeyRequest) =
     registerPasskeyActionProvider().register(request)
 
-  fun hostPage(url: Url): ServerHostPage =
-    hostPageActionProvider().get(url)
+  fun osPage(url: Url): ServerOsPage =
+    osPageActionProvider().get(url)
 
-  fun hostPage(route: Route): ServerHostPage =
-    hostPage(
-      url = routeCodec().encode(route),
-    )
+  fun osPage(route: Route): ServerOsPage = osPage(
+    url = routeCodec().encode(route),
+  )
 
   fun authenticatePasskey(request: AuthenticatePasskeyRequest) =
     authenticatePasskeyActionProvider().authenticate(request)

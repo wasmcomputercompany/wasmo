@@ -33,7 +33,7 @@ class PasskeyActionsTest {
     )
     assertThat(registerResponse.body.account.passkeys)
       .containsExactly(passkeySnapshot)
-    assertThat(clientA.call().hostPage(TeaserRoute).accountSnapshot.passkeys)
+    assertThat(clientA.call().osPage(TeaserRoute).accountSnapshot.passkeys)
       .containsExactly(passkeySnapshot)
 
     val clientB = tester.newClient()

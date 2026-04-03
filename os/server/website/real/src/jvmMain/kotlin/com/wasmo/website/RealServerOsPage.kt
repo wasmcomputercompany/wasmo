@@ -27,7 +27,7 @@ import kotlinx.html.unsafe
 import okio.BufferedSink
 
 @AssistedInject
-class RealServerHostPage(
+class RealServerOsPage(
   override val deployment: Deployment,
   override val stripePublishableKey: StripePublishableKey,
   @Assisted override val accountSnapshot: AccountSnapshot,
@@ -35,7 +35,7 @@ class RealServerHostPage(
   @Assisted override val inviteTicket: InviteTicket?,
   @Assisted override val computerSnapshot: ComputerSnapshot?,
   @Assisted override val computerListSnapshot: ComputerListSnapshot?,
-) : ServerHostPage, ResponseBody {
+) : ServerOsPage, ResponseBody {
   val pageData: MapPageData
     get() = MapPageData.Builder(WasmoJson)
       .put("stripe_publishable_key", stripePublishableKey)
@@ -118,13 +118,13 @@ class RealServerHostPage(
   }
 
   @AssistedFactory
-  interface Factory : ServerHostPage.Factory {
+  interface Factory : ServerOsPage.Factory {
     override fun create(
       routingContext: RoutingContext,
       accountSnapshot: AccountSnapshot,
       inviteTicket: InviteTicket?,
       computerSnapshot: ComputerSnapshot?,
       computerListSnapshot: ComputerListSnapshot?,
-    ): RealServerHostPage
+    ): RealServerOsPage
   }
 }
