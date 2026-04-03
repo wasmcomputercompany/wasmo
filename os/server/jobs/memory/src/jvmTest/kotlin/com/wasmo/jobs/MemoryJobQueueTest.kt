@@ -1,4 +1,4 @@
-package com.wasmo.jobqueue
+package com.wasmo.jobs
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat

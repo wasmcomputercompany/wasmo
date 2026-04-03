@@ -18,11 +18,8 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.serialization.json)
         implementation(project(":os:api"))
-        implementation(project(":os:server:db"))
         implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:installedapps:api"))
-        implementation(project(":os:server:jobqueue:api"))
-        implementation(project(":platform:api"))
+        implementation(project(":os:server:jobs:api"))
       }
     }
     val jvmTest by getting {

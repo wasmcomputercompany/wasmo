@@ -20,10 +20,10 @@ import com.wasmo.installedapps.ApplicationJob
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
-import com.wasmo.jobqueue.JobQueueEventListener
-import com.wasmo.jobqueue.JobStore
-import com.wasmo.jobqueue.MemoryJobStore
-import com.wasmo.jobqueue.RealApplicationJobHandler
+import com.wasmo.installedapps.RealApplicationJobHandler
+import com.wasmo.jobs.JobQueueEventListener
+import com.wasmo.jobs.JobStore
+import com.wasmo.jobs.MemoryJobStore
 import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService

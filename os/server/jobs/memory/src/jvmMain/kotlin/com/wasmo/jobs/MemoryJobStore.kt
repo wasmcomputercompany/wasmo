@@ -1,4 +1,4 @@
-package com.wasmo.jobqueue
+package com.wasmo.jobs
 
 import com.wasmo.api.WasmoJson
 import com.wasmo.identifiers.HandlerId
@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job as CoroutinesJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
@@ -26,7 +25,7 @@ class MemoryJobStore(
   private val jobHandlerMap: Map<HandlerId<*>, JobStore.Handler<*>>,
   private val eventListener: JobQueueEventListener,
 ) : JobStore {
-  private val jobs = ConcurrentHashMap<Job, CoroutinesJob>()
+  private val jobs = ConcurrentHashMap<Job, kotlinx.coroutines.Job>()
 
   override fun enqueue(job: Job, executeAt: Instant?) {
     eventListener.jobEnqueued(executeAt)
@@ -47,7 +46,7 @@ class MemoryJobStore(
     serializer: KSerializer<Job>,
     encodedJob: String,
     executeAt: Instant?,
-  ): CoroutinesJob {
+  ): kotlinx.coroutines.Job {
     return scope.launch {
       if (executeAt != null) {
         val duration = executeAt - clock.now()

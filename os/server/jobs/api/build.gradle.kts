@@ -18,7 +18,6 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(project(":os:api"))
         implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:installedapps:api"))
         implementation(project(":platform:api"))
       }
     }

@@ -1,12 +1,15 @@
-package com.wasmo.jobqueue
+package com.wasmo.installedapps
 
 import com.wasmo.db.WasmoDb
-import com.wasmo.installedapps.ApplicationJob
-import com.wasmo.installedapps.InstalledAppStore
+import com.wasmo.jobs.JobStore
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
+/**
+ * TODO: This drops jobs if the app isn't currently runnable. For example, if the jobs are eligible
+ *   for execution when the app is upgrading.
+ */
 @Inject
 @SingleIn(AppScope::class)
 class RealApplicationJobHandler(
