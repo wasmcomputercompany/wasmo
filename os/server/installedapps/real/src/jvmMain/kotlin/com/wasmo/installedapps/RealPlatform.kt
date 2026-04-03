@@ -1,5 +1,7 @@
 package com.wasmo.installedapps
 
+import com.wasmo.identifiers.ForInstalledApp
+import com.wasmo.identifiers.InstalledAppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock

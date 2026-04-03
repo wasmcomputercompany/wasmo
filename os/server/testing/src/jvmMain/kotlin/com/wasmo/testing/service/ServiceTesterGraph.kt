@@ -23,8 +23,8 @@ import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.installedapps.RealApplicationJobHandler
 import com.wasmo.jobs.JobQueueEventListener
-import com.wasmo.jobs.JobStore
-import com.wasmo.jobs.MemoryJobStore
+import com.wasmo.jobs.MemoryOsJobQueue
+import com.wasmo.jobs.OsJobQueue
 import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
@@ -139,15 +139,15 @@ interface ServiceTesterGraph {
   @Provides
   @SingleIn(OsScope::class)
   fun bindJobHandlerMap(
-    applicationJobHandler: JobStore.Handler<ApplicationJob>,
-    installAppJobHandler: JobStore.Handler<InstallAppJob>,
-  ): Map<HandlerId<*>, JobStore.Handler<*>> = mapOf(
+    applicationJobHandler: OsJobQueue.Handler<ApplicationJob>,
+    installAppJobHandler: OsJobQueue.Handler<InstallAppJob>,
+  ): Map<HandlerId<*>, OsJobQueue.Handler<*>> = mapOf(
     ApplicationJob.HandlerId to applicationJobHandler,
     InstallAppJob.HandlerId to installAppJobHandler,
   )
 
   @Binds
-  fun bindApplicationJobHandler(real: RealApplicationJobHandler): JobStore.Handler<ApplicationJob>
+  fun bindApplicationJobHandler(real: RealApplicationJobHandler): OsJobQueue.Handler<ApplicationJob>
 
   @Binds
   fun bindJobQueueEventListener(real: JobQueueTester): JobQueueEventListener
@@ -176,7 +176,7 @@ interface ServiceTesterGraph {
   ): ClientAuthenticator.Factory
 
   @Binds
-  fun bindJobStore(real: MemoryJobStore): JobStore
+  fun bindOsJobQueue(real: MemoryOsJobQueue): OsJobQueue
 
   @Binds
   fun bindEventListener(real: FakeEventListener): EventListener

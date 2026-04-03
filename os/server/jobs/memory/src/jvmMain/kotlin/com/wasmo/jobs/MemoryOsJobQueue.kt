@@ -10,22 +10,23 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job as CoroutinesJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
 
 /**
- * A simple job queue.
+ * A simple job queue that persists nothing.
  */
 @Inject
 @SingleIn(OsScope::class)
-class MemoryJobStore(
+class MemoryOsJobQueue(
   private val scope: CoroutineScope,
   private val clock: Clock,
-  private val jobHandlerMap: Map<HandlerId<*>, JobStore.Handler<*>>,
+  private val jobHandlerMap: Map<HandlerId<*>, OsJobQueue.Handler<*>>,
   private val eventListener: JobQueueEventListener,
-) : JobStore {
-  private val jobs = ConcurrentHashMap<Job, kotlinx.coroutines.Job>()
+) : OsJobQueue {
+  private val jobs = ConcurrentHashMap<Job, CoroutinesJob>()
 
   override fun enqueue(job: Job, executeAt: Instant?) {
     eventListener.jobEnqueued(executeAt)
@@ -46,7 +47,7 @@ class MemoryJobStore(
     serializer: KSerializer<Job>,
     encodedJob: String,
     executeAt: Instant?,
-  ): kotlinx.coroutines.Job {
+  ): CoroutinesJob {
     return scope.launch {
       if (executeAt != null) {
         val duration = executeAt - clock.now()
@@ -55,7 +56,7 @@ class MemoryJobStore(
 
       val job = WasmoJson.decodeFromString(serializer, encodedJob)
       try {
-        val handler = jobHandlerMap[job.handlerId] as JobStore.Handler<Job>?
+        val handler = jobHandlerMap[job.handlerId] as OsJobQueue.Handler<Job>?
         handler?.execute(job)
       } catch (e: Throwable) {
         e.printStackTrace() // TODO.

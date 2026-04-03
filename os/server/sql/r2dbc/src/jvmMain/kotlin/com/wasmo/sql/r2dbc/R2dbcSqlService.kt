@@ -28,8 +28,8 @@ fun PostgresqlConnectionFactory.asSqlService(): SqlService = R2dbcSqlService(thi
 private class R2dbcSqlService(
   private val connectionFactory: PostgresqlConnectionFactory,
 ) : SqlService {
-  override suspend fun getOrCreate(name: String?): SqlDatabase {
-    require(name == null) {
+  override suspend fun getOrCreate(name: String): SqlDatabase {
+    require(name == "") {
       "SqlService doesn't support named databases yet"
     }
 

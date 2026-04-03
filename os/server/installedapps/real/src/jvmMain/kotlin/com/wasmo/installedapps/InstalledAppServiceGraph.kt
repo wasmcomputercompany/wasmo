@@ -5,14 +5,15 @@ import com.wasmo.db.InstalledAppRelease
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.ForInstalledApp
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.InstalledAppId
+import com.wasmo.identifiers.InstalledAppScope
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.Qualifier
 import dev.zacsweers.metro.SingleIn
 import wasmo.app.Platform
 import wasmo.downloader.Downloader
@@ -87,7 +88,7 @@ interface InstalledAppServiceGraph {
 
   @Binds
   @ForInstalledApp
-  fun bindJobQueueFactory(real: InstalledAppJobQueue.Factory): JobQueue.Factory
+  fun bindJobQueueFactory(real: RealJobQueue.Factory): JobQueue.Factory
 
   @Binds
   @ForInstalledApp
@@ -105,8 +106,3 @@ interface InstalledAppServiceGraph {
     ): InstalledAppServiceGraph
   }
 }
-
-abstract class InstalledAppScope private constructor()
-
-@Qualifier
-annotation class ForInstalledApp

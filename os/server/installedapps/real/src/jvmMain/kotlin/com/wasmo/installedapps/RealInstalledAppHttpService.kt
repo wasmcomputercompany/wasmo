@@ -5,6 +5,7 @@ import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
+import com.wasmo.identifiers.InstalledAppScope
 import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

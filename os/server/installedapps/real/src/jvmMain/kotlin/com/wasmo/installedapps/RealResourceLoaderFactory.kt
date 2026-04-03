@@ -1,5 +1,6 @@
 package com.wasmo.installedapps
 
+import com.wasmo.identifiers.InstalledAppScope
 import com.wasmo.identifiers.WasmoFileAddress
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

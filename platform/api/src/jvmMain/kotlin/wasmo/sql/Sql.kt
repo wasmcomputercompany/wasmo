@@ -8,10 +8,10 @@ import okio.Closeable
  */
 interface SqlService {
   /**
-   * Connect to the named database, creating it if necessary. Use 'null' for the application's
+   * Connect to the named database, creating it if necessary. Use '""' for the application's
    * default database.
    */
-  suspend fun getOrCreate(name: String? = null): SqlDatabase
+  suspend fun getOrCreate(name: String = ""): SqlDatabase
 }
 
 /**

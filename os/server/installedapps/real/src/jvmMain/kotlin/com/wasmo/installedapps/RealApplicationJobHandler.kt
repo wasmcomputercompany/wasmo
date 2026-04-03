@@ -2,7 +2,7 @@ package com.wasmo.installedapps
 
 import com.wasmo.db.WasmoDb
 import com.wasmo.identifiers.OsScope
-import com.wasmo.jobs.JobStore
+import com.wasmo.jobs.OsJobQueue
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -15,7 +15,7 @@ import dev.zacsweers.metro.SingleIn
 class RealApplicationJobHandler(
   private val wasmoDb: WasmoDb,
   private val installedAppStore: InstalledAppStore,
-) : JobStore.Handler<ApplicationJob> {
+) : OsJobQueue.Handler<ApplicationJob> {
 
   override suspend fun execute(job: ApplicationJob) {
     val installedAppService = wasmoDb.transactionWithResult(noEnclosing = true) {

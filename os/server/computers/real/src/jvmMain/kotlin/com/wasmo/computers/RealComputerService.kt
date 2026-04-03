@@ -12,7 +12,7 @@ import com.wasmo.identifiers.ComputerScope
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.installedapps.InstallAppJob
-import com.wasmo.jobs.JobStore
+import com.wasmo.jobs.OsJobQueue
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
@@ -25,7 +25,7 @@ class RealComputerService(
   private val clock: Clock,
   private val wasmoDb: WasmoDb,
   private val appCatalog: AppCatalog,
-  private val jobStore: JobStore,
+  private val jobQueue: OsJobQueue,
   override val id: ComputerId,
   override val slug: ComputerSlug,
   override val resourceInstallerFactory: ResourceInstaller.Factory,
@@ -58,7 +58,7 @@ class RealComputerService(
       version = 1L,
       wasmo_file_address = wasmoFileAddress,
     ).executeAsOne()
-    jobStore.enqueue(InstallAppJob(installedAppId))
+    jobQueue.enqueue(InstallAppJob(installedAppId))
   }
 
   context(transactionCallbacks: TransactionCallbacks)

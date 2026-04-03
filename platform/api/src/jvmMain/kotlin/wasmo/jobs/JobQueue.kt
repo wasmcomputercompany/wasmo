@@ -31,11 +31,3 @@ interface JobQueue {
     fun get(name: String = ""): JobQueue
   }
 }
-
-interface JobHandler {
-  suspend fun handle(job: ByteString)
-
-  interface Factory {
-    fun get(queueName: String): JobHandler
-  }
-}

@@ -18,14 +18,14 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 
-class MemoryJobQueueTest {
+class MemoryOsJobQueueTest {
   @InterceptTest
   val tester = ServiceTester()
 
   @Test
   fun happyPath() = runTest {
     val channel = Channel<String>(capacity = 1)
-    val jobQueue = MemoryJobStore(
+    val jobQueue = MemoryOsJobQueue(
       scope = this,
       clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to SampleJobExecutor(channel)),
@@ -43,7 +43,7 @@ class MemoryJobQueueTest {
   @Test
   fun jobExecutedWithDelay() = runTest {
     val channel = Channel<String>(capacity = 1)
-    val jobQueue = MemoryJobStore(
+    val jobQueue = MemoryOsJobQueue(
       scope = this,
       clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to SampleJobExecutor(channel)),
@@ -60,12 +60,12 @@ class MemoryJobQueueTest {
 
   @Test
   fun jobNotExecutedWhenJobCanceled() = runTest {
-    val explodingExecutor = object : JobStore.Handler<SampleJob> {
+    val explodingExecutor = object : OsJobQueue.Handler<SampleJob> {
       override suspend fun execute(job: SampleJob) {
         error("unexpected call")
       }
     }
-    val jobQueue = MemoryJobStore(
+    val jobQueue = MemoryOsJobQueue(
       scope = this,
       clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to explodingExecutor),
@@ -80,7 +80,7 @@ class MemoryJobQueueTest {
   @Test
   fun awaitIdleAlreadyIdle() = runTest {
     val channel = Channel<String>(capacity = Channel.RENDEZVOUS)
-    val jobQueue = MemoryJobStore(
+    val jobQueue = MemoryOsJobQueue(
       scope = this,
       clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to SampleJobExecutor(channel)),
@@ -104,7 +104,7 @@ class MemoryJobQueueTest {
   @Test
   fun awaitIdleNeedsToWait() = runTest {
     val channel = Channel<String>(capacity = Channel.RENDEZVOUS)
-    val jobQueue = MemoryJobStore(
+    val jobQueue = MemoryOsJobQueue(
       scope = this,
       clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to SampleJobExecutor(channel)),
@@ -140,7 +140,7 @@ class MemoryJobQueueTest {
 
   class SampleJobExecutor(
     val channel: Channel<String>,
-  ) : JobStore.Handler<SampleJob> {
+  ) : OsJobQueue.Handler<SampleJob> {
     override suspend fun execute(job: SampleJob) {
       channel.send(job.message)
     }
