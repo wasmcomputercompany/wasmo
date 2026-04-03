@@ -9,6 +9,7 @@ import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import okio.ByteString
 
 @Inject
 @SingleIn(AppScope::class)
@@ -19,7 +20,8 @@ class RealJobStoreHandler(
   context(scope: CoroutineScope)
   override suspend fun execute(
     installedAppId: InstalledAppId,
-    jobId: Long,
+    queueName: String,
+    job: ByteString,
   ): Job? {
     val installedAppService = wasmoDb.transactionWithResult(noEnclosing = true) {
       installedAppStore.get(installedAppId)
@@ -27,11 +29,12 @@ class RealJobStoreHandler(
 
     if (installedAppService == null) return null
     val app = installedAppService.app() ?: return null
-    val jobHandler = app.jobHandler ?: return null
+    val jobHandlerFactory = app.jobHandlerFactory ?: return null
+    val jobHandler = jobHandlerFactory.get(queueName)
 
     return scope.launch {
       // TODO: handle dead letter
-      jobHandler.handle(jobId)
+      jobHandler.handle(job)
     }
   }
 }

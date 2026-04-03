@@ -1,6 +1,7 @@
 package wasmo.jobs
 
 import kotlin.time.Instant
+import okio.ByteString
 
 interface JobQueue {
   /**
@@ -10,23 +11,32 @@ interface JobQueue {
    * Enqueuing a job ID that's already enqueued is the same as canceling that job ID and then
    * enqueueing it.
    *
-   * @param jobId an opaque identifier that will be passed back to the handler.
+   * @param job an opaque value that will be passed back to the handler.
    * @param executeAt the time when the OS will attempt to run the job. Actual execution may be
    *   delayed due to availability of resources.
    */
   fun enqueue(
-    jobId: Long,
+    job: ByteString,
     executeAt: Instant?,
   )
 
   /**
-   * Attempts to cancel [jobId] from executing. This has no effect if the job has already started
+   * Attempts to cancel [job] from executing. This has no effect if the job has already started
    * executing.
    */
-  fun cancel(jobId: Long)
+  fun cancel(job: ByteString)
+
+  interface Factory {
+    /** Get the named job queue. Use `""` for the application's default job queue. */
+    fun get(name: String = ""): JobQueue
+  }
 }
 
 interface JobHandler {
-  fun handle(jobId: Long)
-  fun handleFailedJob(jobId: Long)
+  suspend fun handle(job: ByteString)
+  suspend fun handleFailed(job: ByteString)
+
+  interface Factory {
+    fun get(queueName: String): JobHandler
+  }
 }

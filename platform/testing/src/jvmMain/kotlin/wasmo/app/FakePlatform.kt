@@ -14,5 +14,5 @@ class FakePlatform(
   override val httpService = FakeHttpService()
   override val objectStore = FakeObjectStore()
   override val downloader = RealDownloader(httpService, objectStore)
-  override val jobQueue = FakeJobQueue()
+  override val jobQueueFactory = FakeJobQueue.Factory()
 }

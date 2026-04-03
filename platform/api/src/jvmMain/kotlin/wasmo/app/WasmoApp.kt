@@ -6,7 +6,7 @@ import wasmo.jobs.JobHandler
 abstract class WasmoApp {
   open val httpService: HttpService?
     get() = null
-  open val jobHandler: JobHandler?
+  open val jobHandlerFactory: JobHandler.Factory?
     get() = null
 
   /**

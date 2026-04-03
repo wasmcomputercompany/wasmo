@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.supervisorScope
+import okio.ByteString
 
 /**
  * A simple job queue.
@@ -22,22 +23,27 @@ class MemoryJobStore(
 
   override fun enqueue(
     installedAppId: InstalledAppId,
-    jobId: Long,
+    queueName: String,
+    job: ByteString,
     executeAt: Instant?,
   ) {
-    cancel(installedAppId, jobId)
+    cancel(installedAppId, queueName, job)
     entry += Entry(
       installedAppId = installedAppId,
-      jobId = jobId,
+      queueName = queueName,
+      job = job,
       executeAt = executeAt,
     )
   }
 
   override fun cancel(
     installedAppId: InstalledAppId,
-    jobId: Long,
+    queueName: String,
+    job: ByteString,
   ) {
-    entry.removeAll { it.installedAppId == installedAppId && it.jobId == jobId }
+    entry.removeAll {
+      it.installedAppId == installedAppId && it.queueName == queueName && it.job == job
+    }
   }
 
   suspend fun executeReadyJobs() {
@@ -45,9 +51,9 @@ class MemoryJobStore(
       val now = clock.now()
       val i = entry.iterator()
       while (i.hasNext()) {
-        val enqueuedJob = i.next()
-        if (enqueuedJob.executeAt != null && enqueuedJob.executeAt > now) continue
-        if (handler.execute(enqueuedJob.installedAppId, enqueuedJob.jobId) == null) continue
+        val entry = i.next()
+        if (entry.executeAt != null && entry.executeAt > now) continue
+        if (handler.execute(entry.installedAppId, entry.queueName, entry.job) == null) continue
         i.remove()
       }
     }
@@ -55,7 +61,8 @@ class MemoryJobStore(
 
   private class Entry(
     val installedAppId: InstalledAppId,
-    val jobId: Long,
+    val queueName: String,
+    val job: ByteString,
     val executeAt: Instant?,
   )
 }

@@ -13,5 +13,5 @@ interface Platform {
   val objectStore: ObjectStore
   val downloader: Downloader
   val sqlService: SqlService
-  val jobQueue: JobQueue
+  val jobQueueFactory: JobQueue.Factory
 }

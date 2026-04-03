@@ -18,5 +18,5 @@ class RealPlatform(
   @ForInstalledApp override val objectStore: ObjectStore,
   @ForInstalledApp override val downloader: Downloader,
   @ForInstalledApp override val sqlService: SqlService,
-  @ForInstalledApp override val jobQueue: JobQueue,
+  @ForInstalledApp override val jobQueueFactory: JobQueue.Factory,
 ) : Platform
