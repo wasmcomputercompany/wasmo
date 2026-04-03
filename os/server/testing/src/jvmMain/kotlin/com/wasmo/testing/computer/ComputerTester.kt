@@ -4,10 +4,10 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.identifiers.ComputerSlug
-import com.wasmo.testing.JobQueueTester
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.installedapp.InstalledAppTester
+import com.wasmo.testing.jobs.JobQueueTester
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject

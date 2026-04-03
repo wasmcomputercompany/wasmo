@@ -17,7 +17,7 @@ interface JobQueue {
    */
   fun enqueue(
     job: ByteString,
-    executeAt: Instant?,
+    executeAt: Instant? = null,
   )
 
   /**
@@ -34,7 +34,6 @@ interface JobQueue {
 
 interface JobHandler {
   suspend fun handle(job: ByteString)
-  suspend fun handleFailed(job: ByteString)
 
   interface Factory {
     fun get(queueName: String): JobHandler

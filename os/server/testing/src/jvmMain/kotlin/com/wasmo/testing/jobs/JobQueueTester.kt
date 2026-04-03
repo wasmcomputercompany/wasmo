@@ -1,4 +1,4 @@
-package com.wasmo.testing
+package com.wasmo.testing.jobs
 
 import com.wasmo.jobs.JobQueueEventListener
 import dev.zacsweers.metro.AppScope

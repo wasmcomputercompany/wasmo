@@ -11,11 +11,11 @@ import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.FakePaymentsService
-import com.wasmo.testing.JobQueueTester
 import com.wasmo.testing.call.CallTester
 import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.computer.ComputerTester
 import com.wasmo.testing.events.FakeEventListener
+import com.wasmo.testing.jobs.JobQueueTester
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject

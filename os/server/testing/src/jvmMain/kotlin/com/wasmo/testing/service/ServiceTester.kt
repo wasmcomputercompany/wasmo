@@ -14,7 +14,7 @@ import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.FakeUserAgent
-import com.wasmo.testing.JobQueueTester
+import com.wasmo.testing.jobs.JobQueueTester
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.client.ClientTester

@@ -31,7 +31,7 @@ import com.wasmo.sendemail.SendEmailService
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePaymentsService
 import com.wasmo.testing.FakeSendEmailService
-import com.wasmo.testing.JobQueueTester
+import com.wasmo.testing.jobs.JobQueueTester
 import com.wasmo.testing.TestDirectory
 import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.call.CallTesterGraph
