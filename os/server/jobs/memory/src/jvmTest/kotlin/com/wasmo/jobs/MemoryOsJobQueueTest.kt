@@ -28,7 +28,7 @@ class MemoryOsJobQueueTest {
     val jobQueue = MemoryOsJobQueue(
       scope = this,
       clock = tester.clock,
-      jobHandlerMap = mapOf(SampleJobHandlerId to SampleJobExecutor(channel)),
+      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
       eventListener = tester.jobQueueTester,
     )
 
@@ -46,7 +46,7 @@ class MemoryOsJobQueueTest {
     val jobQueue = MemoryOsJobQueue(
       scope = this,
       clock = tester.clock,
-      jobHandlerMap = mapOf(SampleJobHandlerId to SampleJobExecutor(channel)),
+      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
       eventListener = tester.jobQueueTester,
     )
 
@@ -60,7 +60,7 @@ class MemoryOsJobQueueTest {
 
   @Test
   fun jobNotExecutedWhenJobCanceled() = runTest {
-    val explodingExecutor = object : OsJobQueue.Handler<SampleJob> {
+    val explodingJobHandler = object : OsJobHandler<SampleJob> {
       override suspend fun execute(job: SampleJob) {
         error("unexpected call")
       }
@@ -68,7 +68,7 @@ class MemoryOsJobQueueTest {
     val jobQueue = MemoryOsJobQueue(
       scope = this,
       clock = tester.clock,
-      jobHandlerMap = mapOf(SampleJobHandlerId to explodingExecutor),
+      jobHandlerMap = mapOf(SampleJobHandlerId to explodingJobHandler),
       eventListener = tester.jobQueueTester,
     )
 
@@ -83,7 +83,7 @@ class MemoryOsJobQueueTest {
     val jobQueue = MemoryOsJobQueue(
       scope = this,
       clock = tester.clock,
-      jobHandlerMap = mapOf(SampleJobHandlerId to SampleJobExecutor(channel)),
+      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
       eventListener = tester.jobQueueTester,
     )
 
@@ -107,7 +107,7 @@ class MemoryOsJobQueueTest {
     val jobQueue = MemoryOsJobQueue(
       scope = this,
       clock = tester.clock,
-      jobHandlerMap = mapOf(SampleJobHandlerId to SampleJobExecutor(channel)),
+      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
       eventListener = tester.jobQueueTester,
     )
 
@@ -138,9 +138,9 @@ class MemoryOsJobQueueTest {
       get() = SampleJobHandlerId
   }
 
-  class SampleJobExecutor(
+  class FakeJobHandler(
     val channel: Channel<String>,
-  ) : OsJobQueue.Handler<SampleJob> {
+  ) : OsJobHandler<SampleJob> {
     override suspend fun execute(job: SampleJob) {
       channel.send(job.message)
     }

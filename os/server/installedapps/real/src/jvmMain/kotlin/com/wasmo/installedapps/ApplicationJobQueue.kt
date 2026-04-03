@@ -12,7 +12,7 @@ import wasmo.jobs.JobQueue
 /**
  * Adapts the platform's installed app [JobQueue] to the OS job queue.
  */
-class RealJobQueue private constructor(
+class ApplicationJobQueue private constructor(
   private val osJobQueue: OsJobQueue,
   private val installedAppId: InstalledAppId,
   private val queueName: String,
@@ -31,7 +31,7 @@ class RealJobQueue private constructor(
     val osJobQueue: OsJobQueue,
     val installedAppId: InstalledAppId,
   ) : JobQueue.Factory {
-    override fun get(name: String) = RealJobQueue(
+    override fun get(name: String) = ApplicationJobQueue(
       osJobQueue = osJobQueue,
       installedAppId = installedAppId,
       queueName = name,

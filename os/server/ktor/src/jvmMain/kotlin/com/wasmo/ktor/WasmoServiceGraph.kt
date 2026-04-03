@@ -25,12 +25,13 @@ import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.HandlerId
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.ApplicationJob
+import com.wasmo.installedapps.ApplicationJobHandler
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
-import com.wasmo.installedapps.RealApplicationJobHandler
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryOsJobQueue
+import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.journal.server.JournalWasmoApp
 import com.wasmo.objectstore.ObjectStoreFactory
@@ -186,15 +187,15 @@ internal interface WasmoServiceGraph {
   @Provides
   @SingleIn(OsScope::class)
   fun bindJobHandlerMap(
-    applicationJobHandler: OsJobQueue.Handler<ApplicationJob>,
-    installAppJobHandler: OsJobQueue.Handler<InstallAppJob>,
-  ): Map<HandlerId<*>, OsJobQueue.Handler<*>> = mapOf(
+    applicationJobHandler: OsJobHandler<ApplicationJob>,
+    installAppJobHandler: OsJobHandler<InstallAppJob>,
+  ): Map<HandlerId<*>, OsJobHandler<*>> = mapOf(
     ApplicationJob.HandlerId to applicationJobHandler,
     InstallAppJob.HandlerId to installAppJobHandler,
   )
 
   @Binds
-  fun bindApplicationJobHandler(real: RealApplicationJobHandler): OsJobQueue.Handler<ApplicationJob>
+  fun bindApplicationJobHandler(real: ApplicationJobHandler): OsJobHandler<ApplicationJob>
 
   @Binds
   fun bindOsJobQueue(real: MemoryOsJobQueue): OsJobQueue

@@ -23,7 +23,7 @@ import kotlinx.serialization.KSerializer
 class MemoryOsJobQueue(
   private val scope: CoroutineScope,
   private val clock: Clock,
-  private val jobHandlerMap: Map<HandlerId<*>, OsJobQueue.Handler<*>>,
+  private val jobHandlerMap: Map<HandlerId<*>, OsJobHandler<*>>,
   private val eventListener: JobQueueEventListener,
 ) : OsJobQueue {
   private val jobs = ConcurrentHashMap<Job, CoroutinesJob>()
@@ -56,7 +56,7 @@ class MemoryOsJobQueue(
 
       val job = WasmoJson.decodeFromString(serializer, encodedJob)
       try {
-        val handler = jobHandlerMap[job.handlerId] as OsJobQueue.Handler<Job>?
+        val handler = jobHandlerMap[job.handlerId] as OsJobHandler<Job>?
         handler?.execute(job)
       } catch (e: Throwable) {
         e.printStackTrace() // TODO.

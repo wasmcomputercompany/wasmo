@@ -7,7 +7,7 @@ import com.wasmo.events.EventListener
 import com.wasmo.events.InstallAppEvent
 import com.wasmo.identifiers.OsScope
 import com.wasmo.issues.IssueCollector
-import com.wasmo.jobs.OsJobQueue
+import com.wasmo.jobs.OsJobHandler
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
@@ -20,7 +20,7 @@ class InstallAppJobHandler(
   private val computerStore: ComputerStore,
   private val eventListener: EventListener,
   private val installedAppStore: InstalledAppStore,
-) : OsJobQueue.Handler<InstallAppJob> {
+) : OsJobHandler<InstallAppJob> {
   override suspend fun execute(job: InstallAppJob) {
     val (installedApp, computerService) = wasmoDb.transactionWithResult(noEnclosing = true) {
       val installedApp = wasmoDb.installedAppQueries.selectInstalledAppById(job.installedAppId)

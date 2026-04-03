@@ -88,7 +88,7 @@ interface InstalledAppServiceGraph {
 
   @Binds
   @ForInstalledApp
-  fun bindJobQueueFactory(real: RealJobQueue.Factory): JobQueue.Factory
+  fun bindJobQueueFactory(real: ApplicationJobQueue.Factory): JobQueue.Factory
 
   @Binds
   @ForInstalledApp

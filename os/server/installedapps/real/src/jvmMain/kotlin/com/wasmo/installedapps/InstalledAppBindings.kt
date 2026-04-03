@@ -1,6 +1,6 @@
 package com.wasmo.installedapps
 
-import com.wasmo.jobs.OsJobQueue
+import com.wasmo.jobs.OsJobHandler
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 
@@ -10,5 +10,5 @@ interface InstalledAppBindings {
   fun bindInstalledAppStore(real: RealInstalledAppStore): InstalledAppStore
 
   @Binds
-  fun bindInstallAppJobHandler(real: InstallAppJobHandler): OsJobQueue.Handler<InstallAppJob>
+  fun bindInstallAppJobHandler(real: InstallAppJobHandler): OsJobHandler<InstallAppJob>
 }

@@ -11,8 +11,4 @@ import kotlin.time.Instant
 interface OsJobQueue {
   fun enqueue(job: Job, executeAt: Instant? = null)
   fun cancel(job: Job)
-
-  interface Handler<J : Job> {
-    suspend fun execute(job: J)
-  }
 }
