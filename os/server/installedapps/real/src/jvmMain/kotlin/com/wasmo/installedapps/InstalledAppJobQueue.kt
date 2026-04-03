@@ -1,6 +1,7 @@
 package com.wasmo.installedapps
 
 import com.wasmo.identifiers.InstalledAppId
+import com.wasmo.jobqueue.Job.ApplicationJob
 import com.wasmo.jobqueue.JobStore
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -14,11 +15,11 @@ class InstalledAppJobQueue private constructor(
   val queueName: String,
 ) : JobQueue {
   override fun enqueue(job: ByteString, executeAt: Instant?) {
-    jobStore.enqueue(installedAppId, queueName, job, executeAt)
+    jobStore.enqueue(ApplicationJob(installedAppId, queueName, job), executeAt)
   }
 
   override fun cancel(job: ByteString) {
-    jobStore.cancel(installedAppId, queueName, job)
+    jobStore.cancel(ApplicationJob(installedAppId, queueName, job))
   }
 
   @Inject

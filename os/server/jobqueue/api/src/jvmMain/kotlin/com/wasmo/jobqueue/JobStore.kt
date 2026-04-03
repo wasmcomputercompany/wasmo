@@ -1,32 +1,41 @@
 package com.wasmo.jobqueue
 
+import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import okio.ByteString
 
 interface JobStore {
-  fun enqueue(
-    installedAppId: InstalledAppId,
-    queueName: String,
-    job: ByteString,
-    executeAt: Instant?,
-  )
+  fun enqueue(job: Job, executeAt: Instant? = null)
+  fun cancel(job: Job)
 
-  fun cancel(
-    installedAppId: InstalledAppId,
-    queueName: String,
-    job: ByteString,
-  )
-
-  interface Handler {
+  interface Handler<J : Job> {
     /** Returns the launched coroutines job, or null if the job could not be launched. */
     context(scope: CoroutineScope)
-    suspend fun execute(
-      installedAppId: InstalledAppId,
-      queueName: String,
-      job: ByteString,
-    ): Job?
+    suspend fun execute(job: J): kotlinx.coroutines.Job?
   }
+}
+
+sealed interface Job {
+  val handlerId: HandlerId
+
+  data class OsJob<T>(
+    override val handlerId: HandlerId,
+    val computerId: ComputerId,
+    val data: T,
+  ) : Job
+
+  data class ApplicationJob(
+    val installedAppId: InstalledAppId,
+    val queueName: String,
+    val data: ByteString,
+  ) : Job {
+    override val handlerId: HandlerId
+      get() = HandlerId.Application
+  }
+}
+
+enum class HandlerId {
+  Application,
 }

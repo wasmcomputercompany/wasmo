@@ -25,9 +25,10 @@ import com.wasmo.identifiers.ForHost
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
+import com.wasmo.jobqueue.HandlerId
 import com.wasmo.jobqueue.JobStore
 import com.wasmo.jobqueue.MemoryJobStore
-import com.wasmo.jobqueue.RealJobStoreHandler
+import com.wasmo.jobqueue.RealApplicationJobHandler
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
@@ -183,14 +184,19 @@ internal interface WasmoServiceGraph {
   @SingleIn(AppScope::class)
   fun provideContentTypeDatabase(): ContentTypeDatabase = ContentTypeDatabase.MDN
 
+  @Provides
+  @SingleIn(AppScope::class)
+  fun bindJobHandlerMap(
+    real: RealApplicationJobHandler,
+  ): Map<HandlerId, JobStore.Handler<*>> = mapOf(
+    HandlerId.Application to real,
+  )
+
   @Binds
   fun bind(real: MemoryJobQueue<InstallAppJob>): JobQueue<InstallAppJob>
 
   @Binds
   fun bind(real: MemoryJobStore): JobStore
-
-  @Binds
-  fun bindJobHandler(real: RealJobStoreHandler): JobStore.Handler
 
   @Binds
   fun bindCallFactory(real: OkHttpClient): Call.Factory

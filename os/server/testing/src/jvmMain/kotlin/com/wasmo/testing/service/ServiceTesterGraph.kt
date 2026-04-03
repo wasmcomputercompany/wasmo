@@ -18,9 +18,10 @@ import com.wasmo.identifiers.ForHost
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
+import com.wasmo.jobqueue.HandlerId
 import com.wasmo.jobqueue.JobStore
 import com.wasmo.jobqueue.MemoryJobStore
-import com.wasmo.jobqueue.RealJobStoreHandler
+import com.wasmo.jobqueue.RealApplicationJobHandler
 import com.wasmo.jobs.JobQueue
 import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryJobQueue
@@ -76,7 +77,9 @@ interface ServiceTesterGraph {
   val eventListener: FakeEventListener
   val fakeHttpClient: FakeHttpService
   val fileSystem: FileSystem
-  @TestDirectory val testDirectory: Path
+
+  @TestDirectory
+  val testDirectory: Path
   val objectStore: FakeObjectStore
   val jobQueueTester: JobQueueTester
   val sendEmailService: FakeSendEmailService
@@ -134,6 +137,14 @@ interface ServiceTesterGraph {
   @SingleIn(AppScope::class)
   fun provideContentTypeDatabase(): ContentTypeDatabase = ContentTypeDatabase.MDN
 
+  @Provides
+  @SingleIn(AppScope::class)
+  fun bindJobHandlerMap(
+    real: RealApplicationJobHandler,
+  ): Map<HandlerId, JobStore.Handler<*>> = mapOf(
+    HandlerId.Application to real,
+  )
+
   @Binds
   fun bindJobQueueEventListener(real: JobQueueTester): JobQueueEventListener
 
@@ -165,9 +176,6 @@ interface ServiceTesterGraph {
 
   @Binds
   fun bindJobStore(real: MemoryJobStore): JobStore
-
-  @Binds
-  fun bindJobHandler(real: RealJobStoreHandler): JobStore.Handler
 
   @Binds
   fun bindEventListener(real: FakeEventListener): EventListener
