@@ -17,13 +17,13 @@ import com.wasmo.client.app.computerlist.ComputerListUi
 import com.wasmo.client.app.invite.InviteUi
 import com.wasmo.client.app.teaser.TeaserUi
 import com.wasmo.client.framework.Ui
+import com.wasmo.client.identifiers.ClientAppScope
 import com.wasmo.framework.PageData
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(ClientAppScope::class)
 class UiFactory(
   private val pageData: PageData,
   private val inviteUiFactory: InviteUi.Factory,

@@ -1,6 +1,20 @@
-package com.wasmo.api
+package com.wasmo.client.app.api
 
-import dev.zacsweers.metro.AppScope
+import com.wasmo.api.AuthenticatePasskeyRequest
+import com.wasmo.api.AuthenticatePasskeyResponse
+import com.wasmo.api.ConfirmEmailAddressRequest
+import com.wasmo.api.ConfirmEmailAddressResponse
+import com.wasmo.api.CreateComputerSpecRequest
+import com.wasmo.api.CreateComputerSpecResponse
+import com.wasmo.api.InstallAppRequest
+import com.wasmo.api.InstallAppResponse
+import com.wasmo.api.LinkEmailAddressRequest
+import com.wasmo.api.LinkEmailAddressResponse
+import com.wasmo.api.RegisterPasskeyRequest
+import com.wasmo.api.RegisterPasskeyResponse
+import com.wasmo.api.WasmoApi
+import com.wasmo.api.WasmoJson
+import com.wasmo.client.identifiers.ClientAppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.browser.window
@@ -9,7 +23,7 @@ import kotlinx.serialization.json.decodeFromDynamic
 import kotlinx.serialization.serializer
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(ClientAppScope::class)
 class RealWasmoApi : WasmoApi {
   override suspend fun registerPasskey(
     request: RegisterPasskeyRequest,

@@ -1,7 +1,7 @@
 package com.wasmo.client.app.data
 
 import com.wasmo.api.AccountSnapshot
-import dev.zacsweers.metro.AppScope
+import com.wasmo.client.identifiers.ClientAppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +16,7 @@ interface AccountDataService {
 }
 
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(ClientAppScope::class)
 class RealAccountDataService(
   accountSnapshot: AccountSnapshot,
 ) : AccountDataService {

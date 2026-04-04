@@ -7,7 +7,7 @@ import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.decodeUrl
 import com.wasmo.api.routes.encode
 import com.wasmo.client.app.browser.Browser
-import dev.zacsweers.metro.AppScope
+import com.wasmo.client.identifiers.ClientAppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +16,7 @@ import kotlinx.coroutines.CoroutineScope
  * Unify application-triggered navigation and browser-triggered navigation.
  */
 @Inject
-@SingleIn(AppScope::class)
+@SingleIn(ClientAppScope::class)
 class Router(
   val scope: CoroutineScope,
   val routeCodec: RouteCodec,
