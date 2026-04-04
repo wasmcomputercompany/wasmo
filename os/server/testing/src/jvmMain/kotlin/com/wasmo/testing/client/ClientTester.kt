@@ -14,8 +14,7 @@ import com.wasmo.testing.FakePaymentsService
 import com.wasmo.testing.call.CallTester
 import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.computer.ComputerTester
-import com.wasmo.testing.events.FakeEventListener
-import com.wasmo.testing.jobs.JobQueueTester
+import com.wasmo.testing.events.TestEventListener
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -28,8 +27,7 @@ import okio.ByteString
 class ClientTester(
   private val deployment: Deployment,
   private val callTesterGraphFactory: CallTesterGraph.Factory,
-  private val jobQueueTester: JobQueueTester,
-  private val eventListener: FakeEventListener,
+  private val eventListener: TestEventListener,
   private val computerTesterFactory: ComputerTester.Factory,
   val paymentsService: FakePaymentsService,
   @Assisted private val clientAuthenticator: ClientAuthenticator,
@@ -78,7 +76,7 @@ class ClientTester(
     call().afterCheckout(checkoutSessionId)
 
     // Wait for installation and discard installation-related events.
-    jobQueueTester.awaitIdle()
+    eventListener.awaitIdle()
     eventListener.receiveAll()
 
     return getComputer(slug)

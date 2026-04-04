@@ -29,7 +29,6 @@ import com.wasmo.installedapps.ApplicationJobHandler
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
-import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryOsJobQueue
 import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.OsJobQueue
@@ -157,10 +156,6 @@ internal interface WasmoServiceGraph {
   fun provideApplication(
     server: EmbeddedServer<*, *>,
   ): Application = server.application
-
-  @Provides
-  @SingleIn(OsScope::class)
-  fun provideJobQueueEventListener(): JobQueueEventListener = JobQueueEventListener.None
 
   @Provides
   @SingleIn(OsScope::class)

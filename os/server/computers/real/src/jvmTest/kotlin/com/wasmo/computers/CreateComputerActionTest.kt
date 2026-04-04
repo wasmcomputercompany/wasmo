@@ -46,8 +46,8 @@ class CreateComputerActionTest {
       .containsExactly(ComputerListItem(computerSlug))
 
     // Apps from TestAppCatalog are installed by default.
-    val computer = client.getComputer(computerSlug)
-    computer.jobQueueTester.awaitIdle() // TODO: serve InstallAppJobs while waiting.
+    client.getComputer(computerSlug)
+    tester.eventListener.awaitIdle() // TODO: serve InstallAppJobs while waiting.
 
     val computerHostPage = client.call().osPage(ComputerHomeRoute(computerSlug))
     assertThat(computerHostPage.computerSnapshot?.slug).isEqualTo(computerSlug)

@@ -1,6 +1,7 @@
 package com.wasmo.jobs
 
 import com.wasmo.api.WasmoJson
+import com.wasmo.events.EventListener
 import com.wasmo.identifiers.Job
 import com.wasmo.identifiers.JobHandlerId
 import com.wasmo.identifiers.OsScope
@@ -25,12 +26,12 @@ class MemoryOsJobQueue(
   private val scope: CoroutineScope,
   private val clock: Clock,
   private val jobHandlerMap: Map<JobHandlerId<*>, OsJobHandler<*>>,
-  private val eventListener: JobQueueEventListener,
+  private val eventListener: EventListener,
 ) : OsJobQueue {
   private val jobs = ConcurrentHashMap<Job, CoroutinesJob>()
 
   override fun enqueue(job: Job, executeAt: Instant?) {
-    eventListener.jobEnqueued(executeAt)
+    eventListener.onEvent(JobEnqueuedEvent)
 
     cancel(job)
 
@@ -62,7 +63,7 @@ class MemoryOsJobQueue(
       } catch (e: Throwable) {
         e.printStackTrace() // TODO.
       }
-      eventListener.jobCompleted()
+      eventListener.onEvent(JobCompletedEvent)
     }
   }
 }

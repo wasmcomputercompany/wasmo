@@ -9,6 +9,7 @@ import com.wasmo.testing.measureTestTime
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
@@ -29,7 +30,7 @@ class MemoryOsJobQueueTest {
       scope = this,
       clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
-      eventListener = tester.jobQueueTester,
+      eventListener = tester.eventListener,
     )
 
     jobQueue.enqueue(SampleJob("hello"))
@@ -47,7 +48,7 @@ class MemoryOsJobQueueTest {
       scope = this,
       clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
-      eventListener = tester.jobQueueTester,
+      eventListener = tester.eventListener,
     )
 
     jobQueue.enqueue(SampleJob("hello"), tester.clock.now.plus(1.minutes))
@@ -69,7 +70,7 @@ class MemoryOsJobQueueTest {
       scope = this,
       clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to explodingJobHandler),
-      eventListener = tester.jobQueueTester,
+      eventListener = tester.eventListener,
     )
 
     val job = SampleJob("hello")
@@ -84,7 +85,7 @@ class MemoryOsJobQueueTest {
       scope = this,
       clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
-      eventListener = tester.jobQueueTester,
+      eventListener = tester.eventListener,
     )
 
     jobQueue.enqueue(SampleJob("hello"))
@@ -94,7 +95,7 @@ class MemoryOsJobQueueTest {
 
     val durationDeferred = async {
       measureTestTime {
-        tester.jobQueueTester.awaitIdle()
+        tester.eventListener.awaitIdle()
       }
     }
 
@@ -108,21 +109,21 @@ class MemoryOsJobQueueTest {
       scope = this,
       clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
-      eventListener = tester.jobQueueTester,
+      eventListener = tester.eventListener,
     )
 
     jobQueue.enqueue(SampleJob("hello"))
 
     val durationDeferred = async {
       measureTestTime {
-        tester.jobQueueTester.awaitIdle()
+        tester.eventListener.awaitIdle()
       }
     }
 
-    delay(3.seconds)
+    delay(500.milliseconds)
     assertThat(channel.receive()).isEqualTo("hello")
 
-    assertThat(durationDeferred.await()).isEqualTo(3.seconds)
+    assertThat(durationDeferred.await()).isEqualTo(500.milliseconds)
   }
 
   object SampleJobHandlerId : JobHandlerId<SampleJob> {

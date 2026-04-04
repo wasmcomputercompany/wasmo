@@ -6,8 +6,8 @@ import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.client.ClientTester
+import com.wasmo.testing.events.TestEventListener
 import com.wasmo.testing.installedapp.InstalledAppTester
-import com.wasmo.testing.jobs.JobQueueTester
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -18,7 +18,7 @@ import dev.zacsweers.metro.AssistedInject
 @AssistedInject
 class ComputerTester private constructor(
   private val installedAppTesterFactory: InstalledAppTester.Factory,
-  val jobQueueTester: JobQueueTester,
+  private val eventListener: TestEventListener,
   @Assisted private val clientAuthenticator: ClientAuthenticator,
   @Assisted private val client: ClientTester,
   @Assisted val slug: ComputerSlug,
@@ -39,7 +39,7 @@ class ComputerTester private constructor(
     )
 
     if (waitForInstall) {
-      jobQueueTester.awaitIdle()
+      eventListener.awaitIdle()
     }
 
     return getApp(publishedApp)

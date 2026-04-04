@@ -22,7 +22,6 @@ import com.wasmo.installedapps.ApplicationJobHandler
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
-import com.wasmo.jobs.JobQueueEventListener
 import com.wasmo.jobs.MemoryOsJobQueue
 import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.OsJobQueue
@@ -37,8 +36,7 @@ import com.wasmo.testing.TestDirectory
 import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.client.ClientTester
-import com.wasmo.testing.events.FakeEventListener
-import com.wasmo.testing.jobs.JobQueueTester
+import com.wasmo.testing.events.TestEventListener
 import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
@@ -74,14 +72,13 @@ interface ServiceTesterGraph {
   val clock: FakeClock
   val clientTesterFactory: ClientTester.Factory
   val deployment: Deployment
-  val eventListener: FakeEventListener
+  val eventListener: TestEventListener
   val fakeHttpClient: FakeHttpService
   val fileSystem: FileSystem
 
   @TestDirectory
   val testDirectory: Path
   val objectStore: FakeObjectStore
-  val jobQueueTester: JobQueueTester
   val sendEmailService: FakeSendEmailService
   val appPublisher: FakeAppPublisher
   val wasmoDb: WasmoDbService
@@ -151,9 +148,6 @@ interface ServiceTesterGraph {
   fun bindApplicationJobHandler(real: ApplicationJobHandler): OsJobHandler<ApplicationJob>
 
   @Binds
-  fun bindJobQueueEventListener(real: JobQueueTester): JobQueueEventListener
-
-  @Binds
   fun bindClock(real: FakeClock): Clock
 
   @Binds
@@ -180,7 +174,7 @@ interface ServiceTesterGraph {
   fun bindOsJobQueue(real: MemoryOsJobQueue): OsJobQueue
 
   @Binds
-  fun bindEventListener(real: FakeEventListener): EventListener
+  fun bindEventListener(real: TestEventListener): EventListener
 
   @Binds
   fun bindAppLoader(real: FakeAppPublisher): AppLoader

@@ -1,18 +1,7 @@
 package com.wasmo.jobs
 
-import kotlin.time.Instant
+import com.wasmo.identifiers.Event
 
-interface JobQueueEventListener {
-  fun jobEnqueued(instant: Instant?)
-  fun jobCompleted()
+data object JobEnqueuedEvent : Event
 
-  companion object {
-    val None = object : JobQueueEventListener {
-      override fun jobEnqueued(instant: Instant?) {
-      }
-
-      override fun jobCompleted() {
-      }
-    }
-  }
-}
+data object JobCompletedEvent : Event
