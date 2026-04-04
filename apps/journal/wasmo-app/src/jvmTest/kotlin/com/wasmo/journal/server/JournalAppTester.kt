@@ -7,15 +7,14 @@ import com.wasmo.sql.r2dbc.connectPostgresqlAsync
 import com.wasmo.testing.sql.TestDatabaseAddress
 import com.wasmo.testing.sql.clearSchema
 import wasmo.app.FakePlatform
-import wasmo.time.FakeClock
 
 class JournalAppTester : CoroutineTestInterceptor {
   private var run: Run? = null
 
-  val clock: FakeClock
-    get() = run!!.platform.clock
   val app: JournalWasmoApp
     get() = run!!.app
+  val httpService: JournalHttpService
+    get() = app.httpService
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     val dataSource = connectPostgresqlAsync(TestDatabaseAddress)

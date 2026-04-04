@@ -24,7 +24,7 @@ class JournalAdminTest {
   @Test
   fun saveNewEntry() = runTest {
     assertThat(
-      tester.app.listEntriesAction().list(
+      tester.httpService.listEntriesAction().list(
         ListEntriesRequest(),
       ),
     ).isEqualTo(
@@ -35,7 +35,7 @@ class JournalAdminTest {
 
     val entryToken = "aaaaabbbbbcccccdddddeeeee"
     assertThat(
-      tester.app.saveEntryAction().save(
+      tester.httpService.saveEntryAction().save(
         entryToken,
         SaveEntryRequest(
           expectedVersion = 0L,
@@ -55,7 +55,7 @@ class JournalAdminTest {
     )
 
     assertThat(
-      tester.app.listEntriesAction().list(
+      tester.httpService.listEntriesAction().list(
         ListEntriesRequest(),
       ),
     ).isEqualTo(
@@ -74,7 +74,7 @@ class JournalAdminTest {
 
 
     assertThat(
-      tester.app.getEntryAction().get(
+      tester.httpService.getEntryAction().get(
         entryToken = entryToken,
       ),
     ).isEqualTo(
@@ -95,18 +95,18 @@ class JournalAdminTest {
     val entryToken = "aaaaabbbbbcccccdddddeeeee"
     val attachment1 = "fffffggggghhhhhiiiiijjjjj"
     val attachment2 = "kkkkklllllmmmmmnnnnnooooo"
-    tester.app.postAttachmentAction().post(
+    tester.httpService.postAttachmentAction().post(
       entryToken = entryToken,
       attachmentToken = attachment1,
       request = "this is an attachment!".encodeUtf8(),
     )
-    tester.app.postAttachmentAction().post(
+    tester.httpService.postAttachmentAction().post(
       entryToken = entryToken,
       attachmentToken = attachment2,
       request = "this is another attachment!".encodeUtf8(),
     )
 
-    tester.app.saveEntryAction().save(
+    tester.httpService.saveEntryAction().save(
       entryToken,
       SaveEntryRequest(
         expectedVersion = 0L,
@@ -123,7 +123,7 @@ class JournalAdminTest {
     )
 
     assertThat(
-      tester.app.getEntryAction().get(
+      tester.httpService.getEntryAction().get(
         entryToken = entryToken,
       ),
     ).isEqualTo(
@@ -147,7 +147,7 @@ class JournalAdminTest {
   fun updateEntry() = runTest {
     val entryToken = "aaaaabbbbbcccccdddddeeeee"
     assertThat(
-      tester.app.saveEntryAction().save(
+      tester.httpService.saveEntryAction().save(
         entryToken,
         SaveEntryRequest(
           expectedVersion = 0L,
@@ -167,7 +167,7 @@ class JournalAdminTest {
     )
 
     assertThat(
-      tester.app.saveEntryAction().save(
+      tester.httpService.saveEntryAction().save(
         entryToken,
         SaveEntryRequest(
           expectedVersion = 1L,
@@ -187,7 +187,7 @@ class JournalAdminTest {
     )
 
     assertThat(
-      tester.app.getEntryAction().get(
+      tester.httpService.getEntryAction().get(
         entryToken = entryToken,
       ),
     ).isEqualTo(

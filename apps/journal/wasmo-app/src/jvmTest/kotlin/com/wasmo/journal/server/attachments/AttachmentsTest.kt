@@ -19,7 +19,7 @@ class AttachmentsTest {
     val entryToken = "aaaaabbbbbcccccdddddeeeee"
     val attachmentToken = "fffffggggghhhhhiiiiijjjjj"
     assertThat(
-      tester.app.postAttachmentAction().post(
+      tester.httpService.postAttachmentAction().post(
         entryToken = entryToken,
         attachmentToken = attachmentToken,
         request = "this is an attachment!".encodeUtf8(),
@@ -32,7 +32,7 @@ class AttachmentsTest {
     )
 
     assertThat(
-      tester.app.getAttachmentAction().get(
+      tester.httpService.getAttachmentAction().get(
         entryToken = entryToken,
         attachmentToken = attachmentToken,
       ),
@@ -50,14 +50,14 @@ class AttachmentsTest {
   fun contentTypeAbsent() = runTest {
     val entryToken = "aaaaabbbbbcccccdddddeeeee"
     val attachmentToken = "fffffggggghhhhhiiiiijjjjj"
-    tester.app.postAttachmentAction().post(
+    tester.httpService.postAttachmentAction().post(
       entryToken = entryToken,
       attachmentToken = attachmentToken,
       request = "this is an attachment!".encodeUtf8(),
     )
 
     assertThat(
-      tester.app.getAttachmentAction().get(
+      tester.httpService.getAttachmentAction().get(
         entryToken = entryToken,
         attachmentToken = attachmentToken,
       ),
@@ -74,7 +74,7 @@ class AttachmentsTest {
     val attachmentToken = "fffffggggghhhhhiiiiijjjjj"
 
     assertThat(
-      tester.app.getAttachmentAction().get(
+      tester.httpService.getAttachmentAction().get(
         entryToken = entryToken,
         attachmentToken = attachmentToken,
       ),
