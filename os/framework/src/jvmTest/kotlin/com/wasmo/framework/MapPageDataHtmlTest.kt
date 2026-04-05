@@ -2,6 +2,7 @@ package com.wasmo.framework
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.support.okiohtml.writeHtml
 import kotlin.test.Test
 import kotlin.time.Instant
 import kotlinx.html.head

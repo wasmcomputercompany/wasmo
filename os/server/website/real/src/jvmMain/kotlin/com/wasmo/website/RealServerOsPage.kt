@@ -13,7 +13,7 @@ import com.wasmo.framework.MapPageData
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.write
-import com.wasmo.framework.writeHtml
+import com.wasmo.support.okiohtml.writeHtml
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject

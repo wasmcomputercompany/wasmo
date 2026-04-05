@@ -27,6 +27,7 @@ kotlin {
         implementation(project(":os:server:website:api"))
         implementation(project(":identifiers"))
         implementation(project(":platform:api"))
+        implementation(project(":support:okio-html"))
       }
     }
   }

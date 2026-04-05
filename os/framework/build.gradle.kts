@@ -21,6 +21,7 @@ kotlin {
       dependencies {
         implementation(libs.okhttp)
         implementation(project(":platform:api"))
+        implementation(project(":support:okio-html"))
       }
     }
   }

@@ -1,7 +1,7 @@
 package com.wasmo.accounts.emails
 
-import com.wasmo.framework.writeHtml
 import com.wasmo.sendemail.EmailMessage
+import com.wasmo.support.okiohtml.writeHtml
 import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.div

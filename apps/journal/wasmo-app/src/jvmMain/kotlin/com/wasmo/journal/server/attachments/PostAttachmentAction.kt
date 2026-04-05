@@ -6,8 +6,6 @@ import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
-import wasmo.objectstore.ObjectStore
-import wasmo.objectstore.PutObjectRequest
 
 /**
  * ```
@@ -16,7 +14,7 @@ import wasmo.objectstore.PutObjectRequest
  */
 class PostAttachmentAction(
   private val clock: Clock,
-  private val objectStore: ObjectStore,
+  private val attachmentStore: AttachmentStore,
   private val journalDb: JournalDb,
 ) {
   suspend fun post(
@@ -25,12 +23,10 @@ class PostAttachmentAction(
     request: ByteString,
     contentType: String? = null,
   ): HttpResponse {
-    objectStore.put(
-      PutObjectRequest(
-        key = "attachments/${entryToken}/${attachmentToken}",
-        value = request,
-        contentType = contentType,
-      ),
+    attachmentStore.put(
+      entryToken = entryToken,
+      attachmentToken = attachmentToken,
+      attachment = Attachment(request, contentType),
     )
 
     journalDb.attachmentQueries.insertAttachment(

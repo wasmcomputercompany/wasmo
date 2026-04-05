@@ -11,6 +11,7 @@ import com.wasmo.journal.server.admin.AdminPageAction
 import com.wasmo.journal.server.admin.GetEntryAction
 import com.wasmo.journal.server.admin.ListEntriesAction
 import com.wasmo.journal.server.admin.SaveEntryAction
+import com.wasmo.journal.server.attachments.AttachmentStore
 import com.wasmo.journal.server.attachments.GetAttachmentAction
 import com.wasmo.journal.server.attachments.PostAttachmentAction
 import kotlin.time.Clock
@@ -20,12 +21,11 @@ import wasmo.http.Header
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
 import wasmo.http.HttpService
-import wasmo.objectstore.ObjectStore
 
 class JournalHttpService(
   private val clock: Clock,
-  private val objectStore: ObjectStore,
   private val journalDb: JournalDbService,
+  private val attachmentStore: AttachmentStore,
 ) : HttpService {
   fun adminPageAction() = AdminPageAction()
 
@@ -42,13 +42,13 @@ class JournalHttpService(
   )
 
   fun getAttachmentAction() = GetAttachmentAction(
-    objectStore = objectStore,
+    attachmentStore = attachmentStore,
   )
 
   fun postAttachmentAction() = PostAttachmentAction(
     clock = clock,
     journalDb = journalDb,
-    objectStore = objectStore,
+    attachmentStore = attachmentStore,
   )
 
   override suspend fun execute(request: HttpRequest): HttpResponse {

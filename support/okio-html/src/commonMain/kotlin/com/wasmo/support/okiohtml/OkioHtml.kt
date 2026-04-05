@@ -1,4 +1,4 @@
-package com.wasmo.framework
+package com.wasmo.support.okiohtml
 
 import kotlinx.html.HTML
 import kotlinx.html.html
