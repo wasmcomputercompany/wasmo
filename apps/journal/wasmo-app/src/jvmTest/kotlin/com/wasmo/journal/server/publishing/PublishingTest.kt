@@ -18,35 +18,21 @@ class PublishingTest {
   @InterceptTest
   val tester = JournalAppTester()
 
-  private val entryToken = "aaaaabbbbbcccccdddddeeeee"
-  private val attachment1 = "fffffggggghhhhhiiiiijjjjj"
-  private val entryData = EntrySnapshot(
-    token = entryToken,
+  private val entry1 = "aaaaabbbbbcccccdddddeeeee"
+  private val entry1Attachment1 = "fffffggggghhhhhiiiiijjjjj"
+  private val entry1Data = EntrySnapshot(
+    token = entry1,
     visibility = Visibility.Published,
     slug = "publish-this",
     title = "this post will be published!",
     date = Instant.fromEpochSeconds(0L),
     body = """
       |This post has one attachment:
-      |<img src="/api/entries/$entryToken/attachments/$attachment1">
+      |<img src="/api/entries/$entry1/attachments/$entry1Attachment1">
       """.trimMargin(),
   )
-  private val attachmentData = "this is an attachment!".encodeUtf8()
-  private val renderedList = """
-    |<html>
-    |  <head>
-    |    <meta charset="utf-8">
-    |    <title>Journal</title>
-    |  </head>
-    |  <body>
-    |    <h1>this post will be published!</h1>
-    |    <p>This post has one attachment:
-    |<img src="/publish-this/a1"></p>
-    |  </body>
-    |</html>
-    |
-    """.trimMargin()
-  private val renderedEntry = """
+  private val entry1Attachment1Data = "this is an attachment!".encodeUtf8()
+  private val renderedEntry1 = """
     |<html>
     |  <head>
     |    <meta charset="utf-8">
@@ -61,24 +47,106 @@ class PublishingTest {
     |
     """.trimMargin()
 
+  private val entry2 = "kkkkklllllmmmmmnnnnnooooo"
+  private val entry2Data = EntrySnapshot(
+    token = entry2,
+    visibility = Visibility.Published,
+    slug = "second-post",
+    title = "the newest post is listed first",
+    date = Instant.fromEpochSeconds(1L),
+    body = "This is the second post",
+  )
+  private val renderedEntry2 = """
+    |<html>
+    |  <head>
+    |    <meta charset="utf-8">
+    |    <title>the newest post is listed first</title>
+    |  </head>
+    |  <body>
+    |    <h1>the newest post is listed first</h1>
+    |    <p>This is the second post</p>
+    |  </body>
+    |</html>
+    |
+    """.trimMargin()
+
+  private val renderedListEntry1 = """
+    |<html>
+    |  <head>
+    |    <meta charset="utf-8">
+    |    <title>Journal</title>
+    |  </head>
+    |  <body>
+    |    <h1>this post will be published!</h1>
+    |    <p>This post has one attachment:
+    |<img src="/publish-this/a1"></p>
+    |  </body>
+    |</html>
+    |
+    """.trimMargin()
+
+  private val renderedListEntry2Entry1 = """
+    |<html>
+    |  <head>
+    |    <meta charset="utf-8">
+    |    <title>Journal</title>
+    |  </head>
+    |  <body>
+    |    <h1>the newest post is listed first</h1>
+    |    <p>This is the second post</p>
+    |    <h1>this post will be published!</h1>
+    |    <p>This post has one attachment:
+    |<img src="/publish-this/a1"></p>
+    |  </body>
+    |</html>
+    |
+    """.trimMargin()
+
   @Test
   fun publishPost() = runTest {
     tester.httpService.postAttachmentAction().post(
-      entryToken = entryToken,
-      attachmentToken = attachment1,
-      request = attachmentData,
+      entryToken = entry1,
+      attachmentToken = entry1Attachment1,
+      request = entry1Attachment1Data,
     )
 
     tester.httpService.saveEntryAction().save(
-      entryToken = entryToken,
-      request = SaveEntryRequest(entryData),
+      entryToken = entry1,
+      request = SaveEntryRequest(entry1Data),
     )
     tester.sitePublisher.publishSite()
 
     assertThat(tester.platform.objectStore["site/index"]?.utf8())
-      .isEqualTo(renderedList)
+      .isEqualTo(renderedListEntry1)
     assertThat(tester.platform.objectStore["site/publish-this"]?.utf8())
-      .isEqualTo(renderedEntry)
+      .isEqualTo(renderedEntry1)
+    assertThat(tester.platform.objectStore["site/publish-this/a1"]?.utf8())
+      .isEqualTo("this is an attachment!")
+  }
+
+  @Test
+  fun publishMultiplePosts() = runTest {
+    tester.httpService.postAttachmentAction().post(
+      entryToken = entry1,
+      attachmentToken = entry1Attachment1,
+      request = entry1Attachment1Data,
+    )
+    tester.httpService.saveEntryAction().save(
+      entryToken = entry1,
+      request = SaveEntryRequest(entry1Data),
+    )
+    tester.httpService.saveEntryAction().save(
+      entryToken = entry2,
+      request = SaveEntryRequest(entry2Data),
+    )
+    tester.sitePublisher.publishSite()
+
+    assertThat(tester.platform.objectStore["site/index"]?.utf8())
+      .isEqualTo(renderedListEntry2Entry1)
+    assertThat(tester.platform.objectStore["site/publish-this"]?.utf8())
+      .isEqualTo(renderedEntry1)
+    assertThat(tester.platform.objectStore["site/second-post"]?.utf8())
+      .isEqualTo(renderedEntry2)
     assertThat(tester.platform.objectStore["site/publish-this/a1"]?.utf8())
       .isEqualTo("this is an attachment!")
   }
@@ -86,14 +154,14 @@ class PublishingTest {
   @Test
   fun privatePostIsNotPublished() = runTest {
     tester.httpService.postAttachmentAction().post(
-      entryToken = entryToken,
-      attachmentToken = attachment1,
-      request = attachmentData,
+      entryToken = entry1,
+      attachmentToken = entry1Attachment1,
+      request = entry1Attachment1Data,
     )
     tester.httpService.saveEntryAction().save(
-      entryToken = entryToken,
+      entryToken = entry1,
       request = SaveEntryRequest(
-        entryData.copy(
+        entry1Data.copy(
           visibility = Visibility.Private,
         )
       ),
@@ -106,22 +174,22 @@ class PublishingTest {
   @Test
   fun makingPublicPostPrivateHidesIt() = runTest {
     tester.httpService.postAttachmentAction().post(
-      entryToken = entryToken,
-      attachmentToken = attachment1,
-      request = attachmentData,
+      entryToken = entry1,
+      attachmentToken = entry1Attachment1,
+      request = entry1Attachment1Data,
     )
     tester.httpService.saveEntryAction().save(
-      entryToken = entryToken,
-      request = SaveEntryRequest(entryData),
+      entryToken = entry1,
+      request = SaveEntryRequest(entry1Data),
     )
     tester.sitePublisher.publishSite()
 
     assertThat(tester.platform.objectStore.list("site/")).isNotEmpty()
 
     tester.httpService.saveEntryAction().save(
-      entryToken = entryToken,
+      entryToken = entry1,
       request = SaveEntryRequest(
-        entryData.copy(
+        entry1Data.copy(
           visibility = Visibility.Private,
         )
       ),
