@@ -10,10 +10,46 @@ import wasmo.objectstore.PutObjectRequest
 /**
  * Manages the `site/` directory in the object store.
  */
-class PublishedSiteStore(
+class SiteStore(
   private val objectStore: ObjectStore,
   private val attachmentStore: AttachmentStore,
 ) {
+  fun fixAttachmentsInHtml(
+    attachments: List<Attachment>,
+    slug: String,
+    html: String,
+  ): String {
+    val sortedAttachments = attachments.sortedBy { it.posted_at }
+    var result = html
+    for ((i, metadata) in sortedAttachments.withIndex()) {
+      result = result.replace(
+        "\"/api/entries/${metadata.entry_token}/attachments/${metadata.attachment_token}\"",
+        "\"/${attachmentPath(slug, i)}\"",
+      )
+    }
+    return result
+  }
+
+  suspend fun publishList(
+    html: String,
+  ) {
+    objectStore.put(
+      PutObjectRequest(
+        key = "site/index",
+        value = html.encodeUtf8(),
+        contentType = "text/html; charset=utf-8",
+      ),
+    )
+  }
+
+  suspend fun deleteList() {
+    objectStore.delete(
+      DeleteObjectRequest(
+        key = "site/index",
+      ),
+    )
+  }
+
   suspend fun publishEntry(
     attachments: List<Attachment>,
     slug: String,
@@ -21,22 +57,15 @@ class PublishedSiteStore(
   ) {
     val sortedAttachments = attachments.sortedBy { it.posted_at }
 
-    var fixedHtml = html
     for ((i, metadata) in sortedAttachments.withIndex()) {
-      val attachmentPath = "$slug/a${i + 1}"
       val attachment = attachmentStore.get(
         attachmentToken = metadata.attachment_token,
         entryToken = metadata.entry_token,
       ) ?: continue
 
-      fixedHtml = fixedHtml.replace(
-        "\"/api/entries/${metadata.entry_token}/attachments/${metadata.attachment_token}\"",
-        "\"/$attachmentPath\"",
-      )
-
       objectStore.put(
         PutObjectRequest(
-          key = "site/$attachmentPath",
+          key = "site/${attachmentPath(slug, i)}",
           value = attachment.data,
           contentType = attachment.contentType,
         ),
@@ -46,7 +75,7 @@ class PublishedSiteStore(
     objectStore.put(
       PutObjectRequest(
         key = "site/$slug",
-        value = fixedHtml.encodeUtf8(),
+        value = html.encodeUtf8(),
         contentType = "text/html; charset=utf-8",
       ),
     )
@@ -57,7 +86,7 @@ class PublishedSiteStore(
     slug: String,
   ) {
     for (i in 0 until attachments.size) {
-      val attachmentPath = "$slug/a${i + 1}"
+      val attachmentPath = attachmentPath(slug, i)
       objectStore.delete(
         DeleteObjectRequest(
           key = "site/$attachmentPath",
@@ -71,4 +100,6 @@ class PublishedSiteStore(
       ),
     )
   }
+
+  private fun attachmentPath(slug: String, index: Int): String = "$slug/a${index + 1}"
 }

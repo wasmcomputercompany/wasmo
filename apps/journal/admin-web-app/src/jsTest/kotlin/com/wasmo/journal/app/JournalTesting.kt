@@ -16,7 +16,6 @@ fun EntrySnapshot.toSummary() = EntrySummary(
 object SampleEntries {
   val WasmIsLikeJson = EntrySnapshot(
     token = "aaaaabbbbbcccccdddddeeeee",
-    version = 1L,
     visibility = Visibility.Private,
     slug = "wasm",
     title = "WebAssembly is like JSON for behaviour",
@@ -47,7 +46,6 @@ object SampleEntries {
 
   val MultipleColumnInClause = EntrySnapshot(
     token = "fffffggggghhhhhiiiiijjjjj",
-    version = 1L,
     visibility = Visibility.Private,
     slug = "sql-multiple-column-in-clause",
     title = "SQL Multiple-Column IN Clause",

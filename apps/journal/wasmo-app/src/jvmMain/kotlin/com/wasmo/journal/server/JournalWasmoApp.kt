@@ -2,7 +2,7 @@ package com.wasmo.journal.server
 
 import com.wasmo.journal.db.JournalDbService
 import com.wasmo.journal.server.attachments.AttachmentStore
-import com.wasmo.journal.server.publishing.PublishedSiteStore
+import com.wasmo.journal.server.publishing.SiteStore
 import com.wasmo.journal.server.publishing.SitePublisher
 import com.wasmo.journal.server.publishing.SiteRenderer
 import com.wasmo.sqldelight.driver
@@ -37,7 +37,7 @@ class JournalWasmoApp(
       val attachmentStore = AttachmentStore(
         objectStore = platform.objectStore,
       )
-      val publishedSiteStore = PublishedSiteStore(
+      val siteStore = SiteStore(
         objectStore = platform.objectStore,
         attachmentStore = attachmentStore,
       )
@@ -45,7 +45,7 @@ class JournalWasmoApp(
         siteRenderer = SiteRenderer(
           prettyPrint = prettyPrint,
         ),
-        publishedSiteStore = publishedSiteStore,
+        siteStore = siteStore,
         journalDb = journalDb,
       )
       val httpService = JournalHttpService(

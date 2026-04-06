@@ -66,6 +66,14 @@ WHERE
 ORDER BY date DESC
 LIMIT :limit;
 
+findEntriesWithVisibility:
+SELECT *
+FROM Entry
+WHERE
+  visibility = :visibility
+ORDER BY date DESC
+LIMIT :limit;
+
 findEntryByToken:
 SELECT *
 FROM Entry

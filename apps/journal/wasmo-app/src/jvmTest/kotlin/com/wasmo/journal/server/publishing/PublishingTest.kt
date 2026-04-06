@@ -32,6 +32,20 @@ class PublishingTest {
       """.trimMargin(),
   )
   private val attachmentData = "this is an attachment!".encodeUtf8()
+  private val renderedList = """
+    |<html>
+    |  <head>
+    |    <meta charset="utf-8">
+    |    <title>Journal</title>
+    |  </head>
+    |  <body>
+    |    <h1>this post will be published!</h1>
+    |    <p>This post has one attachment:
+    |<img src="/publish-this/a1"></p>
+    |  </body>
+    |</html>
+    |
+    """.trimMargin()
   private val renderedEntry = """
     |<html>
     |  <head>
@@ -61,6 +75,8 @@ class PublishingTest {
     )
     tester.sitePublisher.publishSite()
 
+    assertThat(tester.platform.objectStore["site/index"]?.utf8())
+      .isEqualTo(renderedList)
     assertThat(tester.platform.objectStore["site/publish-this"]?.utf8())
       .isEqualTo(renderedEntry)
     assertThat(tester.platform.objectStore["site/publish-this/a1"]?.utf8())
