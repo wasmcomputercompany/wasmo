@@ -4,12 +4,15 @@ import com.wasmo.journal.api.EntrySnapshot
 import com.wasmo.journal.api.JournalJson
 import com.wasmo.journal.api.ListEntriesRequest
 import com.wasmo.journal.api.ListEntriesResponse
+import com.wasmo.journal.api.RequestPublishRequest
+import com.wasmo.journal.api.RequestPublishResponse
 import com.wasmo.journal.api.SaveEntryRequest
 import com.wasmo.journal.api.SaveEntryResponse
 import com.wasmo.journal.db.JournalDbService
 import com.wasmo.journal.server.admin.AdminPageAction
 import com.wasmo.journal.server.admin.GetEntryAction
 import com.wasmo.journal.server.admin.ListEntriesAction
+import com.wasmo.journal.server.admin.RequestPublishAction
 import com.wasmo.journal.server.admin.SaveEntryAction
 import com.wasmo.journal.server.attachments.AttachmentStore
 import com.wasmo.journal.server.attachments.GetAttachmentAction
@@ -21,11 +24,13 @@ import wasmo.http.Header
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
 import wasmo.http.HttpService
+import wasmo.jobs.JobQueue
 
 class JournalHttpService(
   private val clock: Clock,
   private val journalDb: JournalDbService,
   private val attachmentStore: AttachmentStore,
+  private val publishSiteJobQueue: JobQueue,
 ) : HttpService {
   fun adminPageAction() = AdminPageAction()
 
@@ -52,6 +57,10 @@ class JournalHttpService(
     attachmentStore = attachmentStore,
   )
 
+  fun requestPublishAction() = RequestPublishAction(
+    publishSiteJobQueue = publishSiteJobQueue,
+  )
+
   override suspend fun execute(request: HttpRequest): HttpResponse {
     if (request.method == "POST") {
       SaveEntryAction.PathRegex.matchEntire(request.url.encodedPath)?.let { match ->
@@ -68,6 +77,12 @@ class JournalHttpService(
 
       PostAttachmentAction.PathRegex.matchEntire(request.url.encodedPath)?.let {
         return postAttachmentAction().post(it, request)
+      }
+
+      RequestPublishAction.PathRegex.matchEntire(request.url.encodedPath)?.let {
+        return postApi<RequestPublishRequest, RequestPublishResponse>(request) { requestBody ->
+          requestPublishAction().requestPublish(requestBody)
+        }
       }
     }
 

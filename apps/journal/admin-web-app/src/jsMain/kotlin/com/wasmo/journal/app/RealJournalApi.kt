@@ -4,6 +4,8 @@ import com.wasmo.journal.api.EntrySnapshot
 import com.wasmo.journal.api.JournalJson
 import com.wasmo.journal.api.ListEntriesRequest
 import com.wasmo.journal.api.ListEntriesResponse
+import com.wasmo.journal.api.RequestPublishRequest
+import com.wasmo.journal.api.RequestPublishResponse
 import com.wasmo.journal.api.SaveEntryRequest
 import com.wasmo.journal.api.SaveEntryResponse
 import kotlin.coroutines.resume
@@ -32,6 +34,9 @@ class RealJournalApi : JournalApi {
     token: String,
     request: SaveEntryRequest,
   ): SaveEntryResponse = post("/api/entries/$token", request)
+
+  override suspend fun requestPublish(): RequestPublishResponse =
+    post("/api/request-publish", RequestPublishRequest)
 
   override suspend fun addAttachment(
     entryToken: String,

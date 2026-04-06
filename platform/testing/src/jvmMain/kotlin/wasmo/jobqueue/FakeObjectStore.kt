@@ -4,20 +4,21 @@ import kotlin.time.Instant
 import okio.ByteString
 import wasmo.jobs.JobQueue
 
-class FakeJobQueue private constructor(
-  private val queueName: String,
-) : JobQueue {
-  override fun enqueue(job: ByteString, executeAt: Instant?) {
-    TODO()
+class FakeJobQueueFactory : JobQueue.Factory {
+  suspend fun awaitIdle() {
   }
 
-  override fun cancel(job: ByteString) {
-    TODO()
-  }
+  override fun get(name: String) = FakeJobQueue(name)
 
-  class Factory : JobQueue.Factory {
-    override fun get(name: String) = FakeJobQueue(
-      queueName = name,
-    )
+  class FakeJobQueue internal constructor(
+    private val queueName: String,
+  ) : JobQueue {
+    override fun enqueue(job: ByteString, executeAt: Instant?) {
+      TODO()
+    }
+
+    override fun cancel(job: ByteString) {
+      TODO()
+    }
   }
 }

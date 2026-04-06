@@ -6,9 +6,11 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import com.wasmo.journal.api.EntrySnapshot
+import com.wasmo.journal.api.RequestPublishRequest
 import com.wasmo.journal.api.SaveEntryRequest
 import com.wasmo.journal.api.Visibility
 import com.wasmo.journal.server.JournalAppTester
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
@@ -122,6 +124,20 @@ class PublishingTest {
       .isEqualTo(renderedEntry1)
     assertThat(tester.platform.objectStore["site/publish-this/a1"]?.utf8())
       .isEqualTo("this is an attachment!")
+  }
+
+  @Test
+  @Ignore("job queues aren't testable yet by app code")
+  fun publishApi() = runTest {
+    tester.httpService.saveEntryAction().save(
+      entryToken = entry2,
+      request = SaveEntryRequest(entry2Data),
+    )
+    tester.httpService.requestPublishAction().requestPublish(RequestPublishRequest)
+    tester.platform.jobQueueFactory.awaitIdle()
+
+    assertThat(tester.platform.objectStore["site/second-post"]?.utf8())
+      .isEqualTo(renderedEntry2)
   }
 
   @Test

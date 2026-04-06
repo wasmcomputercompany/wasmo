@@ -66,6 +66,11 @@ Edit an entry identified by a token.
 `PUT` to this endpoint to add an attachment.
 
 
+### `/api/request-publish`
+
+Enqueue a job to immediately publish the site.
+
+
 Publishing
 ----------
 

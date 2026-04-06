@@ -2,9 +2,9 @@ package com.wasmo.journal.server
 
 import com.wasmo.journal.db.JournalDbService
 import com.wasmo.journal.server.attachments.AttachmentStore
-import com.wasmo.journal.server.publishing.SiteStore
 import com.wasmo.journal.server.publishing.SitePublisher
 import com.wasmo.journal.server.publishing.SiteRenderer
+import com.wasmo.journal.server.publishing.SiteStore
 import com.wasmo.sqldelight.driver
 import okio.Closeable
 import wasmo.app.Platform
@@ -52,6 +52,7 @@ class JournalWasmoApp(
         clock = clock,
         attachmentStore = attachmentStore,
         journalDb = journalDb,
+        publishSiteJobQueue = platform.jobQueueFactory.get(SitePublisher.QueueName),
       )
       val jobHandlerFactory = JournalJobHandlerFactory(
         sitePublisher = sitePublisher,

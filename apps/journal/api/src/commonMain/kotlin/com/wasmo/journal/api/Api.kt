@@ -37,6 +37,12 @@ sealed class SaveEntryError {
 }
 
 @Serializable
+data object RequestPublishRequest
+
+@Serializable
+data object RequestPublishResponse
+
+@Serializable
 data class AttachmentSnapshot(
   val token: String,
 )
