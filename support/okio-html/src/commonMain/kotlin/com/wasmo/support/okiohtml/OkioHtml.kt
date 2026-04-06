@@ -5,8 +5,11 @@ import kotlinx.html.html
 import kotlinx.html.stream.appendHTML
 import okio.BufferedSink
 
-fun BufferedSink.writeHtml(block: HTML.() -> Unit) {
-  asAppendable().appendHTML(prettyPrint = false).html(block = block)
+fun BufferedSink.writeHtml(
+  prettyPrint: Boolean = false,
+  block: HTML.() -> Unit,
+) {
+  asAppendable().appendHTML(prettyPrint = prettyPrint).html(block = block)
 }
 
 fun BufferedSink.asAppendable(): Appendable {

@@ -23,6 +23,8 @@ class PostAttachmentAction(
     request: ByteString,
     contentType: String? = null,
   ): HttpResponse {
+    // TODO: this should all be in an enclosing transaction.
+
     attachmentStore.put(
       entryToken = entryToken,
       attachmentToken = attachmentToken,
@@ -33,6 +35,11 @@ class PostAttachmentAction(
       entry_token = entryToken,
       attachment_token = attachmentToken,
       posted_at = clock.now(),
+    )
+
+    journalDb.entryQueries.setSyncNeededAt(
+      sync_needed_at = clock.now(),
+      token = entryToken,
     )
 
     return HttpResponse(

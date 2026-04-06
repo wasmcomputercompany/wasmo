@@ -38,6 +38,7 @@ class JournalHttpService(
   )
 
   fun saveEntryAction() = SaveEntryAction(
+    clock = clock,
     journalDb = journalDb,
   )
 

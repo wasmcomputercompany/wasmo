@@ -2,6 +2,7 @@ insertEntry:
 INSERT INTO Entry(
   token,
   version,
+  sync_needed_at,
   visibility,
   date,
   slug,
@@ -11,6 +12,7 @@ INSERT INTO Entry(
 VALUES (
   :token,
   :version,
+  :sync_needed_at,
   :visibility,
   :date,
   :slug,
@@ -22,6 +24,7 @@ saveEntry:
 UPDATE Entry
 SET
   version = :new_version,
+  sync_needed_at = :sync_needed_at,
   visibility = :new_visibility,
   date = :new_date,
   slug = :new_slug,
@@ -29,6 +32,23 @@ SET
   body = :new_body
 WHERE
   version = :expected_version AND
+  id = :id;
+
+clearSyncNeededAt:
+UPDATE Entry
+SET
+  version = :new_version,
+  sync_needed_at = :sync_needed_at
+WHERE
+  version = :expected_version AND
+  id = :id;
+
+setSyncNeededAt:
+UPDATE Entry
+SET
+  version = version + 1,
+  sync_needed_at = :sync_needed_at
+WHERE
   token = :token;
 
 findEntries:
@@ -38,10 +58,11 @@ ORDER BY
   date DESC
 LIMIT :limit;
 
-findEntriesByVisibility:
+findEntriesToSync:
 SELECT *
 FROM Entry
-WHERE visibility = :visibility
+WHERE
+  sync_needed_at IS NOT NULL
 ORDER BY date DESC
 LIMIT :limit;
 

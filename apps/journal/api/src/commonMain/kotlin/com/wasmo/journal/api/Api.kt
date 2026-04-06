@@ -7,7 +7,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EntrySnapshot(
   val token: String,
-  val version: Long,
   val visibility: Visibility,
   val slug: String,
   val title: String,
@@ -18,7 +17,6 @@ data class EntrySnapshot(
 
 @Serializable
 data class SaveEntryRequest(
-  val expectedVersion: Long,
   val entry: EntrySnapshot,
 )
 

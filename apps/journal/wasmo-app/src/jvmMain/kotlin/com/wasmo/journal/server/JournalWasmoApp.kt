@@ -2,16 +2,18 @@ package com.wasmo.journal.server
 
 import com.wasmo.journal.db.JournalDbService
 import com.wasmo.journal.server.attachments.AttachmentStore
+import com.wasmo.journal.server.publishing.PublishedSiteStore
+import com.wasmo.journal.server.publishing.SitePublisher
+import com.wasmo.journal.server.publishing.SiteRenderer
 import com.wasmo.sqldelight.driver
 import okio.Closeable
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
-import wasmo.jobs.JobHandler
 
 class JournalWasmoApp(
   private val journalDb: JournalDbService,
   override val httpService: JournalHttpService,
-  override val jobHandlerFactory: JobHandler.Factory,
+  override val jobHandlerFactory: JournalJobHandlerFactory,
 ) : Closeable, WasmoApp() {
   override suspend fun afterInstall(
     oldVersion: Long,
@@ -24,7 +26,9 @@ class JournalWasmoApp(
     journalDb.close()
   }
 
-  class Factory : WasmoApp.Factory {
+  class Factory(
+    private val prettyPrint: Boolean = false,
+  ) : WasmoApp.Factory {
     override suspend fun create(platform: Platform): JournalWasmoApp {
       val clock = platform.clock
       val journalDb = JournalDbService(
@@ -33,8 +37,15 @@ class JournalWasmoApp(
       val attachmentStore = AttachmentStore(
         objectStore = platform.objectStore,
       )
-      val sitePublisher = SitePublisher(
+      val publishedSiteStore = PublishedSiteStore(
         objectStore = platform.objectStore,
+        attachmentStore = attachmentStore,
+      )
+      val sitePublisher = SitePublisher(
+        siteRenderer = SiteRenderer(
+          prettyPrint = prettyPrint,
+        ),
+        publishedSiteStore = publishedSiteStore,
         journalDb = journalDb,
       )
       val httpService = JournalHttpService(
@@ -43,9 +54,7 @@ class JournalWasmoApp(
         journalDb = journalDb,
       )
       val jobHandlerFactory = JournalJobHandlerFactory(
-        publishSiteJobHandler = PublishSiteJobHandler(
-          sitePublisher = sitePublisher,
-        ),
+        sitePublisher = sitePublisher,
       )
       return JournalWasmoApp(
         journalDb = journalDb,

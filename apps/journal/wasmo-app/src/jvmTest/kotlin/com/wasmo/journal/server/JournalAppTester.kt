@@ -2,6 +2,7 @@ package com.wasmo.journal.server
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
+import com.wasmo.journal.server.publishing.SitePublisher
 import com.wasmo.sql.r2dbc.asSqlService
 import com.wasmo.sql.r2dbc.connectPostgresqlAsync
 import com.wasmo.testing.sql.TestDatabaseAddress
@@ -13,8 +14,12 @@ class JournalAppTester : CoroutineTestInterceptor {
 
   val app: JournalWasmoApp
     get() = run!!.app
+  val platform: FakePlatform
+    get() = run!!.platform
   val httpService: JournalHttpService
     get() = app.httpService
+  val sitePublisher: SitePublisher
+    get() = app.jobHandlerFactory.sitePublisher
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     val dataSource = connectPostgresqlAsync(TestDatabaseAddress)
@@ -24,7 +29,8 @@ class JournalAppTester : CoroutineTestInterceptor {
     val platform = FakePlatform(
       sqlService = sqlService,
     )
-    val app = JournalWasmoApp.Factory().create(platform)
+    val app = JournalWasmoApp.Factory(prettyPrint = true)
+      .create(platform)
 
     val run = Run(
       platform = platform,

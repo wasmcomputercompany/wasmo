@@ -23,7 +23,6 @@ class GetEntryAction(
       .awaitAsList()
     return EntrySnapshot(
       token = entry.token,
-      version = entry.version,
       visibility = entry.visibility,
       slug = entry.slug,
       title = entry.title,

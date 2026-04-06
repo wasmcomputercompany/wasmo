@@ -42,8 +42,9 @@ class JournalDbService(
 
     private val EntryAdapter = Entry.Adapter(
       idAdapter = EntryIdAdapter,
-      dateAdapter = InstantAdapter,
       visibilityAdapter = EnumColumnAdapter<Visibility>(),
+      sync_needed_atAdapter = InstantAdapter,
+      dateAdapter = InstantAdapter,
     )
   }
 }

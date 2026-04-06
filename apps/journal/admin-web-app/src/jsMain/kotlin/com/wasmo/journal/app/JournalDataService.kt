@@ -43,7 +43,6 @@ class JournalDataService(
     val token = newToken()
     val entry = EntrySnapshot(
       token = token,
-      version = 0L,
       visibility = Visibility.Private,
       slug = "",
       title = "",
@@ -169,13 +168,11 @@ class JournalDataService(
           .filter { it.syncState == SyncState.Dirty }
           .collectLatest { viewModel ->
             val request = SaveEntryRequest(
-              expectedVersion = latest.version,
               entry = latest.copy(
                 title = viewModel.title,
                 slug = viewModel.slug,
                 body = viewModel.body,
                 visibility = viewModel.visibility,
-                version = latest.version + 1L,
               ),
             )
 
