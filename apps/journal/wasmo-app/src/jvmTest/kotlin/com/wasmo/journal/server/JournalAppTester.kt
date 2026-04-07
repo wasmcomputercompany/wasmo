@@ -26,30 +26,30 @@ class JournalAppTester : CoroutineTestInterceptor {
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     val dataSource = connectPostgresqlAsync(TestDatabaseAddress)
-    val sqlService = dataSource.asSqlService()
     dataSource.clearSchema()
+    dataSource.asSqlService().use { sqlService ->
+      val platform = FakePlatform(
+        sqlService = sqlService,
+      )
+      val app = JournalWasmoApp.Factory(prettyPrint = true)
+        .create(platform)
 
-    val platform = FakePlatform(
-      sqlService = sqlService,
-    )
-    val app = JournalWasmoApp.Factory(prettyPrint = true)
-      .create(platform)
+      val run = Run(
+        platform = platform,
+        app = app,
+      )
 
-    val run = Run(
-      platform = platform,
-      app = app,
-    )
+      run.app.afterInstall(
+        oldVersion = 0L,
+        newVersion = 1L,
+      )
 
-    run.app.afterInstall(
-      oldVersion = 0L,
-      newVersion = 1L,
-    )
-
-    this.run = run
-    try {
-      testFunction()
-    } finally {
-      this.run = null
+      this.run = run
+      try {
+        testFunction()
+      } finally {
+        this.run = null
+      }
     }
   }
 

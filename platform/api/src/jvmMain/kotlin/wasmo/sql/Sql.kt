@@ -6,7 +6,7 @@ import okio.Closeable
 /**
  * Creates PostgreSQL databases and executes writes and reads on them.
  */
-interface SqlService {
+interface SqlService : Closeable {
   /**
    * Connect to the named database, creating it if necessary. Use '""' for the application's
    * default database.

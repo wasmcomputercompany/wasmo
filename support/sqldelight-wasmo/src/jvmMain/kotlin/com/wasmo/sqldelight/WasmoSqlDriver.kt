@@ -32,16 +32,18 @@ private class WasmoSqlDriver(
     binders: (SqlPreparedStatement.() -> Unit)?,
   ): QueryResult<R> {
     return QueryResult.AsyncValue {
-      val connection = database.newConnection()
-      val rowIterator = connection.executeQuery(
-        sql = sql,
-        bindParameters = {
-          if (binders != null) {
-            WasmoPreparedStatement(this).binders()
-          }
-        },
-      )
-      mapper(WasmoSqlCursor(rowIterator)).await()
+      database.newConnection().use { connection ->
+        connection.executeQuery(
+          sql = sql,
+          bindParameters = {
+            if (binders != null) {
+              WasmoPreparedStatement(this).binders()
+            }
+          },
+        ).use { rowIterator ->
+          mapper(WasmoSqlCursor(rowIterator)).await()
+        }
+      }
     }
   }
 
@@ -96,7 +98,7 @@ private class WasmoSqlDriver(
   }
 
   override fun close() {
-    database.close()
+    error("TODO")
   }
 }
 

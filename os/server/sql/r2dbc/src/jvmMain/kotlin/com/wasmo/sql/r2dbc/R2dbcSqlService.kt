@@ -28,23 +28,38 @@ fun PostgresqlConnectionFactory.asSqlService(): SqlService = R2dbcSqlService(thi
 private class R2dbcSqlService(
   private val connectionFactory: PostgresqlConnectionFactory,
 ) : SqlService {
+  private val closeTracker = CloseTracker()
+
   override suspend fun getOrCreate(name: String): SqlDatabase {
     require(name == "") {
       "SqlService doesn't support named databases yet"
     }
 
-    return R2dbcSqlDatabase(connectionFactory)
+    return closeTracker.track { closeListener ->
+      R2dbcSqlDatabase(connectionFactory, closeListener)
+    }
+  }
+
+  override fun close() {
+    closeTracker.closeAll()
   }
 }
 
 private class R2dbcSqlDatabase(
   private val connectionFactory: PostgresqlConnectionFactory,
+  private val closeListener: CloseListener,
 ) : SqlDatabase {
-  override suspend fun newConnection(): SqlConnection =
-    R2dbcSqlConnection(connectionFactory.create().awaitSingle())
+  private val closeTracker = CloseTracker()
+
+  override suspend fun newConnection(): SqlConnection {
+    return closeTracker.track { closeListener ->
+      R2dbcSqlConnection(connectionFactory.create().awaitSingle(), closeListener)
+    }
+  }
 
   override fun close() {
-    // TODO: close all connections
+    closeListener.onClose()
+    closeTracker.closeAll()
   }
 }
 
@@ -89,7 +104,10 @@ private class R2dbcSqlBinder(
 
 private class R2dbcSqlConnection(
   private val connection: PostgresqlConnection,
+  private val closeListener: CloseListener,
 ) : SqlConnection {
+  private val closeTracker = CloseTracker()
+
   override suspend fun execute(
     sql: String,
     bindParameters: (SqlBinder.() -> Unit)?,
@@ -111,30 +129,35 @@ private class R2dbcSqlConnection(
       R2dbcSqlBinder(statement).bindParameters()
     }
 
-    return statement
-      .execute()
-      .awaitSingle()
-      .map { row, rowMetadata ->
-        R2dbcSqlRow(
-          Array(rowMetadata.columnMetadatas.size) { index ->
-            row.get(index)
-          },
-        )
-      }
-      .asRowIterator()
+    return closeTracker.track { closeListener ->
+      statement
+        .execute()
+        .awaitSingle()
+        .map { row, rowMetadata ->
+          R2dbcSqlRow(
+            Array(rowMetadata.columnMetadatas.size) { index ->
+              row.get(index)
+            },
+          )
+        }
+        .asRowIterator(closeListener)
+    }
   }
 
   override fun close() {
-    connection.close()
+    closeListener.onClose()
+    closeTracker.closeAll()
+    connection.close().subscribe()
   }
 }
 
-private fun Flux<out SqlRow>.asRowIterator() = object : RowIterator {
+private fun Flux<out SqlRow>.asRowIterator(closeListener: CloseListener) = object : RowIterator {
   private val delegate = PublisherIterator(this@asRowIterator)
 
   override suspend fun next() = delegate.next()
 
   override fun close() {
+    closeListener.onClose()
     delegate.close()
   }
 }

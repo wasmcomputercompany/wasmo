@@ -45,8 +45,6 @@ class ServiceTester : CoroutineTestInterceptor {
   private val appPublisher: FakeAppPublisher
     get() = graph.appPublisher
 
-  val wasmoDb: WasmoDbService
-    get() = graph.wasmoDb
   val clock: FakeClock
     get() = graph.clock
   val objectStore: FakeObjectStore
@@ -97,30 +95,25 @@ class ServiceTester : CoroutineTestInterceptor {
     val testDirectory = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / testFunction.toString() / newToken()
     fileSystem.createDirectories(testDirectory)
 
-    val wasmoDb = WasmoDbService(
+    WasmoDbService(
       dataSource = dataSource,
       jdbcDriver = dataSource.asJdbcDriver(),
-    )
-    wasmoDb.migrate()
+    ).use { wasmoDb ->
+      wasmoDb.migrate()
 
-    val sqlService = connectPostgresqlAsync(TestDatabaseAddress)
-      .asSqlService()
-
-    val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
-
-    try {
-      coroutineScope {
-        this@ServiceTester.graph = serviceTesterGraphFactory.create(
-          wasmoDbService = wasmoDb,
-          sqlService = sqlService,
-          coroutineScope = this,
-          fileSystem = fileSystem,
-          testDirectory = testDirectory
-        )
-        testFunction()
+      connectPostgresqlAsync(TestDatabaseAddress).asSqlService().use { sqlService ->
+        val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
+        coroutineScope {
+          this@ServiceTester.graph = serviceTesterGraphFactory.create(
+            wasmoDbService = wasmoDb,
+            sqlService = sqlService,
+            coroutineScope = this,
+            fileSystem = fileSystem,
+            testDirectory = testDirectory,
+          )
+          testFunction()
+        }
       }
-    } finally {
-      wasmoDb.close()
     }
   }
 }

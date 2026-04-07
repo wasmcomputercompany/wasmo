@@ -29,5 +29,6 @@ suspend fun PostgresqlConnectionFactory.clearSchema() {
     createStatement("CREATE SCHEMA public").execute().awaitSingle()
     createStatement("GRANT ALL ON SCHEMA public TO postgres").execute().awaitSingle()
     createStatement("GRANT ALL ON SCHEMA public TO public").execute().awaitSingle()
+    close().subscribe()
   }
 }
