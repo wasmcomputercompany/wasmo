@@ -21,6 +21,7 @@ kotlin {
         implementation(libs.reactive.streams)
         implementation(project(":os:server:sql:api"))
         implementation(project(":platform:api"))
+        implementation(project(":support:close-tracker"))
       }
     }
     val jvmTest by getting {

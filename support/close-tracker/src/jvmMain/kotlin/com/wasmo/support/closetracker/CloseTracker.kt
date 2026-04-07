@@ -1,18 +1,13 @@
-package com.wasmo.sql.r2dbc
+package com.wasmo.support.closetracker
 
 import java.io.Closeable
 import java.util.concurrent.LinkedBlockingDeque
 
-interface CloseListener {
-  fun onClose()
-}
-
 /**
  * Keeps track closeable things so we can close them when the enclosing service is closed.
- *
- * We could make this more capable by using something like LeakCanary.
  */
 class CloseTracker {
+  // TODO: consider using WeakReferences for these, and logging an error if a closeable is leaked.
   private val entries = LinkedBlockingDeque<Entry>()
 
   suspend fun <T : Closeable> track(block: suspend (CloseListener) -> T): T {
