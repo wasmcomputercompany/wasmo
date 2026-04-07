@@ -58,7 +58,9 @@ class RealComputerService(
       version = 1L,
       wasmo_file_address = wasmoFileAddress,
     ).executeAsOne()
-    jobQueue.enqueue(InstallAppJob(installedAppId))
+    transactionCallbacks.afterCommit {
+      jobQueue.enqueue(InstallAppJob(installedAppId))
+    }
   }
 
   context(transactionCallbacks: TransactionCallbacks)

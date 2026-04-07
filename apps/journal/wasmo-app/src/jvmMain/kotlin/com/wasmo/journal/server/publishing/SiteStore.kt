@@ -35,7 +35,7 @@ class SiteStore(
   ) {
     objectStore.put(
       PutObjectRequest(
-        key = "site/index",
+        key = "site/entries/index",
         value = html.encodeUtf8(),
         contentType = "text/html; charset=utf-8",
       ),
@@ -45,7 +45,7 @@ class SiteStore(
   suspend fun deleteList() {
     objectStore.delete(
       DeleteObjectRequest(
-        key = "site/index",
+        key = "site/entries/index",
       ),
     )
   }
@@ -65,7 +65,7 @@ class SiteStore(
 
       objectStore.put(
         PutObjectRequest(
-          key = "site/${attachmentPath(slug, i)}",
+          key = "site/attachments/${attachmentPath(slug, i)}",
           value = attachment.data,
           contentType = attachment.contentType,
         ),
@@ -74,7 +74,7 @@ class SiteStore(
 
     objectStore.put(
       PutObjectRequest(
-        key = "site/$slug",
+        key = "site/entries/$slug",
         value = html.encodeUtf8(),
         contentType = "text/html; charset=utf-8",
       ),
@@ -89,14 +89,14 @@ class SiteStore(
       val attachmentPath = attachmentPath(slug, i)
       objectStore.delete(
         DeleteObjectRequest(
-          key = "site/$attachmentPath",
+          key = "site/attachments/$attachmentPath",
         ),
       )
     }
 
     objectStore.delete(
       DeleteObjectRequest(
-        key = "site/$slug",
+        key = "site/attachments/$slug",
       ),
     )
   }

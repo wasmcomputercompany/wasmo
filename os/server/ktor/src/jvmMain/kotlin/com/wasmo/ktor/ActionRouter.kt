@@ -222,7 +222,14 @@ class ActionRouter(
         val callGraph = callGraphFactory.create(clientAuthenticator.get())
         action(callGraph, wasmoUrl(), call)
       } catch (e: UserException) {
-        application.log.info("call failed", e)
+        when (e) {
+          is NotFoundUserException -> {
+            // Don't log stack traces for these; everything is working as designed.
+          }
+          else -> {
+            application.log.info("call failed", e)
+          }
+        }
         call.respond(e.asResponse())
         return@handle
       }

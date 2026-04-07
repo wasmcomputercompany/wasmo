@@ -268,11 +268,13 @@ class JournalDataService(
         // mode, so they won't show a new value if we edit it through a state variable.
         val bodyElement = document.getElementById(bodyElementId) as HTMLTextAreaElement?
         if (bodyElement != null) {
-          bodyElement.value += """
+          val newBody = bodyElement.value + ("""
             |
             |<img src="$url">
             |
-            """.trimMargin()
+            """).trimMargin()
+          bodyElement.value = newBody
+          setBody(newBody)
         }
 
         scope.launch {
