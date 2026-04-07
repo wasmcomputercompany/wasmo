@@ -1,0 +1,7 @@
+import kotlin.time.Instant;
+
+CREATE TABLE PublishState (
+  version BIGINT NOT NULL,
+  publish_needed_at VARCHAR(255) AS Instant NULL,
+  last_published_at VARCHAR(255) AS Instant NOT NULL
+);

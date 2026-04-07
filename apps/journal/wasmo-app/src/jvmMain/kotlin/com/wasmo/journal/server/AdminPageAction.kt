@@ -1,4 +1,4 @@
-package com.wasmo.journal.server.admin
+package com.wasmo.journal.server
 
 import com.wasmo.support.okiohtml.writeHtml
 import kotlinx.html.body

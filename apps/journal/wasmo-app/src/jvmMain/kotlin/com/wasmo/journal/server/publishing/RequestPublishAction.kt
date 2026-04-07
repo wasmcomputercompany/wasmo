@@ -1,7 +1,7 @@
-package com.wasmo.journal.server.admin
+package com.wasmo.journal.server.publishing
 
+import com.wasmo.journal.api.PublishState
 import com.wasmo.journal.api.RequestPublishRequest
-import com.wasmo.journal.api.RequestPublishResponse
 import okio.ByteString
 import wasmo.jobs.JobQueue
 
@@ -12,10 +12,11 @@ import wasmo.jobs.JobQueue
  */
 class RequestPublishAction(
   private val publishSiteJobQueue: JobQueue,
+  private val publishTracker: PublishTracker,
 ) {
-  suspend fun requestPublish(request: RequestPublishRequest): RequestPublishResponse {
+  suspend fun requestPublish(request: RequestPublishRequest): PublishState {
     publishSiteJobQueue.enqueue(ByteString.EMPTY)
-    return RequestPublishResponse
+    return publishTracker.getPublishState()
   }
 
   companion object {

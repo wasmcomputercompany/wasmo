@@ -7,13 +7,13 @@ CREATE TABLE Entry (
   token VARCHAR(25) UNIQUE NOT NULL,
   version BIGINT NOT NULL,
   visibility VARCHAR(255) AS Visibility NOT NULL,
-  sync_needed_at VARCHAR(255) AS Instant NULL,
+  publish_needed_at VARCHAR(255) AS Instant NULL,
   date VARCHAR(255) AS Instant NOT NULL,
   slug VARCHAR(255) UNIQUE NOT NULL,
   title VARCHAR(65535) NOT NULL,
   body VARCHAR(255) NOT NULL
 );
 
-CREATE INDEX EntrySyncNeededAt ON Entry (
-  sync_needed_at
-) WHERE sync_needed_at IS NOT NULL;
+CREATE INDEX EntryPublishNeededAt ON Entry (
+  publish_needed_at
+) WHERE publish_needed_at IS NOT NULL;

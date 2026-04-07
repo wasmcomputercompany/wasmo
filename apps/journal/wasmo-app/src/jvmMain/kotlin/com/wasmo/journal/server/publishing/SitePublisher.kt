@@ -1,14 +1,17 @@
 package com.wasmo.journal.server.publishing
 
 import app.cash.sqldelight.async.coroutines.awaitAsList
+import app.cash.sqldelight.async.coroutines.awaitAsOne
 import com.wasmo.journal.api.Visibility
 import com.wasmo.journal.db.Entry
 import com.wasmo.journal.db.JournalDb
+import kotlin.time.Clock
 import okio.Buffer
 import okio.ByteString
 import wasmo.jobs.JobHandler
 
 class SitePublisher(
+  private val clock: Clock,
   private val siteStore: SiteStore,
   private val journalDb: JournalDb,
   private val siteRenderer: SiteRenderer,
@@ -18,6 +21,10 @@ class SitePublisher(
   }
 
   suspend fun publishSite() {
+    val now = clock.now()
+    val oldPublishState = journalDb.publishStateQueries.findPublishState()
+      .awaitAsOne()
+
     publishList()
 
     val entriesToSync = journalDb.entryQueries.findEntriesToSync(
@@ -28,6 +35,14 @@ class SitePublisher(
     for (entry in entriesToSync) {
       publishEntry(entry)
     }
+
+    val rowCount = journalDb.publishStateQueries.setPublished(
+      new_version = oldPublishState.version + 1L,
+      publish_needed_at = null,
+      last_published_at = now,
+      expected_version = oldPublishState.version,
+    )
+    check(rowCount == 1L)
   }
 
   private suspend fun publishList() {
@@ -103,7 +118,7 @@ class SitePublisher(
 
     journalDb.entryQueries.clearSyncNeededAt(
       new_version = entry.version + 1,
-      sync_needed_at = null,
+      publish_needed_at = null,
       expected_version = entry.version,
       id = entry.id,
     )

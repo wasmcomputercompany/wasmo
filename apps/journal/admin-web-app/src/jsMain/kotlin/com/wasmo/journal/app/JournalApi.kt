@@ -3,7 +3,7 @@ package com.wasmo.journal.app
 import com.wasmo.journal.api.EntrySnapshot
 import com.wasmo.journal.api.ListEntriesRequest
 import com.wasmo.journal.api.ListEntriesResponse
-import com.wasmo.journal.api.RequestPublishResponse
+import com.wasmo.journal.api.PublishState
 import com.wasmo.journal.api.SaveEntryRequest
 import com.wasmo.journal.api.SaveEntryResponse
 import org.w3c.files.File
@@ -18,5 +18,6 @@ interface JournalApi {
     file: File,
     onProgress: (loaded: Number, total: Number) -> Unit,
   )
-  suspend fun requestPublish(): RequestPublishResponse
+  suspend fun getPublishState(): PublishState
+  suspend fun requestPublish(): PublishState
 }

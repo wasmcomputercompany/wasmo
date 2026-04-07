@@ -5,18 +5,22 @@ import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import com.wasmo.journal.api.Visibility
 import java.io.Closeable
+import kotlin.time.Clock
 import kotlin.time.Instant
 
 class JournalDbService(
+  private val clock: Clock,
   private val driver: SqlDriver,
 ) : JournalDb by JournalDb.Companion(
   driver,
   AttachmentAdapter,
   EntryAdapter,
+  PublishStateAdapter,
 ), Closeable by driver {
 
-  suspend fun migrate() {
-    JournalDb.Schema.migrate(driver, 0L, JournalDb.Schema.version).await()
+  suspend fun migrate(oldVersion: Long, newVersion: Long) {
+    require(newVersion == JournalDb.Schema.version)
+    JournalDb.Schema.migrate(driver, oldVersion, newVersion).await()
   }
 
   companion object {
@@ -43,8 +47,13 @@ class JournalDbService(
     private val EntryAdapter = Entry.Adapter(
       idAdapter = EntryIdAdapter,
       visibilityAdapter = EnumColumnAdapter<Visibility>(),
-      sync_needed_atAdapter = InstantAdapter,
+      publish_needed_atAdapter = InstantAdapter,
       dateAdapter = InstantAdapter,
+    )
+
+    private val PublishStateAdapter = PublishState.Adapter(
+      publish_needed_atAdapter = InstantAdapter,
+      last_published_atAdapter = InstantAdapter,
     )
   }
 }

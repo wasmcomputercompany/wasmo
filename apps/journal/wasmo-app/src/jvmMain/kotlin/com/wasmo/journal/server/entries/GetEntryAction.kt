@@ -1,4 +1,4 @@
-package com.wasmo.journal.server.admin
+package com.wasmo.journal.server.entries
 
 import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.async.coroutines.awaitAsOne

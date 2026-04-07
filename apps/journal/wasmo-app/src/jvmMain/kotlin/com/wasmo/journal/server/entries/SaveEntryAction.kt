@@ -1,4 +1,4 @@
-package com.wasmo.journal.server.admin
+package com.wasmo.journal.server.entries
 
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import com.wasmo.journal.api.SaveEntryError
@@ -6,6 +6,7 @@ import com.wasmo.journal.api.SaveEntryRequest
 import com.wasmo.journal.api.SaveEntryResponse
 import com.wasmo.journal.api.Visibility
 import com.wasmo.journal.db.JournalDb
+import com.wasmo.journal.server.publishing.PublishTracker
 import kotlin.time.Clock
 import wasmo.sql.ConstraintViolationException
 
@@ -17,18 +18,20 @@ import wasmo.sql.ConstraintViolationException
 class SaveEntryAction(
   private val clock: Clock,
   private val journalDb: JournalDb,
+  private val publishTracker: PublishTracker,
 ) {
   suspend fun save(
     entryToken: String,
     request: SaveEntryRequest,
   ): SaveEntryResponse {
+    val now = clock.now()
     try {
       val toUpdate = journalDb.entryQueries.findEntryByToken(entryToken)
         .awaitAsOneOrNull()
       val visibilityChanged = toUpdate == null || (request.entry.visibility != toUpdate.visibility)
-      val syncNeededAt = when {
-        visibilityChanged -> toUpdate?.sync_needed_at ?: clock.now()
-        request.entry.visibility == Visibility.Published -> clock.now()
+      val publishNeededAt = when {
+        visibilityChanged -> toUpdate?.publish_needed_at ?: now
+        request.entry.visibility == Visibility.Published -> now
         else -> null
       }
 
@@ -36,7 +39,7 @@ class SaveEntryAction(
         journalDb.entryQueries.insertEntry(
           token = entryToken,
           version = 1L,
-          sync_needed_at = syncNeededAt,
+          publish_needed_at = publishNeededAt,
           visibility = request.entry.visibility,
           date = request.entry.date,
           slug = request.entry.slug,
@@ -46,7 +49,7 @@ class SaveEntryAction(
       } else {
         val rowCount = journalDb.entryQueries.saveEntry(
           new_version = toUpdate.version + 1,
-          sync_needed_at = syncNeededAt,
+          publish_needed_at = publishNeededAt,
           new_visibility = request.entry.visibility,
           new_date = request.entry.date,
           new_slug = request.entry.slug,
@@ -64,6 +67,8 @@ class SaveEntryAction(
         )
       }
     }
+
+    publishTracker.setPublishNeeded(now)
 
     return SaveEntryResponse()
   }

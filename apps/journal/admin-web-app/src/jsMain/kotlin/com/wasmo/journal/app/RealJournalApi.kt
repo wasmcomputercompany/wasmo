@@ -4,8 +4,8 @@ import com.wasmo.journal.api.EntrySnapshot
 import com.wasmo.journal.api.JournalJson
 import com.wasmo.journal.api.ListEntriesRequest
 import com.wasmo.journal.api.ListEntriesResponse
+import com.wasmo.journal.api.PublishState
 import com.wasmo.journal.api.RequestPublishRequest
-import com.wasmo.journal.api.RequestPublishResponse
 import com.wasmo.journal.api.SaveEntryRequest
 import com.wasmo.journal.api.SaveEntryResponse
 import kotlin.coroutines.resume
@@ -35,7 +35,10 @@ class RealJournalApi : JournalApi {
     request: SaveEntryRequest,
   ): SaveEntryResponse = post("/api/entries/$token", request)
 
-  override suspend fun requestPublish(): RequestPublishResponse =
+  override suspend fun getPublishState(): PublishState =
+    get("/api/publish-state")
+
+  override suspend fun requestPublish(): PublishState =
     post("/api/request-publish", RequestPublishRequest)
 
   override suspend fun addAttachment(

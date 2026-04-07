@@ -1,4 +1,4 @@
-package com.wasmo.journal.server.admin
+package com.wasmo.journal.server.entries
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat
@@ -17,7 +17,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 
-class JournalAdminTest {
+class EntriesTest {
   @InterceptTest
   val tester = JournalAppTester()
 

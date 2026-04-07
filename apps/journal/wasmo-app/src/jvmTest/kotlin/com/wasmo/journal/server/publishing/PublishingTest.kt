@@ -6,6 +6,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import com.wasmo.journal.api.EntrySnapshot
+import com.wasmo.journal.api.PublishState
 import com.wasmo.journal.api.RequestPublishRequest
 import com.wasmo.journal.api.SaveEntryRequest
 import com.wasmo.journal.api.Visibility
@@ -127,6 +128,38 @@ class PublishingTest {
   }
 
   @Test
+  fun publishState() = runTest {
+    val startAt = tester.clock.now()
+    assertThat(tester.httpService.getPublishStateAction().get()).isEqualTo(
+      PublishState(
+        publishNeededAt = null,
+        lastPublishedAt = startAt,
+      ),
+    )
+
+    val entry1PostedAt = tester.clock.tick()
+    tester.httpService.saveEntryAction().save(
+      entryToken = entry1,
+      request = SaveEntryRequest(entry1Data),
+    )
+    assertThat(tester.httpService.getPublishStateAction().get()).isEqualTo(
+      PublishState(
+        publishNeededAt = entry1PostedAt,
+        lastPublishedAt = startAt,
+      ),
+    )
+
+    val sitePublishedAt = tester.clock.tick()
+    tester.sitePublisher.publishSite()
+    assertThat(tester.httpService.getPublishStateAction().get()).isEqualTo(
+      PublishState(
+        publishNeededAt = null,
+        lastPublishedAt = sitePublishedAt,
+      ),
+    )
+  }
+
+  @Test
   @Ignore("job queues aren't testable yet by app code")
   fun publishApi() = runTest {
     tester.httpService.saveEntryAction().save(
@@ -179,7 +212,7 @@ class PublishingTest {
       request = SaveEntryRequest(
         entry1Data.copy(
           visibility = Visibility.Private,
-        )
+        ),
       ),
     )
     tester.sitePublisher.publishSite()
@@ -207,7 +240,7 @@ class PublishingTest {
       request = SaveEntryRequest(
         entry1Data.copy(
           visibility = Visibility.Private,
-        )
+        ),
       ),
     )
     tester.sitePublisher.publishSite()

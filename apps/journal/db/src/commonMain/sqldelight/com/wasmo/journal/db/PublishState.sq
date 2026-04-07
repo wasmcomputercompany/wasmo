@@ -1,0 +1,36 @@
+initializePublishStateA:
+DELETE FROM PublishState;
+
+initializePublishStateB:
+INSERT INTO PublishState(
+  version,
+  publish_needed_at,
+  last_published_at
+)
+VALUES (
+  :version,
+  :publish_needed_at,
+  :last_published_at
+);
+
+setPublishNeededAt:
+UPDATE PublishState
+SET
+  version = :new_version,
+  publish_needed_at = :publish_needed_at
+WHERE
+  version = :expected_version;
+
+setPublished:
+UPDATE PublishState
+SET
+  version = :new_version,
+  publish_needed_at = :publish_needed_at,
+  last_published_at = :last_published_at
+WHERE
+  version = :expected_version;
+
+findPublishState:
+SELECT *
+FROM PublishState
+LIMIT 1;
