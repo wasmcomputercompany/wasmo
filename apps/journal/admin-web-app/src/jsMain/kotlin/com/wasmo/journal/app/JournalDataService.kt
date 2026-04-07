@@ -29,8 +29,14 @@ class JournalDataService(
 ) {
   val summaries = EntrySummariesService()
     .also { it.start() }
+  val publishService = PublishDataService()
+    .also { it.start() }
 
   private val entries = mutableMapOf<String, EntryDataService>()
+
+  fun publishSite() {
+    publishService.requestPublish()
+  }
 
   fun entry(token: String): EntryDataService {
     return entries.getOrPut(token) {
@@ -52,6 +58,58 @@ class JournalDataService(
     return entries.getOrPut(token) {
       EntryDataService(token, entry)
         .also { it.start() }
+    }
+  }
+
+  inner class PublishDataService {
+    private val mutableValue = MutableStateFlow(
+      PublishStateViewModel(
+        publishNeeded = false,
+        publishRequested = false,
+      ),
+    )
+
+    val value: StateFlow<PublishStateViewModel>
+      get() = mutableValue
+
+    fun start() {
+      scope.launch {
+        val initialPublishState = api.requestPublish()
+        mutableValue.update {
+          it.copy(
+            publishNeeded = it.publishNeeded || initialPublishState.publishNeededAt != null,
+          )
+        }
+
+        value
+          .filter { it.publishRequested }
+          .collectLatest {
+            api.requestPublish()
+            // TODO: show a spinner until the publish completes.
+            mutableValue.update {
+              it.copy(
+                publishNeeded = false,
+                publishRequested = false,
+              )
+            }
+          }
+      }
+    }
+
+    fun requestPublish() {
+      mutableValue.update {
+        it.copy(publishRequested = true)
+      }
+    }
+
+    fun onEntrySaved(previous: EntrySnapshot, latest: EntrySnapshot) {
+      mutableValue.update {
+        it.copy(
+          publishNeeded = it.publishNeeded ||
+            previous.visibility == Visibility.Published ||
+            latest.visibility == Visibility.Published,
+        )
+      }
     }
   }
 
@@ -177,6 +235,7 @@ class JournalDataService(
             )
 
             if (request.entry != latest) {
+              val previous = latest
               try {
                 api.saveEntry(token, request)
               } catch (e: Exception) {
@@ -188,6 +247,7 @@ class JournalDataService(
               latest = request.entry
 
               summaries.onEntrySaved(request.entry)
+              publishService.onEntrySaved(previous, latest)
             }
 
             mutableValue.update {

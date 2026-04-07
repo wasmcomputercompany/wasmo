@@ -3,20 +3,22 @@ package com.wasmo.journal.app
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.wasmo.journal.api.Visibility
 import com.wasmo.journal.app.JournalDataService.EntryDataService
 import com.wasmo.support.router.Router
 
 class EditEntryScreen(
   private val router: Router<Route>,
+  private val journalDataService: JournalDataService,
   private val entryDataService: EntryDataService,
 ) {
   @Composable
   fun Show() {
     val viewModel by entryDataService.value.collectAsState()
     val uploads by entryDataService.uploads.collectAsState()
+    val publishState by journalDataService.publishService.value.collectAsState()
     EditEntry(
       syncState = viewModel.syncState,
+      publishState = publishState,
       title = viewModel.title,
       slug = viewModel.slug,
       visibility = viewModel.visibility,
@@ -24,12 +26,12 @@ class EditEntryScreen(
       uploads = uploads,
       eventListener = { event ->
         when (event) {
-          EditEntryEvent.ClickPublish -> {
-            entryDataService.setVisibility(Visibility.Published)
+          is EditEntryEvent.SetVisibility -> {
+            entryDataService.setVisibility(event.value)
           }
 
-          EditEntryEvent.ClickUnpublish -> {
-            entryDataService.setVisibility(Visibility.Private)
+          EditEntryEvent.PublishSite -> {
+            journalDataService.publishSite()
           }
 
           is EditEntryEvent.EditTitle -> {

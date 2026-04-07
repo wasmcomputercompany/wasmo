@@ -24,6 +24,10 @@ class EntryListTest {
           SampleEntries.WasmIsLikeJson.toSummary(),
           SampleEntries.MultipleColumnInClause.toSummary(),
         ),
+        publishState = PublishStateViewModel(
+          publishNeeded = true,
+          publishRequested = false,
+        ),
         eventListener = {},
       )
     }

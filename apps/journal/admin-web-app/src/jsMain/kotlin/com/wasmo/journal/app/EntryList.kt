@@ -3,6 +3,7 @@ package com.wasmo.journal.app
 import androidx.compose.runtime.Composable
 import com.wasmo.journal.api.EntrySummary
 import org.jetbrains.compose.web.attributes.AttrsScope
+import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
@@ -23,6 +24,7 @@ import org.w3c.dom.HTMLDivElement
 @Composable
 fun EntryList(
   entries: List<EntrySummary>,
+  publishState: PublishStateViewModel,
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (EntryListEvent) -> Unit,
 ) {
@@ -39,6 +41,19 @@ fun EntryList(
       attrs()
     },
   ) {
+    Button(
+      attrs = {
+        if (!publishState.canRequestPublish) {
+          disabled()
+        }
+        onClick {
+          eventListener(EntryListEvent.PublishSite)
+        }
+      },
+    ) {
+      Text("Publish Site")
+    }
+
     Button(
       attrs = {
         onClick {
@@ -81,5 +96,6 @@ fun EntryRow(
 
 sealed interface EntryListEvent {
   data object NewEntry : EntryListEvent
+  data object PublishSite : EntryListEvent
   data class ClickEntry(val token: String) : EntryListEvent
 }

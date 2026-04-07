@@ -20,6 +20,10 @@ class EditEntryTest {
     snapshotTester.snapshot {
       EditEntry(
         syncState = SyncState.Ready,
+        publishState = PublishStateViewModel(
+          publishNeeded = false,
+          publishRequested = false,
+        ),
         title = sample.title,
         slug = sample.slug,
         body = sample.body,

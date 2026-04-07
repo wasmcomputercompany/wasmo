@@ -32,11 +32,18 @@ fun start() {
   renderComposableInBody {
     when (val route = router.current.value) {
       is Route.Admin -> {
-        AdminScreen(journalDataService, router).Show()
+        AdminScreen(
+          journalDataService = journalDataService,
+          router = router,
+        ).Show()
       }
 
       is Route.EditEntry -> {
-        EditEntryScreen(router, journalDataService.entry(route.token)).Show()
+        EditEntryScreen(
+          router = router,
+          journalDataService = journalDataService,
+          entryDataService = journalDataService.entry(route.token),
+        ).Show()
       }
 
       else -> {

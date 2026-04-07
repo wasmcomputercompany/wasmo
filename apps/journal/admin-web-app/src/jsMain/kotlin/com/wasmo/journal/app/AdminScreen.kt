@@ -11,10 +11,12 @@ class AdminScreen(
 ) {
   @Composable
   fun Show() {
+    val publishState by journalDataService.publishService.value.collectAsState()
     val listViewModel by journalDataService.summaries.value.collectAsState()
 
     EntryList(
       entries = listViewModel.entries,
+      publishState = publishState,
       eventListener = { event ->
         when (event) {
           is EntryListEvent.ClickEntry -> {
@@ -30,6 +32,10 @@ class AdminScreen(
               route = Route.EditEntry(newEntry.token),
               direction = Router.Direction.Push,
             )
+          }
+
+          EntryListEvent.PublishSite -> {
+            journalDataService.publishSite()
           }
         }
       },

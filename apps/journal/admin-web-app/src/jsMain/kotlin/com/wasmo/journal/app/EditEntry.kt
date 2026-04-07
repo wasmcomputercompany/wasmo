@@ -8,6 +8,7 @@ import kotlinx.browser.document
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.accept
+import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.href
 import org.jetbrains.compose.web.attributes.multiple
 import org.jetbrains.compose.web.attributes.size
@@ -37,6 +38,7 @@ import org.w3c.files.FileList
 @Composable
 fun EditEntry(
   syncState: SyncState,
+  publishState: PublishStateViewModel,
   title: String,
   slug: String,
   body: String,
@@ -66,6 +68,19 @@ fun EditEntry(
       },
     ) {
       Text("<- Back")
+    }
+
+    Button(
+      attrs = {
+        if (!publishState.canRequestPublish) {
+          disabled()
+        }
+        onClick {
+          eventListener(EditEntryEvent.PublishSite)
+        }
+      },
+    ) {
+      Text("Publish Site")
     }
 
     when (syncState) {
@@ -188,7 +203,7 @@ fun EditEntry(
         Button(
           attrs = {
             onClick {
-              eventListener(EditEntryEvent.ClickPublish)
+              eventListener(EditEntryEvent.SetVisibility(Visibility.Published))
             }
           },
         ) {
@@ -200,7 +215,7 @@ fun EditEntry(
         Button(
           attrs = {
             onClick {
-              eventListener(EditEntryEvent.ClickUnpublish)
+              eventListener(EditEntryEvent.SetVisibility(Visibility.Private))
             }
           },
         ) {
@@ -216,11 +231,11 @@ fun EditEntry(
 
 sealed interface EditEntryEvent {
   data object ClickBack : EditEntryEvent
+  data object PublishSite : EditEntryEvent
   data class EditTitle(val value: String) : EditEntryEvent
   data class EditSlug(val value: String) : EditEntryEvent
   data class EditBody(val value: String) : EditEntryEvent
-  data object ClickPublish : EditEntryEvent
-  data object ClickUnpublish : EditEntryEvent
+  data class SetVisibility(val value: Visibility) : EditEntryEvent
   data class AddAttachments(
     val bodyElementId: String,
     val files: FileList,

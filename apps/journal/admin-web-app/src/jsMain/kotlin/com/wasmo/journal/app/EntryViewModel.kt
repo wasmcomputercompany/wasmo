@@ -16,6 +16,14 @@ data class EntryListViewModel(
   val entries: List<EntrySummary>,
 )
 
+data class PublishStateViewModel(
+  val publishNeeded: Boolean,
+  val publishRequested: Boolean,
+) {
+  val canRequestPublish: Boolean
+    get() = publishNeeded && !publishRequested
+}
+
 sealed interface UploadViewModel {
   data class Progress(
     val loaded: Double = 0.0,
