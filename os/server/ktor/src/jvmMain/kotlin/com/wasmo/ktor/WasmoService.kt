@@ -38,8 +38,8 @@ class WasmoService(
     val postmarkCredentials: PostmarkCredentials,
     val stripeCredentials: StripeCredentials,
     val catalog: Catalog,
-    val hostPostgresqlAddress: PostgresqlAddress,
-    val guestPostgresqlAddress: PostgresqlAddress,
+    val osPostgresqlAddress: PostgresqlAddress,
+    val applicationPostgresqlAddress: PostgresqlAddress,
     val deployment: Deployment,
     val objectStoreAddress: ObjectStoreAddress,
     val sessionCookieSpec: SessionCookieSpec,
@@ -52,13 +52,13 @@ fun startWasmoService(
 ): WasmoService {
   val server = EngineMain.createServer(args)
 
-  val hostDataSource = connectPostgresql(config.hostPostgresqlAddress)
+  val osDataSource = connectPostgresql(config.osPostgresqlAddress)
   val wasmoDb = WasmoDbService(
-    dataSource = hostDataSource,
-    jdbcDriver = hostDataSource.asJdbcDriver(),
+    dataSource = osDataSource,
+    jdbcDriver = osDataSource.asJdbcDriver(),
   )
 
-  val sqlService = connectPostgresqlAsync(config.guestPostgresqlAddress)
+  val sqlService = connectPostgresqlAsync(config.applicationPostgresqlAddress)
     .asSqlService()
 
   val wasmoServiceGraphFactory = createGraphFactory<WasmoServiceGraph.Factory>()

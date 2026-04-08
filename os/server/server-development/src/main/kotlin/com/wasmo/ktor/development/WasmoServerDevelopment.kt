@@ -41,8 +41,8 @@ fun main(args: Array<String>) {
       secretKey = stripeSecretKey,
     ),
     catalog = DevelopmentCatalog,
-    hostPostgresqlAddress = sharedPostgresqlAddress,
-    guestPostgresqlAddress = sharedPostgresqlAddress,
+    osPostgresqlAddress = sharedPostgresqlAddress,
+    applicationPostgresqlAddress = sharedPostgresqlAddress,
     deployment = Deployment(
       baseUrl = "http://wasmo.localhost:8080/".toHttpUrl(),
       sendFromEmailAddress = "noreply@wasmo.dev",
