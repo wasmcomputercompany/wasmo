@@ -96,7 +96,7 @@ class SiteStore(
 
     objectStore.delete(
       DeleteObjectRequest(
-        key = "site/attachments/$slug",
+        key = "site/entries/$slug",
       ),
     )
   }

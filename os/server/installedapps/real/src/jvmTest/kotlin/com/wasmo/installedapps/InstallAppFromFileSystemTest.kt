@@ -17,6 +17,7 @@ import com.wasmo.packaging.Route
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
@@ -175,6 +176,50 @@ class InstallAppFromFileSystemTest {
         url = installedApp.url.resolve("/")!!,
       )
     }
+  }
+
+  @Test
+  @Ignore("not working yet!")
+  fun updateManifestInPlace() = runTest {
+    val publishedApp = tester.sampleApps.recipes.publishedApp
+      .withFileSystemWasmoFileAddress()
+    tester.publishApp(publishedApp)
+
+    val client = tester.newClient()
+    val computer = client.createComputer()
+    val installedApp = computer.installApp(publishedApp)
+
+    assertThat(computer.homePage().computerSnapshot?.apps)
+      .isNotNull()
+      .contains(
+        InstalledAppSnapshot(
+          slug = installedApp.slug,
+          launcherLabel = "Recipes",
+          maskableIconUrl = "https://recipes-${computer.slug}.wasmo.com/maskable-icon.svg",
+          homeUrl = "https://recipes-${computer.slug}.wasmo.com/home",
+        ),
+      )
+
+    tester.publishApp(
+      publishedApp.copy(
+        appManifest = publishedApp.appManifest.copy(
+          launcher = publishedApp.appManifest.launcher!!.copy(
+            label = "Recipes! Updated!",
+          ),
+        ),
+      ),
+    )
+
+    assertThat(computer.homePage().computerSnapshot?.apps)
+      .isNotNull()
+      .contains(
+        InstalledAppSnapshot(
+          slug = installedApp.slug,
+          launcherLabel = "Recipes! Updated!",
+          maskableIconUrl = "https://recipes-${computer.slug}.wasmo.com/maskable-icon.svg",
+          homeUrl = "https://recipes-${computer.slug}.wasmo.com/home",
+        ),
+      )
   }
 
   private fun PublishedApp.withFileSystemWasmoFileAddress(): PublishedApp = copy(

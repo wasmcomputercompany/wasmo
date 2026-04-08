@@ -12,8 +12,7 @@ class RealResourceLoaderFactory(
   private val fileSystemResourceLoaderFactory: FileSystemResourceLoader.Factory,
   private val objectStoreResourceLoader: ObjectStoreResourceLoader,
 ) : ResourceLoader.Factory {
-  override fun create(
-  ): ResourceLoader {
+  override fun create(): ResourceLoader {
     return when (wasmoFileAddress) {
       is WasmoFileAddress.FileSystem -> fileSystemResourceLoaderFactory.create(wasmoFileAddress)
       is WasmoFileAddress.Http -> objectStoreResourceLoader

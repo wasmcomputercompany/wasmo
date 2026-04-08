@@ -10,6 +10,7 @@ import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.OsScope
+import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -45,7 +46,7 @@ class RealInstalledAppStore(
     return get(
       computerSlug = computer.slug,
       installedApp = row.installedApp,
-      installedAppRelease = row.installedAppRelease ?: return null,
+      installedManifest = row.installedAppRelease?.app_manifest_data ?: return null,
     )
   }
 
@@ -58,29 +59,29 @@ class RealInstalledAppStore(
       .executeAsOne()
     return get(
       installedApp = installedApp,
-      installedAppRelease = installedAppRelease,
+      installedManifest = installedAppRelease.app_manifest_data,
     )
   }
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun get(
     installedApp: InstalledApp,
-    installedAppRelease: InstalledAppRelease,
+    installedManifest: AppManifest,
   ): InstalledAppService {
     val computer = wasmoDb.computerQueries.selectComputerById(installedApp.computer_id)
       .executeAsOne()
-    return get(computer.slug, installedApp, installedAppRelease)
+    return get(computer.slug, installedApp, installedManifest)
   }
 
   override fun get(
     computerSlug: ComputerSlug,
     installedApp: InstalledApp,
-    installedAppRelease: InstalledAppRelease,
+    installedManifest: AppManifest,
   ): InstalledAppService {
     val graph = installedAppServiceGraphFactory.create(
       computerSlug = computerSlug,
       installedApp = installedApp,
-      installedAppRelease = installedAppRelease,
+      installedManifest = installedManifest,
     )
     return graph.service
   }

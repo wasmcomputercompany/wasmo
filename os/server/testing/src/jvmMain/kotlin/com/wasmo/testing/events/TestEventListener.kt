@@ -35,7 +35,6 @@ class TestEventListener : EventListener {
       events.first { snapshot ->
         val enqueuedCount = snapshot.count { it is JobEnqueuedEvent }
         val completedCount = snapshot.count { it is JobCompletedEvent }
-        println("enqueuedCount = $enqueuedCount, completedCount = $completedCount")
         enqueuedCount == completedCount
       }
     }

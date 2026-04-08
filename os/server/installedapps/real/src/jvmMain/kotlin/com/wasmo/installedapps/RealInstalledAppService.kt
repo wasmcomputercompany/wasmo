@@ -1,5 +1,6 @@
 package com.wasmo.installedapps
 
+import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -28,6 +29,11 @@ class RealInstalledAppService(
       .host("$slug-$computerSlug.${deployment.baseUrl.host}")
       .build()
 
+  override val homeUrl: HttpUrl
+    get() = manifest.launcher?.home_path
+      ?.let { url.resolve(it) }
+      ?: url
+
   override val maskableIconUrl: HttpUrl
     get() = manifest.launcher?.maskable_icon_path
       ?.let { url.resolve(it) }
@@ -39,4 +45,11 @@ class RealInstalledAppService(
   // TODO: memoize this.
   override suspend fun app(): WasmoApp? =
     loader.load(platform, slug)
+
+  override fun snapshot() = InstalledAppSnapshot(
+    slug = slug,
+    launcherLabel = manifest.launcher?.label ?: slug.value,
+    maskableIconUrl = maskableIconUrl.toString(),
+    homeUrl = homeUrl.toString(),
+  )
 }

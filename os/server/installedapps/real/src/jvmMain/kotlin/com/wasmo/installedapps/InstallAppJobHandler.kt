@@ -62,7 +62,7 @@ class InstallAppJobHandler(
       val service = installedAppStore.get(
         computerSlug = computerService.slug,
         installedApp = installedApp,
-        installedAppRelease = release,
+        installedManifest = release.app_manifest_data,
       )
 
       service.app()?.afterInstall(0L, installedManifest.version)

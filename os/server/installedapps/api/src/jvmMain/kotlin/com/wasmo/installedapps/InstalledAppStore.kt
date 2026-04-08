@@ -3,10 +3,10 @@ package com.wasmo.installedapps
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.db.InstalledApp
-import com.wasmo.db.InstalledAppRelease
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
+import com.wasmo.packaging.AppManifest
 
 interface InstalledAppStore {
   context(transactionCallbacks: TransactionCallbacks)
@@ -18,12 +18,12 @@ interface InstalledAppStore {
   context(transactionCallbacks: TransactionCallbacks)
   fun get(
     installedApp: InstalledApp,
-    installedAppRelease: InstalledAppRelease,
+    installedManifest: AppManifest,
   ): InstalledAppService
 
   fun get(
     computerSlug: ComputerSlug,
     installedApp: InstalledApp,
-    installedAppRelease: InstalledAppRelease,
+    installedManifest: AppManifest,
   ): InstalledAppService
 }

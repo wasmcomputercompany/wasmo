@@ -2,8 +2,7 @@ package com.wasmo.computers
 
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.api.InstalledAppSnapshot
-import com.wasmo.db.SelectInstalledAppsByComputerId
+import com.wasmo.app.db.InstalledAppAndRelease
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
@@ -12,7 +11,9 @@ import com.wasmo.identifiers.ComputerScope
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.installedapps.InstallAppJob
+import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.jobs.OsJobQueue
+import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
@@ -26,6 +27,7 @@ class RealComputerService(
   private val wasmoDb: WasmoDb,
   private val appCatalog: AppCatalog,
   private val jobQueue: OsJobQueue,
+  private val installedAppStore: InstalledAppStore,
   override val id: ComputerId,
   override val slug: ComputerSlug,
   override val resourceInstallerFactory: ResourceInstaller.Factory,
@@ -69,33 +71,28 @@ class RealComputerService(
       computer_id = id,
       active = true,
       limit = 100,
+      mapper = InstalledAppAndRelease::invoke,
     ).executeAsList()
+
+    val apps = installedApps.map { row ->
+      val installedApp = installedAppStore.get(
+        slug,
+        row.installedApp,
+        row.installedAppRelease?.app_manifest_data ?: PlaceholderManifest,
+      )
+      installedApp.snapshot()
+    }
 
     return ComputerSnapshot(
       slug = slug,
-      apps = installedApps.map { row ->
-        InstalledAppSnapshot(
-          slug = row.slug,
-          launcherLabel = row.app_manifest_data?.launcher?.label ?: row.slug.value,
-          maskableIconUrl = row.maskableIconUrl.toString(),
-          homeUrl = row.homeUrl.toString()
-        )
-      },
+      apps = apps,
     )
   }
 
-  private val SelectInstalledAppsByComputerId.appUrl: HttpUrl
-    get() = deployment.baseUrl.newBuilder()
-      .host("$slug-${this@RealComputerService.slug}.${deployment.baseUrl.host}")
-      .build()
-
-  private val SelectInstalledAppsByComputerId.maskableIconUrl: HttpUrl
-    get() = app_manifest_data?.launcher?.maskable_icon_path
-      ?.let { appUrl.resolve(it) }
-      ?: appUrl.resolve("/maskable-icon.svg")!!
-
-  private val SelectInstalledAppsByComputerId.homeUrl: HttpUrl
-    get() = app_manifest_data?.launcher?.home_path
-      ?.let { appUrl.resolve(it) }
-      ?: appUrl
+  companion object {
+    private val PlaceholderManifest = AppManifest(
+      target = "https://wasmo.com/sdk/1",
+      version = 0,
+    )
+  }
 }

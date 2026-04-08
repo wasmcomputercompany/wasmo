@@ -1,7 +1,6 @@
 package com.wasmo.installedapps
 
 import com.wasmo.db.InstalledApp
-import com.wasmo.db.InstalledAppRelease
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -55,13 +54,6 @@ interface InstalledAppServiceGraph {
 
   @Provides
   @SingleIn(InstalledAppScope::class)
-  fun provideAppManifest(
-    installedApp: InstalledApp,
-    installedAppRelease: InstalledAppRelease,
-  ): AppManifest = installedAppRelease.app_manifest_data
-
-  @Provides
-  @SingleIn(InstalledAppScope::class)
   fun provideWasmoFileAddress(
     installedApp: InstalledApp,
   ): WasmoFileAddress = installedApp.wasmo_file_address
@@ -102,7 +94,7 @@ interface InstalledAppServiceGraph {
     fun create(
       @Provides computerSlug: ComputerSlug,
       @Provides installedApp: InstalledApp,
-      @Provides installedAppRelease: InstalledAppRelease,
+      @Provides installedManifest: AppManifest,
     ): InstalledAppServiceGraph
   }
 }
