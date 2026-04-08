@@ -1,14 +1,6 @@
 target = 'https://wasmo.com/sdk/1'
 version = 1
 
-[[resource]]
-url = 'assets/maskable-icon.svg'
-content_type = 'image/svg+xml'
-
-[[route]]
-path = '/assets/maskable-icon.svg'
-resource_path = '/assets/maskable-icon.svg'
-
 [launcher]
 label = 'Photos'
 maskable_icon_path = '/assets/maskable-icon.svg'

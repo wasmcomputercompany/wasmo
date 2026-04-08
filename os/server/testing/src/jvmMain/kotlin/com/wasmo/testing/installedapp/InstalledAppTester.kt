@@ -1,13 +1,15 @@
 package com.wasmo.testing.installedapp
 
-import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
+import com.wasmo.framework.Response
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.installedapps.InstalledAppService
 import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.testing.apps.PublishedApp
+import com.wasmo.testing.client.ClientTester
+import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -24,7 +26,7 @@ class InstalledAppTester private constructor(
   private val wasmoDb: WasmoDb,
   private val appLoader: AppLoader,
   private val installedAppStore: InstalledAppStore,
-  @Assisted private val clientAuthenticator: ClientAuthenticator,
+  @Assisted private val client: ClientTester,
   @Assisted val publishedApp: PublishedApp,
   @Assisted val computerSlug: ComputerSlug,
 ) {
@@ -45,16 +47,25 @@ class InstalledAppTester private constructor(
   }
 
   private fun installedAppService(): InstalledAppService {
-    val client = clientAuthenticator.get()
     return wasmoDb.transactionWithResult(noEnclosing = true) {
-      installedAppStore.getOrNull(client, computerSlug, publishedApp.slug)!!
+      installedAppStore.getOrNull(
+        client = client.clientAuthenticator.get(),
+        computerSlug = computerSlug,
+        appSlug = publishedApp.slug,
+      )!!
     }
+  }
+
+  suspend fun call(path: String): Response<ResponseBodySnapshot> {
+    return client.call().callApp(
+      url = url.resolve(path)!!,
+    )
   }
 
   @AssistedFactory
   interface Factory {
     fun create(
-      clientAuthenticator: ClientAuthenticator,
+      client: ClientTester,
       publishedApp: PublishedApp,
       computerSlug: ComputerSlug,
     ): InstalledAppTester

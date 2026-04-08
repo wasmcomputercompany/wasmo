@@ -19,7 +19,6 @@ import dev.zacsweers.metro.AssistedInject
 class ComputerTester private constructor(
   private val installedAppTesterFactory: InstalledAppTester.Factory,
   private val eventListener: TestEventListener,
-  @Assisted private val clientAuthenticator: ClientAuthenticator,
   @Assisted private val client: ClientTester,
   @Assisted val slug: ComputerSlug,
 ) {
@@ -46,7 +45,7 @@ class ComputerTester private constructor(
   }
 
   fun getApp(publishedApp: PublishedApp) = installedAppTesterFactory.create(
-    clientAuthenticator = clientAuthenticator,
+    client = client,
     publishedApp = publishedApp,
     computerSlug = slug,
   )
@@ -56,7 +55,6 @@ class ComputerTester private constructor(
   @AssistedFactory
   interface Factory {
     fun create(
-      clientAuthenticator: ClientAuthenticator,
       client: ClientTester,
       slug: ComputerSlug,
     ): ComputerTester

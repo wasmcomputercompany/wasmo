@@ -24,7 +24,7 @@ class CreateWasmoFileTest {
       external_resource = listOf(
         ExternalResource(
           from = "../../external-sources",
-          to = "/assets",
+          to = "/www/assets",
           include = listOf("**/*.png"),
         ),
       ),
@@ -42,7 +42,8 @@ class CreateWasmoFileTest {
     fileSystem.write("/sources/music.wasmo/wasmo-manifest.toml".toPath()) {
       writeUtf8(WasmoToml.encodeToString<AppManifest>(manifest))
     }
-    fileSystem.write("/sources/music.wasmo/index.html".toPath()) {
+    fileSystem.createDirectories("/sources/music.wasmo/www".toPath())
+    fileSystem.write("/sources/music.wasmo/www/index.html".toPath()) {
       writeUtf8("I am an HTML page")
     }
 
@@ -59,11 +60,12 @@ class CreateWasmoFileTest {
     val output = fileSystem.openZip("/outputs/music.wasmo".toPath())
 
     assertThat(output.listRecursively("/".toPath()).toList()).containsExactly(
-      "/assets".toPath(),
-      "/assets/graphics".toPath(),
-      "/assets/graphics/logo.png".toPath(),
-      "/index.html".toPath(),
       "/wasmo-manifest.toml".toPath(),
+      "/www".toPath(),
+      "/www/assets".toPath(),
+      "/www/assets/graphics".toPath(),
+      "/www/assets/graphics/logo.png".toPath(),
+      "/www/index.html".toPath(),
     )
 
     assertThat(output.read("/wasmo-manifest.toml".toPath()) { readUtf8() })
@@ -72,12 +74,11 @@ class CreateWasmoFileTest {
         |target = "https://wasmo.com/sdk/1"
         |version = 35
         |external_resource = [  ]
-        |route = [  ]
         """.trimMargin(),
       )
-    assertThat(output.read("/index.html".toPath()) { readUtf8() })
+    assertThat(output.read("/www/index.html".toPath()) { readUtf8() })
       .isEqualTo("I am an HTML page")
-    assertThat(output.read("/assets/graphics/logo.png".toPath()) { readUtf8() })
+    assertThat(output.read("/www/assets/graphics/logo.png".toPath()) { readUtf8() })
       .isEqualTo("I am a logo PNG")
   }
 
@@ -89,7 +90,7 @@ class CreateWasmoFileTest {
       external_resource = listOf(
         ExternalResource(
           from = "../../external-sources",
-          to = "/assets",
+          to = "/www/assets",
           include = listOf("**/*.png"),
         ),
       ),

@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.ExternalResource
 import com.wasmo.packaging.Launcher
-import com.wasmo.packaging.Route
 import com.wasmo.packaging.WasmoToml
 import kotlin.test.Test
 
@@ -18,12 +17,8 @@ class AppManifestTest {
       |
       |[[external_resource]]
       |from = '../build/dist/js/developmentExecutable'
-      |to = '/static'
+      |to = '/www/static'
       |include = ['**/*.js', '**/*.js.map']
-      |
-      |[[route]]
-      |path = '/static/**'
-      |resource_path = '/static/**'
       |
       |[launcher]
       |label = 'Recipes'
@@ -42,14 +37,8 @@ class AppManifestTest {
         external_resource = listOf(
           ExternalResource(
             from = "../build/dist/js/developmentExecutable",
-            to = "/static",
+            to = "/www/static",
             include = listOf("**/*.js", "**/*.js.map"),
-          ),
-        ),
-        route = listOf(
-          Route(
-            path = "/static/**",
-            resource_path = "/static/**",
           ),
         ),
         launcher = Launcher(

@@ -6,7 +6,6 @@ import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.Launcher
-import com.wasmo.packaging.Route
 import com.wasmo.packaging.TargetSdk1
 import com.wasmo.testing.events.AfterInstallEvent
 import com.wasmo.testing.jobs.FakeJobHandler
@@ -46,12 +45,6 @@ class RecipesApp(
         label = "Recipes",
         home_path = "/home",
       ),
-      route = listOf(
-        Route(
-          path = "/",
-          resource_path = "/index.html",
-        ),
-      ),
     )
 
     val publishedApp = PublishedApp(
@@ -60,7 +53,7 @@ class RecipesApp(
       appManifest = appManifest,
       resources = mapOf(
         "app.wasm" to "I am Wasm data".encodeUtf8(),
-        "index.html" to "Welcome to the recipes app".encodeUtf8(),
+        "www/index.html" to "Welcome to the recipes app".encodeUtf8(),
       ),
       factory = this,
     )

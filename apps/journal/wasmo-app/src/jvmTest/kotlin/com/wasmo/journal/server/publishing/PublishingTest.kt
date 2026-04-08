@@ -119,11 +119,11 @@ class PublishingTest {
     )
     tester.sitePublisher.publishSite()
 
-    assertThat(tester.platform.objectStore["site/entries/index"]?.utf8())
+    assertThat(tester.platform.objectStore["www-public/index.html"]?.utf8())
       .isEqualTo(renderedListEntry1)
-    assertThat(tester.platform.objectStore["site/entries/publish-this"]?.utf8())
+    assertThat(tester.platform.objectStore["www-public/publish-this/index.html"]?.utf8())
       .isEqualTo(renderedEntry1)
-    assertThat(tester.platform.objectStore["site/attachments/publish-this/a1"]?.utf8())
+    assertThat(tester.platform.objectStore["www-public/publish-this/a1"]?.utf8())
       .isEqualTo("this is an attachment!")
   }
 
@@ -169,7 +169,7 @@ class PublishingTest {
     tester.httpService.requestPublishAction().requestPublish(RequestPublishRequest)
     tester.platform.jobQueueFactory.awaitIdle()
 
-    assertThat(tester.platform.objectStore["site/entries/second-post"]?.utf8())
+    assertThat(tester.platform.objectStore["www-public/second-post/index.html"]?.utf8())
       .isEqualTo(renderedEntry2)
   }
 
@@ -190,13 +190,13 @@ class PublishingTest {
     )
     tester.sitePublisher.publishSite()
 
-    assertThat(tester.platform.objectStore["site/entries/index"]?.utf8())
+    assertThat(tester.platform.objectStore["www-public/index.html"]?.utf8())
       .isEqualTo(renderedListEntry2Entry1)
-    assertThat(tester.platform.objectStore["site/entries/publish-this"]?.utf8())
+    assertThat(tester.platform.objectStore["www-public/publish-this/index.html"]?.utf8())
       .isEqualTo(renderedEntry1)
-    assertThat(tester.platform.objectStore["site/entries/second-post"]?.utf8())
+    assertThat(tester.platform.objectStore["www-public/second-post/index.html"]?.utf8())
       .isEqualTo(renderedEntry2)
-    assertThat(tester.platform.objectStore["site/attachments/publish-this/a1"]?.utf8())
+    assertThat(tester.platform.objectStore["www-public/publish-this/a1"]?.utf8())
       .isEqualTo("this is an attachment!")
   }
 
@@ -217,7 +217,7 @@ class PublishingTest {
     )
     tester.sitePublisher.publishSite()
 
-    assertThat(tester.platform.objectStore.list("site/")).isEmpty()
+    assertThat(tester.platform.objectStore.list("www-public/")).isEmpty()
   }
 
   @Test
@@ -233,7 +233,7 @@ class PublishingTest {
     )
     tester.sitePublisher.publishSite()
 
-    assertThat(tester.platform.objectStore.list("site/")).isNotEmpty()
+    assertThat(tester.platform.objectStore.list("www-public/")).isNotEmpty()
 
     tester.httpService.saveEntryAction().save(
       entryToken = entry1,
@@ -244,6 +244,6 @@ class PublishingTest {
       ),
     )
     tester.sitePublisher.publishSite()
-    assertThat(tester.platform.objectStore.list("site/")).isEmpty()
+    assertThat(tester.platform.objectStore.list("www-public/")).isEmpty()
   }
 }

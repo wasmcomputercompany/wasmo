@@ -3,20 +3,8 @@ version = 1
 
 [[external_resource]]
 from = '../../admin-web-app/build/dist/js/productionExecutable'
-to = '/assets'
+to = '/www/assets'
 include = ['**/*.js', '**/*.js.map']
-
-[[route]]
-path = '/assets/**'
-resource_path = '/assets/**'
-
-[[route]]
-path = '/**'
-objects_key = '/site/entries/**'
-
-[[route]]
-path = '/**'
-objects_key = '/site/attachments/**'
 
 [launcher]
 label = 'Journal'

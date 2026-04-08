@@ -13,7 +13,6 @@ import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.Issue
 import com.wasmo.issues.Severity
 import com.wasmo.packaging.ExternalResource
-import com.wasmo.packaging.Route
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
@@ -56,10 +55,7 @@ class InstallAppFromFileSystemTest {
         ),
       )
 
-    val response = client.call().callApp(
-      url = installedApp.url.resolve("/")!!,
-    )
-    assertThat(response)
+    assertThat(installedApp.call("/"))
       .isEqualTo(
         Response(
           contentType = "text/html".toMediaType(),
@@ -73,7 +69,7 @@ class InstallAppFromFileSystemTest {
     val externalResourcePath = tester.testDirectory / "external-resources" / "logo.svg"
     val externalResource = ExternalResource(
       from = externalResourcePath.parent!!.toString(),
-      to = "/graphics",
+      to = "/www/media",
       include = listOf("*.svg"),
     )
     val originalApp = tester.sampleApps.recipes.publishedApp
@@ -81,12 +77,6 @@ class InstallAppFromFileSystemTest {
       .withFileSystemWasmoFileAddress()
       .copy(
         appManifest = originalApp.appManifest.copy(
-          route = originalApp.appManifest.route + listOf(
-            Route(
-              path = "/media/**",
-              resource_path = "/graphics/**",
-            ),
-          ),
           external_resource = listOf(
             externalResource,
           ),
@@ -101,10 +91,7 @@ class InstallAppFromFileSystemTest {
     val computer = client.createComputer()
     val installedApp = computer.installApp(publishedApp)
 
-    val response = client.call().callApp(
-      url = installedApp.url.resolve("/media/logo.svg")!!,
-    )
-    assertThat(response)
+    assertThat(installedApp.call("/media/logo.svg"))
       .isEqualTo(
         Response(
           contentType = "image/svg+xml".toMediaType(),
@@ -168,12 +155,10 @@ class InstallAppFromFileSystemTest {
     val installedApp = computer.installApp(publishedApp)
 
     val basePath = (publishedApp.wasmoFileAddress as WasmoFileAddress.FileSystem).path
-    tester.fileSystem.delete(basePath / "index.html", mustExist = true)
+    tester.fileSystem.delete(basePath / "www" / "index.html", mustExist = true)
 
     assertFailsWith<NotFoundUserException> {
-      client.call().callApp(
-        url = installedApp.url.resolve("/")!!,
-      )
+      installedApp.call("/")
     }
   }
 
