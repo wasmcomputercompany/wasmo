@@ -6,17 +6,14 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListItem
 import com.wasmo.api.ComputerListSnapshot
-import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.computers.ComputerStore
 import com.wasmo.db.Invite
 import com.wasmo.db.Passkey
 import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
-import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.passkeys.AuthenticatorDatabase
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -29,7 +26,6 @@ class RealCallDataService(
   private val authenticatorDatabase: AuthenticatorDatabase,
   private val wasmoDb: WasmoDb,
   private val client: Client,
-  private val computerStore: ComputerStore,
 ) : CallDataService {
   private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
     context(transactionCallbacks: TransactionCallbacks)
@@ -134,8 +130,4 @@ class RealCallDataService(
       code = invite.code,
     )
   }
-
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun computerSnapshotOrNull(slug: ComputerSlug): ComputerSnapshot? =
-    computerStore.getOrNull(client, slug)?.snapshot()
 }

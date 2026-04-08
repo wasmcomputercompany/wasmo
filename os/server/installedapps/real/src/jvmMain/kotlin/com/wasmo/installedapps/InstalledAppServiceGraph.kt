@@ -9,7 +9,6 @@ import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppScope
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
@@ -94,7 +93,7 @@ interface InstalledAppServiceGraph {
     fun create(
       @Provides computerSlug: ComputerSlug,
       @Provides installedApp: InstalledApp,
-      @Provides installedManifest: AppManifest,
+      @Provides appManifestLoader: AppManifestLoader,
     ): InstalledAppServiceGraph
   }
 }

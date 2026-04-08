@@ -1,7 +1,6 @@
 package com.wasmo.installedapps
 
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.ExternalResource
 import com.wasmo.packaging.IncludePattern
 import dev.zacsweers.metro.Assisted
@@ -14,12 +13,11 @@ import okio.FileSystem
 @AssistedInject
 class FileSystemResourceLoader(
   private val fileSystem: FileSystem,
+  private val appManifestLoader: AppManifestLoader,
   @Assisted private val wasmoFileAddress: WasmoFileAddress.FileSystem,
-  private val appManifest: AppManifest,
 ) : ResourceLoader {
-  override suspend fun loadManifest() = appManifest
-
   override suspend fun loadOrNull(resourcePath: String): ByteString? {
+    val appManifest = appManifestLoader.load()
     for (externalResource in appManifest.external_resource) {
       if (!resourcePath.startsWith(externalResource.to)) continue
 

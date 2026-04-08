@@ -40,7 +40,7 @@ class InstallAppJobHandler(
     val completedAt = clock.now()
 
     if (installedManifest != null) {
-      val release = wasmoDb.transactionWithResult(noEnclosing = true) {
+      val installedAppRelease = wasmoDb.transactionWithResult(noEnclosing = true) {
         val releaseId = wasmoDb.installedAppReleaseQueries.insertInstalledAppRelease(
           first_active_at = completedAt,
           computer_id = computerService.id,
@@ -62,7 +62,7 @@ class InstallAppJobHandler(
       val service = installedAppStore.get(
         computerSlug = computerService.slug,
         installedApp = installedApp,
-        installedManifest = release.app_manifest_data,
+        installedAppRelease = installedAppRelease,
       )
 
       service.app()?.afterInstall(0L, installedManifest.version)
@@ -72,7 +72,7 @@ class InstallAppJobHandler(
           id = installedApp.id,
           expected_version = installedApp.version,
           new_version = installedApp.version + 1L,
-          active_release_id = release.id,
+          active_release_id = installedAppRelease.id,
         ).value
         require(rowCount == 1L)
       }

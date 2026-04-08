@@ -13,7 +13,6 @@ import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.jobs.OsJobQueue
-import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
@@ -65,20 +64,21 @@ class RealComputerService(
     }
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun snapshot(): ComputerSnapshot {
-    val installedApps = wasmoDb.installedAppQueries.selectInstalledAppsByComputerId(
-      computer_id = id,
-      active = true,
-      limit = 100,
-      mapper = InstalledAppAndRelease::invoke,
-    ).executeAsList()
+  override suspend fun snapshot(): ComputerSnapshot {
+    val installedApps = wasmoDb.transactionWithResult(noEnclosing = true) {
+      wasmoDb.installedAppQueries.selectInstalledAppsByComputerId(
+        computer_id = id,
+        active = true,
+        limit = 100,
+        mapper = InstalledAppAndRelease::invoke,
+      ).executeAsList()
+    }
 
     val apps = installedApps.map { row ->
       val installedApp = installedAppStore.get(
-        slug,
-        row.installedApp,
-        row.installedAppRelease?.app_manifest_data ?: PlaceholderManifest,
+        computerSlug = slug,
+        installedApp = row.installedApp,
+        installedAppRelease = row.installedAppRelease,
       )
       installedApp.snapshot()
     }
@@ -86,13 +86,6 @@ class RealComputerService(
     return ComputerSnapshot(
       slug = slug,
       apps = apps,
-    )
-  }
-
-  companion object {
-    private val PlaceholderManifest = AppManifest(
-      target = "https://wasmo.com/sdk/1",
-      version = 0,
     )
   }
 }

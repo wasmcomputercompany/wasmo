@@ -6,7 +6,6 @@ import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.identifiers.InstalledAppScope
-import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -23,10 +22,12 @@ class RealInstalledAppHttpService(
   private val installedAppService: InstalledAppService,
   private val resourceLoaderFactory: ResourceLoader.Factory,
   private val pathMatcher: PathMatcher,
-  private val appManifest: AppManifest,
+  private val appManifestLoader: AppManifestLoader,
   private val contentTypeDatabase: ContentTypeDatabase,
 ) : InstalledAppHttpService {
   override suspend fun execute(request: Request): Response<ResponseBody> {
+    val appManifest = appManifestLoader.load()
+
     val urlPath = request.url.encodedPath
     val match = appManifest.route.firstNotNullOfOrNull { route ->
       pathMatcher.matchOrNull(route, urlPath)

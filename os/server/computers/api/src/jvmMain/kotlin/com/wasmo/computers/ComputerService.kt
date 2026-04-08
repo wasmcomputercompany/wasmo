@@ -24,7 +24,6 @@ interface ComputerService {
     slug: AppSlug,
   )
 
-  context(transactionCallbacks: TransactionCallbacks)
-  fun snapshot(): ComputerSnapshot
+  suspend fun snapshot(): ComputerSnapshot
 }
 

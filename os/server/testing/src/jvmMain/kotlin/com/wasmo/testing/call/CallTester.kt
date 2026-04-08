@@ -81,10 +81,10 @@ class CallTester(
   fun registerPasskey(request: RegisterPasskeyRequest) =
     registerPasskeyActionProvider().register(request)
 
-  fun osPage(url: Url): ServerOsPage =
+  suspend fun osPage(url: Url): ServerOsPage =
     osPageActionProvider().get(url)
 
-  fun osPage(route: Route): ServerOsPage = osPage(
+  suspend fun osPage(route: Route): ServerOsPage = osPage(
     url = routeCodec().encode(route),
   )
 

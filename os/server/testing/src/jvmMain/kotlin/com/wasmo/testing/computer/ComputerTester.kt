@@ -51,7 +51,7 @@ class ComputerTester private constructor(
     computerSlug = slug,
   )
 
-  fun homePage() = client.call().osPage(ComputerHomeRoute(slug))
+  suspend fun homePage() = client.call().osPage(ComputerHomeRoute(slug))
 
   @AssistedFactory
   interface Factory {

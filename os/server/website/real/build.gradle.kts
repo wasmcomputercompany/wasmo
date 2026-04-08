@@ -21,6 +21,7 @@ kotlin {
         implementation(project(":os:routes"))
         implementation(project(":os:server:accounts:api"))
         implementation(project(":os:server:calls:api"))
+        implementation(project(":os:server:computers:api"))
         implementation(project(":os:server:db"))
         implementation(project(":os:server:deployment"))
         implementation(project(":os:server:identifiers"))

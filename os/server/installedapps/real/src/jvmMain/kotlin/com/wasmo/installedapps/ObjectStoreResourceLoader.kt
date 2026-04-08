@@ -2,7 +2,6 @@ package com.wasmo.installedapps
 
 import com.wasmo.identifiers.ForInstalledApp
 import com.wasmo.identifiers.InstalledAppScope
-import com.wasmo.packaging.AppManifest
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okio.ByteString
@@ -12,14 +11,13 @@ import wasmo.objectstore.ObjectStore
 @Inject
 @SingleIn(InstalledAppScope::class)
 class ObjectStoreResourceLoader(
-  private val appManifest: AppManifest,
+  private val appManifestLoader: AppManifestLoader,
   @ForInstalledApp private val objectStore: ObjectStore,
 ) : ResourceLoader {
-  override suspend fun loadManifest() = appManifest
-
   override suspend fun loadOrNull(resourcePath: String): ByteString? {
     check(resourcePath.startsWith("/"))
 
+    val appManifest = appManifestLoader.load()
     val getObjectResponse = objectStore.get(
       request = GetObjectRequest(
         key = "resources/v${appManifest.version}$resourcePath",
