@@ -13,7 +13,6 @@ import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.issues.Issue
 import com.wasmo.issues.Severity
 import com.wasmo.packaging.ExternalResource
-import com.wasmo.packaging.Route
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
@@ -73,7 +72,7 @@ class InstallAppFromFileSystemTest {
     val externalResourcePath = tester.testDirectory / "external-resources" / "logo.svg"
     val externalResource = ExternalResource(
       from = externalResourcePath.parent!!.toString(),
-      to = "/graphics",
+      to = "/www/media",
       include = listOf("*.svg"),
     )
     val originalApp = tester.sampleApps.recipes.publishedApp
@@ -81,12 +80,6 @@ class InstallAppFromFileSystemTest {
       .withFileSystemWasmoFileAddress()
       .copy(
         appManifest = originalApp.appManifest.copy(
-          route = originalApp.appManifest.route + listOf(
-            Route(
-              path = "/media/**",
-              resource_path = "/graphics/**",
-            ),
-          ),
           external_resource = listOf(
             externalResource,
           ),

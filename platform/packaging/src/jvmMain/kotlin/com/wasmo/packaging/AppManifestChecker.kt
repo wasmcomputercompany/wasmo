@@ -49,12 +49,6 @@ class AppManifestChecker(
       }
     }
 
-    for ((index, route) in manifest.route.withIndex()) {
-      context(issueCollector.href("route[$index]")) {
-        check(route)
-      }
-    }
-
     val launcher = manifest.launcher
     if (launcher != null) {
       context(issueCollector.href("launcher")) {
@@ -80,53 +74,6 @@ class AppManifestChecker(
             "include must not start with '/'"
           }
         }
-      }
-    }
-  }
-
-  context(issueCollector: IssueCollector)
-  private fun check(route: Route) {
-    context(issueCollector.href("path")) {
-      checkPath(
-        path = route.path,
-        allowTrailingWildcard = true,
-      )
-    }
-
-    val pathHasTrailingWildcard = route.path.endsWith("/**")
-    val resourcePath = route.resource_path
-    val objectsKey = route.objects_key
-
-    issueCheck(resourcePath == null || objectsKey == null) {
-      "route may have a resource_path and an objects_key, but not both"
-    }
-
-    if (resourcePath != null) {
-      context(issueCollector.href("resource_path")) {
-        checkPath(
-          path = resourcePath,
-          allowTrailingWildcard = pathHasTrailingWildcard,
-          requireTrailingWildcard = pathHasTrailingWildcard,
-        )
-      }
-    }
-
-    if (objectsKey != null) {
-      context(issueCollector.href("objects_key")) {
-        checkPath(
-          path = objectsKey,
-          allowTrailingWildcard = pathHasTrailingWildcard,
-          requireTrailingWildcard = pathHasTrailingWildcard,
-        )
-      }
-    }
-
-    context(issueCollector.href("access")) {
-      issueCheck(route.access == null || route.access in SupportedAccessValues) {
-        """
-        |unsupported access '${route.access}'
-        |expected one of $SupportedAccessValues
-        """.trimMargin()
       }
     }
   }

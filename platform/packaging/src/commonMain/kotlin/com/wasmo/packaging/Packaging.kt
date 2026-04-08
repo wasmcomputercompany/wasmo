@@ -7,7 +7,6 @@ data class AppManifest(
   val target: String,
   val version: Long,
   val external_resource: List<ExternalResource> = listOf(),
-  val route: List<Route> = listOf(),
   val launcher: Launcher? = null,
 )
 
@@ -16,14 +15,6 @@ data class ExternalResource(
   val from: String,
   val to: String,
   val include: List<String> = listOf(),
-)
-
-@Serializable
-data class Route(
-  val path: String,
-  val resource_path: String? = null,
-  val objects_key: String? = null,
-  val access: String? = null,
 )
 
 @Serializable

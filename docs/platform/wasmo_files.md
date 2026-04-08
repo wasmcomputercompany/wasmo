@@ -10,13 +10,14 @@ Here's a sample layout of a `.wasmo` archive:
 recipes.wasmo/
  |- app.wasm
  |- wasmo-manifest.toml
- '- static/
-     |- launcher-icon.svg
-     '- recipes.css
+ '- www/
+     '- static/
+         |- launcher-icon.svg
+         '- recipes.css
 ```
 
 In [dev mode](./dev_mode.md), Wasmo OS can run applications directly from a directory on the local
-file system. This way when you make a change to a resource or `.wasm` file, that file change is
+file system. This way when you change the manifest, the `.wasm` file, or a resource, that change is
 reflected immediately in the running application.
 
 In either mode, the archive or directory’s contents are available as _resources_ that can be used
@@ -46,12 +47,8 @@ base_url = 'https://example.com/recipes/v35/'
 
 [[external_resource]]
 from = '../build/dist/js/developmentExecutable'
-to = '/static'
+to = '/www/static'
 include = ['**/*.js', '**/*.js.map']
-
-[[route]]
-path = '/static/**'
-resource_path = '/static/**'
 
 [launcher]
 label = 'Recipes'
@@ -65,11 +62,11 @@ target = 'https://wasmo.com/sdk/1'
 version = 35
 ```
 
-### `target` (Required)
+#### `target` (Required)
 
 The `target` must be `https://wasmo.com/sdk/1`. (This is our mechanism to evolve our spec.)
 
-### `version` (Required)
+#### `version` (Required)
 
 The `version` is the application's version. It's an int64. When apps are upgraded, a lifecycle
 function is called with the previous and new version, which may be useful to trigger migration code.
@@ -78,13 +75,12 @@ This app doesn't do anything and returns HTTP 404 on all calls. Useful apps incl
 (`app.wasm`), static resources, or both.
 
 
-`external_resource` (Array)
----------------------------
+### `external_resource` (Array)
 
 ```toml
 [[external_resource]]
 from = '../build/dist/js/developmentExecutable'
-to = '/static'
+to = '/www/static'
 include = ['**/*.js', '**/*.js.map']
 ```
 
@@ -99,115 +95,26 @@ When the Wasmo CLI packages a directory into a `.wasmo` archive, it will copy ex
 into the archive (and omit the `[[external_resource]]` item).
 
 
-### `from`
+#### `from`
 
 The local file or directory to copy resources from. This may be an absolute or relative path. If it
 is a relative path, it is relative to the directory that contains the `wasmo-manifest.toml` file.
 
-### `to`
+#### `to`
 
 The path to copy resources to. This must start with `/`.
 
-### `include` (optional, default is `['**/*']`)
+#### `include` (optional, default is `['**/*']`)
 
 A pattern to select which paths to copy. Use `*` to match any sequence of characters in a path
 segment (no slashes), and `**` to match any number of path segments (including none).
 
 
-`route` (Array)
----------------
-
-By default, all HTTP calls to the application invoke the application's code.
-
-### `resource_path` Routes
-
-```toml
-[[route]]
-path = '/favicon.ico'
-resource_path = '/static/favicon.ico'
-```
-
-Use routes to directly serve individual files from the application's resources.
-
-### `resource_path` Wildcards
-
-```toml
-[[route]]
-path = '/static/**'
-resource_path = '/static/**'
-```
-
-If the route path ends with `/**`, and the resource path ends with `/**`, this maps all paths with
-the same prefix.
-
-### `objects_key` Routes
-
-```toml
-[[route]]
-path = '/recipe-list.json'
-objects_key = '/my-recipes/recipe-list.json'
-```
-
-Routes can also serve objects written to the object store. The `objects_key` in the route should
-have a leading `/` followed by the `key` written to the object store.
-
-### `objects_key` Wildcards
-
-```toml
-[[route]]
-path = '/my-recipes/**'
-objects_key = '/my-recipes/**'
-```
-
-Prefix mapping can also be used with object store routes.
-
-### `access` (Optional)
-
-Above we explained how routes are used to figure out how to fulfill a given network request. Routes
-are also used to configure who has access.
-
-```toml
-[[route]]
-path = '/my-recipes/**'
-objects_key = '/my-recipes/**'
-access = 'public'
-```
-
-By default, all routes are only available to the computer’s owner. Make a route available to the
-entire Internet by specifying `access` is `public`.
-
-```toml
-[[route]]
-path = '/blog/**'
-access = 'public'
-```
-
-### `access` Precedence
-
-You can make a route publicly accessible while retaining its default data source. This configuration
-executes the application to serve code prefixed with `/blog/`.
-
-```toml
-[[route]]
-path = '/blog/**'
-access = 'public'
-
-[[route]]
-path = '/blog/admin/**'
-access = 'private'
-```
-
-You may make a path prefix `public`, and then narrow the access with a longer prefix. The precedence
-rules of access rules is ‘longest wins’, so in this case a request for `/blog/admin/posts` will be
-decided by the second route because `/blog/admin/**` is a longer prefix than `/blog/**`.
-
-
-`launcher` (Optional)
----------------------
+### `launcher` (Optional)
 
 Applications control how they look on the Wasmo computer page.
 
-Note that unlike `[[resource]]` and `[[route]]`, this item uses single-square braces.
+Note that unlike `[[external_resource]]`, this item uses single-square braces.
 
 ```toml
 [launcher]
@@ -216,24 +123,23 @@ maskable_icon_path = '/static/launcher-icon.svg'
 home_path = '/home'
 ```
 
-### `label` (Optional)
+#### `label` (Optional)
 
 This is a short string labeling the icon in the launcher.
 
-### `maskable_icon_path` (Optional)
+#### `maskable_icon_path` (Optional)
 
 The `maskable_icon_path` is a path that will be served by the application. It should be mapped by
 a route, or generated on-demand by the application. This icon does not need to be public.
 
 See [the icons guide](./launcher_icons.md) for guidance on styling the launcher icons.
 
-### `home_path` (Optional, default value is `/`)
+#### `home_path` (Optional, default value is `/`)
 
 This is the path that the launcher will navigate to when launching the application.
 
 
-`dev_mode` (Optional)
----------------------
+### `dev_mode` (Optional)
 
 This configuration is ignored unless Wasmo OS is running in dev mode.
 
@@ -242,12 +148,36 @@ This configuration is ignored unless Wasmo OS is running in dev mode.
 hot_reload = true
 ```
 
-### `hot_reload` (Optional, default is false)
+#### `hot_reload` (Optional, default is false)
 
 True to automatically reload the app when its code or resources change. This is implemented by
 dangerously rewriting the application's HTML to add a reload trigger.
 
 See [the dev mode guide](./dev_mode.md) for details.
+
+
+`www/` files
+------------
+
+All files in the `www/` directory are served on the application's website.
+
+For example, if the application named `recipes` is installed on the computer named `jesse99`, the
+installed application's website will have a URL like `https://recipes-jesse99.wasmo.com/`.
+
+The file `www/assets/maskable-icon.svg` will be served to
+`https://recipes-jesse99.wasmo.com/assets/maskable-icon.svg`
+
+Files in `www/` are only served to the computer's owner. If the owner is not signed in, or if any
+other user requests such files, the request will be routed to the application's `httpService`.
+
+
+`www-public/` files
+-------------------
+
+All files in the `www-public/` directory are served on the application's website. This directory
+works the same as `www/` except that `www-public/` doesn’t require any authentication.
+
+If the same file is present in both directories, the `www-public/` file takes precedence.
 
 
 [TOML]: https://toml.io/en/

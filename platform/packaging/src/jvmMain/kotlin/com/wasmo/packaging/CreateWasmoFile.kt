@@ -114,8 +114,11 @@ class CreateWasmoFile(
             zipOutputStream.putNextEntry(ZipEntry(toPath))
             readAll(zipOutputStream.sink())
           }
-        } catch (_: FileNotFoundException) {
-          // Probably a directory entry.
+        } catch (e: IOException) {
+          // Don't zip directory entries.
+          if (fileSystem.metadataOrNull(path)?.isDirectory != true) {
+            throw e
+          }
         }
 
         packagedFileCount++

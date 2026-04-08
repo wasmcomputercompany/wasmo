@@ -6,18 +6,6 @@ from = '../../admin-web-app/build/dist/js/productionExecutable'
 to = '/assets'
 include = ['**/*.js', '**/*.js.map']
 
-[[route]]
-path = '/assets/**'
-resource_path = '/assets/**'
-
-[[route]]
-path = '/**'
-objects_key = '/site/entries/**'
-
-[[route]]
-path = '/**'
-objects_key = '/site/attachments/**'
-
 [launcher]
 label = 'Journal'
 maskable_icon_path = '/assets/maskable-icon.svg'
