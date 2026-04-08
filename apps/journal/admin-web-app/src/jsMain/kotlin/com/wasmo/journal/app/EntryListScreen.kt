@@ -4,8 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.wasmo.support.router.Router
+import kotlinx.browser.window
 
-class AdminScreen(
+class EntryListScreen(
   private val journalDataService: JournalDataService,
   private val router: Router<Route>,
 ) {
@@ -19,6 +20,10 @@ class AdminScreen(
       publishState = publishState,
       eventListener = { event ->
         when (event) {
+          EntryListEvent.ViewSite -> {
+            window.open("/", "_self")
+          }
+
           is EntryListEvent.ClickEntry -> {
             router.goTo(
               route = Route.EditEntry(event.token),

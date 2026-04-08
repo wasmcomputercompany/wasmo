@@ -15,6 +15,7 @@ import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.width
+import org.jetbrains.compose.web.dom.A
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.P
@@ -41,6 +42,16 @@ fun EntryList(
       attrs()
     },
   ) {
+    A(
+      attrs = {
+        onClick {
+          eventListener(EntryListEvent.ViewSite)
+        }
+      },
+    ) {
+      Text("View Site")
+    }
+
     Button(
       attrs = {
         if (!publishState.canRequestPublish) {
@@ -96,6 +107,7 @@ fun EntryRow(
 
 sealed interface EntryListEvent {
   data object NewEntry : EntryListEvent
+  data object ViewSite : EntryListEvent
   data object PublishSite : EntryListEvent
   data class ClickEntry(val token: String) : EntryListEvent
 }

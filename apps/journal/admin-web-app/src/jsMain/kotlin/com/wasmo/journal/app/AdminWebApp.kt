@@ -32,7 +32,7 @@ fun start() {
   renderComposableInBody {
     when (val route = router.current.value) {
       is Route.Admin -> {
-        AdminScreen(
+        EntryListScreen(
           journalDataService = journalDataService,
           router = router,
         ).Show()

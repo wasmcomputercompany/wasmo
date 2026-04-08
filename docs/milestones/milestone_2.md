@@ -28,17 +28,3 @@ Accounts
 --------
 
 Support sign-in and sign-out.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
