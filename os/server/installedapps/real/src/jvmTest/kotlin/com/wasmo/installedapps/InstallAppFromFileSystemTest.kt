@@ -17,7 +17,6 @@ import com.wasmo.packaging.Route
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
@@ -179,7 +178,6 @@ class InstallAppFromFileSystemTest {
   }
 
   @Test
-  @Ignore("not working yet!")
   fun updateManifestInPlace() = runTest {
     val publishedApp = tester.sampleApps.recipes.publishedApp
       .withFileSystemWasmoFileAddress()

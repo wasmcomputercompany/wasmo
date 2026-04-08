@@ -29,13 +29,13 @@ class RealAppManifestLoaderFactory(
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,
   ): AppManifestLoader {
-    if (installedAppRelease != null) {
-      return ImmediateAppManifestLoader(installedAppRelease.app_manifest_data)
-    }
-
     val wasmoFileAddress = installedApp.wasmo_file_address
     if (wasmoFileAddress is WasmoFileAddress.FileSystem) {
       return FileSystemAppManifestLoader(fileSystem, wasmoFileAddress.path)
+    }
+
+    if (installedAppRelease != null) {
+      return ImmediateAppManifestLoader(installedAppRelease.app_manifest_data)
     }
 
     return EmptyAppManifestLoader
@@ -75,6 +75,7 @@ private class FileSystemAppManifestLoader(
   }
 }
 
+/** This is used while waiting for an app to install from an HTTP service. */
 private object EmptyAppManifestLoader : AppManifestLoader {
   override suspend fun load() = PlaceholderManifest
 }
