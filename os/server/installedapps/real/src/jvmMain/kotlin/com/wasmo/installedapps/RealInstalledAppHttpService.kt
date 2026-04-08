@@ -28,7 +28,11 @@ class RealInstalledAppHttpService(
   @ForInstalledApp private val objectStore: ObjectStore,
 ) : InstalledAppHttpService {
   override suspend fun execute(request: Request): Response<ResponseBody> {
-    val urlPath = request.url.encodedPath
+    val encodedUrlPath = request.url.encodedPath
+    val urlPath = when {
+      encodedUrlPath.endsWith("/") -> "${encodedUrlPath}index.html"
+      else -> encodedUrlPath
+    }
 
     val publicObject = loadObjectOrNull(urlPath, "www-public")
     if (publicObject != null) return publicObject

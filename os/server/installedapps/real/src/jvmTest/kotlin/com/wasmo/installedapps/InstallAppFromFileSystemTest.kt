@@ -55,7 +55,7 @@ class InstallAppFromFileSystemTest {
         ),
       )
 
-    assertThat(installedApp.call("/index.html"))
+    assertThat(installedApp.call("/"))
       .isEqualTo(
         Response(
           contentType = "text/html".toMediaType(),
@@ -158,7 +158,7 @@ class InstallAppFromFileSystemTest {
     tester.fileSystem.delete(basePath / "www" / "index.html", mustExist = true)
 
     assertFailsWith<NotFoundUserException> {
-      installedApp.call("/index.html")
+      installedApp.call("/")
     }
   }
 

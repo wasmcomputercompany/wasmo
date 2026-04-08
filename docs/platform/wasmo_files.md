@@ -156,28 +156,21 @@ dangerously rewriting the application's HTML to add a reload trigger.
 See [the dev mode guide](./dev_mode.md) for details.
 
 
-`www/` files
-------------
-
-All files in the `www/` directory are served on the application's website.
-
-For example, if the application named `recipes` is installed on the computer named `jesse99`, the
-installed application's website will have a URL like `https://recipes-jesse99.wasmo.com/`.
-
-The file `www/assets/maskable-icon.svg` will be served to
-`https://recipes-jesse99.wasmo.com/assets/maskable-icon.svg`
-
-Files in `www/` are only served to the computer's owner. If the owner is not signed in, or if any
-other user requests such files, the request will be routed to the application's `httpService`.
-
-
 `www-public/` files
 -------------------
 
-All files in the `www-public/` directory are served on the application's website. This directory
-works the same as `www/` except that `www-public/` doesn’t require any authentication.
+All files in the `www-public/` directory are served on the application's website to everyone on the
+Internet.
 
-If the same file is present in both directories, the `www-public/` file takes precedence.
+
+`www/` files
+-------------------
+
+Files in `www/` are only served to the computer's owner. If the owner is not signed in, or if any
+other user requests such files, the request will be routed to the application's `httpService`
+instead.
+
+See the [Inbound HTTP Calls](inbound_http_calls.md) for details and precedence rules.
 
 
 [TOML]: https://toml.io/en/

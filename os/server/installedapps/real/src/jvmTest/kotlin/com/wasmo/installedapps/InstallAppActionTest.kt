@@ -55,7 +55,7 @@ class InstallAppActionTest {
         ),
       )
 
-    assertThat(installedApp.call("/index.html"))
+    assertThat(installedApp.call("/"))
       .isEqualTo(
         Response(
           contentType = "text/html".toMediaType(),

@@ -3,11 +3,13 @@ package com.wasmo.installedapps
 import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
 import com.wasmo.testing.apps.RecipesApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaType
 import okio.ByteString.Companion.encodeUtf8
@@ -201,5 +203,54 @@ class InstalledAppHttpServiceTest {
           body = ResponseBodySnapshot("This is an object in www"),
         ),
       )
+  }
+
+  @Test
+  fun indexHtmlIsServedToRequestsEndingInSlash() = runTest {
+    val app = tester.sampleApps.recipes.publishedApp.copy(
+      resources = tester.sampleApps.recipes.publishedApp.resources + mapOf(
+        "www/index.html" to "This is the default resource".encodeUtf8(),
+        "www/hello/index.html" to "This is the default resource for hello/".encodeUtf8(),
+      ),
+    )
+    tester.publishApp(app)
+
+    val client = tester.newClient()
+    val computer = client.createComputer()
+    val installedApp = computer.installApp(app)
+
+    assertThat(installedApp.call("/"))
+      .isEqualTo(
+        Response(
+          contentType = "text/html".toMediaType(),
+          body = ResponseBodySnapshot("This is the default resource"),
+        ),
+      )
+
+    assertThat(installedApp.call("/hello/"))
+      .isEqualTo(
+        Response(
+          contentType = "text/html".toMediaType(),
+          body = ResponseBodySnapshot("This is the default resource for hello/"),
+        ),
+      )
+  }
+
+  @Test
+  fun indexHtmlIsNotServedToRequestsNotEndingInSlash() = runTest {
+    val app = tester.sampleApps.recipes.publishedApp.copy(
+      resources = tester.sampleApps.recipes.publishedApp.resources + mapOf(
+        "www/hello/index.html" to "This is the default resource for hello/".encodeUtf8(),
+      ),
+    )
+    tester.publishApp(app)
+
+    val client = tester.newClient()
+    val computer = client.createComputer()
+    val installedApp = computer.installApp(app)
+
+    assertFailsWith<NotFoundUserException> {
+      installedApp.call("/hello")
+    }
   }
 }
