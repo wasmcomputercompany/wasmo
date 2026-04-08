@@ -30,7 +30,7 @@ class ClientTester(
   private val eventListener: TestEventListener,
   private val computerTesterFactory: ComputerTester.Factory,
   val paymentsService: FakePaymentsService,
-  @Assisted private val clientAuthenticator: ClientAuthenticator,
+  @Assisted val clientAuthenticator: ClientAuthenticator,
   @Assisted private val sessionCookie: SessionCookie,
 ) {
   private var nextComputerSlug: Int = 100
@@ -83,7 +83,6 @@ class ClientTester(
   }
 
   fun getComputer(slug: ComputerSlug) = computerTesterFactory.create(
-    clientAuthenticator = clientAuthenticator,
     client = this,
     slug = slug,
   )

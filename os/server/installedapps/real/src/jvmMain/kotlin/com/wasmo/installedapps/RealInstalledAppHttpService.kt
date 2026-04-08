@@ -17,7 +17,7 @@ import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.ObjectStore
 
 /**
- * Follows the directions specified by the routes in the manifest.
+ * Attempts to satisfy an HTTP request according to our routing precedence rules.
  */
 @Inject
 @SingleIn(InstalledAppScope::class)
@@ -30,19 +30,19 @@ class RealInstalledAppHttpService(
   override suspend fun execute(request: Request): Response<ResponseBody> {
     val urlPath = request.url.encodedPath
 
-    val wwwPublicResource = loadResourceOrNull(urlPath, "www-public")
-    if (wwwPublicResource != null) return wwwPublicResource
+    val publicObject = loadObjectOrNull(urlPath, "www-public")
+    if (publicObject != null) return publicObject
+
+    val publicResource = loadResourceOrNull(urlPath, "www-public")
+    if (publicResource != null) return publicResource
 
     // TODO: only if signed in as the computer's owner.
-    val wwwResource = loadResourceOrNull(urlPath, "www")
-    if (wwwResource != null) return wwwResource
-
-    val wwwPublicObject = loadObjectOrNull(urlPath, "www-public")
-    if (wwwPublicObject != null) return wwwPublicObject
+    val privateObject = loadObjectOrNull(urlPath, "www")
+    if (privateObject != null) return privateObject
 
     // TODO: only if signed in as the computer's owner.
-    val wwwObject = loadObjectOrNull(urlPath, "www")
-    if (wwwObject != null) return wwwObject
+    val privateResource = loadResourceOrNull(urlPath, "www")
+    if (privateResource != null) return privateResource
 
     val callHttpServiceResponse = callHttpService(request)
     if (callHttpServiceResponse != null) return callHttpServiceResponse

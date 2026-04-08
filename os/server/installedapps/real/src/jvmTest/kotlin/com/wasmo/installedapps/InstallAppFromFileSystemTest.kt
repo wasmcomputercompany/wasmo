@@ -55,10 +55,7 @@ class InstallAppFromFileSystemTest {
         ),
       )
 
-    val response = client.call().callApp(
-      url = installedApp.url.resolve("/")!!,
-    )
-    assertThat(response)
+    assertThat(installedApp.call("/index.html"))
       .isEqualTo(
         Response(
           contentType = "text/html".toMediaType(),
@@ -94,10 +91,7 @@ class InstallAppFromFileSystemTest {
     val computer = client.createComputer()
     val installedApp = computer.installApp(publishedApp)
 
-    val response = client.call().callApp(
-      url = installedApp.url.resolve("/media/logo.svg")!!,
-    )
-    assertThat(response)
+    assertThat(installedApp.call("/media/logo.svg"))
       .isEqualTo(
         Response(
           contentType = "image/svg+xml".toMediaType(),
@@ -161,12 +155,10 @@ class InstallAppFromFileSystemTest {
     val installedApp = computer.installApp(publishedApp)
 
     val basePath = (publishedApp.wasmoFileAddress as WasmoFileAddress.FileSystem).path
-    tester.fileSystem.delete(basePath / "index.html", mustExist = true)
+    tester.fileSystem.delete(basePath / "www" / "index.html", mustExist = true)
 
     assertFailsWith<NotFoundUserException> {
-      client.call().callApp(
-        url = installedApp.url.resolve("/")!!,
-      )
+      installedApp.call("/index.html")
     }
   }
 

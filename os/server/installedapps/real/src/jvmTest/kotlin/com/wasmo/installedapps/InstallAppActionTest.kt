@@ -55,10 +55,7 @@ class InstallAppActionTest {
         ),
       )
 
-    val response = client.call().callApp(
-      url = installedApp.url.resolve("/")!!,
-    )
-    assertThat(response)
+    assertThat(installedApp.call("/index.html"))
       .isEqualTo(
         Response(
           contentType = "text/html".toMediaType(),
