@@ -38,6 +38,12 @@ Create local databases:
 $ export PGPASSWORD=password
 $ psql "host=localhost user=postgres" \
   -c "CREATE DATABASE wasmo_development WITH ENCODING = 'UTF8'"
+$ psql "host=localhost user=postgres" \
+  -c "CREATE DATABASE wasmo_test WITH ENCODING = 'UTF8'"
+$ psql "host=localhost user=postgres" \
+  -c "CREATE DATABASE absurd_test WITH ENCODING = 'UTF8'"
+$ psql "host=localhost user=postgres" \
+  -c "CREATE DATABASE journal_test WITH ENCODING = 'UTF8'"
 ```
 
 Build migrations `.sql` files:

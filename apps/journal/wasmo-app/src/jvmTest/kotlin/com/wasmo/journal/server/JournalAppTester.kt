@@ -3,11 +3,8 @@ package com.wasmo.journal.server
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.journal.server.publishing.SitePublisher
-import com.wasmo.sql.r2dbc.asSqlService
-import com.wasmo.sql.r2dbc.connectPostgresqlAsync
-import com.wasmo.testing.sql.TestDatabaseAddress
-import com.wasmo.testing.sql.clearSchema
 import wasmo.app.FakePlatform
+import wasmo.sql.testSqlService
 import wasmo.time.FakeClock
 
 class JournalAppTester : CoroutineTestInterceptor {
@@ -25,9 +22,10 @@ class JournalAppTester : CoroutineTestInterceptor {
     get() = platform.clock
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    val dataSource = connectPostgresqlAsync(TestDatabaseAddress)
-    dataSource.clearSchema()
-    dataSource.asSqlService().use { sqlService ->
+    testSqlService(
+      databaseName = "journal_test",
+      clearSchema = true,
+    ).use { sqlService ->
       val platform = FakePlatform(
         sqlService = sqlService,
       )

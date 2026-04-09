@@ -8,10 +8,6 @@ import org.reactivestreams.Subscription
 
 /**
  * Adapt a callback-driven [Publisher] to a suspending iterator.
- *
- * Our channel has capacity for up to 2 extra elements, to support an element added immediately
- * after the call to [Subscription.request] plus the tombstone null element. Without this extra 2
- * using [Channel.trySend] could fail because the channel is full.
  */
 internal class PublisherIterator<T : Any>(
   publisher: Publisher<T>,
@@ -19,6 +15,12 @@ internal class PublisherIterator<T : Any>(
 ) {
   /** Null if this was closed before the subscription was received. */
   private val subscriptionDeferred = CompletableDeferred<Subscription?>()
+
+  /**
+   * Our channel has capacity for up to 2 extra elements, to support an element added immediately
+   * after the call to [Subscription.request] plus the tombstone null element. Without this extra 2
+   * using [Channel.trySend] could fail because the channel is full.
+   */
   private var channel = Channel<T?>(
     capacity = bufferSize.coerceAtMost(Int.MAX_VALUE - 2) + 2,
   )

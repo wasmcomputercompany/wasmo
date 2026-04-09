@@ -42,11 +42,11 @@ kotlin {
       dependencies {
         implementation(libs.burst.coroutines)
         implementation(libs.commons.dbcp2)
+        implementation(libs.kotlinx.coroutines.reactive)
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":platform:testing"))
         implementation(project(":os:server:sql:api"))
         implementation(project(":os:server:sql:r2dbc"))
-        implementation(project(":os:server:testing"))
       }
     }
   }
