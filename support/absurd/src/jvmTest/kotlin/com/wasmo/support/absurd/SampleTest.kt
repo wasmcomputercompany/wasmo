@@ -47,8 +47,6 @@ class SampleTest {
       taskId = spawnResult.taskId,
       taskName = provisionUser,
     )
-
-    println(taskResult)
   }
 
   @Serializable

@@ -3,14 +3,16 @@ package com.wasmo.support.absurd
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
+import okio.utf8Size
 
 interface Absurd {
   suspend fun <P, R> registerTask(
     name: TaskName<P, R>,
-    queueName: QueueName = QueueName,
+    queueName: QueueName? = null,
     defaultMaxAttempts: Int? = null,
-    defaultCancellation: Int? = null,
+    defaultCancellation: CancellationPolicy? = null,
     taskHandler: TaskHandler<P, R>,
   )
 
@@ -19,8 +21,8 @@ interface Absurd {
     params: P,
     maxAttempts: Int? = null,
     retryStrategy: RetryStrategy? = null,
-    headers: Headers = Headers,
-    queueName: QueueName = QueueName,
+    headers: Headers? = null,
+    queueName: QueueName? = null,
     cancellation: CancellationPolicy? = null,
     idempotencyKey: String? = null,
   ): SpawnResult
@@ -28,7 +30,7 @@ interface Absurd {
   suspend fun <P, R> fetchTaskResult(
     taskId: String,
     taskName: TaskName<P, R>,
-    queueName: QueueName = QueueName,
+    queueName: QueueName? = null,
   ): TaskResult<P, R>
 
   suspend fun claimTasks(
@@ -96,26 +98,47 @@ data class SpawnResult(
   val attempt: Int,
 )
 
-object Headers
+@Serializable
+data class Headers(
+  val unused: String? = null,
+)
 
+@Serializable(with = RetryStrategySerializer::class)
 data class RetryStrategy(
-  val base: Duration,
-  val factor: Float,
-  val max: Duration,
+  val base: Duration? = null,
+  val factor: Float = 1f,
+  val max: Duration? = null,
 )
 
+@Serializable(with = CancellationPolicySerializer::class)
 data class CancellationPolicy(
-  val maxDuration: Duration,
-  val maxDelay: Duration,
+  val maxDuration: Duration? = null,
+  val maxDelay: Duration? = null,
 )
 
-object QueueName
+data class QueueName(
+  val value: String,
+) {
+  init {
+    require(value.trim() == value) { "queue name is not trimmed" }
+    require(value.isNotEmpty()) { "queue name is empty" }
+    require(value.utf8Size() <= MAX_LENGTH) {
+      "queue name $value is too long (max $MAX_LENGTH bytes)."
+    }
+  }
+
+  private companion object {
+    const val MAX_LENGTH = 57
+  }
+}
 
 data class TaskName<P, R>(
   val value: String,
-  val inputSerializer: KSerializer<P>,
+  val paramsSerializer: KSerializer<P>,
   val outputSerializer: KSerializer<R>,
 ) {
+  override fun toString() = value
+
   companion object {
     inline operator fun <reified P, reified R> invoke(value: String): TaskName<P, R> =
       TaskName(value, serializer<P>(), serializer<R>())

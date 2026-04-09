@@ -6,9 +6,10 @@ import io.r2dbc.postgresql.api.PostgresqlResult
 import kotlinx.coroutines.reactive.awaitSingle
 
 class Postgresql(
-  private val postgresqlConnectionFactory: PostgresqlConnectionFactory,
+  @PublishedApi
+  internal val postgresqlConnectionFactory: PostgresqlConnectionFactory,
 ) {
-  suspend fun <T> withConnection(block: suspend PostgresqlConnection.() -> T): T {
+  suspend inline fun <T> withConnection(block: suspend PostgresqlConnection.() -> T): T {
     with(postgresqlConnectionFactory.create().awaitSingle()) {
       try {
         return block()
@@ -19,6 +20,9 @@ class Postgresql(
   }
 }
 
-suspend fun PostgresqlConnection.execute(sql: String): PostgresqlResult {
+suspend fun PostgresqlConnection.execute(
+  sql: String,
+  vararg params: Any?,
+): PostgresqlResult {
   return createStatement(sql).execute().awaitSingle()
 }
