@@ -3,6 +3,7 @@ package com.wasmo.support.absurd
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 
 interface Absurd {
   suspend fun <P, R> registerTask(
@@ -27,8 +28,8 @@ interface Absurd {
   suspend fun <P, R> fetchTaskResult(
     taskId: String,
     taskName: TaskName<P, R>,
-    queueName: QueueName,
-  )
+    queueName: QueueName = QueueName,
+  ): TaskResult<P, R>
 
   suspend fun claimTasks(
     batchSize: Int = 1,
@@ -114,10 +115,15 @@ data class TaskName<P, R>(
   val value: String,
   val inputSerializer: KSerializer<P>,
   val outputSerializer: KSerializer<R>,
-)
+) {
+  companion object {
+    inline operator fun <reified P, reified R> invoke(value: String): TaskName<P, R> =
+      TaskName(value, serializer<P>(), serializer<R>())
+  }
+}
 
-sealed interface TaskResult {
-  data object Pending : TaskResult
-  data class Completed<R>(val result: R) : TaskResult
-  data class Failed(val failureReason: String?) : TaskResult
+sealed interface TaskResult<P, R> {
+  class Pending<P, R> : TaskResult<P, R>
+  data class Completed<P, R>(val result: R) : TaskResult<P, R>
+  data class Failed<P, R>(val failureReason: String?) : TaskResult<P, R>
 }

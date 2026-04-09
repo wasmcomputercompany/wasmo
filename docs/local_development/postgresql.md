@@ -1,5 +1,5 @@
-Local Development Postgres
-==========================
+Local Development PostgreSQL
+============================
 
 Create the database:
 
@@ -18,7 +18,7 @@ Run the database server:
 $ docker container start wasmo-postgres-db
 ```
 
-Set up the Postgres CLI:
+Set up the PostgreSQL CLI:
 
 ```bash
 $ brew install libpq

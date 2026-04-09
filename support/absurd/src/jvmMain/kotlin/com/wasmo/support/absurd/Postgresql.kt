@@ -5,7 +5,7 @@ import io.r2dbc.postgresql.api.PostgresqlConnection
 import io.r2dbc.postgresql.api.PostgresqlResult
 import kotlinx.coroutines.reactive.awaitSingle
 
-class Postgres(
+class Postgresql(
   private val postgresqlConnectionFactory: PostgresqlConnectionFactory,
 ) {
   suspend fun <T> withConnection(block: suspend PostgresqlConnection.() -> T): T {

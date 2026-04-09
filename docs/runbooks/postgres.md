@@ -1,5 +1,5 @@
-Postgres
-========
+PostgreSQL
+==========
 
 Our databases are on Planetscale.
 
