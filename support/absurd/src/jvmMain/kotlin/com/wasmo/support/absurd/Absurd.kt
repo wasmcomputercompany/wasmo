@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalUuidApi::class)
+
 package com.wasmo.support.absurd
 
 import kotlin.time.Duration
@@ -58,31 +59,52 @@ interface Absurd {
   )
 }
 
-interface TaskHandler<P, R> {
+fun interface TaskHandler<P, R> {
   context(context: Context<P, R>)
-  fun handle(params: P): R
+  suspend fun handle(params: P): R
 
-  interface Context<P, R> {
-    val queueName: QueueName
-    val taskName: TaskName<P, R>
+  abstract class Context<P, R> {
+    abstract val queueName: QueueName
+    abstract val taskId: Uuid
+    abstract val taskName: TaskName<P, R>
 
-    suspend fun <T> step(
+    abstract suspend fun <T> step(
       name: String,
       serializer: KSerializer<T>,
       block: suspend () -> T,
     ): T
 
-    suspend fun <T> beginStep(
+    suspend inline fun <reified T> step(
+      name: String,
+      noinline block: suspend () -> T,
+    ): T = step(name, serializer<T>(), block)
+
+    abstract suspend fun <T> beginStep(
       name: String,
       serializer: KSerializer<T>,
     ): StepHandle<T>
+
+    suspend inline fun <reified T> beginStep(
+      name: String,
+    ): StepHandle<T> = beginStep(name, serializer<T>())
+
+    abstract suspend fun <T> awaitEvent(
+      event: String,
+      serializer: KSerializer<T>,
+      timeout: Duration,
+    ): T
+
+    suspend inline fun <reified T> awaitEvent(
+      event: String,
+      timeout: Duration,
+    ): T = awaitEvent(event, serializer<T>(), timeout)
   }
 }
 
 interface StepHandle<T> {
   val name: String
   val checkpointName: String
-  val result: Result<T>
+  val result: Result<T>?
   suspend fun complete(result: T)
 }
 
