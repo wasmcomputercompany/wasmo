@@ -2,6 +2,7 @@
 
 package com.wasmo.support.absurd
 
+import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.ExperimentalUuidApi
@@ -10,6 +11,12 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import okio.utf8Size
+
+fun Absurd(
+  postgresql: Postgresql,
+  queueName: QueueName = QueueName.Default,
+  defaultMaxAttempts: Int = 5,
+): Absurd = RealAbsurd(postgresql, queueName, defaultMaxAttempts)
 
 interface Absurd {
   suspend fun createQueue(

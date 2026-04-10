@@ -35,7 +35,7 @@ internal suspend inline fun <T> Postgresql.withConnection(
   }
 }
 
-inline fun <reified T> PostgresqlStatement.bindNullable(index: Int, value: T?) {
+internal inline fun <reified T> PostgresqlStatement.bindNullable(index: Int, value: T?) {
   when {
     value != null -> bind(index, value)
     else -> bindNull(index, T::class.java)

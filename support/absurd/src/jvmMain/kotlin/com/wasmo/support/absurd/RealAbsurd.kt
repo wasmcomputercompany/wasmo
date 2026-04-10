@@ -2,7 +2,7 @@
 
 package com.wasmo.support.absurd
 
-import io.r2dbc.postgresql.PostgresqlConnectionFactory
+import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
 import io.r2dbc.postgresql.codec.Json
 import io.r2dbc.spi.Readable
 import java.util.UUID
@@ -17,8 +17,8 @@ import kotlin.uuid.toKotlinUuid
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 
-class RealAbsurd(
-  private val postgresql: PostgresqlConnectionFactory,
+internal class RealAbsurd(
+  private val postgresql: Postgresql,
   private val queueName: QueueName = QueueName.Default,
   private val defaultMaxAttempts: Int = 5,
 ) : Absurd {
@@ -131,6 +131,7 @@ class RealAbsurd(
           "completed" -> TaskResult.Completed(
             result = json("result", taskName.resultSerializer),
           )
+
           "failed" -> {
             val failureReason = json<TaskErrorJson>("failure_reason")
             TaskResult.Failed(
@@ -139,6 +140,7 @@ class RealAbsurd(
               stacktrace = failureReason.traceback,
             )
           }
+
           else -> TaskResult.Pending()
         }
       }
@@ -168,6 +170,7 @@ class RealAbsurd(
     task: ClaimedTask<P, R>,
     claimTimeout: Duration,
   ) {
+    @Suppress("UNCHECKED_CAST") // registry keys and values always have identical types.
     val registration = registry[task.taskName] as TaskRegistration<P, R>?
 
     if (registration == null) {
@@ -378,7 +381,7 @@ class RealAbsurd(
             claimTimeout.inWholeSeconds.toInt(),
           )
         } catch (e: Exception) {
-          throw e
+          throw e // TODO
         }
         checkpointCache[checkpointName] = valueJson
       }
@@ -461,6 +464,7 @@ internal data class TaskRegistration<P : Any, R : Any>(
 )
 
 @Serializable
+@Suppress("PropertyName") // Consistent JSON with other Absurd SDKs.
 internal data class SpawnOptionsJson(
   val headers: Headers? = null,
   val max_attempts: Int? = null,

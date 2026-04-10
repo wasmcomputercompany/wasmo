@@ -53,7 +53,7 @@ class AbsurdTester : CoroutineTestInterceptor {
       batch.execute().awaitLast()
     }
 
-    val absurd = RealAbsurd(postgresql)
+    val absurd = Absurd(postgresql)
     absurd.createQueue()
 
     run = Run(

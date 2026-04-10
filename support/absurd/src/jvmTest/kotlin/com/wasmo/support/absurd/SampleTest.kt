@@ -6,7 +6,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.matches
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -59,7 +58,6 @@ class SampleTest {
   @InterceptTest
   private val tester = AbsurdTester()
 
-  private val uuidRegex = "[a-z0-9-]{36}"
   private val workerId = "localhost:1234"
 
   @Test
@@ -137,9 +135,9 @@ class SampleTest {
     )
     assertThat(batch1TaskCount).isEqualTo(1)
     assertThat(log.receive())
-      .matches(Regex("$uuidRegex creating user record for alice"))
+      .isEqualTo("${spawnResult.taskId} creating user record for alice")
     assertThat(log.receive())
-      .matches(Regex("$uuidRegex simulating a temporary email provider outage"))
+      .isEqualTo("${spawnResult.taskId} simulating a temporary email provider outage")
     assertThat(log.tryReceive().getOrNull()).isNull()
 
     assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
@@ -151,9 +149,9 @@ class SampleTest {
     )
     assertThat(batch2TaskCount).isEqualTo(1)
     assertThat(log.receive())
-      .matches(Regex("$uuidRegex sending activation email to alice@example.com"))
+      .isEqualTo("${spawnResult.taskId} sending activation email to alice@example.com")
     assertThat(log.receive())
-      .matches(Regex("$uuidRegex waiting for user-activated:alice"))
+      .isEqualTo("${spawnResult.taskId} waiting for user-activated:alice")
     assertThat(log.tryReceive().getOrNull()).isNull()
 
     assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))

@@ -13,7 +13,7 @@ import kotlinx.serialization.encoding.Encoder
  * types like `Duration`) to the simpler JSON types expected by Absurd.
  */
 
-class CancellationPolicySerializer : KSerializer<CancellationPolicy> {
+internal class CancellationPolicySerializer : KSerializer<CancellationPolicy> {
   private val delegate = CancellationPolicyJson.serializer().nullable
 
   override val descriptor = SerialDescriptor("absurd.CancellationPolicy", delegate.descriptor)
@@ -48,7 +48,7 @@ internal class CancellationPolicyJson(
   val max_delay: Int? = null,
 )
 
-class RetryStrategySerializer : KSerializer<RetryStrategy> {
+internal class RetryStrategySerializer : KSerializer<RetryStrategy> {
   private val delegate = RetryStrategyJson.serializer()
 
   override val descriptor = SerialDescriptor("absurd.RetryStrategy", delegate.descriptor)
