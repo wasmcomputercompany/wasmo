@@ -5,10 +5,13 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
+import assertk.assertions.matches
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 
@@ -54,10 +57,15 @@ data class ProvisionUserResult(
 @OptIn(ExperimentalUuidApi::class)
 class SampleTest {
   @InterceptTest
-  val tester = AbsurdTester()
+  private val tester = AbsurdTester()
+
+  private val uuidRegex = "[a-z0-9-]{36}"
+  private val workerId = "localhost:1234"
 
   @Test
   fun sample() = runTest {
+    val log = Channel<String>(capacity = Int.MAX_VALUE)
+
     val provisionUser = TaskName<ProvisionUserParams, ProvisionUserResult>("provision-user")
     tester.absurd.registerTask(
       name = provisionUser,
@@ -65,7 +73,7 @@ class SampleTest {
         context(context: TaskHandler.Context<ProvisionUserParams, ProvisionUserResult>)
         override suspend fun handle(params: ProvisionUserParams): ProvisionUserResult {
           val user = context.step("create-user-record") {
-            println("${context.taskId} creating user record for ${params.userId}")
+            log.send("${context.taskId} creating user record for ${params.userId}")
             UserRecord(
               userId = params.userId,
               email = params.email,
@@ -77,13 +85,13 @@ class SampleTest {
           // behavior is visible.
           val outage = context.beginStep<OutageState>("demo-transient-outage")
           if (!outage.done) {
-            println("${context.taskId} simulating a temporary email provider outage")
+            log.send("${context.taskId} simulating a temporary email provider outage")
             outage.complete(OutageState(simulated = true))
             throw Exception("temporary email provider outage")
           }
 
           val delivery = context.step("send-activation-email") {
-            println("${context.taskId} sending activation email to ${user.email}")
+            log.send("${context.taskId} sending activation email to ${user.email}")
             DeliveryResult(
               sent = true,
               provider = "demo-mail",
@@ -91,11 +99,11 @@ class SampleTest {
             )
           }
 
-          println("${context.taskId} waiting for user-activated:${user.userId}")
+          log.send("${context.taskId} waiting for user-activated:${user.userId}")
 
           // TODO: actually await event
           val activation = context.awaitEvent<ActivationEvent?>(
-            "user-activated:${user.userId}",
+            event = "user-activated:${user.userId}",
             timeout = 3600.seconds,
           ) ?: ActivationEvent(tester.clock.now())
 
@@ -127,10 +135,26 @@ class SampleTest {
       .isNotNull()
       .isInstanceOf<TaskResult.Pending<*, *>>()
 
-    val batchSize = tester.absurd.executeOneBatch(
-      workerId = "localhost:1234",
-    )
-    assertThat(batchSize).isEqualTo(1)
+    assertThat(log.tryReceive().getOrNull()).isNull()
 
+    val batch1TaskCount = tester.absurd.executeBatch(
+      workerId = workerId,
+    )
+    assertThat(batch1TaskCount).isEqualTo(1)
+    assertThat(log.receive())
+      .matches(Regex("$uuidRegex creating user record for alice"))
+    assertThat(log.receive())
+      .matches(Regex("$uuidRegex simulating a temporary email provider outage"))
+    assertThat(log.tryReceive().getOrNull()).isNull()
+
+    val batch2TaskCount = tester.absurd.executeBatch(
+      workerId = workerId,
+    )
+    assertThat(batch2TaskCount).isEqualTo(1)
+    assertThat(log.receive())
+      .matches(Regex("$uuidRegex sending activation email to alice@example.com"))
+    assertThat(log.receive())
+      .matches(Regex("$uuidRegex waiting for user-activated:alice"))
+    assertThat(log.tryReceive().getOrNull()).isNull()
   }
 }

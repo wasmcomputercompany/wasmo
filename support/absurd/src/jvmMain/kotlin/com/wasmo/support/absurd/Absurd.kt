@@ -42,10 +42,10 @@ interface Absurd {
   ): TaskResult<P, R>?
 
   /**
-   * Returns the number of jobs executed. If this is lower than [batchSize], then fewer jobs
+   * Returns the number of tasks executed. If this is lower than [batchSize], then fewer tasks
    * were eligible to be claimed.
    */
-  suspend fun executeOneBatch(
+  suspend fun executeBatch(
     workerId: String,
     claimTimeout: Duration = 120.seconds,
     batchSize: Int = 1,

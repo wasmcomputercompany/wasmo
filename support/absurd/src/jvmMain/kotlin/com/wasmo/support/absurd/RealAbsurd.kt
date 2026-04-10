@@ -6,15 +6,14 @@ import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.postgresql.codec.Json
 import io.r2dbc.spi.Readable
 import java.util.UUID
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 
@@ -27,13 +26,10 @@ class RealAbsurd(
 
   override suspend fun createQueue(queueName: QueueName?) {
     postgresql.withConnection {
-      val statement = createStatement(
-        """
-        SELECT absurd.create_queue($1)
-        """,
+      execute(
+        """SELECT absurd.create_queue($1)""",
         (queueName ?: this@RealAbsurd.queueName).value,
       )
-      statement.execute().awaitSingle()
     }
   }
 
@@ -96,7 +92,7 @@ class RealAbsurd(
     )
 
     postgresql.withConnection {
-      val statement = createStatement(
+      val rows = executeQuery(
         """
         SELECT task_id, run_id, attempt
         FROM absurd.spawn_task($1, $2, $3, $4)
@@ -105,16 +101,14 @@ class RealAbsurd(
         taskName.value,
         Json.of(KotlinJson.encodeToString(taskName.paramsSerializer, params)),
         Json.of(KotlinJson.encodeToString(options)),
-      )
-      val result = statement.execute().awaitSingle()
-      val map = result.map {
+      ) {
         SpawnResult(
-          taskId = it.get("task_id", UUID::class.java)!!.toKotlinUuid(),
-          runId = it.get("run_id", String::class.java)!!,
-          attempt = it.get("attempt", Int::class.java)!!,
+          taskId = get("task_id", UUID::class.java)!!.toKotlinUuid(),
+          runId = get("run_id", String::class.java)!!,
+          attempt = get("attempt", Int::class.java)!!,
         )
       }
-      return map.awaitSingle()
+      return rows.single()
     }
   }
 
@@ -124,28 +118,26 @@ class RealAbsurd(
     queueName: QueueName?,
   ): TaskResult<P, R>? {
     postgresql.withConnection {
-      val statement = createStatement(
+      val rows: List<TaskResult<P, R>> = executeQuery(
         """
         SELECT state, result, failure_reason
         FROM absurd.get_task_result($1, $2)
         """,
         (queueName ?: this@RealAbsurd.queueName).value,
         taskId.toJavaUuid(),
-      )
-      val result = statement.execute().awaitSingle()
-      val map = result.map {
-        val state = it.get("state")
+      ) {
+        val state = get("state")
         when (state) {
-          "completed" -> TaskResult.Completed<P, R>(it.get("result") as R)
-          "failed" -> TaskResult.Failed<P, R>(it.get("failure_reason") as String)
-          else -> TaskResult.Pending<P, R>()
+          "completed" -> TaskResult.Completed(get("result") as R)
+          "failed" -> TaskResult.Failed(get("failure_reason") as String)
+          else -> TaskResult.Pending()
         }
       }
-      return map.awaitFirstOrNull()
+      return rows.singleOrNull()
     }
   }
 
-  override suspend fun executeOneBatch(
+  override suspend fun executeBatch(
     workerId: String,
     claimTimeout: Duration,
     batchSize: Int,
@@ -172,7 +164,7 @@ class RealAbsurd(
     if (registration == null) {
       failTaskRun(
         claimedTask = task,
-        error = "unknown task",
+        error = TaskErrorJson("unknown task"),
       )
       return
     }
@@ -183,15 +175,24 @@ class RealAbsurd(
       claimTimeout = claimTimeout,
     )
 
-    val result = context(context) {
-      registration.taskHandler.handle(task.params)
+    try {
+      val result = context(context) {
+        registration.taskHandler.handle(task.params)
+      }
+      completeTaskRun(
+        queueName = queueName,
+        claimedTask = task,
+        result = result,
+      )
+    } catch (_: CanceledTaskException) {
+    } catch (_: SuspendTaskException) {
+    } catch (_: FailedTaskException) {
+    } catch (e: Throwable) {
+      failTaskRun(
+        claimedTask = task,
+        error = TaskErrorJson(e),
+      )
     }
-
-    completeTaskRun(
-      queueName = queueName,
-      claimedTask = task,
-      result = result,
-    )
   }
 
   private suspend fun <P : Any, R : Any> createTaskContext(
@@ -200,7 +201,7 @@ class RealAbsurd(
     claimTimeout: Duration,
   ): TaskHandler.Context<P, R> {
     return postgresql.withConnection {
-      val statement = createStatement(
+      val rows = executeQuery(
         """
         SELECT checkpoint_name, state, status, owner_run_id, updated_at
         FROM absurd.get_task_checkpoint_states($1, $2, $3)
@@ -208,16 +209,13 @@ class RealAbsurd(
         queueName.value,
         task.taskId.toJavaUuid(),
         task.runId.toJavaUuid(),
-      )
-      val result = statement.execute().awaitSingle()
-      val map = result.map {
-        it.string("checkpoint_name") to it.rawJsonOrNull("state")
+      ) {
+        string("checkpoint_name") to rawJson("state")
       }
-      val cache = map.asFlow().toList().toMap().toMutableMap()
       RealTaskContext(
         queueName = queueName,
         task = task,
-        checkpointCache = cache,
+        checkpointCache = rows.toMap().toMutableMap(),
         claimTimeout = claimTimeout,
       )
     }
@@ -229,7 +227,7 @@ class RealAbsurd(
     workerId: String,
   ): List<ClaimedTask<*, *>> {
     postgresql.withConnection {
-      val statement = createStatement(
+      return executeQuery(
         """
         SELECT run_id, task_id, attempt, task_name, params, retry_strategy, max_attempts,
                headers, wake_event, event_payload
@@ -239,15 +237,12 @@ class RealAbsurd(
         workerId,
         claimTimeout.inWholeSeconds.toInt(),
         batchSize,
-      )
-      val result = statement.execute().awaitSingle()
-      val map = result.map {
-        val taskNameValue = it.get("task_name")
+      ) {
+        val taskNameValue = get("task_name")
         val taskName = registry.keys.singleOrNull { it.value == taskNameValue }
           ?: error("task is not registered: $taskNameValue")
-        it.getClaimedTask(taskName)
+        getClaimedTask(taskName)
       }
-      return map.asFlow().toList()
     }
   }
 
@@ -270,30 +265,28 @@ class RealAbsurd(
     result: R,
   ) {
     postgresql.withConnection {
-      val statement = createStatement(
+      execute(
         "SELECT absurd.complete_run($1, $2, $3)",
         queueName.value,
         claimedTask.runId,
         Json.of(KotlinJson.encodeToString(claimedTask.taskName.outputSerializer, result)),
       )
-      statement.execute().awaitSingle()
     }
   }
 
   private suspend fun <P : Any, R : Any> failTaskRun(
     claimedTask: ClaimedTask<P, R>,
-    error: String,
-    fatalError: String? = null,
+    error: TaskErrorJson,
+    retryAt: Instant? = null,
   ) {
     postgresql.withConnection {
-      val statement = createStatement(
+      execute(
         "SELECT absurd.fail_run($1, $2, $3, $4)",
         queueName.value,
-        claimedTask.runId,
-        error,
-        fatalError,
+        claimedTask.runId.toJavaUuid(),
+        Json.of(KotlinJson.encodeToString(error)),
+        retryAt?.toJavaInstant(),
       )
-      statement.execute().awaitSingle()
     }
   }
 
@@ -366,7 +359,7 @@ class RealAbsurd(
       val valueJson = Json.of(KotlinJson.encodeToString(serializer, value))
       postgresql.withConnection {
         try {
-          val statement = createStatement(
+          execute(
             "SELECT absurd.set_task_checkpoint_state($1, $2, $3, $4, $5, $6)",
             queueName.value,
             task.taskId.toJavaUuid(),
@@ -375,7 +368,6 @@ class RealAbsurd(
             task.runId.toJavaUuid(),
             claimTimeout.inWholeSeconds.toInt(),
           )
-          statement.execute().awaitSingle()
         } catch (e: Exception) {
           throw e
         }
@@ -388,7 +380,7 @@ class RealAbsurd(
       if (cached != null) return cached
 
       postgresql.withConnection {
-        val statement = createStatement(
+        val rows = executeQuery(
           """
           SELECT checkpoint_name, state, status, owner_run_id, updated_at
           FROM absurd.get_task_checkpoint_state($1, $2, $3)
@@ -396,11 +388,9 @@ class RealAbsurd(
           queueName.value,
           task.taskId.toJavaUuid(),
           checkpointName,
-        )
-        val rows = statement.execute().awaitSingle()
-          .map { it.rawJsonOrNull("state") }
-          .asFlow()
-          .toList()
+        ) {
+          rawJson("state")
+        }
         if (rows.isNotEmpty()) {
           val state = rows.single()
           checkpointCache[checkpointName] = state
@@ -449,6 +439,10 @@ class RealAbsurd(
   }
 }
 
+private class CanceledTaskException : CancellationException()
+private class SuspendTaskException : CancellationException()
+private class FailedTaskException : CancellationException()
+
 internal data class TaskRegistration<P : Any, R : Any>(
   val name: TaskName<P, R>,
   val queueName: QueueName,
@@ -465,3 +459,16 @@ internal data class SpawnOptionsJson(
   val cancellation: CancellationPolicy? = null,
   val idempotency_key: String? = null,
 )
+
+@Serializable
+internal data class TaskErrorJson(
+  val message: String,
+  val name: String? = null,
+  val traceback: String? = null,
+) {
+  constructor(e: Throwable) : this(
+    message = e.message ?: e::class.simpleName ?: e.toString(),
+    name = e::class.qualifiedName,
+    traceback = e.stackTraceToString(),
+  )
+}
