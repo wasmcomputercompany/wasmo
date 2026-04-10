@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 
 class JsonEncodingTest {
-  private val prettyPrintingAbsurdJson = Json(AbsurdJson) {
+  private val PrettyPrintingJson = Json(KotlinJson) {
     prettyPrint = true
   }
 
@@ -123,7 +123,7 @@ class JsonEncodingTest {
 
   internal inline fun <reified T> checkRoundTrip(value: T, json: String) {
     val serializer = serializer<T>()
-    assertThat(prettyPrintingAbsurdJson.encodeToString(serializer, value)).isEqualTo(json)
-    assertThat(prettyPrintingAbsurdJson.decodeFromString(serializer, json)).isEqualTo(value)
+    assertThat(PrettyPrintingJson.encodeToString(serializer, value)).isEqualTo(json)
+    assertThat(PrettyPrintingJson.decodeFromString(serializer, json)).isEqualTo(value)
   }
 }

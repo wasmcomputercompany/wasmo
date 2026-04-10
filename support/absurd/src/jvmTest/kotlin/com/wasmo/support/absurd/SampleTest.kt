@@ -124,5 +124,8 @@ class SampleTest {
     assertThat(taskResult)
       .isNotNull()
       .isInstanceOf<TaskResult.Pending<*, *>>()
+
+    val tasks = tester.absurd.claimTasks(workerId = "worker-1")
+    println(tasks)
   }
 }

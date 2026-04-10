@@ -16,7 +16,7 @@ interface Absurd {
     queueName: QueueName? = null,
   )
 
-  suspend fun <P, R> registerTask(
+  suspend fun <P : Any, R : Any> registerTask(
     name: TaskName<P, R>,
     queueName: QueueName? = null,
     defaultMaxAttempts: Int? = null,
@@ -24,7 +24,7 @@ interface Absurd {
     taskHandler: TaskHandler<P, R>,
   )
 
-  suspend fun <P> spawn(
+  suspend fun <P : Any> spawn(
     taskName: TaskName<P, *>,
     params: P,
     maxAttempts: Int? = null,
@@ -35,7 +35,7 @@ interface Absurd {
     idempotencyKey: String? = null,
   ): SpawnResult
 
-  suspend fun <P, R> fetchTaskResult(
+  suspend fun <P : Any, R : Any> fetchTaskResult(
     taskId: Uuid,
     taskName: TaskName<P, R>,
     queueName: QueueName? = null,
@@ -47,23 +47,23 @@ interface Absurd {
     workerId: String,
   ): List<ClaimedTask<*, *>>
 
-  suspend fun <P, R> completeTaskRun(
+  suspend fun <P : Any, R : Any> completeTaskRun(
     claimedTask: ClaimedTask<P, R>,
     result: R,
   )
 
-  suspend fun <P, R> failTaskRun(
+  suspend fun <P : Any, R : Any> failTaskRun(
     claimedTask: ClaimedTask<P, R>,
     error: String,
     fatalError: String? = null,
   )
 }
 
-fun interface TaskHandler<P, R> {
+fun interface TaskHandler<P : Any, R : Any> {
   context(context: Context<P, R>)
   suspend fun handle(params: P): R
 
-  abstract class Context<P, R> {
+  abstract class Context<P : Any, R : Any> {
     abstract val queueName: QueueName
     abstract val taskId: Uuid
     abstract val taskName: TaskName<P, R>
@@ -108,16 +108,16 @@ interface StepHandle<T> {
   suspend fun complete(result: T)
 }
 
-class ClaimedTask<P, R>(
-  val runId: String,
+data class ClaimedTask<P : Any, R : Any>(
+  val runId: Uuid,
   val taskId: Uuid,
   val attempt: Int,
   val taskName: TaskName<P, R>,
   val params: P,
   val retryStrategy: RetryStrategy?,
   val maxAttempts: Int?,
-  val headers: Headers,
-  val wakeEvent: Any?,
+  val headers: Headers?,
+  val wakeEvent: String?,
   val eventPayload: Any?,
 )
 
@@ -162,7 +162,7 @@ data class QueueName(
   }
 }
 
-data class TaskName<P, R>(
+data class TaskName<P : Any, R : Any>(
   val value: String,
   val paramsSerializer: KSerializer<P>,
   val outputSerializer: KSerializer<R>,
@@ -170,7 +170,7 @@ data class TaskName<P, R>(
   override fun toString() = value
 
   companion object {
-    inline operator fun <reified P, reified R> invoke(value: String): TaskName<P, R> =
+    inline operator fun <reified P : Any, reified R : Any> invoke(value: String): TaskName<P, R> =
       TaskName(value, serializer<P>(), serializer<R>())
   }
 }

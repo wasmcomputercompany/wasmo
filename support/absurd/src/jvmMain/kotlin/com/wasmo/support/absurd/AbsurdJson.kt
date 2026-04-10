@@ -7,11 +7,6 @@ import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.Json
-
-internal val AbsurdJson = Json {
-  ignoreUnknownKeys = true
-}
 
 class CancellationPolicySerializer : KSerializer<CancellationPolicy> {
   private val delegate = CancellationPolicyJson.serializer().nullable

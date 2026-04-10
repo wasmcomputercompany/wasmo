@@ -3,12 +3,15 @@
 package com.wasmo.support.absurd
 
 import io.r2dbc.postgresql.codec.Json
+import io.r2dbc.spi.Readable
 import java.util.UUID
 import kotlin.time.Duration
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.serialization.Serializable
@@ -33,7 +36,7 @@ class RealAbsurd(
     }
   }
 
-  override suspend fun <P, R> registerTask(
+  override suspend fun <P : Any, R : Any> registerTask(
     name: TaskName<P, R>,
     queueName: QueueName?,
     defaultMaxAttempts: Int?,
@@ -49,7 +52,7 @@ class RealAbsurd(
     )
   }
 
-  private class TaskRegistration<P, R>(
+  private class TaskRegistration<P : Any, R : Any>(
     val name: TaskName<P, R>,
     val queueName: QueueName,
     val defaultMaxAttempts: Int?,
@@ -57,7 +60,7 @@ class RealAbsurd(
     val taskHandler: TaskHandler<P, R>,
   )
 
-  override suspend fun <P> spawn(
+  override suspend fun <P : Any> spawn(
     taskName: TaskName<P, *>,
     params: P,
     maxAttempts: Int?,
@@ -107,8 +110,8 @@ class RealAbsurd(
         """,
         actualQueue.value,
         taskName.value,
-        Json.of(AbsurdJson.encodeToString(taskName.paramsSerializer, params)),
-        Json.of(AbsurdJson.encodeToString(options)),
+        Json.of(KotlinJson.encodeToString(taskName.paramsSerializer, params)),
+        Json.of(KotlinJson.encodeToString(options)),
       )
       val result = statement.execute().awaitSingle()
       val map = result.map {
@@ -122,7 +125,7 @@ class RealAbsurd(
     }
   }
 
-  override suspend fun <P, R> fetchTaskResult(
+  override suspend fun <P : Any, R : Any> fetchTaskResult(
     taskId: Uuid,
     taskName: TaskName<P, R>,
     queueName: QueueName?,
@@ -154,16 +157,49 @@ class RealAbsurd(
     claimTimeout: Duration,
     workerId: String,
   ): List<ClaimedTask<*, *>> {
-    TODO("Not yet implemented")
+    postgresql.withConnection {
+      val statement = createStatement(
+        """
+        SELECT run_id, task_id, attempt, task_name, params, retry_strategy, max_attempts,
+               headers, wake_event, event_payload
+        FROM absurd.claim_task($1, $2, $3, $4)
+        """,
+        queueName.value,
+        workerId,
+        claimTimeout.inWholeSeconds.toInt(),
+        batchSize,
+      )
+      val result = statement.execute().awaitSingle()
+      val map = result.map {
+        val taskNameValue = it.get("task_name")
+        val taskName = registry.keys.singleOrNull { it.value == taskNameValue }
+          ?: error("task is not registered: $taskNameValue")
+        it.getClaimedTask(taskName)
+      }
+      return map.asFlow().toList()
+    }
   }
 
-  override suspend fun <P, R> completeTaskRun(
+  private fun <P : Any, R : Any> Readable.getClaimedTask(taskName: TaskName<P, R>) = ClaimedTask(
+    runId = uuid("run_id"),
+    taskId = uuid("task_id"),
+    attempt = int("attempt"),
+    taskName = taskName,
+    params = json("params", taskName.paramsSerializer),
+    retryStrategy = jsonOrNull<RetryStrategy>("retry_strategy"),
+    maxAttempts = int("max_attempts"),
+    headers = jsonOrNull<Headers>("headers"),
+    wakeEvent = stringOrNull("wake_event"),
+    eventPayload = get("event_payload", Json::class.java),
+  )
+
+  override suspend fun <P : Any, R : Any> completeTaskRun(
     claimedTask: ClaimedTask<P, R>,
     result: R,
   ) {
   }
 
-  override suspend fun <P, R> failTaskRun(
+  override suspend fun <P : Any, R : Any> failTaskRun(
     claimedTask: ClaimedTask<P, R>,
     error: String,
     fatalError: String?,

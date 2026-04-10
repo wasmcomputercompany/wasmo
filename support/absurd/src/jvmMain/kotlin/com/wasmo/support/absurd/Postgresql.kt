@@ -1,10 +1,20 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.wasmo.support.absurd
 
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.postgresql.api.PostgresqlConnection
 import io.r2dbc.postgresql.api.PostgresqlResult
 import io.r2dbc.postgresql.api.PostgresqlStatement
+import io.r2dbc.postgresql.codec.Json as PostgresqlJson
+import io.r2dbc.spi.Readable
+import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toKotlinUuid
 import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 
 class Postgresql(
   @PublishedApi
@@ -81,3 +91,30 @@ inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> Postgres
   bind(3, p3 ?: P3::class.java)
   bind(4, p4 ?: P4::class.java)
 }
+
+@PublishedApi
+internal val KotlinJson = kotlinx.serialization.json.Json {
+  ignoreUnknownKeys = true
+}
+
+fun Readable.uuid(name: String): Uuid = get(name, UUID::class.java)!!.toKotlinUuid()
+
+fun Readable.int(name: String): Int = get(name, Int::class.java)!!
+
+fun Readable.stringOrNull(name: String): String? = get(name, String::class.java)
+
+fun Readable.string(name: String): String = stringOrNull(name)!!
+
+fun <T : Any> Readable.jsonOrNull(name: String, serializer: KSerializer<T>): T? {
+  val json = get(name, PostgresqlJson::class.java) ?: return null
+  return KotlinJson.decodeFromString(serializer, json.asString())
+}
+
+inline fun <reified T : Any> Readable.jsonOrNull(name: String): T? =
+  jsonOrNull(name, serializer<T>())
+
+fun <T : Any> Readable.json(name: String, serializer: KSerializer<T>): T =
+  jsonOrNull(name, serializer)!!
+
+inline fun <reified T : Any> Readable.json(name: String): T = jsonOrNull(name, serializer<T>())!!
+
