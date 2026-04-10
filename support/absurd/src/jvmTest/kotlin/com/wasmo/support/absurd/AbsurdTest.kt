@@ -17,7 +17,7 @@ class AbsurdTest {
   private val tester = AbsurdTester()
 
   @Test
-  fun happyPath() = runTest {
+  fun `happy path`() = runTest {
     val sandwichMaker = SandwichMaker()
     tester.absurd.registerTask(
       name = SandwichMaker.TaskName,
@@ -51,7 +51,7 @@ class AbsurdTest {
   }
 
   @Test
-  fun spawnUnregisteredTask() = runTest {
+  fun `spawn unregistered task`() = runTest {
     val e = assertFailsWith<IllegalStateException> {
       tester.absurd.spawn(
         taskName = SandwichMaker.TaskName,
@@ -62,7 +62,7 @@ class AbsurdTest {
   }
 
   @Test
-  fun spawnQueueDoesNotMatchRegisteredQueue() = runTest {
+  fun `spawn queue does not match tasks registered queue`() = runTest {
     val kitchenQueue = QueueName("kitchen")
     val sandwichMaker = SandwichMaker()
     tester.absurd.registerTask(
@@ -83,7 +83,7 @@ class AbsurdTest {
   }
 
   @Test
-  fun executeUnregisteredTask() = runTest {
+  fun `execute unregistered task`() = runTest {
     val sandwichMaker = SandwichMaker()
     tester.absurd.registerTask(
       name = SandwichMaker.TaskName,
@@ -102,7 +102,7 @@ class AbsurdTest {
   }
 
   @Test
-  fun failThenSucceed() = runTest {
+  fun `fail then succeed`() = runTest {
     val sandwichMaker = SandwichMaker()
 
     tester.absurd.registerTask(
@@ -147,7 +147,7 @@ class AbsurdTest {
   }
 
   @Test
-  fun failWithoutRetries() = runTest {
+  fun `fail without retries`() = runTest {
     val sandwichMaker = SandwichMaker()
 
     tester.absurd.registerTask(

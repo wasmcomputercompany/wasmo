@@ -43,6 +43,7 @@ internal class CancellationPolicySerializer : KSerializer<CancellationPolicy> {
 }
 
 @Serializable
+@Suppress("PropertyName") // Consistent JSON with other Absurd SDKs.
 internal class CancellationPolicyJson(
   val max_duration: Int? = null,
   val max_delay: Int? = null,
@@ -76,13 +77,14 @@ internal class RetryStrategySerializer : KSerializer<RetryStrategy> {
     val value = decoder.decodeSerializableValue(delegate)
     return RetryStrategy(
       base = value.base_seconds?.seconds,
-      factor = value.factor ?: 1f,
+      factor = value.factor,
       max = value.max_seconds?.seconds,
     )
   }
 }
 
 @Serializable
+@Suppress("PropertyName", "unused") // Consistent JSON with other Absurd SDKs.
 internal class RetryStrategyJson(
   val kind: String,
   val base_seconds: Int? = null,
