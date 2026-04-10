@@ -3,7 +3,7 @@
 package com.wasmo.support.absurd
 
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.serialization.KSerializer
@@ -41,22 +41,15 @@ interface Absurd {
     queueName: QueueName? = null,
   ): TaskResult<P, R>?
 
-  suspend fun claimTasks(
-    batchSize: Int = 1,
-    claimTimeout: Duration = 2.minutes,
+  /**
+   * Returns the number of jobs executed. If this is lower than [batchSize], then fewer jobs
+   * were eligible to be claimed.
+   */
+  suspend fun executeOneBatch(
     workerId: String,
-  ): List<ClaimedTask<*, *>>
-
-  suspend fun <P : Any, R : Any> completeTaskRun(
-    claimedTask: ClaimedTask<P, R>,
-    result: R,
-  )
-
-  suspend fun <P : Any, R : Any> failTaskRun(
-    claimedTask: ClaimedTask<P, R>,
-    error: String,
-    fatalError: String? = null,
-  )
+    claimTimeout: Duration = 120.seconds,
+    batchSize: Int = 1,
+  ): Int
 }
 
 fun interface TaskHandler<P : Any, R : Any> {
@@ -67,6 +60,7 @@ fun interface TaskHandler<P : Any, R : Any> {
     abstract val queueName: QueueName
     abstract val taskId: Uuid
     abstract val taskName: TaskName<P, R>
+    abstract val headers: Headers?
 
     abstract suspend fun <T> step(
       name: String,
@@ -104,8 +98,9 @@ fun interface TaskHandler<P : Any, R : Any> {
 interface StepHandle<T> {
   val name: String
   val checkpointName: String
-  val result: Result<T>?
-  suspend fun complete(result: T)
+  val done: Boolean
+  val result: T
+  suspend fun complete(result: T): T
 }
 
 data class ClaimedTask<P : Any, R : Any>(

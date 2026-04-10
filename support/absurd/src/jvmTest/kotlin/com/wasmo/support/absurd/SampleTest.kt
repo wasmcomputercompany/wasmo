@@ -2,6 +2,7 @@ package com.wasmo.support.absurd
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import kotlin.test.Test
@@ -75,7 +76,7 @@ class SampleTest {
           // Demo only: fail once after the first checkpoint so the retry
           // behavior is visible.
           val outage = context.beginStep<OutageState>("demo-transient-outage")
-          if (outage.result == null) {
+          if (!outage.done) {
             println("${context.taskId} simulating a temporary email provider outage")
             outage.complete(OutageState(simulated = true))
             throw Exception("temporary email provider outage")
@@ -92,10 +93,11 @@ class SampleTest {
 
           println("${context.taskId} waiting for user-activated:${user.userId}")
 
-          val activation = context.awaitEvent<ActivationEvent>(
+          // TODO: actually await event
+          val activation = context.awaitEvent<ActivationEvent?>(
             "user-activated:${user.userId}",
             timeout = 3600.seconds,
-          )
+          ) ?: ActivationEvent(tester.clock.now())
 
           return ProvisionUserResult(
             userId = params.userId,
@@ -116,16 +118,19 @@ class SampleTest {
       ),
     )
 
-    val taskResult = tester.absurd.fetchTaskResult(
+    val taskResultBefore = tester.absurd.fetchTaskResult(
       taskId = spawnResult.taskId,
       taskName = provisionUser,
     )
 
-    assertThat(taskResult)
+    assertThat(taskResultBefore)
       .isNotNull()
       .isInstanceOf<TaskResult.Pending<*, *>>()
 
-    val tasks = tester.absurd.claimTasks(workerId = "worker-1")
-    println(tasks)
+    val batchSize = tester.absurd.executeOneBatch(
+      workerId = "localhost:1234",
+    )
+    assertThat(batchSize).isEqualTo(1)
+
   }
 }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 
 class RealAbsurd(
@@ -23,7 +24,6 @@ class RealAbsurd(
   private val defaultMaxAttempts: Int = 5,
 ) : Absurd {
   private val registry = mutableMapOf<TaskName<*, *>, TaskRegistration<*, *>>()
-  private val workerRunning = false
 
   override suspend fun createQueue(queueName: QueueName?) {
     postgresql.withConnection {
@@ -47,8 +47,8 @@ class RealAbsurd(
     registry[name] = TaskRegistration(
       name = name,
       queueName = queueName ?: this.queueName,
-      defaultMaxAttempts = defaultMaxAttempts ?: defaultMaxAttempts,
-      defaultCancellation = defaultCancellation ?: defaultCancellation,
+      defaultMaxAttempts = defaultMaxAttempts ?: this.defaultMaxAttempts,
+      defaultCancellation = defaultCancellation,
       taskHandler = taskHandler,
     )
   }
@@ -145,7 +145,85 @@ class RealAbsurd(
     }
   }
 
-  override suspend fun claimTasks(
+  override suspend fun executeOneBatch(
+    workerId: String,
+    claimTimeout: Duration,
+    batchSize: Int,
+  ): Int {
+    val tasks = claimTasks(
+      batchSize = batchSize,
+      claimTimeout = claimTimeout,
+      workerId = workerId,
+    )
+
+    for (task in tasks) {
+      executeTask(task, claimTimeout)
+    }
+
+    return tasks.size
+  }
+
+  private suspend fun <P : Any, R : Any> executeTask(
+    task: ClaimedTask<P, R>,
+    claimTimeout: Duration,
+  ) {
+    val registration = registry[task.taskName] as TaskRegistration<P, R>?
+
+    if (registration == null) {
+      failTaskRun(
+        claimedTask = task,
+        error = "unknown task",
+      )
+      return
+    }
+
+    val context = createTaskContext(
+      queueName = queueName,
+      task = task,
+      claimTimeout = claimTimeout,
+    )
+
+    val result = context(context) {
+      registration.taskHandler.handle(task.params)
+    }
+
+    completeTaskRun(
+      queueName = queueName,
+      claimedTask = task,
+      result = result,
+    )
+  }
+
+  private suspend fun <P : Any, R : Any> createTaskContext(
+    queueName: QueueName,
+    task: ClaimedTask<P, R>,
+    claimTimeout: Duration,
+  ): TaskHandler.Context<P, R> {
+    return postgresql.withConnection {
+      val statement = createStatement(
+        """
+        SELECT checkpoint_name, state, status, owner_run_id, updated_at
+        FROM absurd.get_task_checkpoint_states($1, $2, $3)
+        """,
+        queueName.value,
+        task.taskId.toJavaUuid(),
+        task.runId.toJavaUuid(),
+      )
+      val result = statement.execute().awaitSingle()
+      val map = result.map {
+        it.string("checkpoint_name") to it.rawJsonOrNull("state")
+      }
+      val cache = map.asFlow().toList().toMap().toMutableMap()
+      RealTaskContext(
+        queueName = queueName,
+        task = task,
+        checkpointCache = cache,
+        claimTimeout = claimTimeout,
+      )
+    }
+  }
+
+  private suspend fun claimTasks(
     batchSize: Int,
     claimTimeout: Duration,
     workerId: String,
@@ -186,18 +264,188 @@ class RealAbsurd(
     eventPayload = get("event_payload", Json::class.java),
   )
 
-  override suspend fun <P : Any, R : Any> completeTaskRun(
+  private suspend fun <P : Any, R : Any> completeTaskRun(
+    queueName: QueueName,
     claimedTask: ClaimedTask<P, R>,
     result: R,
   ) {
+    postgresql.withConnection {
+      val statement = createStatement(
+        "SELECT absurd.complete_run($1, $2, $3)",
+        queueName.value,
+        claimedTask.runId,
+        Json.of(KotlinJson.encodeToString(claimedTask.taskName.outputSerializer, result)),
+      )
+      statement.execute().awaitSingle()
+    }
   }
 
-  override suspend fun <P : Any, R : Any> failTaskRun(
+  private suspend fun <P : Any, R : Any> failTaskRun(
     claimedTask: ClaimedTask<P, R>,
     error: String,
-    fatalError: String?,
+    fatalError: String? = null,
   ) {
-    TODO("Not yet implemented")
+    postgresql.withConnection {
+      val statement = createStatement(
+        "SELECT absurd.fail_run($1, $2, $3, $4)",
+        queueName.value,
+        claimedTask.runId,
+        error,
+        fatalError,
+      )
+      statement.execute().awaitSingle()
+    }
+  }
+
+  private inner class RealTaskContext<P : Any, R : Any>(
+    override val queueName: QueueName,
+    private val task: ClaimedTask<P, R>,
+    private val checkpointCache: MutableMap<String, Json>,
+    private val claimTimeout: Duration,
+  ) : TaskHandler.Context<P, R>() {
+    private val stepNameCounter = mutableMapOf<String, Int>()
+
+    override val taskId: Uuid
+      get() = task.taskId
+    override val taskName: TaskName<P, R>
+      get() = task.taskName
+    override val headers: Headers?
+      get() = task.headers
+
+    override suspend fun <T> step(
+      name: String,
+      serializer: KSerializer<T>,
+      block: suspend () -> T,
+    ): T {
+      val handle = beginStep(name, serializer)
+      if (handle.done) {
+        return handle.result
+      }
+
+      val result = block()
+      return handle.complete(result)
+    }
+
+    override suspend fun <T> beginStep(
+      name: String,
+      serializer: KSerializer<T>,
+    ): StepHandle<T> {
+      val checkpointName = takeCheckpointName(name)
+      val state = lookupCheckpoint(checkpointName)
+      if (state !== CHECKPOINT_NOT_FOUND) {
+        return RealStepHandle(
+          name = name,
+          checkpointName = checkpointName,
+          serializer = serializer,
+          done = true,
+          resultOrNull = KotlinJson.decodeFromString(serializer, state.asString()),
+        )
+      }
+
+      return RealStepHandle(
+        name = name,
+        checkpointName = checkpointName,
+        serializer = serializer,
+      )
+    }
+
+    private fun takeCheckpointName(name: String): String {
+      val count = stepNameCounter.getOrDefault(name, 0) + 1
+      stepNameCounter[name] = count
+      return when {
+        count == 1 -> name
+        else -> "$name#$count"
+      }
+    }
+
+    suspend fun <T> persistCheckpoint(
+      checkpointName: String,
+      serializer: KSerializer<T>,
+      value: T,
+    ) {
+      val valueJson = Json.of(KotlinJson.encodeToString(serializer, value))
+      postgresql.withConnection {
+        try {
+          val statement = createStatement(
+            "SELECT absurd.set_task_checkpoint_state($1, $2, $3, $4, $5, $6)",
+            queueName.value,
+            task.taskId.toJavaUuid(),
+            checkpointName,
+            valueJson,
+            task.runId.toJavaUuid(),
+            claimTimeout.inWholeSeconds.toInt(),
+          )
+          statement.execute().awaitSingle()
+        } catch (e: Exception) {
+          throw e
+        }
+        checkpointCache[checkpointName] = valueJson
+      }
+    }
+
+    private suspend fun lookupCheckpoint(checkpointName: String): Json {
+      val cached = this.checkpointCache[checkpointName]
+      if (cached != null) return cached
+
+      postgresql.withConnection {
+        val statement = createStatement(
+          """
+          SELECT checkpoint_name, state, status, owner_run_id, updated_at
+          FROM absurd.get_task_checkpoint_state($1, $2, $3)
+          """,
+          queueName.value,
+          task.taskId.toJavaUuid(),
+          checkpointName,
+        )
+        val rows = statement.execute().awaitSingle()
+          .map { it.rawJsonOrNull("state") }
+          .asFlow()
+          .toList()
+        if (rows.isNotEmpty()) {
+          val state = rows.single()
+          checkpointCache[checkpointName] = state
+          return state
+        }
+
+        return CHECKPOINT_NOT_FOUND
+      }
+    }
+
+    override suspend fun <T> awaitEvent(
+      event: String,
+      serializer: KSerializer<T>,
+      timeout: Duration,
+    ): T {
+      return null as T // TODO
+    }
+
+    inner class RealStepHandle<T>(
+      override val name: String,
+      override val checkpointName: String,
+      private val serializer: KSerializer<T>,
+      override var done: Boolean = false,
+      private var resultOrNull: T? = null,
+    ) : StepHandle<T> {
+      override val result: T
+        get() {
+          check(done)
+          return resultOrNull!!
+        }
+
+      override suspend fun complete(result: T): T {
+        if (done) return result
+
+        done = true
+        resultOrNull = result
+        persistCheckpoint(checkpointName, serializer, result)
+        return result
+      }
+    }
+  }
+
+  companion object {
+    /** Sentinel value when we haven't completed a checkpoint. Compare with `===`. */
+    private val CHECKPOINT_NOT_FOUND = Json.of("[\"CHECKPOINT_NOT_FOUND\"]")
   }
 }
 

@@ -3,7 +3,7 @@ package com.wasmo.support.absurd
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
-import io.r2dbc.postgresql.PostgresqlConnectionFactory
+import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
 import io.r2dbc.postgresql.client.SSLMode
 import kotlin.time.Clock
 import kotlinx.coroutines.reactive.awaitLast
@@ -29,7 +29,7 @@ class AbsurdTester : CoroutineTestInterceptor {
       .sslMode(SSLMode.DISABLE)
       .build()
 
-    val postgresql = Postgresql(PostgresqlConnectionFactory(configuration))
+    val postgresql = Postgresql(configuration)
     postgresql.withConnection {
       execute("DROP SCHEMA public CASCADE")
       execute("CREATE SCHEMA public")

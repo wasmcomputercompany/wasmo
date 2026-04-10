@@ -93,6 +93,23 @@ internal inline fun <reified P0, reified P1, reified P2, reified P3, reified P4>
   bind(4, p4 ?: P4::class.java)
 }
 
+internal inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5> Connection.createStatement(
+  sql: String,
+  p0: P0,
+  p1: P1,
+  p2: P2,
+  p3: P3,
+  p4: P4,
+  p5: P5,
+): PostgresqlStatement = createStatement(sql).apply {
+  bind(0, p0 ?: P0::class.java)
+  bind(1, p1 ?: P1::class.java)
+  bind(2, p2 ?: P2::class.java)
+  bind(3, p3 ?: P3::class.java)
+  bind(4, p4 ?: P4::class.java)
+  bind(5, p5 ?: P5::class.java)
+}
+
 @PublishedApi
 internal val KotlinJson = kotlinx.serialization.json.Json {
   ignoreUnknownKeys = true
@@ -105,6 +122,9 @@ internal fun Readable.int(name: String): Int = get(name, Int::class.java)!!
 internal fun Readable.stringOrNull(name: String): String? = get(name, String::class.java)
 
 internal fun Readable.string(name: String): String = stringOrNull(name)!!
+
+internal fun Readable.rawJsonOrNull(name: String): PostgresqlJson =
+  get(name, PostgresqlJson::class.java)
 
 internal fun <T : Any> Readable.jsonOrNull(name: String, serializer: KSerializer<T>): T? {
   val json = get(name, PostgresqlJson::class.java) ?: return null
