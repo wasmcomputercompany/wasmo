@@ -76,7 +76,7 @@ class JsonEncodingTest {
   @Test
   fun spawnOptions() {
     checkRoundTrip(
-      SpawnOptions(
+      SpawnOptionsJson(
         headers = null,
         max_attempts = null,
         retry_strategy = null,
@@ -87,7 +87,7 @@ class JsonEncodingTest {
     )
 
     checkRoundTrip(
-      SpawnOptions(
+      SpawnOptionsJson(
         headers = Headers(),
         max_attempts = 3,
         retry_strategy = RetryStrategy(

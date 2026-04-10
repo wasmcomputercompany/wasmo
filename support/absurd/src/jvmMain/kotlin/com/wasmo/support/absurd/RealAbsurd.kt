@@ -2,6 +2,7 @@
 
 package com.wasmo.support.absurd
 
+import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.postgresql.codec.Json
 import io.r2dbc.spi.Readable
 import java.util.UUID
@@ -17,7 +18,7 @@ import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.serialization.Serializable
 
 class RealAbsurd(
-  private val postgresql: Postgresql,
+  private val postgresql: PostgresqlConnectionFactory,
   private val queueName: QueueName = QueueName.Default,
   private val defaultMaxAttempts: Int = 5,
 ) : Absurd {
@@ -51,14 +52,6 @@ class RealAbsurd(
       taskHandler = taskHandler,
     )
   }
-
-  private class TaskRegistration<P : Any, R : Any>(
-    val name: TaskName<P, R>,
-    val queueName: QueueName,
-    val defaultMaxAttempts: Int?,
-    val defaultCancellation: CancellationPolicy?,
-    val taskHandler: TaskHandler<P, R>,
-  )
 
   override suspend fun <P : Any> spawn(
     taskName: TaskName<P, *>,
@@ -94,7 +87,7 @@ class RealAbsurd(
     val effectiveCancellation = cancellation
       ?: registration?.defaultCancellation
 
-    val options = SpawnOptions(
+    val options = SpawnOptionsJson(
       max_attempts = effectiveMaxAttempts,
       retry_strategy = retryStrategy,
       headers = headers,
@@ -208,8 +201,16 @@ class RealAbsurd(
   }
 }
 
+internal data class TaskRegistration<P : Any, R : Any>(
+  val name: TaskName<P, R>,
+  val queueName: QueueName,
+  val defaultMaxAttempts: Int?,
+  val defaultCancellation: CancellationPolicy?,
+  val taskHandler: TaskHandler<P, R>,
+)
+
 @Serializable
-internal data class SpawnOptions(
+internal data class SpawnOptionsJson(
   val headers: Headers? = null,
   val max_attempts: Int? = null,
   val retry_strategy: RetryStrategy? = null,

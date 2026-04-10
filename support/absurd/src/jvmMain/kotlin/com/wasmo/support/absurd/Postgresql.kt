@@ -2,8 +2,8 @@
 
 package com.wasmo.support.absurd
 
-import io.r2dbc.postgresql.PostgresqlConnectionFactory
-import io.r2dbc.postgresql.api.PostgresqlConnection
+import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
+import io.r2dbc.postgresql.api.PostgresqlConnection as Connection
 import io.r2dbc.postgresql.api.PostgresqlResult
 import io.r2dbc.postgresql.api.PostgresqlStatement
 import io.r2dbc.postgresql.codec.Json as PostgresqlJson
@@ -16,35 +16,36 @@ import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
-class Postgresql(
-  @PublishedApi
-  internal val postgresqlConnectionFactory: PostgresqlConnectionFactory,
-) {
-  suspend inline fun <T> withConnection(block: suspend PostgresqlConnection.() -> T): T {
-    with(postgresqlConnectionFactory.create().awaitSingle()) {
-      try {
-        return block()
-      } finally {
-        close().subscribe()
-      }
-    }
+/*
+ * This file attempts to make R2DBC + Postgresql a little bit friendlier to interact with from
+ * Kotlin + Coroutines.
+ */
+
+internal suspend inline fun <T> Postgresql.withConnection(
+  block: suspend Connection.() -> T,
+): T {
+  val connection = create().awaitSingle()
+  try {
+    return connection.block()
+  } finally {
+    connection.close().subscribe()
   }
 }
 
-suspend fun PostgresqlConnection.execute(
+internal suspend fun Connection.execute(
   sql: String,
 ): PostgresqlResult {
   return createStatement(sql).execute().awaitSingle()
 }
 
-inline fun <reified P0> PostgresqlConnection.createStatement(
+internal inline fun <reified P0> Connection.createStatement(
   sql: String,
   p0: P0,
 ): PostgresqlStatement = createStatement(sql).apply {
   bind(0, p0 ?: P0::class.java)
 }
 
-inline fun <reified P0, reified P1> PostgresqlConnection.createStatement(
+internal inline fun <reified P0, reified P1> Connection.createStatement(
   sql: String,
   p0: P0,
   p1: P1,
@@ -53,7 +54,7 @@ inline fun <reified P0, reified P1> PostgresqlConnection.createStatement(
   bind(1, p1 ?: P1::class.java)
 }
 
-inline fun <reified P0, reified P1, reified P2> PostgresqlConnection.createStatement(
+internal inline fun <reified P0, reified P1, reified P2> Connection.createStatement(
   sql: String,
   p0: P0,
   p1: P1,
@@ -64,7 +65,7 @@ inline fun <reified P0, reified P1, reified P2> PostgresqlConnection.createState
   bind(2, p2 ?: P2::class.java)
 }
 
-inline fun <reified P0, reified P1, reified P2, reified P3> PostgresqlConnection.createStatement(
+internal inline fun <reified P0, reified P1, reified P2, reified P3> Connection.createStatement(
   sql: String,
   p0: P0,
   p1: P1,
@@ -77,7 +78,7 @@ inline fun <reified P0, reified P1, reified P2, reified P3> PostgresqlConnection
   bind(3, p3 ?: P3::class.java)
 }
 
-inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> PostgresqlConnection.createStatement(
+internal inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> Connection.createStatement(
   sql: String,
   p0: P0,
   p1: P1,
@@ -97,24 +98,25 @@ internal val KotlinJson = kotlinx.serialization.json.Json {
   ignoreUnknownKeys = true
 }
 
-fun Readable.uuid(name: String): Uuid = get(name, UUID::class.java)!!.toKotlinUuid()
+internal fun Readable.uuid(name: String): Uuid = get(name, UUID::class.java)!!.toKotlinUuid()
 
-fun Readable.int(name: String): Int = get(name, Int::class.java)!!
+internal fun Readable.int(name: String): Int = get(name, Int::class.java)!!
 
-fun Readable.stringOrNull(name: String): String? = get(name, String::class.java)
+internal fun Readable.stringOrNull(name: String): String? = get(name, String::class.java)
 
-fun Readable.string(name: String): String = stringOrNull(name)!!
+internal fun Readable.string(name: String): String = stringOrNull(name)!!
 
-fun <T : Any> Readable.jsonOrNull(name: String, serializer: KSerializer<T>): T? {
+internal fun <T : Any> Readable.jsonOrNull(name: String, serializer: KSerializer<T>): T? {
   val json = get(name, PostgresqlJson::class.java) ?: return null
   return KotlinJson.decodeFromString(serializer, json.asString())
 }
 
-inline fun <reified T : Any> Readable.jsonOrNull(name: String): T? =
+internal inline fun <reified T : Any> Readable.jsonOrNull(name: String): T? =
   jsonOrNull(name, serializer<T>())
 
-fun <T : Any> Readable.json(name: String, serializer: KSerializer<T>): T =
+internal fun <T : Any> Readable.json(name: String, serializer: KSerializer<T>): T =
   jsonOrNull(name, serializer)!!
 
-inline fun <reified T : Any> Readable.json(name: String): T = jsonOrNull(name, serializer<T>())!!
+internal inline fun <reified T : Any> Readable.json(name: String): T =
+  jsonOrNull(name, serializer<T>())!!
 

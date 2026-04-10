@@ -8,6 +8,11 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
+/*
+ * This file binds our high-level Kotlin types (that use Kotlin features like sealed classes and
+ * types like `Duration`) to the simpler JSON types expected by Absurd.
+ */
+
 class CancellationPolicySerializer : KSerializer<CancellationPolicy> {
   private val delegate = CancellationPolicyJson.serializer().nullable
 
