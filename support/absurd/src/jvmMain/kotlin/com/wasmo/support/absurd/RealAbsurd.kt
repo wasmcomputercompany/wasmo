@@ -128,8 +128,17 @@ class RealAbsurd(
       ) {
         val state = get("state")
         when (state) {
-          "completed" -> TaskResult.Completed(get("result") as R)
-          "failed" -> TaskResult.Failed(get("failure_reason") as String)
+          "completed" -> TaskResult.Completed(
+            result = json("result", taskName.resultSerializer),
+          )
+          "failed" -> {
+            val failureReason = json<TaskErrorJson>("failure_reason")
+            TaskResult.Failed(
+              message = failureReason.message,
+              throwableClassName = failureReason.name,
+              stacktrace = failureReason.traceback,
+            )
+          }
           else -> TaskResult.Pending()
         }
       }
@@ -268,8 +277,8 @@ class RealAbsurd(
       execute(
         "SELECT absurd.complete_run($1, $2, $3)",
         queueName.value,
-        claimedTask.runId,
-        Json.of(KotlinJson.encodeToString(claimedTask.taskName.outputSerializer, result)),
+        claimedTask.runId.toJavaUuid(),
+        Json.of(KotlinJson.encodeToString(claimedTask.taskName.resultSerializer, result)),
       )
     }
   }

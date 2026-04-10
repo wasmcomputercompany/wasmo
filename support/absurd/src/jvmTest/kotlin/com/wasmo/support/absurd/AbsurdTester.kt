@@ -6,6 +6,7 @@ import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
 import io.r2dbc.postgresql.client.SSLMode
 import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.coroutines.reactive.awaitLast
 import okio.FileSystem
 import okio.Path.Companion.toPath
@@ -13,7 +14,7 @@ import okio.Path.Companion.toPath
 class AbsurdTester : CoroutineTestInterceptor {
   private var run: Run? = null
 
-  val clock: Clock
+  val clock: FakeClock
     get() = run!!.clock
   val postgresql: Postgresql
     get() = run!!.postgresql
@@ -56,7 +57,7 @@ class AbsurdTester : CoroutineTestInterceptor {
     absurd.createQueue()
 
     run = Run(
-      clock = Clock.System,
+      clock = FakeClock(),
       postgresql = postgresql,
       absurd = absurd,
     )
@@ -68,8 +69,13 @@ class AbsurdTester : CoroutineTestInterceptor {
   }
 
   private class Run(
-    val clock: Clock,
+    val clock: FakeClock,
     val postgresql: Postgresql,
     val absurd: Absurd,
   )
+
+  class FakeClock : Clock {
+    var now = Instant.parse("2025-10-20T21:30:50Z")
+    override fun now() = now
+  }
 }

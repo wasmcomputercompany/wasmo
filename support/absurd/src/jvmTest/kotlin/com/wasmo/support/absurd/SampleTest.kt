@@ -126,12 +126,7 @@ class SampleTest {
       ),
     )
 
-    val taskResultBefore = tester.absurd.fetchTaskResult(
-      taskId = spawnResult.taskId,
-      taskName = provisionUser,
-    )
-
-    assertThat(taskResultBefore)
+    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
       .isNotNull()
       .isInstanceOf<TaskResult.Pending<*, *>>()
 
@@ -147,6 +142,10 @@ class SampleTest {
       .matches(Regex("$uuidRegex simulating a temporary email provider outage"))
     assertThat(log.tryReceive().getOrNull()).isNull()
 
+    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
+      .isNotNull()
+      .isInstanceOf<TaskResult.Pending<*, *>>()
+
     val batch2TaskCount = tester.absurd.executeBatch(
       workerId = workerId,
     )
@@ -156,5 +155,22 @@ class SampleTest {
     assertThat(log.receive())
       .matches(Regex("$uuidRegex waiting for user-activated:alice"))
     assertThat(log.tryReceive().getOrNull()).isNull()
+
+    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
+      .isEqualTo(
+        TaskResult.Completed(
+          result = ProvisionUserResult(
+            userId = "alice",
+            email = "alice@example.com",
+            delivery = DeliveryResult(
+              sent = true,
+              provider = "demo-mail",
+              to = "alice@example.com",
+            ),
+            status = "active",
+            activatedAt = tester.clock.now(),
+          ),
+        ),
+      )
   }
 }

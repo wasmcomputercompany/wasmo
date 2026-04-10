@@ -52,7 +52,7 @@ interface Absurd {
   ): Int
 }
 
-fun interface TaskHandler<P : Any, R : Any> {
+interface TaskHandler<P : Any, R : Any> {
   context(context: Context<P, R>)
   suspend fun handle(params: P): R
 
@@ -160,7 +160,7 @@ data class QueueName(
 data class TaskName<P : Any, R : Any>(
   val value: String,
   val paramsSerializer: KSerializer<P>,
-  val outputSerializer: KSerializer<R>,
+  val resultSerializer: KSerializer<R>,
 ) {
   override fun toString() = value
 
@@ -173,5 +173,9 @@ data class TaskName<P : Any, R : Any>(
 sealed interface TaskResult<P, R> {
   class Pending<P, R> : TaskResult<P, R>
   data class Completed<P, R>(val result: R) : TaskResult<P, R>
-  data class Failed<P, R>(val failureReason: String?) : TaskResult<P, R>
+  data class Failed<P, R>(
+    val message: String,
+    val throwableClassName: String? = null,
+    val stacktrace: String? = null,
+  ) : TaskResult<P, R>
 }
