@@ -47,10 +47,13 @@ class AbsurdTester : CoroutineTestInterceptor {
       batch.execute().awaitLast()
     }
 
+    val absurd = RealAbsurd(postgresql)
+    absurd.createQueue()
+
     run = Run(
       clock = Clock.System,
       postgresql = postgresql,
-      absurd = RealAbsurd(postgresql),
+      absurd = absurd,
     )
     try {
       testFunction.invoke()

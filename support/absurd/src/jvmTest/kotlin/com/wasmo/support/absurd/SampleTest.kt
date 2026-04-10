@@ -1,18 +1,18 @@
 package com.wasmo.support.absurd
 
 import app.cash.burst.InterceptTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Instant
+import kotlin.uuid.ExperimentalUuidApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 
+@OptIn(ExperimentalUuidApi::class)
 class SampleTest {
   @InterceptTest
   val tester = AbsurdTester()
 
   @Test
-  @Ignore("not implemented yet")
   fun sample() = runTest {
     val provisionUser = TaskName<ProvisionUserParams, ProvisionUserResult>("provision-user")
     tester.absurd.registerTask(

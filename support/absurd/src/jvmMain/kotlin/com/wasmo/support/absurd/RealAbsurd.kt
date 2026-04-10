@@ -1,17 +1,37 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.wasmo.support.absurd
 
+import io.r2dbc.postgresql.codec.Json
+import java.util.UUID
 import kotlin.time.Duration
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
+import kotlin.uuid.toKotlinUuid
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 class RealAbsurd(
   private val postgresql: Postgresql,
-  private val queueName: QueueName = QueueName("default"),
+  private val queueName: QueueName = QueueName.Default,
   private val defaultMaxAttempts: Int = 5,
 ) : Absurd {
   private val registry = mutableMapOf<TaskName<*, *>, TaskRegistration<*, *>>()
   private val workerRunning = false
+
+  override suspend fun createQueue(queueName: QueueName?) {
+    postgresql.withConnection {
+      val statement = createStatement(
+        """
+        SELECT absurd.create_queue($1)
+        """,
+        (queueName ?: this@RealAbsurd.queueName).value,
+      )
+      statement.execute().awaitSingle()
+    }
+  }
 
   override suspend fun <P, R> registerTask(
     name: TaskName<P, R>,
@@ -80,36 +100,53 @@ class RealAbsurd(
     )
 
     postgresql.withConnection {
-      val row = execute(
+      val statement = createStatement(
         """
         SELECT task_id, run_id, attempt
-        FROM absurd.spawn_task(%s, %s, %s, %s)
+        FROM absurd.spawn_task($1, $2, $3, $4)
         """,
-        actualQueue,
-        taskName,
-        AbsurdJson.encodeToString(taskName.paramsSerializer, params),
-        AbsurdJson.encodeToString(options),
+        actualQueue.value,
+        taskName.value,
+        Json.of(AbsurdJson.encodeToString(taskName.paramsSerializer, params)),
+        Json.of(AbsurdJson.encodeToString(options)),
       )
-
-      val rowsUpdated = row.rowsUpdated.awaitSingle()
-      println(rowsUpdated)
-
-      // TODO: get a single row with task_id, run_id, attempt
-
-      return SpawnResult(
-        taskId = "TODO",
-        runId = "TODO",
-        attempt = 1,
-      )
+      val result = statement.execute().awaitSingle()
+      val map = result.map {
+        SpawnResult(
+          taskId = it.get("task_id", UUID::class.java)!!.toKotlinUuid(),
+          runId = it.get("run_id", String::class.java)!!,
+          attempt = it.get("attempt", Int::class.java)!!,
+        )
+      }
+      return map.awaitSingle()
     }
   }
 
   override suspend fun <P, R> fetchTaskResult(
-    taskId: String,
+    taskId: Uuid,
     taskName: TaskName<P, R>,
     queueName: QueueName?,
-  ): TaskResult<P, R> {
-    TODO("Not yet implemented")
+  ): TaskResult<P, R>? {
+    postgresql.withConnection {
+      val statement = createStatement(
+        """
+        SELECT state, result, failure_reason
+        FROM absurd.get_task_result($1, $2)
+        """,
+        (queueName ?: this@RealAbsurd.queueName).value,
+        taskId.toJavaUuid(),
+      )
+      val result = statement.execute().awaitSingle()
+      val map = result.map {
+        val state = it.get("state")
+        when (state) {
+          "completed" -> TaskResult.Completed<P, R>(it.get("result") as R)
+          "failed" -> TaskResult.Failed<P, R>(it.get("failure_reason") as String)
+          else -> TaskResult.Pending<P, R>()
+        }
+      }
+      return map.awaitFirstOrNull()
+    }
   }
 
   override suspend fun claimTasks(

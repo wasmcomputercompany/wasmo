@@ -1,13 +1,20 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.wasmo.support.absurd
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import okio.utf8Size
 
 interface Absurd {
+  suspend fun createQueue(
+    queueName: QueueName? = null,
+  )
+
   suspend fun <P, R> registerTask(
     name: TaskName<P, R>,
     queueName: QueueName? = null,
@@ -28,10 +35,10 @@ interface Absurd {
   ): SpawnResult
 
   suspend fun <P, R> fetchTaskResult(
-    taskId: String,
+    taskId: Uuid,
     taskName: TaskName<P, R>,
     queueName: QueueName? = null,
-  ): TaskResult<P, R>
+  ): TaskResult<P, R>?
 
   suspend fun claimTasks(
     batchSize: Int = 1,
@@ -81,7 +88,7 @@ interface StepHandle<T> {
 
 class ClaimedTask<P, R>(
   val runId: String,
-  val taskId: String,
+  val taskId: Uuid,
   val attempt: Int,
   val taskName: TaskName<P, R>,
   val params: P,
@@ -93,7 +100,7 @@ class ClaimedTask<P, R>(
 )
 
 data class SpawnResult(
-  val taskId: String,
+  val taskId: Uuid,
   val runId: String,
   val attempt: Int,
 )
@@ -127,8 +134,9 @@ data class QueueName(
     }
   }
 
-  private companion object {
-    const val MAX_LENGTH = 57
+  companion object {
+    private const val MAX_LENGTH = 57
+    val Default = QueueName("default")
   }
 }
 
