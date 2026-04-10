@@ -65,15 +65,12 @@ internal class RealAbsurd(
     if (registration != null) {
       actualQueue = registration.queueName
       require(queueName == null || queueName == registration.queueName) {
-        """Task "$taskName" is registered for queue "$actualQueue" but spawn """ +
-          """requested queue "$queueName""""
+        """Task "$taskName" is registered for queue "$actualQueue" """ +
+          """but spawn requested queue "$queueName""""
       }
     } else {
       actualQueue = queueName
-        ?: error(
-          """Task "$taskName" is not registered. """ +
-            """Provide queue when spawning unregistered tasks.""",
-        )
+        ?: error("""Task "$taskName" is not registered.""")
     }
 
     val effectiveMaxAttempts = maxAttempts

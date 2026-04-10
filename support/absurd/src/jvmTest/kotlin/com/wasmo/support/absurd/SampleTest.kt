@@ -53,6 +53,10 @@ data class ProvisionUserResult(
   val activatedAt: Instant,
 )
 
+/**
+ * This test walks through the Absurd sample from the quick start guide. It's a broad tour of the
+ * features of the system.
+ */
 @OptIn(ExperimentalUuidApi::class)
 class SampleTest {
   @InterceptTest

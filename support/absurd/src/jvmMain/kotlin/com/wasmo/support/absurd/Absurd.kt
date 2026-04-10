@@ -158,6 +158,8 @@ data class QueueName(
     }
   }
 
+  override fun toString() = value
+
   companion object {
     private const val MAX_LENGTH = 57
     val Default = QueueName("default")
@@ -178,7 +180,7 @@ data class TaskName<P : Any, R : Any>(
 }
 
 sealed interface TaskResult<P, R> {
-  class Pending<P, R> : TaskResult<P, R>
+  data class Pending<P, R>(val unused: Unit = Unit) : TaskResult<P, R>
   data class Completed<P, R>(val result: R) : TaskResult<P, R>
   data class Failed<P, R>(
     val message: String,
