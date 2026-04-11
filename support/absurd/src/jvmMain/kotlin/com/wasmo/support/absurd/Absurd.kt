@@ -18,27 +18,17 @@ import okio.utf8Size
 fun Absurd(
   clock: Clock,
   postgresql: Postgresql,
+  registrations: List<TaskRegistration<*, *>>,
   queueName: QueueName = QueueName.Default,
-  defaultMaxAttempts: Int = 5,
 ): Absurd = RealAbsurd(
   clock = clock,
   postgresql = postgresql,
   queueName = queueName,
-  defaultMaxAttempts = defaultMaxAttempts,
+  registrations = registrations,
 )
 
 abstract class Absurd {
-  abstract suspend fun createQueue(
-    queueName: QueueName? = null,
-  )
-
-  abstract suspend fun <P : Any, R : Any> registerTask(
-    name: TaskName<P, R>,
-    queueName: QueueName? = null,
-    defaultMaxAttempts: Int? = null,
-    defaultCancellation: CancellationPolicy? = null,
-    taskHandler: TaskHandler<P, R>,
-  )
+  abstract suspend fun createQueue()
 
   abstract suspend fun <P : Any> spawn(
     taskName: TaskName<P, *>,
@@ -46,7 +36,6 @@ abstract class Absurd {
     maxAttempts: Int? = null,
     retryStrategy: RetryStrategy? = null,
     headers: Headers? = null,
-    queueName: QueueName? = null,
     cancellation: CancellationPolicy? = null,
     idempotencyKey: String? = null,
   ): SpawnResult
@@ -54,7 +43,6 @@ abstract class Absurd {
   abstract suspend fun <P : Any, R : Any> fetchTaskResult(
     taskId: Uuid,
     taskName: TaskName<P, R>,
-    queueName: QueueName? = null,
   ): TaskResult<P, R>?
 
   /**
@@ -84,7 +72,6 @@ interface TaskHandler<P : Any, R : Any> {
   suspend fun handle(params: P): R
 
   abstract class Context {
-    abstract val queueName: QueueName
     abstract val taskId: Uuid
     abstract val taskName: TaskName<*, *>
     abstract val headers: Headers?
@@ -197,6 +184,13 @@ data class TaskName<P : Any, R : Any>(
       TaskName(value, serializer<P>(), serializer<R>())
   }
 }
+
+data class TaskRegistration<P : Any, R : Any>(
+  val taskName: TaskName<P, R>,
+  val taskHandler: TaskHandler<P, R>,
+  val defaultMaxAttempts: Int? = 5,
+  val defaultCancellation: CancellationPolicy? = null,
+)
 
 class TimeoutTaskException(message: String) : CancellationException(message)
 

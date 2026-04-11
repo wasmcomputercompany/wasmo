@@ -69,59 +69,63 @@ class SampleTest {
   fun sample() = runTest {
     val log = Channel<String>(capacity = Int.MAX_VALUE)
 
-    val provisionUser = TaskName<ProvisionUserParams, ProvisionUserResult>("provision-user")
-    tester.absurd.registerTask(
-      name = provisionUser,
-      taskHandler = object : TaskHandler<ProvisionUserParams, ProvisionUserResult> {
-        context(context: TaskHandler.Context)
-        override suspend fun handle(params: ProvisionUserParams): ProvisionUserResult {
-          val user = context.step("create-user-record") {
-            log.send("${context.taskId} creating user record for ${params.userId}")
-            UserRecord(
-              userId = params.userId,
-              email = params.email,
-              createdAt = tester.clock.now(),
-            )
-          }
-
-          // Demo only: fail once after the first checkpoint so the retry
-          // behavior is visible.
-          val outage = context.beginStep<OutageState>("demo-transient-outage")
-          if (!outage.done) {
-            log.send("${context.taskId} simulating a temporary email provider outage")
-            outage.complete(OutageState(simulated = true))
-            throw Exception("temporary email provider outage")
-          }
-
-          val delivery = context.step("send-activation-email") {
-            log.send("${context.taskId} sending activation email to ${user.email}")
-            DeliveryResult(
-              sent = true,
-              provider = "demo-mail",
-              to = user.email,
-            )
-          }
-
-          log.send("${context.taskId} waiting for user-activated:${user.userId}")
-
-          val activation = context.awaitEvent<ActivationEvent>(
-            eventName = "user-activated:${user.userId}",
-            timeout = 3600.seconds,
-          )
-
-          return ProvisionUserResult(
+    val taskHandler = object : TaskHandler<ProvisionUserParams, ProvisionUserResult> {
+      context(context: TaskHandler.Context)
+      override suspend fun handle(params: ProvisionUserParams): ProvisionUserResult {
+        val user = context.step("create-user-record") {
+          log.send("${context.taskId} creating user record for ${params.userId}")
+          UserRecord(
             userId = params.userId,
             email = params.email,
-            delivery = delivery,
-            status = "active",
-            activatedAt = activation.activatedAt,
+            createdAt = tester.clock.now(),
           )
         }
-      },
+
+        // Demo only: fail once after the first checkpoint so the retry
+        // behavior is visible.
+        val outage = context.beginStep<OutageState>("demo-transient-outage")
+        if (!outage.done) {
+          log.send("${context.taskId} simulating a temporary email provider outage")
+          outage.complete(OutageState(simulated = true))
+          throw Exception("temporary email provider outage")
+        }
+
+        val delivery = context.step("send-activation-email") {
+          log.send("${context.taskId} sending activation email to ${user.email}")
+          DeliveryResult(
+            sent = true,
+            provider = "demo-mail",
+            to = user.email,
+          )
+        }
+
+        log.send("${context.taskId} waiting for user-activated:${user.userId}")
+
+        val activation = context.awaitEvent<ActivationEvent>(
+          eventName = "user-activated:${user.userId}",
+          timeout = 3600.seconds,
+        )
+
+        return ProvisionUserResult(
+          userId = params.userId,
+          email = params.email,
+          delivery = delivery,
+          status = "active",
+          activatedAt = activation.activatedAt,
+        )
+      }
+    }
+
+    val taskName = TaskName<ProvisionUserParams, ProvisionUserResult>("provision-user")
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = taskName,
+        taskHandler = taskHandler,
+      ),
     )
 
-    val spawnResult = tester.absurd.spawn(
-      provisionUser,
+    val spawnResult = absurd.spawn(
+      taskName,
       ProvisionUserParams(
         userId = "alice",
         email = "alice@example.com",
@@ -130,44 +134,44 @@ class SampleTest {
 
     // Nothing executes until we call executeBatch().
     assertThat(log.receiveAvailable()).isEmpty()
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))
       .isNotNull()
       .isInstanceOf<TaskResult.Pending<*, *>>()
 
     // Attempt 1 fails due to a synthetic outage.
-    assertThat(tester.absurd.executeBatch(workerId))
+    assertThat(absurd.executeBatch(workerId))
       .isEqualTo(1)
     assertThat(log.receiveAvailable()).containsExactly(
       "${spawnResult.taskId} creating user record for alice",
       "${spawnResult.taskId} simulating a temporary email provider outage",
     )
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))
       .isNotNull()
       .isInstanceOf<TaskResult.Pending<*, *>>()
 
     // Attempt 2 suspends waiting for an event.
-    assertThat(tester.absurd.executeBatch(workerId))
+    assertThat(absurd.executeBatch(workerId))
       .isEqualTo(1)
     assertThat(log.receiveAvailable()).containsExactly(
       "${spawnResult.taskId} sending activation email to alice@example.com",
       "${spawnResult.taskId} waiting for user-activated:alice",
     )
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))
       .isNotNull()
       .isInstanceOf<TaskResult.Pending<*, *>>()
 
     // Attempt 3 completes.
-    tester.absurd.emitEvent(
+    absurd.emitEvent(
       eventName = "user-activated:alice",
       payload = ActivationEvent(
         activatedAt = Instant.parse("2026-04-02T12:00:00Z"),
       ),
     )
-    assertThat(tester.absurd.executeBatch(workerId)).isEqualTo(1)
+    assertThat(absurd.executeBatch(workerId)).isEqualTo(1)
     assertThat(log.receiveAvailable()).containsExactly(
       "${spawnResult.taskId} waiting for user-activated:alice",
     )
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))
       .isEqualTo(
         TaskResult.Completed(
           result = ProvisionUserResult(

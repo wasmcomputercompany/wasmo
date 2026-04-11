@@ -19,8 +19,16 @@ class AbsurdTester : CoroutineTestInterceptor {
     get() = run!!.clock
   val postgresql: Postgresql
     get() = run!!.postgresql
-  val absurd: Absurd
-    get() = run!!.absurd
+
+  suspend fun absurd(vararg registrations: TaskRegistration<*, *>): Absurd {
+    val result = Absurd(
+      clock = clock,
+      postgresql = postgresql,
+      registrations = registrations.toList(),
+    )
+    result.createQueue()
+    return result
+  }
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     val configuration = PostgresqlConnectionConfiguration.builder()
@@ -57,13 +65,9 @@ class AbsurdTester : CoroutineTestInterceptor {
     val clock = FakeClock(postgresql)
     clock.flushToPostgresql()
 
-    val absurd = Absurd(clock, postgresql)
-    absurd.createQueue()
-
     run = Run(
       clock = clock,
       postgresql = postgresql,
-      absurd = absurd,
     )
     try {
       testFunction.invoke()
@@ -75,7 +79,6 @@ class AbsurdTester : CoroutineTestInterceptor {
   private class Run(
     val clock: FakeClock,
     val postgresql: Postgresql,
-    val absurd: Absurd,
   )
 
   class FakeClock(

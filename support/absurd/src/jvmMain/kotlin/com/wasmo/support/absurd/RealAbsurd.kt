@@ -23,33 +23,17 @@ internal class RealAbsurd(
   private val clock: Clock,
   private val postgresql: Postgresql,
   private val queueName: QueueName = QueueName.Default,
-  private val defaultMaxAttempts: Int = 5,
+  registrations: List<TaskRegistration<*, *>>,
 ) : Absurd() {
-  private val registry = mutableMapOf<TaskName<*, *>, TaskRegistration<*, *>>()
+  private val registry = registrations.associateBy { it.taskName }
 
-  override suspend fun createQueue(queueName: QueueName?) {
+  override suspend fun createQueue() {
     postgresql.withConnection {
       execute(
         """SELECT absurd.create_queue($1)""",
-        (queueName ?: this@RealAbsurd.queueName).value,
+        queueName.value,
       )
     }
-  }
-
-  override suspend fun <P : Any, R : Any> registerTask(
-    name: TaskName<P, R>,
-    queueName: QueueName?,
-    defaultMaxAttempts: Int?,
-    defaultCancellation: CancellationPolicy?,
-    taskHandler: TaskHandler<P, R>,
-  ) {
-    registry[name] = TaskRegistration(
-      name = name,
-      queueName = queueName ?: this.queueName,
-      defaultMaxAttempts = defaultMaxAttempts ?: this.defaultMaxAttempts,
-      defaultCancellation = defaultCancellation,
-      taskHandler = taskHandler,
-    )
   }
 
   override suspend fun <P : Any> spawn(
@@ -58,36 +42,17 @@ internal class RealAbsurd(
     maxAttempts: Int?,
     retryStrategy: RetryStrategy?,
     headers: Headers?,
-    queueName: QueueName?,
     cancellation: CancellationPolicy?,
     idempotencyKey: String?,
   ): SpawnResult {
     val registration = registry[taskName]
-    val actualQueue: QueueName
-
-    if (registration != null) {
-      actualQueue = registration.queueName
-      require(queueName == null || queueName == registration.queueName) {
-        """Task "$taskName" is registered for queue "$actualQueue" """ +
-          """but spawn requested queue "$queueName""""
-      }
-    } else {
-      actualQueue = queueName
-        ?: error("""Task "$taskName" is not registered.""")
-    }
-
-    val effectiveMaxAttempts = maxAttempts
-      ?: registration?.defaultMaxAttempts
-      ?: defaultMaxAttempts
-
-    val effectiveCancellation = cancellation
-      ?: registration?.defaultCancellation
+      ?: error("""Task "$taskName" is not registered.""")
 
     val options = SpawnOptionsJson(
-      max_attempts = effectiveMaxAttempts,
+      max_attempts = maxAttempts ?: registration.defaultMaxAttempts,
       retry_strategy = retryStrategy,
       headers = headers,
-      cancellation = effectiveCancellation,
+      cancellation = cancellation ?: registration.defaultCancellation,
       idempotency_key = idempotencyKey,
     )
 
@@ -97,7 +62,7 @@ internal class RealAbsurd(
         SELECT task_id, run_id, attempt
         FROM absurd.spawn_task($1, $2, $3, $4)
         """,
-        actualQueue.value,
+        queueName.value,
         taskName.value,
         Json.of(KotlinJson.encodeToString(taskName.paramsSerializer, params)),
         Json.of(KotlinJson.encodeToString(options)),
@@ -115,7 +80,6 @@ internal class RealAbsurd(
   override suspend fun <P : Any, R : Any> fetchTaskResult(
     taskId: Uuid,
     taskName: TaskName<P, R>,
-    queueName: QueueName?,
   ): TaskResult<P, R>? {
     postgresql.withConnection {
       val rows: List<TaskResult<P, R>> = executeQuery(
@@ -123,7 +87,7 @@ internal class RealAbsurd(
         SELECT state, result, failure_reason
         FROM absurd.get_task_result($1, $2)
         """,
-        (queueName ?: this@RealAbsurd.queueName).value,
+        queueName.value,
         taskId.toJavaUuid(),
       ) {
         val state = get("state")
@@ -182,7 +146,6 @@ internal class RealAbsurd(
     }
 
     val context = createTaskContext(
-      queueName = queueName,
       task = task,
       claimTimeout = claimTimeout,
     )
@@ -192,7 +155,6 @@ internal class RealAbsurd(
         registration.taskHandler.handle(task.params)
       }
       completeTaskRun(
-        queueName = queueName,
         claimedTask = task,
         result = result,
       )
@@ -208,7 +170,6 @@ internal class RealAbsurd(
   }
 
   private suspend fun <P : Any, R : Any> createTaskContext(
-    queueName: QueueName,
     task: ClaimedTask<P, R>,
     claimTimeout: Duration,
   ): TaskHandler.Context {
@@ -225,7 +186,6 @@ internal class RealAbsurd(
         string("checkpoint_name") to rawJson("state")
       }
       RealTaskContext(
-        queueName = queueName,
         task = task,
         checkpointCache = rows.toMap().toMutableMap(),
         claimTimeout = claimTimeout,
@@ -272,7 +232,6 @@ internal class RealAbsurd(
   )
 
   private suspend fun <P : Any, R : Any> completeTaskRun(
-    queueName: QueueName,
     claimedTask: ClaimedTask<P, R>,
     result: R,
   ) {
@@ -320,7 +279,6 @@ internal class RealAbsurd(
   }
 
   private inner class RealTaskContext<P : Any, R : Any>(
-    override val queueName: QueueName,
     private val task: ClaimedTask<P, R>,
     private val checkpointCache: MutableMap<String, Json>,
     private val claimTimeout: Duration,
@@ -562,14 +520,6 @@ internal class RealAbsurd(
 private class CanceledTaskException : CancellationException()
 private class SuspendTaskException : CancellationException()
 private class FailedTaskException : CancellationException()
-
-internal data class TaskRegistration<P : Any, R : Any>(
-  val name: TaskName<P, R>,
-  val queueName: QueueName,
-  val defaultMaxAttempts: Int?,
-  val defaultCancellation: CancellationPolicy?,
-  val taskHandler: TaskHandler<P, R>,
-)
 
 internal class AwaitEventResult(
   val shouldSuspend: Boolean,

@@ -20,18 +20,20 @@ class AbsurdTest {
   @Test
   fun `happy path`() = runTest {
     val sandwichMaker = SandwichMaker()
-    tester.absurd.registerTask(
-      name = SandwichMaker.TaskName,
-      taskHandler = sandwichMaker,
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+      ),
     )
 
-    val spawnResult = tester.absurd.spawn(
+    val spawnResult = absurd.spawn(
       taskName = SandwichMaker.TaskName,
       params = MenuItem("PBJ"),
     )
 
     assertThat(spawnResult.attempt).isEqualTo(1)
-    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
 
     assertThat(sandwichMaker.log.receiveAvailable())
       .containsExactly(
@@ -39,7 +41,7 @@ class AbsurdTest {
         "taking toppings: [peanut butter, jam]",
       )
 
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
       .isEqualTo(
         TaskResult.Completed(
           Sandwich(
@@ -53,8 +55,9 @@ class AbsurdTest {
 
   @Test
   fun `spawn unregistered task`() = runTest {
+    val absurd = tester.absurd()
     val e = assertFailsWith<IllegalStateException> {
-      tester.absurd.spawn(
+      absurd.spawn(
         taskName = SandwichMaker.TaskName,
         params = MenuItem("PBJ"),
       )
@@ -63,39 +66,20 @@ class AbsurdTest {
   }
 
   @Test
-  fun `spawn queue does not match tasks registered queue`() = runTest {
-    val kitchenQueue = QueueName("kitchen")
-    val sandwichMaker = SandwichMaker()
-    tester.absurd.registerTask(
-      name = SandwichMaker.TaskName,
-      taskHandler = sandwichMaker,
-    )
-    val e = assertFailsWith<IllegalArgumentException> {
-      tester.absurd.spawn(
-        taskName = SandwichMaker.TaskName,
-        params = MenuItem("PBJ"),
-        queueName = kitchenQueue,
-      )
-    }
-    assertThat(e).hasMessage(
-      """Task "SandwichMaker" is registered for queue "default" """ +
-        """but spawn requested queue "kitchen"""",
-    )
-  }
-
-  @Test
   fun `execute unregistered task`() = runTest {
     val sandwichMaker = SandwichMaker()
-    tester.absurd.registerTask(
-      name = SandwichMaker.TaskName,
-      taskHandler = sandwichMaker,
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+      ),
     )
-    tester.absurd.spawn(
+    absurd.spawn(
       taskName = SandwichMaker.TaskName,
       params = MenuItem("PBJ"),
     )
 
-    val anotherAbsurd = Absurd(tester.clock, tester.postgresql)
+    val anotherAbsurd = tester.absurd()
     val e = assertFailsWith<IllegalStateException> {
       anotherAbsurd.executeBatch("sandwich-artist-1")
     }
@@ -106,12 +90,14 @@ class AbsurdTest {
   fun `fail then succeed`() = runTest {
     val sandwichMaker = SandwichMaker()
 
-    tester.absurd.registerTask(
-      name = SandwichMaker.TaskName,
-      taskHandler = sandwichMaker,
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+      ),
     )
 
-    val spawnResult = tester.absurd.spawn(
+    val spawnResult = absurd.spawn(
       taskName = SandwichMaker.TaskName,
       params = MenuItem("PBJ"),
     )
@@ -119,23 +105,23 @@ class AbsurdTest {
 
     // Fail the first attempt.
     sandwichMaker.availableToppings.remove("jam")
-    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
     assertThat(sandwichMaker.log.receiveAvailable())
       .containsExactly(
         "taking bread: white",
         "taking toppings: [peanut butter, jam]",
       )
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
       .isEqualTo(TaskResult.Pending())
 
     // Succeed the 2nd attempt.
     sandwichMaker.availableToppings.add("jam")
-    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
     assertThat(sandwichMaker.log.receiveAvailable())
       .containsExactly(
         "taking toppings: [peanut butter, jam]",
       )
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
       .isEqualTo(
         TaskResult.Completed(
           Sandwich(
@@ -151,12 +137,14 @@ class AbsurdTest {
   fun `task sleeps`() = runTest {
     val sandwichMaker = SandwichMaker()
 
-    tester.absurd.registerTask(
-      name = SandwichMaker.TaskName,
-      taskHandler = sandwichMaker,
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+      ),
     )
 
-    val spawnResult = tester.absurd.spawn(
+    val spawnResult = absurd.spawn(
       taskName = SandwichMaker.TaskName,
       params = MenuItem("toasted PBJ"),
     )
@@ -164,36 +152,36 @@ class AbsurdTest {
 
     // Succeed until the toasting step.
     sandwichMaker.availableToppings.add("jam")
-    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
     assertThat(sandwichMaker.log.receiveAvailable())
       .containsExactly(
         "taking bread: white",
         "taking toppings: [peanut butter, jam]",
         "toasting for 30 seconds",
       )
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
       .isEqualTo(TaskResult.Pending())
 
     // Nothing to do immediately because the toast isn't ready.
     // TODO: Absurd's SQL doesn't honor the fake clock when selecting tasks, so this batch contains
     //   one more element than it needs to.
     tester.clock.sleep(29.seconds)
-    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(1) // Why not 0?
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1) // Why not 0?
     assertThat(sandwichMaker.log.receiveAvailable())
       .containsExactly(
         "toasting for 30 seconds",
       )
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
       .isEqualTo(TaskResult.Pending())
 
     // One more second and the toast is ready.
     tester.clock.sleep(1.seconds)
-    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
     assertThat(sandwichMaker.log.receiveAvailable())
       .containsExactly(
         "toasting for 30 seconds",
       )
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
       .isEqualTo(
         TaskResult.Completed(
           Sandwich(
@@ -209,13 +197,15 @@ class AbsurdTest {
   fun `fail without retries`() = runTest {
     val sandwichMaker = SandwichMaker()
 
-    tester.absurd.registerTask(
-      name = SandwichMaker.TaskName,
-      taskHandler = sandwichMaker,
-      defaultMaxAttempts = 1,
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+        defaultMaxAttempts = 1,
+      ),
     )
 
-    val spawnResult = tester.absurd.spawn(
+    val spawnResult = absurd.spawn(
       taskName = SandwichMaker.TaskName,
       params = MenuItem("PBJ"),
     )
@@ -223,20 +213,20 @@ class AbsurdTest {
 
     // Fail the first attempt.
     sandwichMaker.availableToppings.remove("jam")
-    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
     assertThat(sandwichMaker.log.receiveAvailable())
       .containsExactly(
         "taking bread: white",
         "taking toppings: [peanut butter, jam]",
       )
-    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
       .isFailure(
         message = "no such topping: jam",
         throwableClass = IllegalStateException::class,
       )
 
     // Subsequent attempts do nothing.
-    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(0)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(0)
   }
 }
 
