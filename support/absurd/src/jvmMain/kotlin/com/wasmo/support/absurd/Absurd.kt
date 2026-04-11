@@ -68,13 +68,13 @@ interface Absurd {
 }
 
 interface TaskHandler<P : Any, R : Any> {
-  context(context: Context<P, R>)
+  context(context: Context)
   suspend fun handle(params: P): R
 
-  abstract class Context<P : Any, R : Any> {
+  abstract class Context {
     abstract val queueName: QueueName
     abstract val taskId: Uuid
-    abstract val taskName: TaskName<P, R>
+    abstract val taskName: TaskName<*, *>
     abstract val headers: Headers?
 
     abstract suspend fun <T> step(
@@ -128,22 +128,9 @@ interface StepHandle<T> {
   suspend fun complete(result: T): T
 }
 
-data class ClaimedTask<P : Any, R : Any>(
-  val runId: Uuid,
-  val taskId: Uuid,
-  val attempt: Int,
-  val taskName: TaskName<P, R>,
-  val params: P,
-  val retryStrategy: RetryStrategy?,
-  val maxAttempts: Int?,
-  val headers: Headers?,
-  val wakeEvent: String?,
-  val eventPayload: Any?,
-)
-
 data class SpawnResult(
   val taskId: Uuid,
-  val runId: String,
+  val runId: Uuid,
   val attempt: Int,
 )
 

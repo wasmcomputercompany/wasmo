@@ -104,7 +104,7 @@ internal class RealAbsurd(
       ) {
         SpawnResult(
           taskId = get("task_id", UUID::class.java)!!.toKotlinUuid(),
-          runId = get("run_id", String::class.java)!!,
+          runId = get("run_id", UUID::class.java)!!.toKotlinUuid(),
           attempt = get("attempt", Int::class.java)!!,
         )
       }
@@ -211,7 +211,7 @@ internal class RealAbsurd(
     queueName: QueueName,
     task: ClaimedTask<P, R>,
     claimTimeout: Duration,
-  ): TaskHandler.Context<P, R> {
+  ): TaskHandler.Context {
     return postgresql.withConnection {
       val rows = executeQuery(
         """
@@ -307,7 +307,7 @@ internal class RealAbsurd(
     private val task: ClaimedTask<P, R>,
     private val checkpointCache: MutableMap<String, Json>,
     private val claimTimeout: Duration,
-  ) : TaskHandler.Context<P, R>() {
+  ) : TaskHandler.Context() {
     private val stepNameCounter = mutableMapOf<String, Int>()
 
     override val taskId: Uuid
@@ -504,6 +504,19 @@ internal data class TaskRegistration<P : Any, R : Any>(
   val defaultMaxAttempts: Int?,
   val defaultCancellation: CancellationPolicy?,
   val taskHandler: TaskHandler<P, R>,
+)
+
+data class ClaimedTask<P : Any, R : Any>(
+  val runId: Uuid,
+  val taskId: Uuid,
+  val attempt: Int,
+  val taskName: TaskName<P, R>,
+  val params: P,
+  val retryStrategy: RetryStrategy?,
+  val maxAttempts: Int?,
+  val headers: Headers?,
+  val wakeEvent: String?,
+  val eventPayload: Any?,
 )
 
 @Serializable

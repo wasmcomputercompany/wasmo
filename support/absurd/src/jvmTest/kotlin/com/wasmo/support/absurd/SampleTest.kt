@@ -72,7 +72,7 @@ class SampleTest {
     tester.absurd.registerTask(
       name = provisionUser,
       taskHandler = object : TaskHandler<ProvisionUserParams, ProvisionUserResult> {
-        context(context: TaskHandler.Context<ProvisionUserParams, ProvisionUserResult>)
+        context(context: TaskHandler.Context)
         override suspend fun handle(params: ProvisionUserParams): ProvisionUserResult {
           val user = context.step("create-user-record") {
             log.send("${context.taskId} creating user record for ${params.userId}")

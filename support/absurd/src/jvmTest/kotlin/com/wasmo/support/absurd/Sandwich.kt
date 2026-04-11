@@ -29,7 +29,7 @@ class SandwichMaker : TaskHandler<MenuItem, Sandwich> {
 
   val log = Channel<String>(capacity = Int.MAX_VALUE)
 
-  context(context: TaskHandler.Context<MenuItem, Sandwich>)
+  context(context: TaskHandler.Context)
   override suspend fun handle(params: MenuItem): Sandwich {
     val bread = context.step("select-bread") {
       val selected = when {
