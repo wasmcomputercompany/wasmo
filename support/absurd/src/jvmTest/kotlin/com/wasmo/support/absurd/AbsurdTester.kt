@@ -6,6 +6,7 @@ import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
 import io.r2dbc.postgresql.client.SSLMode
 import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.Instant
 import kotlinx.coroutines.reactive.awaitLast
 import okio.FileSystem
@@ -53,11 +54,14 @@ class AbsurdTester : CoroutineTestInterceptor {
       batch.execute().awaitLast()
     }
 
-    val absurd = Absurd(postgresql)
+    val clock = FakeClock(postgresql)
+    clock.flushToPostgresql()
+
+    val absurd = Absurd(clock, postgresql)
     absurd.createQueue()
 
     run = Run(
-      clock = FakeClock(),
+      clock = clock,
       postgresql = postgresql,
       absurd = absurd,
     )
@@ -74,8 +78,29 @@ class AbsurdTester : CoroutineTestInterceptor {
     val absurd: Absurd,
   )
 
-  class FakeClock : Clock {
-    var now = Instant.parse("2025-10-20T21:30:50Z")
+  class FakeClock(
+    private val postgresql: Postgresql,
+  ) : Clock {
+    private var now = Instant.parse("2025-10-20T00:00:00Z")
+
     override fun now() = now
+
+    suspend fun sleep(duration: Duration) {
+      now += duration
+      flushToPostgresql()
+    }
+
+    /** `absurd.sql` supports faking out the clock for testing. */
+    suspend fun flushToPostgresql() {
+      postgresql.withConnection {
+        val rowCount = execute(
+          "SELECT set_config($1, $2, $3)",
+          "absurd.fake_now",
+          now.toString(),
+          false,
+        )
+        println(rowCount)
+      }
+    }
   }
 }

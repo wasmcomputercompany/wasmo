@@ -7,6 +7,7 @@ import io.r2dbc.postgresql.codec.Json
 import io.r2dbc.spi.Readable
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
 import kotlin.time.toJavaInstant
@@ -16,8 +17,10 @@ import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
 
 internal class RealAbsurd(
+  private val clock: Clock,
   private val postgresql: Postgresql,
   private val queueName: QueueName = QueueName.Default,
   private val defaultMaxAttempts: Int = 5,
@@ -416,6 +419,49 @@ internal class RealAbsurd(
       timeout: Duration,
     ): T {
       return null as T // TODO
+    }
+
+    override suspend fun sleepFor(stepName: String, duration: Duration) {
+      val now = clock.now()
+      sleepUntil(stepName, now, now + duration)
+    }
+
+    override suspend fun sleepUntil(stepName: String, wakeAt: Instant) {
+      sleepUntil(stepName, clock.now(), wakeAt)
+    }
+
+    private suspend fun sleepUntil(
+      stepName: String,
+      now: Instant,
+      wakeAt: Instant,
+    ) {
+      val checkpointName = takeCheckpointName(stepName)
+      val state = lookupCheckpoint(checkpointName)
+
+      val actualWakeAt = when {
+        state === CHECKPOINT_NOT_FOUND -> {
+          persistCheckpoint(checkpointName, Instant.serializer(), wakeAt)
+          wakeAt
+        }
+
+        else -> KotlinJson.decodeFromString<Instant>(state.asString())
+      }
+
+      if (now < actualWakeAt) {
+        scheduleRun(actualWakeAt)
+        throw SuspendTaskException()
+      }
+    }
+
+    private suspend fun scheduleRun(wakeAt: Instant) {
+      postgresql.withConnection {
+        execute(
+          "SELECT absurd.schedule_run($1, $2, $3)",
+          queueName.value,
+          task.runId.toJavaUuid(),
+          wakeAt.toJavaInstant(),
+        )
+      }
     }
 
     inner class RealStepHandle<T>(

@@ -1,5 +1,6 @@
 package com.wasmo.support.absurd
 
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
 import kotlinx.serialization.Serializable
 
@@ -53,11 +54,13 @@ class SandwichMaker : TaskHandler<MenuItem, Sandwich> {
       return@step selected
     }
 
-    val toasted = context.step("toast") {
-      if ("toasted" !in params.name) return@step false
-      log.send("toasting")
-      // TODO: sleep
-      true
+    val toasted = when {
+      "toasted" in params.name -> {
+        log.send("toasting for 30 seconds")
+        context.sleepFor("toast", 30.seconds)
+        true
+      }
+      else -> false
     }
 
     return Sandwich(

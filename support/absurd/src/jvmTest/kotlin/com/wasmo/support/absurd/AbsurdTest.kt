@@ -9,6 +9,7 @@ import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.ExperimentalUuidApi
 import kotlinx.coroutines.test.runTest
 
@@ -94,7 +95,7 @@ class AbsurdTest {
       params = MenuItem("PBJ"),
     )
 
-    val anotherAbsurd = Absurd(tester.postgresql)
+    val anotherAbsurd = Absurd(tester.clock, tester.postgresql)
     val e = assertFailsWith<IllegalStateException> {
       anotherAbsurd.executeBatch("sandwich-artist-1")
     }
@@ -141,6 +142,64 @@ class AbsurdTest {
             bread = "white",
             toppings = listOf("peanut butter", "jam"),
             toasted = false,
+          ),
+        ),
+      )
+  }
+
+  @Test
+  fun `task sleeps`() = runTest {
+    val sandwichMaker = SandwichMaker()
+
+    tester.absurd.registerTask(
+      name = SandwichMaker.TaskName,
+      taskHandler = sandwichMaker,
+    )
+
+    val spawnResult = tester.absurd.spawn(
+      taskName = SandwichMaker.TaskName,
+      params = MenuItem("toasted PBJ"),
+    )
+    assertThat(spawnResult.attempt).isEqualTo(1)
+
+    // Succeed until the toasting step.
+    sandwichMaker.availableToppings.add("jam")
+    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    assertThat(sandwichMaker.log.receiveAvailable())
+      .containsExactly(
+        "taking bread: white",
+        "taking toppings: [peanut butter, jam]",
+        "toasting for 30 seconds",
+      )
+    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isEqualTo(TaskResult.Pending())
+
+    // Nothing to do immediately because the toast isn't ready.
+    // TODO: Absurd's SQL doesn't honor the fake clock when selecting tasks, so this batch contains
+    //   one more element than it needs to.
+    tester.clock.sleep(29.seconds)
+    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(1) // Why not 0?
+    assertThat(sandwichMaker.log.receiveAvailable())
+      .containsExactly(
+        "toasting for 30 seconds",
+      )
+    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isEqualTo(TaskResult.Pending())
+
+    // One more second and the toast is ready.
+    tester.clock.sleep(1.seconds)
+    assertThat(tester.absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    assertThat(sandwichMaker.log.receiveAvailable())
+      .containsExactly(
+        "toasting for 30 seconds",
+      )
+    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isEqualTo(
+        TaskResult.Completed(
+          Sandwich(
+            bread = "white",
+            toppings = listOf("peanut butter", "jam"),
+            toasted = true,
           ),
         ),
       )

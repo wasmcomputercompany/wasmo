@@ -3,8 +3,10 @@
 package com.wasmo.support.absurd
 
 import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.serialization.KSerializer
@@ -13,10 +15,16 @@ import kotlinx.serialization.serializer
 import okio.utf8Size
 
 fun Absurd(
+  clock: Clock,
   postgresql: Postgresql,
   queueName: QueueName = QueueName.Default,
   defaultMaxAttempts: Int = 5,
-): Absurd = RealAbsurd(postgresql, queueName, defaultMaxAttempts)
+): Absurd = RealAbsurd(
+  clock = clock,
+  postgresql = postgresql,
+  queueName = queueName,
+  defaultMaxAttempts = defaultMaxAttempts,
+)
 
 interface Absurd {
   suspend fun createQueue(
@@ -99,6 +107,16 @@ interface TaskHandler<P : Any, R : Any> {
       event: String,
       timeout: Duration,
     ): T = awaitEvent(event, serializer<T>(), timeout)
+
+    abstract suspend fun sleepFor(
+      stepName: String,
+      duration: Duration,
+    )
+
+    abstract suspend fun sleepUntil(
+      stepName: String,
+      wakeAt: Instant,
+    )
   }
 }
 
