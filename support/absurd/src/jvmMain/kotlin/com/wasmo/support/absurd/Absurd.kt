@@ -3,6 +3,7 @@
 package com.wasmo.support.absurd
 
 import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -26,12 +27,12 @@ fun Absurd(
   defaultMaxAttempts = defaultMaxAttempts,
 )
 
-interface Absurd {
-  suspend fun createQueue(
+abstract class Absurd {
+  abstract suspend fun createQueue(
     queueName: QueueName? = null,
   )
 
-  suspend fun <P : Any, R : Any> registerTask(
+  abstract suspend fun <P : Any, R : Any> registerTask(
     name: TaskName<P, R>,
     queueName: QueueName? = null,
     defaultMaxAttempts: Int? = null,
@@ -39,7 +40,7 @@ interface Absurd {
     taskHandler: TaskHandler<P, R>,
   )
 
-  suspend fun <P : Any> spawn(
+  abstract suspend fun <P : Any> spawn(
     taskName: TaskName<P, *>,
     params: P,
     maxAttempts: Int? = null,
@@ -50,7 +51,7 @@ interface Absurd {
     idempotencyKey: String? = null,
   ): SpawnResult
 
-  suspend fun <P : Any, R : Any> fetchTaskResult(
+  abstract suspend fun <P : Any, R : Any> fetchTaskResult(
     taskId: Uuid,
     taskName: TaskName<P, R>,
     queueName: QueueName? = null,
@@ -60,11 +61,22 @@ interface Absurd {
    * Returns the number of tasks executed. If this is lower than [batchSize], then fewer tasks
    * were eligible to be claimed.
    */
-  suspend fun executeBatch(
+  abstract suspend fun executeBatch(
     workerId: String,
     claimTimeout: Duration = 120.seconds,
     batchSize: Int = 1,
   ): Int
+
+  abstract suspend fun <T> emitEvent(
+    eventName: String,
+    serializer: KSerializer<T>,
+    payload: T,
+  )
+
+  suspend inline fun <reified T> emitEvent(
+    eventName: String,
+    payload: T,
+  ) = emitEvent(eventName, serializer<T>(), payload)
 }
 
 interface TaskHandler<P : Any, R : Any> {
@@ -98,15 +110,17 @@ interface TaskHandler<P : Any, R : Any> {
     ): StepHandle<T> = beginStep(name, serializer<T>())
 
     abstract suspend fun <T> awaitEvent(
-      event: String,
+      eventName: String,
       serializer: KSerializer<T>,
-      timeout: Duration,
+      stepName: String = "\$awaitEvent:$eventName",
+      timeout: Duration? = null,
     ): T
 
     suspend inline fun <reified T> awaitEvent(
-      event: String,
-      timeout: Duration,
-    ): T = awaitEvent(event, serializer<T>(), timeout)
+      eventName: String,
+      stepName: String = "\$awaitEvent:$eventName",
+      timeout: Duration? = null,
+    ): T = awaitEvent(eventName, serializer<T>(), stepName, timeout)
 
     abstract suspend fun sleepFor(
       stepName: String,
@@ -183,6 +197,8 @@ data class TaskName<P : Any, R : Any>(
       TaskName(value, serializer<P>(), serializer<R>())
   }
 }
+
+class TimeoutTaskException(message: String) : CancellationException(message)
 
 sealed interface TaskResult<P, R> {
   data class Pending<P, R>(val unused: Unit = Unit) : TaskResult<P, R>

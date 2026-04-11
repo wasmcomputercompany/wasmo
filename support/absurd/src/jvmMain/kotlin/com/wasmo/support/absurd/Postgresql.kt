@@ -207,12 +207,33 @@ internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, rei
   rows(rowMapper)
 }
 
+internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5, R : Any> Connection.executeQuery(
+  sql: String,
+  p0: P0,
+  p1: P1,
+  p2: P2,
+  p3: P3,
+  p4: P4,
+  p5: P5,
+  noinline rowMapper: Readable.() -> R,
+): List<R> = createStatement(sql).run {
+  bindNullable(0, p0)
+  bindNullable(1, p1)
+  bindNullable(2, p2)
+  bindNullable(3, p3)
+  bindNullable(4, p4)
+  bindNullable(5, p5)
+  rows(rowMapper)
+}
+
 @PublishedApi
 internal val KotlinJson = Json {
   ignoreUnknownKeys = true
 }
 
 internal fun Readable.uuid(name: String): Uuid = get(name, UUID::class.java)!!.toKotlinUuid()
+
+internal fun Readable.boolean(name: String): Boolean = get(name, Boolean::class.java)!!
 
 internal fun Readable.int(name: String): Int = get(name, Int::class.java)!!
 

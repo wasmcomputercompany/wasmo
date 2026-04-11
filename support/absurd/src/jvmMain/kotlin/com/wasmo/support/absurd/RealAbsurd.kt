@@ -24,7 +24,7 @@ internal class RealAbsurd(
   private val postgresql: Postgresql,
   private val queueName: QueueName = QueueName.Default,
   private val defaultMaxAttempts: Int = 5,
-) : Absurd {
+) : Absurd() {
   private val registry = mutableMapOf<TaskName<*, *>, TaskRegistration<*, *>>()
 
   override suspend fun createQueue(queueName: QueueName?) {
@@ -302,6 +302,23 @@ internal class RealAbsurd(
     }
   }
 
+  override suspend fun <T> emitEvent(
+    eventName: String,
+    serializer: KSerializer<T>,
+    payload: T,
+  ) {
+    require(eventName.isNotEmpty()) { "eventName must be a non-empty string" }
+
+    postgresql.withConnection {
+      execute(
+        "SELECT absurd.emit_event($1, $2, $3)",
+        queueName.value,
+        eventName,
+        Json.of(KotlinJson.encodeToString(serializer, payload)),
+      )
+    }
+  }
+
   private inner class RealTaskContext<P : Any, R : Any>(
     override val queueName: QueueName,
     private val task: ClaimedTask<P, R>,
@@ -414,11 +431,59 @@ internal class RealAbsurd(
     }
 
     override suspend fun <T> awaitEvent(
-      event: String,
+      eventName: String,
       serializer: KSerializer<T>,
-      timeout: Duration,
+      stepName: String,
+      timeout: Duration?,
     ): T {
-      return null as T // TODO
+      val checkpointName = takeCheckpointName(stepName)
+      val cached = lookupCheckpoint(checkpointName)
+
+      if (cached !== CHECKPOINT_NOT_FOUND) {
+        return KotlinJson.decodeFromString(serializer, cached.asString())
+      }
+
+      if (task.wakeEvent == eventName && task.eventPayload == null) {
+        task.wakeEvent = null
+        task.eventPayload = null
+        throw TimeoutTaskException("Timed out waiting for event $eventName")
+      }
+
+      val rows = try {
+        postgresql.withConnection {
+          executeQuery(
+            """
+            SELECT should_suspend, payload
+            FROM absurd.await_event($1, $2, $3, $4, $5, $6)
+            """,
+            queueName.value,
+            taskId.toJavaUuid(),
+            task.runId.toJavaUuid(),
+            checkpointName,
+            eventName,
+            timeout?.inWholeSeconds?.toInt(),
+          ) {
+            AwaitEventResult(
+              shouldSuspend = boolean("should_suspend"),
+              payload = rawJson("payload"),
+            )
+          }
+        }
+      } catch (e: Exception) {
+        // TODO: raise task state exception
+        throw e
+      }
+
+      val result = rows.singleOrNull()
+        ?: error("Failed to await event")
+
+      if (!result.shouldSuspend) {
+        checkpointCache[checkpointName] = result.payload
+        task.eventPayload = null
+        return KotlinJson.decodeFromString(serializer, result.payload.asString())
+      }
+
+      throw SuspendTaskException()
     }
 
     override suspend fun sleepFor(stepName: String, duration: Duration) {
@@ -506,7 +571,12 @@ internal data class TaskRegistration<P : Any, R : Any>(
   val taskHandler: TaskHandler<P, R>,
 )
 
-data class ClaimedTask<P : Any, R : Any>(
+internal class AwaitEventResult(
+  val shouldSuspend: Boolean,
+  val payload: Json,
+)
+
+internal class ClaimedTask<P : Any, R : Any>(
   val runId: Uuid,
   val taskId: Uuid,
   val attempt: Int,
@@ -515,8 +585,8 @@ data class ClaimedTask<P : Any, R : Any>(
   val retryStrategy: RetryStrategy?,
   val maxAttempts: Int?,
   val headers: Headers?,
-  val wakeEvent: String?,
-  val eventPayload: Any?,
+  var wakeEvent: String?,
+  var eventPayload: Any?,
 )
 
 @Serializable

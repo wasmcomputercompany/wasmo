@@ -2,10 +2,11 @@ package com.wasmo.support.absurd
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat
+import assertk.assertions.containsExactly
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
-import assertk.assertions.isNull
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -103,11 +104,10 @@ class SampleTest {
 
           log.send("${context.taskId} waiting for user-activated:${user.userId}")
 
-          // TODO: actually await event
-          val activation = context.awaitEvent<ActivationEvent?>(
-            event = "user-activated:${user.userId}",
+          val activation = context.awaitEvent<ActivationEvent>(
+            eventName = "user-activated:${user.userId}",
             timeout = 3600.seconds,
-          ) ?: ActivationEvent(tester.clock.now())
+          )
 
           return ProvisionUserResult(
             userId = params.userId,
@@ -128,36 +128,45 @@ class SampleTest {
       ),
     )
 
+    // Nothing executes until we call executeBatch().
+    assertThat(log.receiveAvailable()).isEmpty()
     assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
       .isNotNull()
       .isInstanceOf<TaskResult.Pending<*, *>>()
 
-    assertThat(log.tryReceive().getOrNull()).isNull()
-
-    val batch1TaskCount = tester.absurd.executeBatch(
-      workerId = workerId,
+    // Attempt 1 fails due to a synthetic outage.
+    assertThat(tester.absurd.executeBatch(workerId))
+      .isEqualTo(1)
+    assertThat(log.receiveAvailable()).containsExactly(
+      "${spawnResult.taskId} creating user record for alice",
+      "${spawnResult.taskId} simulating a temporary email provider outage",
     )
-    assertThat(batch1TaskCount).isEqualTo(1)
-    assertThat(log.receive())
-      .isEqualTo("${spawnResult.taskId} creating user record for alice")
-    assertThat(log.receive())
-      .isEqualTo("${spawnResult.taskId} simulating a temporary email provider outage")
-    assertThat(log.tryReceive().getOrNull()).isNull()
-
     assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
       .isNotNull()
       .isInstanceOf<TaskResult.Pending<*, *>>()
 
-    val batch2TaskCount = tester.absurd.executeBatch(
-      workerId = workerId,
+    // Attempt 2 suspends waiting for an event.
+    assertThat(tester.absurd.executeBatch(workerId))
+      .isEqualTo(1)
+    assertThat(log.receiveAvailable()).containsExactly(
+      "${spawnResult.taskId} sending activation email to alice@example.com",
+      "${spawnResult.taskId} waiting for user-activated:alice",
     )
-    assertThat(batch2TaskCount).isEqualTo(1)
-    assertThat(log.receive())
-      .isEqualTo("${spawnResult.taskId} sending activation email to alice@example.com")
-    assertThat(log.receive())
-      .isEqualTo("${spawnResult.taskId} waiting for user-activated:alice")
-    assertThat(log.tryReceive().getOrNull()).isNull()
+    assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
+      .isNotNull()
+      .isInstanceOf<TaskResult.Pending<*, *>>()
 
+    // Attempt 3 completes.
+    tester.absurd.emitEvent(
+      eventName = "user-activated:alice",
+      payload = ActivationEvent(
+        activatedAt = Instant.parse("2026-04-02T12:00:00Z"),
+      ),
+    )
+    assertThat(tester.absurd.executeBatch(workerId)).isEqualTo(1)
+    assertThat(log.receiveAvailable()).containsExactly(
+      "${spawnResult.taskId} waiting for user-activated:alice",
+    )
     assertThat(tester.absurd.fetchTaskResult(spawnResult.taskId, provisionUser))
       .isEqualTo(
         TaskResult.Completed(
@@ -170,7 +179,7 @@ class SampleTest {
               to = "alice@example.com",
             ),
             status = "active",
-            activatedAt = tester.clock.now(),
+            activatedAt = Instant.parse("2026-04-02T12:00:00Z"),
           ),
         ),
       )
