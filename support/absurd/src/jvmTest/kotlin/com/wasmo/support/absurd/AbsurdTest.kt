@@ -6,6 +6,8 @@ import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotNull
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
@@ -77,6 +79,150 @@ class AbsurdTest {
     assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))
       .isEqualTo(TaskResult.Completed(Unit))
     tester.assertLogs("self task result is ${TaskResult.Running::class.qualifiedName}")
+  }
+
+  @Test
+  fun `cancel task before execution prevents all execution`() = runTest {
+    val sandwichMaker = tester.sandwichMaker()
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+      ),
+    )
+
+    val spawnResult = absurd.spawn(
+      taskName = SandwichMaker.TaskName,
+      params = MenuItem("PBJ"),
+    )
+
+    absurd.cancelTask(spawnResult.taskId)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(0)
+    tester.assertLogs()
+
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isEqualTo(TaskResult.Cancelled())
+  }
+
+  @Test
+  fun `cancel task after execution does nothing`() = runTest {
+    val sandwichMaker = tester.sandwichMaker()
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+      ),
+    )
+
+    val spawnResult = absurd.spawn(
+      taskName = SandwichMaker.TaskName,
+      params = MenuItem("PBJ"),
+    )
+
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    tester.assertLogs(
+      "taking bread: white",
+      "taking toppings: [peanut butter, jam]",
+    )
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isNotNull()
+      .isInstanceOf<TaskResult.Completed<*, *>>()
+
+    absurd.cancelTask(spawnResult.taskId)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(0)
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isNotNull()
+      .isInstanceOf<TaskResult.Completed<*, *>>()
+  }
+
+  @Test
+  fun `cancel self then complete returns cancelled`() = runTest {
+    val taskName = TaskName<Unit, Unit>("task")
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = taskName,
+        taskHandler = object : TaskHandler<Unit, Unit> {
+          context(context: TaskHandler.Context)
+          override suspend fun handle(params: Unit) {
+            tester.absurd().cancelTask(context.taskId)
+          }
+        },
+      ),
+    )
+
+    val spawnResult = absurd.spawn(
+      taskName = taskName,
+      params = Unit,
+    )
+
+    assertThat(spawnResult.attempt).isEqualTo(1)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))
+      .isEqualTo(TaskResult.Cancelled())
+  }
+
+  @Test
+  fun `cancel self then sleep returns cancelled`() = runTest {
+    val taskName = TaskName<Unit, Unit>("task")
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = taskName,
+        taskHandler = object : TaskHandler<Unit, Unit> {
+          context(context: TaskHandler.Context)
+          override suspend fun handle(params: Unit) {
+            tester.absurd().cancelTask(context.taskId)
+            tester.log("sleep starting...")
+            context.sleepFor("after-cancel", 1.seconds)
+            tester.log("sleep complete")
+          }
+        },
+      ),
+    )
+
+    val spawnResult = absurd.spawn(
+      taskName = taskName,
+      params = Unit,
+    )
+
+    assertThat(spawnResult.attempt).isEqualTo(1)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    tester.assertLogs(
+      "sleep starting...",
+    )
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))
+      .isEqualTo(TaskResult.Cancelled())
+  }
+
+  @Test
+  fun `cancel self then await event returns cancelled`() = runTest {
+    val taskName = TaskName<Unit, Unit>("task")
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = taskName,
+        taskHandler = object : TaskHandler<Unit, Unit> {
+          context(context: TaskHandler.Context)
+          override suspend fun handle(params: Unit) {
+            tester.absurd().cancelTask(context.taskId)
+            tester.log("await event starting...")
+            context.awaitEvent<Unit>("any-event")
+            tester.log("await event complete")
+          }
+        },
+      ),
+    )
+
+    val spawnResult = absurd.spawn(
+      taskName = taskName,
+      params = Unit,
+    )
+
+    assertThat(spawnResult.attempt).isEqualTo(1)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    tester.assertLogs(
+      "await event starting...",
+    )
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))
+      .isEqualTo(TaskResult.Cancelled())
   }
 
   @Test
@@ -175,7 +321,6 @@ class AbsurdTest {
     assertThat(spawnResult.attempt).isEqualTo(1)
 
     // Succeed until the toasting step.
-    sandwichMaker.availableToppings.add("jam")
     assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
     tester.assertLogs(
       "taking bread: white",
@@ -212,6 +357,39 @@ class AbsurdTest {
           ),
         ),
       )
+  }
+
+  @Test
+  fun `cancel task while sleeping prevents resume`() = runTest {
+    val sandwichMaker = tester.sandwichMaker()
+
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+      ),
+    )
+
+    val spawnResult = absurd.spawn(
+      taskName = SandwichMaker.TaskName,
+      params = MenuItem("toasted PBJ"),
+    )
+
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    tester.assertLogs(
+      "taking bread: white",
+      "taking toppings: [peanut butter, jam]",
+      "toasting for 30 seconds",
+    )
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isEqualTo(TaskResult.Sleeping())
+
+    absurd.cancelTask(spawnResult.taskId)
+    tester.clock.sleep(30.seconds)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(0)
+    tester.assertLogs()
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isEqualTo(TaskResult.Cancelled())
   }
 
   @Test

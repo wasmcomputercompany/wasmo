@@ -45,6 +45,10 @@ abstract class Absurd {
     taskName: TaskName<P, R>,
   ): TaskResult<P, R>?
 
+  abstract suspend fun cancelTask(
+    taskId: Uuid,
+  )
+
   /**
    * Returns the number of tasks executed. If this is lower than [batchSize], then fewer tasks
    * were eligible to be claimed.

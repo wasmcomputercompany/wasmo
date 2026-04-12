@@ -4,9 +4,10 @@ package com.wasmo.support.absurd
 
 import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
 import io.r2dbc.postgresql.codec.Json
+import io.r2dbc.spi.R2dbcException
+import io.r2dbc.spi.R2dbcNonTransientResourceException
 import io.r2dbc.spi.Readable
 import java.util.UUID
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -97,6 +98,7 @@ internal class RealAbsurd(
           "completed" -> TaskResult.Completed(
             result = json("result", taskName.resultSerializer),
           )
+
           "failed" -> {
             val failureReason = json<TaskErrorJson>("failure_reason")
             TaskResult.Failed(
@@ -105,11 +107,22 @@ internal class RealAbsurd(
               stacktrace = failureReason.traceback,
             )
           }
+
           "cancelled" -> TaskResult.Cancelled()
           else -> error("unexpected task state: $state")
         }
       }
       return rows.singleOrNull()
+    }
+  }
+
+  override suspend fun cancelTask(taskId: Uuid) {
+    postgresql.withConnection {
+      execute(
+        "SELECT absurd.cancel_task($1, $2)",
+        queueName.value,
+        taskId.toJavaUuid(),
+      )
     }
   }
 
@@ -236,13 +249,20 @@ internal class RealAbsurd(
     claimedTask: ClaimedTask<P, R>,
     result: R,
   ) {
-    postgresql.withConnection {
-      execute(
-        "SELECT absurd.complete_run($1, $2, $3)",
-        queueName.value,
-        claimedTask.runId.toJavaUuid(),
-        Json.of(KotlinJson.encodeToString(claimedTask.taskName.resultSerializer, result)),
-      )
+    try {
+      postgresql.withConnection {
+        execute(
+          "SELECT absurd.complete_run($1, $2, $3)",
+          queueName.value,
+          claimedTask.runId.toJavaUuid(),
+          Json.of(KotlinJson.encodeToString(claimedTask.taskName.resultSerializer, result)),
+        )
+      }
+    } catch (e: R2dbcNonTransientResourceException) {
+      // TODO: this is not consistent with the Python SDK, which crashes in this case?
+      // 'Run "%" not found in queue "%"'
+      // 'Run "%" is not currently running in queue "%"'
+      throw CancelledTaskException(e)
     }
   }
 
@@ -356,8 +376,8 @@ internal class RealAbsurd(
             task.runId.toJavaUuid(),
             claimTimeout.inWholeSeconds.toInt(),
           )
-        } catch (e: Exception) {
-          throw e // TODO
+        } catch (e: R2dbcNonTransientResourceException) {
+          throw e.toTaskStateException() ?: e
         }
         checkpointCache[checkpointName] = valueJson
       }
@@ -428,9 +448,8 @@ internal class RealAbsurd(
             )
           }
         }
-      } catch (e: Exception) {
-        // TODO: raise task state exception
-        throw e
+      } catch (e: R2dbcNonTransientResourceException) {
+        throw e.toTaskStateException() ?: e
       }
 
       val result = rows.singleOrNull()
@@ -519,13 +538,21 @@ internal class RealAbsurd(
 }
 
 /** Internal exception thrown when a task is cancelled. */
-private class CancelledTaskException : CancellationException()
+private class CancelledTaskException(cause: Throwable) : RuntimeException(cause)
 
 /** Internal exception thrown to suspend a run. */
-private class SuspendTaskException : CancellationException()
+private class SuspendTaskException : RuntimeException()
 
 /** Internal exception thrown when the current run has already failed. */
-private class FailedTaskException : CancellationException()
+private class FailedTaskException : RuntimeException()
+
+private fun R2dbcException.toTaskStateException(): Throwable? {
+  return when (sqlState) {
+    "AB001" -> CancelledTaskException(this)
+    "AB002" -> FailedTaskException()
+    else -> null
+  }
+}
 
 internal class AwaitEventResult(
   val shouldSuspend: Boolean,

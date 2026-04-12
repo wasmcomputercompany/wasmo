@@ -126,13 +126,12 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
     /** `absurd.sql` supports faking out the clock for testing. */
     suspend fun flushToPostgresql() {
       postgresql.withConnection {
-        val rowCount = execute(
+        execute(
           "SELECT set_config($1, $2, $3)",
           "absurd.fake_now",
           now.toString(),
           false,
         )
-        println(rowCount)
       }
     }
   }
