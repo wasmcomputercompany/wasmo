@@ -7,7 +7,6 @@ import io.r2dbc.postgresql.codec.Json
 import io.r2dbc.spi.R2dbcException
 import io.r2dbc.spi.R2dbcNonTransientResourceException
 import io.r2dbc.spi.Readable
-import java.util.UUID
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -15,7 +14,6 @@ import kotlin.time.toJavaInstant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
-import kotlin.uuid.toKotlinUuid
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
@@ -69,12 +67,54 @@ internal class RealAbsurd(
         Json.of(KotlinJson.encodeToString(options)),
       ) {
         SpawnResult(
-          taskId = get("task_id", UUID::class.java)!!.toKotlinUuid(),
-          runId = get("run_id", UUID::class.java)!!.toKotlinUuid(),
-          attempt = get("attempt", Int::class.java)!!,
+          taskId = uuid("task_id"),
+          runId = uuid("run_id"),
+          attempt = int("attempt"),
         )
       }
       return rows.single()
+    }
+  }
+
+  override suspend fun <P : Any, R : Any> retryTask(
+    taskId: Uuid,
+    taskName: TaskName<P, R>,
+    maxAttempts: Int?,
+    spawnNew: Boolean,
+  ): RetryTaskResult {
+
+    val options = SpawnOptionsJson(
+      max_attempts = maxAttempts,
+      spawn_new = when {
+        spawnNew -> true
+        else -> null
+      }
+    )
+
+    try {
+      postgresql.withConnection {
+        val rows = executeQuery(
+          """
+          SELECT task_id, run_id, attempt, created
+          FROM absurd.retry_task($1, $2, $3)
+          """,
+          queueName.value,
+          taskId.toJavaUuid(),
+          Json.of(KotlinJson.encodeToString(options)),
+        ) {
+          RetryTaskResult(
+            taskId = uuid("task_id"),
+            runId = uuid("run_id"),
+            attempt = int("attempt"),
+            created = boolean("created"),
+          )
+        }
+        return rows.singleOrNull()
+          ?: error("Failed to retry task")
+      }
+    } catch (e: R2dbcNonTransientResourceException) {
+      if (e.sqlState == "P0001") throw IllegalStateException(e.message, e)
+      throw e
     }
   }
 
@@ -91,7 +131,7 @@ internal class RealAbsurd(
         queueName.value,
         taskId.toJavaUuid(),
       ) {
-        when (val state = get("state")) {
+        when (val state = string("state")) {
           "pending" -> TaskResult.Pending()
           "running" -> TaskResult.Running()
           "sleeping" -> TaskResult.Sleeping()
@@ -224,7 +264,7 @@ internal class RealAbsurd(
         claimTimeout.inWholeSeconds.toInt(),
         batchSize,
       ) {
-        val taskNameValue = get("task_name")
+        val taskNameValue = string("task_name")
         val taskName = registry.keys.singleOrNull { it.value == taskNameValue }
           ?: error("task is not registered: $taskNameValue")
         getClaimedTask(taskName)
@@ -242,7 +282,7 @@ internal class RealAbsurd(
     maxAttempts = int("max_attempts"),
     headers = jsonOrNull<Headers>("headers"),
     wakeEvent = stringOrNull("wake_event"),
-    eventPayload = get("event_payload", Json::class.java),
+    eventPayload = rawJsonOrNull("event_payload"),
   )
 
   private suspend fun <P : Any, R : Any> completeTaskRun(
@@ -590,6 +630,7 @@ internal data class SpawnOptionsJson(
   val retry_strategy: RetryStrategy? = null,
   val cancellation: CancellationPolicy? = null,
   val idempotency_key: String? = null,
+  val spawn_new: Boolean? = null,
 )
 
 @Serializable

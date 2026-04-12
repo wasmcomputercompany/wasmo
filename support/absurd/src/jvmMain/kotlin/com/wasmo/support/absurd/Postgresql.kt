@@ -241,8 +241,10 @@ internal fun Readable.stringOrNull(name: String): String? = get(name, String::cl
 
 internal fun Readable.string(name: String): String = stringOrNull(name)!!
 
-internal fun Readable.rawJson(name: String): PostgresqlJson =
-  get(name, PostgresqlJson::class.java)!!
+internal fun Readable.rawJson(name: String): PostgresqlJson = rawJsonOrNull(name)!!
+
+internal fun Readable.rawJsonOrNull(name: String): PostgresqlJson? =
+  get(name, PostgresqlJson::class.java)
 
 internal fun <T : Any> Readable.jsonOrNull(name: String, serializer: KSerializer<T>): T? {
   val json = get(name, PostgresqlJson::class.java) ?: return null

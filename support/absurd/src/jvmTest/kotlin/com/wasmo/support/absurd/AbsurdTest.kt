@@ -6,8 +6,10 @@ import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
@@ -453,5 +455,167 @@ class AbsurdTest {
     // Subsequent attempts do nothing.
     assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(0)
   }
-}
 
+  @Test
+  fun `retry after failing succeeds with additional attempts`() = runTest {
+    val sandwichMaker = tester.sandwichMaker()
+
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+      ),
+    )
+
+    val spawnResult = absurd.spawn(
+      taskName = SandwichMaker.TaskName,
+      params = MenuItem("PBJ"),
+      maxAttempts = 1,
+    )
+    assertThat(spawnResult.attempt).isEqualTo(1)
+
+    // Fail the first attempt.
+    sandwichMaker.availableToppings.remove("jam")
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    tester.assertLogs(
+      "taking bread: white",
+      "taking toppings: [peanut butter, jam]",
+    )
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isFailure(
+        message = "no such topping: jam",
+        throwableClass = IllegalStateException::class,
+      )
+
+    // Trigger a retry that should succeed.
+    sandwichMaker.availableToppings.add("jam")
+    val retryTaskResult = absurd.retryTask(
+      spawnResult.taskId,
+      taskName = SandwichMaker.TaskName,
+      maxAttempts = 2,
+      spawnNew = false,
+    )
+    assertThat(retryTaskResult.attempt).isEqualTo(2)
+    assertThat(retryTaskResult.created).isFalse()
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    tester.assertLogs(
+      "taking toppings: [peanut butter, jam]",
+    )
+    assertThat(absurd.fetchTaskResult(retryTaskResult.taskId, SandwichMaker.TaskName))
+      .isNotNull()
+      .isEqualTo(
+        TaskResult.Completed(
+          Sandwich(
+            bread = "white",
+            toppings = listOf("peanut butter", "jam"),
+            toasted = false,
+          ),
+        ),
+      )
+  }
+
+  @Test
+  fun `retry after failing fails without additional attempts`() = runTest {
+    val sandwichMaker = tester.sandwichMaker()
+
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+      ),
+    )
+
+    val spawnResult = absurd.spawn(
+      taskName = SandwichMaker.TaskName,
+      params = MenuItem("PBJ"),
+      maxAttempts = 1,
+    )
+    assertThat(spawnResult.attempt).isEqualTo(1)
+
+    // Fail the first attempt.
+    sandwichMaker.availableToppings.remove("jam")
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    tester.assertLogs(
+      "taking bread: white",
+      "taking toppings: [peanut butter, jam]",
+    )
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isFailure(
+        message = "no such topping: jam",
+        throwableClass = IllegalStateException::class,
+      )
+
+    // Trigger a retry that should crash.
+    sandwichMaker.availableToppings.add("jam")
+    val e = assertFailsWith<IllegalStateException> {
+      absurd.retryTask(
+        spawnResult.taskId,
+        taskName = SandwichMaker.TaskName,
+        maxAttempts = 1,
+        spawnNew = false,
+      )
+    }
+    assertThat(e).hasMessage("max_attempts (1) must be greater than current attempts (1)")
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(0)
+    tester.assertLogs()
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isNotNull()
+      .isInstanceOf<TaskResult.Failed<*, *>>()
+  }
+
+  @Test
+  fun `retry after failing succeeds with spawn new`() = runTest {
+    val sandwichMaker = tester.sandwichMaker()
+
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = SandwichMaker.TaskName,
+        taskHandler = sandwichMaker,
+      ),
+    )
+
+    val spawnResult = absurd.spawn(
+      taskName = SandwichMaker.TaskName,
+      params = MenuItem("PBJ"),
+      maxAttempts = 1,
+    )
+    assertThat(spawnResult.attempt).isEqualTo(1)
+
+    // Fail the first attempt.
+    sandwichMaker.availableToppings.remove("jam")
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    tester.assertLogs(
+      "taking bread: white",
+      "taking toppings: [peanut butter, jam]",
+    )
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
+      .isNotNull()
+      .isInstanceOf<TaskResult.Failed<*, *>>()
+
+    // Trigger a retry that should crash.
+    sandwichMaker.availableToppings.add("jam")
+    val retryTaskResult = absurd.retryTask(
+      spawnResult.taskId,
+      taskName = SandwichMaker.TaskName,
+      spawnNew = true,
+    )
+    assertThat(retryTaskResult.attempt).isEqualTo(1)
+    assertThat(retryTaskResult.created).isTrue()
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    tester.assertLogs(
+      "taking bread: white", // This step is not cached.
+      "taking toppings: [peanut butter, jam]",
+    )
+    assertThat(absurd.fetchTaskResult(retryTaskResult.taskId, SandwichMaker.TaskName))
+      .isNotNull()
+      .isEqualTo(
+        TaskResult.Completed(
+          Sandwich(
+            bread = "white",
+            toppings = listOf("peanut butter", "jam"),
+            toasted = false,
+          ),
+        ),
+      )
+  }
+}

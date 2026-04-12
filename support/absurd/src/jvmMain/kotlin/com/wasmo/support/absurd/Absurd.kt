@@ -40,6 +40,17 @@ abstract class Absurd {
     idempotencyKey: String? = null,
   ): SpawnResult
 
+  /**
+   * @param spawnNew true to start a new task with the same parameter. All steps will be attempted,
+   *   including steps that completed successfully in previous attempts.
+   */
+  abstract suspend fun <P : Any, R : Any> retryTask(
+    taskId: Uuid,
+    taskName: TaskName<P, R>,
+    maxAttempts: Int? = null,
+    spawnNew: Boolean = false,
+  ): RetryTaskResult
+
   abstract suspend fun <P : Any, R : Any> fetchTaskResult(
     taskId: Uuid,
     taskName: TaskName<P, R>,
@@ -137,6 +148,13 @@ data class SpawnResult(
   val taskId: Uuid,
   val runId: Uuid,
   val attempt: Int,
+)
+
+data class RetryTaskResult(
+  val taskId: Uuid,
+  val runId: Uuid,
+  val attempt: Int,
+  val created: Boolean,
 )
 
 @Serializable
