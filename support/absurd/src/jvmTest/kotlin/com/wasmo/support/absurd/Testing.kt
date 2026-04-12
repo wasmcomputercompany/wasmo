@@ -5,16 +5,6 @@ import assertk.assertions.support.fail
 import kotlin.reflect.KClass
 import kotlinx.coroutines.channels.Channel
 
-fun <T> Channel<T>.receiveAvailable(): List<T> {
-  return buildList {
-    while (true) {
-      val receive = tryReceive()
-      if (!receive.isSuccess) break
-      add(receive.getOrThrow())
-    }
-  }
-}
-
 fun Assert<TaskResult<*, *>?>.isFailure(
   message: String,
   throwableClass: KClass<*>,

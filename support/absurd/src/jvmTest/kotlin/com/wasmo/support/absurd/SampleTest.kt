@@ -2,8 +2,6 @@ package com.wasmo.support.absurd
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat
-import assertk.assertions.containsExactly
-import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
@@ -11,7 +9,6 @@ import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 
@@ -67,13 +64,11 @@ class SampleTest {
 
   @Test
   fun sample() = runTest {
-    val log = Channel<String>(capacity = Int.MAX_VALUE)
-
     val taskHandler = object : TaskHandler<ProvisionUserParams, ProvisionUserResult> {
       context(context: TaskHandler.Context)
       override suspend fun handle(params: ProvisionUserParams): ProvisionUserResult {
         val user = context.step("create-user-record") {
-          log.send("${context.taskId} creating user record for ${params.userId}")
+          tester.log("${context.taskId} creating user record for ${params.userId}")
           UserRecord(
             userId = params.userId,
             email = params.email,
@@ -85,13 +80,13 @@ class SampleTest {
         // behavior is visible.
         val outage = context.beginStep<OutageState>("demo-transient-outage")
         if (!outage.done) {
-          log.send("${context.taskId} simulating a temporary email provider outage")
+          tester.log("${context.taskId} simulating a temporary email provider outage")
           outage.complete(OutageState(simulated = true))
           throw Exception("temporary email provider outage")
         }
 
         val delivery = context.step("send-activation-email") {
-          log.send("${context.taskId} sending activation email to ${user.email}")
+          tester.log("${context.taskId} sending activation email to ${user.email}")
           DeliveryResult(
             sent = true,
             provider = "demo-mail",
@@ -99,7 +94,7 @@ class SampleTest {
           )
         }
 
-        log.send("${context.taskId} waiting for user-activated:${user.userId}")
+        tester.log("${context.taskId} waiting for user-activated:${user.userId}")
 
         val activation = context.awaitEvent<ActivationEvent>(
           eventName = "user-activated:${user.userId}",
@@ -133,7 +128,7 @@ class SampleTest {
     )
 
     // Nothing executes until we call executeBatch().
-    assertThat(log.receiveAvailable()).isEmpty()
+    tester.assertLogs()
     assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))
       .isNotNull()
       .isInstanceOf<TaskResult.Pending<*, *>>()
@@ -141,7 +136,7 @@ class SampleTest {
     // Attempt 1 fails due to a synthetic outage.
     assertThat(absurd.executeBatch(workerId))
       .isEqualTo(1)
-    assertThat(log.receiveAvailable()).containsExactly(
+    tester.assertLogs(
       "${spawnResult.taskId} creating user record for alice",
       "${spawnResult.taskId} simulating a temporary email provider outage",
     )
@@ -152,7 +147,7 @@ class SampleTest {
     // Attempt 2 suspends waiting for an event.
     assertThat(absurd.executeBatch(workerId))
       .isEqualTo(1)
-    assertThat(log.receiveAvailable()).containsExactly(
+    tester.assertLogs(
       "${spawnResult.taskId} sending activation email to alice@example.com",
       "${spawnResult.taskId} waiting for user-activated:alice",
     )
@@ -168,7 +163,7 @@ class SampleTest {
       ),
     )
     assertThat(absurd.executeBatch(workerId)).isEqualTo(1)
-    assertThat(log.receiveAvailable()).containsExactly(
+    tester.assertLogs(
       "${spawnResult.taskId} waiting for user-activated:alice",
     )
     assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))

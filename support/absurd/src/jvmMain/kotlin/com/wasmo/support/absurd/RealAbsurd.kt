@@ -90,12 +90,13 @@ internal class RealAbsurd(
         queueName.value,
         taskId.toJavaUuid(),
       ) {
-        val state = get("state")
-        when (state) {
+        when (val state = get("state")) {
+          "pending" -> TaskResult.Pending()
+          "running" -> TaskResult.Running()
+          "sleeping" -> TaskResult.Sleeping()
           "completed" -> TaskResult.Completed(
             result = json("result", taskName.resultSerializer),
           )
-
           "failed" -> {
             val failureReason = json<TaskErrorJson>("failure_reason")
             TaskResult.Failed(
@@ -104,8 +105,8 @@ internal class RealAbsurd(
               stacktrace = failureReason.traceback,
             )
           }
-
-          else -> TaskResult.Pending()
+          "cancelled" -> TaskResult.Cancelled()
+          else -> error("unexpected task state: $state")
         }
       }
       return rows.singleOrNull()
@@ -158,7 +159,7 @@ internal class RealAbsurd(
         claimedTask = task,
         result = result,
       )
-    } catch (_: CanceledTaskException) {
+    } catch (_: CancelledTaskException) {
     } catch (_: SuspendTaskException) {
     } catch (_: FailedTaskException) {
     } catch (e: Throwable) {
@@ -517,8 +518,13 @@ internal class RealAbsurd(
   }
 }
 
-private class CanceledTaskException : CancellationException()
+/** Internal exception thrown when a task is cancelled. */
+private class CancelledTaskException : CancellationException()
+
+/** Internal exception thrown to suspend a run. */
 private class SuspendTaskException : CancellationException()
+
+/** Internal exception thrown when the current run has already failed. */
 private class FailedTaskException : CancellationException()
 
 internal class AwaitEventResult(

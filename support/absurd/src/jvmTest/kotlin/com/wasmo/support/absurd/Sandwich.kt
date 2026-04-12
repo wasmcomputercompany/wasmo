@@ -1,7 +1,6 @@
 package com.wasmo.support.absurd
 
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.channels.Channel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,7 +15,9 @@ data class Sandwich(
   val toasted: Boolean,
 )
 
-class SandwichMaker : TaskHandler<MenuItem, Sandwich> {
+class SandwichMaker(
+  private val log: Log,
+) : TaskHandler<MenuItem, Sandwich> {
   val availableToppings = mutableListOf(
     "bacon",
     "jam",
@@ -27,8 +28,6 @@ class SandwichMaker : TaskHandler<MenuItem, Sandwich> {
     "white",
   )
 
-  val log = Channel<String>(capacity = Int.MAX_VALUE)
-
   context(context: TaskHandler.Context)
   override suspend fun handle(params: MenuItem): Sandwich {
     val bread = context.step("select-bread") {
@@ -36,7 +35,7 @@ class SandwichMaker : TaskHandler<MenuItem, Sandwich> {
         "on rye" in params.name -> "rye"
         else -> "white"
       }
-      log.send("taking bread: $selected")
+      log.log("taking bread: $selected")
       check(selected in availableToppings) { "no such bread: $selected" }
       return@step selected
     }
@@ -47,7 +46,7 @@ class SandwichMaker : TaskHandler<MenuItem, Sandwich> {
         "PBJ" in params.name -> listOf("peanut butter", "jam")
         else -> listOf("ham")
       }
-      log.send("taking toppings: $selected")
+      log.log("taking toppings: $selected")
       for (topping in selected) {
         check(topping in availableToppings) { "no such topping: $topping" }
       }
@@ -56,7 +55,7 @@ class SandwichMaker : TaskHandler<MenuItem, Sandwich> {
 
     val toasted = when {
       "toasted" in params.name -> {
-        log.send("toasting for 30 seconds")
+        log.log("toasting for 30 seconds")
         context.sleepFor("toast", 30.seconds)
         true
       }

@@ -2,23 +2,30 @@ package com.wasmo.support.absurd
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
+import assertk.assertThat
+import assertk.assertions.containsExactly
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
 import io.r2dbc.postgresql.client.SSLMode
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.reactive.awaitLast
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
-class AbsurdTester : CoroutineTestInterceptor {
+class AbsurdTester : CoroutineTestInterceptor, Log {
   private var run: Run? = null
 
   val clock: FakeClock
     get() = run!!.clock
   val postgresql: Postgresql
     get() = run!!.postgresql
+  private val log: Channel<String>
+    get() = run!!.log
+
+  fun sandwichMaker() = SandwichMaker(this)
 
   suspend fun absurd(vararg registrations: TaskRegistration<*, *>): Absurd {
     val result = Absurd(
@@ -29,6 +36,25 @@ class AbsurdTester : CoroutineTestInterceptor {
     result.createQueue()
     return result
   }
+
+  override fun log(message: String) {
+    check(log.trySend(message).isSuccess)
+  }
+
+  fun assertLogs(vararg messages: String) {
+    assertThat(log.receiveAvailable()).containsExactly(*messages)
+  }
+
+  private fun <T> Channel<T>.receiveAvailable(): List<T> {
+    return buildList {
+      while (true) {
+        val receive = tryReceive()
+        if (!receive.isSuccess) break
+        add(receive.getOrThrow())
+      }
+    }
+  }
+
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     val configuration = PostgresqlConnectionConfiguration.builder()
@@ -65,9 +91,12 @@ class AbsurdTester : CoroutineTestInterceptor {
     val clock = FakeClock(postgresql)
     clock.flushToPostgresql()
 
+    val log = Channel<String>(capacity = Int.MAX_VALUE)
+
     run = Run(
       clock = clock,
       postgresql = postgresql,
+      log = log,
     )
     try {
       testFunction.invoke()
@@ -79,6 +108,7 @@ class AbsurdTester : CoroutineTestInterceptor {
   private class Run(
     val clock: FakeClock,
     val postgresql: Postgresql,
+    val log: Channel<String>,
   )
 
   class FakeClock(

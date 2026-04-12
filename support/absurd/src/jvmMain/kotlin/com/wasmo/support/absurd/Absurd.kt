@@ -192,14 +192,18 @@ data class TaskRegistration<P : Any, R : Any>(
   val defaultCancellation: CancellationPolicy? = null,
 )
 
+/** Error thrown when waiting for an event or task result times out. */
 class TimeoutTaskException(message: String) : CancellationException(message)
 
 sealed interface TaskResult<P, R> {
   data class Pending<P, R>(val unused: Unit = Unit) : TaskResult<P, R>
+  data class Running<P, R>(val unused: Unit = Unit) : TaskResult<P, R>
+  data class Sleeping<P, R>(val unused: Unit = Unit) : TaskResult<P, R>
   data class Completed<P, R>(val result: R) : TaskResult<P, R>
   data class Failed<P, R>(
     val message: String,
     val throwableClassName: String? = null,
     val stacktrace: String? = null,
   ) : TaskResult<P, R>
+  data class Cancelled<P, R>(val unused: Unit = Unit) : TaskResult<P, R>
 }
