@@ -259,10 +259,8 @@ internal class RealAbsurd(
         )
       }
     } catch (e: R2dbcNonTransientResourceException) {
-      // TODO: this is not consistent with the Python SDK, which crashes in this case?
-      // 'Run "%" not found in queue "%"'
-      // 'Run "%" is not currently running in queue "%"'
-      throw CancelledTaskException(e)
+      if (e.isProbablyDueToCanceledTask) return // Nothing to do.
+      throw e
     }
   }
 
@@ -271,14 +269,19 @@ internal class RealAbsurd(
     error: TaskErrorJson,
     retryAt: Instant? = null,
   ) {
-    postgresql.withConnection {
-      execute(
-        "SELECT absurd.fail_run($1, $2, $3, $4)",
-        queueName.value,
-        claimedTask.runId.toJavaUuid(),
-        Json.of(KotlinJson.encodeToString(error)),
-        retryAt?.toJavaInstant(),
-      )
+    try {
+      postgresql.withConnection {
+        execute(
+          "SELECT absurd.fail_run($1, $2, $3, $4)",
+          queueName.value,
+          claimedTask.runId.toJavaUuid(),
+          Json.of(KotlinJson.encodeToString(error)),
+          retryAt?.toJavaInstant(),
+        )
+      }
+    } catch (e: R2dbcNonTransientResourceException) {
+      if (e.isProbablyDueToCanceledTask) return // Nothing to do.
+      throw e
     }
   }
 
@@ -553,6 +556,13 @@ private fun R2dbcException.toTaskStateException(): Throwable? {
     else -> null
   }
 }
+
+/**
+ * We say 'probably' here 'cause there isn't an Absurd code for these exceptions.
+ * https://github.com/earendil-works/absurd/issues/95
+ */
+private val R2dbcException.isProbablyDueToCanceledTask: Boolean
+  get() = sqlState == "P0001"
 
 internal class AwaitEventResult(
   val shouldSuspend: Boolean,

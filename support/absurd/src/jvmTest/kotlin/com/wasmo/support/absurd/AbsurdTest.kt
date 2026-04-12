@@ -162,6 +162,33 @@ class AbsurdTest {
   }
 
   @Test
+  fun `cancel self then fail returns cancelled`() = runTest {
+    val taskName = TaskName<Unit, Unit>("task")
+    val absurd = tester.absurd(
+      TaskRegistration(
+        taskName = taskName,
+        taskHandler = object : TaskHandler<Unit, Unit> {
+          context(context: TaskHandler.Context)
+          override suspend fun handle(params: Unit) {
+            tester.absurd().cancelTask(context.taskId)
+            throw Exception("boom!")
+          }
+        },
+      ),
+    )
+
+    val spawnResult = absurd.spawn(
+      taskName = taskName,
+      params = Unit,
+    )
+
+    assertThat(spawnResult.attempt).isEqualTo(1)
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1)
+    assertThat(absurd.fetchTaskResult(spawnResult.taskId, taskName))
+      .isEqualTo(TaskResult.Cancelled())
+  }
+
+  @Test
   fun `cancel self then sleep returns cancelled`() = runTest {
     val taskName = TaskName<Unit, Unit>("task")
     val absurd = tester.absurd(
