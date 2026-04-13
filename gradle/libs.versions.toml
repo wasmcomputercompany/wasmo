@@ -79,6 +79,7 @@ sqldelight-jdbc-driver = { module = "app.cash.sqldelight:jdbc-driver", version.r
 sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
 stripe = { module = "com.stripe:stripe-java", version.ref = "stripe" }
 tomlkt = { module = "dev.eav.tomlkt:tomlkt", version.ref = "tomlkt" }
+vertx-postgresql = { module = "io.vertx:vertx-pg-client", version = "5.0.10" }
 webauthn4j-core = { module = "com.webauthn4j:webauthn4j-core", version.ref = "webauthn4j" }
 
 [plugins]

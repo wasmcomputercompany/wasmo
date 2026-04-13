@@ -9,6 +9,8 @@ import io.r2dbc.postgresql.client.SSLMode
 import io.r2dbc.spi.Connection
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.Result
+import java.time.ZoneOffset
+import java.util.TimeZone
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toJavaDuration
@@ -31,6 +33,7 @@ fun connectPostgresqlAsync(
         else -> SSLMode.DISABLE
       },
     )
+    .timeZone(TimeZone.getTimeZone(ZoneOffset.UTC))
     .build()
 
   val poolConfiguration = ConnectionPoolConfiguration.builder()

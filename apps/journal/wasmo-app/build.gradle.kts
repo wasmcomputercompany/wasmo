@@ -29,6 +29,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.r2dbc.postgresql)
         implementation(libs.sqldelight.async.extensions)
+        implementation(libs.vertx.postgresql)
         implementation(project(":apps:journal:api"))
         implementation(project(":apps:journal:db"))
         implementation(project(":support:tokens"))

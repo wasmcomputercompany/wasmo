@@ -21,6 +21,7 @@ kotlin {
         implementation(libs.r2dbc.pool)
         implementation(libs.r2dbc.postgresql)
         implementation(libs.reactive.streams)
+        implementation(libs.vertx.postgresql)
         implementation(project(":os:server:sql:api"))
         implementation(project(":platform:api"))
         implementation(project(":support:close-tracker"))

@@ -117,13 +117,6 @@ private class R2dbcSqlBinder(
     }
   }
 
-  override fun bindChar(index: Int, value: Int?) {
-    when {
-      value != null -> statement.bind(index, value)
-      else -> statement.bindNull(index, Int::class.javaObjectType)
-    }
-  }
-
   override fun bindInstant(index: Int, value: Instant?) {
     when {
       value != null -> statement.bind(index, value.toJavaInstant())
@@ -234,8 +227,6 @@ private class R2dbcSqlRow(
   override fun getF32(index: Int) = values[index] as Float?
 
   override fun getF64(index: Int) = values[index] as Double?
-
-  override fun getChar(index: Int) = values[index] as Int?
 
   override fun getInstant(index: Int) =
     (values[index] as Temporal?)?.let { java.time.Instant.from(it).toKotlinInstant() }

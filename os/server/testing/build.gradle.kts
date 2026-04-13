@@ -28,6 +28,7 @@ kotlin {
         implementation(libs.r2dbc.postgresql)
         implementation(libs.sqldelight.jdbc.driver)
         implementation(libs.tomlkt)
+        implementation(libs.vertx.postgresql)
         implementation(libs.webauthn4j.core)
         implementation(project(":identifiers"))
         implementation(project(":os:api"))

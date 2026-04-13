@@ -1,27 +1,27 @@
-package com.wasmo.sql.r2dbc
+package com.wasmo.sql.vertx
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.testing.sql.TestDatabaseAddress
 import com.wasmo.testing.sql.clearSchema
-import io.r2dbc.pool.ConnectionPool
+import io.vertx.sqlclient.Pool
 import wasmo.sql.SqlService
 
-class R2dbcTester : CoroutineTestInterceptor {
+class VertxPostgresTester : CoroutineTestInterceptor {
   private var run: Run? = null
 
-  val connectionPool: ConnectionPool
-    get() = run!!.connectionPool
+  val connectionPool: Pool
+    get() = run!!.pool
   val sqlService: SqlService
     get() = run!!.sqlService
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    val connectionPool = connectPostgresqlAsync(TestDatabaseAddress)
-    connectionPool.clearSchema()
+    val pool = connectVertxPostgresql(TestDatabaseAddress)
+    pool.clearSchema()
 
     run = Run(
-      connectionPool = connectionPool,
-      sqlService = connectionPool.asSqlService(),
+      pool = pool,
+      sqlService = pool.asSqlService(),
     )
     try {
       testFunction.invoke()
@@ -31,7 +31,7 @@ class R2dbcTester : CoroutineTestInterceptor {
   }
 
   private class Run(
-    val connectionPool: ConnectionPool,
+    val pool: Pool,
     val sqlService: SqlService,
   )
 }

@@ -24,6 +24,7 @@ kotlin {
         implementation(libs.r2dbc)
         implementation(libs.r2dbc.postgresql)
         implementation(libs.reactive.streams)
+        implementation(libs.vertx.postgresql)
       }
     }
     val jvmTest by getting {

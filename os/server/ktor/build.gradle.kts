@@ -33,6 +33,7 @@ kotlin {
         implementation(libs.r2dbc.postgresql)
         implementation(libs.sqldelight.jdbc.driver)
         implementation(libs.stripe)
+        implementation(libs.vertx.postgresql)
         implementation(project(":apps:journal:wasmo-app"))
         implementation(project(":identifiers"))
         implementation(project(":os:api"))

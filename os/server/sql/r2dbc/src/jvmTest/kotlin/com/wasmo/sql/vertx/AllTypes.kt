@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalUuidApi::class)
 
-package com.wasmo.sql.r2dbc
+package com.wasmo.sql.vertx
 
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
