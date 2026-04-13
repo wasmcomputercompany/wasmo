@@ -2,124 +2,159 @@
 
 package com.wasmo.support.absurd
 
-import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
-import io.r2dbc.postgresql.api.PostgresqlConnection as Connection
-import io.r2dbc.postgresql.api.PostgresqlResult
-import io.r2dbc.postgresql.api.PostgresqlStatement
-import io.r2dbc.postgresql.codec.Json as PostgresqlJson
-import io.r2dbc.spi.Readable
-import java.util.UUID
+import io.vertx.core.Future
+import io.vertx.core.json.Json.CODEC
+import io.vertx.pgclient.PgBuilder
+import io.vertx.pgclient.PgConnectOptions
+import io.vertx.sqlclient.Row
+import io.vertx.sqlclient.RowSet
+import io.vertx.sqlclient.SqlClient
+import io.vertx.sqlclient.Tuple
+import io.vertx.sqlclient.data.NullValue
+import java.time.ZoneOffset
+import kotlin.time.toJavaInstant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.future.asDeferred
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.serializer
 
 /*
- * This file attempts to make R2DBC + Postgresql a little bit friendlier to interact with from
+ * This file attempts to make Postgresql a little bit friendlier to interact with from
  * Kotlin + Coroutines.
  */
 
-internal suspend inline fun <T> Postgresql.withConnection(
-  block: suspend Connection.() -> T,
-): T {
-  val connection = create().awaitSingle()
-  try {
-    return connection.block()
-  } finally {
-    connection.close().subscribe()
+class PostgresqlClient(
+  private val connectOptions: PgConnectOptions,
+) {
+  /** Returns a new connection that the caller must close when they're done with it. */
+  suspend fun connect(): SqlClient {
+    return PgBuilder
+      .client()
+      .connectingTo(connectOptions)
+      .build()
+  }
+
+  suspend inline fun <T> withConnection(block: suspend SqlClient.() -> T): T {
+    val connection = connect()
+    try {
+      return block(connection)
+    } finally {
+      connection.close().asDeferred().await()
+    }
   }
 }
 
-internal inline fun <reified T> PostgresqlStatement.bindNullable(index: Int, value: T?) {
+suspend inline fun SqlClient.execute(
+  sql: String,
+): RowSet<Row> {
+  return query(sql).execute().asDeferred().await()
+}
+
+fun <T> Future<T>.asDeferred(): Deferred<T> =
+  toCompletionStage().asDeferred()
+
+internal inline fun <reified T> Tuple.add(value: T?) {
   when {
-    value != null -> bind(index, value)
-    else -> bindNull(index, T::class.java)
+    T::class == Boolean::class -> addBoolean(value as Boolean?)
+    T::class == String::class -> addString(value as String?)
+    T::class == Int::class -> addInteger(value as Int?)
+    T::class == Uuid::class -> addUUID((value as Uuid?)?.toJavaUuid())
+    T::class == kotlin.time.Instant::class -> addOffsetDateTime((value as kotlin.time.Instant?)?.toJavaInstant()?.atOffset(ZoneOffset.UTC))
+    T::class == JsonElement::class -> {
+      if (value == null) {
+        addValue(NullValue.JsonObject)
+      } else {
+        addValue(
+          CODEC.fromString(KotlinJson.encodeToString(value as JsonElement), Any::class.java),
+        )
+      }
+    }
+    else -> error("unexpected type: ${T::class}")
   }
 }
 
-internal suspend fun PostgresqlStatement.rowCount(): Long =
-  execute().awaitSingle().rowsUpdated.awaitSingle()
-
-internal suspend fun <R : Any> PostgresqlStatement.rows(
-  rowMapper: Readable.() -> R,
-): List<R> = execute().awaitSingle().map(rowMapper).asFlow().toList()
-
-internal suspend inline fun Connection.executeVoid(
-  sql: String,
-): PostgresqlResult = createStatement(sql).run {
-  execute().awaitSingle()
-}
-
-internal suspend inline fun Connection.execute(
-  sql: String,
-): Long = createStatement(sql).rowCount()
-
-internal suspend inline fun <reified P0> Connection.execute(
+internal suspend inline fun <reified P0> SqlClient.execute(
   sql: String,
   p0: P0,
-): Long = createStatement(sql).run {
-  bindNullable(0, p0 ?: P0::class.java)
-  rowCount()
+): Long {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.rowCount().toLong()
 }
 
-internal suspend inline fun <reified P0, reified P1> Connection.execute(
+internal suspend inline fun <reified P0, reified P1> SqlClient.execute(
   sql: String,
   p0: P0,
   p1: P1,
-): Long = createStatement(sql).run {
-  bindNullable(0, p0)
-  bindNullable(1, p1)
-  rowCount()
+): Long {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+    add(p1)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.rowCount().toLong()
 }
 
-internal suspend inline fun <reified P0, reified P1, reified P2> Connection.execute(
+internal suspend inline fun <reified P0, reified P1, reified P2> SqlClient.execute(
   sql: String,
   p0: P0,
   p1: P1,
   p2: P2,
-): Long = createStatement(sql).run {
-  bindNullable(0, p0)
-  bindNullable(1, p1)
-  bindNullable(2, p2)
-  rowCount()
+): Long {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+    add(p1)
+    add(p2)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.rowCount().toLong()
 }
 
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3> Connection.execute(
+internal suspend inline fun <reified P0, reified P1, reified P2, reified P3> SqlClient.execute(
   sql: String,
   p0: P0,
   p1: P1,
   p2: P2,
   p3: P3,
-): Long = createStatement(sql).run {
-  bindNullable(0, p0)
-  bindNullable(1, p1)
-  bindNullable(2, p2)
-  bindNullable(3, p3)
-  rowCount()
+): Long {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+    add(p1)
+    add(p2)
+    add(p3)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.rowCount().toLong()
 }
 
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> Connection.execute(
+internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> SqlClient.execute(
   sql: String,
   p0: P0,
   p1: P1,
   p2: P2,
   p3: P3,
   p4: P4,
-): Long = createStatement(sql).run {
-  bindNullable(0, p0)
-  bindNullable(1, p1)
-  bindNullable(2, p2)
-  bindNullable(3, p3)
-  bindNullable(4, p4)
-  rowCount()
+): Long {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+    add(p1)
+    add(p2)
+    add(p3)
+    add(p4)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.rowCount().toLong()
 }
 
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5> Connection.execute(
+internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5> SqlClient.execute(
   sql: String,
   p0: P0,
   p1: P1,
@@ -127,87 +162,88 @@ internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, rei
   p3: P3,
   p4: P4,
   p5: P5,
-): Long = createStatement(sql).run {
-  bindNullable(0, p0)
-  bindNullable(1, p1)
-  bindNullable(2, p2)
-  bindNullable(3, p3)
-  bindNullable(4, p4)
-  bindNullable(5, p5)
-  rowCount()
+): Long {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+    add(p1)
+    add(p2)
+    add(p3)
+    add(p4)
+    add(p5)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.rowCount().toLong()
 }
 
-internal suspend inline fun <R : Any> Connection.executeQuery(
-  sql: String,
-  noinline rowMapper: Readable.() -> R,
-): List<R> = createStatement(sql).rows(rowMapper)
-
-internal suspend inline fun <reified P0, R : Any> Connection.executeQuery(
-  sql: String,
-  p0: P0,
-  noinline rowMapper: Readable.() -> R,
-): List<R> = createStatement(sql).run {
-  bindNullable(0, p0 ?: P0::class.java)
-  rows(rowMapper)
-}
-
-internal suspend inline fun <reified P0, reified P1, R : Any> Connection.executeQuery(
+internal suspend inline fun <reified P0, reified P1, R : Any> SqlClient.executeQuery(
   sql: String,
   p0: P0,
   p1: P1,
-  noinline rowMapper: Readable.() -> R,
-): List<R> = createStatement(sql).run {
-  bindNullable(0, p0)
-  bindNullable(1, p1)
-  rows(rowMapper)
+  noinline rowMapper: Row.() -> R,
+): List<R> {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+    add(p1)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.map(rowMapper)
 }
 
-internal suspend inline fun <reified P0, reified P1, reified P2, R : Any> Connection.executeQuery(
+internal suspend inline fun <reified P0, reified P1, reified P2, R : Any> SqlClient.executeQuery(
   sql: String,
   p0: P0,
   p1: P1,
   p2: P2,
-  noinline rowMapper: Readable.() -> R,
-): List<R> = createStatement(sql).run {
-  bindNullable(0, p0)
-  bindNullable(1, p1)
-  bindNullable(2, p2)
-  rows(rowMapper)
+  noinline rowMapper: Row.() -> R,
+): List<R> {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+    add(p1)
+    add(p2)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.map(rowMapper)
 }
 
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, R : Any> Connection.executeQuery(
+internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, R : Any> SqlClient.executeQuery(
   sql: String,
   p0: P0,
   p1: P1,
   p2: P2,
   p3: P3,
-  noinline rowMapper: Readable.() -> R,
-): List<R> = createStatement(sql).run {
-  bindNullable(0, p0)
-  bindNullable(1, p1)
-  bindNullable(2, p2)
-  bindNullable(3, p3)
-  rows(rowMapper)
+  noinline rowMapper: Row.() -> R,
+): List<R> {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+    add(p1)
+    add(p2)
+    add(p3)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.map(rowMapper)
 }
 
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, R : Any> Connection.executeQuery(
+internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, R : Any> SqlClient.executeQuery(
   sql: String,
   p0: P0,
   p1: P1,
   p2: P2,
   p3: P3,
   p4: P4,
-  noinline rowMapper: Readable.() -> R,
-): List<R> = createStatement(sql).run {
-  bindNullable(0, p0)
-  bindNullable(1, p1)
-  bindNullable(2, p2)
-  bindNullable(3, p3)
-  bindNullable(4, p4)
-  rows(rowMapper)
+  noinline rowMapper: Row.() -> R,
+): List<R> {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+    add(p1)
+    add(p2)
+    add(p3)
+    add(p4)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.map(rowMapper)
 }
 
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5, R : Any> Connection.executeQuery(
+internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5, R : Any> SqlClient.executeQuery(
   sql: String,
   p0: P0,
   p1: P1,
@@ -215,15 +251,18 @@ internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, rei
   p3: P3,
   p4: P4,
   p5: P5,
-  noinline rowMapper: Readable.() -> R,
-): List<R> = createStatement(sql).run {
-  bindNullable(0, p0)
-  bindNullable(1, p1)
-  bindNullable(2, p2)
-  bindNullable(3, p3)
-  bindNullable(4, p4)
-  bindNullable(5, p5)
-  rows(rowMapper)
+  noinline rowMapper: Row.() -> R,
+): List<R> {
+  val tuple = Tuple.tuple().apply {
+    add(p0)
+    add(p1)
+    add(p2)
+    add(p3)
+    add(p4)
+    add(p5)
+  }
+  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  return result.map(rowMapper)
 }
 
 @PublishedApi
@@ -231,32 +270,35 @@ internal val KotlinJson = Json {
   ignoreUnknownKeys = true
 }
 
-internal fun Readable.uuid(name: String): Uuid = get(name, UUID::class.java)!!.toKotlinUuid()
+internal fun Row.uuid(name: String): Uuid = getUUID(name)!!.toKotlinUuid()
 
-internal fun Readable.boolean(name: String): Boolean = get(name, Boolean::class.java)!!
+internal fun Row.boolean(name: String): Boolean = getBoolean(name)!!
 
-internal fun Readable.int(name: String): Int = get(name, Int::class.java)!!
+internal fun Row.int(name: String): Int = getInteger(name)!!
 
-internal fun Readable.stringOrNull(name: String): String? = get(name, String::class.java)
+internal fun Row.stringOrNull(name: String): String? = getString(name)
 
-internal fun Readable.string(name: String): String = stringOrNull(name)!!
+internal fun Row.string(name: String): String = stringOrNull(name)!!
 
-internal fun Readable.rawJson(name: String): PostgresqlJson = rawJsonOrNull(name)!!
+internal fun Row.rawJson(name: String): JsonElement = rawJsonOrNull(name)!!
 
-internal fun Readable.rawJsonOrNull(name: String): PostgresqlJson? =
-  get(name, PostgresqlJson::class.java)
-
-internal fun <T : Any> Readable.jsonOrNull(name: String, serializer: KSerializer<T>): T? {
-  val json = get(name, PostgresqlJson::class.java) ?: return null
-  return KotlinJson.decodeFromString(serializer, json.asString())
+internal fun Row.rawJsonOrNull(name: String): JsonElement? {
+  val jsonModel = getJson(name) ?: return null
+  val jsonString = CODEC.toString(jsonModel)
+  return KotlinJson.parseToJsonElement(jsonString)
 }
 
-internal inline fun <reified T : Any> Readable.jsonOrNull(name: String): T? =
+internal fun <T : Any> Row.jsonOrNull(name: String, serializer: KSerializer<T>): T? {
+  val jsonModel = getJson(name) ?: return null
+  val jsonString = CODEC.toString(jsonModel)
+  return KotlinJson.decodeFromString(serializer, jsonString)
+}
+
+internal inline fun <reified T : Any> Row.jsonOrNull(name: String): T? =
   jsonOrNull(name, serializer<T>())
 
-internal fun <T : Any> Readable.json(name: String, serializer: KSerializer<T>): T =
+internal fun <T : Any> Row.json(name: String, serializer: KSerializer<T>): T =
   jsonOrNull(name, serializer)!!
 
-internal inline fun <reified T : Any> Readable.json(name: String): T =
+internal inline fun <reified T : Any> Row.json(name: String): T =
   jsonOrNull(name, serializer<T>())!!
-

@@ -555,7 +555,8 @@ class AbsurdTest {
         spawnNew = false,
       )
     }
-    assertThat(e).hasMessage("max_attempts (1) must be greater than current attempts (1)")
+    assertThat(e)
+      .hasMessage("ERROR: max_attempts (1) must be greater than current attempts (1) (P0001)")
     assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(0)
     tester.assertLogs()
     assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))

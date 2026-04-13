@@ -2,7 +2,6 @@
 
 package com.wasmo.support.absurd
 
-import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -17,7 +16,7 @@ import okio.utf8Size
 
 fun Absurd(
   clock: Clock,
-  postgresql: Postgresql,
+  postgresql: PostgresqlClient,
   registrations: List<TaskRegistration<*, *>>,
   queueName: QueueName = QueueName.Default,
 ): Absurd = RealAbsurd(

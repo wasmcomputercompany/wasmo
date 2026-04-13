@@ -4,14 +4,12 @@ import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import assertk.assertThat
 import assertk.assertions.containsExactly
-import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
-import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
-import io.r2dbc.postgresql.client.SSLMode
+import io.vertx.pgclient.PgConnectOptions
+import io.vertx.pgclient.SslMode
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.reactive.awaitLast
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
@@ -20,7 +18,7 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
 
   val clock: FakeClock
     get() = run!!.clock
-  val postgresql: Postgresql
+  val postgresql: PostgresqlClient
     get() = run!!.postgresql
   private val log: Channel<String>
     get() = run!!.log
@@ -57,35 +55,30 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
 
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    val configuration = PostgresqlConnectionConfiguration.builder()
-      .host("localhost")
-      .username("postgres")
-      .password("password")
-      .database("absurd_test")
-      .sslMode(SSLMode.DISABLE)
-      .build()
+    val connectOptions = PgConnectOptions()
+      .setHost("localhost")
+      .setDatabase("absurd_test")
+      .setUser("postgres")
+      .setPassword("password")
+      .setSslMode(SslMode.DISABLE)
 
-    val postgresql = Postgresql(configuration)
-    postgresql.withConnection {
-      executeVoid("DROP SCHEMA public CASCADE")
-      executeVoid("CREATE SCHEMA public")
-      executeVoid("GRANT ALL ON SCHEMA public TO postgres")
-      executeVoid("GRANT ALL ON SCHEMA public TO public")
+    val postgresql = PostgresqlClient(connectOptions)
+    postgresql.withConnection<Unit> {
+      execute("DROP SCHEMA public CASCADE")
+      execute("CREATE SCHEMA public")
+      execute("GRANT ALL ON SCHEMA public TO postgres")
+      execute("GRANT ALL ON SCHEMA public TO public")
 
-      executeVoid("DROP SCHEMA absurd CASCADE")
-      executeVoid("CREATE SCHEMA absurd")
-      executeVoid("GRANT ALL ON SCHEMA absurd TO postgres")
-      executeVoid("GRANT ALL ON SCHEMA absurd TO public")
-    }
+      execute("DROP SCHEMA absurd CASCADE")
+      execute("CREATE SCHEMA absurd")
+      execute("GRANT ALL ON SCHEMA absurd TO postgres")
+      execute("GRANT ALL ON SCHEMA absurd TO public")
 
-    postgresql.withConnection {
-      val batch = createBatch()
-      batch.add(
+      execute(
         FileSystem.RESOURCES.read("/absurd/sql/absurd.sql".toPath()) {
           readUtf8()
-        },
+        }
       )
-      batch.execute().awaitLast()
     }
 
     val clock = FakeClock(postgresql)
@@ -107,12 +100,12 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
 
   private class Run(
     val clock: FakeClock,
-    val postgresql: Postgresql,
+    val postgresql: PostgresqlClient,
     val log: Channel<String>,
   )
 
   class FakeClock(
-    private val postgresql: Postgresql,
+    private val postgresql: PostgresqlClient,
   ) : Clock {
     private var now = Instant.parse("2025-10-20T00:00:00Z")
 

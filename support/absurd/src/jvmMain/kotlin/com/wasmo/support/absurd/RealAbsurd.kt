@@ -2,25 +2,25 @@
 
 package com.wasmo.support.absurd
 
-import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
-import io.r2dbc.postgresql.codec.Json
-import io.r2dbc.spi.R2dbcException
-import io.r2dbc.spi.R2dbcNonTransientResourceException
-import io.r2dbc.spi.Readable
+import io.vertx.pgclient.PgException
+import io.vertx.sqlclient.Row
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
-import kotlin.time.toJavaInstant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
-import kotlin.uuid.toJavaUuid
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.encodeToJsonElement
 
 internal class RealAbsurd(
   private val clock: Clock,
-  private val postgresql: Postgresql,
+  private val postgresql: PostgresqlClient,
   private val queueName: QueueName = QueueName.Default,
   registrations: List<TaskRegistration<*, *>>,
 ) : Absurd() {
@@ -63,8 +63,8 @@ internal class RealAbsurd(
         """,
         queueName.value,
         taskName.value,
-        Json.of(KotlinJson.encodeToString(taskName.paramsSerializer, params)),
-        Json.of(KotlinJson.encodeToString(options)),
+        KotlinJson.encodeToJsonElement(taskName.paramsSerializer, params),
+        KotlinJson.encodeToJsonElement(options),
       ) {
         SpawnResult(
           taskId = uuid("task_id"),
@@ -99,8 +99,8 @@ internal class RealAbsurd(
           FROM absurd.retry_task($1, $2, $3)
           """,
           queueName.value,
-          taskId.toJavaUuid(),
-          Json.of(KotlinJson.encodeToString(options)),
+          taskId,
+          KotlinJson.encodeToJsonElement(options),
         ) {
           RetryTaskResult(
             taskId = uuid("task_id"),
@@ -112,7 +112,7 @@ internal class RealAbsurd(
         return rows.singleOrNull()
           ?: error("Failed to retry task")
       }
-    } catch (e: R2dbcNonTransientResourceException) {
+    } catch (e: PgException) {
       if (e.sqlState == "P0001") throw IllegalStateException(e.message, e)
       throw e
     }
@@ -129,7 +129,7 @@ internal class RealAbsurd(
         FROM absurd.get_task_result($1, $2)
         """,
         queueName.value,
-        taskId.toJavaUuid(),
+        taskId,
       ) {
         when (val state = string("state")) {
           "pending" -> TaskResult.Pending()
@@ -161,7 +161,7 @@ internal class RealAbsurd(
       execute(
         "SELECT absurd.cancel_task($1, $2)",
         queueName.value,
-        taskId.toJavaUuid(),
+        taskId,
       )
     }
   }
@@ -234,8 +234,8 @@ internal class RealAbsurd(
         FROM absurd.get_task_checkpoint_states($1, $2, $3)
         """,
         queueName.value,
-        task.taskId.toJavaUuid(),
-        task.runId.toJavaUuid(),
+        task.taskId,
+        task.runId,
       ) {
         string("checkpoint_name") to rawJson("state")
       }
@@ -272,7 +272,7 @@ internal class RealAbsurd(
     }
   }
 
-  private fun <P : Any, R : Any> Readable.getClaimedTask(taskName: TaskName<P, R>) = ClaimedTask(
+  private fun <P : Any, R : Any> Row.getClaimedTask(taskName: TaskName<P, R>) = ClaimedTask(
     runId = uuid("run_id"),
     taskId = uuid("task_id"),
     attempt = int("attempt"),
@@ -294,11 +294,11 @@ internal class RealAbsurd(
         execute(
           "SELECT absurd.complete_run($1, $2, $3)",
           queueName.value,
-          claimedTask.runId.toJavaUuid(),
-          Json.of(KotlinJson.encodeToString(claimedTask.taskName.resultSerializer, result)),
+          claimedTask.runId,
+          KotlinJson.encodeToJsonElement(claimedTask.taskName.resultSerializer, result),
         )
       }
-    } catch (e: R2dbcNonTransientResourceException) {
+    } catch (e: PgException) {
       if (e.isProbablyDueToCanceledTask) return // Nothing to do.
       throw e
     }
@@ -314,12 +314,12 @@ internal class RealAbsurd(
         execute(
           "SELECT absurd.fail_run($1, $2, $3, $4)",
           queueName.value,
-          claimedTask.runId.toJavaUuid(),
-          Json.of(KotlinJson.encodeToString(error)),
-          retryAt?.toJavaInstant(),
+          claimedTask.runId,
+          KotlinJson.encodeToJsonElement(error),
+          retryAt,
         )
       }
-    } catch (e: R2dbcNonTransientResourceException) {
+    } catch (e: PgException) {
       if (e.isProbablyDueToCanceledTask) return // Nothing to do.
       throw e
     }
@@ -337,14 +337,14 @@ internal class RealAbsurd(
         "SELECT absurd.emit_event($1, $2, $3)",
         queueName.value,
         eventName,
-        Json.of(KotlinJson.encodeToString(serializer, payload)),
+        KotlinJson.encodeToJsonElement(serializer, payload),
       )
     }
   }
 
   private inner class RealTaskContext<P : Any, R : Any>(
     private val task: ClaimedTask<P, R>,
-    private val checkpointCache: MutableMap<String, Json>,
+    private val checkpointCache: MutableMap<String, JsonElement>,
     private val claimTimeout: Duration,
   ) : TaskHandler.Context() {
     private val stepNameCounter = mutableMapOf<String, Int>()
@@ -382,7 +382,7 @@ internal class RealAbsurd(
           checkpointName = checkpointName,
           serializer = serializer,
           done = true,
-          resultOrNull = KotlinJson.decodeFromString(serializer, state.asString()),
+          resultOrNull = KotlinJson.decodeFromJsonElement(serializer, state),
         )
       }
 
@@ -407,26 +407,26 @@ internal class RealAbsurd(
       serializer: KSerializer<T>,
       value: T,
     ) {
-      val valueJson = Json.of(KotlinJson.encodeToString(serializer, value))
+      val valueJson = KotlinJson.encodeToJsonElement(serializer, value)
       postgresql.withConnection {
         try {
           execute(
             "SELECT absurd.set_task_checkpoint_state($1, $2, $3, $4, $5, $6)",
             queueName.value,
-            task.taskId.toJavaUuid(),
+            task.taskId,
             checkpointName,
             valueJson,
-            task.runId.toJavaUuid(),
+            task.runId,
             claimTimeout.inWholeSeconds.toInt(),
           )
-        } catch (e: R2dbcNonTransientResourceException) {
+        } catch (e: PgException) {
           throw e.toTaskStateException() ?: e
         }
         checkpointCache[checkpointName] = valueJson
       }
     }
 
-    private suspend fun lookupCheckpoint(checkpointName: String): Json {
+    private suspend fun lookupCheckpoint(checkpointName: String): JsonElement {
       val cached = this.checkpointCache[checkpointName]
       if (cached != null) return cached
 
@@ -437,7 +437,7 @@ internal class RealAbsurd(
           FROM absurd.get_task_checkpoint_state($1, $2, $3)
           """,
           queueName.value,
-          task.taskId.toJavaUuid(),
+          task.taskId,
           checkpointName,
         ) {
           rawJson("state")
@@ -462,7 +462,7 @@ internal class RealAbsurd(
       val cached = lookupCheckpoint(checkpointName)
 
       if (cached !== CHECKPOINT_NOT_FOUND) {
-        return KotlinJson.decodeFromString(serializer, cached.asString())
+        return KotlinJson.decodeFromJsonElement(serializer, cached)
       }
 
       if (task.wakeEvent == eventName && task.eventPayload == null) {
@@ -479,8 +479,8 @@ internal class RealAbsurd(
             FROM absurd.await_event($1, $2, $3, $4, $5, $6)
             """,
             queueName.value,
-            taskId.toJavaUuid(),
-            task.runId.toJavaUuid(),
+            taskId,
+            task.runId,
             checkpointName,
             eventName,
             timeout?.inWholeSeconds?.toInt(),
@@ -491,7 +491,7 @@ internal class RealAbsurd(
             )
           }
         }
-      } catch (e: R2dbcNonTransientResourceException) {
+      } catch (e: PgException) {
         throw e.toTaskStateException() ?: e
       }
 
@@ -501,7 +501,7 @@ internal class RealAbsurd(
       if (!result.shouldSuspend) {
         checkpointCache[checkpointName] = result.payload
         task.eventPayload = null
-        return KotlinJson.decodeFromString(serializer, result.payload.asString())
+        return KotlinJson.decodeFromJsonElement(serializer, result.payload)
       }
 
       throw SuspendTaskException()
@@ -530,7 +530,7 @@ internal class RealAbsurd(
           wakeAt
         }
 
-        else -> KotlinJson.decodeFromString<Instant>(state.asString())
+        else -> KotlinJson.decodeFromJsonElement<Instant>(state)
       }
 
       if (now < actualWakeAt) {
@@ -544,8 +544,8 @@ internal class RealAbsurd(
         execute(
           "SELECT absurd.schedule_run($1, $2, $3)",
           queueName.value,
-          task.runId.toJavaUuid(),
-          wakeAt.toJavaInstant(),
+          task.runId,
+          wakeAt,
         )
       }
     }
@@ -576,7 +576,7 @@ internal class RealAbsurd(
 
   companion object {
     /** Sentinel value when we haven't completed a checkpoint. Compare with `===`. */
-    private val CHECKPOINT_NOT_FOUND = Json.of("[\"CHECKPOINT_NOT_FOUND\"]")
+    private val CHECKPOINT_NOT_FOUND = JsonArray(listOf(JsonPrimitive("CHECKPOINT_NOT_FOUND")))
   }
 }
 
@@ -589,7 +589,7 @@ private class SuspendTaskException : RuntimeException()
 /** Internal exception thrown when the current run has already failed. */
 private class FailedTaskException : RuntimeException()
 
-private fun R2dbcException.toTaskStateException(): Throwable? {
+private fun PgException.toTaskStateException(): Throwable? {
   return when (sqlState) {
     "AB001" -> CancelledTaskException(this)
     "AB002" -> FailedTaskException()
@@ -601,12 +601,12 @@ private fun R2dbcException.toTaskStateException(): Throwable? {
  * We say 'probably' here 'cause there isn't an Absurd code for these exceptions.
  * https://github.com/earendil-works/absurd/issues/95
  */
-private val R2dbcException.isProbablyDueToCanceledTask: Boolean
+private val PgException.isProbablyDueToCanceledTask: Boolean
   get() = sqlState == "P0001"
 
 internal class AwaitEventResult(
   val shouldSuspend: Boolean,
-  val payload: Json,
+  val payload: JsonElement,
 )
 
 internal class ClaimedTask<P : Any, R : Any>(
