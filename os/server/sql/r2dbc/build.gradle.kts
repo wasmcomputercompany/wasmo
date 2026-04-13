@@ -18,6 +18,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.postgresql)
         implementation(libs.r2dbc)
+        implementation(libs.r2dbc.pool)
         implementation(libs.r2dbc.postgresql)
         implementation(libs.reactive.streams)
         implementation(project(":os:server:sql:api"))

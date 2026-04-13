@@ -29,6 +29,7 @@ kotlin {
         implementation(libs.okhttp)
         implementation(libs.okio)
         implementation(libs.r2dbc)
+        implementation(libs.r2dbc.pool)
         implementation(libs.r2dbc.postgresql)
         implementation(libs.sqldelight.jdbc.driver)
         implementation(libs.stripe)

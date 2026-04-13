@@ -1,18 +1,26 @@
 package com.wasmo.sql.r2dbc
 
 import com.wasmo.sql.PostgresqlAddress
+import io.r2dbc.pool.ConnectionPool
+import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
-import io.r2dbc.postgresql.PostgresqlConnectionFactory as Postgresql
-import io.r2dbc.postgresql.api.PostgresqlConnection as Connection
-import io.r2dbc.postgresql.api.PostgresqlResult
 import io.r2dbc.postgresql.client.SSLMode
+import io.r2dbc.spi.Connection
+import io.r2dbc.spi.ConnectionFactory
+import io.r2dbc.spi.Result
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.toJavaDuration
 import kotlinx.coroutines.reactive.awaitSingle
 
 fun connectPostgresqlAsync(
   address: PostgresqlAddress,
-): PostgresqlConnectionFactory {
-  val configuration = PostgresqlConnectionConfiguration.builder()
+  maxAcquireTime: Duration = 300.milliseconds,
+  minSize: Int = 1,
+  maxSize: Int = 1,
+): ConnectionPool {
+  val postgresqlConfiguration = PostgresqlConnectionConfiguration.builder()
     .host(address.hostname)
     .username(address.user)
     .password(address.password)
@@ -24,22 +32,32 @@ fun connectPostgresqlAsync(
       },
     )
     .build()
-  return PostgresqlConnectionFactory(configuration)
+
+  val poolConfiguration = ConnectionPoolConfiguration.builder()
+    .connectionFactory(PostgresqlConnectionFactory(postgresqlConfiguration))
+    .maxAcquireTime(maxAcquireTime.toJavaDuration())
+    .initialSize(minSize)
+    .maxSize(maxSize)
+    .build()
+
+  return ConnectionPool(poolConfiguration)
 }
 
-suspend inline fun <T> Postgresql.withConnection(
+suspend inline fun <T> ConnectionFactory.withConnection(
   block: suspend Connection.() -> T,
 ): T {
   val connection = create().awaitSingle()
   try {
     return connection.block()
   } finally {
-    connection.close().subscribe()
+    connection.close().subscribeAndDiscard()
   }
 }
 
 suspend inline fun Connection.executeVoid(
   sql: String,
-): PostgresqlResult = createStatement(sql).run {
-  execute().awaitSingle()
+): Result {
+  return createStatement(sql).run {
+    execute().awaitSingle()
+  }
 }

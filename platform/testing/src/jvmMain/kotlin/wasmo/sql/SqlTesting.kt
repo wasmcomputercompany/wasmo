@@ -3,14 +3,15 @@ package wasmo.sql
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.r2dbc.asSqlService
 import com.wasmo.sql.r2dbc.connectPostgresqlAsync
-import io.r2dbc.postgresql.PostgresqlConnectionFactory
-import kotlinx.coroutines.reactive.awaitSingle
+import com.wasmo.sql.r2dbc.executeVoid
+import com.wasmo.sql.r2dbc.withConnection
+import io.r2dbc.spi.ConnectionFactory
 
 suspend fun testSqlService(
   databaseName: String,
   clearSchema: Boolean,
 ): SqlService {
-  val dataSource = connectPostgresqlAsync(
+  val connectionPool = connectPostgresqlAsync(
     PostgresqlAddress(
       databaseName = databaseName,
       user = "postgres",
@@ -20,17 +21,16 @@ suspend fun testSqlService(
     ),
   )
   if (clearSchema) {
-    dataSource.clearSchema()
+    connectionPool.clearSchema()
   }
-  return dataSource.asSqlService()
+  return connectionPool.asSqlService()
 }
 
-private suspend fun PostgresqlConnectionFactory.clearSchema() {
-  with(create().awaitSingle()) {
-    createStatement("DROP SCHEMA public CASCADE").execute().awaitSingle()
-    createStatement("CREATE SCHEMA public").execute().awaitSingle()
-    createStatement("GRANT ALL ON SCHEMA public TO postgres").execute().awaitSingle()
-    createStatement("GRANT ALL ON SCHEMA public TO public").execute().awaitSingle()
-    close().subscribe()
+private suspend fun ConnectionFactory.clearSchema() {
+  withConnection {
+    executeVoid("DROP SCHEMA public CASCADE")
+    executeVoid("CREATE SCHEMA public")
+    executeVoid("GRANT ALL ON SCHEMA public TO postgres")
+    executeVoid("GRANT ALL ON SCHEMA public TO public")
   }
 }

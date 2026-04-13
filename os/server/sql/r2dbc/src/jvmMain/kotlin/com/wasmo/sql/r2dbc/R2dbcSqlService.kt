@@ -4,10 +4,10 @@ package com.wasmo.sql.r2dbc
 
 import com.wasmo.support.closetracker.CloseListener
 import com.wasmo.support.closetracker.CloseTracker
-import io.r2dbc.postgresql.PostgresqlConnectionFactory
-import io.r2dbc.postgresql.api.PostgresqlConnection
-import io.r2dbc.postgresql.api.PostgresqlStatement
+import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.postgresql.codec.Json
+import io.r2dbc.spi.Connection
+import io.r2dbc.spi.Statement
 import java.nio.ByteBuffer
 import java.time.temporal.Temporal
 import java.util.UUID
@@ -22,7 +22,7 @@ import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.reactive.awaitSingle
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
-import reactor.core.publisher.Flux
+import org.reactivestreams.Publisher
 import wasmo.json.JsonLiteral
 import wasmo.sql.RowIterator
 import wasmo.sql.SqlBinder
@@ -31,7 +31,7 @@ import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlRow
 import wasmo.sql.SqlService
 
-fun PostgresqlConnectionFactory.asSqlService(): SqlService = R2dbcSqlService(this)
+fun ConnectionPool.asSqlService(): SqlService = R2dbcSqlService(this)
 
 /**
  * Adapt Wasmo's coroutines SQL API to R2DBC's reactive streams implementation.
@@ -42,7 +42,7 @@ fun PostgresqlConnectionFactory.asSqlService(): SqlService = R2dbcSqlService(thi
  * https://github.com/sqldelight/sqldelight/blob/7981477e63f3c58df97f87613c372ef6945e8924/drivers/r2dbc-driver/src/main/kotlin/app/cash/sqldelight/driver/r2dbc/R2dbcDriver.kt#L24
  */
 private class R2dbcSqlService(
-  private val connectionFactory: PostgresqlConnectionFactory,
+  private val connectionPool: ConnectionPool,
 ) : SqlService {
   private val closeTracker = CloseTracker()
 
@@ -52,7 +52,7 @@ private class R2dbcSqlService(
     }
 
     return closeTracker.track { closeListener ->
-      R2dbcSqlDatabase(connectionFactory, closeListener)
+      R2dbcSqlDatabase(connectionPool, closeListener)
     }
   }
 
@@ -62,14 +62,14 @@ private class R2dbcSqlService(
 }
 
 private class R2dbcSqlDatabase(
-  private val connectionFactory: PostgresqlConnectionFactory,
+  private val connectionPool: ConnectionPool,
   private val closeListener: CloseListener,
 ) : SqlDatabase {
   private val closeTracker = CloseTracker()
 
   override suspend fun newConnection(): SqlConnection {
     return closeTracker.track { closeListener ->
-      R2dbcSqlConnection(connectionFactory.create().awaitSingle(), closeListener)
+      R2dbcSqlConnection(connectionPool.create().awaitSingle(), closeListener)
     }
   }
 
@@ -80,7 +80,7 @@ private class R2dbcSqlDatabase(
 }
 
 private class R2dbcSqlBinder(
-  private val statement: PostgresqlStatement,
+  private val statement: Statement,
 ) : SqlBinder {
   override fun bindBool(index: Int, value: Boolean?) {
     when {
@@ -161,7 +161,7 @@ private class R2dbcSqlBinder(
 }
 
 private class R2dbcSqlConnection(
-  private val connection: PostgresqlConnection,
+  private val connection: Connection,
   private val closeListener: CloseListener,
 ) : SqlConnection {
   private val closeTracker = CloseTracker()
@@ -205,11 +205,13 @@ private class R2dbcSqlConnection(
   override fun close() {
     closeListener.onClose()
     closeTracker.closeAll()
-    connection.close().subscribe()
+    connection.close().subscribeAndDiscard()
   }
 }
 
-private fun Flux<out SqlRow>.asRowIterator(closeListener: CloseListener) = object : RowIterator {
+private fun Publisher<R2dbcSqlRow>.asRowIterator(
+  closeListener: CloseListener,
+) = object : RowIterator {
   private val delegate = PublisherIterator(this@asRowIterator)
 
   override suspend fun next() = delegate.next()

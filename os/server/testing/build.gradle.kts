@@ -24,6 +24,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.okio.fakefilesystem)
         implementation(libs.postgresql)
+        implementation(libs.r2dbc.pool)
         implementation(libs.r2dbc.postgresql)
         implementation(libs.sqldelight.jdbc.driver)
         implementation(libs.tomlkt)

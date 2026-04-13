@@ -3,7 +3,7 @@ package com.wasmo.testing.sql
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.r2dbc.executeVoid
 import com.wasmo.sql.r2dbc.withConnection
-import io.r2dbc.postgresql.PostgresqlConnectionFactory
+import io.r2dbc.spi.ConnectionFactory
 import org.apache.commons.dbcp2.PoolableConnection
 import org.apache.commons.dbcp2.PoolingDataSource
 
@@ -24,7 +24,7 @@ fun PoolingDataSource<PoolableConnection>.clearSchema() {
   }
 }
 
-suspend fun PostgresqlConnectionFactory.clearSchema() {
+suspend fun ConnectionFactory.clearSchema() {
   withConnection {
     executeVoid("DROP SCHEMA public CASCADE")
     executeVoid("CREATE SCHEMA public")

@@ -19,6 +19,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.okio.fakefilesystem)
         implementation(libs.okhttp)
+        implementation(libs.r2dbc.pool)
         implementation(libs.r2dbc.postgresql)
         implementation(project(":os:server:downloader:real"))
         implementation(project(":os:server:identifiers"))
