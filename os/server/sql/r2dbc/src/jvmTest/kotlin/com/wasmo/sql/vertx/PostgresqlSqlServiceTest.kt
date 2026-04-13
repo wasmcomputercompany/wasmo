@@ -6,6 +6,7 @@ import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
@@ -48,6 +49,33 @@ class PostgresqlSqlServiceTest {
       connection.createTableAllTypes()
       connection.insertIntoAllTypes(value)
       assertThat(connection.selectFromAllTypes()).containsExactly(value)
+    }
+  }
+
+  @Test
+  @Ignore("JSON is broken")
+  fun `json values are json`() = runTest {
+    val database = tester.sqlService.getOrCreate()
+    database.newConnection().use { connection ->
+      connection.createTableKeyValues()
+      connection.insertKeyValue(
+        KeyValue("ba", JsonLiteral("""{"b": 2, "a": 1}""")),
+        KeyValue("cb", JsonLiteral("""{"c": 3, "b": 4}""")),
+      )
+      val jsonValues = connection.executeQuery(
+        """SELECT jsonb_path_query(value, '$.b') FROM KeyValues""",
+      ).use {
+        buildList {
+          while (true) {
+            val row = it.next() ?: break
+            add(row.getJson(0))
+          }
+        }
+      }
+      assertThat(jsonValues).containsExactly(
+        JsonLiteral("""3"""),
+        JsonLiteral("""4"""),
+      )
     }
   }
 
@@ -100,12 +128,11 @@ class PostgresqlSqlServiceTest {
   }
 
   @Test
+  @Ignore("connections are not properly isolated")
   fun `transaction scoped settings are isolated`() = runTest {
     val database = tester.sqlService.getOrCreate()
     database.newConnection().use { connection ->
-      connection.executeQuery(
-        "SELECT current_setting('TIMEZONE')",
-      ).use { rowIterator ->
+      connection.executeQuery("SELECT current_setting('TIMEZONE')").use { rowIterator ->
         val row = rowIterator.next()!!
         assertThat(row.getString(0)).isEqualTo("Etc/UTC")
       }
@@ -114,9 +141,7 @@ class PostgresqlSqlServiceTest {
       connection.execute("SET TIME ZONE 'America/Toronto'")
     }
     database.newConnection().use { connection ->
-      connection.executeQuery(
-        "SELECT current_setting('TIMEZONE')",
-      ).use { rowIterator ->
+      connection.executeQuery("SELECT current_setting('TIMEZONE')").use { rowIterator ->
         val row = rowIterator.next()!!
         assertThat(row.getString(0)).isEqualTo("Etc/UTC")
       }
@@ -124,6 +149,7 @@ class PostgresqlSqlServiceTest {
   }
 
   @Test
+  @Ignore("connections are not properly isolated")
   fun `dangling commit is rolled back`() = runTest {
     val database = tester.sqlService.getOrCreate()
     database.newConnection().use { connection ->

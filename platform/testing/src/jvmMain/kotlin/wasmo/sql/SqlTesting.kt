@@ -1,17 +1,17 @@
 package wasmo.sql
 
 import com.wasmo.sql.PostgresqlAddress
-import com.wasmo.sql.r2dbc.asSqlService
-import com.wasmo.sql.r2dbc.connectPostgresqlAsync
-import com.wasmo.sql.r2dbc.executeVoid
-import com.wasmo.sql.r2dbc.withConnection
-import io.r2dbc.spi.ConnectionFactory
+import com.wasmo.sql.vertx.asSqlService
+import com.wasmo.sql.vertx.connectVertxPostgresql
+import com.wasmo.sql.vertx.execute
+import com.wasmo.sql.vertx.useConnection
+import io.vertx.sqlclient.Pool
 
 suspend fun testSqlService(
   databaseName: String,
   clearSchema: Boolean,
 ): SqlService {
-  val connectionPool = connectPostgresqlAsync(
+  val connectionPool = connectVertxPostgresql(
     PostgresqlAddress(
       databaseName = databaseName,
       user = "postgres",
@@ -26,11 +26,11 @@ suspend fun testSqlService(
   return connectionPool.asSqlService()
 }
 
-private suspend fun ConnectionFactory.clearSchema() {
-  withConnection {
-    executeVoid("DROP SCHEMA public CASCADE")
-    executeVoid("CREATE SCHEMA public")
-    executeVoid("GRANT ALL ON SCHEMA public TO postgres")
-    executeVoid("GRANT ALL ON SCHEMA public TO public")
+suspend fun Pool.clearSchema() {
+  useConnection {
+    execute("DROP SCHEMA IF EXISTS public CASCADE")
+    execute("CREATE SCHEMA public")
+    execute("GRANT ALL ON SCHEMA public TO postgres")
+    execute("GRANT ALL ON SCHEMA public TO public")
   }
 }

@@ -15,9 +15,9 @@ import kotlinx.coroutines.future.asDeferred
 
 fun connectVertxPostgresql(
   address: PostgresqlAddress,
+  poolSize: Int = 1,
 ): Pool {
   val connectOptions = PgConnectOptions()
-    .setPort(5432)
     .setHost(address.hostname)
     .setDatabase(address.databaseName)
     .setUser(address.user)
@@ -30,7 +30,7 @@ fun connectVertxPostgresql(
     )
 
   val poolOptions = PoolOptions()
-    .setMaxSize(5)
+    .setMaxSize(poolSize)
 
   return PgBuilder
     .pool()
