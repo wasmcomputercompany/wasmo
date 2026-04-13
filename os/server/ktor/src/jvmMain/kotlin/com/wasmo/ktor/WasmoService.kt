@@ -11,6 +11,7 @@ import com.wasmo.identifiers.OsScope
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
+import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.asSqlService
 import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.stripe.StripeCredentials
@@ -57,7 +58,8 @@ fun startWasmoService(
     jdbcDriver = osDataSource.asJdbcDriver(),
   )
 
-  val sqlService = config.applicationPostgresqlAddress.asSqlService()
+  val postgresqlClient = PostgresqlClient(config.applicationPostgresqlAddress)
+  val sqlService = postgresqlClient.asSqlService()
 
   val wasmoServiceGraphFactory = createGraphFactory<WasmoServiceGraph.Factory>()
   val serviceGraph = wasmoServiceGraphFactory.create(

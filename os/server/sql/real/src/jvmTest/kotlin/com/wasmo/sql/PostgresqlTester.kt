@@ -9,19 +9,20 @@ import wasmo.sql.SqlService
 class PostgresqlTester : CoroutineTestInterceptor {
   private var run: Run? = null
 
-  val postgresqlAddress: PostgresqlAddress
-    get() = run!!.postgresqlAddress
+  val client: PostgresqlClient
+    get() = run!!.client
   val sqlService: SqlService
     get() = run!!.sqlService
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    TestDatabaseAddress.use { connection ->
+    val client = PostgresqlClient(TestDatabaseAddress)
+    client.withConnection { connection ->
       connection.clearSchema()
     }
 
     run = Run(
-      postgresqlAddress = TestDatabaseAddress,
-      sqlService = TestDatabaseAddress.asSqlService(),
+      client = client,
+      sqlService = client.asSqlService(),
     )
     try {
       testFunction.invoke()
@@ -31,7 +32,7 @@ class PostgresqlTester : CoroutineTestInterceptor {
   }
 
   private class Run(
-    val postgresqlAddress: PostgresqlAddress,
+    val client: PostgresqlClient,
     val sqlService: SqlService,
   )
 }

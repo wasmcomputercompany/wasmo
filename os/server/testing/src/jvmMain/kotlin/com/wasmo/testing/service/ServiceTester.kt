@@ -6,6 +6,7 @@ import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.passkeys.RealAuthenticatorDatabase
+import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.asSqlService
 import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.support.tokens.newToken
@@ -100,7 +101,8 @@ class ServiceTester : CoroutineTestInterceptor {
     ).use { wasmoDb ->
       wasmoDb.migrate()
 
-      TestDatabaseAddress.asSqlService().use { sqlService ->
+      val postgresqlClient = PostgresqlClient(TestDatabaseAddress)
+      postgresqlClient.asSqlService().use { sqlService ->
         val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
         coroutineScope {
           this@ServiceTester.graph = serviceTesterGraphFactory.create(

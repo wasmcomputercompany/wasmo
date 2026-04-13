@@ -30,10 +30,10 @@ import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlRow
 import wasmo.sql.SqlService
 
-fun PostgresqlAddress.asSqlService(): SqlService = RealSqlService(this)
+fun PostgresqlClient.asSqlService(): SqlService = RealSqlService(this)
 
 internal class RealSqlService(
-  private val address: PostgresqlAddress,
+  private val client: PostgresqlClient,
 ) : SqlService {
   private val closeTracker = CloseTracker()
 
@@ -43,7 +43,7 @@ internal class RealSqlService(
     }
 
     return closeTracker.track { closeListener ->
-      RealSqlDatabase(address, closeListener)
+      RealSqlDatabase(client, closeListener)
     }
   }
 
@@ -53,14 +53,14 @@ internal class RealSqlService(
 }
 
 internal class RealSqlDatabase(
-  private val address: PostgresqlAddress,
+  private val client: PostgresqlClient,
   private val closeListener: CloseListener,
 ) : SqlDatabase {
   private val closeTracker = CloseTracker()
 
   override suspend fun newConnection(): SqlConnection {
     return closeTracker.track { closeListener ->
-      RealSqlConnection(address.connect(), closeListener)
+      RealSqlConnection(client.connect(), closeListener)
     }
   }
 

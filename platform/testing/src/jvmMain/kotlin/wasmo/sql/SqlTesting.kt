@@ -1,9 +1,9 @@
 package wasmo.sql
 
 import com.wasmo.sql.PostgresqlAddress
+import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.asSqlService
 import com.wasmo.sql.execute
-import com.wasmo.sql.use
 import io.vertx.sqlclient.SqlClient
 
 suspend fun testSqlService(
@@ -17,12 +17,13 @@ suspend fun testSqlService(
     hostname = "localhost",
     ssl = false,
   )
-  postgresqlAddress.use { connection ->
-    if (clearSchema) {
+  val client = PostgresqlClient(postgresqlAddress)
+  if (clearSchema) {
+    client.withConnection { connection ->
       connection.clearSchema()
     }
   }
-  return postgresqlAddress.asSqlService()
+  return client.asSqlService()
 }
 
 suspend fun SqlClient.clearSchema() {
