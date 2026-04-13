@@ -5,6 +5,7 @@ package com.wasmo.sql
 import com.wasmo.support.closetracker.CloseListener
 import com.wasmo.support.closetracker.CloseTracker
 import io.vertx.core.buffer.Buffer
+import io.vertx.core.json.Json
 import io.vertx.sqlclient.Row as VertxRow
 import io.vertx.sqlclient.RowIterator as VertxRowIterator
 import io.vertx.sqlclient.RowSet
@@ -168,9 +169,10 @@ internal class TupleBuilder : SqlBinder {
     set(index, value?.toJavaUuid() ?: NullValue.UUID)
   }
 
-  // TODO: we probably aught to do something smarter for JSON here. Decode it?
   override fun bindJson(index: Int, value: JsonLiteral?) {
-    set(index, value?.json ?: NullValue.JsonObject)
+    val jsonValue = value?.let { Json.CODEC.fromString(it.json, Any::class.java) }
+      ?: NullValue.JsonObject
+    set(index, jsonValue)
   }
 
   fun build(): Tuple = Tuple.wrap(values)
@@ -231,7 +233,6 @@ internal class RealSqlRow(
 
   override fun getJson(index: Int): JsonLiteral? {
     val json = delegate.getJson(index) ?: return null
-    if (json == Tuple.JSON_NULL) return JsonLiteral("null")
-    return JsonLiteral(json.toString())
+    return JsonLiteral(Json.CODEC.toString(json))
   }
 }

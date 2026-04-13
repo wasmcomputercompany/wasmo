@@ -6,7 +6,6 @@ import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
@@ -31,7 +30,7 @@ class RealSqlServiceTest {
       valueString = "Wasmo!",
       valueBytes = "some bytes".encodeUtf8(),
       valueUuid = Uuid.parse("00000000-0000-4000-8000-000000000000"),
-      valueJson = JsonLiteral("""{"a": 1, "b": 2}"""), // Must be in canonical form.
+      valueJson = JsonLiteral("""{"a":1,"b":2}"""), // Must be in canonical form.
     )
     val database = tester.sqlService.getOrCreate()
     database.newConnection().use { connection ->
@@ -53,14 +52,23 @@ class RealSqlServiceTest {
   }
 
   @Test
-  @Ignore("JSON is broken")
   fun `json values are json`() = runTest {
     val database = tester.sqlService.getOrCreate()
     database.newConnection().use { connection ->
       connection.createTableKeyValues()
       connection.insertKeyValue(
-        KeyValue("ba", JsonLiteral("""{"b": 2, "a": 1}""")),
-        KeyValue("cb", JsonLiteral("""{"c": 3, "b": 4}""")),
+        KeyValue(
+          key = "breakfast",
+          value = JsonLiteral(
+            """{"b":{"fruit":"banana"},"a":{"fruit":"apple"}}""",
+          ),
+        ),
+        KeyValue(
+          key = "transportation",
+          value = JsonLiteral(
+            """{"c":{"vehicle":"car"},"b":{"vehicle":"boat"}}""",
+          ),
+        ),
       )
       val jsonValues = connection.executeQuery(
         """SELECT jsonb_path_query(value, '$.b') FROM KeyValues""",
@@ -73,8 +81,8 @@ class RealSqlServiceTest {
         }
       }
       assertThat(jsonValues).containsExactly(
-        JsonLiteral("""3"""),
-        JsonLiteral("""4"""),
+        JsonLiteral("""{"fruit":"banana"}"""),
+        JsonLiteral("""{"vehicle":"boat"}"""),
       )
     }
   }
