@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.wasmo.sql.r2dbc
 
 import com.wasmo.support.closetracker.CloseListener
@@ -5,11 +7,23 @@ import com.wasmo.support.closetracker.CloseTracker
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.postgresql.api.PostgresqlConnection
 import io.r2dbc.postgresql.api.PostgresqlStatement
+import io.r2dbc.postgresql.codec.Json
+import java.nio.ByteBuffer
+import java.time.temporal.Temporal
+import java.util.UUID
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
+import kotlin.uuid.toKotlinUuid
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.reactive.awaitSingle
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
 import reactor.core.publisher.Flux
+import wasmo.json.JsonLiteral
 import wasmo.sql.RowIterator
 import wasmo.sql.SqlBinder
 import wasmo.sql.SqlConnection
@@ -68,6 +82,62 @@ private class R2dbcSqlDatabase(
 private class R2dbcSqlBinder(
   private val statement: PostgresqlStatement,
 ) : SqlBinder {
+  override fun bindBool(index: Int, value: Boolean?) {
+    when {
+      value != null -> statement.bind(index, value)
+      else -> statement.bindNull(index, Boolean::class.javaObjectType)
+    }
+  }
+
+  override fun bindS32(index: Int, value: Int?) {
+    when {
+      value != null -> statement.bind(index, value)
+      else -> statement.bindNull(index, Int::class.javaObjectType)
+    }
+  }
+
+  override fun bindS64(index: Int, value: Long?) {
+    when {
+      value != null -> statement.bind(index, value)
+      else -> statement.bindNull(index, Long::class.javaObjectType)
+    }
+  }
+
+  override fun bindF32(index: Int, value: Float?) {
+    when {
+      value != null -> statement.bind(index, value)
+      else -> statement.bindNull(index, Float::class.javaObjectType)
+    }
+  }
+
+  override fun bindF64(index: Int, value: Double?) {
+    when {
+      value != null -> statement.bind(index, value)
+      else -> statement.bindNull(index, Double::class.javaObjectType)
+    }
+  }
+
+  override fun bindChar(index: Int, value: Int?) {
+    when {
+      value != null -> statement.bind(index, value)
+      else -> statement.bindNull(index, Int::class.javaObjectType)
+    }
+  }
+
+  override fun bindInstant(index: Int, value: Instant?) {
+    when {
+      value != null -> statement.bind(index, value.toJavaInstant())
+      else -> statement.bindNull(index, java.time.Instant::class.javaObjectType)
+    }
+  }
+
+  override fun bindUuid(index: Int, value: Uuid?) {
+    when {
+      value != null -> statement.bind(index, value.toJavaUuid())
+      else -> statement.bindNull(index, UUID::class.javaObjectType)
+    }
+  }
+
   override fun bindString(index: Int, value: String?) {
     when {
       value != null -> statement.bind(index, value)
@@ -75,31 +145,17 @@ private class R2dbcSqlBinder(
     }
   }
 
-  override fun bindLong(index: Int, value: Long?) {
-    when {
-      value != null -> statement.bind(index, value)
-      else -> statement.bindNull(index, Long::class.javaObjectType)
-    }
-  }
-
   override fun bindBytes(index: Int, value: ByteString?) {
     when {
-      value != null -> statement.bind(index, value)
+      value != null -> statement.bind(index, value.toByteArray())
       else -> statement.bindNull(index, ByteArray::class.java)
     }
   }
 
-  override fun bindDouble(index: Int, value: Double?) {
+  override fun bindJson(index: Int, value: JsonLiteral?) {
     when {
-      value != null -> statement.bind(index, value)
-      else -> statement.bindNull(index, Double::class.javaObjectType)
-    }
-  }
-
-  override fun bindBoolean(index: Int, value: Boolean?) {
-    when {
-      value != null -> statement.bind(index, value)
-      else -> statement.bindNull(index, Boolean::class.javaObjectType)
+      value != null -> statement.bind(index, Json.of(value.json))
+      else -> statement.bindNull(index, Json::class.javaObjectType)
     }
   }
 }
@@ -167,13 +223,27 @@ private fun Flux<out SqlRow>.asRowIterator(closeListener: CloseListener) = objec
 private class R2dbcSqlRow(
   private val values: Array<Any?>,
 ) : SqlRow {
-  override fun getString(columnIndex: Int) = values[columnIndex] as String?
+  override fun getBool(index: Int) = values[index] as Boolean?
 
-  override fun getLong(columnIndex: Int) = (values[columnIndex] as Number?)?.toLong()
+  override fun getS32(index: Int) = values[index] as Int?
 
-  override fun getBytes(columnIndex: Int) = (values[columnIndex] as ByteArray?)?.toByteString()
+  override fun getS64(index: Int) = values[index] as Long?
 
-  override fun getDouble(columnIndex: Int) = (values[columnIndex] as Number?)?.toDouble()
+  override fun getF32(index: Int) = values[index] as Float?
 
-  override fun getBoolean(columnIndex: Int) = values[columnIndex] as Boolean?
+  override fun getF64(index: Int) = values[index] as Double?
+
+  override fun getChar(index: Int) = values[index] as Int?
+
+  override fun getInstant(index: Int) =
+    (values[index] as Temporal?)?.let { java.time.Instant.from(it).toKotlinInstant() }
+
+  override fun getString(index: Int) = values[index] as String?
+
+  override fun getBytes(index: Int) = (values[index] as ByteBuffer?)?.toByteString()
+
+  override fun getUuid(index: Int) = (values[index] as UUID?)?.toKotlinUuid()
+
+  override fun getJson(index: Int) =
+    (values[index] as Json?)?.let { JsonLiteral(it.asString()) }
 }

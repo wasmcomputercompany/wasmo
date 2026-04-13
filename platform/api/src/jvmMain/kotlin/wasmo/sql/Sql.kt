@@ -1,7 +1,13 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package wasmo.sql
 
+import kotlin.time.Instant
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import okio.ByteString
 import okio.Closeable
+import wasmo.json.JsonLiteral
 
 /**
  * Creates PostgreSQL databases and executes writes and reads on them.
@@ -49,17 +55,29 @@ interface RowIterator : Closeable {
 }
 
 interface SqlRow {
-  fun getString(columnIndex: Int): String?
-  fun getLong(columnIndex: Int): Long?
-  fun getBytes(columnIndex: Int): ByteString?
-  fun getDouble(columnIndex: Int): Double?
-  fun getBoolean(columnIndex: Int): Boolean?
+  fun getBool(index: Int): Boolean?
+  fun getS32(index: Int): Int?
+  fun getS64(index: Int): Long?
+  fun getF32(index: Int): Float?
+  fun getF64(index: Int): Double?
+  fun getChar(index: Int): Int?
+  fun getInstant(index: Int): Instant?
+  fun getString(index: Int): String?
+  fun getBytes(index: Int): ByteString?
+  fun getUuid(index: Int): Uuid?
+  fun getJson(index: Int): JsonLiteral?
 }
 
 interface SqlBinder {
+  fun bindBool(index: Int, value: Boolean?)
+  fun bindS32(index: Int, value: Int?)
+  fun bindS64(index: Int, value: Long?)
+  fun bindF32(index: Int, value: Float?)
+  fun bindF64(index: Int, value: Double?)
+  fun bindChar(index: Int, value: Int?)
+  fun bindInstant(index: Int, value: Instant?)
   fun bindString(index: Int, value: String?)
-  fun bindLong(index: Int, value: Long?)
   fun bindBytes(index: Int, value: ByteString?)
-  fun bindDouble(index: Int, value: Double?)
-  fun bindBoolean(index: Int, value: Boolean?)
+  fun bindUuid(index: Int, value: Uuid?)
+  fun bindJson(index: Int, value: JsonLiteral?)
 }

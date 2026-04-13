@@ -1,8 +1,9 @@
 package com.wasmo.testing.sql
 
 import com.wasmo.sql.PostgresqlAddress
+import com.wasmo.sql.r2dbc.executeVoid
+import com.wasmo.sql.r2dbc.withConnection
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
-import kotlinx.coroutines.reactive.awaitSingle
 import org.apache.commons.dbcp2.PoolableConnection
 import org.apache.commons.dbcp2.PoolingDataSource
 
@@ -24,11 +25,10 @@ fun PoolingDataSource<PoolableConnection>.clearSchema() {
 }
 
 suspend fun PostgresqlConnectionFactory.clearSchema() {
-  with(create().awaitSingle()) {
-    createStatement("DROP SCHEMA public CASCADE").execute().awaitSingle()
-    createStatement("CREATE SCHEMA public").execute().awaitSingle()
-    createStatement("GRANT ALL ON SCHEMA public TO postgres").execute().awaitSingle()
-    createStatement("GRANT ALL ON SCHEMA public TO public").execute().awaitSingle()
-    close().subscribe()
+  withConnection {
+    executeVoid("DROP SCHEMA public CASCADE")
+    executeVoid("CREATE SCHEMA public")
+    executeVoid("GRANT ALL ON SCHEMA public TO postgres")
+    executeVoid("GRANT ALL ON SCHEMA public TO public")
   }
 }

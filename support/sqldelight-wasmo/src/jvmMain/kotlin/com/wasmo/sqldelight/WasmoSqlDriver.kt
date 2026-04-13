@@ -106,7 +106,7 @@ private class WasmoPreparedStatement(
   private val sqlBinder: SqlBinder,
 ) : SqlPreparedStatement, R2dbcPreparedStatement {
   override fun bindBoolean(index: Int, boolean: Boolean?) {
-    sqlBinder.bindBoolean(index, boolean)
+    sqlBinder.bindBool(index, boolean)
   }
 
   override fun bindBytes(index: Int, bytes: ByteArray?) {
@@ -114,11 +114,11 @@ private class WasmoPreparedStatement(
   }
 
   override fun bindDouble(index: Int, double: Double?) {
-    sqlBinder.bindDouble(index, double)
+    sqlBinder.bindF64(index, double)
   }
 
   override fun bindLong(index: Int, long: Long?) {
-    sqlBinder.bindLong(index, long)
+    sqlBinder.bindS64(index, long)
   }
 
   override fun bindString(index: Int, string: String?) {
@@ -137,13 +137,13 @@ private class WasmoSqlCursor(
     row != null
   }
 
-  override fun getBoolean(index: Int) = row!!.getBoolean(index)
+  override fun getBoolean(index: Int) = row!!.getBool(index)
 
   override fun getBytes(index: Int) = row!!.getBytes(index)?.toByteArray()
 
-  override fun getDouble(index: Int) = row!!.getDouble(index)
+  override fun getDouble(index: Int) = row!!.getF64(index)
 
-  override fun getLong(index: Int): Long? = row!!.getLong(index)
+  override fun getLong(index: Int): Long? = row!!.getS64(index)
 
   override fun getString(index: Int) = row!!.getString(index)
 }
