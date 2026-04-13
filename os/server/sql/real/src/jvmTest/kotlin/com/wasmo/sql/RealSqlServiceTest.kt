@@ -128,7 +128,6 @@ class RealSqlServiceTest {
   }
 
   @Test
-  @Ignore("connections are not properly isolated")
   fun `transaction scoped settings are isolated`() = runTest {
     val database = tester.sqlService.getOrCreate()
     database.newConnection().use { connection ->
@@ -149,7 +148,6 @@ class RealSqlServiceTest {
   }
 
   @Test
-  @Ignore("connections are not properly isolated")
   fun `dangling commit is rolled back`() = runTest {
     val database = tester.sqlService.getOrCreate()
     database.newConnection().use { connection ->

@@ -6,9 +6,8 @@ import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.passkeys.RealAuthenticatorDatabase
-import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.sql.asSqlService
-import com.wasmo.sql.connectVertxPostgresql
+import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePasskey
@@ -101,7 +100,7 @@ class ServiceTester : CoroutineTestInterceptor {
     ).use { wasmoDb ->
       wasmoDb.migrate()
 
-      connectVertxPostgresql(TestDatabaseAddress).asSqlService().use { sqlService ->
+      TestDatabaseAddress.asSqlService().use { sqlService ->
         val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
         coroutineScope {
           this@ServiceTester.graph = serviceTesterGraphFactory.create(

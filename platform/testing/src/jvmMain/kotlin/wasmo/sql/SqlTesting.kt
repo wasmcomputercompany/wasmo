@@ -2,35 +2,32 @@ package wasmo.sql
 
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.asSqlService
-import com.wasmo.sql.connectVertxPostgresql
 import com.wasmo.sql.execute
-import com.wasmo.sql.useConnection
-import io.vertx.sqlclient.Pool
+import com.wasmo.sql.use
+import io.vertx.sqlclient.SqlClient
 
 suspend fun testSqlService(
   databaseName: String,
   clearSchema: Boolean,
 ): SqlService {
-  val connectionPool = connectVertxPostgresql(
-    PostgresqlAddress(
-      databaseName = databaseName,
-      user = "postgres",
-      password = "password",
-      hostname = "localhost",
-      ssl = false,
-    ),
+  val postgresqlAddress = PostgresqlAddress(
+    databaseName = databaseName,
+    user = "postgres",
+    password = "password",
+    hostname = "localhost",
+    ssl = false,
   )
-  if (clearSchema) {
-    connectionPool.clearSchema()
+  postgresqlAddress.use { connection ->
+    if (clearSchema) {
+      connection.clearSchema()
+    }
   }
-  return connectionPool.asSqlService()
+  return postgresqlAddress.asSqlService()
 }
 
-suspend fun Pool.clearSchema() {
-  useConnection {
-    execute("DROP SCHEMA IF EXISTS public CASCADE")
-    execute("CREATE SCHEMA public")
-    execute("GRANT ALL ON SCHEMA public TO postgres")
-    execute("GRANT ALL ON SCHEMA public TO public")
-  }
+suspend fun SqlClient.clearSchema() {
+  execute("DROP SCHEMA IF EXISTS public CASCADE")
+  execute("CREATE SCHEMA public")
+  execute("GRANT ALL ON SCHEMA public TO postgres")
+  execute("GRANT ALL ON SCHEMA public TO public")
 }

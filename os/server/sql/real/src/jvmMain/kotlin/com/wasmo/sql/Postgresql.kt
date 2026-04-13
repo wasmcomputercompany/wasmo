@@ -4,55 +4,45 @@ import io.vertx.core.Future
 import io.vertx.pgclient.PgBuilder
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.SslMode
-import io.vertx.sqlclient.Pool
-import io.vertx.sqlclient.PoolOptions
 import io.vertx.sqlclient.Row
 import io.vertx.sqlclient.RowSet
-import io.vertx.sqlclient.SqlConnection
+import io.vertx.sqlclient.SqlClient
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.future.asDeferred
 
-fun connectVertxPostgresql(
-  address: PostgresqlAddress,
-  poolSize: Int = 1,
-): Pool {
+/** Returns a new connection that the caller must close when they're done with it. */
+fun PostgresqlAddress.connect(): SqlClient {
   val connectOptions = PgConnectOptions()
-    .setHost(address.hostname)
-    .setDatabase(address.databaseName)
-    .setUser(address.user)
-    .setPassword(address.password)
+    .setHost(hostname)
+    .setDatabase(databaseName)
+    .setUser(user)
+    .setPassword(password)
     .setSslMode(
       when {
-        address.ssl -> SslMode.VERIFY_FULL
+        ssl -> SslMode.VERIFY_FULL
         else -> SslMode.DISABLE
       },
     )
 
-  val poolOptions = PoolOptions()
-    .setMaxSize(poolSize)
-
   return PgBuilder
-    .pool()
-    .with(poolOptions)
+    .client()
     .connectingTo(connectOptions)
     .build()
 }
 
-suspend inline fun SqlConnection.execute(
-  sql: String,
-): RowSet<Row> {
-  return query(sql).execute().asDeferred().await()
-}
-
-suspend inline fun <T> Pool.useConnection(
-  block: suspend SqlConnection.() -> T,
-): T {
-  val connection = this.connection.asDeferred().await()
+suspend fun <T> PostgresqlAddress.use(block: suspend (SqlClient) -> T): T {
+  val connection = connect()
   try {
-    return connection.block()
+    return block(connection)
   } finally {
     connection.close().asDeferred().await()
   }
+}
+
+suspend inline fun SqlClient.execute(
+  sql: String,
+): RowSet<Row> {
+  return query(sql).execute().asDeferred().await()
 }
 
 fun <T> Future<T>.asDeferred(): Deferred<T> =

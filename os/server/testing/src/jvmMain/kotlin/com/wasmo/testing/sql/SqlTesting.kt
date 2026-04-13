@@ -2,8 +2,7 @@ package com.wasmo.testing.sql
 
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.execute
-import com.wasmo.sql.useConnection
-import io.vertx.sqlclient.Pool
+import io.vertx.sqlclient.SqlClient
 import org.apache.commons.dbcp2.PoolableConnection
 import org.apache.commons.dbcp2.PoolingDataSource
 
@@ -24,11 +23,9 @@ fun PoolingDataSource<PoolableConnection>.clearSchema() {
   }
 }
 
-suspend fun Pool.clearSchema() {
-  useConnection {
-    execute("DROP SCHEMA IF EXISTS public CASCADE")
-    execute("CREATE SCHEMA public")
-    execute("GRANT ALL ON SCHEMA public TO postgres")
-    execute("GRANT ALL ON SCHEMA public TO public")
-  }
+suspend fun SqlClient.clearSchema() {
+  execute("DROP SCHEMA IF EXISTS public CASCADE")
+  execute("CREATE SCHEMA public")
+  execute("GRANT ALL ON SCHEMA public TO postgres")
+  execute("GRANT ALL ON SCHEMA public TO public")
 }

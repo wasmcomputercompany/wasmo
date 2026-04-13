@@ -5,11 +5,10 @@ package com.wasmo.sql
 import com.wasmo.support.closetracker.CloseListener
 import com.wasmo.support.closetracker.CloseTracker
 import io.vertx.core.buffer.Buffer
-import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.Row as VertxRow
 import io.vertx.sqlclient.RowIterator as VertxRowIterator
 import io.vertx.sqlclient.RowSet
-import io.vertx.sqlclient.SqlConnection as PostgresqlConnection
+import io.vertx.sqlclient.SqlClient
 import io.vertx.sqlclient.Tuple
 import io.vertx.sqlclient.data.NullValue
 import java.time.OffsetDateTime
@@ -31,10 +30,10 @@ import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlRow
 import wasmo.sql.SqlService
 
-fun Pool.asSqlService(): SqlService = RealSqlService(this)
+fun PostgresqlAddress.asSqlService(): SqlService = RealSqlService(this)
 
 internal class RealSqlService(
-  private val pool: Pool,
+  private val address: PostgresqlAddress,
 ) : SqlService {
   private val closeTracker = CloseTracker()
 
@@ -44,25 +43,24 @@ internal class RealSqlService(
     }
 
     return closeTracker.track { closeListener ->
-      RealSqlDatabase(pool, closeListener)
+      RealSqlDatabase(address, closeListener)
     }
   }
 
   override fun close() {
-    pool.close()
+    closeTracker.closeAll()
   }
 }
 
 internal class RealSqlDatabase(
-  private val pool: Pool,
+  private val address: PostgresqlAddress,
   private val closeListener: CloseListener,
 ) : SqlDatabase {
   private val closeTracker = CloseTracker()
 
   override suspend fun newConnection(): SqlConnection {
     return closeTracker.track { closeListener ->
-      val connection = pool.connection.asDeferred().await()
-      RealSqlConnection(connection, closeListener)
+      RealSqlConnection(address.connect(), closeListener)
     }
   }
 
@@ -73,7 +71,7 @@ internal class RealSqlDatabase(
 }
 
 internal class RealSqlConnection(
-  private val connection: PostgresqlConnection,
+  private val sqlClient: SqlClient,
   private val closeListener: CloseListener,
 ) : SqlConnection {
   private val closeTracker = CloseTracker()
@@ -82,7 +80,7 @@ internal class RealSqlConnection(
     sql: String,
     bindParameters: (SqlBinder.() -> Unit)?,
   ): Long {
-    val preparedQuery = connection.preparedQuery(sql)
+    val preparedQuery = sqlClient.preparedQuery(sql)
 
     val rows = when {
       bindParameters != null -> {
@@ -101,7 +99,7 @@ internal class RealSqlConnection(
     sql: String,
     bindParameters: (SqlBinder.() -> Unit)?,
   ): RowIterator {
-    val preparedQuery = connection.preparedQuery(sql)
+    val preparedQuery = sqlClient.preparedQuery(sql)
 
     val rows: RowSet<VertxRow?> = when {
       bindParameters != null -> {
@@ -119,7 +117,7 @@ internal class RealSqlConnection(
   override fun close() {
     closeListener.onClose()
     closeTracker.closeAll()
-    connection.close()
+    sqlClient.close()
   }
 }
 

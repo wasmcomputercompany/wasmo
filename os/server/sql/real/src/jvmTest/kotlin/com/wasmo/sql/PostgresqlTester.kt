@@ -4,24 +4,24 @@ import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.testing.sql.TestDatabaseAddress
 import com.wasmo.testing.sql.clearSchema
-import io.vertx.sqlclient.Pool
 import wasmo.sql.SqlService
 
 class PostgresqlTester : CoroutineTestInterceptor {
   private var run: Run? = null
 
-  val connectionPool: Pool
-    get() = run!!.pool
+  val postgresqlAddress: PostgresqlAddress
+    get() = run!!.postgresqlAddress
   val sqlService: SqlService
     get() = run!!.sqlService
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    val pool = connectVertxPostgresql(TestDatabaseAddress)
-    pool.clearSchema()
+    TestDatabaseAddress.use { connection ->
+      connection.clearSchema()
+    }
 
     run = Run(
-      pool = pool,
-      sqlService = pool.asSqlService(),
+      postgresqlAddress = TestDatabaseAddress,
+      sqlService = TestDatabaseAddress.asSqlService(),
     )
     try {
       testFunction.invoke()
@@ -31,7 +31,7 @@ class PostgresqlTester : CoroutineTestInterceptor {
   }
 
   private class Run(
-    val pool: Pool,
+    val postgresqlAddress: PostgresqlAddress,
     val sqlService: SqlService,
   )
 }
