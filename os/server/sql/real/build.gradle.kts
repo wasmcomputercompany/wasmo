@@ -14,13 +14,7 @@ kotlin {
       dependencies {
         implementation(libs.commons.dbcp2)
         implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.kotlinx.coroutines.reactive)
         implementation(libs.okio)
-        implementation(libs.postgresql)
-        implementation(libs.r2dbc)
-        implementation(libs.r2dbc.pool)
-        implementation(libs.r2dbc.postgresql)
-        implementation(libs.reactive.streams)
         implementation(libs.vertx.postgresql)
         implementation(project(":os:server:sql:api"))
         implementation(project(":platform:api"))

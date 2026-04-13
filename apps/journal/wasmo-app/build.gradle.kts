@@ -27,7 +27,6 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okhttp)
         implementation(libs.okio)
-        implementation(libs.r2dbc.postgresql)
         implementation(libs.sqldelight.async.extensions)
         implementation(libs.vertx.postgresql)
         implementation(project(":apps:journal:api"))
@@ -47,7 +46,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.test)
         implementation(project(":platform:testing"))
         implementation(project(":os:server:sql:api"))
-        implementation(project(":os:server:sql:r2dbc"))
+        implementation(project(":os:server:sql:real"))
       }
     }
   }
