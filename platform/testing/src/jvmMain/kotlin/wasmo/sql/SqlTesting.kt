@@ -1,10 +1,10 @@
 package wasmo.sql
 
 import com.wasmo.sql.PostgresqlAddress
-import com.wasmo.sql.vertx.asSqlService
-import com.wasmo.sql.vertx.connectVertxPostgresql
-import com.wasmo.sql.vertx.execute
-import com.wasmo.sql.vertx.useConnection
+import com.wasmo.sql.asSqlService
+import com.wasmo.sql.connectVertxPostgresql
+import com.wasmo.sql.execute
+import com.wasmo.sql.useConnection
 import io.vertx.sqlclient.Pool
 
 suspend fun testSqlService(

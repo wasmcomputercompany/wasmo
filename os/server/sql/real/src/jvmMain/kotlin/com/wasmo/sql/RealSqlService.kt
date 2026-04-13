@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalUuidApi::class)
 
-package com.wasmo.sql.vertx
+package com.wasmo.sql
 
 import com.wasmo.support.closetracker.CloseListener
 import com.wasmo.support.closetracker.CloseTracker
@@ -31,9 +31,9 @@ import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlRow
 import wasmo.sql.SqlService
 
-fun Pool.asSqlService(): SqlService = PostgresqlSqlService(this)
+fun Pool.asSqlService(): SqlService = RealSqlService(this)
 
-internal class PostgresqlSqlService(
+internal class RealSqlService(
   private val pool: Pool,
 ) : SqlService {
   private val closeTracker = CloseTracker()
@@ -44,7 +44,7 @@ internal class PostgresqlSqlService(
     }
 
     return closeTracker.track { closeListener ->
-      PostgresqlSqlDatabase(pool, closeListener)
+      RealSqlDatabase(pool, closeListener)
     }
   }
 
@@ -53,7 +53,7 @@ internal class PostgresqlSqlService(
   }
 }
 
-internal class PostgresqlSqlDatabase(
+internal class RealSqlDatabase(
   private val pool: Pool,
   private val closeListener: CloseListener,
 ) : SqlDatabase {
@@ -62,7 +62,7 @@ internal class PostgresqlSqlDatabase(
   override suspend fun newConnection(): SqlConnection {
     return closeTracker.track { closeListener ->
       val connection = pool.connection.asDeferred().await()
-      PostgresqlSqlConnection(connection, closeListener)
+      RealSqlConnection(connection, closeListener)
     }
   }
 
@@ -72,7 +72,7 @@ internal class PostgresqlSqlDatabase(
   }
 }
 
-internal class PostgresqlSqlConnection(
+internal class RealSqlConnection(
   private val connection: PostgresqlConnection,
   private val closeListener: CloseListener,
 ) : SqlConnection {
@@ -113,7 +113,7 @@ internal class PostgresqlSqlConnection(
       else -> preparedQuery.execute().asDeferred().await()
     }
 
-    return PostgresqlRowIterator(rows.iterator())
+    return RealRowIterator(rows.iterator())
   }
 
   override fun close() {
@@ -178,19 +178,19 @@ internal class TupleBuilder : SqlBinder {
   fun build(): Tuple = Tuple.wrap(values)
 }
 
-internal class PostgresqlRowIterator(
+internal class RealRowIterator(
   private val delegate: VertxRowIterator<VertxRow?>,
 ) : RowIterator {
   override suspend fun next(): SqlRow? {
     if (!delegate.hasNext()) return null
-    return PostgresqlSqlRow(delegate.next()!!)
+    return RealSqlRow(delegate.next()!!)
   }
 
   override fun close() {
   }
 }
 
-internal class PostgresqlSqlRow(
+internal class RealSqlRow(
   private val delegate: VertxRow,
 ) : SqlRow {
   override fun getBool(index: Int): Boolean? {

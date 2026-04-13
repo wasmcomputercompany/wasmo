@@ -1,8 +1,8 @@
 package com.wasmo.testing.sql
 
 import com.wasmo.sql.PostgresqlAddress
-import com.wasmo.sql.vertx.execute
-import com.wasmo.sql.vertx.useConnection
+import com.wasmo.sql.execute
+import com.wasmo.sql.useConnection
 import io.vertx.sqlclient.Pool
 import org.apache.commons.dbcp2.PoolableConnection
 import org.apache.commons.dbcp2.PoolingDataSource

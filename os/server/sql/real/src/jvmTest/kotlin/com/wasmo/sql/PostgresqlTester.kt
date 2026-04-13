@@ -1,4 +1,4 @@
-package com.wasmo.sql.vertx
+package com.wasmo.sql
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
@@ -7,7 +7,7 @@ import com.wasmo.testing.sql.clearSchema
 import io.vertx.sqlclient.Pool
 import wasmo.sql.SqlService
 
-class VertxPostgresTester : CoroutineTestInterceptor {
+class PostgresqlTester : CoroutineTestInterceptor {
   private var run: Run? = null
 
   val connectionPool: Pool

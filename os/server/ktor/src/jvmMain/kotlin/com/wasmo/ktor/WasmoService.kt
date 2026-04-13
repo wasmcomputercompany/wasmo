@@ -12,8 +12,8 @@ import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.jdbc.connectPostgresql
-import com.wasmo.sql.vertx.asSqlService
-import com.wasmo.sql.vertx.connectVertxPostgresql
+import com.wasmo.sql.asSqlService
+import com.wasmo.sql.connectVertxPostgresql
 import com.wasmo.stripe.StripeCredentials
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

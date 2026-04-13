@@ -1,4 +1,4 @@
-package com.wasmo.sql.vertx
+package com.wasmo.sql
 
 import wasmo.sql.SqlConnection
 

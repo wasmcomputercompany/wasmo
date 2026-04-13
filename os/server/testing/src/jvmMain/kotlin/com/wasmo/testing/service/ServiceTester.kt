@@ -7,8 +7,8 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.WasmoDbService
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sql.jdbc.connectPostgresql
-import com.wasmo.sql.vertx.asSqlService
-import com.wasmo.sql.vertx.connectVertxPostgresql
+import com.wasmo.sql.asSqlService
+import com.wasmo.sql.connectVertxPostgresql
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePasskey

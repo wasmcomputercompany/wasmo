@@ -1,6 +1,5 @@
-package com.wasmo.sql.vertx
+package com.wasmo.sql
 
-import com.wasmo.sql.PostgresqlAddress
 import io.vertx.core.Future
 import io.vertx.pgclient.PgBuilder
 import io.vertx.pgclient.PgConnectOptions

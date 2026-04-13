@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalUuidApi::class)
 
-package com.wasmo.sql.vertx
+package com.wasmo.sql
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat
@@ -15,9 +15,9 @@ import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.json.JsonLiteral
 
-class PostgresqlSqlServiceTest {
+class RealSqlServiceTest {
   @InterceptTest
-  private val tester = VertxPostgresTester()
+  private val tester = PostgresqlTester()
 
   @Test
   fun `read and write all types`() = runTest {
