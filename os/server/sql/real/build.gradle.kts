@@ -25,6 +25,7 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.burst.coroutines)
+        implementation(project(":os:server:sql:testing"))
         implementation(project(":os:server:testing"))
       }
     }

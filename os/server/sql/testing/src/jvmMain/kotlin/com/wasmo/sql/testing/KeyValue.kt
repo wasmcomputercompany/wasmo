@@ -1,4 +1,4 @@
-package com.wasmo.sql
+package com.wasmo.sql.testing
 
 import wasmo.json.JsonLiteral
 import wasmo.sql.SqlConnection

@@ -1,9 +1,9 @@
-package com.wasmo.sql
+package com.wasmo.sql.testing
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
-import com.wasmo.testing.sql.TestDatabaseAddress
-import com.wasmo.testing.sql.clearSchema
+import com.wasmo.sql.PostgresqlClient
+import com.wasmo.sql.asSqlService
 import wasmo.sql.SqlService
 
 class PostgresqlTester : CoroutineTestInterceptor {

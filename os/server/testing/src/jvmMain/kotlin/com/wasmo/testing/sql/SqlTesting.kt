@@ -1,18 +1,7 @@
 package com.wasmo.testing.sql
 
-import com.wasmo.sql.PostgresqlAddress
-import com.wasmo.sql.execute
-import io.vertx.sqlclient.SqlClient
 import org.apache.commons.dbcp2.PoolableConnection
 import org.apache.commons.dbcp2.PoolingDataSource
-
-val TestDatabaseAddress = PostgresqlAddress(
-  databaseName = "wasmo_test",
-  user = "postgres",
-  password = "password",
-  hostname = "localhost",
-  ssl = false,
-)
 
 fun PoolingDataSource<PoolableConnection>.clearSchema() {
   connection.use { connection ->
@@ -21,11 +10,4 @@ fun PoolingDataSource<PoolableConnection>.clearSchema() {
     connection.prepareStatement("GRANT ALL ON SCHEMA public TO postgres").executeUpdate()
     connection.prepareStatement("GRANT ALL ON SCHEMA public TO public").executeUpdate()
   }
-}
-
-suspend fun SqlClient.clearSchema() {
-  execute("DROP SCHEMA IF EXISTS public CASCADE")
-  execute("CREATE SCHEMA public")
-  execute("GRANT ALL ON SCHEMA public TO postgres")
-  execute("GRANT ALL ON SCHEMA public TO public")
 }

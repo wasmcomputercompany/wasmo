@@ -9,6 +9,7 @@ import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.asSqlService
 import com.wasmo.sql.jdbc.connectPostgresql
+import com.wasmo.sql.testing.TestDatabaseAddress
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePasskey
@@ -18,7 +19,6 @@ import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.TestEventListener
-import com.wasmo.testing.sql.TestDatabaseAddress
 import com.wasmo.testing.sql.clearSchema
 import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.coroutineScope

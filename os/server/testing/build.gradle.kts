@@ -55,6 +55,7 @@ kotlin {
         implementation(project(":os:server:sql:api"))
         implementation(project(":os:server:sql:jdbc"))
         implementation(project(":os:server:sql:real"))
+        implementation(project(":os:server:sql:testing"))
         implementation(project(":os:server:wasm:api"))
         implementation(project(":os:server:wasm:jvm"))
         implementation(project(":os:server:website:api"))

@@ -12,19 +12,16 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
-        implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.okio)
-        implementation(libs.sqldelight.runtime)
-        implementation(project(":platform:api"))
-      }
-    }
-    val jvmTest by getting {
-      dependencies {
         implementation(libs.burst.coroutines)
+        implementation(libs.commons.dbcp2)
+        implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.coroutines.test)
-        implementation(libs.postgresql)
-        implementation(project(":platform:testing"))
-        implementation(project(":os:server:sql:testing"))
+        implementation(libs.okio)
+        implementation(libs.vertx.postgresql)
+        implementation(project(":os:server:sql:api"))
+        implementation(project(":os:server:sql:real"))
+        implementation(project(":platform:api"))
+        implementation(project(":support:close-tracker"))
       }
     }
   }

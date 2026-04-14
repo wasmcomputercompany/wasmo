@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalUuidApi::class)
 
-package com.wasmo.sql
+package com.wasmo.sql.testing
 
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
