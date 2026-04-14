@@ -3,9 +3,9 @@ package com.wasmo.accounts.passkeys
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
-import com.wasmo.db.CookieQueries
-import com.wasmo.db.Passkey
-import com.wasmo.db.WasmoDb
+import com.wasmo.app.db.CookieQueries
+import com.wasmo.app.db.Passkey
+import com.wasmo.app.db.WasmoDb
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 

@@ -1,6 +1,6 @@
 package com.wasmo.installedapps
 
-import com.wasmo.db.WasmoDb
+import com.wasmo.app.db.WasmoDb
 import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.OsJobHandler
 import dev.zacsweers.metro.Inject

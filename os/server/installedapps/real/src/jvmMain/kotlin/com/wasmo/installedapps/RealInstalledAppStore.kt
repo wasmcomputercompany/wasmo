@@ -3,9 +3,9 @@ package com.wasmo.installedapps
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.InstalledAppAndRelease
-import com.wasmo.db.InstalledApp
-import com.wasmo.db.InstalledAppRelease
-import com.wasmo.db.WasmoDb
+import com.wasmo.app.db.InstalledApp
+import com.wasmo.app.db.InstalledAppRelease
+import com.wasmo.app.db.WasmoDb
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId

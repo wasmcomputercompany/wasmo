@@ -1,6 +1,6 @@
 package com.wasmo.testing.installedapp
 
-import com.wasmo.db.WasmoDb
+import com.wasmo.app.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.AppSlug

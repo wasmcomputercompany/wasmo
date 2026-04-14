@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.db.WasmoDb
+import com.wasmo.app.db.WasmoDb
 import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.payments.ComputerAllocationSnapshot

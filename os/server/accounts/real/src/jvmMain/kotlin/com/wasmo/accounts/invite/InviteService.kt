@@ -3,7 +3,7 @@ package com.wasmo.accounts.invite
 import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.api.InviteTicket
-import com.wasmo.db.WasmoDb
+import com.wasmo.app.db.WasmoDb
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.identifiers.OsScope

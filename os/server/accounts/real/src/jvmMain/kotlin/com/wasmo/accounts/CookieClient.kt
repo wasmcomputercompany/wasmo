@@ -1,9 +1,9 @@
 package com.wasmo.accounts
 
 import app.cash.sqldelight.TransactionCallbacks
-import com.wasmo.db.AccountQueries
-import com.wasmo.db.CookieQueries
-import com.wasmo.db.WasmoDb
+import com.wasmo.app.db.AccountQueries
+import com.wasmo.app.db.CookieQueries
+import com.wasmo.app.db.WasmoDb
 import com.wasmo.identifiers.AccountId
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory

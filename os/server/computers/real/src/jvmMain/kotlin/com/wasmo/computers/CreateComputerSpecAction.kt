@@ -4,7 +4,7 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.CreateComputerSpecResponse
 import com.wasmo.api.CreateComputerSpecRequest
-import com.wasmo.db.WasmoDb
+import com.wasmo.app.db.WasmoDb
 import com.wasmo.framework.Response
 import com.wasmo.payments.CreateCheckoutSessionRequest
 import com.wasmo.payments.PaymentsService

@@ -1,7 +1,7 @@
 package com.wasmo.app.db
 
-import com.wasmo.db.InstalledApp
-import com.wasmo.db.InstalledAppRelease
+import com.wasmo.app.db.InstalledApp
+import com.wasmo.app.db.InstalledAppRelease
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId

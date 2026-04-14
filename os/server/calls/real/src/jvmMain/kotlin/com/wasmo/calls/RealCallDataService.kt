@@ -10,9 +10,9 @@ import com.wasmo.api.InviteTicket
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.db.Invite
-import com.wasmo.db.Passkey
-import com.wasmo.db.WasmoDb
+import com.wasmo.app.db.Invite
+import com.wasmo.app.db.Passkey
+import com.wasmo.app.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
 import dev.zacsweers.metro.Inject

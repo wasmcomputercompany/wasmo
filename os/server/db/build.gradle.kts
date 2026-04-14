@@ -1,6 +1,5 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.sqldelight)
   id("wasmo-build")
 }
 
@@ -32,17 +31,6 @@ kotlin {
       dependencies {
         implementation(project(":os:server:testing"))
       }
-    }
-  }
-}
-
-sqldelight {
-  databases {
-    create("WasmoDb") {
-      packageName.set("com.wasmo.db")
-      dialect("app.cash.sqldelight:postgresql-dialect:${libs.versions.sqldelight.get()}")
-      deriveSchemaFromMigrations.set(true)
-      migrationOutputDirectory = layout.buildDirectory.dir("resources/main/migrations")
     }
   }
 }

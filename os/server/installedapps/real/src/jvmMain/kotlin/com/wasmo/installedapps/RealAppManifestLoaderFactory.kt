@@ -1,7 +1,7 @@
 package com.wasmo.installedapps
 
-import com.wasmo.db.InstalledApp
-import com.wasmo.db.InstalledAppRelease
+import com.wasmo.app.db.InstalledApp
+import com.wasmo.app.db.InstalledAppRelease
 import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest

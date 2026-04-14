@@ -1,0 +1,224 @@
+package com.wasmo.app.db
+
+import app.cash.sqldelight.Query
+import app.cash.sqldelight.TransacterImpl
+import app.cash.sqldelight.db.QueryResult
+import app.cash.sqldelight.db.SqlCursor
+import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.jdbc.JdbcCursor
+import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.identifiers.AccountId
+import com.wasmo.identifiers.PasskeyId
+import com.wasmo.passkeys.RegistrationRecord
+import java.time.OffsetDateTime
+import kotlin.Any
+import kotlin.Long
+import kotlin.String
+import kotlin.time.Instant
+
+public class PasskeyQueries(
+  driver: SqlDriver,
+  private val PasskeyAdapter: Passkey.Adapter,
+) : TransacterImpl(driver) {
+  public fun <T : Any> findPasskeyByPasskeyId(passkey_id: String, mapper: (
+    id: PasskeyId,
+    created_at: Instant,
+    account_id: AccountId,
+    passkey_id: String,
+    aaguid: String,
+    created_by_user_agent: String?,
+    created_by_ip: String?,
+    registration_record: RegistrationRecord,
+  ) -> T): Query<T> = FindPasskeyByPasskeyIdQuery(passkey_id) { cursor ->
+    check(cursor is JdbcCursor)
+    mapper(
+      PasskeyAdapter.idAdapter.decode(cursor.getLong(0)!!),
+      PasskeyAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
+      PasskeyAdapter.account_idAdapter.decode(cursor.getLong(2)!!),
+      cursor.getString(3)!!,
+      cursor.getString(4)!!,
+      cursor.getString(5),
+      cursor.getString(6),
+      PasskeyAdapter.registration_recordAdapter.decode(cursor.getString(7)!!)
+    )
+  }
+
+  public fun findPasskeyByPasskeyId(passkey_id: String): Query<Passkey> = findPasskeyByPasskeyId(passkey_id, ::Passkey)
+
+  public fun <T : Any> findPasskeyByPasskeyIdAndAccountId(
+    passkey_id: String,
+    account_id: AccountId,
+    mapper: (
+      id: PasskeyId,
+      created_at: Instant,
+      account_id: AccountId,
+      passkey_id: String,
+      aaguid: String,
+      created_by_user_agent: String?,
+      created_by_ip: String?,
+      registration_record: RegistrationRecord,
+    ) -> T,
+  ): Query<T> = FindPasskeyByPasskeyIdAndAccountIdQuery(passkey_id, account_id) { cursor ->
+    check(cursor is JdbcCursor)
+    mapper(
+      PasskeyAdapter.idAdapter.decode(cursor.getLong(0)!!),
+      PasskeyAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
+      PasskeyAdapter.account_idAdapter.decode(cursor.getLong(2)!!),
+      cursor.getString(3)!!,
+      cursor.getString(4)!!,
+      cursor.getString(5),
+      cursor.getString(6),
+      PasskeyAdapter.registration_recordAdapter.decode(cursor.getString(7)!!)
+    )
+  }
+
+  public fun findPasskeyByPasskeyIdAndAccountId(passkey_id: String, account_id: AccountId): Query<Passkey> = findPasskeyByPasskeyIdAndAccountId(passkey_id, account_id, ::Passkey)
+
+  public fun <T : Any> findPasskeysByAccountId(account_id: AccountId, mapper: (
+    id: PasskeyId,
+    created_at: Instant,
+    account_id: AccountId,
+    passkey_id: String,
+    aaguid: String,
+    created_by_user_agent: String?,
+    created_by_ip: String?,
+    registration_record: RegistrationRecord,
+  ) -> T): Query<T> = FindPasskeysByAccountIdQuery(account_id) { cursor ->
+    check(cursor is JdbcCursor)
+    mapper(
+      PasskeyAdapter.idAdapter.decode(cursor.getLong(0)!!),
+      PasskeyAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
+      PasskeyAdapter.account_idAdapter.decode(cursor.getLong(2)!!),
+      cursor.getString(3)!!,
+      cursor.getString(4)!!,
+      cursor.getString(5),
+      cursor.getString(6),
+      PasskeyAdapter.registration_recordAdapter.decode(cursor.getString(7)!!)
+    )
+  }
+
+  public fun findPasskeysByAccountId(account_id: AccountId): Query<Passkey> = findPasskeysByAccountId(account_id, ::Passkey)
+
+  /**
+   * @return The number of rows updated.
+   */
+  public fun insertPasskey(
+    created_at: Instant,
+    account_id: AccountId,
+    passkey_id: String,
+    aaguid: String,
+    created_by_user_agent: String?,
+    created_by_ip: String?,
+    registration_record: RegistrationRecord,
+  ): QueryResult<Long> {
+    val result = driver.execute(-145_919_451, """
+        |INSERT INTO Passkey(
+        |  created_at,
+        |  account_id,
+        |  passkey_id,
+        |  aaguid,
+        |  created_by_user_agent,
+        |  created_by_ip,
+        |  registration_record
+        |)
+        |VALUES (
+        |  ?,
+        |  ?,
+        |  ?,
+        |  ?,
+        |  ?,
+        |  ?,
+        |  ?
+        |)
+        """.trimMargin(), 7) {
+          check(this is JdbcPreparedStatement)
+          var parameterIndex = 0
+          bindObject(parameterIndex++, PasskeyAdapter.created_atAdapter.encode(created_at))
+          bindLong(parameterIndex++, PasskeyAdapter.account_idAdapter.encode(account_id))
+          bindString(parameterIndex++, passkey_id)
+          bindString(parameterIndex++, aaguid)
+          bindString(parameterIndex++, created_by_user_agent)
+          bindString(parameterIndex++, created_by_ip)
+          bindString(parameterIndex++, PasskeyAdapter.registration_recordAdapter.encode(registration_record))
+        }
+    notifyQueries(-145_919_451) { emit ->
+      emit("Passkey")
+    }
+    return result
+  }
+
+  private inner class FindPasskeyByPasskeyIdQuery<out T : Any>(
+    public val passkey_id: String,
+    mapper: (SqlCursor) -> T,
+  ) : Query<T>(mapper) {
+    override fun addListener(listener: Listener) {
+      driver.addListener("Passkey", listener = listener)
+    }
+
+    override fun removeListener(listener: Listener) {
+      driver.removeListener("Passkey", listener = listener)
+    }
+
+    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(303_956_845, """
+    |SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record
+    |FROM Passkey
+    |WHERE
+    |  passkey_id = ?
+    """.trimMargin(), mapper, 1) {
+      check(this is JdbcPreparedStatement)
+      var parameterIndex = 0
+      bindString(parameterIndex++, passkey_id)
+    }
+
+    override fun toString(): String = "Passkey.sq:findPasskeyByPasskeyId"
+  }
+
+  private inner class FindPasskeyByPasskeyIdAndAccountIdQuery<out T : Any>(
+    public val passkey_id: String,
+    public val account_id: AccountId,
+    mapper: (SqlCursor) -> T,
+  ) : Query<T>(mapper) {
+    override fun addListener(listener: Listener) {
+      driver.addListener("Passkey", listener = listener)
+    }
+
+    override fun removeListener(listener: Listener) {
+      driver.removeListener("Passkey", listener = listener)
+    }
+
+    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_368_858_654, """
+    |SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey
+    |WHERE
+    |   passkey_id = ? AND
+    |   account_id = ?
+    """.trimMargin(), mapper, 2) {
+      check(this is JdbcPreparedStatement)
+      var parameterIndex = 0
+      bindString(parameterIndex++, passkey_id)
+      bindLong(parameterIndex++, PasskeyAdapter.account_idAdapter.encode(account_id))
+    }
+
+    override fun toString(): String = "Passkey.sq:findPasskeyByPasskeyIdAndAccountId"
+  }
+
+  private inner class FindPasskeysByAccountIdQuery<out T : Any>(
+    public val account_id: AccountId,
+    mapper: (SqlCursor) -> T,
+  ) : Query<T>(mapper) {
+    override fun addListener(listener: Listener) {
+      driver.addListener("Passkey", listener = listener)
+    }
+
+    override fun removeListener(listener: Listener) {
+      driver.removeListener("Passkey", listener = listener)
+    }
+
+    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(2_146_426_563, """SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey WHERE account_id = ?""", mapper, 1) {
+      check(this is JdbcPreparedStatement)
+      var parameterIndex = 0
+      bindLong(parameterIndex++, PasskeyAdapter.account_idAdapter.encode(account_id))
+    }
+
+    override fun toString(): String = "Passkey.sq:findPasskeysByAccountId"
+  }
+}

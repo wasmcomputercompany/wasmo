@@ -1,8 +1,8 @@
 package com.wasmo.installedapps
 
 import com.wasmo.computers.ComputerStore
-import com.wasmo.db.InstalledAppRelease
-import com.wasmo.db.WasmoDb
+import com.wasmo.app.db.InstalledAppRelease
+import com.wasmo.app.db.WasmoDb
 import com.wasmo.events.EventListener
 import com.wasmo.identifiers.OsScope
 import com.wasmo.issues.IssueCollector
