@@ -1,24 +1,20 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.ExecutableQuery
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerAccessId
 import com.wasmo.identifiers.ComputerId
-import kotlin.Any
-import kotlin.Int
-import kotlin.String
 import kotlin.time.Instant
 
 public class ComputerAccessQueries(
-  driver: SqlDriver,
+  private val driver: SqlDriver,
   private val ComputerAccessAdapter: ComputerAccess.Adapter,
-) : TransacterImpl(driver) {
+) {
   public fun insertComputerAccess(
     created_at: Instant,
     version: Int,
@@ -56,10 +52,6 @@ public class ComputerAccessQueries(
       bindInt(parameterIndex++, version)
       bindLong(parameterIndex++, ComputerAccessAdapter.computer_idAdapter.encode(computer_id))
       bindLong(parameterIndex++, ComputerAccessAdapter.account_idAdapter.encode(account_id))
-    }.also {
-      notifyQueries(-605_613_359) { emit ->
-        emit("ComputerAccess")
-      }
     }
 
     override fun toString(): String = "ComputerAccess.sq:insertComputerAccess"

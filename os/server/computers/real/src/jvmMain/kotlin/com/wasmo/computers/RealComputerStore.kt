@@ -1,9 +1,9 @@
 package com.wasmo.computers
 
-import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.Computer
 import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.OsScope
@@ -18,27 +18,27 @@ class RealComputerStore(
 ) : ComputerStore {
   context(transactionCallbacks: TransactionCallbacks)
   override fun initializeFromSpec(computerSpecToken: String): ComputerService {
-    val computerSpec = wasmoDb.computerSpecQueries
+    val computerSpec = transactionCallbacks.computerSpecQueries
       .selectComputerSpecByToken(computerSpecToken)
       .executeAsOneOrNull()
       ?: throw IllegalStateException("no such computer spec: $computerSpecToken")
 
     val computerId = computerSpec.computer_id
       ?: run {
-        val insertedComputerId = wasmoDb.computerQueries.insertComputer(
+        val insertedComputerId = transactionCallbacks.computerQueries.insertComputer(
           created_at = computerSpec.created_at,
           version = 1,
           slug = computerSpec.slug,
         ).executeAsOne()
 
-        wasmoDb.computerAccessQueries.insertComputerAccess(
+        transactionCallbacks.computerAccessQueries.insertComputerAccess(
           created_at = computerSpec.created_at,
           version = 1,
           computer_id = insertedComputerId,
           account_id = computerSpec.account_id,
         ).executeAsOne()
 
-        wasmoDb.computerSpecQueries.linkComputer(
+        transactionCallbacks.computerSpecQueries.linkComputer(
           new_version = computerSpec.version + 1,
           computer_id = insertedComputerId,
           expected_version = computerSpec.version,
@@ -61,7 +61,7 @@ class RealComputerStore(
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
-    val computer = wasmoDb.computerQueries.selectComputerByAccountIdAndSlug(
+    val computer = transactionCallbacks.computerQueries.selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = slug,
     ).executeAsOneOrNull()
@@ -72,7 +72,7 @@ class RealComputerStore(
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun get(computerId: ComputerId): ComputerService {
-    val computer = wasmoDb.computerQueries.selectComputerById(
+    val computer = transactionCallbacks.computerQueries.selectComputerById(
       id = computerId,
     ).executeAsOne()
 

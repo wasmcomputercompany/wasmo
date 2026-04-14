@@ -1,6 +1,6 @@
 package com.wasmo.calls
 
-import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.InviteTicket

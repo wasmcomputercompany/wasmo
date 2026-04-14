@@ -1,13 +1,12 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.ExecutableQuery
-import app.cash.sqldelight.Query
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
+import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId
@@ -15,17 +14,13 @@ import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import java.time.OffsetDateTime
-import kotlin.Any
-import kotlin.Boolean
-import kotlin.Long
-import kotlin.String
 import kotlin.time.Instant
 
 public class InstalledAppQueries(
-  driver: SqlDriver,
+  private val driver: SqlDriver,
   private val InstalledAppAdapter: InstalledApp.Adapter,
   private val InstalledAppReleaseAdapter: InstalledAppRelease.Adapter,
-) : TransacterImpl(driver) {
+) {
   public fun insertInstalledApp(
     installed_at: Instant,
     computer_id: ComputerId,
@@ -180,9 +175,6 @@ public class InstalledAppQueries(
           bindLong(parameterIndex++, expected_version)
           bindLong(parameterIndex++, InstalledAppAdapter.idAdapter.encode(id))
         }
-    notifyQueries(-1_970_953_018) { emit ->
-      emit("InstalledApp")
-    }
     return result
   }
 
@@ -221,10 +213,6 @@ public class InstalledAppQueries(
       bindBoolean(parameterIndex++, active)
       bindLong(parameterIndex++, version)
       bindString(parameterIndex++, InstalledAppAdapter.wasmo_file_addressAdapter.encode(wasmo_file_address))
-    }.also {
-      notifyQueries(1_804_962_849) { emit ->
-        emit("InstalledApp")
-      }
     }
 
     override fun toString(): String = "InstalledApp.sq:insertInstalledApp"
@@ -236,14 +224,6 @@ public class InstalledAppQueries(
     public val limit: Long,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("InstalledApp", "InstalledAppRelease", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("InstalledApp", "InstalledAppRelease", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(null, """
     |SELECT
     |  ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
@@ -273,14 +253,6 @@ public class InstalledAppQueries(
     public val active: Boolean?,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("InstalledApp", "InstalledAppRelease", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("InstalledApp", "InstalledAppRelease", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(null, """
     |SELECT
     |  ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
@@ -308,14 +280,6 @@ public class InstalledAppQueries(
     public val id: InstalledAppId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("InstalledApp", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("InstalledApp", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_170_206_678, """
     |SELECT InstalledApp.id, InstalledApp.installed_at, InstalledApp.computer_id, InstalledApp.slug, InstalledApp.active, InstalledApp.version, InstalledApp.wasmo_file_address, InstalledApp.active_release_id FROM InstalledApp
     |WHERE id = ?

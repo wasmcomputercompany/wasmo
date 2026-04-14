@@ -1,6 +1,6 @@
 package com.wasmo.accounts
 
-import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.identifiers.AccountId
 
 /**

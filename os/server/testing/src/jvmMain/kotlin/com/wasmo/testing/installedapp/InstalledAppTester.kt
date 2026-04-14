@@ -46,7 +46,7 @@ class InstalledAppTester private constructor(
       ?: error("failed to load ${installedAppService.slug}")
   }
 
-  private fun installedAppService(): InstalledAppService {
+  private suspend fun installedAppService(): InstalledAppService {
     return wasmoDb.transactionWithResult(noEnclosing = true) {
       installedAppStore.getOrNull(
         client = client.clientAuthenticator.get(),

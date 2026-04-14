@@ -1,25 +1,21 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.Query
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.passkeys.RegistrationRecord
 import java.time.OffsetDateTime
-import kotlin.Any
-import kotlin.Long
-import kotlin.String
 import kotlin.time.Instant
 
 public class PasskeyQueries(
-  driver: SqlDriver,
+  private val driver: SqlDriver,
   private val PasskeyAdapter: Passkey.Adapter,
-) : TransacterImpl(driver) {
+) {
   public fun <T : Any> findPasskeyByPasskeyId(passkey_id: String, mapper: (
     id: PasskeyId,
     created_at: Instant,
@@ -141,9 +137,6 @@ public class PasskeyQueries(
           bindString(parameterIndex++, created_by_ip)
           bindString(parameterIndex++, PasskeyAdapter.registration_recordAdapter.encode(registration_record))
         }
-    notifyQueries(-145_919_451) { emit ->
-      emit("Passkey")
-    }
     return result
   }
 
@@ -151,14 +144,6 @@ public class PasskeyQueries(
     public val passkey_id: String,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("Passkey", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("Passkey", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(303_956_845, """
     |SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record
     |FROM Passkey
@@ -178,14 +163,6 @@ public class PasskeyQueries(
     public val account_id: AccountId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("Passkey", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("Passkey", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_368_858_654, """
     |SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey
     |WHERE
@@ -205,14 +182,6 @@ public class PasskeyQueries(
     public val account_id: AccountId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("Passkey", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("Passkey", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(2_146_426_563, """SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey WHERE account_id = ?""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0

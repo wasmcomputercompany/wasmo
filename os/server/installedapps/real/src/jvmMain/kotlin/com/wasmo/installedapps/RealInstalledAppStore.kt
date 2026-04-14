@@ -1,11 +1,11 @@
 package com.wasmo.installedapps
 
-import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
-import com.wasmo.app.db.InstalledAppAndRelease
 import com.wasmo.app.db.InstalledApp
+import com.wasmo.app.db.InstalledAppAndRelease
 import com.wasmo.app.db.InstalledAppRelease
 import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
@@ -30,13 +30,13 @@ class RealInstalledAppStore(
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
-    val computer = wasmoDb.computerQueries.selectComputerByAccountIdAndSlug(
+    val computer = transactionCallbacks.computerQueries.selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = computerSlug,
     ).executeAsOneOrNull()
       ?: return null
 
-    val row = wasmoDb.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
+    val row = transactionCallbacks.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
       computer_id = computer.id,
       slug = appSlug,
       active = true,
@@ -53,9 +53,9 @@ class RealInstalledAppStore(
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun get(installedAppId: InstalledAppId): InstalledAppService? {
-    val installedApp = wasmoDb.installedAppQueries.selectInstalledAppById(installedAppId)
+    val installedApp = transactionCallbacks.installedAppQueries.selectInstalledAppById(installedAppId)
       .executeAsOne()
-    val installedAppRelease = wasmoDb.installedAppReleaseQueries
+    val installedAppRelease = transactionCallbacks.installedAppReleaseQueries
       .selectInstalledAppReleaseById(installedApp.active_release_id ?: return null)
       .executeAsOneOrNull()
     return get(
@@ -69,7 +69,7 @@ class RealInstalledAppStore(
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,
   ): InstalledAppService {
-    val computer = wasmoDb.computerQueries.selectComputerById(installedApp.computer_id)
+    val computer = transactionCallbacks.computerQueries.selectComputerById(installedApp.computer_id)
       .executeAsOne()
     return get(computer.slug, installedApp, installedAppRelease)
   }

@@ -1,24 +1,20 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.Query
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.CookieId
 import java.time.OffsetDateTime
-import kotlin.Any
-import kotlin.Long
-import kotlin.String
 import kotlin.time.Instant
 
 public class CookieQueries(
-  driver: SqlDriver,
+  private val driver: SqlDriver,
   private val CookieAdapter: Cookie.Adapter,
-) : TransacterImpl(driver) {
+) {
   public fun <T : Any> findCookieByToken(token: String, mapper: (
     id: CookieId,
     created_at: Instant,
@@ -95,9 +91,6 @@ public class CookieQueries(
           bindString(parameterIndex++, created_by_user_agent)
           bindString(parameterIndex++, created_by_ip)
         }
-    notifyQueries(-1_227_629_861) { emit ->
-      emit("Cookie")
-    }
     return result
   }
 
@@ -115,9 +108,6 @@ public class CookieQueries(
           bindLong(parameterIndex++, CookieAdapter.account_idAdapter.encode(target_account_id))
           bindLong(parameterIndex++, CookieAdapter.account_idAdapter.encode(source_account_id))
         }
-    notifyQueries(-1_742_666_096) { emit ->
-      emit("Cookie")
-    }
     return result
   }
 
@@ -125,14 +115,6 @@ public class CookieQueries(
     public val token: String,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("Cookie", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("Cookie", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(316_570_119, """SELECT Cookie.id, Cookie.created_at, Cookie.account_id, Cookie.token, Cookie.created_by_user_agent, Cookie.created_by_ip FROM Cookie WHERE token = ?""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
@@ -146,14 +128,6 @@ public class CookieQueries(
     public val account_id: AccountId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("Cookie", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("Cookie", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-1_236_875_978, """SELECT Cookie.id, Cookie.created_at, Cookie.account_id, Cookie.token, Cookie.created_by_user_agent, Cookie.created_by_ip FROM Cookie WHERE account_id = ?""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0

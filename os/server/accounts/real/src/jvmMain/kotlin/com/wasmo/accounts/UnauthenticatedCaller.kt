@@ -1,6 +1,6 @@
 package com.wasmo.accounts
 
-import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 
 /** Used for actions that don't access user data. */
 internal class UnauthenticatedCaller(

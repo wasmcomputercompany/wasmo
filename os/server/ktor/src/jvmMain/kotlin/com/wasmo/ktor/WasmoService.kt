@@ -46,14 +46,16 @@ class WasmoService(
   )
 }
 
-fun startWasmoService(
+suspend fun startWasmoService(
   config: WasmoService.Config,
   args: Array<String>,
 ): WasmoService {
   val server = EngineMain.createServer(args)
 
   val osDataSource = connectPostgresql(config.osPostgresqlAddress)
+  val osPostgresqlClient = PostgresqlClient(config.osPostgresqlAddress)
   val wasmoDb = WasmoDbService(
+    database = osPostgresqlClient.asSqlService().getOrCreate(),
     dataSource = osDataSource,
     jdbcDriver = osDataSource.asJdbcDriver(),
   )

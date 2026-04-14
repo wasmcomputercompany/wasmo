@@ -23,6 +23,7 @@ kotlin {
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:passkeys:api"))
         implementation(project(":os:server:sql:jdbc"))
+        implementation(project(":platform:api"))
         implementation(project(":platform:packaging"))
         implementation(project(":support:tokens"))
       }

@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug

@@ -1,25 +1,20 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.Query
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.InviteId
 import java.time.OffsetDateTime
-import kotlin.Any
-import kotlin.Int
-import kotlin.Long
-import kotlin.String
 import kotlin.time.Instant
 
 public class InviteQueries(
-  driver: SqlDriver,
+  private val driver: SqlDriver,
   private val InviteAdapter: Invite.Adapter,
-) : TransacterImpl(driver) {
+) {
   public fun <T : Any> findInvitesByClaimedBy(
     claimed_by: AccountId?,
     limit: Long,
@@ -100,9 +95,6 @@ public class InviteQueries(
           bindInt(parameterIndex++, version)
           bindString(parameterIndex++, code)
         }
-    notifyQueries(132_921_893) { emit ->
-      emit("Invite")
-    }
     return result
   }
 
@@ -134,9 +126,6 @@ public class InviteQueries(
           bindInt(parameterIndex++, expected_version)
           bindLong(parameterIndex++, InviteAdapter.idAdapter.encode(id))
         }
-    notifyQueries(-1_917_276_414) { emit ->
-      emit("Invite")
-    }
     return result
   }
 
@@ -145,14 +134,6 @@ public class InviteQueries(
     public val limit: Long,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("Invite", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("Invite", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(null, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${ if (claimed_by == null) "IS" else "=" } ? LIMIT ?""", mapper, 2) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
@@ -167,14 +148,6 @@ public class InviteQueries(
     public val code: String,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("Invite", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("Invite", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(445_097_906, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = ?""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0

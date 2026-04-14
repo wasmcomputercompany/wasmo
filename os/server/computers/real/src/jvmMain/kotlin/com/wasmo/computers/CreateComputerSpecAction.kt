@@ -2,8 +2,8 @@ package com.wasmo.computers
 
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
-import com.wasmo.api.CreateComputerSpecResponse
 import com.wasmo.api.CreateComputerSpecRequest
+import com.wasmo.api.CreateComputerSpecResponse
 import com.wasmo.app.db.WasmoDb
 import com.wasmo.framework.Response
 import com.wasmo.payments.CreateCheckoutSessionRequest
@@ -19,7 +19,7 @@ class CreateComputerSpecAction(
   private val wasmoDb: WasmoDb,
   private val computerSpecStore: ComputerSpecStore,
 ) {
-  fun create(
+  suspend fun create(
     request: CreateComputerSpecRequest,
   ): Response<CreateComputerSpecResponse> {
     wasmoDb.transactionWithResult(noEnclosing = true) {

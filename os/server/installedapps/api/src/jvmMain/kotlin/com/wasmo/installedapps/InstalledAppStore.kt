@@ -1,6 +1,6 @@
 package com.wasmo.installedapps
 
-import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.InstalledApp
 import com.wasmo.app.db.InstalledAppRelease

@@ -1,9 +1,6 @@
 package com.wasmo.accounts
 
-import app.cash.sqldelight.TransactionCallbacks
-import com.wasmo.app.db.AccountQueries
-import com.wasmo.app.db.CookieQueries
-import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.identifiers.AccountId
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -18,7 +15,6 @@ import kotlin.time.Clock
 @AssistedInject
 class CookieClient(
   private val clock: Clock,
-  private val wasmoDb: WasmoDb,
   @Assisted private val sessionCookie: SessionCookie,
   @Assisted override val userAgent: String?,
   @Assisted override val ip: String?,
@@ -28,17 +24,12 @@ class CookieClient(
 
   private var cachedAccountId: AccountId? = null
 
-  private val cookieQueries: CookieQueries
-    get() = wasmoDb.cookieQueries
-  private val accountQueries: AccountQueries
-    get() = wasmoDb.accountQueries
-
   context(transactionCallbacks: TransactionCallbacks)
   override fun getAccountIdOrNull(): AccountId? {
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = cookieQueries.findCookieByToken(sessionCookie.token).executeAsOneOrNull()
+    val cookie = transactionCallbacks.cookieQueries.findCookieByToken(sessionCookie.token).executeAsOneOrNull()
       ?: return null
     return cookie.account_id
       .also { this.cachedAccountId = it }
@@ -49,14 +40,14 @@ class CookieClient(
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = cookieQueries.findCookieByToken(sessionCookie.token).executeAsOneOrNull()
+    val cookie = transactionCallbacks.cookieQueries.findCookieByToken(sessionCookie.token).executeAsOneOrNull()
     if (cookie != null) return cookie.account_id
 
-    val accountId = accountQueries.insertAccount(
+    val accountId = transactionCallbacks.accountQueries.insertAccount(
       version = 1,
     ).executeAsOne()
 
-    cookieQueries.insertCookie(
+    transactionCallbacks.cookieQueries.insertCookie(
       created_at = clock.now(),
       account_id = accountId,
       token = sessionCookie.token,

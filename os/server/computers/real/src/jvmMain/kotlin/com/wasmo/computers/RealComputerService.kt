@@ -1,9 +1,10 @@
 package com.wasmo.computers
 
-import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.app.db.InstalledAppAndRelease
 import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db2.WasmoDbTransaction
+import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
@@ -51,7 +52,7 @@ class RealComputerService(
     wasmoFileAddress: WasmoFileAddress,
     slug: AppSlug,
   ) {
-    val installedAppId = wasmoDb.installedAppQueries.insertInstalledApp(
+    val installedAppId = transactionCallbacks.installedAppQueries.insertInstalledApp(
       installed_at = clock.now(),
       computer_id = id,
       slug = slug,
@@ -66,7 +67,7 @@ class RealComputerService(
 
   override suspend fun snapshot(): ComputerSnapshot {
     val installedApps = wasmoDb.transactionWithResult(noEnclosing = true) {
-      wasmoDb.installedAppQueries.selectInstalledAppsByComputerId(
+      contextOf<WasmoDbTransaction>().installedAppQueries.selectInstalledAppsByComputerId(
         computer_id = id,
         active = true,
         limit = 100,

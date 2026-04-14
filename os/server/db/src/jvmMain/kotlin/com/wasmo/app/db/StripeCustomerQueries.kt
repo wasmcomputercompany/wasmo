@@ -1,25 +1,20 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.ExecutableQuery
-import app.cash.sqldelight.Query
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
+import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.StripeCustomerId
 import java.time.OffsetDateTime
-import kotlin.Any
-import kotlin.Int
-import kotlin.Long
-import kotlin.String
 import kotlin.time.Instant
 
 public class StripeCustomerQueries(
-  driver: SqlDriver,
+  private val driver: SqlDriver,
   private val StripeCustomerAdapter: StripeCustomer.Adapter,
-) : TransacterImpl(driver) {
+) {
   public fun insertStripeCustomer(
     created_at: Instant,
     version: Int,
@@ -92,9 +87,6 @@ public class StripeCustomerQueries(
           bindInt(parameterIndex++, expected_version)
           bindLong(parameterIndex++, StripeCustomerAdapter.idAdapter.encode(id))
         }
-    notifyQueries(1_933_751_993) { emit ->
-      emit("StripeCustomer")
-    }
     return result
   }
 
@@ -137,10 +129,6 @@ public class StripeCustomerQueries(
       bindString(parameterIndex++, email)
       bindString(parameterIndex++, country)
       bindString(parameterIndex++, postal_code)
-    }.also {
-      notifyQueries(1_145_248_937) { emit ->
-        emit("StripeCustomer")
-      }
     }
 
     override fun toString(): String = "StripeCustomer.sq:insertStripeCustomer"
@@ -150,14 +138,6 @@ public class StripeCustomerQueries(
     public val stripe_customer_id: String,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("StripeCustomer", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("StripeCustomer", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_695_702_278, """
     |SELECT StripeCustomer.id, StripeCustomer.created_at, StripeCustomer.version, StripeCustomer.stripe_customer_id, StripeCustomer.name, StripeCustomer.email, StripeCustomer.country, StripeCustomer.postal_code
     |FROM StripeCustomer

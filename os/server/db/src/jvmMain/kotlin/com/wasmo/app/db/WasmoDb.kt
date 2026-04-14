@@ -1,51 +1,41 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.Transacter
-import app.cash.sqldelight.db.QueryResult
-import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.db.SqlSchema
-import kotlin.Unit
+import com.wasmo.app.db2.WasmoDbConnection
+import com.wasmo.app.db2.WasmoDbTransaction
+import okio.Closeable
 
-public interface WasmoDb : Transacter {
-  public val accountQueries: AccountQueries
+abstract class WasmoDb : Closeable {
+  abstract suspend fun newConnection(): WasmoDbConnection
 
-  public val computerQueries: ComputerQueries
+  abstract suspend fun newTransaction(): WasmoDbTransaction
 
-  public val computerAccessQueries: ComputerAccessQueries
+  suspend fun <T> transactionWithResult(
+    noEnclosing: Boolean,
+    block: suspend context(WasmoDbTransaction) () -> T,
+  ): T {
+    newTransaction().use { transaction ->
+      context(transaction) {
+        return block()
+      }
+    }
+  }
 
-  public val computerAllocationQueries: ComputerAllocationQueries
+  suspend fun <T> transaction(
+    noEnclosing: Boolean,
+    block: suspend context(WasmoDbTransaction) () -> T,
+  ): T {
+    newTransaction().use { transaction ->
+      context(transaction) {
+        return block()
+      }
+    }
+  }
 
-  public val computerSpecQueries: ComputerSpecQueries
-
-  public val cookieQueries: CookieQueries
-
-  public val installedAppQueries: InstalledAppQueries
-
-  public val installedAppReleaseQueries: InstalledAppReleaseQueries
-
-  public val inviteQueries: InviteQueries
-
-  public val passkeyQueries: PasskeyQueries
-
-  public val stripeCustomerQueries: StripeCustomerQueries
-
-  public companion object {
-    public val Schema: SqlSchema<QueryResult.Value<Unit>>
-      get() = WasmoDb::class.schema
-
-    public operator fun invoke(
-      driver: SqlDriver,
-      AccountAdapter: Account.Adapter,
-      ComputerAccessAdapter: ComputerAccess.Adapter,
-      ComputerAdapter: Computer.Adapter,
-      ComputerAllocationAdapter: ComputerAllocation.Adapter,
-      ComputerSpecAdapter: ComputerSpec.Adapter,
-      CookieAdapter: Cookie.Adapter,
-      InstalledAppAdapter: InstalledApp.Adapter,
-      InstalledAppReleaseAdapter: InstalledAppRelease.Adapter,
-      InviteAdapter: Invite.Adapter,
-      PasskeyAdapter: Passkey.Adapter,
-      StripeCustomerAdapter: StripeCustomer.Adapter,
-    ): WasmoDb = WasmoDb::class.newInstance(driver, AccountAdapter, ComputerAccessAdapter, ComputerAdapter, ComputerAllocationAdapter, ComputerSpecAdapter, CookieAdapter, InstalledAppAdapter, InstalledAppReleaseAdapter, InviteAdapter, PasskeyAdapter, StripeCustomerAdapter)
+  suspend fun <T> withConnection(block: suspend context(WasmoDbConnection) () -> T): T {
+    newConnection().use { connection ->
+      context(connection) {
+        return block()
+      }
+    }
   }
 }

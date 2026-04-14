@@ -1,6 +1,5 @@
 package com.wasmo.calls
 
-import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.AccountSnapshot
@@ -13,6 +12,7 @@ import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.Invite
 import com.wasmo.app.db.Passkey
 import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
 import dev.zacsweers.metro.Inject
@@ -33,7 +33,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
 
       return when {
-        accountId != null -> wasmoDb.passkeyQueries.findPasskeysByAccountId(accountId)
+        accountId != null -> transactionCallbacks.passkeyQueries.findPasskeysByAccountId(accountId)
           .executeAsList()
           .map { it.toSnapshot() }
 
@@ -53,7 +53,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
       return when {
         accountId != null -> {
-          wasmoDb.inviteQueries.findInvitesByClaimedBy(
+          transactionCallbacks.inviteQueries.findInvitesByClaimedBy(
             claimed_by = accountId,
             limit = 1,
           ).executeAsOneOrNull()
@@ -94,7 +94,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
         ?: return ComputerListSnapshot()
 
-      val computers = wasmoDb.computerQueries.selectComputersByAccountId(
+      val computers = transactionCallbacks.computerQueries.selectComputersByAccountId(
         account_id = accountId,
         limit = 100,
       ).executeAsList()
@@ -121,7 +121,7 @@ class RealCallDataService(
 
   context(transactionCallbacks: TransactionCallbacks)
   override fun inviteTicketOrNull(code: String): InviteTicket? {
-    val invite = wasmoDb.inviteQueries.findInvitesByCode(code)
+    val invite = transactionCallbacks.inviteQueries.findInvitesByCode(code)
       .executeAsOneOrNull()
       ?: return null
 

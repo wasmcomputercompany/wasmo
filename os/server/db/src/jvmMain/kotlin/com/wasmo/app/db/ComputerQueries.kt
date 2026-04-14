@@ -1,27 +1,23 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.ExecutableQuery
-import app.cash.sqldelight.Query
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
+import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import java.time.OffsetDateTime
-import kotlin.Any
-import kotlin.Long
-import kotlin.String
 import kotlin.time.Instant
 
 public class ComputerQueries(
-  driver: SqlDriver,
+  private val driver: SqlDriver,
   private val ComputerAdapter: Computer.Adapter,
   private val ComputerAccessAdapter: ComputerAccess.Adapter,
-) : TransacterImpl(driver) {
+) {
   public fun insertComputer(
     created_at: Instant,
     version: Long,
@@ -113,10 +109,6 @@ public class ComputerQueries(
       bindObject(parameterIndex++, ComputerAdapter.created_atAdapter.encode(created_at))
       bindLong(parameterIndex++, version)
       bindString(parameterIndex++, ComputerAdapter.slugAdapter.encode(slug))
-    }.also {
-      notifyQueries(-1_964_359_735) { emit ->
-        emit("Computer")
-      }
     }
 
     override fun toString(): String = "Computer.sq:insertComputer"
@@ -127,14 +119,6 @@ public class ComputerQueries(
     public val limit: Long,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("Computer", "ComputerAccess", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("Computer", "ComputerAccess", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-11_321_302, """
     |SELECT
     |  c.id, c.created_at, c.version, c.slug
@@ -162,14 +146,6 @@ public class ComputerQueries(
     public val slug: ComputerSlug,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("Computer", "ComputerAccess", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("Computer", "ComputerAccess", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(341_935_741, """
     |SELECT
     |  c.id, c.created_at, c.version, c.slug
@@ -195,14 +171,6 @@ public class ComputerQueries(
     public val id: ComputerId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("Computer", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("Computer", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-106_878_722, """
     |SELECT Computer.id, Computer.created_at, Computer.version, Computer.slug
     |FROM

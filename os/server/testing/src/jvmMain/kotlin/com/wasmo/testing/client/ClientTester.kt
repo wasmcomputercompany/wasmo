@@ -43,7 +43,7 @@ class ClientTester(
 
   fun createChallenge(): ByteString = call().createChallenge()
 
-  fun register(
+  suspend fun register(
     passkey: FakePasskey,
     inviteCode: String? = null,
   ): Response<RegisterPasskeyResponse> = call().registerPasskey(

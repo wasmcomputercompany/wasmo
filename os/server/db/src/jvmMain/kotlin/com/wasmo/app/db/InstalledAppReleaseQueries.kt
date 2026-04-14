@@ -1,27 +1,23 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.ExecutableQuery
-import app.cash.sqldelight.Query
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
+import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.packaging.AppManifest
 import java.time.OffsetDateTime
-import kotlin.Any
-import kotlin.Long
-import kotlin.String
 import kotlin.time.Instant
 
 public class InstalledAppReleaseQueries(
-  driver: SqlDriver,
+  private val driver: SqlDriver,
   private val InstalledAppReleaseAdapter: InstalledAppRelease.Adapter,
-) : TransacterImpl(driver) {
+) {
   public fun insertInstalledAppRelease(
     first_active_at: Instant,
     computer_id: ComputerId,
@@ -85,10 +81,6 @@ public class InstalledAppReleaseQueries(
       bindLong(parameterIndex++, InstalledAppReleaseAdapter.installed_app_idAdapter.encode(installed_app_id))
       bindLong(parameterIndex++, app_version)
       bindString(parameterIndex++, InstalledAppReleaseAdapter.app_manifest_dataAdapter.encode(app_manifest_data))
-    }.also {
-      notifyQueries(-935_160_091) { emit ->
-        emit("InstalledAppRelease")
-      }
     }
 
     override fun toString(): String = "InstalledAppRelease.sq:insertInstalledAppRelease"
@@ -98,14 +90,6 @@ public class InstalledAppReleaseQueries(
     public val id: InstalledAppReleaseId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("InstalledAppRelease", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("InstalledAppRelease", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-75_751_756, """
     |SELECT InstalledAppRelease.id, InstalledAppRelease.first_active_at, InstalledAppRelease.computer_id, InstalledAppRelease.installed_app_id, InstalledAppRelease.app_version, InstalledAppRelease.app_manifest_data FROM InstalledAppRelease
     |WHERE id = ?

@@ -95,7 +95,10 @@ class ServiceTester : CoroutineTestInterceptor {
     val testDirectory = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / testFunction.toString() / newToken()
     fileSystem.createDirectories(testDirectory)
 
+    val postgresqlClient = PostgresqlClient(TestDatabaseAddress)
+
     WasmoDbService(
+      database = postgresqlClient.asSqlService().getOrCreate(),
       dataSource = dataSource,
       jdbcDriver = dataSource.asJdbcDriver(),
     ).use { wasmoDb ->

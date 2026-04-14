@@ -1,76 +1,12 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.AfterVersion
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.SqlSchema
-import kotlin.Long
-import kotlin.Unit
-import kotlin.reflect.KClass
 
-internal val KClass<WasmoDb>.schema: SqlSchema<QueryResult.Value<Unit>>
-  get() = WasmoDbImpl.Schema
-
-internal fun KClass<WasmoDb>.newInstance(
-  driver: SqlDriver,
-  AccountAdapter: Account.Adapter,
-  ComputerAccessAdapter: ComputerAccess.Adapter,
-  ComputerAdapter: Computer.Adapter,
-  ComputerAllocationAdapter: ComputerAllocation.Adapter,
-  ComputerSpecAdapter: ComputerSpec.Adapter,
-  CookieAdapter: Cookie.Adapter,
-  InstalledAppAdapter: InstalledApp.Adapter,
-  InstalledAppReleaseAdapter: InstalledAppRelease.Adapter,
-  InviteAdapter: Invite.Adapter,
-  PasskeyAdapter: Passkey.Adapter,
-  StripeCustomerAdapter: StripeCustomer.Adapter,
-): WasmoDb = WasmoDbImpl(driver, AccountAdapter, ComputerAccessAdapter, ComputerAdapter, ComputerAllocationAdapter, ComputerSpecAdapter, CookieAdapter, InstalledAppAdapter, InstalledAppReleaseAdapter, InviteAdapter, PasskeyAdapter, StripeCustomerAdapter)
-
-private class WasmoDbImpl(
-  driver: SqlDriver,
-  AccountAdapter: Account.Adapter,
-  ComputerAccessAdapter: ComputerAccess.Adapter,
-  ComputerAdapter: Computer.Adapter,
-  ComputerAllocationAdapter: ComputerAllocation.Adapter,
-  ComputerSpecAdapter: ComputerSpec.Adapter,
-  CookieAdapter: Cookie.Adapter,
-  InstalledAppAdapter: InstalledApp.Adapter,
-  InstalledAppReleaseAdapter: InstalledAppRelease.Adapter,
-  InviteAdapter: Invite.Adapter,
-  PasskeyAdapter: Passkey.Adapter,
-  StripeCustomerAdapter: StripeCustomer.Adapter,
-) : TransacterImpl(driver),
-    WasmoDb {
-  override val accountQueries: AccountQueries = AccountQueries(driver, AccountAdapter)
-
-  override val computerQueries: ComputerQueries =
-      ComputerQueries(driver, ComputerAdapter, ComputerAccessAdapter)
-
-  override val computerAccessQueries: ComputerAccessQueries =
-      ComputerAccessQueries(driver, ComputerAccessAdapter)
-
-  override val computerAllocationQueries: ComputerAllocationQueries =
-      ComputerAllocationQueries(driver, ComputerAllocationAdapter)
-
-  override val computerSpecQueries: ComputerSpecQueries =
-      ComputerSpecQueries(driver, ComputerSpecAdapter)
-
-  override val cookieQueries: CookieQueries = CookieQueries(driver, CookieAdapter)
-
-  override val installedAppQueries: InstalledAppQueries =
-      InstalledAppQueries(driver, InstalledAppAdapter, InstalledAppReleaseAdapter)
-
-  override val installedAppReleaseQueries: InstalledAppReleaseQueries =
-      InstalledAppReleaseQueries(driver, InstalledAppReleaseAdapter)
-
-  override val inviteQueries: InviteQueries = InviteQueries(driver, InviteAdapter)
-
-  override val passkeyQueries: PasskeyQueries = PasskeyQueries(driver, PasskeyAdapter)
-
-  override val stripeCustomerQueries: StripeCustomerQueries =
-      StripeCustomerQueries(driver, StripeCustomerAdapter)
-
+class Migrator(
+) {
   public object Schema : SqlSchema<QueryResult.Value<Unit>> {
     override val version: Long
       get() = 12

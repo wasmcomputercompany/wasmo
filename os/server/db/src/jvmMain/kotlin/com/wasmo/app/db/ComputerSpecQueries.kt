@@ -1,27 +1,23 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.ExecutableQuery
-import app.cash.sqldelight.Query
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
+import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
 import java.time.OffsetDateTime
-import kotlin.Any
-import kotlin.Long
-import kotlin.String
 import kotlin.time.Instant
 
 public class ComputerSpecQueries(
-  driver: SqlDriver,
+  private val driver: SqlDriver,
   private val ComputerSpecAdapter: ComputerSpec.Adapter,
-) : TransacterImpl(driver) {
+) {
   public fun <T : Any> selectComputerSpecByToken(token: String, mapper: (
     id: ComputerSpecId,
     created_at: Instant,
@@ -81,9 +77,6 @@ public class ComputerSpecQueries(
           bindLong(parameterIndex++, expected_version)
           bindLong(parameterIndex++, ComputerSpecAdapter.idAdapter.encode(id))
         }
-    notifyQueries(94_427_045) { emit ->
-      emit("ComputerSpec")
-    }
     return result
   }
 
@@ -91,14 +84,6 @@ public class ComputerSpecQueries(
     public val token: String,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun addListener(listener: Listener) {
-      driver.addListener("ComputerSpec", listener = listener)
-    }
-
-    override fun removeListener(listener: Listener) {
-      driver.removeListener("ComputerSpec", listener = listener)
-    }
-
     override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-1_545_744_768, """
     |SELECT ComputerSpec.id, ComputerSpec.created_at, ComputerSpec.version, ComputerSpec.account_id, ComputerSpec.token, ComputerSpec.slug, ComputerSpec.computer_id
     |FROM
@@ -146,10 +131,6 @@ public class ComputerSpecQueries(
       bindLong(parameterIndex++, ComputerSpecAdapter.account_idAdapter.encode(account_id))
       bindString(parameterIndex++, token)
       bindString(parameterIndex++, ComputerSpecAdapter.slugAdapter.encode(slug))
-    }.also {
-      notifyQueries(1_134_491_967) { emit ->
-        emit("ComputerSpec")
-      }
     }
 
     override fun toString(): String = "ComputerSpec.sq:insertComputerSpec"
