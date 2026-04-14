@@ -99,35 +99,19 @@ internal val KotlinJson = Json {
   ignoreUnknownKeys = true
 }
 
-internal fun Row.uuid(name: String): Uuid = getUUID(name)!!.toKotlinUuid()
+internal fun Row.getUuid(name: String): Uuid = getUUID(name)!!.toKotlinUuid()
 
-internal fun Row.boolean(name: String): Boolean = getBoolean(name)!!
-
-internal fun Row.int(name: String): Int = getInteger(name)!!
-
-internal fun Row.stringOrNull(name: String): String? = getString(name)
-
-internal fun Row.string(name: String): String = stringOrNull(name)!!
-
-internal fun Row.rawJson(name: String): JsonElement = rawJsonOrNull(name)!!
-
-internal fun Row.rawJsonOrNull(name: String): JsonElement? {
+internal fun Row.getJsonElement(name: String): JsonElement? {
   val jsonModel = getJson(name) ?: return null
   val jsonString = CODEC.toString(jsonModel)
   return KotlinJson.parseToJsonElement(jsonString)
 }
 
-internal fun <T : Any> Row.jsonOrNull(name: String, serializer: KSerializer<T>): T? {
+internal fun <T : Any> Row.decodeJson(name: String, serializer: KSerializer<T>): T? {
   val jsonModel = getJson(name) ?: return null
   val jsonString = CODEC.toString(jsonModel)
   return KotlinJson.decodeFromString(serializer, jsonString)
 }
 
-internal inline fun <reified T : Any> Row.jsonOrNull(name: String): T? =
-  jsonOrNull(name, serializer<T>())
-
-internal fun <T : Any> Row.json(name: String, serializer: KSerializer<T>): T =
-  jsonOrNull(name, serializer)!!
-
-internal inline fun <reified T : Any> Row.json(name: String): T =
-  jsonOrNull(name, serializer<T>())!!
+internal inline fun <reified T : Any> Row.decodeJsonOrNull(name: String): T? =
+  decodeJson(name, serializer<T>())

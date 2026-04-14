@@ -69,9 +69,9 @@ internal class RealAbsurd(
           .addJson(KotlinJson.encodeToJsonElement(options)),
       ) {
         SpawnResult(
-          taskId = uuid("task_id"),
-          runId = uuid("run_id"),
-          attempt = int("attempt"),
+          taskId = getUuid("task_id"),
+          runId = getUuid("run_id"),
+          attempt = getInteger("attempt")!!,
         )
       }
       return rows.single()
@@ -106,10 +106,10 @@ internal class RealAbsurd(
             .addJson(KotlinJson.encodeToJsonElement(options)),
         ) {
           RetryTaskResult(
-            taskId = uuid("task_id"),
-            runId = uuid("run_id"),
-            attempt = int("attempt"),
-            created = boolean("created"),
+            taskId = getUuid("task_id"),
+            runId = getUuid("run_id"),
+            attempt = getInteger("attempt")!!,
+            created = getBoolean("created")!!,
           )
         }
         return rows.singleOrNull()
@@ -135,16 +135,16 @@ internal class RealAbsurd(
           .addString(queueName.value)
           .addUuid(taskId),
       ) {
-        when (val state = string("state")) {
+        when (val state = getString("state")!!) {
           "pending" -> TaskResult.Pending()
           "running" -> TaskResult.Running()
           "sleeping" -> TaskResult.Sleeping()
           "completed" -> TaskResult.Completed(
-            result = json("result", taskName.resultSerializer),
+            result = decodeJson("result", taskName.resultSerializer)!!,
           )
 
           "failed" -> {
-            val failureReason = json<TaskErrorJson>("failure_reason")
+            val failureReason = decodeJsonOrNull<TaskErrorJson>("failure_reason")!!
             TaskResult.Failed(
               message = failureReason.message,
               throwableClassName = failureReason.name,
@@ -242,7 +242,7 @@ internal class RealAbsurd(
           .addString(queueName.value)
           .addUuid(task.taskId)
           .addUuid(task.runId),
-      ) { string("checkpoint_name") to rawJson("state") }
+      ) { getString("checkpoint_name")!! to getJsonElement("state")!! }
       RealTaskContext(
         task = task,
         checkpointCache = rows.toMap().toMutableMap(),
@@ -269,7 +269,7 @@ internal class RealAbsurd(
           .addInteger(claimTimeout.inWholeSeconds.toInt())
           .addInteger(batchSize),
       ) {
-        val taskNameValue = string("task_name")
+        val taskNameValue = getString("task_name")!!
         val taskName = registry.keys.singleOrNull { it.value == taskNameValue }
           ?: error("task is not registered: $taskNameValue")
         getClaimedTask(taskName)
@@ -278,16 +278,16 @@ internal class RealAbsurd(
   }
 
   private fun <P : Any, R : Any> Row.getClaimedTask(taskName: TaskName<P, R>) = ClaimedTask(
-    runId = uuid("run_id"),
-    taskId = uuid("task_id"),
-    attempt = int("attempt"),
+    runId = getUuid("run_id"),
+    taskId = getUuid("task_id"),
+    attempt = getInteger("attempt")!!,
     taskName = taskName,
-    params = json("params", taskName.paramsSerializer),
-    retryStrategy = jsonOrNull<RetryStrategy>("retry_strategy"),
-    maxAttempts = int("max_attempts"),
-    headers = jsonOrNull<Headers>("headers"),
-    wakeEvent = stringOrNull("wake_event"),
-    eventPayload = rawJsonOrNull("event_payload"),
+    params = decodeJson("params", taskName.paramsSerializer)!!,
+    retryStrategy = decodeJsonOrNull<RetryStrategy>("retry_strategy"),
+    maxAttempts = getInteger("max_attempts")!!,
+    headers = decodeJsonOrNull<Headers>("headers"),
+    wakeEvent = getString("wake_event"),
+    eventPayload = getJsonElement("event_payload"),
   )
 
   private suspend fun <P : Any, R : Any> completeTaskRun(
@@ -449,7 +449,7 @@ internal class RealAbsurd(
             .addString(queueName.value)
             .addUuid(task.taskId)
             .addString(checkpointName),
-        ) { rawJson("state") }
+        ) { getJsonElement("state")!! }
         if (rows.isNotEmpty()) {
           val state = rows.single()
           checkpointCache[checkpointName] = state
@@ -495,8 +495,8 @@ internal class RealAbsurd(
               .addInteger(timeout?.inWholeSeconds?.toInt()),
           ) {
             AwaitEventResult(
-              shouldSuspend = boolean("should_suspend"),
-              payload = rawJson("payload"),
+              shouldSuspend = getBoolean("should_suspend")!!,
+              payload = getJsonElement("payload")!!,
             )
           }
         }
