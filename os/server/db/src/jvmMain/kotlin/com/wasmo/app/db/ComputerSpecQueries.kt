@@ -1,6 +1,6 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.SqlCursor
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
@@ -81,9 +81,9 @@ public class ComputerSpecQueries(
 
   private inner class SelectComputerSpecByTokenQuery<out T : Any>(
     public val token: String,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-1_545_744_768, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-1_545_744_768, """
     |SELECT ComputerSpec.id, ComputerSpec.created_at, ComputerSpec.version, ComputerSpec.account_id, ComputerSpec.token, ComputerSpec.slug, ComputerSpec.computer_id
     |FROM
     |  ComputerSpec
@@ -105,9 +105,9 @@ public class ComputerSpecQueries(
     public val account_id: AccountId,
     public val token: String,
     public val slug: ComputerSlug,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_134_491_967, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(1_134_491_967, """
     |INSERT INTO ComputerSpec(
     |  created_at,
     |  version,

@@ -1,6 +1,6 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.SqlCursor
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
@@ -131,9 +131,9 @@ public class InviteQueries(
   private inner class FindInvitesByClaimedByQuery<out T : Any>(
     public val claimed_by: AccountId?,
     public val limit: Long,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(null, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${ if (claimed_by == null) "IS" else "=" } ? LIMIT ?""", mapper, 2) {
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(null, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${ if (claimed_by == null) "IS" else "=" } ? LIMIT ?""", mapper, 2) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindLong(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
@@ -145,9 +145,9 @@ public class InviteQueries(
 
   private inner class FindInvitesByCodeQuery<out T : Any>(
     public val code: String,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(445_097_906, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = ?""", mapper, 1) {
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(445_097_906, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = ?""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindString(parameterIndex++, code)

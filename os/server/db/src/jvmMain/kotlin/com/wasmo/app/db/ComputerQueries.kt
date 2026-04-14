@@ -1,7 +1,7 @@
 package com.wasmo.app.db
 
 import app.cash.sqldelight.db.QueryResult
-import app.cash.sqldelight.db.SqlCursor
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
@@ -90,9 +90,9 @@ public class ComputerQueries(
     public val created_at: Instant,
     public val version: Long,
     public val slug: ComputerSlug,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-1_964_359_735, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-1_964_359_735, """
     |INSERT INTO Computer(
     |  created_at,
     |  version,
@@ -117,9 +117,9 @@ public class ComputerQueries(
   private inner class SelectComputersByAccountIdQuery<out T : Any>(
     public val account_id: AccountId,
     public val limit: Long,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-11_321_302, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-11_321_302, """
     |SELECT
     |  c.id, c.created_at, c.version, c.slug
     |FROM
@@ -144,9 +144,9 @@ public class ComputerQueries(
   private inner class SelectComputerByAccountIdAndSlugQuery<out T : Any>(
     public val account_id: AccountId,
     public val slug: ComputerSlug,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(341_935_741, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(341_935_741, """
     |SELECT
     |  c.id, c.created_at, c.version, c.slug
     |FROM
@@ -169,9 +169,9 @@ public class ComputerQueries(
 
   private inner class SelectComputerByIdQuery<out T : Any>(
     public val id: ComputerId,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-106_878_722, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-106_878_722, """
     |SELECT Computer.id, Computer.created_at, Computer.version, Computer.slug
     |FROM
     |  Computer

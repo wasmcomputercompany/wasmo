@@ -1,6 +1,6 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.SqlCursor
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
@@ -97,9 +97,9 @@ public class StripeCustomerQueries(
     public val email: String,
     public val country: String,
     public val postal_code: String,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_145_248_937, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(1_145_248_937, """
     |INSERT INTO StripeCustomer(
     |  created_at,
     |  version,
@@ -135,9 +135,9 @@ public class StripeCustomerQueries(
 
   private inner class FindStripeCustomerByStripeCustomerIdQuery<out T : Any>(
     public val stripe_customer_id: String,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_695_702_278, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(1_695_702_278, """
     |SELECT StripeCustomer.id, StripeCustomer.created_at, StripeCustomer.version, StripeCustomer.stripe_customer_id, StripeCustomer.name, StripeCustomer.email, StripeCustomer.country, StripeCustomer.postal_code
     |FROM StripeCustomer
     |WHERE

@@ -1,7 +1,7 @@
 package com.wasmo.app.db
 
 import app.cash.sqldelight.db.QueryResult
-import app.cash.sqldelight.db.SqlCursor
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
@@ -56,9 +56,9 @@ public class InstalledAppReleaseQueries(
     public val installed_app_id: InstalledAppId,
     public val app_version: Long,
     public val app_manifest_data: AppManifest,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-935_160_091, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-935_160_091, """
     |INSERT INTO InstalledAppRelease(
     |  first_active_at,
     |  computer_id,
@@ -88,9 +88,9 @@ public class InstalledAppReleaseQueries(
 
   private inner class SelectInstalledAppReleaseByIdQuery<out T : Any>(
     public val id: InstalledAppReleaseId,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-75_751_756, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-75_751_756, """
     |SELECT InstalledAppRelease.id, InstalledAppRelease.first_active_at, InstalledAppRelease.computer_id, InstalledAppRelease.installed_app_id, InstalledAppRelease.app_version, InstalledAppRelease.app_manifest_data FROM InstalledAppRelease
     |WHERE id = ?
     |LIMIT 1

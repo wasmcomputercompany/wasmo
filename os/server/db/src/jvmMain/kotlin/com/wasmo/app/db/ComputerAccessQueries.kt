@@ -1,8 +1,8 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.identifiers.AccountId
@@ -29,9 +29,9 @@ public class ComputerAccessQueries(
     public val version: Int,
     public val computer_id: ComputerId,
     public val account_id: AccountId,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-605_613_359, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-605_613_359, """
     |INSERT INTO ComputerAccess(
     |  created_at,
     |  version,

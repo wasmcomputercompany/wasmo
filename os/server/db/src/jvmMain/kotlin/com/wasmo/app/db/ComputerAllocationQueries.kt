@@ -1,7 +1,7 @@
 package com.wasmo.app.db
 
 import app.cash.sqldelight.db.QueryResult
-import app.cash.sqldelight.db.SqlCursor
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
@@ -150,9 +150,9 @@ public class ComputerAllocationQueries(
   private inner class FindComputerAllocationByStripeSubscriptionIdQuery<out T : Any>(
     public val stripe_subscription_id: String,
     public val limit: Long,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_140_511_013, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(1_140_511_013, """
     |SELECT ComputerAllocation.id, ComputerAllocation.created_at, ComputerAllocation.version, ComputerAllocation.stripe_customer_id, ComputerAllocation.stripe_subscription_id, ComputerAllocation.computer_id, ComputerAllocation.active_start, ComputerAllocation.active_end
     |FROM ComputerAllocation
     |WHERE
@@ -173,9 +173,9 @@ public class ComputerAllocationQueries(
   private inner class FindComputerAllocationByComputerIdQuery<out T : Any>(
     public val computer_id: ComputerId,
     public val limit: Long,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-1_115_404_810, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-1_115_404_810, """
     |SELECT ComputerAllocation.id, ComputerAllocation.created_at, ComputerAllocation.version, ComputerAllocation.stripe_customer_id, ComputerAllocation.stripe_subscription_id, ComputerAllocation.computer_id, ComputerAllocation.active_start, ComputerAllocation.active_end
     |FROM ComputerAllocation
     |WHERE

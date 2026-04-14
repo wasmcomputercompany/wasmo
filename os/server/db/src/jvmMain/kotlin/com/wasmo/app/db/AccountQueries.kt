@@ -1,8 +1,8 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
@@ -29,9 +29,9 @@ public class AccountQueries(
 
   private inner class InsertAccountQuery<out T : Any>(
     public val version: Int,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-2_040_971_259, """
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-2_040_971_259, """
     |INSERT INTO Account(
     |  version
     |)
@@ -49,9 +49,9 @@ public class AccountQueries(
 
   private inner class GetByIdQuery<out T : Any>(
     public val id: AccountId,
-    mapper: (SqlCursor) -> T,
+    mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-1_074_845_735, """SELECT Account.id, Account.version FROM Account WHERE id = ?""", mapper, 1) {
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-1_074_845_735, """SELECT Account.id, Account.version FROM Account WHERE id = ?""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindLong(parameterIndex++, AccountAdapter.idAdapter.encode(id))

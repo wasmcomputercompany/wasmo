@@ -1,7 +1,5 @@
 package com.wasmo.app.db2
 
-import app.cash.sqldelight.db.QueryResult
-import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.db.SqlPreparedStatement
 import com.wasmo.app.db.AccountQueries
 import com.wasmo.app.db.ComputerAccessQueries
@@ -14,6 +12,8 @@ import com.wasmo.app.db.InstalledAppReleaseQueries
 import com.wasmo.app.db.InviteQueries
 import com.wasmo.app.db.PasskeyQueries
 import com.wasmo.app.db.StripeCustomerQueries
+import com.wasmo.app.db2.RealSqlCursor
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import okio.ByteString.Companion.toByteString
 import okio.Closeable
 import wasmo.sql.RowIterator
@@ -49,7 +49,7 @@ interface WasmoDbConnection : Closeable {
   suspend fun <R> executeQuery(
     identifier: Int?,
     sql: String,
-    mapper: (SqlCursor) -> R,
+    mapper: suspend (SqlCursor) -> R,
     parameters: Int,
     binders: (SqlPreparedStatement.() -> Unit)?,
   ): R
@@ -105,7 +105,7 @@ class RealWasmoDbConnection(
   override suspend fun <R> executeQuery(
     identifier: Int?,
     sql: String,
-    mapper: (SqlCursor) -> R,
+    mapper: suspend (SqlCursor) -> R,
     parameters: Int,
     binders: (SqlPreparedStatement.() -> Unit)?,
   ): R {
@@ -121,34 +121,32 @@ class RealWasmoDbConnection(
 
 class RealSqlCursor(
   private val rowIterator: RowIterator,
-) : SqlCursor {
+) {
   private var currentRow: SqlRow? = null
 
-  override fun next(): QueryResult<Boolean> {
-    return QueryResult.AsyncValue {
-      val next = rowIterator.next()
-      currentRow = next
-      return@AsyncValue next != null
-    }
+  suspend fun next(): Boolean {
+    val next = rowIterator.next()
+    currentRow = next
+    return next != null
   }
 
-  override fun getBoolean(index: Int): Boolean? {
+  fun getBoolean(index: Int): Boolean? {
     return currentRow!!.getBool(index)
   }
 
-  override fun getBytes(index: Int): ByteArray? {
+  fun getBytes(index: Int): ByteArray? {
     return currentRow!!.getBytes(index)?.toByteArray()
   }
 
-  override fun getDouble(index: Int): Double? {
+  fun getDouble(index: Int): Double? {
     return currentRow!!.getF64(index)
   }
 
-  override fun getLong(index: Int): Long? {
+  fun getLong(index: Int): Long? {
     return currentRow!!.getS64(index)
   }
 
-  override fun getString(index: Int): String? {
+  fun getString(index: Int): String? {
     return currentRow!!.getString(index)
   }
 }

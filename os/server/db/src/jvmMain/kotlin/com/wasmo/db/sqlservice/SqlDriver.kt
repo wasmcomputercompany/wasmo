@@ -1,15 +1,15 @@
 package com.wasmo.db.sqlservice
 
-import app.cash.sqldelight.db.SqlCursor
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 
 abstract class Query2<out RowType : Any>(
-  val mapper: (SqlCursor) -> RowType,
+  val mapper: suspend (SqlCursor) -> RowType,
 ) {
-  abstract suspend fun <R> execute(mapper: (SqlCursor) -> R): R
+  abstract suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R
 
   suspend fun executeAsList(): List<RowType> = execute { cursor ->
     val result = mutableListOf<RowType>()
-    while (cursor.next().value) result.add(mapper(cursor))
+    while (cursor.next()) result.add(mapper(cursor))
     result
   }
 
@@ -19,9 +19,9 @@ abstract class Query2<out RowType : Any>(
   }
 
   suspend fun executeAsOneOrNull(): RowType? = execute { cursor ->
-    if (!cursor.next().value) return@execute null
+    if (!cursor.next()) return@execute null
     val value = mapper(cursor)
-    check(!cursor.next().value) { "ResultSet returned more than 1 row for $this" }
+    check(!cursor.next()) { "ResultSet returned more than 1 row for $this" }
     value
   }
 }
