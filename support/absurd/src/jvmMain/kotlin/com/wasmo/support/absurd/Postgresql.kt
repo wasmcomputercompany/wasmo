@@ -12,6 +12,7 @@ import io.vertx.sqlclient.SqlClient
 import io.vertx.sqlclient.Tuple
 import io.vertx.sqlclient.data.NullValue
 import java.time.ZoneOffset
+import kotlin.time.Instant
 import kotlin.time.toJavaInstant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -59,208 +60,36 @@ suspend inline fun SqlClient.execute(
 fun <T> Future<T>.asDeferred(): Deferred<T> =
   toCompletionStage().asDeferred()
 
-internal inline fun <reified T> Tuple.add(value: T?) {
-  when {
-    T::class == Boolean::class -> addBoolean(value as Boolean?)
-    T::class == String::class -> addString(value as String?)
-    T::class == Int::class -> addInteger(value as Int?)
-    T::class == Uuid::class -> addUUID((value as Uuid?)?.toJavaUuid())
-    T::class == kotlin.time.Instant::class -> addOffsetDateTime((value as kotlin.time.Instant?)?.toJavaInstant()?.atOffset(ZoneOffset.UTC))
-    T::class == JsonElement::class -> {
-      if (value == null) {
-        addValue(NullValue.JsonObject)
-      } else {
-        addValue(
-          CODEC.fromString(KotlinJson.encodeToString(value as JsonElement), Any::class.java),
-        )
-      }
-    }
-    else -> error("unexpected type: ${T::class}")
-  }
+internal fun Tuple.addJson(value: JsonElement?): Tuple {
+  return addValue(
+    when (value) {
+      null -> NullValue.JsonObject
+      else -> CODEC.fromString(KotlinJson.encodeToString(value), Any::class.java)
+    },
+  )
 }
 
-internal suspend inline fun <reified P0> SqlClient.execute(
+internal fun Tuple.addUuid(value: Uuid): Tuple {
+  return addUUID((value as Uuid?)?.toJavaUuid())
+}
+
+internal fun Tuple.addInstant(value: Instant?): Tuple {
+  return addOffsetDateTime(value?.toJavaInstant()?.atOffset(ZoneOffset.UTC))
+}
+
+internal suspend inline fun SqlClient.execute(
   sql: String,
-  p0: P0,
+  tuple: Tuple,
 ): Long {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-  }
   val result = preparedQuery(sql).execute(tuple).asDeferred().await()
   return result.rowCount().toLong()
 }
 
-internal suspend inline fun <reified P0, reified P1> SqlClient.execute(
+internal suspend inline fun <R : Any> SqlClient.executeQuery(
   sql: String,
-  p0: P0,
-  p1: P1,
-): Long {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-    add(p1)
-  }
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
-  return result.rowCount().toLong()
-}
-
-internal suspend inline fun <reified P0, reified P1, reified P2> SqlClient.execute(
-  sql: String,
-  p0: P0,
-  p1: P1,
-  p2: P2,
-): Long {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-    add(p1)
-    add(p2)
-  }
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
-  return result.rowCount().toLong()
-}
-
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3> SqlClient.execute(
-  sql: String,
-  p0: P0,
-  p1: P1,
-  p2: P2,
-  p3: P3,
-): Long {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-    add(p1)
-    add(p2)
-    add(p3)
-  }
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
-  return result.rowCount().toLong()
-}
-
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> SqlClient.execute(
-  sql: String,
-  p0: P0,
-  p1: P1,
-  p2: P2,
-  p3: P3,
-  p4: P4,
-): Long {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-    add(p1)
-    add(p2)
-    add(p3)
-    add(p4)
-  }
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
-  return result.rowCount().toLong()
-}
-
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5> SqlClient.execute(
-  sql: String,
-  p0: P0,
-  p1: P1,
-  p2: P2,
-  p3: P3,
-  p4: P4,
-  p5: P5,
-): Long {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-    add(p1)
-    add(p2)
-    add(p3)
-    add(p4)
-    add(p5)
-  }
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
-  return result.rowCount().toLong()
-}
-
-internal suspend inline fun <reified P0, reified P1, R : Any> SqlClient.executeQuery(
-  sql: String,
-  p0: P0,
-  p1: P1,
+  tuple: Tuple,
   noinline rowMapper: Row.() -> R,
 ): List<R> {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-    add(p1)
-  }
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
-  return result.map(rowMapper)
-}
-
-internal suspend inline fun <reified P0, reified P1, reified P2, R : Any> SqlClient.executeQuery(
-  sql: String,
-  p0: P0,
-  p1: P1,
-  p2: P2,
-  noinline rowMapper: Row.() -> R,
-): List<R> {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-    add(p1)
-    add(p2)
-  }
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
-  return result.map(rowMapper)
-}
-
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, R : Any> SqlClient.executeQuery(
-  sql: String,
-  p0: P0,
-  p1: P1,
-  p2: P2,
-  p3: P3,
-  noinline rowMapper: Row.() -> R,
-): List<R> {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-    add(p1)
-    add(p2)
-    add(p3)
-  }
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
-  return result.map(rowMapper)
-}
-
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, R : Any> SqlClient.executeQuery(
-  sql: String,
-  p0: P0,
-  p1: P1,
-  p2: P2,
-  p3: P3,
-  p4: P4,
-  noinline rowMapper: Row.() -> R,
-): List<R> {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-    add(p1)
-    add(p2)
-    add(p3)
-    add(p4)
-  }
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
-  return result.map(rowMapper)
-}
-
-internal suspend inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5, R : Any> SqlClient.executeQuery(
-  sql: String,
-  p0: P0,
-  p1: P1,
-  p2: P2,
-  p3: P3,
-  p4: P4,
-  p5: P5,
-  noinline rowMapper: Row.() -> R,
-): List<R> {
-  val tuple = Tuple.tuple().apply {
-    add(p0)
-    add(p1)
-    add(p2)
-    add(p3)
-    add(p4)
-    add(p5)
-  }
   val result = preparedQuery(sql).execute(tuple).asDeferred().await()
   return result.map(rowMapper)
 }

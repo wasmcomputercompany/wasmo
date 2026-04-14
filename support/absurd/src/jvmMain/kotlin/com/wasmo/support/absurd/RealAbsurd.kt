@@ -4,6 +4,7 @@ package com.wasmo.support.absurd
 
 import io.vertx.pgclient.PgException
 import io.vertx.sqlclient.Row
+import io.vertx.sqlclient.Tuple.tuple
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -30,7 +31,7 @@ internal class RealAbsurd(
     postgresql.withConnection {
       execute(
         """SELECT absurd.create_queue($1)""",
-        queueName.value,
+        tuple().addString(queueName.value),
       )
     }
   }
@@ -61,10 +62,11 @@ internal class RealAbsurd(
         SELECT task_id, run_id, attempt
         FROM absurd.spawn_task($1, $2, $3, $4)
         """,
-        queueName.value,
-        taskName.value,
-        KotlinJson.encodeToJsonElement(taskName.paramsSerializer, params),
-        KotlinJson.encodeToJsonElement(options),
+        tuple()
+          .addString(queueName.value)
+          .addString(taskName.value)
+          .addJson(KotlinJson.encodeToJsonElement(taskName.paramsSerializer, params))
+          .addJson(KotlinJson.encodeToJsonElement(options)),
       ) {
         SpawnResult(
           taskId = uuid("task_id"),
@@ -88,7 +90,7 @@ internal class RealAbsurd(
       spawn_new = when {
         spawnNew -> true
         else -> null
-      }
+      },
     )
 
     try {
@@ -98,9 +100,10 @@ internal class RealAbsurd(
           SELECT task_id, run_id, attempt, created
           FROM absurd.retry_task($1, $2, $3)
           """,
-          queueName.value,
-          taskId,
-          KotlinJson.encodeToJsonElement(options),
+          tuple()
+            .addString(queueName.value)
+            .addUuid(taskId)
+            .addJson(KotlinJson.encodeToJsonElement(options)),
         ) {
           RetryTaskResult(
             taskId = uuid("task_id"),
@@ -128,8 +131,9 @@ internal class RealAbsurd(
         SELECT state, result, failure_reason
         FROM absurd.get_task_result($1, $2)
         """,
-        queueName.value,
-        taskId,
+        tuple()
+          .addString(queueName.value)
+          .addUuid(taskId),
       ) {
         when (val state = string("state")) {
           "pending" -> TaskResult.Pending()
@@ -160,8 +164,9 @@ internal class RealAbsurd(
     postgresql.withConnection {
       execute(
         "SELECT absurd.cancel_task($1, $2)",
-        queueName.value,
-        taskId,
+        tuple()
+          .addString(queueName.value)
+          .addUuid(taskId),
       )
     }
   }
@@ -233,12 +238,11 @@ internal class RealAbsurd(
         SELECT checkpoint_name, state, status, owner_run_id, updated_at
         FROM absurd.get_task_checkpoint_states($1, $2, $3)
         """,
-        queueName.value,
-        task.taskId,
-        task.runId,
-      ) {
-        string("checkpoint_name") to rawJson("state")
-      }
+        tuple()
+          .addString(queueName.value)
+          .addUuid(task.taskId)
+          .addUuid(task.runId),
+      ) { string("checkpoint_name") to rawJson("state") }
       RealTaskContext(
         task = task,
         checkpointCache = rows.toMap().toMutableMap(),
@@ -259,10 +263,11 @@ internal class RealAbsurd(
                headers, wake_event, event_payload
         FROM absurd.claim_task($1, $2, $3, $4)
         """,
-        queueName.value,
-        workerId,
-        claimTimeout.inWholeSeconds.toInt(),
-        batchSize,
+        tuple()
+          .addString(queueName.value)
+          .addString(workerId)
+          .addInteger(claimTimeout.inWholeSeconds.toInt())
+          .addInteger(batchSize),
       ) {
         val taskNameValue = string("task_name")
         val taskName = registry.keys.singleOrNull { it.value == taskNameValue }
@@ -293,9 +298,10 @@ internal class RealAbsurd(
       postgresql.withConnection {
         execute(
           "SELECT absurd.complete_run($1, $2, $3)",
-          queueName.value,
-          claimedTask.runId,
-          KotlinJson.encodeToJsonElement(claimedTask.taskName.resultSerializer, result),
+          tuple()
+            .addString(queueName.value)
+            .addUuid(claimedTask.runId)
+            .addJson(KotlinJson.encodeToJsonElement(claimedTask.taskName.resultSerializer, result)),
         )
       }
     } catch (e: PgException) {
@@ -313,10 +319,11 @@ internal class RealAbsurd(
       postgresql.withConnection {
         execute(
           "SELECT absurd.fail_run($1, $2, $3, $4)",
-          queueName.value,
-          claimedTask.runId,
-          KotlinJson.encodeToJsonElement(error),
-          retryAt,
+          tuple()
+            .addString(queueName.value)
+            .addUuid(claimedTask.runId)
+            .addJson(KotlinJson.encodeToJsonElement(error))
+            .addInstant(retryAt),
         )
       }
     } catch (e: PgException) {
@@ -335,9 +342,10 @@ internal class RealAbsurd(
     postgresql.withConnection {
       execute(
         "SELECT absurd.emit_event($1, $2, $3)",
-        queueName.value,
-        eventName,
-        KotlinJson.encodeToJsonElement(serializer, payload),
+        tuple()
+          .addString(queueName.value)
+          .addString(eventName)
+          .addJson(KotlinJson.encodeToJsonElement(serializer, payload)),
       )
     }
   }
@@ -412,12 +420,13 @@ internal class RealAbsurd(
         try {
           execute(
             "SELECT absurd.set_task_checkpoint_state($1, $2, $3, $4, $5, $6)",
-            queueName.value,
-            task.taskId,
-            checkpointName,
-            valueJson,
-            task.runId,
-            claimTimeout.inWholeSeconds.toInt(),
+            tuple()
+              .addString(queueName.value)
+              .addUuid(task.taskId)
+              .addString(checkpointName)
+              .addJson(valueJson)
+              .addUuid(task.runId)
+              .addInteger(claimTimeout.inWholeSeconds.toInt()),
           )
         } catch (e: PgException) {
           throw e.toTaskStateException() ?: e
@@ -436,12 +445,11 @@ internal class RealAbsurd(
           SELECT checkpoint_name, state, status, owner_run_id, updated_at
           FROM absurd.get_task_checkpoint_state($1, $2, $3)
           """,
-          queueName.value,
-          task.taskId,
-          checkpointName,
-        ) {
-          rawJson("state")
-        }
+          tuple()
+            .addString(queueName.value)
+            .addUuid(task.taskId)
+            .addString(checkpointName),
+        ) { rawJson("state") }
         if (rows.isNotEmpty()) {
           val state = rows.single()
           checkpointCache[checkpointName] = state
@@ -478,12 +486,13 @@ internal class RealAbsurd(
             SELECT should_suspend, payload
             FROM absurd.await_event($1, $2, $3, $4, $5, $6)
             """,
-            queueName.value,
-            taskId,
-            task.runId,
-            checkpointName,
-            eventName,
-            timeout?.inWholeSeconds?.toInt(),
+            tuple()
+              .addString(queueName.value)
+              .addUuid(taskId)
+              .addUuid(task.runId)
+              .addString(checkpointName)
+              .addString(eventName)
+              .addInteger(timeout?.inWholeSeconds?.toInt()),
           ) {
             AwaitEventResult(
               shouldSuspend = boolean("should_suspend"),
@@ -543,9 +552,10 @@ internal class RealAbsurd(
       postgresql.withConnection {
         execute(
           "SELECT absurd.schedule_run($1, $2, $3)",
-          queueName.value,
-          task.runId,
-          wakeAt,
+          tuple()
+            .addString(queueName.value)
+            .addUuid(task.runId)
+            .addInstant(wakeAt),
         )
       }
     }

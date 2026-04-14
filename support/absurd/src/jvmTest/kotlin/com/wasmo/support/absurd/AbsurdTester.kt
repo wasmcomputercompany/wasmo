@@ -6,6 +6,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.SslMode
+import io.vertx.sqlclient.Tuple.tuple
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -77,7 +78,7 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
       execute(
         FileSystem.RESOURCES.read("/absurd/sql/absurd.sql".toPath()) {
           readUtf8()
-        }
+        },
       )
     }
 
@@ -121,9 +122,10 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
       postgresql.withConnection {
         execute(
           "SELECT set_config($1, $2, $3)",
-          "absurd.fake_now",
-          now.toString(),
-          false,
+          tuple()
+            .addString("absurd.fake_now")
+            .addString(now.toString())
+            .addBoolean(false),
         )
       }
     }
