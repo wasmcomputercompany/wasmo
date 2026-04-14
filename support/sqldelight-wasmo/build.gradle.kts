@@ -1,6 +1,5 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.burst)
   id("wasmo-build")
 }
 
@@ -16,15 +15,6 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.sqldelight.runtime)
         implementation(project(":platform:api"))
-      }
-    }
-    val jvmTest by getting {
-      dependencies {
-        implementation(libs.burst.coroutines)
-        implementation(libs.kotlinx.coroutines.test)
-        implementation(libs.postgresql)
-        implementation(project(":platform:testing"))
-        implementation(project(":os:server:sql:testing"))
       }
     }
   }
