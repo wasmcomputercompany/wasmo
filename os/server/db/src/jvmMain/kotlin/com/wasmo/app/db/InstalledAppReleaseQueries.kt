@@ -1,9 +1,8 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.QueryResult
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
-import app.cash.sqldelight.driver.jdbc.JdbcCursor
-import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
+import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
@@ -11,7 +10,6 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.packaging.AppManifest
-import java.time.OffsetDateTime
 import kotlin.time.Instant
 
 public class InstalledAppReleaseQueries(
@@ -26,7 +24,7 @@ public class InstalledAppReleaseQueries(
     app_manifest_data: AppManifest,
   ): ExecutableQuery<InstalledAppReleaseId> = InsertInstalledAppReleaseQuery(first_active_at, computer_id, installed_app_id, app_version, app_manifest_data) { cursor ->
     check(cursor is JdbcCursor)
-    InstalledAppReleaseAdapter.idAdapter.decode(cursor.getLong(0)!!)
+    InstalledAppReleaseAdapter.idAdapter.decode(cursor.getS64(0)!!)
   }
 
   public fun <T : Any> selectInstalledAppReleaseById(id: InstalledAppReleaseId, mapper: (
@@ -39,11 +37,11 @@ public class InstalledAppReleaseQueries(
   ) -> T): Query<T> = SelectInstalledAppReleaseByIdQuery(id) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      InstalledAppReleaseAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      InstalledAppReleaseAdapter.first_active_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      InstalledAppReleaseAdapter.computer_idAdapter.decode(cursor.getLong(2)!!),
-      InstalledAppReleaseAdapter.installed_app_idAdapter.decode(cursor.getLong(3)!!),
-      cursor.getLong(4)!!,
+      InstalledAppReleaseAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      InstalledAppReleaseAdapter.computer_idAdapter.decode(cursor.getS64(2)!!),
+      InstalledAppReleaseAdapter.installed_app_idAdapter.decode(cursor.getS64(3)!!),
+      cursor.getS64(4)!!,
       InstalledAppReleaseAdapter.app_manifest_dataAdapter.decode(cursor.getString(5)!!)
     )
   }
@@ -67,16 +65,16 @@ public class InstalledAppReleaseQueries(
     |  app_manifest_data
     |)
     |VALUES (
-    |  ?,
-    |  ?,
-    |  ?,
-    |  ?,
-    |  ?
+    |  $1,
+    |  $2,
+    |  $3,
+    |  $4,
+    |  $5
     |) RETURNING id
     """.trimMargin(), mapper, 5) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
-      bindObject(parameterIndex++, InstalledAppReleaseAdapter.first_active_atAdapter.encode(first_active_at))
+      bindInstant(parameterIndex++, first_active_at)
       bindLong(parameterIndex++, InstalledAppReleaseAdapter.computer_idAdapter.encode(computer_id))
       bindLong(parameterIndex++, InstalledAppReleaseAdapter.installed_app_idAdapter.encode(installed_app_id))
       bindLong(parameterIndex++, app_version)
@@ -92,7 +90,7 @@ public class InstalledAppReleaseQueries(
   ) : Query<T>(mapper) {
     override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-75_751_756, """
     |SELECT InstalledAppRelease.id, InstalledAppRelease.first_active_at, InstalledAppRelease.computer_id, InstalledAppRelease.installed_app_id, InstalledAppRelease.app_version, InstalledAppRelease.app_manifest_data FROM InstalledAppRelease
-    |WHERE id = ?
+    |WHERE id = $1
     |LIMIT 1
     """.trimMargin(), mapper, 1) {
       check(this is JdbcPreparedStatement)

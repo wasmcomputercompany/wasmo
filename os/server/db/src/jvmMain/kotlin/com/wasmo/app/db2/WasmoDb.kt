@@ -14,16 +14,13 @@ import com.wasmo.app.db.PasskeyQueries
 import com.wasmo.app.db.StripeCustomerQueries
 import com.wasmo.app.db2.RealSqlCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
+import kotlin.time.Instant
 import okio.ByteString.Companion.toByteString
 import okio.Closeable
 import wasmo.sql.RowIterator
 import wasmo.sql.SqlBinder
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlRow
-
-interface WasmoDbTransaction : WasmoDbConnection {
-  fun afterCommit(function: () -> Unit)
-}
 
 interface WasmoDbConnection : Closeable {
   val sqlConnection: SqlConnection
@@ -55,9 +52,23 @@ interface WasmoDbConnection : Closeable {
   ): R
 }
 
-class RealWasmoDbConnection(
+interface WasmoDbTransaction : WasmoDbConnection {
+  fun afterCommit(function: () -> Unit)
+}
+
+open class RealWasmoDbTransaction(
+  sqlConnection: SqlConnection,
+) : RealWasmoDbConnection(sqlConnection), WasmoDbTransaction {
+  val afterCommitActions = mutableListOf<() -> Unit>()
+
+  override fun afterCommit(function: () -> Unit) {
+    afterCommitActions += function
+  }
+}
+
+open class RealWasmoDbConnection(
   override val sqlConnection: SqlConnection,
-) : WasmoDbConnection, WasmoDbTransaction {
+) : WasmoDbConnection {
   override val accountQueries: AccountQueries
     get() = AccountQueries(this, AccountAdapter)
   override val computerQueries: ComputerQueries
@@ -81,9 +92,6 @@ class RealWasmoDbConnection(
   override val stripeCustomerQueries: StripeCustomerQueries
     get() = StripeCustomerQueries(this, StripeCustomerAdapter)
 
-  override fun afterCommit(function: () -> Unit) {
-  }
-
   override fun close() {
     sqlConnection.close()
   }
@@ -94,12 +102,16 @@ class RealWasmoDbConnection(
     parameters: Int,
     binders: (SqlPreparedStatement.() -> Unit)?,
   ): Long {
-    return sqlConnection.execute(
-      sql,
-      bindParameters = {
-        binders?.invoke(RealSqlPreparedStatement(this))
-      },
-    )
+    try {
+      return sqlConnection.execute(
+        sql,
+        bindParameters = {
+          binders?.invoke(RealSqlPreparedStatement(this))
+        },
+      )
+    } catch (e: Exception) {
+      throw e
+    }
   }
 
   override suspend fun <R> executeQuery(
@@ -109,13 +121,17 @@ class RealWasmoDbConnection(
     parameters: Int,
     binders: (SqlPreparedStatement.() -> Unit)?,
   ): R {
-    val rowIterator = sqlConnection.executeQuery(
-      sql,
-      bindParameters = {
-        binders?.invoke(RealSqlPreparedStatement(this))
-      },
-    )
-    return mapper(RealSqlCursor(rowIterator))
+    try {
+      val rowIterator = sqlConnection.executeQuery(
+        sql,
+        bindParameters = {
+          binders?.invoke(RealSqlPreparedStatement(this))
+        },
+      )
+      return mapper(RealSqlCursor(rowIterator))
+    } catch (e: Exception) {
+      throw e
+    }
   }
 }
 
@@ -130,7 +146,7 @@ class RealSqlCursor(
     return next != null
   }
 
-  fun getBoolean(index: Int): Boolean? {
+  fun getBool(index: Int): Boolean? {
     return currentRow!!.getBool(index)
   }
 
@@ -138,16 +154,24 @@ class RealSqlCursor(
     return currentRow!!.getBytes(index)?.toByteArray()
   }
 
-  fun getDouble(index: Int): Double? {
+  fun getF64(index: Int): Double? {
     return currentRow!!.getF64(index)
   }
 
-  fun getLong(index: Int): Long? {
+  fun getS64(index: Int): Long? {
     return currentRow!!.getS64(index)
   }
 
   fun getString(index: Int): String? {
     return currentRow!!.getString(index)
+  }
+
+  fun getInstant(index: Int): Instant? {
+    return currentRow!!.getInstant(index)
+  }
+
+  fun getS32(index: Int): Int? {
+    return currentRow!!.getS32(index)
   }
 }
 
@@ -166,11 +190,19 @@ class RealSqlPreparedStatement(
     sqlBinder.bindF64(index, double)
   }
 
+  fun bindInt(index: Int, value: Int?) {
+    sqlBinder.bindS32(index, value)
+  }
+
   override fun bindLong(index: Int, long: Long?) {
     sqlBinder.bindS64(index, long)
   }
 
   override fun bindString(index: Int, string: String?) {
     sqlBinder.bindString(index, string)
+  }
+
+  fun bindInstant(index: Int, value: Instant?) {
+    sqlBinder.bindInstant(index, value)
   }
 }

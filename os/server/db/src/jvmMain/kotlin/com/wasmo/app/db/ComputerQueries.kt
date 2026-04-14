@@ -1,16 +1,14 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.QueryResult
+import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
+import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
-import app.cash.sqldelight.driver.jdbc.JdbcCursor
-import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
-import java.time.OffsetDateTime
 import kotlin.time.Instant
 
 public class ComputerQueries(
@@ -24,7 +22,7 @@ public class ComputerQueries(
     slug: ComputerSlug,
   ): ExecutableQuery<ComputerId> = InsertComputerQuery(created_at, version, slug) { cursor ->
     check(cursor is JdbcCursor)
-    ComputerAdapter.idAdapter.decode(cursor.getLong(0)!!)
+    ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!)
   }
 
   public fun <T : Any> selectComputersByAccountId(
@@ -39,9 +37,9 @@ public class ComputerQueries(
   ): Query<T> = SelectComputersByAccountIdQuery(account_id, limit) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      ComputerAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      ComputerAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      cursor.getLong(2)!!,
+      ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      cursor.getS64(2)!!,
       ComputerAdapter.slugAdapter.decode(cursor.getString(3)!!)
     )
   }
@@ -60,9 +58,9 @@ public class ComputerQueries(
   ): Query<T> = SelectComputerByAccountIdAndSlugQuery(account_id, slug) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      ComputerAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      ComputerAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      cursor.getLong(2)!!,
+      ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      cursor.getS64(2)!!,
       ComputerAdapter.slugAdapter.decode(cursor.getString(3)!!)
     )
   }
@@ -77,9 +75,9 @@ public class ComputerQueries(
   ) -> T): Query<T> = SelectComputerByIdQuery(id) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      ComputerAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      ComputerAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      cursor.getLong(2)!!,
+      ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      cursor.getS64(2)!!,
       ComputerAdapter.slugAdapter.decode(cursor.getString(3)!!)
     )
   }
@@ -99,14 +97,14 @@ public class ComputerQueries(
     |  slug
     |)
     |VALUES (
-    |  ?,
-    |  ?,
-    |  ?
+    |  $1,
+    |  $2,
+    |  $3
     |) RETURNING id
     """.trimMargin(), mapper, 3) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
-      bindObject(parameterIndex++, ComputerAdapter.created_atAdapter.encode(created_at))
+      bindInstant(parameterIndex++, created_at)
       bindLong(parameterIndex++, version)
       bindString(parameterIndex++, ComputerAdapter.slugAdapter.encode(slug))
     }
@@ -127,10 +125,10 @@ public class ComputerQueries(
     |  Computer c
     |WHERE
     |  c.id = ca.id AND
-    |  ca.account_id = ?
+    |  ca.account_id = $1
     |ORDER BY
     |  c.slug
-    |LIMIT ?
+    |LIMIT $2
     """.trimMargin(), mapper, 2) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
@@ -154,8 +152,8 @@ public class ComputerQueries(
     |  Computer c
     |WHERE
     |  c.id = ca.id AND
-    |  ca.account_id = ? AND
-    |  c.slug = ?
+    |  ca.account_id = $1 AND
+    |  c.slug = $2
     |LIMIT 1
     """.trimMargin(), mapper, 2) {
       check(this is JdbcPreparedStatement)
@@ -176,7 +174,7 @@ public class ComputerQueries(
     |FROM
     |  Computer
     |WHERE
-    |  id = ?
+    |  id = $1
     |LIMIT 1
     """.trimMargin(), mapper, 1) {
       check(this is JdbcPreparedStatement)

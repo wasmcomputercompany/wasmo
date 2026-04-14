@@ -1,8 +1,8 @@
 package com.wasmo.app.db
 
+import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
-import app.cash.sqldelight.driver.jdbc.JdbcCursor
-import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
@@ -12,7 +12,6 @@ import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
-import java.time.OffsetDateTime
 import kotlin.time.Instant
 
 public class InstalledAppQueries(
@@ -29,7 +28,7 @@ public class InstalledAppQueries(
     wasmo_file_address: WasmoFileAddress,
   ): ExecutableQuery<InstalledAppId> = InsertInstalledAppQuery(installed_at, computer_id, slug, active, version, wasmo_file_address) { cursor ->
     check(cursor is JdbcCursor)
-    InstalledAppAdapter.idAdapter.decode(cursor.getLong(0)!!)
+    InstalledAppAdapter.idAdapter.decode(cursor.getS64(0)!!)
   }
 
   public fun <T : Any> selectInstalledAppsByComputerId(
@@ -55,19 +54,19 @@ public class InstalledAppQueries(
   ): Query<T> = SelectInstalledAppsByComputerIdQuery(computer_id, active, limit) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      InstalledAppAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      InstalledAppAdapter.installed_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      InstalledAppAdapter.computer_idAdapter.decode(cursor.getLong(2)!!),
+      InstalledAppAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      InstalledAppAdapter.computer_idAdapter.decode(cursor.getS64(2)!!),
       InstalledAppAdapter.slugAdapter.decode(cursor.getString(3)!!),
-      cursor.getBoolean(4),
-      cursor.getLong(5)!!,
+      cursor.getBool(4),
+      cursor.getS64(5)!!,
       InstalledAppAdapter.wasmo_file_addressAdapter.decode(cursor.getString(6)!!),
-      cursor.getLong(7)?.let { InstalledAppAdapter.active_release_idAdapter.decode(it) },
-      cursor.getLong(8)?.let { InstalledAppReleaseAdapter.idAdapter.decode(it) },
-      cursor.getObject<OffsetDateTime>(9)?.let { InstalledAppReleaseAdapter.first_active_atAdapter.decode(it) },
-      cursor.getLong(10)?.let { InstalledAppReleaseAdapter.computer_idAdapter.decode(it) },
-      cursor.getLong(11)?.let { InstalledAppReleaseAdapter.installed_app_idAdapter.decode(it) },
-      cursor.getLong(12),
+      cursor.getS64(7)?.let { InstalledAppAdapter.active_release_idAdapter.decode(it) },
+      cursor.getS64(8)?.let { InstalledAppReleaseAdapter.idAdapter.decode(it) },
+      cursor.getInstant(9),
+      cursor.getS64(10)?.let { InstalledAppReleaseAdapter.computer_idAdapter.decode(it) },
+      cursor.getS64(11)?.let { InstalledAppReleaseAdapter.installed_app_idAdapter.decode(it) },
+      cursor.getS64(12),
       cursor.getString(13)?.let { InstalledAppReleaseAdapter.app_manifest_dataAdapter.decode(it) }
     )
   }
@@ -101,19 +100,19 @@ public class InstalledAppQueries(
   ): Query<T> = SelectInstalledAppByComputerIdAndSlugQuery(computer_id, slug, active) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      InstalledAppAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      InstalledAppAdapter.installed_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      InstalledAppAdapter.computer_idAdapter.decode(cursor.getLong(2)!!),
+      InstalledAppAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      InstalledAppAdapter.computer_idAdapter.decode(cursor.getS64(2)!!),
       InstalledAppAdapter.slugAdapter.decode(cursor.getString(3)!!),
-      cursor.getBoolean(4),
-      cursor.getLong(5)!!,
+      cursor.getBool(4),
+      cursor.getS64(5)!!,
       InstalledAppAdapter.wasmo_file_addressAdapter.decode(cursor.getString(6)!!),
-      cursor.getLong(7)?.let { InstalledAppAdapter.active_release_idAdapter.decode(it) },
-      cursor.getLong(8)?.let { InstalledAppReleaseAdapter.idAdapter.decode(it) },
-      cursor.getObject<OffsetDateTime>(9)?.let { InstalledAppReleaseAdapter.first_active_atAdapter.decode(it) },
-      cursor.getLong(10)?.let { InstalledAppReleaseAdapter.computer_idAdapter.decode(it) },
-      cursor.getLong(11)?.let { InstalledAppReleaseAdapter.installed_app_idAdapter.decode(it) },
-      cursor.getLong(12),
+      cursor.getS64(7)?.let { InstalledAppAdapter.active_release_idAdapter.decode(it) },
+      cursor.getS64(8)?.let { InstalledAppReleaseAdapter.idAdapter.decode(it) },
+      cursor.getInstant(9),
+      cursor.getS64(10)?.let { InstalledAppReleaseAdapter.computer_idAdapter.decode(it) },
+      cursor.getS64(11)?.let { InstalledAppReleaseAdapter.installed_app_idAdapter.decode(it) },
+      cursor.getS64(12),
       cursor.getString(13)?.let { InstalledAppReleaseAdapter.app_manifest_dataAdapter.decode(it) }
     )
   }
@@ -136,14 +135,14 @@ public class InstalledAppQueries(
   ) -> T): Query<T> = SelectInstalledAppByIdQuery(id) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      InstalledAppAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      InstalledAppAdapter.installed_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      InstalledAppAdapter.computer_idAdapter.decode(cursor.getLong(2)!!),
+      InstalledAppAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      InstalledAppAdapter.computer_idAdapter.decode(cursor.getS64(2)!!),
       InstalledAppAdapter.slugAdapter.decode(cursor.getString(3)!!),
-      cursor.getBoolean(4),
-      cursor.getLong(5)!!,
+      cursor.getBool(4),
+      cursor.getS64(5)!!,
       InstalledAppAdapter.wasmo_file_addressAdapter.decode(cursor.getString(6)!!),
-      cursor.getLong(7)?.let { InstalledAppAdapter.active_release_idAdapter.decode(it) }
+      cursor.getS64(7)?.let { InstalledAppAdapter.active_release_idAdapter.decode(it) }
     )
   }
 
@@ -161,11 +160,11 @@ public class InstalledAppQueries(
     val result = driver.execute(-1_970_953_018, """
         |UPDATE InstalledApp
         |SET
-        |  version = ?,
-        |  active_release_id = ?
+        |  version = $1,
+        |  active_release_id = $2
         |WHERE
-        |  version = ? AND
-        |  id = ?
+        |  version = $3 AND
+        |  id = $4
         """.trimMargin(), 4) {
           check(this is JdbcPreparedStatement)
           var parameterIndex = 0
@@ -196,17 +195,17 @@ public class InstalledAppQueries(
     |  wasmo_file_address
     |)
     |VALUES (
-    |  ?,
-    |  ?,
-    |  ?,
-    |  ?,
-    |  ?,
-    |  ?
+    |  $1,
+    |  $2,
+    |  $3,
+    |  $4,
+    |  $5,
+    |  $6
     |) RETURNING id
     """.trimMargin(), mapper, 6) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
-      bindObject(parameterIndex++, InstalledAppAdapter.installed_atAdapter.encode(installed_at))
+      bindInstant(parameterIndex++, installed_at)
       bindLong(parameterIndex++, InstalledAppAdapter.computer_idAdapter.encode(computer_id))
       bindString(parameterIndex++, InstalledAppAdapter.slugAdapter.encode(slug))
       bindBoolean(parameterIndex++, active)
@@ -231,10 +230,10 @@ public class InstalledAppQueries(
     |LEFT JOIN InstalledAppRelease iar
     |  ON ia.active_release_id = iar.id
     |WHERE
-    |  ia.computer_id = ? AND
-    |  ia.active ${ if (active == null) "IS" else "=" } ?
+    |  ia.computer_id = $1 AND
+    |  ia.active ${ if (active == null) "IS" else "=" } $2
     |ORDER BY slug
-    |LIMIT ?
+    |LIMIT $3
     """.trimMargin(), mapper, 3) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
@@ -260,9 +259,9 @@ public class InstalledAppQueries(
     |LEFT JOIN InstalledAppRelease iar
     |  ON ia.active_release_id = iar.id
     |WHERE
-    |  ia.computer_id = ? AND
-    |  ia.slug = ? AND
-    |  ia.active ${ if (active == null) "IS" else "=" } ?
+    |  ia.computer_id = $1 AND
+    |  ia.slug = $2 AND
+    |  ia.active ${ if (active == null) "IS" else "=" } $3
     |LIMIT 1
     """.trimMargin(), mapper, 3) {
       check(this is JdbcPreparedStatement)
@@ -281,7 +280,7 @@ public class InstalledAppQueries(
   ) : Query<T>(mapper) {
     override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(1_170_206_678, """
     |SELECT InstalledApp.id, InstalledApp.installed_at, InstalledApp.computer_id, InstalledApp.slug, InstalledApp.active, InstalledApp.version, InstalledApp.wasmo_file_address, InstalledApp.active_release_id FROM InstalledApp
-    |WHERE id = ?
+    |WHERE id = $1
     |LIMIT 1
     """.trimMargin(), mapper, 1) {
       check(this is JdbcPreparedStatement)

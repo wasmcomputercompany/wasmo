@@ -1,8 +1,7 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.driver.jdbc.JdbcCursor
-import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
+import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.identifiers.AccountId
@@ -20,8 +19,7 @@ public class ComputerAccessQueries(
     computer_id: ComputerId,
     account_id: AccountId,
   ): ExecutableQuery<ComputerAccessId> = InsertComputerAccessQuery(created_at, version, computer_id, account_id) { cursor ->
-    check(cursor is JdbcCursor)
-    ComputerAccessAdapter.idAdapter.decode(cursor.getLong(0)!!)
+    ComputerAccessAdapter.idAdapter.decode(cursor.getS64(0)!!)
   }
 
   private inner class InsertComputerAccessQuery<out T : Any>(
@@ -39,15 +37,15 @@ public class ComputerAccessQueries(
     |  account_id
     |)
     |VALUES (
-    |  ?,
-    |  ?,
-    |  ?,
-    |  ?
+    |  $1,
+    |  $2,
+    |  $3,
+    |  $4
     |) RETURNING id
     """.trimMargin(), mapper, 4) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
-      bindObject(parameterIndex++, ComputerAccessAdapter.created_atAdapter.encode(created_at))
+      bindInstant(parameterIndex++, created_at)
       bindInt(parameterIndex++, version)
       bindLong(parameterIndex++, ComputerAccessAdapter.computer_idAdapter.encode(computer_id))
       bindLong(parameterIndex++, ComputerAccessAdapter.account_idAdapter.encode(account_id))

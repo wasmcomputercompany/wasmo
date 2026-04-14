@@ -1,15 +1,13 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.QueryResult
+import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
-import app.cash.sqldelight.driver.jdbc.JdbcCursor
-import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.StripeCustomerId
-import java.time.OffsetDateTime
 import kotlin.time.Instant
 
 public class ComputerAllocationQueries(
@@ -32,14 +30,14 @@ public class ComputerAllocationQueries(
   ): Query<T> = FindComputerAllocationByStripeSubscriptionIdQuery(stripe_subscription_id, limit) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      ComputerAllocationAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      ComputerAllocationAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      cursor.getInt(2)!!,
-      ComputerAllocationAdapter.stripe_customer_idAdapter.decode(cursor.getLong(3)!!),
+      ComputerAllocationAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      cursor.getS32(2)!!,
+      ComputerAllocationAdapter.stripe_customer_idAdapter.decode(cursor.getS64(3)!!),
       cursor.getString(4)!!,
-      ComputerAllocationAdapter.computer_idAdapter.decode(cursor.getLong(5)!!),
-      ComputerAllocationAdapter.active_startAdapter.decode(cursor.getObject<OffsetDateTime>(6)!!),
-      ComputerAllocationAdapter.active_endAdapter.decode(cursor.getObject<OffsetDateTime>(7)!!)
+      ComputerAllocationAdapter.computer_idAdapter.decode(cursor.getS64(5)!!),
+      cursor.getInstant(6)!!,
+      cursor.getInstant(7)!!,
     )
   }
 
@@ -61,14 +59,14 @@ public class ComputerAllocationQueries(
   ): Query<T> = FindComputerAllocationByComputerIdQuery(computer_id, limit) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      ComputerAllocationAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      ComputerAllocationAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      cursor.getInt(2)!!,
-      ComputerAllocationAdapter.stripe_customer_idAdapter.decode(cursor.getLong(3)!!),
+      ComputerAllocationAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      cursor.getS32(2)!!,
+      ComputerAllocationAdapter.stripe_customer_idAdapter.decode(cursor.getS64(3)!!),
       cursor.getString(4)!!,
-      ComputerAllocationAdapter.computer_idAdapter.decode(cursor.getLong(5)!!),
-      ComputerAllocationAdapter.active_startAdapter.decode(cursor.getObject<OffsetDateTime>(6)!!),
-      ComputerAllocationAdapter.active_endAdapter.decode(cursor.getObject<OffsetDateTime>(7)!!)
+      ComputerAllocationAdapter.computer_idAdapter.decode(cursor.getS64(5)!!),
+      cursor.getInstant(6)!!,
+      cursor.getInstant(7)!!
     )
   }
 
@@ -97,24 +95,24 @@ public class ComputerAllocationQueries(
         |  active_end
         |)
         |VALUES (
-        |  ?,
-        |  ?,
-        |  ?,
-        |  ?,
-        |  ?,
-        |  ?,
-        |  ?
+        |  $1,
+        |  $2,
+        |  $3,
+        |  $4,
+        |  $5,
+        |  $6,
+        |  $7
         |)
         """.trimMargin(), 7) {
           check(this is JdbcPreparedStatement)
           var parameterIndex = 0
-          bindObject(parameterIndex++, ComputerAllocationAdapter.created_atAdapter.encode(created_at))
+          bindInstant(parameterIndex++, created_at)
           bindInt(parameterIndex++, version)
           bindLong(parameterIndex++, ComputerAllocationAdapter.stripe_customer_idAdapter.encode(stripe_customer_id))
           bindString(parameterIndex++, stripe_subscription_id)
           bindLong(parameterIndex++, ComputerAllocationAdapter.computer_idAdapter.encode(computer_id))
-          bindObject(parameterIndex++, ComputerAllocationAdapter.active_startAdapter.encode(active_start))
-          bindObject(parameterIndex++, ComputerAllocationAdapter.active_endAdapter.encode(active_end))
+          bindInstant(parameterIndex++, active_start)
+          bindInstant(parameterIndex++, active_end)
         }
     return result
   }
@@ -131,16 +129,16 @@ public class ComputerAllocationQueries(
     val result = driver.execute(174_224_886, """
         |UPDATE ComputerAllocation
         |SET
-        |  version = ?,
-        |  active_end = ?
+        |  version = $1,
+        |  active_end = $2
         |WHERE
-        |  version = ? AND
-        |  id = ?
+        |  version = $3 AND
+        |  id = $4
         """.trimMargin(), 4) {
           check(this is JdbcPreparedStatement)
           var parameterIndex = 0
           bindInt(parameterIndex++, new_version)
-          bindObject(parameterIndex++, ComputerAllocationAdapter.active_endAdapter.encode(active_end))
+          bindInstant(parameterIndex++, active_end)
           bindInt(parameterIndex++, expected_version)
           bindLong(parameterIndex++, ComputerAllocationAdapter.idAdapter.encode(id))
         }
@@ -156,10 +154,10 @@ public class ComputerAllocationQueries(
     |SELECT ComputerAllocation.id, ComputerAllocation.created_at, ComputerAllocation.version, ComputerAllocation.stripe_customer_id, ComputerAllocation.stripe_subscription_id, ComputerAllocation.computer_id, ComputerAllocation.active_start, ComputerAllocation.active_end
     |FROM ComputerAllocation
     |WHERE
-    |  stripe_subscription_id = ?
+    |  stripe_subscription_id = $1
     |ORDER BY
     |  active_start DESC
-    |LIMIT ?
+    |LIMIT $2
     """.trimMargin(), mapper, 2) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
@@ -179,10 +177,10 @@ public class ComputerAllocationQueries(
     |SELECT ComputerAllocation.id, ComputerAllocation.created_at, ComputerAllocation.version, ComputerAllocation.stripe_customer_id, ComputerAllocation.stripe_subscription_id, ComputerAllocation.computer_id, ComputerAllocation.active_start, ComputerAllocation.active_end
     |FROM ComputerAllocation
     |WHERE
-    |  computer_id = ?
+    |  computer_id = $1
     |ORDER BY
     |  active_start DESC
-    |LIMIT ?
+    |LIMIT $2
     """.trimMargin(), mapper, 2) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0

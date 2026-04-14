@@ -1,8 +1,8 @@
 package com.wasmo.app.db
 
+import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
-import app.cash.sqldelight.driver.jdbc.JdbcCursor
-import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
@@ -10,7 +10,6 @@ import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
-import java.time.OffsetDateTime
 import kotlin.time.Instant
 
 public class ComputerSpecQueries(
@@ -28,13 +27,13 @@ public class ComputerSpecQueries(
   ) -> T): Query<T> = SelectComputerSpecByTokenQuery(token) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      ComputerSpecAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      ComputerSpecAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      cursor.getLong(2)!!,
-      ComputerSpecAdapter.account_idAdapter.decode(cursor.getLong(3)!!),
+      ComputerSpecAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      cursor.getS64(2)!!,
+      ComputerSpecAdapter.account_idAdapter.decode(cursor.getS64(3)!!),
       cursor.getString(4)!!,
       ComputerSpecAdapter.slugAdapter.decode(cursor.getString(5)!!),
-      cursor.getLong(6)?.let { ComputerSpecAdapter.computer_idAdapter.decode(it) }
+      cursor.getS64(6)?.let { ComputerSpecAdapter.computer_idAdapter.decode(it) }
     )
   }
 
@@ -48,7 +47,7 @@ public class ComputerSpecQueries(
     slug: ComputerSlug,
   ): ExecutableQuery<ComputerSpecId> = InsertComputerSpecQuery(created_at, version, account_id, token, slug) { cursor ->
     check(cursor is JdbcCursor)
-    ComputerSpecAdapter.idAdapter.decode(cursor.getLong(0)!!)
+    ComputerSpecAdapter.idAdapter.decode(cursor.getS64(0)!!)
   }
 
   /**
@@ -63,11 +62,11 @@ public class ComputerSpecQueries(
     val result = driver.execute(94_427_045, """
         |UPDATE ComputerSpec
         |SET
-        |  version = ?,
-        |  computer_id = ?
+        |  version = $1,
+        |  computer_id = $2
         |WHERE
-        |  version = ? AND
-        |  id = ?
+        |  version = $3 AND
+        |  id = $4
         """.trimMargin(), 4) {
           check(this is JdbcPreparedStatement)
           var parameterIndex = 0
@@ -88,7 +87,7 @@ public class ComputerSpecQueries(
     |FROM
     |  ComputerSpec
     |WHERE
-    |  token = ?
+    |  token = $1
     |LIMIT 1
     """.trimMargin(), mapper, 1) {
       check(this is JdbcPreparedStatement)
@@ -116,16 +115,16 @@ public class ComputerSpecQueries(
     |  slug
     |)
     |VALUES (
-    |  ?,
-    |  ?,
-    |  ?,
-    |  ?,
-    |  ?
+    |  $1,
+    |  $2,
+    |  $3,
+    |  $4,
+    |  $5
     |) RETURNING id
     """.trimMargin(), mapper, 5) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
-      bindObject(parameterIndex++, ComputerSpecAdapter.created_atAdapter.encode(created_at))
+      bindInstant(parameterIndex++, created_at)
       bindLong(parameterIndex++, version)
       bindLong(parameterIndex++, ComputerSpecAdapter.account_idAdapter.encode(account_id))
       bindString(parameterIndex++, token)

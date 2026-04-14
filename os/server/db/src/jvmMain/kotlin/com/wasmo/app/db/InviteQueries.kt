@@ -1,13 +1,12 @@
 package com.wasmo.app.db
 
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
-import app.cash.sqldelight.driver.jdbc.JdbcCursor
-import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
+import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.InviteId
-import java.time.OffsetDateTime
 import kotlin.time.Instant
 
 public class InviteQueries(
@@ -29,13 +28,13 @@ public class InviteQueries(
   ): Query<T> = FindInvitesByClaimedByQuery(claimed_by, limit) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      InviteAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      InviteAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      InviteAdapter.created_byAdapter.decode(cursor.getLong(2)!!),
-      cursor.getInt(3)!!,
+      InviteAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      InviteAdapter.created_byAdapter.decode(cursor.getS64(2)!!),
+      cursor.getS32(3)!!,
       cursor.getString(4)!!,
-      cursor.getObject<OffsetDateTime>(5)?.let { InviteAdapter.claimed_atAdapter.decode(it) },
-      cursor.getLong(6)?.let { InviteAdapter.claimed_byAdapter.decode(it) }
+      cursor.getInstant(5),
+      cursor.getS64(6)?.let { InviteAdapter.claimed_byAdapter.decode(it) }
     )
   }
 
@@ -52,13 +51,13 @@ public class InviteQueries(
   ) -> T): Query<T> = FindInvitesByCodeQuery(code) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      InviteAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      InviteAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      InviteAdapter.created_byAdapter.decode(cursor.getLong(2)!!),
-      cursor.getInt(3)!!,
+      InviteAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      InviteAdapter.created_byAdapter.decode(cursor.getS64(2)!!),
+      cursor.getS32(3)!!,
       cursor.getString(4)!!,
-      cursor.getObject<OffsetDateTime>(5)?.let { InviteAdapter.claimed_atAdapter.decode(it) },
-      cursor.getLong(6)?.let { InviteAdapter.claimed_byAdapter.decode(it) }
+      cursor.getInstant(5),
+      cursor.getS64(6)?.let { InviteAdapter.claimed_byAdapter.decode(it) }
     )
   }
 
@@ -81,15 +80,15 @@ public class InviteQueries(
         |  code
         |)
         |VALUES (
-        |  ?,
-        |  ?,
-        |  ?,
-        |  ?
+        |  $1,
+        |  $2,
+        |  $3,
+        |  $4
         |)
         """.trimMargin(), 4) {
           check(this is JdbcPreparedStatement)
           var parameterIndex = 0
-          bindObject(parameterIndex++, InviteAdapter.created_atAdapter.encode(created_at))
+          bindInstant(parameterIndex++, created_at)
           bindLong(parameterIndex++, InviteAdapter.created_byAdapter.encode(created_by))
           bindInt(parameterIndex++, version)
           bindString(parameterIndex++, code)
@@ -110,17 +109,17 @@ public class InviteQueries(
     val result = driver.execute(-1_917_276_414, """
         |UPDATE Invite
         |SET
-        |  version = ?,
-        |  claimed_at = ?,
-        |  claimed_by = ?
+        |  version = $1,
+        |  claimed_at = $2,
+        |  claimed_by = $3
         |WHERE
-        |  version = ? AND
-        |  id = ?
+        |  version = $4 AND
+        |  id = $5
         """.trimMargin(), 5) {
           check(this is JdbcPreparedStatement)
           var parameterIndex = 0
           bindInt(parameterIndex++, new_version)
-          bindObject(parameterIndex++, claimed_at?.let { InviteAdapter.claimed_atAdapter.encode(it) })
+          bindInstant(parameterIndex++, claimed_at)
           bindLong(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
           bindInt(parameterIndex++, expected_version)
           bindLong(parameterIndex++, InviteAdapter.idAdapter.encode(id))
@@ -133,7 +132,7 @@ public class InviteQueries(
     public val limit: Long,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(null, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${ if (claimed_by == null) "IS" else "=" } ? LIMIT ?""", mapper, 2) {
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(null, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${ if (claimed_by == null) "IS" else "=" } $1 LIMIT $2""", mapper, 2) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindLong(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
@@ -147,7 +146,7 @@ public class InviteQueries(
     public val code: String,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(445_097_906, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = ?""", mapper, 1) {
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(445_097_906, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = $1""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindString(parameterIndex++, code)

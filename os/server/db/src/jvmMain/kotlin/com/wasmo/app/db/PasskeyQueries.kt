@@ -1,15 +1,13 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.QueryResult
+import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
-import app.cash.sqldelight.driver.jdbc.JdbcCursor
-import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.passkeys.RegistrationRecord
-import java.time.OffsetDateTime
 import kotlin.time.Instant
 
 public class PasskeyQueries(
@@ -28,9 +26,9 @@ public class PasskeyQueries(
   ) -> T): Query<T> = FindPasskeyByPasskeyIdQuery(passkey_id) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      PasskeyAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      PasskeyAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      PasskeyAdapter.account_idAdapter.decode(cursor.getLong(2)!!),
+      PasskeyAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      PasskeyAdapter.account_idAdapter.decode(cursor.getS64(2)!!),
       cursor.getString(3)!!,
       cursor.getString(4)!!,
       cursor.getString(5),
@@ -57,9 +55,9 @@ public class PasskeyQueries(
   ): Query<T> = FindPasskeyByPasskeyIdAndAccountIdQuery(passkey_id, account_id) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      PasskeyAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      PasskeyAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      PasskeyAdapter.account_idAdapter.decode(cursor.getLong(2)!!),
+      PasskeyAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      PasskeyAdapter.account_idAdapter.decode(cursor.getS64(2)!!),
       cursor.getString(3)!!,
       cursor.getString(4)!!,
       cursor.getString(5),
@@ -82,9 +80,9 @@ public class PasskeyQueries(
   ) -> T): Query<T> = FindPasskeysByAccountIdQuery(account_id) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
-      PasskeyAdapter.idAdapter.decode(cursor.getLong(0)!!),
-      PasskeyAdapter.created_atAdapter.decode(cursor.getObject<OffsetDateTime>(1)!!),
-      PasskeyAdapter.account_idAdapter.decode(cursor.getLong(2)!!),
+      PasskeyAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstant(1)!!,
+      PasskeyAdapter.account_idAdapter.decode(cursor.getS64(2)!!),
       cursor.getString(3)!!,
       cursor.getString(4)!!,
       cursor.getString(5),
@@ -118,18 +116,18 @@ public class PasskeyQueries(
         |  registration_record
         |)
         |VALUES (
-        |  ?,
-        |  ?,
-        |  ?,
-        |  ?,
-        |  ?,
-        |  ?,
-        |  ?
+        |  $1,
+        |  $2,
+        |  $3,
+        |  $4,
+        |  $5,
+        |  $6,
+        |  $7
         |)
         """.trimMargin(), 7) {
           check(this is JdbcPreparedStatement)
           var parameterIndex = 0
-          bindObject(parameterIndex++, PasskeyAdapter.created_atAdapter.encode(created_at))
+          bindInstant(parameterIndex++, created_at)
           bindLong(parameterIndex++, PasskeyAdapter.account_idAdapter.encode(account_id))
           bindString(parameterIndex++, passkey_id)
           bindString(parameterIndex++, aaguid)
@@ -148,7 +146,7 @@ public class PasskeyQueries(
     |SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record
     |FROM Passkey
     |WHERE
-    |  passkey_id = ?
+    |  passkey_id = $1
     """.trimMargin(), mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
@@ -166,8 +164,8 @@ public class PasskeyQueries(
     override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(1_368_858_654, """
     |SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey
     |WHERE
-    |   passkey_id = ? AND
-    |   account_id = ?
+    |   passkey_id = $1 AND
+    |   account_id = $2
     """.trimMargin(), mapper, 2) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
@@ -182,7 +180,7 @@ public class PasskeyQueries(
     public val account_id: AccountId,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(2_146_426_563, """SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey WHERE account_id = ?""", mapper, 1) {
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(2_146_426_563, """SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey WHERE account_id = $1""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindLong(parameterIndex++, PasskeyAdapter.account_idAdapter.encode(account_id))
