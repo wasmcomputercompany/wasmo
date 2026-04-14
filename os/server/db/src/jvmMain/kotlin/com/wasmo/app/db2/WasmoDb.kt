@@ -39,20 +39,20 @@ interface WasmoDbConnection : Closeable {
   val passkeyQueries: PasskeyQueries
   val stripeCustomerQueries: StripeCustomerQueries
 
-  fun execute(
+  suspend fun execute(
     identifier: Int?,
     sql: String,
     parameters: Int,
     binders: (SqlPreparedStatement.() -> Unit)?,
-  ): QueryResult<Long>
+  ): Long
 
-  fun <R> executeQuery(
+  suspend fun <R> executeQuery(
     identifier: Int?,
     sql: String,
-    mapper: (SqlCursor) -> QueryResult<R>,
+    mapper: (SqlCursor) -> R,
     parameters: Int,
     binders: (SqlPreparedStatement.() -> Unit)?,
-  ): QueryResult<R>
+  ): R
 }
 
 class RealWasmoDbConnection(
@@ -88,38 +88,34 @@ class RealWasmoDbConnection(
     sqlConnection.close()
   }
 
-  override fun execute(
+  override suspend fun execute(
     identifier: Int?,
     sql: String,
     parameters: Int,
     binders: (SqlPreparedStatement.() -> Unit)?,
-  ): QueryResult<Long> {
-    return QueryResult.AsyncValue {
-      sqlConnection.execute(
-        sql,
-        bindParameters = {
-          binders?.invoke(RealSqlPreparedStatement(this))
-        },
-      )
-    }
+  ): Long {
+    return sqlConnection.execute(
+      sql,
+      bindParameters = {
+        binders?.invoke(RealSqlPreparedStatement(this))
+      },
+    )
   }
 
-  override fun <R> executeQuery(
+  override suspend fun <R> executeQuery(
     identifier: Int?,
     sql: String,
-    mapper: (SqlCursor) -> QueryResult<R>,
+    mapper: (SqlCursor) -> R,
     parameters: Int,
     binders: (SqlPreparedStatement.() -> Unit)?,
-  ): QueryResult<R> {
-    return QueryResult.AsyncValue {
-      val rowIterator = sqlConnection.executeQuery(
-        sql,
-        bindParameters = {
-          binders?.invoke(RealSqlPreparedStatement(this))
-        },
-      )
-      mapper(RealSqlCursor(rowIterator)).await()
-    }
+  ): R {
+    val rowIterator = sqlConnection.executeQuery(
+      sql,
+      bindParameters = {
+        binders?.invoke(RealSqlPreparedStatement(this))
+      },
+    )
+    return mapper(RealSqlCursor(rowIterator))
   }
 }
 

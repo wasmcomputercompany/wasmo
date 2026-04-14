@@ -47,7 +47,7 @@ class RegisterPasskeyAction(
             created_by_user_agent = client.userAgent,
             created_by_ip = client.ip,
             registration_record = registerResult.record,
-          ).value
+          )
         } catch (_: PSQLException) {
           throw ArgumentUserException("already registered")
         }

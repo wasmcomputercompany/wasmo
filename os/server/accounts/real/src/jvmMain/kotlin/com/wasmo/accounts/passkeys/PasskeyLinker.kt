@@ -27,7 +27,7 @@ class PasskeyLinker(
   private val client: Client,
 ) {
   context(transactionCallbacks: TransactionCallbacks)
-  fun link(passkey: Passkey) {
+  suspend fun link(passkey: Passkey) {
     val cookieAccountId = client.getOrCreateAccountId()
 
     // Nothing to do.

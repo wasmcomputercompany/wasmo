@@ -13,5 +13,5 @@ interface Caller {
   val ip: String?
 
   context(transactionCallbacks: WasmoDbTransaction)
-  fun getAccountIdOrNull(): AccountId?
+  suspend fun getAccountIdOrNull(): AccountId?
 }

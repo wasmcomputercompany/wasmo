@@ -25,7 +25,7 @@ class CookieClient(
   private var cachedAccountId: AccountId? = null
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun getAccountIdOrNull(): AccountId? {
+  override suspend fun getAccountIdOrNull(): AccountId? {
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
@@ -36,7 +36,7 @@ class CookieClient(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun getOrCreateAccountId(): AccountId {
+  override suspend fun getOrCreateAccountId(): AccountId {
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 

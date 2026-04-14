@@ -1,6 +1,5 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
@@ -153,12 +152,12 @@ public class InstalledAppQueries(
   /**
    * @return The number of rows updated.
    */
-  public fun setRelease(
+  public suspend fun setRelease(
     new_version: Long,
     active_release_id: InstalledAppReleaseId?,
     expected_version: Long,
     id: InstalledAppId,
-  ): QueryResult<Long> {
+  ): Long {
     val result = driver.execute(-1_970_953_018, """
         |UPDATE InstalledApp
         |SET
@@ -187,7 +186,7 @@ public class InstalledAppQueries(
     public val wasmo_file_address: WasmoFileAddress,
     mapper: (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_804_962_849, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_804_962_849, """
     |INSERT INTO InstalledApp(
     |  installed_at,
     |  computer_id,
@@ -224,7 +223,7 @@ public class InstalledAppQueries(
     public val limit: Long,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(null, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(null, """
     |SELECT
     |  ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
     |  iar.id, iar.first_active_at, iar.computer_id, iar.installed_app_id, iar.app_version, iar.app_manifest_data
@@ -253,7 +252,7 @@ public class InstalledAppQueries(
     public val active: Boolean?,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(null, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(null, """
     |SELECT
     |  ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
     |  iar.id, iar.first_active_at, iar.computer_id, iar.installed_app_id, iar.app_version, iar.app_manifest_data
@@ -280,7 +279,7 @@ public class InstalledAppQueries(
     public val id: InstalledAppId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_170_206_678, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_170_206_678, """
     |SELECT InstalledApp.id, InstalledApp.installed_at, InstalledApp.computer_id, InstalledApp.slug, InstalledApp.active, InstalledApp.version, InstalledApp.wasmo_file_address, InstalledApp.active_release_id FROM InstalledApp
     |WHERE id = ?
     |LIMIT 1

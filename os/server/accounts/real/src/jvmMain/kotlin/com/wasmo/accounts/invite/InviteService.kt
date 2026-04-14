@@ -19,7 +19,7 @@ class InviteService(
   private val wasmoDb: WasmoDb,
 ) {
   context(transactionCallbacks: TransactionCallbacks)
-  fun create(createdBy: Client): InviteTicket {
+  suspend fun create(createdBy: Client): InviteTicket {
     val code = newToken()
     transactionCallbacks.inviteQueries.insertInvite(
       created_at = clock.now(),
@@ -34,7 +34,7 @@ class InviteService(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun claim(claimedBy: Client, code: String): InviteTicket {
+  suspend fun claim(claimedBy: Client, code: String): InviteTicket {
     val invite = transactionCallbacks.inviteQueries.findInvitesByCode(code)
       .executeAsOneOrNull()
       ?: throw NotFoundUserException("unknown invite")

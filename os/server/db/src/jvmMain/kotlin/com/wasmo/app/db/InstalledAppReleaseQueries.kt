@@ -58,7 +58,7 @@ public class InstalledAppReleaseQueries(
     public val app_manifest_data: AppManifest,
     mapper: (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-935_160_091, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-935_160_091, """
     |INSERT INTO InstalledAppRelease(
     |  first_active_at,
     |  computer_id,
@@ -90,7 +90,7 @@ public class InstalledAppReleaseQueries(
     public val id: InstalledAppReleaseId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-75_751_756, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-75_751_756, """
     |SELECT InstalledAppRelease.id, InstalledAppRelease.first_active_at, InstalledAppRelease.computer_id, InstalledAppRelease.installed_app_id, InstalledAppRelease.app_version, InstalledAppRelease.app_manifest_data FROM InstalledAppRelease
     |WHERE id = ?
     |LIMIT 1

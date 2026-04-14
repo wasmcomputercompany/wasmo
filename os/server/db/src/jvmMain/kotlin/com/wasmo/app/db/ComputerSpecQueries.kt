@@ -1,6 +1,5 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
@@ -55,12 +54,12 @@ public class ComputerSpecQueries(
   /**
    * @return The number of rows updated.
    */
-  public fun linkComputer(
+  public suspend fun linkComputer(
     new_version: Long,
     computer_id: ComputerId?,
     expected_version: Long,
     id: ComputerSpecId,
-  ): QueryResult<Long> {
+  ): Long {
     val result = driver.execute(94_427_045, """
         |UPDATE ComputerSpec
         |SET
@@ -84,7 +83,7 @@ public class ComputerSpecQueries(
     public val token: String,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-1_545_744_768, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-1_545_744_768, """
     |SELECT ComputerSpec.id, ComputerSpec.created_at, ComputerSpec.version, ComputerSpec.account_id, ComputerSpec.token, ComputerSpec.slug, ComputerSpec.computer_id
     |FROM
     |  ComputerSpec
@@ -108,7 +107,7 @@ public class ComputerSpecQueries(
     public val slug: ComputerSlug,
     mapper: (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_134_491_967, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_134_491_967, """
     |INSERT INTO ComputerSpec(
     |  created_at,
     |  version,

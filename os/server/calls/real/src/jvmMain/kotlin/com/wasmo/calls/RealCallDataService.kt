@@ -29,7 +29,7 @@ class RealCallDataService(
 ) : CallDataService {
   private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
     context(transactionCallbacks: TransactionCallbacks)
-    override fun load(): List<PasskeySnapshot> {
+    override suspend fun load(): List<PasskeySnapshot> {
       val accountId = client.getAccountIdOrNull()
 
       return when {
@@ -49,7 +49,7 @@ class RealCallDataService(
 
   private val firstClaimedInvite = object : DbLazy<Invite?>() {
     context(transactionCallbacks: TransactionCallbacks)
-    override fun load(): Invite? {
+    override suspend fun load(): Invite? {
       val accountId = client.getAccountIdOrNull()
       return when {
         accountId != null -> {
@@ -66,7 +66,7 @@ class RealCallDataService(
 
   private val routingContext = object : DbLazy<RoutingContext>() {
     context(transactionCallbacks: TransactionCallbacks)
-    override fun load() = RoutingContext(
+    override suspend fun load() = RoutingContext(
       rootUrl = deployment.baseUrl.toString(),
       hasComputers = computerListSnapshot.get().items.isNotEmpty(),
       hasInvite = firstClaimedInvite.get() != null,
@@ -76,7 +76,7 @@ class RealCallDataService(
 
   private val accountSnapshot = object : DbLazy<AccountSnapshot>() {
     context(transactionCallbacks: TransactionCallbacks)
-    override fun load(): AccountSnapshot {
+    override suspend fun load(): AccountSnapshot {
       val passkeys = passkeys.get()
       val firstInvite = firstClaimedInvite.get()
 
@@ -90,7 +90,7 @@ class RealCallDataService(
 
   private val computerListSnapshot = object : DbLazy<ComputerListSnapshot>() {
     context(transactionCallbacks: TransactionCallbacks)
-    override fun load(): ComputerListSnapshot {
+    override suspend fun load(): ComputerListSnapshot {
       val accountId = client.getAccountIdOrNull()
         ?: return ComputerListSnapshot()
 
@@ -108,19 +108,19 @@ class RealCallDataService(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun routingContext() = routingContext.get()
+  override suspend fun routingContext() = routingContext.get()
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun routeCodec() = routeCodecFactory.create(routingContext())
+  override suspend fun routeCodec() = routeCodecFactory.create(routingContext())
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun accountSnapshot() = accountSnapshot.get()
+  override suspend fun accountSnapshot() = accountSnapshot.get()
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun computerListSnapshot() = computerListSnapshot.get()
+  override suspend fun computerListSnapshot() = computerListSnapshot.get()
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun inviteTicketOrNull(code: String): InviteTicket? {
+  override suspend fun inviteTicketOrNull(code: String): InviteTicket? {
     val invite = transactionCallbacks.inviteQueries.findInvitesByCode(code)
       .executeAsOneOrNull()
       ?: return null

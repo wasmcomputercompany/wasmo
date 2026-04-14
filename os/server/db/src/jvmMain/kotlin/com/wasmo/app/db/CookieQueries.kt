@@ -1,6 +1,5 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
@@ -60,13 +59,13 @@ public class CookieQueries(
   /**
    * @return The number of rows updated.
    */
-  public fun insertCookie(
+  public suspend fun insertCookie(
     created_at: Instant,
     account_id: AccountId,
     token: String,
     created_by_user_agent: String?,
     created_by_ip: String?,
-  ): QueryResult<Long> {
+  ): Long {
     val result = driver.execute(-1_227_629_861, """
         |INSERT INTO Cookie(
         |  created_at,
@@ -97,7 +96,7 @@ public class CookieQueries(
   /**
    * @return The number of rows updated.
    */
-  public fun updateAccountIdByAccountId(target_account_id: AccountId, source_account_id: AccountId): QueryResult<Long> {
+  public suspend fun updateAccountIdByAccountId(target_account_id: AccountId, source_account_id: AccountId): Long {
     val result = driver.execute(-1_742_666_096, """
         |UPDATE Cookie
         |SET account_id = ?
@@ -115,7 +114,7 @@ public class CookieQueries(
     public val token: String,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(316_570_119, """SELECT Cookie.id, Cookie.created_at, Cookie.account_id, Cookie.token, Cookie.created_by_user_agent, Cookie.created_by_ip FROM Cookie WHERE token = ?""", mapper, 1) {
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(316_570_119, """SELECT Cookie.id, Cookie.created_at, Cookie.account_id, Cookie.token, Cookie.created_by_user_agent, Cookie.created_by_ip FROM Cookie WHERE token = ?""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindString(parameterIndex++, token)
@@ -128,7 +127,7 @@ public class CookieQueries(
     public val account_id: AccountId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-1_236_875_978, """SELECT Cookie.id, Cookie.created_at, Cookie.account_id, Cookie.token, Cookie.created_by_user_agent, Cookie.created_by_ip FROM Cookie WHERE account_id = ?""", mapper, 1) {
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-1_236_875_978, """SELECT Cookie.id, Cookie.created_at, Cookie.account_id, Cookie.token, Cookie.created_by_user_agent, Cookie.created_by_ip FROM Cookie WHERE account_id = ?""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindLong(parameterIndex++, CookieAdapter.account_idAdapter.encode(account_id))

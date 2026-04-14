@@ -75,7 +75,7 @@ class InstallAppJobHandler(
           expected_version = installedApp.version,
           new_version = installedApp.version + 1L,
           active_release_id = installedAppRelease.id,
-        ).value
+        )
         require(rowCount == 1L)
       }
     } else {

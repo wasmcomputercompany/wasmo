@@ -98,7 +98,7 @@ public class PasskeyQueries(
   /**
    * @return The number of rows updated.
    */
-  public fun insertPasskey(
+  public suspend fun insertPasskey(
     created_at: Instant,
     account_id: AccountId,
     passkey_id: String,
@@ -106,7 +106,7 @@ public class PasskeyQueries(
     created_by_user_agent: String?,
     created_by_ip: String?,
     registration_record: RegistrationRecord,
-  ): QueryResult<Long> {
+  ): Long {
     val result = driver.execute(-145_919_451, """
         |INSERT INTO Passkey(
         |  created_at,
@@ -144,7 +144,7 @@ public class PasskeyQueries(
     public val passkey_id: String,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(303_956_845, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(303_956_845, """
     |SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record
     |FROM Passkey
     |WHERE
@@ -163,7 +163,7 @@ public class PasskeyQueries(
     public val account_id: AccountId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_368_858_654, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_368_858_654, """
     |SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey
     |WHERE
     |   passkey_id = ? AND
@@ -182,7 +182,7 @@ public class PasskeyQueries(
     public val account_id: AccountId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(2_146_426_563, """SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey WHERE account_id = ?""", mapper, 1) {
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(2_146_426_563, """SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey WHERE account_id = ?""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindLong(parameterIndex++, PasskeyAdapter.account_idAdapter.encode(account_id))

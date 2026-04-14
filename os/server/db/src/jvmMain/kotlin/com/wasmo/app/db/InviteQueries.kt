@@ -1,6 +1,5 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
@@ -68,12 +67,12 @@ public class InviteQueries(
   /**
    * @return The number of rows updated.
    */
-  public fun insertInvite(
+  public suspend fun insertInvite(
     created_at: Instant,
     created_by: AccountId,
     version: Int,
     code: String,
-  ): QueryResult<Long> {
+  ): Long {
     val result = driver.execute(132_921_893, """
         |INSERT INTO Invite(
         |  created_at,
@@ -101,13 +100,13 @@ public class InviteQueries(
   /**
    * @return The number of rows updated.
    */
-  public fun claimInvite(
+  public suspend fun claimInvite(
     new_version: Int,
     claimed_at: Instant?,
     claimed_by: AccountId?,
     expected_version: Int,
     id: InviteId,
-  ): QueryResult<Long> {
+  ): Long {
     val result = driver.execute(-1_917_276_414, """
         |UPDATE Invite
         |SET
@@ -134,7 +133,7 @@ public class InviteQueries(
     public val limit: Long,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(null, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${ if (claimed_by == null) "IS" else "=" } ? LIMIT ?""", mapper, 2) {
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(null, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${ if (claimed_by == null) "IS" else "=" } ? LIMIT ?""", mapper, 2) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindLong(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
@@ -148,7 +147,7 @@ public class InviteQueries(
     public val code: String,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(445_097_906, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = ?""", mapper, 1) {
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(445_097_906, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = ?""", mapper, 1) {
       check(this is JdbcPreparedStatement)
       var parameterIndex = 0
       bindString(parameterIndex++, code)

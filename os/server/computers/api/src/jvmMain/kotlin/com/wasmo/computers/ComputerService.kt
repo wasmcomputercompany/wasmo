@@ -16,10 +16,10 @@ interface ComputerService {
 
   /** Install default apps. */
   context(transactionCallbacks: TransactionCallbacks)
-  fun initialize()
+  suspend fun initialize()
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun enqueueInstall(
+  suspend fun enqueueInstall(
     wasmoFileAddress: WasmoFileAddress,
     slug: AppSlug,
   )

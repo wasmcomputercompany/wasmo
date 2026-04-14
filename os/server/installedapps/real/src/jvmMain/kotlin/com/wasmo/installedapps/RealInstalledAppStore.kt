@@ -22,7 +22,7 @@ class RealInstalledAppStore(
 ) : InstalledAppStore {
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun getOrNull(
+  override suspend fun getOrNull(
     client: Client,
     computerSlug: ComputerSlug,
     appSlug: AppSlug,
@@ -52,7 +52,7 @@ class RealInstalledAppStore(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun get(installedAppId: InstalledAppId): InstalledAppService? {
+  override suspend fun get(installedAppId: InstalledAppId): InstalledAppService? {
     val installedApp = transactionCallbacks.installedAppQueries.selectInstalledAppById(installedAppId)
       .executeAsOne()
     val installedAppRelease = transactionCallbacks.installedAppReleaseQueries
@@ -65,7 +65,7 @@ class RealInstalledAppStore(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun get(
+  override suspend fun get(
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,
   ): InstalledAppService {
@@ -74,7 +74,7 @@ class RealInstalledAppStore(
     return get(computer.slug, installedApp, installedAppRelease)
   }
 
-  override fun get(
+  override suspend fun get(
     computerSlug: ComputerSlug,
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,

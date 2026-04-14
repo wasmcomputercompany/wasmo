@@ -1,6 +1,5 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.driver.jdbc.JdbcCursor
 import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
@@ -56,7 +55,7 @@ public class StripeCustomerQueries(
   /**
    * @return The number of rows updated.
    */
-  public fun updateStripeCustomer(
+  public suspend fun updateStripeCustomer(
     new_version: Int,
     name: String,
     email: String,
@@ -64,7 +63,7 @@ public class StripeCustomerQueries(
     postal_code: String,
     expected_version: Int,
     id: StripeCustomerId,
-  ): QueryResult<Long> {
+  ): Long {
     val result = driver.execute(1_933_751_993, """
         |UPDATE StripeCustomer
         |SET
@@ -100,7 +99,7 @@ public class StripeCustomerQueries(
     public val postal_code: String,
     mapper: (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_145_248_937, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_145_248_937, """
     |INSERT INTO StripeCustomer(
     |  created_at,
     |  version,
@@ -138,7 +137,7 @@ public class StripeCustomerQueries(
     public val stripe_customer_id: String,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_695_702_278, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_695_702_278, """
     |SELECT StripeCustomer.id, StripeCustomer.created_at, StripeCustomer.version, StripeCustomer.stripe_customer_id, StripeCustomer.name, StripeCustomer.email, StripeCustomer.country, StripeCustomer.postal_code
     |FROM StripeCustomer
     |WHERE

@@ -7,7 +7,7 @@ internal abstract class DbLazy<T> {
   var cached: T? = null
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun get(): T {
+  suspend fun get(): T {
     if (loaded) return cached as T
 
     return load()
@@ -15,5 +15,5 @@ internal abstract class DbLazy<T> {
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  protected abstract fun load(): T
+  protected abstract suspend fun load(): T
 }

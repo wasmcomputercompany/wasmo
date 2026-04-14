@@ -77,7 +77,7 @@ public class ComputerAllocationQueries(
   /**
    * @return The number of rows updated.
    */
-  public fun insertComputerAllocation(
+  public suspend fun insertComputerAllocation(
     created_at: Instant,
     version: Int,
     stripe_customer_id: StripeCustomerId,
@@ -85,7 +85,7 @@ public class ComputerAllocationQueries(
     computer_id: ComputerId,
     active_start: Instant,
     active_end: Instant,
-  ): QueryResult<Long> {
+  ): Long {
     val result = driver.execute(2_049_785_289, """
         |INSERT INTO ComputerAllocation(
         |  created_at,
@@ -122,12 +122,12 @@ public class ComputerAllocationQueries(
   /**
    * @return The number of rows updated.
    */
-  public fun truncateComputerAllocation(
+  public suspend fun truncateComputerAllocation(
     new_version: Int,
     active_end: Instant,
     expected_version: Int,
     id: ComputerAllocationId,
-  ): QueryResult<Long> {
+  ): Long {
     val result = driver.execute(174_224_886, """
         |UPDATE ComputerAllocation
         |SET
@@ -152,7 +152,7 @@ public class ComputerAllocationQueries(
     public val limit: Long,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(1_140_511_013, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(1_140_511_013, """
     |SELECT ComputerAllocation.id, ComputerAllocation.created_at, ComputerAllocation.version, ComputerAllocation.stripe_customer_id, ComputerAllocation.stripe_subscription_id, ComputerAllocation.computer_id, ComputerAllocation.active_start, ComputerAllocation.active_end
     |FROM ComputerAllocation
     |WHERE
@@ -175,7 +175,7 @@ public class ComputerAllocationQueries(
     public val limit: Long,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-1_115_404_810, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-1_115_404_810, """
     |SELECT ComputerAllocation.id, ComputerAllocation.created_at, ComputerAllocation.version, ComputerAllocation.stripe_customer_id, ComputerAllocation.stripe_subscription_id, ComputerAllocation.computer_id, ComputerAllocation.active_start, ComputerAllocation.active_end
     |FROM ComputerAllocation
     |WHERE

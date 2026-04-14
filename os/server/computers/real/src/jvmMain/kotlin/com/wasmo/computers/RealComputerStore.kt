@@ -17,7 +17,7 @@ class RealComputerStore(
   private val computerServiceGraphFactory: ComputerServiceGraph.Factory,
 ) : ComputerStore {
   context(transactionCallbacks: TransactionCallbacks)
-  override fun initializeFromSpec(computerSpecToken: String): ComputerService {
+  override suspend fun initializeFromSpec(computerSpecToken: String): ComputerService {
     val computerSpec = transactionCallbacks.computerSpecQueries
       .selectComputerSpecByToken(computerSpecToken)
       .executeAsOneOrNull()
@@ -54,7 +54,7 @@ class RealComputerStore(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun getOrNull(
+  override suspend fun getOrNull(
     client: Client,
     slug: ComputerSlug,
   ): ComputerService? {
@@ -71,7 +71,7 @@ class RealComputerStore(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun get(computerId: ComputerId): ComputerService {
+  override suspend fun get(computerId: ComputerId): ComputerService {
     val computer = transactionCallbacks.computerQueries.selectComputerById(
       id = computerId,
     ).executeAsOne()

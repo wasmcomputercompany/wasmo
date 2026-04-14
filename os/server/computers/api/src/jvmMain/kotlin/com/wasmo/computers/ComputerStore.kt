@@ -7,11 +7,11 @@ import com.wasmo.identifiers.ComputerSlug
 
 interface ComputerStore {
   context(transactionCallbacks: TransactionCallbacks)
-  fun initializeFromSpec(computerSpecToken: String): ComputerService
+  suspend fun initializeFromSpec(computerSpecToken: String): ComputerService
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun getOrNull(client: Client, slug: ComputerSlug): ComputerService?
+  suspend fun getOrNull(client: Client, slug: ComputerSlug): ComputerService?
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun get(computerId: ComputerId): ComputerService
+  suspend fun get(computerId: ComputerId): ComputerService
 }

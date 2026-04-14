@@ -14,7 +14,7 @@ interface Client : Caller {
   val challenger: Challenger
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun getOrCreateAccountId(): AccountId
+  suspend fun getOrCreateAccountId(): AccountId
 
   /** Call this when the account ID itself may have changed. */
   context(transactionCallbacks: TransactionCallbacks)

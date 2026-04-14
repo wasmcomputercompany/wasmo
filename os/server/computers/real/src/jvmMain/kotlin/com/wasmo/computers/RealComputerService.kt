@@ -38,7 +38,7 @@ class RealComputerService(
       .build()
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun initialize() {
+  override suspend fun initialize() {
     for (entry in appCatalog.entries) {
       enqueueInstall(
         wasmoFileAddress = entry.wasmoFileAddress,
@@ -48,7 +48,7 @@ class RealComputerService(
   }
 
   context(transactionCallbacks: TransactionCallbacks)
-  override fun enqueueInstall(
+  override suspend fun enqueueInstall(
     wasmoFileAddress: WasmoFileAddress,
     slug: AppSlug,
   ) {

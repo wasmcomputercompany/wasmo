@@ -10,18 +10,18 @@ import com.wasmo.identifiers.InstalledAppId
 
 interface InstalledAppStore {
   context(transactionCallbacks: TransactionCallbacks)
-  fun getOrNull(client: Client, computerSlug: ComputerSlug, appSlug: AppSlug): InstalledAppService?
+  suspend fun getOrNull(client: Client, computerSlug: ComputerSlug, appSlug: AppSlug): InstalledAppService?
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun get(installedAppId: InstalledAppId): InstalledAppService?
+  suspend fun get(installedAppId: InstalledAppId): InstalledAppService?
 
   context(transactionCallbacks: TransactionCallbacks)
-  fun get(
+  suspend fun get(
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,
   ): InstalledAppService
 
-  fun get(
+  suspend fun get(
     computerSlug: ComputerSlug,
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,

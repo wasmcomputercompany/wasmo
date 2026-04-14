@@ -92,7 +92,7 @@ public class ComputerQueries(
     public val slug: ComputerSlug,
     mapper: (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-1_964_359_735, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-1_964_359_735, """
     |INSERT INTO Computer(
     |  created_at,
     |  version,
@@ -119,7 +119,7 @@ public class ComputerQueries(
     public val limit: Long,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-11_321_302, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-11_321_302, """
     |SELECT
     |  c.id, c.created_at, c.version, c.slug
     |FROM
@@ -146,7 +146,7 @@ public class ComputerQueries(
     public val slug: ComputerSlug,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(341_935_741, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(341_935_741, """
     |SELECT
     |  c.id, c.created_at, c.version, c.slug
     |FROM
@@ -171,7 +171,7 @@ public class ComputerQueries(
     public val id: ComputerId,
     mapper: (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-106_878_722, """
+    override suspend fun <R> execute(mapper: (SqlCursor) -> R): R = driver.executeQuery(-106_878_722, """
     |SELECT Computer.id, Computer.created_at, Computer.version, Computer.slug
     |FROM
     |  Computer

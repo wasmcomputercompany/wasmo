@@ -8,5 +8,5 @@ internal class UnauthenticatedCaller(
   override val ip: String?,
 ) : Caller {
   context(transactionCallbacks: TransactionCallbacks)
-  override fun getAccountIdOrNull() = null
+  override suspend fun getAccountIdOrNull() = null
 }
