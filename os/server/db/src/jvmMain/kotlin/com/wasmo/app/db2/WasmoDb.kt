@@ -15,9 +15,11 @@ import com.wasmo.app.db.StripeCustomerQueries
 import com.wasmo.app.db2.RealSqlCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.identifiers.AccountId
+import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerAccessId
 import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId
+import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
 import com.wasmo.identifiers.CookieId
 import com.wasmo.identifiers.InstalledAppId
@@ -25,6 +27,8 @@ import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.identifiers.StripeCustomerId
+import com.wasmo.identifiers.WasmoFileAddress
+import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import kotlin.time.Instant
 import okio.Closeable
 import wasmo.sql.RowIterator
@@ -74,21 +78,21 @@ open class RealWasmoDbConnection(
   override val sqlConnection: SqlConnection,
 ) : WasmoDbConnection, SqlConnection by sqlConnection {
   override val accountQueries: AccountQueries
-    get() = AccountQueries(this, AccountAdapter)
+    get() = AccountQueries(this)
   override val computerQueries: ComputerQueries
-    get() = ComputerQueries(this, ComputerAdapter, ComputerAccessAdapter)
+    get() = ComputerQueries(this)
   override val computerAccessQueries: ComputerAccessQueries
-    get() = ComputerAccessQueries(this, ComputerAccessAdapter)
+    get() = ComputerAccessQueries(this)
   override val computerAllocationQueries: ComputerAllocationQueries
-    get() = ComputerAllocationQueries(this, ComputerAllocationAdapter)
+    get() = ComputerAllocationQueries(this)
   override val computerSpecQueries: ComputerSpecQueries
-    get() = ComputerSpecQueries(this, ComputerSpecAdapter)
+    get() = ComputerSpecQueries(this)
   override val cookieQueries: CookieQueries
     get() = CookieQueries(this)
   override val installedAppQueries: InstalledAppQueries
-    get() = InstalledAppQueries(this, InstalledAppAdapter, InstalledAppReleaseAdapter)
+    get() = InstalledAppQueries(this)
   override val installedAppReleaseQueries: InstalledAppReleaseQueries
-    get() = InstalledAppReleaseQueries(this, InstalledAppReleaseAdapter)
+    get() = InstalledAppReleaseQueries(this)
   override val inviteQueries: InviteQueries
     get() = InviteQueries(this)
   override val passkeyQueries: PasskeyQueries
@@ -178,3 +182,12 @@ fun SqlBinder.bindInstalledAppReleaseId(index: Int, value: InstalledAppReleaseId
 fun SqlBinder.bindInviteId(index: Int, value: InviteId?) = bindS64(index, value?.id)
 fun SqlBinder.bindPasskeyId(index: Int, value: PasskeyId?) = bindS64(index, value?.id)
 fun SqlBinder.bindStripeCustomerId(index: Int, value: StripeCustomerId?) = bindS64(index, value?.id)
+
+fun RealSqlCursor.getAppSlug(index: Int) = AppSlug(getString(index)!!)
+fun SqlBinder.bindAppSlug(index: Int, value: AppSlug?) = bindString(index, value?.value)
+fun RealSqlCursor.getComputerSlug(index: Int) = ComputerSlug(getString(index)!!)
+fun SqlBinder.bindComputerSlug(index: Int, value: ComputerSlug?) = bindString(index, value?.value)
+
+fun RealSqlCursor.getWasmoFileAddress(index: Int) = getString(index)!!.toWasmoFileAddress()
+fun SqlBinder.bindWasmoFileAddress(index: Int, value: WasmoFileAddress?) = bindString(index, value?.toString())
+

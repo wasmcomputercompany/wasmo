@@ -2,14 +2,19 @@ package com.wasmo.app.db
 
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.app.db2.bindAppSlug
 import com.wasmo.app.db2.bindComputerId
 import com.wasmo.app.db2.bindInstalledAppId
 import com.wasmo.app.db2.bindInstalledAppReleaseId
+import com.wasmo.app.db2.bindWasmoFileAddress
+import com.wasmo.app.db2.getAppSlug
 import com.wasmo.app.db2.getComputerId
 import com.wasmo.app.db2.getComputerIdOrNull
 import com.wasmo.app.db2.getInstalledAppId
 import com.wasmo.app.db2.getInstalledAppIdOrNull
 import com.wasmo.app.db2.getInstalledAppReleaseIdOrNull
+import com.wasmo.app.db2.getJson
+import com.wasmo.app.db2.getWasmoFileAddress
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AppSlug
@@ -23,8 +28,6 @@ import wasmo.sql.RowIterator
 
 public class InstalledAppQueries(
   private val driver: SqlDriver,
-  private val InstalledAppAdapter: InstalledApp.Adapter,
-  private val InstalledAppReleaseAdapter: InstalledAppRelease.Adapter,
 ) {
   public fun insertInstalledApp(
     installed_at: Instant,
@@ -69,17 +72,17 @@ public class InstalledAppQueries(
       cursor.getInstalledAppId(0),
       cursor.getInstant(1)!!,
       cursor.getComputerId(2),
-      InstalledAppAdapter.slugAdapter.decode(cursor.getString(3)!!),
+      cursor.getAppSlug(3),
       cursor.getBool(4),
       cursor.getS64(5)!!,
-      InstalledAppAdapter.wasmo_file_addressAdapter.decode(cursor.getString(6)!!),
+      cursor.getWasmoFileAddress(6),
       cursor.getInstalledAppReleaseIdOrNull(7),
       cursor.getInstalledAppReleaseIdOrNull(8),
       cursor.getInstant(9),
       cursor.getComputerIdOrNull(10),
       cursor.getInstalledAppId(11),
       cursor.getS64(12),
-      cursor.getString(13)?.let { InstalledAppReleaseAdapter.app_manifest_dataAdapter.decode(it) },
+      cursor.getJson<AppManifest>(13),
     )
   }
 
@@ -115,17 +118,17 @@ public class InstalledAppQueries(
       cursor.getInstalledAppId(0),
       cursor.getInstant(1)!!,
       cursor.getComputerId(2),
-      InstalledAppAdapter.slugAdapter.decode(cursor.getString(3)!!),
+      cursor.getAppSlug(3),
       cursor.getBool(4),
       cursor.getS64(5)!!,
-      InstalledAppAdapter.wasmo_file_addressAdapter.decode(cursor.getString(6)!!),
+      cursor.getWasmoFileAddress(6),
       cursor.getInstalledAppReleaseIdOrNull(7),
       cursor.getInstalledAppReleaseIdOrNull(8),
       cursor.getInstant(9),
       cursor.getComputerIdOrNull(10),
       cursor.getInstalledAppIdOrNull(11),
       cursor.getS64(12),
-      cursor.getString(13)?.let { InstalledAppReleaseAdapter.app_manifest_dataAdapter.decode(it) },
+      cursor.getJson<AppManifest>(13),
     )
   }
 
@@ -157,10 +160,10 @@ public class InstalledAppQueries(
       cursor.getInstalledAppId(0),
       cursor.getInstant(1)!!,
       cursor.getComputerId(2),
-      InstalledAppAdapter.slugAdapter.decode(cursor.getString(3)!!),
+      cursor.getAppSlug(3),
       cursor.getBool(4),
       cursor.getS64(5)!!,
-      InstalledAppAdapter.wasmo_file_addressAdapter.decode(cursor.getString(6)!!),
+      cursor.getWasmoFileAddress(6),
       cursor.getInstalledAppReleaseIdOrNull(7),
     )
   }
@@ -230,13 +233,10 @@ public class InstalledAppQueries(
         var parameterIndex = 0
         bindInstant(parameterIndex++, installed_at)
         bindComputerId(parameterIndex++, computer_id)
-        bindString(parameterIndex++, InstalledAppAdapter.slugAdapter.encode(slug))
+        bindAppSlug(parameterIndex++, slug)
         bindBool(parameterIndex++, active)
         bindS64(parameterIndex++, version)
-        bindString(
-          parameterIndex++,
-          InstalledAppAdapter.wasmo_file_addressAdapter.encode(wasmo_file_address),
-        )
+        bindWasmoFileAddress(parameterIndex++, wasmo_file_address)
       }
     }
 
@@ -299,7 +299,7 @@ public class InstalledAppQueries(
       ) {
         var parameterIndex = 0
         bindComputerId(parameterIndex++, computer_id)
-        bindString(parameterIndex++, InstalledAppAdapter.slugAdapter.encode(slug))
+        bindAppSlug(parameterIndex++, slug)
         bindBool(parameterIndex++, active)
       }
     }

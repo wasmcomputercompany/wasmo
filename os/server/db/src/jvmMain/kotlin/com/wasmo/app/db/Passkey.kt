@@ -1,6 +1,5 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.ColumnAdapter
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.passkeys.RegistrationRecord
@@ -15,8 +14,4 @@ data class Passkey(
   val created_by_user_agent: String?,
   val created_by_ip: String?,
   val registration_record: RegistrationRecord,
-) {
-  class Adapter(
-    val idAdapter: ColumnAdapter<PasskeyId, Long>,
-  )
-}
+)

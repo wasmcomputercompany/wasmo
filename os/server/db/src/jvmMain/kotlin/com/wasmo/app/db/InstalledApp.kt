@@ -1,6 +1,5 @@
 package com.wasmo.app.db
 
-import app.cash.sqldelight.ColumnAdapter
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId
@@ -17,9 +16,4 @@ data class InstalledApp(
   val version: Long,
   val wasmo_file_address: WasmoFileAddress,
   val active_release_id: InstalledAppReleaseId?,
-) {
-  class Adapter(
-    val slugAdapter: ColumnAdapter<AppSlug, String>,
-    val wasmo_file_addressAdapter: ColumnAdapter<WasmoFileAddress, String>,
-  )
-}
+)

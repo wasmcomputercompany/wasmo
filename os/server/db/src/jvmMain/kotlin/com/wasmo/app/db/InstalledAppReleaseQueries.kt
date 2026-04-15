@@ -1,8 +1,15 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.app.db2.bindComputerId
+import com.wasmo.app.db2.bindInstalledAppId
+import com.wasmo.app.db2.bindInstalledAppReleaseId
+import com.wasmo.app.db2.bindJson
+import com.wasmo.app.db2.getComputerId
+import com.wasmo.app.db2.getInstalledAppId
+import com.wasmo.app.db2.getInstalledAppReleaseId
+import com.wasmo.app.db2.getJson
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.ComputerId
@@ -14,7 +21,6 @@ import wasmo.sql.RowIterator
 
 public class InstalledAppReleaseQueries(
   private val driver: SqlDriver,
-  private val InstalledAppReleaseAdapter: InstalledAppRelease.Adapter,
 ) {
   public fun insertInstalledAppRelease(
     first_active_at: Instant,
@@ -29,7 +35,7 @@ public class InstalledAppReleaseQueries(
     app_version,
     app_manifest_data,
   ) { cursor ->
-    InstalledAppReleaseAdapter.idAdapter.decode(cursor.getS64(0)!!)
+    cursor.getInstalledAppReleaseId(0)
   }
 
   public fun <T : Any> selectInstalledAppReleaseById(
@@ -44,12 +50,12 @@ public class InstalledAppReleaseQueries(
     ) -> T,
   ): Query<T> = SelectInstalledAppReleaseByIdQuery(id) { cursor ->
     mapper(
-      InstalledAppReleaseAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInstalledAppReleaseId(0),
       cursor.getInstant(1)!!,
-      InstalledAppReleaseAdapter.computer_idAdapter.decode(cursor.getS64(2)!!),
-      InstalledAppReleaseAdapter.installed_app_idAdapter.decode(cursor.getS64(3)!!),
+      cursor.getComputerId(2),
+      cursor.getInstalledAppId(3),
       cursor.getS64(4)!!,
-      InstalledAppReleaseAdapter.app_manifest_dataAdapter.decode(cursor.getString(5)!!),
+      cursor.getJson<AppManifest>(5),
     )
   }
 
@@ -85,19 +91,10 @@ public class InstalledAppReleaseQueries(
       ) {
         var parameterIndex = 0
         bindInstant(parameterIndex++, first_active_at)
-        bindS64(
-          parameterIndex++,
-          InstalledAppReleaseAdapter.computer_idAdapter.encode(computer_id),
-        )
-        bindS64(
-          parameterIndex++,
-          InstalledAppReleaseAdapter.installed_app_idAdapter.encode(installed_app_id),
-        )
+        bindComputerId(parameterIndex++, computer_id)
+        bindInstalledAppId(parameterIndex++, installed_app_id)
         bindS64(parameterIndex++, app_version)
-        bindString(
-          parameterIndex++,
-          InstalledAppReleaseAdapter.app_manifest_dataAdapter.encode(app_manifest_data),
-        )
+        bindJson(parameterIndex++, app_manifest_data)
       }
     }
 
@@ -117,7 +114,7 @@ public class InstalledAppReleaseQueries(
           """.trimMargin(),
       ) {
         var parameterIndex = 0
-        bindS64(parameterIndex++, InstalledAppReleaseAdapter.idAdapter.encode(id))
+        bindInstalledAppReleaseId(parameterIndex++, id)
       }
     }
 

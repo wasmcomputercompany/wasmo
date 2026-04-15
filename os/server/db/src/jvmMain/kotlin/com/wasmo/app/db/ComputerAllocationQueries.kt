@@ -1,8 +1,13 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.app.db2.bindComputerAllocationId
+import com.wasmo.app.db2.bindComputerId
+import com.wasmo.app.db2.bindStripeCustomerId
+import com.wasmo.app.db2.getComputerAllocationId
+import com.wasmo.app.db2.getComputerId
+import com.wasmo.app.db2.getStripeCustomerId
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId
@@ -12,7 +17,6 @@ import wasmo.sql.RowIterator
 
 public class ComputerAllocationQueries(
   private val driver: SqlDriver,
-  private val ComputerAllocationAdapter: ComputerAllocation.Adapter,
 ) {
   public fun <T : Any> findComputerAllocationByStripeSubscriptionId(
     stripe_subscription_id: String,
@@ -30,12 +34,12 @@ public class ComputerAllocationQueries(
   ): Query<T> =
     FindComputerAllocationByStripeSubscriptionIdQuery(stripe_subscription_id, limit) { cursor ->
       mapper(
-        ComputerAllocationAdapter.idAdapter.decode(cursor.getS64(0)!!),
+        cursor.getComputerAllocationId(0),
         cursor.getInstant(1)!!,
         cursor.getS32(2)!!,
-        ComputerAllocationAdapter.stripe_customer_idAdapter.decode(cursor.getS64(3)!!),
+        cursor.getStripeCustomerId(3),
         cursor.getString(4)!!,
-        ComputerAllocationAdapter.computer_idAdapter.decode(cursor.getS64(5)!!),
+        cursor.getComputerId(5),
         cursor.getInstant(6)!!,
         cursor.getInstant(7)!!,
       )
@@ -65,12 +69,12 @@ public class ComputerAllocationQueries(
     ) -> T,
   ): Query<T> = FindComputerAllocationByComputerIdQuery(computer_id, limit) { cursor ->
     mapper(
-      ComputerAllocationAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getComputerAllocationId(0),
       cursor.getInstant(1)!!,
       cursor.getS32(2)!!,
-      ComputerAllocationAdapter.stripe_customer_idAdapter.decode(cursor.getS64(3)!!),
+      cursor.getStripeCustomerId(3),
       cursor.getString(4)!!,
-      ComputerAllocationAdapter.computer_idAdapter.decode(cursor.getS64(5)!!),
+      cursor.getComputerId(5),
       cursor.getInstant(6)!!,
       cursor.getInstant(7)!!,
     )
@@ -119,12 +123,9 @@ public class ComputerAllocationQueries(
       var parameterIndex = 0
       bindInstant(parameterIndex++, created_at)
       bindS32(parameterIndex++, version)
-      bindS64(
-        parameterIndex++,
-        ComputerAllocationAdapter.stripe_customer_idAdapter.encode(stripe_customer_id),
-      )
+      bindStripeCustomerId(parameterIndex++, stripe_customer_id)
       bindString(parameterIndex++, stripe_subscription_id)
-      bindS64(parameterIndex++, ComputerAllocationAdapter.computer_idAdapter.encode(computer_id))
+      bindComputerId(parameterIndex++, computer_id)
       bindInstant(parameterIndex++, active_start)
       bindInstant(parameterIndex++, active_end)
     }
@@ -155,7 +156,7 @@ public class ComputerAllocationQueries(
       bindS32(parameterIndex++, new_version)
       bindInstant(parameterIndex++, active_end)
       bindS32(parameterIndex++, expected_version)
-      bindS64(parameterIndex++, ComputerAllocationAdapter.idAdapter.encode(id))
+      bindComputerAllocationId(parameterIndex++, id)
     }
     return result
   }
@@ -205,10 +206,7 @@ public class ComputerAllocationQueries(
           """.trimMargin(),
       ) {
         var parameterIndex = 0
-        bindS64(
-          parameterIndex++,
-          ComputerAllocationAdapter.computer_idAdapter.encode(computer_id),
-        )
+        bindComputerId(parameterIndex++, computer_id)
         bindS64(parameterIndex++, limit)
       }
     }

@@ -2,6 +2,14 @@ package com.wasmo.app.db
 
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.app.db2.bindAccountId
+import com.wasmo.app.db2.bindComputerId
+import com.wasmo.app.db2.bindComputerSlug
+import com.wasmo.app.db2.bindComputerSpecId
+import com.wasmo.app.db2.getAccountId
+import com.wasmo.app.db2.getComputerIdOrNull
+import com.wasmo.app.db2.getComputerSlug
+import com.wasmo.app.db2.getComputerSpecId
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
@@ -13,7 +21,6 @@ import wasmo.sql.RowIterator
 
 public class ComputerSpecQueries(
   private val driver: SqlDriver,
-  private val ComputerSpecAdapter: ComputerSpec.Adapter,
 ) {
   public fun <T : Any> selectComputerSpecByToken(
     token: String,
@@ -28,13 +35,13 @@ public class ComputerSpecQueries(
     ) -> T,
   ): Query<T> = SelectComputerSpecByTokenQuery(token) { cursor ->
     mapper(
-      ComputerSpecAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getComputerSpecId(0),
       cursor.getInstant(1)!!,
       cursor.getS64(2)!!,
-      ComputerSpecAdapter.account_idAdapter.decode(cursor.getS64(3)!!),
+      cursor.getAccountId(3),
       cursor.getString(4)!!,
-      ComputerSpecAdapter.slugAdapter.decode(cursor.getString(5)!!),
-      cursor.getS64(6)?.let { ComputerSpecAdapter.computer_idAdapter.decode(it) },
+      cursor.getComputerSlug(5),
+      cursor.getComputerIdOrNull(6),
     )
   }
 
@@ -49,7 +56,7 @@ public class ComputerSpecQueries(
     slug: ComputerSlug,
   ): ExecutableQuery<ComputerSpecId> =
     InsertComputerSpecQuery(created_at, version, account_id, token, slug) { cursor ->
-        ComputerSpecAdapter.idAdapter.decode(cursor.getS64(0)!!)
+      cursor.getComputerSpecId(0)
     }
 
   /**
@@ -74,12 +81,9 @@ public class ComputerSpecQueries(
     ) {
       var parameterIndex = 0
       bindS64(parameterIndex++, new_version)
-      bindS64(
-        parameterIndex++,
-        computer_id?.let { ComputerSpecAdapter.computer_idAdapter.encode(it) },
-      )
+      bindComputerId(parameterIndex++, computer_id)
       bindS64(parameterIndex++, expected_version)
-      bindS64(parameterIndex++, ComputerSpecAdapter.idAdapter.encode(id))
+      bindComputerSpecId(parameterIndex++, id)
     }
     return result
   }
@@ -137,9 +141,9 @@ public class ComputerSpecQueries(
         var parameterIndex = 0
         bindInstant(parameterIndex++, created_at)
         bindS64(parameterIndex++, version)
-        bindS64(parameterIndex++, ComputerSpecAdapter.account_idAdapter.encode(account_id))
+        bindAccountId(parameterIndex++, account_id)
         bindString(parameterIndex++, token)
-        bindString(parameterIndex++, ComputerSpecAdapter.slugAdapter.encode(slug))
+        bindComputerSlug(parameterIndex++, slug)
       }
     }
 

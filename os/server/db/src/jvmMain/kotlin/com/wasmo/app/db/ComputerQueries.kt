@@ -2,6 +2,11 @@ package com.wasmo.app.db
 
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.app.db2.bindAccountId
+import com.wasmo.app.db2.bindComputerId
+import com.wasmo.app.db2.bindComputerSlug
+import com.wasmo.app.db2.getComputerId
+import com.wasmo.app.db2.getComputerSlug
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
@@ -12,15 +17,13 @@ import wasmo.sql.RowIterator
 
 public class ComputerQueries(
   private val driver: SqlDriver,
-  private val ComputerAdapter: Computer.Adapter,
-  private val ComputerAccessAdapter: ComputerAccess.Adapter,
 ) {
   public fun insertComputer(
     created_at: Instant,
     version: Long,
     slug: ComputerSlug,
   ): ExecutableQuery<ComputerId> = InsertComputerQuery(created_at, version, slug) { cursor ->
-    ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!)
+    cursor.getComputerId(0)
   }
 
   public fun <T : Any> selectComputersByAccountId(
@@ -34,14 +37,15 @@ public class ComputerQueries(
     ) -> T,
   ): Query<T> = SelectComputersByAccountIdQuery(account_id, limit) { cursor ->
     mapper(
-      ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getComputerId(0),
       cursor.getInstant(1)!!,
       cursor.getS64(2)!!,
-      ComputerAdapter.slugAdapter.decode(cursor.getString(3)!!)
+      cursor.getComputerSlug(3),
     )
   }
 
-  public fun selectComputersByAccountId(account_id: AccountId, limit: Long): Query<Computer> = selectComputersByAccountId(account_id, limit, ::Computer)
+  public fun selectComputersByAccountId(account_id: AccountId, limit: Long): Query<Computer> =
+    selectComputersByAccountId(account_id, limit, ::Computer)
 
   public fun <T : Any> selectComputerByAccountIdAndSlug(
     account_id: AccountId,
@@ -54,30 +58,37 @@ public class ComputerQueries(
     ) -> T,
   ): Query<T> = SelectComputerByAccountIdAndSlugQuery(account_id, slug) { cursor ->
     mapper(
-      ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getComputerId(0),
       cursor.getInstant(1)!!,
       cursor.getS64(2)!!,
-      ComputerAdapter.slugAdapter.decode(cursor.getString(3)!!)
+      cursor.getComputerSlug(3),
     )
   }
 
-  public fun selectComputerByAccountIdAndSlug(account_id: AccountId, slug: ComputerSlug): Query<Computer> = selectComputerByAccountIdAndSlug(account_id, slug, ::Computer)
-
-  public fun <T : Any> selectComputerById(id: ComputerId, mapper: (
-    id: ComputerId,
-    created_at: Instant,
-    version: Long,
+  public fun selectComputerByAccountIdAndSlug(
+    account_id: AccountId,
     slug: ComputerSlug,
-  ) -> T): Query<T> = SelectComputerByIdQuery(id) { cursor ->
+  ): Query<Computer> = selectComputerByAccountIdAndSlug(account_id, slug, ::Computer)
+
+  public fun <T : Any> selectComputerById(
+    id: ComputerId,
+    mapper: (
+      id: ComputerId,
+      created_at: Instant,
+      version: Long,
+      slug: ComputerSlug,
+    ) -> T,
+  ): Query<T> = SelectComputerByIdQuery(id) { cursor ->
     mapper(
-      ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getComputerId(0),
       cursor.getInstant(1)!!,
       cursor.getS64(2)!!,
-      ComputerAdapter.slugAdapter.decode(cursor.getString(3)!!)
+      cursor.getComputerSlug(3),
     )
   }
 
-  public fun selectComputerById(id: ComputerId): Query<Computer> = selectComputerById(id, ::Computer)
+  public fun selectComputerById(id: ComputerId): Query<Computer> =
+    selectComputerById(id, ::Computer)
 
   private inner class InsertComputerQuery<out T : Any>(
     public val created_at: Instant,
@@ -98,12 +109,12 @@ public class ComputerQueries(
           |  $2,
           |  $3
           |) RETURNING id
-          """.trimMargin()
+          """.trimMargin(),
       ) {
         var parameterIndex = 0
         bindInstant(parameterIndex++, created_at)
         bindS64(parameterIndex++, version)
-        bindString(parameterIndex++, ComputerAdapter.slugAdapter.encode(slug))
+        bindComputerSlug(parameterIndex++, slug)
       }
     }
 
@@ -129,10 +140,10 @@ public class ComputerQueries(
           |ORDER BY
           |  c.slug
           |LIMIT $2
-          """.trimMargin()
+          """.trimMargin(),
       ) {
         var parameterIndex = 0
-        bindS64(parameterIndex++, ComputerAccessAdapter.account_idAdapter.encode(account_id))
+        bindAccountId(parameterIndex++, account_id)
         bindS64(parameterIndex++, limit)
       }
     }
@@ -158,11 +169,11 @@ public class ComputerQueries(
           |  ca.account_id = $1 AND
           |  c.slug = $2
           |LIMIT 1
-          """.trimMargin()
+          """.trimMargin(),
       ) {
         var parameterIndex = 0
-        bindS64(parameterIndex++, ComputerAccessAdapter.account_idAdapter.encode(account_id))
-        bindString(parameterIndex++, ComputerAdapter.slugAdapter.encode(slug))
+        bindAccountId(parameterIndex++, account_id)
+        bindComputerSlug(parameterIndex++, slug)
       }
     }
 
@@ -182,10 +193,10 @@ public class ComputerQueries(
           |WHERE
           |  id = $1
           |LIMIT 1
-          """.trimMargin()
+          """.trimMargin(),
       ) {
         var parameterIndex = 0
-        bindS64(parameterIndex++, ComputerAdapter.idAdapter.encode(id))
+        bindComputerId(parameterIndex++, id)
       }
     }
 
