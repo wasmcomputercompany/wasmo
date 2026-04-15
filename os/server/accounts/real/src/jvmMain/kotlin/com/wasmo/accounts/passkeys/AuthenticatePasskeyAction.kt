@@ -29,7 +29,6 @@ class AuthenticatePasskeyAction(
   ): Response<AuthenticatePasskeyResponse> {
     return wasmoDb.transactionWithResult(noEnclosing = true) {
       val passkey = contextOf<WasmoDbTransaction>().passkeyQueries.findPasskeyByPasskeyId(request.authentication.id)
-        .executeAsOneOrNull()
         ?: throw ArgumentUserException("no such passkey")
 
       try {

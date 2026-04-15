@@ -1,113 +1,100 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.app.db2.bindAccountId
 import com.wasmo.app.db2.bindJson
 import com.wasmo.app.db2.getAccountId
-import com.wasmo.app.db2.getJson
+import com.wasmo.app.db2.getJson2
 import com.wasmo.app.db2.getPasskeyId
-import com.wasmo.db.sqlservice.Query2 as Query
+import com.wasmo.app.db2.list
+import com.wasmo.app.db2.singleOrNull
 import com.wasmo.identifiers.AccountId
-import com.wasmo.identifiers.PasskeyId
 import com.wasmo.passkeys.RegistrationRecord
 import kotlin.time.Instant
-import wasmo.sql.RowIterator
 
-public class PasskeyQueries(
+class PasskeyQueries(
   private val driver: SqlDriver,
 ) {
-  public fun <T : Any> findPasskeyByPasskeyId(
-    passkey_id: String,
-    mapper: (
-      id: PasskeyId,
-      created_at: Instant,
-      account_id: AccountId,
-      passkey_id: String,
-      aaguid: String,
-      created_by_user_agent: String?,
-      created_by_ip: String?,
-      registration_record: RegistrationRecord,
-    ) -> T,
-  ): Query<T> = FindPasskeyByPasskeyIdQuery(passkey_id) { cursor ->
-    mapper(
-      cursor.getPasskeyId(0),
-      cursor.getInstant(1)!!,
-      cursor.getAccountId(2),
-      cursor.getString(3)!!,
-      cursor.getString(4)!!,
-      cursor.getString(5),
-      cursor.getString(6),
-      cursor.getJson<RegistrationRecord>(7),
-    )
+  suspend fun findPasskeyByPasskeyId(passkey_id: String): Passkey? {
+    val rowIterator = driver.executeQuery(
+      """
+      SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record
+      FROM Passkey
+      WHERE
+        passkey_id = $1
+      """,
+    ) {
+      var parameterIndex = 0
+      bindString(parameterIndex++, passkey_id)
+    }
+
+    return rowIterator.singleOrNull { cursor ->
+      Passkey(
+        cursor.getPasskeyId(0),
+        cursor.getInstant(1)!!,
+        cursor.getAccountId(2),
+        cursor.getString(3)!!,
+        cursor.getString(4)!!,
+        cursor.getString(5),
+        cursor.getString(6),
+        cursor.getJson2<RegistrationRecord>(7),
+      )
+    }
   }
 
-  public fun findPasskeyByPasskeyId(passkey_id: String): Query<Passkey> =
-    findPasskeyByPasskeyId(passkey_id, ::Passkey)
-
-  public fun <T : Any> findPasskeyByPasskeyIdAndAccountId(
+  suspend fun findPasskeyByPasskeyIdAndAccountId(
     passkey_id: String,
     account_id: AccountId,
-    mapper: (
-      id: PasskeyId,
-      created_at: Instant,
-      account_id: AccountId,
-      passkey_id: String,
-      aaguid: String,
-      created_by_user_agent: String?,
-      created_by_ip: String?,
-      registration_record: RegistrationRecord,
-    ) -> T,
-  ): Query<T> = FindPasskeyByPasskeyIdAndAccountIdQuery(passkey_id, account_id) { cursor ->
-    mapper(
-      cursor.getPasskeyId(0),
-      cursor.getInstant(1)!!,
-      cursor.getAccountId(2),
-      cursor.getString(3)!!,
-      cursor.getString(4)!!,
-      cursor.getString(5),
-      cursor.getString(6),
-      cursor.getJson<RegistrationRecord>(7),
-    )
+  ): Passkey? {
+    val rowIterator = driver.executeQuery(
+      """
+      SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey
+      WHERE
+         passkey_id = $1 AND
+         account_id = $2
+      """,
+    ) {
+      var parameterIndex = 0
+      bindString(parameterIndex++, passkey_id)
+      bindAccountId(parameterIndex++, account_id)
+    }
+
+    return rowIterator.singleOrNull { cursor ->
+      Passkey(
+        cursor.getPasskeyId(0),
+        cursor.getInstant(1)!!,
+        cursor.getAccountId(2),
+        cursor.getString(3)!!,
+        cursor.getString(4)!!,
+        cursor.getString(5),
+        cursor.getString(6),
+        cursor.getJson2<RegistrationRecord>(7),
+      )
+    }
   }
 
-  public fun findPasskeyByPasskeyIdAndAccountId(
-    passkey_id: String,
-    account_id: AccountId,
-  ): Query<Passkey> = findPasskeyByPasskeyIdAndAccountId(passkey_id, account_id, ::Passkey)
-
-  public fun <T : Any> findPasskeysByAccountId(
-    account_id: AccountId,
-    mapper: (
-      id: PasskeyId,
-      created_at: Instant,
-      account_id: AccountId,
-      passkey_id: String,
-      aaguid: String,
-      created_by_user_agent: String?,
-      created_by_ip: String?,
-      registration_record: RegistrationRecord,
-    ) -> T,
-  ): Query<T> = FindPasskeysByAccountIdQuery(account_id) { cursor ->
-    mapper(
-      cursor.getPasskeyId(0),
-      cursor.getInstant(1)!!,
-      cursor.getAccountId(2),
-      cursor.getString(3)!!,
-      cursor.getString(4)!!,
-      cursor.getString(5),
-      cursor.getString(6),
-      cursor.getJson<RegistrationRecord>(7),
-    )
+  suspend fun findPasskeysByAccountId(account_id: AccountId): List<Passkey> {
+    val rowIterator = driver.executeQuery(
+      """SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey WHERE account_id = $1""",
+    ) {
+      var parameterIndex = 0
+      bindAccountId(parameterIndex++, account_id)
+    }
+    return rowIterator.list { cursor ->
+      Passkey(
+        cursor.getPasskeyId(0),
+        cursor.getInstant(1)!!,
+        cursor.getAccountId(2),
+        cursor.getString(3)!!,
+        cursor.getString(4)!!,
+        cursor.getString(5),
+        cursor.getString(6),
+        cursor.getJson2<RegistrationRecord>(7),
+      )
+    }
   }
 
-  public fun findPasskeysByAccountId(account_id: AccountId): Query<Passkey> =
-    findPasskeysByAccountId(account_id, ::Passkey)
-
-  /**
-   * @return The number of rows updated.
-   */
-  public suspend fun insertPasskey(
+  suspend fun insertPasskey(
     created_at: Instant,
     account_id: AccountId,
     passkey_id: String,
@@ -116,27 +103,27 @@ public class PasskeyQueries(
     created_by_ip: String?,
     registration_record: RegistrationRecord,
   ): Long {
-    val result = driver.execute(
+    return driver.execute(
       """
-          |INSERT INTO Passkey(
-          |  created_at,
-          |  account_id,
-          |  passkey_id,
-          |  aaguid,
-          |  created_by_user_agent,
-          |  created_by_ip,
-          |  registration_record
-          |)
-          |VALUES (
-          |  $1,
-          |  $2,
-          |  $3,
-          |  $4,
-          |  $5,
-          |  $6,
-          |  $7
-          |)
-          """.trimMargin(),
+      INSERT INTO Passkey(
+        created_at,
+        account_id,
+        passkey_id,
+        aaguid,
+        created_by_user_agent,
+        created_by_ip,
+        registration_record
+      )
+      VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7
+      )
+      """,
     ) {
       var parameterIndex = 0
       bindInstant(parameterIndex++, created_at)
@@ -147,66 +134,5 @@ public class PasskeyQueries(
       bindString(parameterIndex++, created_by_ip)
       bindJson<RegistrationRecord>(parameterIndex++, registration_record)
     }
-    return result
-  }
-
-  private inner class FindPasskeyByPasskeyIdQuery<out T : Any>(
-    public val passkey_id: String,
-    mapper: suspend (SqlCursor) -> T,
-  ) : Query<T>(mapper) {
-    override suspend fun execute(): RowIterator {
-      return driver.executeQuery(
-        """
-          |SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record
-          |FROM Passkey
-          |WHERE
-          |  passkey_id = $1
-          """.trimMargin(),
-      ) {
-        var parameterIndex = 0
-        bindString(parameterIndex++, passkey_id)
-      }
-    }
-
-    override fun toString(): String = "Passkey.sq:findPasskeyByPasskeyId"
-  }
-
-  private inner class FindPasskeyByPasskeyIdAndAccountIdQuery<out T : Any>(
-    public val passkey_id: String,
-    public val account_id: AccountId,
-    mapper: suspend (SqlCursor) -> T,
-  ) : Query<T>(mapper) {
-    override suspend fun execute(): RowIterator {
-      return driver.executeQuery(
-        """
-          |SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey
-          |WHERE
-          |   passkey_id = $1 AND
-          |   account_id = $2
-          """.trimMargin(),
-      ) {
-        var parameterIndex = 0
-        bindString(parameterIndex++, passkey_id)
-        bindAccountId(parameterIndex++, account_id)
-      }
-    }
-
-    override fun toString(): String = "Passkey.sq:findPasskeyByPasskeyIdAndAccountId"
-  }
-
-  private inner class FindPasskeysByAccountIdQuery<out T : Any>(
-    public val account_id: AccountId,
-    mapper: suspend (SqlCursor) -> T,
-  ) : Query<T>(mapper) {
-    override suspend fun execute(): RowIterator {
-      return driver.executeQuery(
-        """SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey WHERE account_id = $1""",
-      ) {
-        var parameterIndex = 0
-        bindAccountId(parameterIndex++, account_id)
-      }
-    }
-
-    override fun toString(): String = "Passkey.sq:findPasskeysByAccountId"
   }
 }

@@ -19,7 +19,6 @@ kotlin {
         implementation(libs.okhttp)
         implementation(libs.okio)
         implementation(libs.postgresql)
-        implementation(libs.sqldelight.runtime)
         implementation(libs.tomlkt)
         implementation(project(":identifiers"))
         implementation(project(":os:api"))

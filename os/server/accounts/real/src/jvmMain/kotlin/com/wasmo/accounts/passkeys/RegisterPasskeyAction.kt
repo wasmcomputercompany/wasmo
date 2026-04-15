@@ -36,7 +36,6 @@ class RegisterPasskeyAction(
 
       val existing = contextOf<WasmoDbTransaction>().passkeyQueries
         .findPasskeyByPasskeyIdAndAccountId(registerResult.id, accountId)
-        .executeAsOneOrNull()
       if (existing == null) {
         try {
           contextOf<WasmoDbTransaction>().passkeyQueries.insertPasskey(

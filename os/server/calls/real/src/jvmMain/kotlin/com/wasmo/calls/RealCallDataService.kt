@@ -34,7 +34,6 @@ class RealCallDataService(
 
       return when {
         accountId != null -> transactionCallbacks.passkeyQueries.findPasskeysByAccountId(accountId)
-          .executeAsList()
           .map { it.toSnapshot() }
 
         else -> listOf()
