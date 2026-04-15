@@ -4,6 +4,9 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.InviteTicket
 import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.SqlTransaction
+import com.wasmo.app.db.claimInvite
+import com.wasmo.app.db.findInvitesByCode
+import com.wasmo.app.db.insertInvite
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.identifiers.OsScope
@@ -21,7 +24,7 @@ class InviteService(
   context(sqlTransaction: SqlTransaction)
   suspend fun create(createdBy: Client): InviteTicket {
     val code = newToken()
-    sqlTransaction.inviteQueries.insertInvite(
+    sqlTransaction.insertInvite(
       created_at = clock.now(),
       created_by = createdBy.getOrCreateAccountId(),
       version = 1,
@@ -35,14 +38,14 @@ class InviteService(
 
   context(sqlTransaction: SqlTransaction)
   suspend fun claim(claimedBy: Client, code: String): InviteTicket {
-    val invite = sqlTransaction.inviteQueries.findInvitesByCode(code)
+    val invite = sqlTransaction.findInvitesByCode(code)
       ?: throw NotFoundUserException("unknown invite")
 
     val claimedById = claimedBy.getOrCreateAccountId()
 
     if (invite.claimed_by != claimedById) {
       if (invite.claimed_by != null) throw ArgumentUserException("already claimed")
-      sqlTransaction.inviteQueries.claimInvite(
+      sqlTransaction.claimInvite(
         new_version = invite.version + 1,
         claimed_at = clock.now(),
         claimed_by = claimedById,

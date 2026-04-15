@@ -1,6 +1,7 @@
 package com.wasmo.app.db
 
 import okio.Closeable
+import wasmo.sql.SqlConnection
 
 interface WasmoDb : Closeable {
   suspend fun <T> transactionWithResult(
@@ -13,5 +14,5 @@ interface WasmoDb : Closeable {
     block: suspend context(SqlTransaction) () -> T,
   ): T
 
-  suspend fun <T> withConnection(block: suspend context(WasmoDbConnection) () -> T): T
+  suspend fun <T> withConnection(block: suspend context(SqlConnection) () -> T): T
 }

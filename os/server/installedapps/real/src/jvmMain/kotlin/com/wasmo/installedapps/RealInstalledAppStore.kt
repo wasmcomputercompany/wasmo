@@ -7,6 +7,9 @@ import com.wasmo.app.db.SqlTransaction
 import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.selectComputerByAccountIdAndSlug
 import com.wasmo.app.db.selectComputerById
+import com.wasmo.app.db.selectInstalledAppByComputerIdAndSlug
+import com.wasmo.app.db.selectInstalledAppById
+import com.wasmo.app.db.selectInstalledAppReleaseById
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
@@ -36,7 +39,7 @@ class RealInstalledAppStore(
       slug = computerSlug,
     ) ?: return null
 
-    val row = sqlTransaction.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
+    val row = sqlTransaction.selectInstalledAppByComputerIdAndSlug(
       computer_id = computer.id,
       slug = appSlug,
       active = true,
@@ -51,9 +54,10 @@ class RealInstalledAppStore(
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun get(installedAppId: InstalledAppId): InstalledAppService? {
-    val installedApp = sqlTransaction.installedAppQueries.selectInstalledAppById(installedAppId)
-    val installedAppRelease = sqlTransaction.installedAppReleaseQueries
-      .selectInstalledAppReleaseById(installedApp.active_release_id ?: return null)
+    val installedApp = sqlTransaction.selectInstalledAppById(installedAppId)
+    val installedAppRelease = sqlTransaction.selectInstalledAppReleaseById(
+      id = installedApp.active_release_id ?: return null,
+    )
     return get(
       installedApp = installedApp,
       installedAppRelease = installedAppRelease,

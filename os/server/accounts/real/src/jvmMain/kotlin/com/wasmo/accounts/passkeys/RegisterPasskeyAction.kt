@@ -5,8 +5,10 @@ import com.wasmo.accounts.Client
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.SqlTransaction
+import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db.findPasskeyByPasskeyIdAndAccountId
+import com.wasmo.app.db.insertPasskey
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
@@ -34,11 +36,11 @@ class RegisterPasskeyAction(
     return wasmoDb.transactionWithResult(noEnclosing = true) {
       val accountId = client.getOrCreateAccountId()
 
-      val existing = contextOf<SqlTransaction>().passkeyQueries
+      val existing = contextOf<SqlTransaction>()
         .findPasskeyByPasskeyIdAndAccountId(registerResult.id, accountId)
       if (existing == null) {
         try {
-          contextOf<SqlTransaction>().passkeyQueries.insertPasskey(
+          contextOf<SqlTransaction>().insertPasskey(
             created_at = clock.now(),
             account_id = accountId,
             passkey_id = registerResult.id,

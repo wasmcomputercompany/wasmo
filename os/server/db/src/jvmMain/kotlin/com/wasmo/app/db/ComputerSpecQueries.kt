@@ -5,8 +5,9 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
 import kotlin.time.Instant
+import wasmo.sql.SqlConnection
 
-suspend fun WasmoDbConnection.selectComputerSpecByToken(token: String): ComputerSpec? {
+suspend fun SqlConnection.selectComputerSpecByToken(token: String): ComputerSpec? {
   val rowIterator = executeQuery(
     """
     SELECT ComputerSpec.id, ComputerSpec.created_at, ComputerSpec.version, ComputerSpec.account_id, ComputerSpec.token, ComputerSpec.slug, ComputerSpec.computer_id
@@ -34,7 +35,7 @@ suspend fun WasmoDbConnection.selectComputerSpecByToken(token: String): Computer
   }
 }
 
-suspend fun WasmoDbConnection.insertComputerSpec(
+suspend fun SqlConnection.insertComputerSpec(
   created_at: Instant,
   version: Long,
   account_id: AccountId,
@@ -71,7 +72,7 @@ suspend fun WasmoDbConnection.insertComputerSpec(
   }
 }
 
-suspend fun WasmoDbConnection.linkComputer(
+suspend fun SqlConnection.linkComputer(
   new_version: Long,
   computer_id: ComputerId?,
   expected_version: Long,

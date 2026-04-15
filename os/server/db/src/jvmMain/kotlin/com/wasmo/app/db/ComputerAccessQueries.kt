@@ -4,8 +4,9 @@ import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerAccessId
 import com.wasmo.identifiers.ComputerId
 import kotlin.time.Instant
+import wasmo.sql.SqlConnection
 
-suspend fun WasmoDbConnection.insertComputerAccess(
+suspend fun SqlConnection.insertComputerAccess(
   created_at: Instant,
   version: Int,
   computer_id: ComputerId,

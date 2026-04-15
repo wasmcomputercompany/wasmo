@@ -12,7 +12,9 @@ import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.Invite
 import com.wasmo.app.db.Passkey
 import com.wasmo.app.db.SqlTransaction
-import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db.findInvitesByClaimedBy
+import com.wasmo.app.db.findInvitesByCode
+import com.wasmo.app.db.findPasskeysByAccountId
 import com.wasmo.app.db.selectComputersByAccountId
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
@@ -25,7 +27,6 @@ class RealCallDataService(
   private val deployment: Deployment,
   private val routeCodecFactory: RouteCodec.Factory,
   private val authenticatorDatabase: AuthenticatorDatabase,
-  private val wasmoDb: WasmoDb,
   private val client: Client,
 ) : CallDataService {
   private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
@@ -34,7 +35,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
 
       return when {
-        accountId != null -> sqlTransaction.passkeyQueries.findPasskeysByAccountId(accountId)
+        accountId != null -> sqlTransaction.findPasskeysByAccountId(accountId)
           .map { it.toSnapshot() }
 
         else -> listOf()
@@ -53,7 +54,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
       return when {
         accountId != null -> {
-          sqlTransaction.inviteQueries.findInvitesByClaimedBy(
+          sqlTransaction.findInvitesByClaimedBy(
             claimed_by = accountId,
             limit = 1,
           )
@@ -121,7 +122,7 @@ class RealCallDataService(
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun inviteTicketOrNull(code: String): InviteTicket? {
-    val invite = sqlTransaction.inviteQueries.findInvitesByCode(code)
+    val invite = sqlTransaction.findInvitesByCode(code)
       ?: return null
 
     return InviteTicket(

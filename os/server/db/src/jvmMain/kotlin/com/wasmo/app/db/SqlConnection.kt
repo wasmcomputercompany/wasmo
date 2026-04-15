@@ -19,20 +19,10 @@ import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import kotlin.time.Instant
-import okio.Closeable
 import wasmo.sql.RowIterator
 import wasmo.sql.SqlBinder
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlRow
-
-interface WasmoDbConnection : Closeable, SqlConnection {
-  val sqlConnection: SqlConnection
-  val installedAppQueries: InstalledAppQueries
-  val installedAppReleaseQueries: InstalledAppReleaseQueries
-  val inviteQueries: InviteQueries
-  val passkeyQueries: PasskeyQueries
-  val stripeCustomerQueries: StripeCustomerQueries
-}
 
 suspend fun <R> SqlConnection.executeQuery(
   sql: String,
@@ -43,33 +33,18 @@ suspend fun <R> SqlConnection.executeQuery(
   return mapper(RealSqlCursor(rowIterator))
 }
 
-interface SqlTransaction : WasmoDbConnection {
+interface SqlTransaction : SqlConnection {
   fun afterCommit(function: () -> Unit)
 }
 
 open class RealSqlTransaction(
   sqlConnection: SqlConnection,
-) : RealWasmoDbConnection(sqlConnection), SqlTransaction {
+) : SqlConnection by sqlConnection, SqlTransaction {
   val afterCommitActions = mutableListOf<() -> Unit>()
 
   override fun afterCommit(function: () -> Unit) {
     afterCommitActions += function
   }
-}
-
-open class RealWasmoDbConnection(
-  override val sqlConnection: SqlConnection,
-) : WasmoDbConnection, SqlConnection by sqlConnection {
-  override val installedAppQueries: InstalledAppQueries
-    get() = InstalledAppQueries(this)
-  override val installedAppReleaseQueries: InstalledAppReleaseQueries
-    get() = InstalledAppReleaseQueries(this)
-  override val inviteQueries: InviteQueries
-    get() = InviteQueries(this)
-  override val passkeyQueries: PasskeyQueries
-    get() = PasskeyQueries(this)
-  override val stripeCustomerQueries: StripeCustomerQueries
-    get() = StripeCustomerQueries(this)
 }
 
 suspend fun <T> RowIterator.list(mapper: (SqlRow) -> T) : List<T> {

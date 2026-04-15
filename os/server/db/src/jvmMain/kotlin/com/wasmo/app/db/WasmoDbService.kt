@@ -3,6 +3,7 @@ package com.wasmo.app.db
 import app.cash.sqldelight.driver.jdbc.JdbcDriver
 import java.io.Closeable
 import org.apache.commons.dbcp2.PoolingDataSource
+import wasmo.sql.SqlConnection
 import wasmo.sql.SqlDatabase
 
 class WasmoDbService(
@@ -33,9 +34,8 @@ class WasmoDbService(
     }
   }
 
-  override suspend fun <T> withConnection(block: suspend context(WasmoDbConnection) () -> T): T {
-    val connection = RealWasmoDbConnection(database.newConnection())
-    connection.use { connection ->
+  override suspend fun <T> withConnection(block: suspend context(SqlConnection) () -> T): T {
+    database.newConnection().use { connection ->
       context(connection) {
         return block()
       }

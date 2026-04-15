@@ -1,10 +1,13 @@
 package com.wasmo.computers
 
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.SqlTransaction
+import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.findComputerAllocationByStripeSubscriptionId
+import com.wasmo.app.db.findStripeCustomerByStripeCustomerId
 import com.wasmo.app.db.insertComputerAllocation
+import com.wasmo.app.db.insertStripeCustomer
 import com.wasmo.app.db.truncateComputerAllocation
+import com.wasmo.app.db.updateStripeCustomer
 import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.payments.ComputerAllocationSnapshot
@@ -35,12 +38,12 @@ class SubscriptionUpdater(
     )
 
     return wasmoDb.transactionWithResult(noEnclosing = true) {
-      val existingCustomer = contextOf<SqlTransaction>().stripeCustomerQueries
+      val existingCustomer = contextOf<SqlTransaction>()
         .findStripeCustomerByStripeCustomerId(subscription.customer.id)
 
       val customerId: StripeCustomerId
       if (existingCustomer != null) {
-        contextOf<SqlTransaction>().stripeCustomerQueries.updateStripeCustomer(
+        contextOf<SqlTransaction>().updateStripeCustomer(
           new_version = existingCustomer.version + 1,
           name = subscription.customer.name,
           email = subscription.customer.email,
@@ -51,7 +54,7 @@ class SubscriptionUpdater(
         )
         customerId = existingCustomer.id
       } else {
-        customerId = contextOf<SqlTransaction>().stripeCustomerQueries.insertStripeCustomer(
+        customerId = contextOf<SqlTransaction>().insertStripeCustomer(
           created_at = now,
           version = 1,
           stripe_customer_id = subscription.customer.id,

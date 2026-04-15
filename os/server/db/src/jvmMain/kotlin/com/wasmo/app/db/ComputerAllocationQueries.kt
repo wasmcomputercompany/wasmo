@@ -4,8 +4,9 @@ import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.StripeCustomerId
 import kotlin.time.Instant
+import wasmo.sql.SqlConnection
 
-suspend fun WasmoDbConnection.findComputerAllocationByStripeSubscriptionId(
+suspend fun SqlConnection.findComputerAllocationByStripeSubscriptionId(
   stripe_subscription_id: String,
   limit: Long,
 ): ComputerAllocation? {
@@ -39,7 +40,7 @@ suspend fun WasmoDbConnection.findComputerAllocationByStripeSubscriptionId(
   }
 }
 
-suspend fun WasmoDbConnection.insertComputerAllocation(
+suspend fun SqlConnection.insertComputerAllocation(
   created_at: Instant,
   version: Int,
   stripe_customer_id: StripeCustomerId,
@@ -81,7 +82,7 @@ suspend fun WasmoDbConnection.insertComputerAllocation(
   }
 }
 
-suspend fun WasmoDbConnection.truncateComputerAllocation(
+suspend fun SqlConnection.truncateComputerAllocation(
   new_version: Int,
   active_end: Instant,
   expected_version: Int,

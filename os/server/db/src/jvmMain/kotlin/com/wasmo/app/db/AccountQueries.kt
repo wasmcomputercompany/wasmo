@@ -1,8 +1,9 @@
 package com.wasmo.app.db
 
 import com.wasmo.identifiers.AccountId
+import wasmo.sql.SqlConnection
 
-suspend fun WasmoDbConnection.insertAccount(version: Int): AccountId {
+suspend fun SqlConnection.insertAccount(version: Int): AccountId {
   val rowIterator = executeQuery(
     """
     INSERT INTO Account(
