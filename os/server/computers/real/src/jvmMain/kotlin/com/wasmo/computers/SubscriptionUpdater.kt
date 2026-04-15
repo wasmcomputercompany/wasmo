@@ -64,7 +64,7 @@ class SubscriptionUpdater(
         .findComputerAllocationByStripeSubscriptionId(
           stripe_subscription_id = subscriptionId,
           limit = 1L,
-        ).executeAsOneOrNull()
+        )
 
       val computer = computerStore.initializeFromSpec(
         computerSpecToken = subscription.computerSpecToken,

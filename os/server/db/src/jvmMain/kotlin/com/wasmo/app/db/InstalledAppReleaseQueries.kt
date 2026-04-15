@@ -9,7 +9,8 @@ import com.wasmo.app.db2.bindJson
 import com.wasmo.app.db2.getComputerId
 import com.wasmo.app.db2.getInstalledAppId
 import com.wasmo.app.db2.getInstalledAppReleaseId
-import com.wasmo.app.db2.getJson
+import com.wasmo.app.db2.getJson2
+import com.wasmo.app.db2.singleOrNull
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.ComputerId
@@ -38,29 +39,31 @@ public class InstalledAppReleaseQueries(
     cursor.getInstalledAppReleaseId(0)
   }
 
-  public fun <T : Any> selectInstalledAppReleaseById(
+  suspend fun selectInstalledAppReleaseById(
     id: InstalledAppReleaseId,
-    mapper: (
-      id: InstalledAppReleaseId,
-      first_active_at: Instant,
-      computer_id: ComputerId,
-      installed_app_id: InstalledAppId,
-      app_version: Long,
-      app_manifest_data: AppManifest,
-    ) -> T,
-  ): Query<T> = SelectInstalledAppReleaseByIdQuery(id) { cursor ->
-    mapper(
-      cursor.getInstalledAppReleaseId(0),
-      cursor.getInstant(1)!!,
-      cursor.getComputerId(2),
-      cursor.getInstalledAppId(3),
-      cursor.getS64(4)!!,
-      cursor.getJson<AppManifest>(5),
-    )
-  }
+  ): InstalledAppRelease? {
+    val rowIterator = driver.executeQuery(
+      """
+      SELECT InstalledAppRelease.id, InstalledAppRelease.first_active_at, InstalledAppRelease.computer_id, InstalledAppRelease.installed_app_id, InstalledAppRelease.app_version, InstalledAppRelease.app_manifest_data FROM InstalledAppRelease
+      WHERE id = $1
+      LIMIT 1
+      """
+    ) {
+      var parameterIndex = 0
+      bindInstalledAppReleaseId(parameterIndex++, id)
+    }
 
-  public fun selectInstalledAppReleaseById(id: InstalledAppReleaseId): Query<InstalledAppRelease> =
-    selectInstalledAppReleaseById(id, ::InstalledAppRelease)
+    return rowIterator.singleOrNull { cursor ->
+      InstalledAppRelease(
+        cursor.getInstalledAppReleaseId(0),
+        cursor.getInstant(1)!!,
+        cursor.getComputerId(2),
+        cursor.getInstalledAppId(3),
+        cursor.getS64(4)!!,
+        cursor.getJson2<AppManifest>(5),
+      )
+    }
+  }
 
   private inner class InsertInstalledAppReleaseQuery<out T : Any>(
     public val first_active_at: Instant,

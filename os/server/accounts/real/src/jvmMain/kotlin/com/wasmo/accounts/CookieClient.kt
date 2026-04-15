@@ -45,7 +45,7 @@ class CookieClient(
 
     val accountId = transactionCallbacks.accountQueries.insertAccount(
       version = 1,
-    ).executeAsOne()
+    )
 
     transactionCallbacks.cookieQueries.insertCookie(
       created_at = clock.now(),

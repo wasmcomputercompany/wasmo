@@ -36,7 +36,7 @@ class RealComputerStore(
           version = 1,
           computer_id = insertedComputerId,
           account_id = computerSpec.account_id,
-        ).executeAsOne()
+        )
 
         transactionCallbacks.computerSpecQueries.linkComputer(
           new_version = computerSpec.version + 1,
@@ -64,8 +64,7 @@ class RealComputerStore(
     val computer = transactionCallbacks.computerQueries.selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = slug,
-    ).executeAsOneOrNull()
-      ?: return null
+    ) ?: return null
 
     return get(computer)
   }

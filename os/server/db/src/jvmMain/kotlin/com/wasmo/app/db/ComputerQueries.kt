@@ -7,6 +7,7 @@ import com.wasmo.app.db2.bindComputerId
 import com.wasmo.app.db2.bindComputerSlug
 import com.wasmo.app.db2.getComputerId
 import com.wasmo.app.db2.getComputerSlug
+import com.wasmo.app.db2.singleOrNull
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
@@ -47,28 +48,38 @@ public class ComputerQueries(
   public fun selectComputersByAccountId(account_id: AccountId, limit: Long): Query<Computer> =
     selectComputersByAccountId(account_id, limit, ::Computer)
 
-  public fun <T : Any> selectComputerByAccountIdAndSlug(
+  suspend fun selectComputerByAccountIdAndSlug(
     account_id: AccountId,
     slug: ComputerSlug,
-    mapper: (
-      id: ComputerId,
-      created_at: Instant,
-      version: Long,
-      slug: ComputerSlug,
-    ) -> T,
-  ): Query<T> = SelectComputerByAccountIdAndSlugQuery(account_id, slug) { cursor ->
-    mapper(
-      cursor.getComputerId(0),
-      cursor.getInstant(1)!!,
-      cursor.getS64(2)!!,
-      cursor.getComputerSlug(3),
-    )
-  }
+  ): Computer? {
+    val rowIterator = driver.executeQuery(
+      """
+      SELECT
+        c.id, c.created_at, c.version, c.slug
+      FROM
+        ComputerAccess ca,
+        Computer c
+      WHERE
+        c.id = ca.id AND
+        ca.account_id = $1 AND
+        c.slug = $2
+      LIMIT 1
+      """,
+    ) {
+      var parameterIndex = 0
+      bindAccountId(parameterIndex++, account_id)
+      bindComputerSlug(parameterIndex++, slug)
+    }
 
-  public fun selectComputerByAccountIdAndSlug(
-    account_id: AccountId,
-    slug: ComputerSlug,
-  ): Query<Computer> = selectComputerByAccountIdAndSlug(account_id, slug, ::Computer)
+    return rowIterator.singleOrNull { cursor ->
+      Computer(
+        cursor.getComputerId(0),
+        cursor.getInstant(1)!!,
+        cursor.getS64(2)!!,
+        cursor.getComputerSlug(3),
+      )
+    }
+  }
 
   public fun <T : Any> selectComputerById(
     id: ComputerId,
@@ -149,35 +160,6 @@ public class ComputerQueries(
     }
 
     override fun toString(): String = "Computer.sq:selectComputersByAccountId"
-  }
-
-  private inner class SelectComputerByAccountIdAndSlugQuery<out T : Any>(
-    public val account_id: AccountId,
-    public val slug: ComputerSlug,
-    mapper: suspend (SqlCursor) -> T,
-  ) : Query<T>(mapper) {
-    override suspend fun execute(): RowIterator {
-      return driver.executeQuery(
-        """
-          |SELECT
-          |  c.id, c.created_at, c.version, c.slug
-          |FROM
-          |  ComputerAccess ca,
-          |  Computer c
-          |WHERE
-          |  c.id = ca.id AND
-          |  ca.account_id = $1 AND
-          |  c.slug = $2
-          |LIMIT 1
-          """.trimMargin(),
-      ) {
-        var parameterIndex = 0
-        bindAccountId(parameterIndex++, account_id)
-        bindComputerSlug(parameterIndex++, slug)
-      }
-    }
-
-    override fun toString(): String = "Computer.sq:selectComputerByAccountIdAndSlug"
   }
 
   private inner class SelectComputerByIdQuery<out T : Any>(

@@ -33,8 +33,7 @@ class RealInstalledAppStore(
     val computer = transactionCallbacks.computerQueries.selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = computerSlug,
-    ).executeAsOneOrNull()
-      ?: return null
+    ) ?: return null
 
     val row = transactionCallbacks.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
       computer_id = computer.id,
@@ -57,7 +56,6 @@ class RealInstalledAppStore(
       .executeAsOne()
     val installedAppRelease = transactionCallbacks.installedAppReleaseQueries
       .selectInstalledAppReleaseById(installedApp.active_release_id ?: return null)
-      .executeAsOneOrNull()
     return get(
       installedApp = installedApp,
       installedAppRelease = installedAppRelease,
