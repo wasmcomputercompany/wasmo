@@ -29,7 +29,7 @@ class CookieClient(
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = transactionCallbacks.cookieQueries.findCookieByToken(sessionCookie.token).executeAsOneOrNull()
+    val cookie = transactionCallbacks.cookieQueries.findCookieByToken(sessionCookie.token)
       ?: return null
     return cookie.account_id
       .also { this.cachedAccountId = it }
@@ -40,7 +40,7 @@ class CookieClient(
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = transactionCallbacks.cookieQueries.findCookieByToken(sessionCookie.token).executeAsOneOrNull()
+    val cookie = transactionCallbacks.cookieQueries.findCookieByToken(sessionCookie.token)
     if (cookie != null) return cookie.account_id
 
     val accountId = transactionCallbacks.accountQueries.insertAccount(
