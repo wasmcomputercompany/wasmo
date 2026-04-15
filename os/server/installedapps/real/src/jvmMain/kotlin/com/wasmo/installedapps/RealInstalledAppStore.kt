@@ -5,6 +5,8 @@ import com.wasmo.app.db.InstalledApp
 import com.wasmo.app.db.InstalledAppRelease
 import com.wasmo.app.db.SqlTransaction
 import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db.selectComputerByAccountIdAndSlug
+import com.wasmo.app.db.selectComputerById
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
@@ -29,7 +31,7 @@ class RealInstalledAppStore(
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
-    val computer = sqlTransaction.computerQueries.selectComputerByAccountIdAndSlug(
+    val computer = sqlTransaction.selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = computerSlug,
     ) ?: return null
@@ -63,7 +65,7 @@ class RealInstalledAppStore(
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,
   ): InstalledAppService {
-    val computer = sqlTransaction.computerQueries.selectComputerById(installedApp.computer_id)
+    val computer = sqlTransaction.selectComputerById(installedApp.computer_id)
     return get(computer.slug, installedApp, installedAppRelease)
   }
 

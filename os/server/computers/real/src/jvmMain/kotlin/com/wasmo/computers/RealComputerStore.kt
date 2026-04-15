@@ -3,8 +3,10 @@ package com.wasmo.computers
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.Computer
 import com.wasmo.app.db.SqlTransaction
-import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db.insertComputer
 import com.wasmo.app.db.insertComputerAccess
+import com.wasmo.app.db.selectComputerByAccountIdAndSlug
+import com.wasmo.app.db.selectComputerById
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.OsScope
@@ -14,7 +16,6 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(OsScope::class)
 class RealComputerStore(
-  private val wasmoDb: WasmoDb,
   private val computerServiceGraphFactory: ComputerServiceGraph.Factory,
 ) : ComputerStore {
   context(sqlTransaction: SqlTransaction)
@@ -25,7 +26,7 @@ class RealComputerStore(
 
     val computerId = computerSpec.computer_id
       ?: run {
-        val insertedComputerId = sqlTransaction.computerQueries.insertComputer(
+        val insertedComputerId = sqlTransaction.insertComputer(
           created_at = computerSpec.created_at,
           version = 1,
           slug = computerSpec.slug,
@@ -61,7 +62,7 @@ class RealComputerStore(
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
-    val computer = sqlTransaction.computerQueries.selectComputerByAccountIdAndSlug(
+    val computer = sqlTransaction.selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = slug,
     ) ?: return null
@@ -71,7 +72,7 @@ class RealComputerStore(
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun get(computerId: ComputerId): ComputerService {
-    val computer = sqlTransaction.computerQueries.selectComputerById(
+    val computer = sqlTransaction.selectComputerById(
       id = computerId,
     )
 

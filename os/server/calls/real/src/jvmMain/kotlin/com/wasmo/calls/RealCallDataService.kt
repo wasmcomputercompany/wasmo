@@ -11,8 +11,9 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.Invite
 import com.wasmo.app.db.Passkey
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.SqlTransaction
+import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db.selectComputersByAccountId
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
 import dev.zacsweers.metro.Inject
@@ -93,7 +94,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
         ?: return ComputerListSnapshot()
 
-      val computers = sqlTransaction.computerQueries.selectComputersByAccountId(
+      val computers = sqlTransaction.selectComputersByAccountId(
         account_id = accountId,
         limit = 100,
       )

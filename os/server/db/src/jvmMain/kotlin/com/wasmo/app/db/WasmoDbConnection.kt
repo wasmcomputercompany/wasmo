@@ -27,7 +27,6 @@ import wasmo.sql.SqlRow
 
 interface WasmoDbConnection : Closeable, SqlConnection {
   val sqlConnection: SqlConnection
-  val computerQueries: ComputerQueries
   val computerSpecQueries: ComputerSpecQueries
   val cookieQueries: CookieQueries
   val installedAppQueries: InstalledAppQueries
@@ -63,8 +62,6 @@ open class RealSqlTransaction(
 open class RealWasmoDbConnection(
   override val sqlConnection: SqlConnection,
 ) : WasmoDbConnection, SqlConnection by sqlConnection {
-  override val computerQueries: ComputerQueries
-    get() = ComputerQueries(this)
   override val computerSpecQueries: ComputerSpecQueries
     get() = ComputerSpecQueries(this)
   override val cookieQueries: CookieQueries
