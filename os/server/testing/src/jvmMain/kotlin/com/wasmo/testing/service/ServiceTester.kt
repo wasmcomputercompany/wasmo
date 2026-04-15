@@ -21,7 +21,11 @@ import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.TestEventListener
 import com.wasmo.testing.sql.clearSchema
 import dev.zacsweers.metro.createGraphFactory
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
@@ -104,18 +108,24 @@ class ServiceTester : CoroutineTestInterceptor {
     ).use { wasmoDb ->
       wasmoDb.migrate()
 
-      val postgresqlClient = PostgresqlClient(TestDatabaseAddress)
-      postgresqlClient.asSqlService().use { sqlService ->
-        val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
-        coroutineScope {
-          this@ServiceTester.graph = serviceTesterGraphFactory.create(
-            wasmoDbService = wasmoDb,
-            sqlService = sqlService,
-            coroutineScope = this,
-            fileSystem = fileSystem,
-            testDirectory = testDirectory,
-          )
-          testFunction()
+      // Use a custom, non-test dispatcher because the PostgreSQL dispatcher client suspends
+      // waiting on I/O, and the test dispatchers don't like that.
+      withContext(Dispatchers.Default) {
+        withTimeout(5.seconds) {
+          val postgresqlClient = PostgresqlClient(TestDatabaseAddress)
+          postgresqlClient.asSqlService().use { sqlService ->
+            val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
+            coroutineScope {
+              this@ServiceTester.graph = serviceTesterGraphFactory.create(
+                wasmoDbService = wasmoDb,
+                sqlService = sqlService,
+                coroutineScope = this,
+                fileSystem = fileSystem,
+                testDirectory = testDirectory,
+              )
+              testFunction()
+            }
+          }
         }
       }
     }

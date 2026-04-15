@@ -12,6 +12,7 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(libs.commons.dbcp2)
+        implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
         implementation(libs.postgresql)

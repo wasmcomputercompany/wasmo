@@ -7,11 +7,11 @@ import com.wasmo.identifiers.Job
 import com.wasmo.identifiers.JobHandlerId
 import com.wasmo.testing.measureTestTime
 import com.wasmo.testing.service.ServiceTester
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -90,7 +90,7 @@ class MemoryOsJobQueueTest {
 
     jobQueue.enqueue(SampleJob("hello"))
 
-    delay(3.seconds)
+    delay(500.milliseconds)
     assertThat(channel.receive()).isEqualTo("hello")
 
     val durationDeferred = async {
@@ -103,6 +103,7 @@ class MemoryOsJobQueueTest {
   }
 
   @Test
+  @Ignore("our ServiceTester currently runs tests with a non-test dispatcher")
   fun awaitIdleNeedsToWait() = runTest {
     val channel = Channel<String>(capacity = Channel.RENDEZVOUS)
     val jobQueue = MemoryOsJobQueue(
