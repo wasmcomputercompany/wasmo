@@ -6,8 +6,9 @@ import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
-suspend fun SqlConnection.findInvitesByClaimedBy(claimed_by: AccountId?, limit: Long): Invite? {
-  val rowIterator = executeQuery(
+context(connection: SqlConnection)
+suspend fun findInvitesByClaimedBy(claimed_by: AccountId?, limit: Long): Invite? {
+  val rowIterator = connection.executeQuery(
     """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${if (claimed_by == null) "IS" else "="} $1 LIMIT $2""",
   ) {
     var parameterIndex = 0
@@ -27,8 +28,9 @@ suspend fun SqlConnection.findInvitesByClaimedBy(claimed_by: AccountId?, limit: 
   }
 }
 
-suspend fun SqlConnection.findInvitesByCode(code: String): Invite? {
-  val rowIterator = executeQuery(
+context(connection: SqlConnection)
+suspend fun findInvitesByCode(code: String): Invite? {
+  val rowIterator = connection.executeQuery(
     """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = $1""",
   ) {
     var parameterIndex = 0
@@ -48,13 +50,14 @@ suspend fun SqlConnection.findInvitesByCode(code: String): Invite? {
   }
 }
 
-suspend fun SqlConnection.insertInvite(
+context(connection: SqlConnection)
+suspend fun insertInvite(
   created_at: Instant,
   created_by: AccountId,
   version: Int,
   code: String,
 ): Long {
-  return execute(
+  return connection.execute(
     """
     INSERT INTO Invite(
       created_at,
@@ -78,14 +81,15 @@ suspend fun SqlConnection.insertInvite(
   }
 }
 
-suspend fun SqlConnection.claimInvite(
+context(connection: SqlConnection)
+suspend fun claimInvite(
   new_version: Int,
   claimed_at: Instant?,
   claimed_by: AccountId?,
   expected_version: Int,
   id: InviteId,
 ): Long {
-  return execute(
+  return connection.execute(
     """
     UPDATE Invite
     SET

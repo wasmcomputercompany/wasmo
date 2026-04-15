@@ -53,7 +53,7 @@ class RealInstalledAppStore(
   context(sqlTransaction: SqlTransaction)
   override suspend fun get(installedAppId: InstalledAppId): InstalledAppService? {
     val installedApp = selectInstalledAppById(installedAppId)
-    val installedAppRelease = sqlTransaction.selectInstalledAppReleaseById(
+    val installedAppRelease = selectInstalledAppReleaseById(
       id = installedApp.active_release_id ?: return null,
     )
     return get(

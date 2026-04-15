@@ -45,7 +45,7 @@ class InstallAppJobHandler(
 
     if (installedManifest != null) {
       val installedAppRelease = wasmoDb.transaction {
-        val releaseId = contextOf<SqlTransaction>().insertInstalledAppRelease(
+        val releaseId = insertInstalledAppRelease(
           first_active_at = completedAt,
           computer_id = computerService.id,
           installed_app_id = installedApp.id,

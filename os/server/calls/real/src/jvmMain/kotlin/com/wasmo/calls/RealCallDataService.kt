@@ -54,7 +54,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
       return when {
         accountId != null -> {
-          sqlTransaction.findInvitesByClaimedBy(
+          findInvitesByClaimedBy(
             claimed_by = accountId,
             limit = 1,
           )
@@ -122,7 +122,7 @@ class RealCallDataService(
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun inviteTicketOrNull(code: String): InviteTicket? {
-    val invite = sqlTransaction.findInvitesByCode(code)
+    val invite = findInvitesByCode(code)
       ?: return null
 
     return InviteTicket(

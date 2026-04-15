@@ -22,7 +22,7 @@ class InviteService(
   context(sqlTransaction: SqlTransaction)
   suspend fun create(createdBy: Client): InviteTicket {
     val code = newToken()
-    sqlTransaction.insertInvite(
+    insertInvite(
       created_at = clock.now(),
       created_by = createdBy.getOrCreateAccountId(),
       version = 1,
@@ -36,14 +36,14 @@ class InviteService(
 
   context(sqlTransaction: SqlTransaction)
   suspend fun claim(claimedBy: Client, code: String): InviteTicket {
-    val invite = sqlTransaction.findInvitesByCode(code)
+    val invite = findInvitesByCode(code)
       ?: throw NotFoundUserException("unknown invite")
 
     val claimedById = claimedBy.getOrCreateAccountId()
 
     if (invite.claimed_by != claimedById) {
       if (invite.claimed_by != null) throw ArgumentUserException("already claimed")
-      sqlTransaction.claimInvite(
+      claimInvite(
         new_version = invite.version + 1,
         claimed_at = clock.now(),
         claimed_by = claimedById,

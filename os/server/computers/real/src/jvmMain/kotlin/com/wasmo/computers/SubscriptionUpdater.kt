@@ -39,12 +39,13 @@ class SubscriptionUpdater(
     )
 
     return wasmoDb.transaction {
-      val existingCustomer = contextOf<SqlTransaction>()
-        .findStripeCustomerByStripeCustomerId(subscription.customer.id)
+      val existingCustomer = with(contextOf<SqlTransaction>()) {
+        findStripeCustomerByStripeCustomerId(subscription.customer.id)
+      }
 
       val customerId: StripeCustomerId
       if (existingCustomer != null) {
-        contextOf<SqlTransaction>().updateStripeCustomer(
+        updateStripeCustomer(
           new_version = existingCustomer.version + 1,
           name = subscription.customer.name,
           email = subscription.customer.email,
@@ -55,7 +56,7 @@ class SubscriptionUpdater(
         )
         customerId = existingCustomer.id
       } else {
-        customerId = contextOf<SqlTransaction>().insertStripeCustomer(
+        customerId = insertStripeCustomer(
           created_at = now,
           version = 1,
           stripe_customer_id = subscription.customer.id,

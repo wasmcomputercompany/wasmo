@@ -6,7 +6,8 @@ import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
-suspend fun SqlConnection.insertStripeCustomer(
+context(connection: SqlConnection)
+suspend fun insertStripeCustomer(
   created_at: Instant,
   version: Int,
   stripe_customer_id: String,
@@ -15,7 +16,7 @@ suspend fun SqlConnection.insertStripeCustomer(
   country: String,
   postal_code: String,
 ): StripeCustomerId {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     INSERT INTO StripeCustomer(
       created_at,
@@ -51,8 +52,9 @@ suspend fun SqlConnection.insertStripeCustomer(
   }
 }
 
-suspend fun SqlConnection.findStripeCustomerByStripeCustomerId(stripe_customer_id: String): StripeCustomer? {
-  val rowIterator = executeQuery(
+context(connection: SqlConnection)
+suspend fun findStripeCustomerByStripeCustomerId(stripe_customer_id: String): StripeCustomer? {
+  val rowIterator = connection.executeQuery(
     """
     SELECT StripeCustomer.id, StripeCustomer.created_at, StripeCustomer.version, StripeCustomer.stripe_customer_id, StripeCustomer.name, StripeCustomer.email, StripeCustomer.country, StripeCustomer.postal_code
     FROM StripeCustomer
@@ -77,7 +79,8 @@ suspend fun SqlConnection.findStripeCustomerByStripeCustomerId(stripe_customer_i
   }
 }
 
-suspend fun SqlConnection.updateStripeCustomer(
+context(connection: SqlConnection)
+suspend fun updateStripeCustomer(
   new_version: Int,
   name: String,
   email: String,
@@ -86,7 +89,7 @@ suspend fun SqlConnection.updateStripeCustomer(
   expected_version: Int,
   id: StripeCustomerId,
 ): Long {
-  return execute(
+  return connection.execute(
     """
     UPDATE StripeCustomer
     SET

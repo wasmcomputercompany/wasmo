@@ -11,14 +11,15 @@ import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
-suspend fun SqlConnection.insertInstalledAppRelease(
+context(connection: SqlConnection)
+suspend fun insertInstalledAppRelease(
   first_active_at: Instant,
   computer_id: ComputerId,
   installed_app_id: InstalledAppId,
   app_version: Long,
   app_manifest_data: AppManifest,
 ): InstalledAppReleaseId {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     INSERT INTO InstalledAppRelease(
       first_active_at,
@@ -48,12 +49,20 @@ suspend fun SqlConnection.insertInstalledAppRelease(
   }
 }
 
-suspend fun SqlConnection.selectInstalledAppReleaseById(
+context(connection: SqlConnection)
+suspend fun selectInstalledAppReleaseById(
   id: InstalledAppReleaseId,
 ): InstalledAppRelease? {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
-    SELECT InstalledAppRelease.id, InstalledAppRelease.first_active_at, InstalledAppRelease.computer_id, InstalledAppRelease.installed_app_id, InstalledAppRelease.app_version, InstalledAppRelease.app_manifest_data FROM InstalledAppRelease
+    SELECT
+      InstalledAppRelease.id,
+      InstalledAppRelease.first_active_at,
+      InstalledAppRelease.computer_id,
+      InstalledAppRelease.installed_app_id,
+      InstalledAppRelease.app_version,
+      InstalledAppRelease.app_manifest_data
+    FROM InstalledAppRelease
     WHERE id = $1
     LIMIT 1
     """
