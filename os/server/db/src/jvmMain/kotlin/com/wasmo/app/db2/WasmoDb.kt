@@ -246,4 +246,5 @@ fun SqlRow.getComputerSlug(index: Int) = ComputerSlug(getString(index)!!)
 
 fun RealSqlCursor.getWasmoFileAddress(index: Int) = getString(index)!!.toWasmoFileAddress()
 fun SqlBinder.bindWasmoFileAddress(index: Int, value: WasmoFileAddress?) = bindString(index, value?.toString())
+fun SqlRow.getWasmoFileAddress(index: Int) = getString(index)!!.toWasmoFileAddress()
 

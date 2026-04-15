@@ -15,6 +15,7 @@ import com.wasmo.app.db2.getInstalledAppIdOrNull
 import com.wasmo.app.db2.getInstalledAppReleaseIdOrNull
 import com.wasmo.app.db2.getJson
 import com.wasmo.app.db2.getWasmoFileAddress
+import com.wasmo.app.db2.single
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AppSlug
@@ -143,53 +144,48 @@ public class InstalledAppQueries(
     ::SelectInstalledAppByComputerIdAndSlug,
   )
 
-  public fun <T : Any> selectInstalledAppById(
-    id: InstalledAppId,
-    mapper: (
-      id: InstalledAppId,
-      installed_at: Instant,
-      computer_id: ComputerId,
-      slug: AppSlug,
-      active: Boolean?,
-      version: Long,
-      wasmo_file_address: WasmoFileAddress,
-      active_release_id: InstalledAppReleaseId?,
-    ) -> T,
-  ): Query<T> = SelectInstalledAppByIdQuery(id) { cursor ->
-    mapper(
-      cursor.getInstalledAppId(0),
-      cursor.getInstant(1)!!,
-      cursor.getComputerId(2),
-      cursor.getAppSlug(3),
-      cursor.getBool(4),
-      cursor.getS64(5)!!,
-      cursor.getWasmoFileAddress(6),
-      cursor.getInstalledAppReleaseIdOrNull(7),
-    )
+  suspend fun selectInstalledAppById(id: InstalledAppId): InstalledApp {
+    val rowIterator = driver.executeQuery(
+      """
+      SELECT InstalledApp.id, InstalledApp.installed_at, InstalledApp.computer_id, InstalledApp.slug, InstalledApp.active, InstalledApp.version, InstalledApp.wasmo_file_address, InstalledApp.active_release_id FROM InstalledApp
+      WHERE id = $1
+      LIMIT 1
+      """,
+    ) {
+      var parameterIndex = 0
+      bindInstalledAppId(parameterIndex++, id)
+    }
+
+    return rowIterator.single { cursor ->
+      InstalledApp(
+        cursor.getInstalledAppId(0),
+        cursor.getInstant(1)!!,
+        cursor.getComputerId(2),
+        cursor.getAppSlug(3),
+        cursor.getBool(4),
+        cursor.getS64(5)!!,
+        cursor.getWasmoFileAddress(6),
+        cursor.getInstalledAppReleaseIdOrNull(7),
+      )
+    }
   }
 
-  public fun selectInstalledAppById(id: InstalledAppId): Query<InstalledApp> =
-    selectInstalledAppById(id, ::InstalledApp)
-
-  /**
-   * @return The number of rows updated.
-   */
-  public suspend fun setRelease(
+  suspend fun setRelease(
     new_version: Long,
     active_release_id: InstalledAppReleaseId?,
     expected_version: Long,
     id: InstalledAppId,
   ): Long {
-    val result = driver.execute(
+    return driver.execute(
       """
-          |UPDATE InstalledApp
-          |SET
-          |  version = $1,
-          |  active_release_id = $2
-          |WHERE
-          |  version = $3 AND
-          |  id = $4
-          """.trimMargin(),
+      UPDATE InstalledApp
+      SET
+        version = $1,
+        active_release_id = $2
+      WHERE
+        version = $3 AND
+        id = $4
+      """,
     ) {
       var parameterIndex = 0
       bindS64(parameterIndex++, new_version)
@@ -197,7 +193,6 @@ public class InstalledAppQueries(
       bindS64(parameterIndex++, expected_version)
       bindInstalledAppId(parameterIndex++, id)
     }
-    return result
   }
 
   private inner class InsertInstalledAppQuery<out T : Any>(
@@ -305,25 +300,5 @@ public class InstalledAppQueries(
     }
 
     override fun toString(): String = "InstalledApp.sq:selectInstalledAppByComputerIdAndSlug"
-  }
-
-  private inner class SelectInstalledAppByIdQuery<out T : Any>(
-    public val id: InstalledAppId,
-    mapper: suspend (SqlCursor) -> T,
-  ) : Query<T>(mapper) {
-    override suspend fun execute(): RowIterator {
-      return driver.executeQuery(
-        """
-          |SELECT InstalledApp.id, InstalledApp.installed_at, InstalledApp.computer_id, InstalledApp.slug, InstalledApp.active, InstalledApp.version, InstalledApp.wasmo_file_address, InstalledApp.active_release_id FROM InstalledApp
-          |WHERE id = $1
-          |LIMIT 1
-          """.trimMargin(),
-      ) {
-        var parameterIndex = 0
-        bindInstalledAppId(parameterIndex++, id)
-      }
-    }
-
-    override fun toString(): String = "InstalledApp.sq:selectInstalledAppById"
   }
 }

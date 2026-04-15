@@ -25,7 +25,6 @@ class InstallAppJobHandler(
     val (installedApp, computerService) = wasmoDb.transactionWithResult(noEnclosing = true) {
       val installedApp = contextOf<WasmoDbTransaction>().installedAppQueries
         .selectInstalledAppById(job.installedAppId)
-        .executeAsOne()
       installedApp to computerStore.get(installedApp.computer_id)
     }
 
@@ -49,7 +48,7 @@ class InstallAppJobHandler(
           installed_app_id = installedApp.id,
           app_version = installedManifest.version,
           app_manifest_data = installedManifest,
-        ).executeAsOne()
+        )
 
         InstalledAppRelease(
           id = releaseId,
