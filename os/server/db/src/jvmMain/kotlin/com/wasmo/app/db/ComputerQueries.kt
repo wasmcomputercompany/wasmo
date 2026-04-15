@@ -1,7 +1,5 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor
-import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
@@ -10,6 +8,7 @@ import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import kotlin.time.Instant
+import wasmo.sql.RowIterator
 
 public class ComputerQueries(
   private val driver: SqlDriver,
@@ -21,7 +20,6 @@ public class ComputerQueries(
     version: Long,
     slug: ComputerSlug,
   ): ExecutableQuery<ComputerId> = InsertComputerQuery(created_at, version, slug) { cursor ->
-    check(cursor is JdbcCursor)
     ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!)
   }
 
@@ -35,7 +33,6 @@ public class ComputerQueries(
       slug: ComputerSlug,
     ) -> T,
   ): Query<T> = SelectComputersByAccountIdQuery(account_id, limit) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -56,7 +53,6 @@ public class ComputerQueries(
       slug: ComputerSlug,
     ) -> T,
   ): Query<T> = SelectComputerByAccountIdAndSlugQuery(account_id, slug) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -73,7 +69,6 @@ public class ComputerQueries(
     version: Long,
     slug: ComputerSlug,
   ) -> T): Query<T> = SelectComputerByIdQuery(id) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       ComputerAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -90,8 +85,8 @@ public class ComputerQueries(
     public val slug: ComputerSlug,
     mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |INSERT INTO Computer(
           |  created_at,
@@ -110,7 +105,6 @@ public class ComputerQueries(
         bindS64(parameterIndex++, version)
         bindString(parameterIndex++, ComputerAdapter.slugAdapter.encode(slug))
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Computer.sq:insertComputer"
@@ -121,8 +115,8 @@ public class ComputerQueries(
     public val limit: Long,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |SELECT
           |  c.id, c.created_at, c.version, c.slug
@@ -141,7 +135,6 @@ public class ComputerQueries(
         bindS64(parameterIndex++, ComputerAccessAdapter.account_idAdapter.encode(account_id))
         bindS64(parameterIndex++, limit)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Computer.sq:selectComputersByAccountId"
@@ -152,8 +145,8 @@ public class ComputerQueries(
     public val slug: ComputerSlug,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |SELECT
           |  c.id, c.created_at, c.version, c.slug
@@ -171,7 +164,6 @@ public class ComputerQueries(
         bindS64(parameterIndex++, ComputerAccessAdapter.account_idAdapter.encode(account_id))
         bindString(parameterIndex++, ComputerAdapter.slugAdapter.encode(slug))
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Computer.sq:selectComputerByAccountIdAndSlug"
@@ -181,8 +173,8 @@ public class ComputerQueries(
     public val id: ComputerId,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |SELECT Computer.id, Computer.created_at, Computer.version, Computer.slug
           |FROM
@@ -195,7 +187,6 @@ public class ComputerQueries(
         var parameterIndex = 0
         bindS64(parameterIndex++, ComputerAdapter.idAdapter.encode(id))
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Computer.sq:selectComputerById"

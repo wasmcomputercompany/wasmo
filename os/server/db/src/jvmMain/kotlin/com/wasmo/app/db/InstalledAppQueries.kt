@@ -1,6 +1,5 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor
 import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
@@ -13,6 +12,7 @@ import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
 import kotlin.time.Instant
+import wasmo.sql.RowIterator
 
 public class InstalledAppQueries(
   private val driver: SqlDriver,
@@ -34,7 +34,6 @@ public class InstalledAppQueries(
     version,
     wasmo_file_address,
   ) { cursor ->
-    check(cursor is JdbcCursor)
     InstalledAppAdapter.idAdapter.decode(cursor.getS64(0)!!)
   }
 
@@ -59,7 +58,6 @@ public class InstalledAppQueries(
       app_manifest_data: AppManifest?,
     ) -> T,
   ): Query<T> = SelectInstalledAppsByComputerIdQuery(computer_id, active, limit) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       InstalledAppAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -106,7 +104,6 @@ public class InstalledAppQueries(
       app_manifest_data: AppManifest?,
     ) -> T,
   ): Query<T> = SelectInstalledAppByComputerIdAndSlugQuery(computer_id, slug, active) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       InstalledAppAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -149,7 +146,6 @@ public class InstalledAppQueries(
       active_release_id: InstalledAppReleaseId?,
     ) -> T,
   ): Query<T> = SelectInstalledAppByIdQuery(id) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       InstalledAppAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -206,8 +202,8 @@ public class InstalledAppQueries(
     public val wasmo_file_address: WasmoFileAddress,
     mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |INSERT INTO InstalledApp(
           |  installed_at,
@@ -238,7 +234,6 @@ public class InstalledAppQueries(
           InstalledAppAdapter.wasmo_file_addressAdapter.encode(wasmo_file_address),
         )
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "InstalledApp.sq:insertInstalledApp"
@@ -250,8 +245,8 @@ public class InstalledAppQueries(
     public val limit: Long,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |SELECT
           |  ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
@@ -271,7 +266,6 @@ public class InstalledAppQueries(
         bindBool(parameterIndex++, active)
         bindS64(parameterIndex++, limit)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "InstalledApp.sq:selectInstalledAppsByComputerId"
@@ -283,8 +277,8 @@ public class InstalledAppQueries(
     public val active: Boolean?,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |SELECT
           |  ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
@@ -304,7 +298,6 @@ public class InstalledAppQueries(
         bindString(parameterIndex++, InstalledAppAdapter.slugAdapter.encode(slug))
         bindBool(parameterIndex++, active)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "InstalledApp.sq:selectInstalledAppByComputerIdAndSlug"
@@ -314,8 +307,8 @@ public class InstalledAppQueries(
     public val id: InstalledAppId,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |SELECT InstalledApp.id, InstalledApp.installed_at, InstalledApp.computer_id, InstalledApp.slug, InstalledApp.active, InstalledApp.version, InstalledApp.wasmo_file_address, InstalledApp.active_release_id FROM InstalledApp
           |WHERE id = $1
@@ -325,7 +318,6 @@ public class InstalledAppQueries(
         var parameterIndex = 0
         bindS64(parameterIndex++, InstalledAppAdapter.idAdapter.encode(id))
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "InstalledApp.sq:selectInstalledAppById"

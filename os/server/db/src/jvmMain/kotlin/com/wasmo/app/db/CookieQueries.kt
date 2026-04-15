@@ -1,6 +1,5 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor
 import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
@@ -8,6 +7,7 @@ import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.CookieId
 import kotlin.time.Instant
+import wasmo.sql.RowIterator
 
 public class CookieQueries(
   private val driver: SqlDriver,
@@ -24,7 +24,6 @@ public class CookieQueries(
       created_by_ip: String?,
     ) -> T,
   ): Query<T> = FindCookieByTokenQuery(token) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       CookieAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -48,7 +47,6 @@ public class CookieQueries(
       created_by_ip: String?,
     ) -> T,
   ): Query<T> = FindCookieByAccountIdQuery(account_id) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       CookieAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -125,14 +123,13 @@ public class CookieQueries(
     public val token: String,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """SELECT Cookie.id, Cookie.created_at, Cookie.account_id, Cookie.token, Cookie.created_by_user_agent, Cookie.created_by_ip FROM Cookie WHERE token = $1""",
       ) {
         var parameterIndex = 0
         bindString(parameterIndex++, token)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Cookie.sq:findCookieByToken"
@@ -142,14 +139,13 @@ public class CookieQueries(
     public val account_id: AccountId,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """SELECT Cookie.id, Cookie.created_at, Cookie.account_id, Cookie.token, Cookie.created_by_user_agent, Cookie.created_by_ip FROM Cookie WHERE account_id = $1""",
       ) {
         var parameterIndex = 0
         bindS64(parameterIndex++, CookieAdapter.account_idAdapter.encode(account_id))
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Cookie.sq:findCookieByAccountId"

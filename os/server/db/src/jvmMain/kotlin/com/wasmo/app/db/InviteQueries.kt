@@ -1,13 +1,12 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor
-import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.InviteId
 import kotlin.time.Instant
+import wasmo.sql.RowIterator
 
 public class InviteQueries(
   private val driver: SqlDriver,
@@ -26,7 +25,6 @@ public class InviteQueries(
       claimed_by: AccountId?,
     ) -> T,
   ): Query<T> = FindInvitesByClaimedByQuery(claimed_by, limit) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       InviteAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -53,7 +51,6 @@ public class InviteQueries(
       claimed_by: AccountId?,
     ) -> T,
   ): Query<T> = FindInvitesByCodeQuery(code) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       InviteAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -138,15 +135,14 @@ public class InviteQueries(
     public val limit: Long,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${if (claimed_by == null) "IS" else "="} $1 LIMIT $2""",
       ) {
         var parameterIndex = 0
         bindS64(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
         bindS64(parameterIndex++, limit)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Invite.sq:findInvitesByClaimedBy"
@@ -156,14 +152,13 @@ public class InviteQueries(
     public val code: String,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = $1""",
       ) {
         var parameterIndex = 0
         bindString(parameterIndex++, code)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Invite.sq:findInvitesByCode"

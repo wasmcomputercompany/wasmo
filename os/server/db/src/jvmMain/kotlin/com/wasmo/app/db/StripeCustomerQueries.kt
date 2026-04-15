@@ -1,13 +1,12 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor
-import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.StripeCustomerId
 import kotlin.time.Instant
+import wasmo.sql.RowIterator
 
 public class StripeCustomerQueries(
   private val driver: SqlDriver,
@@ -30,7 +29,6 @@ public class StripeCustomerQueries(
     country,
     postal_code,
   ) { cursor ->
-    check(cursor is JdbcCursor)
     StripeCustomerAdapter.idAdapter.decode(cursor.getS64(0)!!)
   }
 
@@ -110,8 +108,8 @@ public class StripeCustomerQueries(
     public val postal_code: String,
     mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |INSERT INTO StripeCustomer(
           |  created_at,
@@ -142,7 +140,6 @@ public class StripeCustomerQueries(
         bindString(parameterIndex++, country)
         bindString(parameterIndex++, postal_code)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "StripeCustomer.sq:insertStripeCustomer"
@@ -152,8 +149,8 @@ public class StripeCustomerQueries(
     public val stripe_customer_id: String,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |SELECT StripeCustomer.id, StripeCustomer.created_at, StripeCustomer.version, StripeCustomer.stripe_customer_id, StripeCustomer.name, StripeCustomer.email, StripeCustomer.country, StripeCustomer.postal_code
           |FROM StripeCustomer
@@ -164,7 +161,6 @@ public class StripeCustomerQueries(
         var parameterIndex = 0
         bindString(parameterIndex++, stripe_customer_id)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "StripeCustomer.sq:findStripeCustomerByStripeCustomerId"

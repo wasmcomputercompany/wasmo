@@ -1,6 +1,5 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor
 import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
@@ -9,6 +8,7 @@ import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.StripeCustomerId
 import kotlin.time.Instant
+import wasmo.sql.RowIterator
 
 public class ComputerAllocationQueries(
   private val driver: SqlDriver,
@@ -64,7 +64,6 @@ public class ComputerAllocationQueries(
       active_end: Instant,
     ) -> T,
   ): Query<T> = FindComputerAllocationByComputerIdQuery(computer_id, limit) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       ComputerAllocationAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -166,8 +165,8 @@ public class ComputerAllocationQueries(
     public val limit: Long,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |SELECT ComputerAllocation.id, ComputerAllocation.created_at, ComputerAllocation.version, ComputerAllocation.stripe_customer_id, ComputerAllocation.stripe_subscription_id, ComputerAllocation.computer_id, ComputerAllocation.active_start, ComputerAllocation.active_end
           |FROM ComputerAllocation
@@ -182,7 +181,6 @@ public class ComputerAllocationQueries(
         bindString(parameterIndex++, stripe_subscription_id)
         bindS64(parameterIndex++, limit)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String =
@@ -194,8 +192,8 @@ public class ComputerAllocationQueries(
     public val limit: Long,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |SELECT ComputerAllocation.id, ComputerAllocation.created_at, ComputerAllocation.version, ComputerAllocation.stripe_customer_id, ComputerAllocation.stripe_subscription_id, ComputerAllocation.computer_id, ComputerAllocation.active_start, ComputerAllocation.active_end
           |FROM ComputerAllocation
@@ -213,7 +211,6 @@ public class ComputerAllocationQueries(
         )
         bindS64(parameterIndex++, limit)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "ComputerAllocation.sq:findComputerAllocationByComputerId"

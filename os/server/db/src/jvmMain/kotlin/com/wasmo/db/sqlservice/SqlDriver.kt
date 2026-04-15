@@ -1,11 +1,18 @@
 package com.wasmo.db.sqlservice
 
+import com.wasmo.app.db2.RealSqlCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
+import wasmo.sql.RowIterator
 
 abstract class Query2<out RowType : Any>(
   val mapper: suspend (SqlCursor) -> RowType,
 ) {
-  abstract suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R
+  abstract suspend fun execute(): RowIterator
+
+  suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+    val rowIterator = execute()
+    return mapper(RealSqlCursor(rowIterator))
+  }
 
   suspend fun executeAsList(): List<RowType> = execute { cursor ->
     val result = mutableListOf<RowType>()

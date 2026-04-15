@@ -1,7 +1,5 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor
-import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
@@ -11,6 +9,7 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
 import kotlin.time.Instant
+import wasmo.sql.RowIterator
 
 public class ComputerSpecQueries(
   private val driver: SqlDriver,
@@ -28,7 +27,6 @@ public class ComputerSpecQueries(
       computer_id: ComputerId?,
     ) -> T,
   ): Query<T> = SelectComputerSpecByTokenQuery(token) { cursor ->
-    check(cursor is JdbcCursor)
     mapper(
       ComputerSpecAdapter.idAdapter.decode(cursor.getS64(0)!!),
       cursor.getInstant(1)!!,
@@ -51,8 +49,7 @@ public class ComputerSpecQueries(
     slug: ComputerSlug,
   ): ExecutableQuery<ComputerSpecId> =
     InsertComputerSpecQuery(created_at, version, account_id, token, slug) { cursor ->
-      check(cursor is JdbcCursor)
-      ComputerSpecAdapter.idAdapter.decode(cursor.getS64(0)!!)
+        ComputerSpecAdapter.idAdapter.decode(cursor.getS64(0)!!)
     }
 
   /**
@@ -91,8 +88,8 @@ public class ComputerSpecQueries(
     public val token: String,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |SELECT ComputerSpec.id, ComputerSpec.created_at, ComputerSpec.version, ComputerSpec.account_id, ComputerSpec.token, ComputerSpec.slug, ComputerSpec.computer_id
           |FROM
@@ -105,7 +102,6 @@ public class ComputerSpecQueries(
         var parameterIndex = 0
         bindString(parameterIndex++, token)
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "ComputerSpec.sq:selectComputerSpecByToken"
@@ -119,8 +115,8 @@ public class ComputerSpecQueries(
     public val slug: ComputerSlug,
     mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
-      val rowIterator = driver.executeQuery(
+    override suspend fun execute(): RowIterator {
+      return driver.executeQuery(
         """
           |INSERT INTO ComputerSpec(
           |  created_at,
@@ -145,7 +141,6 @@ public class ComputerSpecQueries(
         bindString(parameterIndex++, token)
         bindString(parameterIndex++, ComputerSpecAdapter.slugAdapter.encode(slug))
       }
-      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "ComputerSpec.sq:insertComputerSpec"
