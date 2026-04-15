@@ -16,6 +16,8 @@ kotlin {
         implementation(project(":os:framework"))
         implementation(project(":os:server:db"))
         implementation(project(":os:server:identifiers"))
+        implementation(project(":os:server:sql:api"))
+        implementation(project(":platform:api"))
       }
     }
   }

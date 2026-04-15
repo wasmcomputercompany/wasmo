@@ -21,6 +21,7 @@ kotlin {
         implementation(project(":os:server:accounts:api"))
         implementation(project(":os:server:db"))
         implementation(project(":os:server:identifiers"))
+        implementation(project(":os:server:sql:api"))
         implementation(project(":platform:packaging"))
         implementation(project(":support:issues"))
       }

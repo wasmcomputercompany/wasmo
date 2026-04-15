@@ -12,6 +12,7 @@ import com.wasmo.sql.single
 import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
+import wasmo.sql.SqlRow
 
 suspend fun SqlConnection.insertInstalledApp(
   installed_at: Instant,
@@ -62,13 +63,23 @@ suspend fun SqlConnection.selectInstalledAppsByComputerId(
   val rowIterator = executeQuery(
     """
     SELECT
-      ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
-      iar.id, iar.first_active_at, iar.computer_id, iar.installed_app_id, iar.app_version, iar.app_manifest_data
+      ia.id,
+      ia.installed_at,
+      ia.computer_id,
+      ia.slug,
+      ia.active,
+      ia.version,
+      ia.wasmo_file_address,
+      ia.active_release_id,
+      iar.id,
+      iar.first_active_at,
+      iar.computer_id,
+      iar.installed_app_id,
+      iar.app_version,
+      iar.app_manifest_data
     FROM InstalledApp ia
-    LEFT JOIN InstalledAppRelease iar
-      ON ia.active_release_id = iar.id
-    WHERE
-      ia.computer_id = $1 AND
+    LEFT JOIN InstalledAppRelease iar ON ia.active_release_id = iar.id
+    WHERE ia.computer_id = $1 AND
       ia.active ${if (active == null) "IS" else "="} $2
     ORDER BY slug
     LIMIT $3
@@ -81,23 +92,38 @@ suspend fun SqlConnection.selectInstalledAppsByComputerId(
   }
 
   return rowIterator.list { cursor ->
-    InstalledAppAndRelease(
-      cursor.getInstalledAppId(0),
-      cursor.getInstant(1)!!,
-      cursor.getComputerId(2),
-      cursor.getAppSlug(3),
-      cursor.getBool(4),
-      cursor.getS64(5)!!,
-      cursor.getWasmoFileAddress(6),
-      cursor.getInstalledAppReleaseIdOrNull(7),
-      cursor.getInstalledAppReleaseIdOrNull(8),
-      cursor.getInstant(9),
-      cursor.getComputerIdOrNull(10),
-      cursor.getInstalledAppId(11),
-      cursor.getS64(12),
-      cursor.decodeJson<AppManifest>(13),
+    cursor.getInstalledAppAndRelease()
+  }
+}
+
+private fun SqlRow.getInstalledAppAndRelease(): InstalledAppAndRelease {
+  val installedApp = InstalledApp(
+    getInstalledAppId(0),
+    getInstant(1)!!,
+    getComputerId(2),
+    getAppSlug(3),
+    getBool(4),
+    getS64(5)!!,
+    getWasmoFileAddress(6),
+    getInstalledAppReleaseIdOrNull(7),
+  )
+
+  val release = when (val releaseId = getInstalledAppReleaseIdOrNull(8)) {
+    null -> null
+    else -> InstalledAppRelease(
+      releaseId,
+      getInstant(9)!!,
+      getComputerIdOrNull(10)!!,
+      getInstalledAppId(11),
+      getS64(12)!!,
+      decodeJson<AppManifest>(13),
     )
   }
+
+  return InstalledAppAndRelease(
+    installedApp,
+    release,
+  )
 }
 
 suspend fun SqlConnection.selectInstalledAppByComputerIdAndSlug(
@@ -108,13 +134,23 @@ suspend fun SqlConnection.selectInstalledAppByComputerIdAndSlug(
   val rowIterator = executeQuery(
     """
     SELECT
-      ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
-      iar.id, iar.first_active_at, iar.computer_id, iar.installed_app_id, iar.app_version, iar.app_manifest_data
+      ia.id,
+      ia.installed_at,
+      ia.computer_id,
+      ia.slug,
+      ia.active,
+      ia.version,
+      ia.wasmo_file_address,
+      ia.active_release_id,
+      iar.id,
+      iar.first_active_at,
+      iar.computer_id,
+      iar.installed_app_id,
+      iar.app_version,
+      iar.app_manifest_data
     FROM InstalledApp ia
-    LEFT JOIN InstalledAppRelease iar
-      ON ia.active_release_id = iar.id
-    WHERE
-      ia.computer_id = $1 AND
+    LEFT JOIN InstalledAppRelease iar ON ia.active_release_id = iar.id
+    WHERE ia.computer_id = $1 AND
       ia.slug = $2 AND
       ia.active ${if (active == null) "IS" else "="} $3
     LIMIT 1
@@ -126,29 +162,23 @@ suspend fun SqlConnection.selectInstalledAppByComputerIdAndSlug(
     bindBool(parameterIndex++, active)
   }
   return rowIterator.singleOrNull { cursor ->
-    InstalledAppAndRelease(
-      cursor.getInstalledAppId(0),
-      cursor.getInstant(1)!!,
-      cursor.getComputerId(2),
-      cursor.getAppSlug(3),
-      cursor.getBool(4),
-      cursor.getS64(5)!!,
-      cursor.getWasmoFileAddress(6),
-      cursor.getInstalledAppReleaseIdOrNull(7),
-      cursor.getInstalledAppReleaseIdOrNull(8),
-      cursor.getInstant(9),
-      cursor.getComputerIdOrNull(10),
-      cursor.getInstalledAppIdOrNull(11),
-      cursor.getS64(12),
-      cursor.decodeJson<AppManifest>(13),
-    )
+    cursor.getInstalledAppAndRelease()
   }
 }
 
 suspend fun SqlConnection.selectInstalledAppById(id: InstalledAppId): InstalledApp {
   val rowIterator = executeQuery(
     """
-    SELECT InstalledApp.id, InstalledApp.installed_at, InstalledApp.computer_id, InstalledApp.slug, InstalledApp.active, InstalledApp.version, InstalledApp.wasmo_file_address, InstalledApp.active_release_id FROM InstalledApp
+    SELECT
+      InstalledApp.id,
+      InstalledApp.installed_at,
+      InstalledApp.computer_id,
+      InstalledApp.slug,
+      InstalledApp.active,
+      InstalledApp.version,
+      InstalledApp.wasmo_file_address,
+      InstalledApp.active_release_id
+    FROM InstalledApp
     WHERE id = $1
     LIMIT 1
     """,

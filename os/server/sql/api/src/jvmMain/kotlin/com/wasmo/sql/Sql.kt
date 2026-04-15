@@ -1,8 +1,6 @@
 package com.wasmo.sql
 
-import com.wasmo.api.WasmoJson
 import wasmo.sql.RowIterator
-import wasmo.sql.SqlBinder
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlRow
@@ -34,7 +32,7 @@ interface SqlTransaction : SqlConnection {
   fun afterCommit(function: () -> Unit)
 }
 
-open class RealSqlTransaction(
+internal class RealSqlTransaction(
   sqlConnection: SqlConnection,
 ) : SqlConnection by sqlConnection, SqlTransaction {
   val afterCommitActions = mutableListOf<() -> Unit>()
@@ -71,13 +69,4 @@ suspend fun <T> RowIterator.singleOrNull(mapper: (SqlRow) -> T): T? {
     check(next() == null) { "expected at most one element but was multiple " }
     return result
   }
-}
-
-inline fun <reified T> SqlBinder.bindJson(index: Int, value: T) {
-  bindString(index, WasmoJson.encodeToString(value))
-}
-
-inline fun <reified T> SqlRow.decodeJson(index: Int): T {
-  val string = getString(index)!!
-  return WasmoJson.decodeFromString<T>(string)
 }

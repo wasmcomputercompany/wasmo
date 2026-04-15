@@ -7,7 +7,17 @@ import wasmo.sql.SqlConnection
 
 suspend fun SqlConnection.findCookieByToken(token: String): Cookie? {
   val rowIterator = executeQuery(
-    """SELECT Cookie.id, Cookie.created_at, Cookie.account_id, Cookie.token, Cookie.created_by_user_agent, Cookie.created_by_ip FROM Cookie WHERE token = $1""",
+    """
+    SELECT
+      Cookie.id,
+      Cookie.created_at,
+      Cookie.account_id,
+      Cookie.token,
+      Cookie.created_by_user_agent,
+      Cookie.created_by_ip
+    FROM Cookie
+    WHERE token = $1
+    """,
   ) {
     var parameterIndex = 0
     bindString(parameterIndex++, token)
