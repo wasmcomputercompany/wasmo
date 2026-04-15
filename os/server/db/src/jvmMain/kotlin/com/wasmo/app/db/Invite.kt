@@ -20,9 +20,7 @@ data class Invite(
 ) {
   class Adapter(
     val idAdapter: ColumnAdapter<InviteId, Long>,
-    val created_atAdapter: ColumnAdapter<Instant, OffsetDateTime>,
     val created_byAdapter: ColumnAdapter<AccountId, Long>,
-    val claimed_atAdapter: ColumnAdapter<Instant, OffsetDateTime>,
     val claimed_byAdapter: ColumnAdapter<AccountId, Long>,
   )
 }

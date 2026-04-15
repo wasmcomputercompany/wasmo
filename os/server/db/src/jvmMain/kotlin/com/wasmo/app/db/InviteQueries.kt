@@ -2,6 +2,11 @@ package com.wasmo.app.db
 
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.app.db2.bindAccountId
+import com.wasmo.app.db2.bindInviteId
+import com.wasmo.app.db2.getAccountId
+import com.wasmo.app.db2.getAccountIdOrNull
+import com.wasmo.app.db2.getInviteId
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.InviteId
@@ -10,7 +15,6 @@ import wasmo.sql.RowIterator
 
 public class InviteQueries(
   private val driver: SqlDriver,
-  private val InviteAdapter: Invite.Adapter,
 ) {
   public fun <T : Any> findInvitesByClaimedBy(
     claimed_by: AccountId?,
@@ -26,13 +30,13 @@ public class InviteQueries(
     ) -> T,
   ): Query<T> = FindInvitesByClaimedByQuery(claimed_by, limit) { cursor ->
     mapper(
-      InviteAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInviteId(0),
       cursor.getInstant(1)!!,
-      InviteAdapter.created_byAdapter.decode(cursor.getS64(2)!!),
+      cursor.getAccountId(2),
       cursor.getS32(3)!!,
       cursor.getString(4)!!,
       cursor.getInstant(5),
-      cursor.getS64(6)?.let { InviteAdapter.claimed_byAdapter.decode(it) },
+      cursor.getAccountIdOrNull(6),
     )
   }
 
@@ -52,13 +56,13 @@ public class InviteQueries(
     ) -> T,
   ): Query<T> = FindInvitesByCodeQuery(code) { cursor ->
     mapper(
-      InviteAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getInviteId(0),
       cursor.getInstant(1)!!,
-      InviteAdapter.created_byAdapter.decode(cursor.getS64(2)!!),
+      cursor.getAccountId(2),
       cursor.getS32(3)!!,
       cursor.getString(4)!!,
       cursor.getInstant(5),
-      cursor.getS64(6)?.let { InviteAdapter.claimed_byAdapter.decode(it) },
+      cursor.getAccountIdOrNull(6),
     )
   }
 
@@ -91,7 +95,7 @@ public class InviteQueries(
     ) {
       var parameterIndex = 0
       bindInstant(parameterIndex++, created_at)
-      bindS64(parameterIndex++, InviteAdapter.created_byAdapter.encode(created_by))
+      bindAccountId(parameterIndex++, created_by)
       bindS32(parameterIndex++, version)
       bindString(parameterIndex++, code)
     }
@@ -123,9 +127,9 @@ public class InviteQueries(
       var parameterIndex = 0
       bindS32(parameterIndex++, new_version)
       bindInstant(parameterIndex++, claimed_at)
-      bindS64(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
+      bindAccountId(parameterIndex++, claimed_by)
       bindS32(parameterIndex++, expected_version)
-      bindS64(parameterIndex++, InviteAdapter.idAdapter.encode(id))
+      bindInviteId(parameterIndex++, id)
     }
     return result
   }
@@ -140,7 +144,7 @@ public class InviteQueries(
         """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${if (claimed_by == null) "IS" else "="} $1 LIMIT $2""",
       ) {
         var parameterIndex = 0
-        bindS64(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
+        bindAccountId(parameterIndex++, claimed_by)
         bindS64(parameterIndex++, limit)
       }
     }

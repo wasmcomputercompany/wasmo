@@ -2,6 +2,8 @@ package com.wasmo.app.db
 
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.app.db2.bindStripeCustomerId
+import com.wasmo.app.db2.getStripeCustomerId
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.StripeCustomerId
@@ -10,7 +12,6 @@ import wasmo.sql.RowIterator
 
 public class StripeCustomerQueries(
   private val driver: SqlDriver,
-  private val StripeCustomerAdapter: StripeCustomer.Adapter,
 ) {
   public fun insertStripeCustomer(
     created_at: Instant,
@@ -29,7 +30,7 @@ public class StripeCustomerQueries(
     country,
     postal_code,
   ) { cursor ->
-    StripeCustomerAdapter.idAdapter.decode(cursor.getS64(0)!!)
+    cursor.getStripeCustomerId(0)
   }
 
   public fun <T : Any> findStripeCustomerByStripeCustomerId(
@@ -46,7 +47,7 @@ public class StripeCustomerQueries(
     ) -> T,
   ): Query<T> = FindStripeCustomerByStripeCustomerIdQuery(stripe_customer_id) { cursor ->
     mapper(
-      StripeCustomerAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getStripeCustomerId(0),
       cursor.getInstant(1)!!,
       cursor.getS32(2)!!,
       cursor.getString(3)!!,
@@ -93,7 +94,7 @@ public class StripeCustomerQueries(
       bindString(parameterIndex++, country)
       bindString(parameterIndex++, postal_code)
       bindS32(parameterIndex++, expected_version)
-      bindS64(parameterIndex++, StripeCustomerAdapter.idAdapter.encode(id))
+      bindStripeCustomerId(parameterIndex++, id)
     }
     return result
   }

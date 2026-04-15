@@ -10,8 +10,6 @@ import com.wasmo.app.db.ComputerSpec
 import com.wasmo.app.db.Cookie
 import com.wasmo.app.db.InstalledApp
 import com.wasmo.app.db.InstalledAppRelease
-import com.wasmo.app.db.Invite
-import com.wasmo.app.db.StripeCustomer
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerAccessId
@@ -184,17 +182,4 @@ val InstalledAppReleaseAdapter = InstalledAppRelease.Adapter(
   computer_idAdapter = ComputerIdAdapter,
   installed_app_idAdapter = InstalledAppIdAdapter,
   app_manifest_dataAdapter = AppManifestAdapter,
-)
-
-val InviteAdapter = Invite.Adapter(
-  idAdapter = InviteIdAdapter,
-  created_atAdapter = InstantAdapter,
-  created_byAdapter = AccountIdAdapter,
-  claimed_atAdapter = InstantAdapter,
-  claimed_byAdapter = AccountIdAdapter,
-)
-
-val StripeCustomerAdapter = StripeCustomer.Adapter(
-  idAdapter = StripeCustomerIdAdapter,
-  created_atAdapter = InstantAdapter,
 )

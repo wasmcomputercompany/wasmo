@@ -15,7 +15,9 @@ import com.wasmo.app.db.StripeCustomerQueries
 import com.wasmo.app.db2.RealSqlCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.identifiers.AccountId
+import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
+import com.wasmo.identifiers.StripeCustomerId
 import kotlin.time.Instant
 import okio.Closeable
 import wasmo.sql.RowIterator
@@ -81,11 +83,11 @@ open class RealWasmoDbConnection(
   override val installedAppReleaseQueries: InstalledAppReleaseQueries
     get() = InstalledAppReleaseQueries(this, InstalledAppReleaseAdapter)
   override val inviteQueries: InviteQueries
-    get() = InviteQueries(this, InviteAdapter)
+    get() = InviteQueries(this)
   override val passkeyQueries: PasskeyQueries
     get() = PasskeyQueries(this)
   override val stripeCustomerQueries: StripeCustomerQueries
-    get() = StripeCustomerQueries(this, StripeCustomerAdapter)
+    get() = StripeCustomerQueries(this)
 }
 
 class RealSqlCursor(
@@ -139,12 +141,26 @@ inline fun <reified T> SqlBinder.bindJson(index: Int, value: T) {
 
 fun RealSqlCursor.getAccountId(index: Int) = AccountId(getS64(index)!!)
 
-fun SqlBinder.bindAccountId(index: Int, value: AccountId) {
-  bindS64(index, value.id)
+fun RealSqlCursor.getAccountIdOrNull(index: Int) = getS64(index)?.let { AccountId(it) }
+
+fun SqlBinder.bindAccountId(index: Int, value: AccountId?) {
+  bindS64(index, value?.id)
+}
+
+fun RealSqlCursor.getInviteId(index: Int) = InviteId(getS64(index)!!)
+
+fun SqlBinder.bindInviteId(index: Int, value: InviteId?) {
+  bindS64(index, value?.id)
 }
 
 fun RealSqlCursor.getPasskeyId(index: Int) = PasskeyId(getS64(index)!!)
 
-fun SqlBinder.bindPasskeyId(index: Int, value: PasskeyId) {
-  bindS64(index, value.id)
+fun SqlBinder.bindPasskeyId(index: Int, value: PasskeyId?) {
+  bindS64(index, value?.id)
+}
+
+fun RealSqlCursor.getStripeCustomerId(index: Int) = StripeCustomerId(getS64(index)!!)
+
+fun SqlBinder.bindStripeCustomerId(index: Int, value: StripeCustomerId?) {
+  bindS64(index, value?.id)
 }

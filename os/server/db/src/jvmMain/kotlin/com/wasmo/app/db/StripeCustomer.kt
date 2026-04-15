@@ -2,10 +2,6 @@ package com.wasmo.app.db
 
 import app.cash.sqldelight.ColumnAdapter
 import com.wasmo.identifiers.StripeCustomerId
-import java.time.OffsetDateTime
-import kotlin.Int
-import kotlin.Long
-import kotlin.String
 import kotlin.time.Instant
 
 data class StripeCustomer(
@@ -20,6 +16,5 @@ data class StripeCustomer(
 ) {
   class Adapter(
     val idAdapter: ColumnAdapter<StripeCustomerId, Long>,
-    val created_atAdapter: ColumnAdapter<Instant, OffsetDateTime>,
   )
 }
