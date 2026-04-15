@@ -5,8 +5,8 @@ import com.wasmo.accounts.Client
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
-import com.wasmo.app.db.findPasskeyByPasskeyId
 import com.wasmo.calls.CallDataService
+import com.wasmo.db.passkeys.findPasskeyByPasskeyId
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker

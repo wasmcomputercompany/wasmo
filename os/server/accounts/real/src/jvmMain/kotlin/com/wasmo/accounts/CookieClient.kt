@@ -1,10 +1,10 @@
 package com.wasmo.accounts
 
-import com.wasmo.sql.SqlTransaction
-import com.wasmo.app.db.findCookieByToken
-import com.wasmo.app.db.insertAccount
-import com.wasmo.app.db.insertCookie
+import com.wasmo.db.accounts.findCookieByToken
+import com.wasmo.db.accounts.insertAccount
+import com.wasmo.db.accounts.insertCookie
 import com.wasmo.identifiers.AccountId
+import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject

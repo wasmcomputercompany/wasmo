@@ -1,18 +1,18 @@
 package com.wasmo.installedapps
 
 import com.wasmo.accounts.Client
-import com.wasmo.app.db.InstalledApp
-import com.wasmo.app.db.InstalledAppRelease
-import com.wasmo.sql.SqlTransaction
-import com.wasmo.app.db.selectComputerByAccountIdAndSlug
-import com.wasmo.app.db.selectComputerById
-import com.wasmo.app.db.selectInstalledAppByComputerIdAndSlug
-import com.wasmo.app.db.selectInstalledAppById
-import com.wasmo.app.db.selectInstalledAppReleaseById
+import com.wasmo.db.computers.selectComputerByAccountIdAndSlug
+import com.wasmo.db.computers.selectComputerById
+import com.wasmo.db.installedapps.InstalledApp
+import com.wasmo.db.installedapps.InstalledAppRelease
+import com.wasmo.db.installedapps.selectInstalledAppByComputerIdAndSlug
+import com.wasmo.db.installedapps.selectInstalledAppById
+import com.wasmo.db.installedapps.selectInstalledAppReleaseById
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.OsScope
+import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 

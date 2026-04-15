@@ -1,12 +1,12 @@
 package com.wasmo.installedapps
 
-import com.wasmo.sql.SqlTransaction
 import com.wasmo.accounts.Client
-import com.wasmo.app.db.InstalledApp
-import com.wasmo.app.db.InstalledAppRelease
+import com.wasmo.db.installedapps.InstalledApp
+import com.wasmo.db.installedapps.InstalledAppRelease
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
+import com.wasmo.sql.SqlTransaction
 
 interface InstalledAppStore {
   context(sqlTransaction: SqlTransaction)

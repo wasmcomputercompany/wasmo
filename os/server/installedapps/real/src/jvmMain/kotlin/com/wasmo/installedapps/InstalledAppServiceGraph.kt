@@ -1,6 +1,6 @@
 package com.wasmo.installedapps
 
-import com.wasmo.app.db.InstalledApp
+import com.wasmo.db.installedapps.InstalledApp
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug

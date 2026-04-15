@@ -1,4 +1,4 @@
-package com.wasmo.app.db
+package com.wasmo.db.installedapps
 
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId

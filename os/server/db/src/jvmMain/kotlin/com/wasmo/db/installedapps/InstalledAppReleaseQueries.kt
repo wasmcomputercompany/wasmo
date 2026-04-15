@@ -1,11 +1,17 @@
-package com.wasmo.app.db
+package com.wasmo.db.installedapps
 
+import com.wasmo.db.bindComputerId
+import com.wasmo.db.bindInstalledAppId
+import com.wasmo.db.bindInstalledAppReleaseId
+import com.wasmo.db.bindJson
+import com.wasmo.db.decodeJson
+import com.wasmo.db.getComputerId
+import com.wasmo.db.getInstalledAppId
+import com.wasmo.db.getInstalledAppReleaseId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.packaging.AppManifest
-import com.wasmo.sql.bindJson
-import com.wasmo.sql.decodeJson
 import com.wasmo.sql.single
 import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant

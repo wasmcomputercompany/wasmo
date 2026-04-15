@@ -1,5 +1,7 @@
-package com.wasmo.app.db
+package com.wasmo.db.payments.stripe
 
+import com.wasmo.db.bindStripeCustomerId
+import com.wasmo.db.getStripeCustomerId
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.sql.single
 import com.wasmo.sql.singleOrNull

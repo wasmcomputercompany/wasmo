@@ -1,17 +1,17 @@
 package com.wasmo.computers
 
 import com.wasmo.accounts.Client
-import com.wasmo.app.db.Computer
-import com.wasmo.sql.SqlTransaction
-import com.wasmo.app.db.insertComputer
-import com.wasmo.app.db.insertComputerAccess
-import com.wasmo.app.db.linkComputer
-import com.wasmo.app.db.selectComputerByAccountIdAndSlug
-import com.wasmo.app.db.selectComputerById
-import com.wasmo.app.db.selectComputerSpecByToken
+import com.wasmo.db.computers.Computer
+import com.wasmo.db.computers.insertComputer
+import com.wasmo.db.computers.insertComputerAccess
+import com.wasmo.db.computers.linkComputer
+import com.wasmo.db.computers.selectComputerByAccountIdAndSlug
+import com.wasmo.db.computers.selectComputerById
+import com.wasmo.db.computers.selectComputerSpecByToken
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.OsScope
+import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 

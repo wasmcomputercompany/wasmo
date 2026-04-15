@@ -1,9 +1,12 @@
-package com.wasmo.app.db
+package com.wasmo.db.passkeys
 
+import com.wasmo.db.bindAccountId
+import com.wasmo.db.bindJson
+import com.wasmo.db.decodeJson
+import com.wasmo.db.getAccountId
+import com.wasmo.db.getPasskeyId
 import com.wasmo.identifiers.AccountId
 import com.wasmo.passkeys.RegistrationRecord
-import com.wasmo.sql.bindJson
-import com.wasmo.sql.decodeJson
 import com.wasmo.sql.list
 import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant

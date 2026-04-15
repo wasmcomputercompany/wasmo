@@ -1,10 +1,10 @@
 package com.wasmo.computers
 
-import com.wasmo.sql.SqlTransaction
-import com.wasmo.app.db.insertComputerSpec
+import com.wasmo.db.computers.insertComputerSpec
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.OsScope
+import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock

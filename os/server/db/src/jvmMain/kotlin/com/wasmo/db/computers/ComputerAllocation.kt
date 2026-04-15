@@ -1,4 +1,4 @@
-package com.wasmo.app.db
+package com.wasmo.db.computers
 
 import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId

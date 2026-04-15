@@ -1,5 +1,11 @@
-package com.wasmo.app.db
+package com.wasmo.db.computers
 
+import com.wasmo.db.bindComputerAllocationId
+import com.wasmo.db.bindComputerId
+import com.wasmo.db.bindStripeCustomerId
+import com.wasmo.db.getComputerAllocationId
+import com.wasmo.db.getComputerId
+import com.wasmo.db.getStripeCustomerId
 import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.StripeCustomerId

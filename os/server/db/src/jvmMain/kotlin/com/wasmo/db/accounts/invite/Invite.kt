@@ -1,4 +1,4 @@
-package com.wasmo.app.db
+package com.wasmo.db.accounts.invite
 
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.InviteId

@@ -3,13 +3,13 @@ package com.wasmo.testing.service
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.accounts.ClientAuthenticator
-import com.wasmo.app.db.migrate
-import com.wasmo.sql.withConnection
+import com.wasmo.db.migrate
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.asSqlService
 import com.wasmo.sql.testing.TestDatabaseAddress
 import com.wasmo.sql.testing.clearSchema
+import com.wasmo.sql.withConnection
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePasskey

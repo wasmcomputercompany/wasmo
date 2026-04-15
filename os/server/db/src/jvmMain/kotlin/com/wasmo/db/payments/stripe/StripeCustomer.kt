@@ -1,4 +1,4 @@
-package com.wasmo.app.db
+package com.wasmo.db.payments.stripe
 
 import com.wasmo.identifiers.StripeCustomerId
 import kotlin.time.Instant

@@ -1,4 +1,4 @@
-package com.wasmo.app.db
+package com.wasmo.db.installedapps
 
 /** Join the [InstalledApp] and [InstalledAppRelease] tables. */
 data class InstalledAppAndRelease(

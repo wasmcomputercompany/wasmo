@@ -1,5 +1,10 @@
-package com.wasmo.app.db
+package com.wasmo.db.computers
 
+import com.wasmo.db.bindAccountId
+import com.wasmo.db.bindComputerId
+import com.wasmo.db.bindComputerSlug
+import com.wasmo.db.getComputerId
+import com.wasmo.db.getComputerSlug
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug

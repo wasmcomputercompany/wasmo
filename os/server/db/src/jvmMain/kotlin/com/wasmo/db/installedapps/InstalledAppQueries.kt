@@ -1,12 +1,23 @@
-package com.wasmo.app.db
+package com.wasmo.db.installedapps
 
+import com.wasmo.db.bindAppSlug
+import com.wasmo.db.bindComputerId
+import com.wasmo.db.bindInstalledAppId
+import com.wasmo.db.bindInstalledAppReleaseId
+import com.wasmo.db.bindWasmoFileAddress
+import com.wasmo.db.decodeJson
+import com.wasmo.db.getAppSlug
+import com.wasmo.db.getComputerId
+import com.wasmo.db.getComputerIdOrNull
+import com.wasmo.db.getInstalledAppId
+import com.wasmo.db.getInstalledAppReleaseIdOrNull
+import com.wasmo.db.getWasmoFileAddress
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
-import com.wasmo.sql.decodeJson
 import com.wasmo.sql.list
 import com.wasmo.sql.single
 import com.wasmo.sql.singleOrNull

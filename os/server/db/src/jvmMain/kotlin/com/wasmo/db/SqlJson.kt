@@ -1,4 +1,4 @@
-package com.wasmo.sql
+package com.wasmo.db
 
 import com.wasmo.api.WasmoJson
 import wasmo.sql.SqlBinder

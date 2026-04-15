@@ -1,11 +1,11 @@
 package com.wasmo.computers
 
-import com.wasmo.app.db.findComputerAllocationByStripeSubscriptionId
-import com.wasmo.app.db.findStripeCustomerByStripeCustomerId
-import com.wasmo.app.db.insertComputerAllocation
-import com.wasmo.app.db.insertStripeCustomer
-import com.wasmo.app.db.truncateComputerAllocation
-import com.wasmo.app.db.updateStripeCustomer
+import com.wasmo.db.computers.findComputerAllocationByStripeSubscriptionId
+import com.wasmo.db.computers.insertComputerAllocation
+import com.wasmo.db.computers.truncateComputerAllocation
+import com.wasmo.db.payments.stripe.findStripeCustomerByStripeCustomerId
+import com.wasmo.db.payments.stripe.insertStripeCustomer
+import com.wasmo.db.payments.stripe.updateStripeCustomer
 import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.payments.ComputerAllocationSnapshot

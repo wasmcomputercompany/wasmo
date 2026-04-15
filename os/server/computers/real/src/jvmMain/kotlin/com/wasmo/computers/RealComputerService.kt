@@ -1,8 +1,8 @@
 package com.wasmo.computers
 
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.app.db.insertInstalledApp
-import com.wasmo.app.db.selectInstalledAppsByComputerId
+import com.wasmo.db.installedapps.insertInstalledApp
+import com.wasmo.db.installedapps.selectInstalledAppsByComputerId
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId

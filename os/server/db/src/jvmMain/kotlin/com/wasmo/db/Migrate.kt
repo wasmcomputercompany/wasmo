@@ -1,4 +1,4 @@
-package com.wasmo.app.db
+package com.wasmo.db
 
 import wasmo.sql.SqlConnection
 

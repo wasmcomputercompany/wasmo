@@ -1,15 +1,14 @@
 package com.wasmo.installedapps
 
-import com.wasmo.app.db.InstalledAppRelease
-import com.wasmo.app.db.insertInstalledAppRelease
-import com.wasmo.app.db.selectInstalledAppById
-import com.wasmo.app.db.setRelease
 import com.wasmo.computers.ComputerStore
+import com.wasmo.db.installedapps.InstalledAppRelease
+import com.wasmo.db.installedapps.insertInstalledAppRelease
+import com.wasmo.db.installedapps.selectInstalledAppById
+import com.wasmo.db.installedapps.setRelease
 import com.wasmo.events.EventListener
 import com.wasmo.identifiers.OsScope
 import com.wasmo.issues.IssueCollector
 import com.wasmo.jobs.OsJobHandler
-import com.wasmo.sql.SqlTransaction
 import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

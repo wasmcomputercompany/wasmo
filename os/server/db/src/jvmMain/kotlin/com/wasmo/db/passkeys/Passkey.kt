@@ -1,4 +1,4 @@
-package com.wasmo.app.db
+package com.wasmo.db.passkeys
 
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.PasskeyId
