@@ -1,7 +1,9 @@
 package com.wasmo.accounts
 
 import com.wasmo.app.db.SqlTransaction
+import com.wasmo.app.db.findCookieByToken
 import com.wasmo.app.db.insertAccount
+import com.wasmo.app.db.insertCookie
 import com.wasmo.identifiers.AccountId
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -30,7 +32,7 @@ class CookieClient(
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = sqlTransaction.cookieQueries.findCookieByToken(sessionCookie.token)
+    val cookie = sqlTransaction.findCookieByToken(sessionCookie.token)
       ?: return null
     return cookie.account_id
       .also { this.cachedAccountId = it }
@@ -41,14 +43,14 @@ class CookieClient(
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = SqlTransaction.cookieQueries.findCookieByToken(sessionCookie.token)
+    val cookie = SqlTransaction.findCookieByToken(sessionCookie.token)
     if (cookie != null) return cookie.account_id
 
     val accountId = SqlTransaction.insertAccount(
       version = 1,
     )
 
-    SqlTransaction.cookieQueries.insertCookie(
+    SqlTransaction.insertCookie(
       created_at = clock.now(),
       account_id = accountId,
       token = sessionCookie.token,

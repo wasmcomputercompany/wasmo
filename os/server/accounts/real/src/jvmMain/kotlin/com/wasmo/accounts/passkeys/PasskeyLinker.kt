@@ -3,8 +3,8 @@ package com.wasmo.accounts.passkeys
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.Passkey
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.SqlTransaction
+import com.wasmo.app.db.updateAccountIdByAccountId
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -23,7 +23,6 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(CallScope::class)
 class PasskeyLinker(
-  private val wasmoDb: WasmoDb,
   private val client: Client,
 ) {
   context(sqlTransaction: SqlTransaction)
@@ -34,7 +33,7 @@ class PasskeyLinker(
     if (cookieAccountId == passkey.account_id) return
 
     // Transfer all cookies.
-    sqlTransaction.cookieQueries.updateAccountIdByAccountId(
+    sqlTransaction.updateAccountIdByAccountId(
       target_account_id = passkey.account_id,
       source_account_id = cookieAccountId,
     )

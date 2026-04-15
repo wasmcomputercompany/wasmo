@@ -2,6 +2,7 @@ package com.wasmo.computers
 
 import com.wasmo.app.db.SqlTransaction
 import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db.insertComputerSpec
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.OsScope
@@ -23,7 +24,7 @@ class ComputerSpecStore(
     computerSpecToken: String,
   ) {
     try {
-      sqlTransaction.computerSpecQueries.insertComputerSpec(
+      sqlTransaction.insertComputerSpec(
         created_at = clock.now(),
         version = 1,
         account_id = accountId,

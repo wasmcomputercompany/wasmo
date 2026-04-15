@@ -27,8 +27,6 @@ import wasmo.sql.SqlRow
 
 interface WasmoDbConnection : Closeable, SqlConnection {
   val sqlConnection: SqlConnection
-  val computerSpecQueries: ComputerSpecQueries
-  val cookieQueries: CookieQueries
   val installedAppQueries: InstalledAppQueries
   val installedAppReleaseQueries: InstalledAppReleaseQueries
   val inviteQueries: InviteQueries
@@ -62,10 +60,6 @@ open class RealSqlTransaction(
 open class RealWasmoDbConnection(
   override val sqlConnection: SqlConnection,
 ) : WasmoDbConnection, SqlConnection by sqlConnection {
-  override val computerSpecQueries: ComputerSpecQueries
-    get() = ComputerSpecQueries(this)
-  override val cookieQueries: CookieQueries
-    get() = CookieQueries(this)
   override val installedAppQueries: InstalledAppQueries
     get() = InstalledAppQueries(this)
   override val installedAppReleaseQueries: InstalledAppReleaseQueries
@@ -147,11 +141,6 @@ class RealSqlCursor(
   }
 }
 
-inline fun <reified T> RealSqlCursor.getJson(index: Int): T {
-  val string = getString(index)!!
-  return WasmoJson.decodeFromString<T>(string)
-}
-
 inline fun <reified T> SqlBinder.bindJson(index: Int, value: T) {
   bindString(index, WasmoJson.encodeToString(value))
 }
@@ -161,50 +150,12 @@ inline fun <reified T> SqlRow.getJson2(index: Int): T {
   return WasmoJson.decodeFromString<T>(string)
 }
 
-fun RealSqlCursor.getAccountId(index: Int) = AccountId(getS64(index)!!)
-fun RealSqlCursor.getComputerAccessId(index: Int) = ComputerAccessId(getS64(index)!!)
-fun RealSqlCursor.getComputerAllocationId(index: Int) = ComputerAllocationId(getS64(index)!!)
-fun RealSqlCursor.getComputerId(index: Int) = ComputerId(getS64(index)!!)
-fun RealSqlCursor.getComputerSpecId(index: Int) = ComputerSpecId(getS64(index)!!)
-fun RealSqlCursor.getCookieId(index: Int) = CookieId(getS64(index)!!)
-fun RealSqlCursor.getInstalledAppId(index: Int) = InstalledAppId(getS64(index)!!)
-fun RealSqlCursor.getInstalledAppReleaseId(index: Int) = InstalledAppReleaseId(getS64(index)!!)
-fun RealSqlCursor.getInviteId(index: Int) = InviteId(getS64(index)!!)
-fun RealSqlCursor.getPasskeyId(index: Int) = PasskeyId(getS64(index)!!)
-fun RealSqlCursor.getStripeCustomerId(index: Int) = StripeCustomerId(getS64(index)!!)
-fun RealSqlCursor.getAccountIdOrNull(index: Int) = getS64(index)?.let { AccountId(it) }
-fun RealSqlCursor.getComputerAccessIdOrNull(index: Int) = getS64(index)?.let { ComputerAccessId(it) }
-fun RealSqlCursor.getComputerAllocationIdOrNull(index: Int) = getS64(index)?.let { ComputerAllocationId(it) }
-fun RealSqlCursor.getComputerIdOrNull(index: Int) = getS64(index)?.let { ComputerId(it) }
-fun RealSqlCursor.getComputerSpecIdOrNull(index: Int) = getS64(index)?.let { ComputerSpecId(it) }
-fun RealSqlCursor.getCookieIdOrNull(index: Int) = getS64(index)?.let { CookieId(it) }
-fun RealSqlCursor.getInstalledAppIdOrNull(index: Int) = getS64(index)?.let { InstalledAppId(it) }
-fun RealSqlCursor.getInstalledAppReleaseIdOrNull(index: Int) = getS64(index)?.let { InstalledAppReleaseId(it) }
-
-fun SqlRow.getAccountId(index: Int) = AccountId(getS64(index)!!)
-fun SqlRow.getComputerAccessId(index: Int) = ComputerAccessId(getS64(index)!!)
-fun SqlRow.getComputerAllocationId(index: Int) = ComputerAllocationId(getS64(index)!!)
-fun SqlRow.getComputerId(index: Int) = ComputerId(getS64(index)!!)
-fun SqlRow.getComputerSpecId(index: Int) = ComputerSpecId(getS64(index)!!)
-fun SqlRow.getCookieId(index: Int) = CookieId(getS64(index)!!)
-fun SqlRow.getInstalledAppId(index: Int) = InstalledAppId(getS64(index)!!)
-fun SqlRow.getInstalledAppReleaseId(index: Int) = InstalledAppReleaseId(getS64(index)!!)
-fun SqlRow.getInviteId(index: Int) = InviteId(getS64(index)!!)
-fun SqlRow.getPasskeyId(index: Int) = PasskeyId(getS64(index)!!)
-fun SqlRow.getStripeCustomerId(index: Int) = StripeCustomerId(getS64(index)!!)
-fun SqlRow.getAccountIdOrNull(index: Int) = getS64(index)?.let { AccountId(it) }
-fun SqlRow.getComputerAccessIdOrNull(index: Int) = getS64(index)?.let { ComputerAccessId(it) }
-fun SqlRow.getComputerAllocationIdOrNull(index: Int) = getS64(index)?.let { ComputerAllocationId(it) }
-fun SqlRow.getComputerIdOrNull(index: Int) = getS64(index)?.let { ComputerId(it) }
-fun SqlRow.getComputerSpecIdOrNull(index: Int) = getS64(index)?.let { ComputerSpecId(it) }
-fun SqlRow.getCookieIdOrNull(index: Int) = getS64(index)?.let { CookieId(it) }
-fun SqlRow.getInstalledAppIdOrNull(index: Int) = getS64(index)?.let { InstalledAppId(it) }
-fun SqlRow.getInstalledAppReleaseIdOrNull(index: Int) = getS64(index)?.let { InstalledAppReleaseId(it) }
-
 fun SqlBinder.bindAccountId(index: Int, value: AccountId?) = bindS64(index, value?.id)
+fun SqlBinder.bindAppSlug(index: Int, value: AppSlug?) = bindString(index, value?.value)
 fun SqlBinder.bindComputerAccessId(index: Int, value: ComputerAccessId?) = bindS64(index, value?.id)
 fun SqlBinder.bindComputerAllocationId(index: Int, value: ComputerAllocationId?) = bindS64(index, value?.id)
 fun SqlBinder.bindComputerId(index: Int, value: ComputerId?) = bindS64(index, value?.id)
+fun SqlBinder.bindComputerSlug(index: Int, value: ComputerSlug?) = bindString(index, value?.value)
 fun SqlBinder.bindComputerSpecId(index: Int, value: ComputerSpecId?) = bindS64(index, value?.id)
 fun SqlBinder.bindCookieId(index: Int, value: CookieId?) = bindS64(index, value?.id)
 fun SqlBinder.bindInstalledAppId(index: Int, value: InstalledAppId?) = bindS64(index, value?.id)
@@ -212,16 +163,27 @@ fun SqlBinder.bindInstalledAppReleaseId(index: Int, value: InstalledAppReleaseId
 fun SqlBinder.bindInviteId(index: Int, value: InviteId?) = bindS64(index, value?.id)
 fun SqlBinder.bindPasskeyId(index: Int, value: PasskeyId?) = bindS64(index, value?.id)
 fun SqlBinder.bindStripeCustomerId(index: Int, value: StripeCustomerId?) = bindS64(index, value?.id)
-
-fun RealSqlCursor.getAppSlug(index: Int) = AppSlug(getString(index)!!)
-fun SqlBinder.bindAppSlug(index: Int, value: AppSlug?) = bindString(index, value?.value)
-fun RealSqlCursor.getComputerSlug(index: Int) = ComputerSlug(getString(index)!!)
-fun SqlBinder.bindComputerSlug(index: Int, value: ComputerSlug?) = bindString(index, value?.value)
-
-fun SqlRow.getAppSlug(index: Int) = AppSlug(getString(index)!!)
-fun SqlRow.getComputerSlug(index: Int) = ComputerSlug(getString(index)!!)
-
-fun RealSqlCursor.getWasmoFileAddress(index: Int) = getString(index)!!.toWasmoFileAddress()
 fun SqlBinder.bindWasmoFileAddress(index: Int, value: WasmoFileAddress?) = bindString(index, value?.toString())
-fun SqlRow.getWasmoFileAddress(index: Int) = getString(index)!!.toWasmoFileAddress()
 
+fun SqlRow.getAccountId(index: Int) = AccountId(getS64(index)!!)
+fun SqlRow.getAccountIdOrNull(index: Int) = getS64(index)?.let { AccountId(it) }
+fun SqlRow.getAppSlug(index: Int) = AppSlug(getString(index)!!)
+fun SqlRow.getComputerAccessId(index: Int) = ComputerAccessId(getS64(index)!!)
+fun SqlRow.getComputerAccessIdOrNull(index: Int) = getS64(index)?.let { ComputerAccessId(it) }
+fun SqlRow.getComputerAllocationId(index: Int) = ComputerAllocationId(getS64(index)!!)
+fun SqlRow.getComputerAllocationIdOrNull(index: Int) = getS64(index)?.let { ComputerAllocationId(it) }
+fun SqlRow.getComputerId(index: Int) = ComputerId(getS64(index)!!)
+fun SqlRow.getComputerIdOrNull(index: Int) = getS64(index)?.let { ComputerId(it) }
+fun SqlRow.getComputerSlug(index: Int) = ComputerSlug(getString(index)!!)
+fun SqlRow.getComputerSpecId(index: Int) = ComputerSpecId(getS64(index)!!)
+fun SqlRow.getComputerSpecIdOrNull(index: Int) = getS64(index)?.let { ComputerSpecId(it) }
+fun SqlRow.getCookieId(index: Int) = CookieId(getS64(index)!!)
+fun SqlRow.getCookieIdOrNull(index: Int) = getS64(index)?.let { CookieId(it) }
+fun SqlRow.getInstalledAppId(index: Int) = InstalledAppId(getS64(index)!!)
+fun SqlRow.getInstalledAppIdOrNull(index: Int) = getS64(index)?.let { InstalledAppId(it) }
+fun SqlRow.getInstalledAppReleaseId(index: Int) = InstalledAppReleaseId(getS64(index)!!)
+fun SqlRow.getInstalledAppReleaseIdOrNull(index: Int) = getS64(index)?.let { InstalledAppReleaseId(it) }
+fun SqlRow.getInviteId(index: Int) = InviteId(getS64(index)!!)
+fun SqlRow.getPasskeyId(index: Int) = PasskeyId(getS64(index)!!)
+fun SqlRow.getStripeCustomerId(index: Int) = StripeCustomerId(getS64(index)!!)
+fun SqlRow.getWasmoFileAddress(index: Int) = getString(index)!!.toWasmoFileAddress()
