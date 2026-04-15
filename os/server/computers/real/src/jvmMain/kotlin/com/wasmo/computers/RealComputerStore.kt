@@ -20,7 +20,6 @@ class RealComputerStore(
   override suspend fun initializeFromSpec(computerSpecToken: String): ComputerService {
     val computerSpec = transactionCallbacks.computerSpecQueries
       .selectComputerSpecByToken(computerSpecToken)
-      .executeAsOneOrNull()
       ?: throw IllegalStateException("no such computer spec: $computerSpecToken")
 
     val computerId = computerSpec.computer_id

@@ -29,7 +29,7 @@ class ComputerSpecStore(
         account_id = accountId,
         token = computerSpecToken,
         slug = slug,
-      ).executeAsOneOrNull()
+      )
     } catch (e: PSQLException) {
       // TODO: recover from idempotent inserts
       throw e
