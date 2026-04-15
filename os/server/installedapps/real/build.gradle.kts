@@ -34,6 +34,7 @@ kotlin {
         implementation(project(":os:server:installedapps:api"))
         implementation(project(":os:server:jobs:api"))
         implementation(project(":os:server:payments:api"))
+        implementation(project(":os:server:sql:api"))
         implementation(project(":os:server:wasm:api"))
         implementation(project(":platform:api"))
         implementation(project(":platform:packaging"))

@@ -1,19 +1,19 @@
 package com.wasmo.calls
 
-import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.sql.SqlTransaction
 
 internal abstract class DbLazy<T> {
   var loaded = false
   var cached: T? = null
 
-  context(transactionCallbacks: TransactionCallbacks)
-  fun get(): T {
+  context(sqlTransaction: SqlTransaction)
+  suspend fun get(): T {
     if (loaded) return cached as T
 
     return load()
       .also { cached = it }
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
-  protected abstract fun load(): T
+  context(sqlTransaction: SqlTransaction)
+  protected abstract suspend fun load(): T
 }

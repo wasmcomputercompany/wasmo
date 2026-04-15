@@ -6,3 +6,14 @@ plugins {
 wasmoBuild {
   libraryJvm()
 }
+
+
+kotlin {
+  sourceSets {
+    val jvmMain by getting {
+      dependencies {
+        implementation(project(":platform:api"))
+      }
+    }
+  }
+}

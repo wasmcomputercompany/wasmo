@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
@@ -15,11 +15,11 @@ interface ComputerService {
   val url: HttpUrl
 
   /** Install default apps. */
-  context(transactionCallbacks: TransactionCallbacks)
-  fun initialize()
+  context(sqlTransaction: SqlTransaction)
+  suspend fun initialize()
 
-  context(transactionCallbacks: TransactionCallbacks)
-  fun enqueueInstall(
+  context(sqlTransaction: SqlTransaction)
+  suspend fun enqueueInstall(
     wasmoFileAddress: WasmoFileAddress,
     slug: AppSlug,
   )

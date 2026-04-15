@@ -1,29 +1,32 @@
 package com.wasmo.installedapps
 
 import com.wasmo.computers.ComputerStore
-import com.wasmo.db.InstalledAppRelease
-import com.wasmo.db.WasmoDb
+import com.wasmo.db.installedapps.InstalledAppRelease
+import com.wasmo.db.installedapps.insertInstalledAppRelease
+import com.wasmo.db.installedapps.selectInstalledAppById
+import com.wasmo.db.installedapps.setRelease
 import com.wasmo.events.EventListener
 import com.wasmo.identifiers.OsScope
 import com.wasmo.issues.IssueCollector
 import com.wasmo.jobs.OsJobHandler
+import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
+import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(OsScope::class)
 class InstallAppJobHandler(
   private val clock: Clock,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val computerStore: ComputerStore,
   private val eventListener: EventListener,
   private val installedAppStore: InstalledAppStore,
 ) : OsJobHandler<InstallAppJob> {
   override suspend fun execute(job: InstallAppJob) {
-    val (installedApp, computerService) = wasmoDb.transactionWithResult(noEnclosing = true) {
-      val installedApp = wasmoDb.installedAppQueries.selectInstalledAppById(job.installedAppId)
-        .executeAsOne()
+    val (installedApp, computerService) = wasmoDb.transaction {
+      val installedApp = selectInstalledAppById(job.installedAppId)
       installedApp to computerStore.get(installedApp.computer_id)
     }
 
@@ -40,14 +43,14 @@ class InstallAppJobHandler(
     val completedAt = clock.now()
 
     if (installedManifest != null) {
-      val installedAppRelease = wasmoDb.transactionWithResult(noEnclosing = true) {
-        val releaseId = wasmoDb.installedAppReleaseQueries.insertInstalledAppRelease(
+      val installedAppRelease = wasmoDb.transaction {
+        val releaseId = insertInstalledAppRelease(
           first_active_at = completedAt,
           computer_id = computerService.id,
           installed_app_id = installedApp.id,
           app_version = installedManifest.version,
           app_manifest_data = installedManifest,
-        ).executeAsOne()
+        )
 
         InstalledAppRelease(
           id = releaseId,
@@ -67,13 +70,13 @@ class InstallAppJobHandler(
 
       service.app()?.afterInstall(0L, installedManifest.version)
 
-      wasmoDb.transaction(noEnclosing = true) {
-        val rowCount = wasmoDb.installedAppQueries.setRelease(
-          id = installedApp.id,
-          expected_version = installedApp.version,
+      wasmoDb.transaction {
+        val rowCount = setRelease(
           new_version = installedApp.version + 1L,
           active_release_id = installedAppRelease.id,
-        ).value
+          expected_version = installedApp.version,
+          id = installedApp.id,
+        )
         require(rowCount == 1L)
       }
     } else {

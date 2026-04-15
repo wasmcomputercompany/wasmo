@@ -6,14 +6,17 @@ import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.calls.CallDataService
-import com.wasmo.db.WasmoDb
+import com.wasmo.db.passkeys.findPasskeyByPasskeyIdAndAccountId
+import com.wasmo.db.passkeys.insertPasskey
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
+import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import org.postgresql.util.PSQLException
+import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
@@ -22,23 +25,21 @@ class RegisterPasskeyAction(
   private val callDataService: CallDataService,
   private val client: Client,
   private val passkeyChecker: PasskeyChecker,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val inviteService: InviteService,
 ) {
-  fun register(
+  suspend fun register(
     request: RegisterPasskeyRequest,
   ): Response<RegisterPasskeyResponse> {
     val registerResult = passkeyChecker.register(request.registration)
 
-    return wasmoDb.transactionWithResult(noEnclosing = true) {
+    return wasmoDb.transaction {
       val accountId = client.getOrCreateAccountId()
 
-      val existing = wasmoDb.passkeyQueries
-        .findPasskeyByPasskeyIdAndAccountId(registerResult.id, accountId)
-        .executeAsOneOrNull()
+      val existing = findPasskeyByPasskeyIdAndAccountId(registerResult.id, accountId)
       if (existing == null) {
         try {
-          wasmoDb.passkeyQueries.insertPasskey(
+          insertPasskey(
             created_at = clock.now(),
             account_id = accountId,
             passkey_id = registerResult.id,
@@ -46,7 +47,7 @@ class RegisterPasskeyAction(
             created_by_user_agent = client.userAgent,
             created_by_ip = client.ip,
             registration_record = registerResult.record,
-          ).value
+          )
         } catch (_: PSQLException) {
           throw ArgumentUserException("already registered")
         }

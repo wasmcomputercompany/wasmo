@@ -1,6 +1,6 @@
 package com.wasmo.testing.installedapp
 
-import com.wasmo.db.WasmoDb
+import com.wasmo.sql.transaction
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.AppSlug
@@ -16,6 +16,7 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import okhttp3.HttpUrl
 import wasmo.app.WasmoApp
+import wasmo.sql.SqlDatabase
 
 /**
  * Tests an app installed on a specific computer.
@@ -23,7 +24,7 @@ import wasmo.app.WasmoApp
 @AssistedInject
 class InstalledAppTester private constructor(
   private val deployment: Deployment,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val appLoader: AppLoader,
   private val installedAppStore: InstalledAppStore,
   @Assisted private val client: ClientTester,
@@ -46,8 +47,8 @@ class InstalledAppTester private constructor(
       ?: error("failed to load ${installedAppService.slug}")
   }
 
-  private fun installedAppService(): InstalledAppService {
-    return wasmoDb.transactionWithResult(noEnclosing = true) {
+  private suspend fun installedAppService(): InstalledAppService {
+    return wasmoDb.transaction {
       installedAppStore.getOrNull(
         client = client.clientAuthenticator.get(),
         computerSlug = computerSlug,

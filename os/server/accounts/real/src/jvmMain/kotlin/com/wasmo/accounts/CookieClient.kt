@@ -1,10 +1,10 @@
 package com.wasmo.accounts
 
-import app.cash.sqldelight.TransactionCallbacks
-import com.wasmo.db.AccountQueries
-import com.wasmo.db.CookieQueries
-import com.wasmo.db.WasmoDb
+import com.wasmo.db.accounts.findCookieByToken
+import com.wasmo.db.accounts.insertAccount
+import com.wasmo.db.accounts.insertCookie
 import com.wasmo.identifiers.AccountId
+import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -18,7 +18,6 @@ import kotlin.time.Clock
 @AssistedInject
 class CookieClient(
   private val clock: Clock,
-  private val wasmoDb: WasmoDb,
   @Assisted private val sessionCookie: SessionCookie,
   @Assisted override val userAgent: String?,
   @Assisted override val ip: String?,
@@ -28,35 +27,30 @@ class CookieClient(
 
   private var cachedAccountId: AccountId? = null
 
-  private val cookieQueries: CookieQueries
-    get() = wasmoDb.cookieQueries
-  private val accountQueries: AccountQueries
-    get() = wasmoDb.accountQueries
-
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun getAccountIdOrNull(): AccountId? {
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun getAccountIdOrNull(): AccountId? {
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = cookieQueries.findCookieByToken(sessionCookie.token).executeAsOneOrNull()
+    val cookie = findCookieByToken(sessionCookie.token)
       ?: return null
     return cookie.account_id
       .also { this.cachedAccountId = it }
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun getOrCreateAccountId(): AccountId {
+  context(SqlTransaction: SqlTransaction)
+  override suspend fun getOrCreateAccountId(): AccountId {
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = cookieQueries.findCookieByToken(sessionCookie.token).executeAsOneOrNull()
+    val cookie = findCookieByToken(sessionCookie.token)
     if (cookie != null) return cookie.account_id
 
-    val accountId = accountQueries.insertAccount(
+    val accountId = insertAccount(
       version = 1,
-    ).executeAsOne()
+    )
 
-    cookieQueries.insertCookie(
+    insertCookie(
       created_at = clock.now(),
       account_id = accountId,
       token = sessionCookie.token,
@@ -68,7 +62,7 @@ class CookieClient(
       .also { this.cachedAccountId = it }
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(SqlTransaction: SqlTransaction)
   override fun invalidate() {
     this.cachedAccountId = null
   }

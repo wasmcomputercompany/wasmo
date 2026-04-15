@@ -7,6 +7,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import okio.ByteString
 import okio.Closeable
+import org.intellij.lang.annotations.Language
 import wasmo.json.JsonLiteral
 
 /**
@@ -30,13 +31,13 @@ interface SqlDatabase : Closeable {
 interface SqlConnection : Closeable {
   /** Return the number of rows in an UPDATE, INSERT, or DELETE clause. */
   suspend fun execute(
-    sql: String,
+    @Language("SQL") sql: String,
     bindParameters: (SqlBinder.() -> Unit)? = null,
   ): Long
 
   /** Return the rows in a SELECT clause. */
   suspend fun executeQuery(
-    sql: String,
+    @Language("SQL") sql: String,
     bindParameters: (SqlBinder.() -> Unit)? = null,
   ): RowIterator
 }

@@ -1,28 +1,30 @@
 package com.wasmo.installedapps
 
-import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
-import com.wasmo.app.db.InstalledAppAndRelease
-import com.wasmo.db.InstalledApp
-import com.wasmo.db.InstalledAppRelease
-import com.wasmo.db.WasmoDb
+import com.wasmo.db.computers.selectComputerByAccountIdAndSlug
+import com.wasmo.db.computers.selectComputerById
+import com.wasmo.db.installedapps.InstalledApp
+import com.wasmo.db.installedapps.InstalledAppRelease
+import com.wasmo.db.installedapps.selectInstalledAppByComputerIdAndSlug
+import com.wasmo.db.installedapps.selectInstalledAppById
+import com.wasmo.db.installedapps.selectInstalledAppReleaseById
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.OsScope
+import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
 @SingleIn(OsScope::class)
 class RealInstalledAppStore(
-  private val wasmoDb: WasmoDb,
   private val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory,
   private val appManifestLoaderFactory: RealAppManifestLoaderFactory,
 ) : InstalledAppStore {
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun getOrNull(
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun getOrNull(
     client: Client,
     computerSlug: ComputerSlug,
     appSlug: AppSlug,
@@ -30,19 +32,16 @@ class RealInstalledAppStore(
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
-    val computer = wasmoDb.computerQueries.selectComputerByAccountIdAndSlug(
+    val computer = selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = computerSlug,
-    ).executeAsOneOrNull()
-      ?: return null
+    ) ?: return null
 
-    val row = wasmoDb.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
+    val row = selectInstalledAppByComputerIdAndSlug(
       computer_id = computer.id,
       slug = appSlug,
       active = true,
-      mapper = InstalledAppAndRelease::invoke,
-    ).executeAsOneOrNull()
-      ?: return null
+    ) ?: return null
 
     return get(
       computerSlug = computer.slug,
@@ -51,30 +50,28 @@ class RealInstalledAppStore(
     )
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun get(installedAppId: InstalledAppId): InstalledAppService? {
-    val installedApp = wasmoDb.installedAppQueries.selectInstalledAppById(installedAppId)
-      .executeAsOne()
-    val installedAppRelease = wasmoDb.installedAppReleaseQueries
-      .selectInstalledAppReleaseById(installedApp.active_release_id ?: return null)
-      .executeAsOneOrNull()
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun get(installedAppId: InstalledAppId): InstalledAppService? {
+    val installedApp = selectInstalledAppById(installedAppId)
+    val installedAppRelease = selectInstalledAppReleaseById(
+      id = installedApp.active_release_id ?: return null,
+    )
     return get(
       installedApp = installedApp,
       installedAppRelease = installedAppRelease,
     )
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun get(
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun get(
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,
   ): InstalledAppService {
-    val computer = wasmoDb.computerQueries.selectComputerById(installedApp.computer_id)
-      .executeAsOne()
+    val computer = selectComputerById(installedApp.computer_id)
     return get(computer.slug, installedApp, installedAppRelease)
   }
 
-  override fun get(
+  override suspend fun get(
     computerSlug: ComputerSlug,
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,

@@ -1,6 +1,5 @@
 package com.wasmo.calls
 
-import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.AccountSnapshot
@@ -10,11 +9,15 @@ import com.wasmo.api.InviteTicket
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.db.Invite
-import com.wasmo.db.Passkey
-import com.wasmo.db.WasmoDb
+import com.wasmo.db.accounts.invite.Invite
+import com.wasmo.db.accounts.invite.findInvitesByClaimedBy
+import com.wasmo.db.accounts.invite.findInvitesByCode
+import com.wasmo.db.computers.selectComputersByAccountId
+import com.wasmo.db.passkeys.Passkey
+import com.wasmo.db.passkeys.findPasskeysByAccountId
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
+import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -24,17 +27,15 @@ class RealCallDataService(
   private val deployment: Deployment,
   private val routeCodecFactory: RouteCodec.Factory,
   private val authenticatorDatabase: AuthenticatorDatabase,
-  private val wasmoDb: WasmoDb,
   private val client: Client,
 ) : CallDataService {
   private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
-    context(transactionCallbacks: TransactionCallbacks)
-    override fun load(): List<PasskeySnapshot> {
+    context(sqlTransaction: SqlTransaction)
+    override suspend fun load(): List<PasskeySnapshot> {
       val accountId = client.getAccountIdOrNull()
 
       return when {
-        accountId != null -> wasmoDb.passkeyQueries.findPasskeysByAccountId(accountId)
-          .executeAsList()
+        accountId != null -> findPasskeysByAccountId(accountId)
           .map { it.toSnapshot() }
 
         else -> listOf()
@@ -48,15 +49,15 @@ class RealCallDataService(
   }
 
   private val firstClaimedInvite = object : DbLazy<Invite?>() {
-    context(transactionCallbacks: TransactionCallbacks)
-    override fun load(): Invite? {
+    context(sqlTransaction: SqlTransaction)
+    override suspend fun load(): Invite? {
       val accountId = client.getAccountIdOrNull()
       return when {
         accountId != null -> {
-          wasmoDb.inviteQueries.findInvitesByClaimedBy(
+          findInvitesByClaimedBy(
             claimed_by = accountId,
             limit = 1,
-          ).executeAsOneOrNull()
+          )
         }
 
         else -> null
@@ -65,8 +66,8 @@ class RealCallDataService(
   }
 
   private val routingContext = object : DbLazy<RoutingContext>() {
-    context(transactionCallbacks: TransactionCallbacks)
-    override fun load() = RoutingContext(
+    context(sqlTransaction: SqlTransaction)
+    override suspend fun load() = RoutingContext(
       rootUrl = deployment.baseUrl.toString(),
       hasComputers = computerListSnapshot.get().items.isNotEmpty(),
       hasInvite = firstClaimedInvite.get() != null,
@@ -75,8 +76,8 @@ class RealCallDataService(
   }
 
   private val accountSnapshot = object : DbLazy<AccountSnapshot>() {
-    context(transactionCallbacks: TransactionCallbacks)
-    override fun load(): AccountSnapshot {
+    context(sqlTransaction: SqlTransaction)
+    override suspend fun load(): AccountSnapshot {
       val passkeys = passkeys.get()
       val firstInvite = firstClaimedInvite.get()
 
@@ -89,15 +90,15 @@ class RealCallDataService(
   }
 
   private val computerListSnapshot = object : DbLazy<ComputerListSnapshot>() {
-    context(transactionCallbacks: TransactionCallbacks)
-    override fun load(): ComputerListSnapshot {
+    context(sqlTransaction: SqlTransaction)
+    override suspend fun load(): ComputerListSnapshot {
       val accountId = client.getAccountIdOrNull()
         ?: return ComputerListSnapshot()
 
-      val computers = wasmoDb.computerQueries.selectComputersByAccountId(
+      val computers = selectComputersByAccountId(
         account_id = accountId,
         limit = 100,
-      ).executeAsList()
+      )
 
       return ComputerListSnapshot(
         items = computers.map {
@@ -107,22 +108,21 @@ class RealCallDataService(
     }
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun routingContext() = routingContext.get()
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun routingContext() = routingContext.get()
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun routeCodec() = routeCodecFactory.create(routingContext())
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun routeCodec() = routeCodecFactory.create(routingContext())
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun accountSnapshot() = accountSnapshot.get()
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun accountSnapshot() = accountSnapshot.get()
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun computerListSnapshot() = computerListSnapshot.get()
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun computerListSnapshot() = computerListSnapshot.get()
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun inviteTicketOrNull(code: String): InviteTicket? {
-    val invite = wasmoDb.inviteQueries.findInvitesByCode(code)
-      .executeAsOneOrNull()
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun inviteTicketOrNull(code: String): InviteTicket? {
+    val invite = findInvitesByCode(code)
       ?: return null
 
     return InviteTicket(

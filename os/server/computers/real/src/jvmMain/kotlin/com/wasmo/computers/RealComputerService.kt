@@ -1,9 +1,8 @@
 package com.wasmo.computers
 
-import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.app.db.InstalledAppAndRelease
-import com.wasmo.db.WasmoDb
+import com.wasmo.db.installedapps.insertInstalledApp
+import com.wasmo.db.installedapps.selectInstalledAppsByComputerId
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
@@ -13,17 +12,20 @@ import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.jobs.OsJobQueue
+import com.wasmo.sql.SqlTransaction
+import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import okhttp3.HttpUrl
+import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(ComputerScope::class)
 class RealComputerService(
   private val deployment: Deployment,
   private val clock: Clock,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val appCatalog: AppCatalog,
   private val jobQueue: OsJobQueue,
   private val installedAppStore: InstalledAppStore,
@@ -36,8 +38,8 @@ class RealComputerService(
       .host("$slug.${deployment.baseUrl.host}")
       .build()
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun initialize() {
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun initialize() {
     for (entry in appCatalog.entries) {
       enqueueInstall(
         wasmoFileAddress = entry.wasmoFileAddress,
@@ -46,32 +48,31 @@ class RealComputerService(
     }
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun enqueueInstall(
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun enqueueInstall(
     wasmoFileAddress: WasmoFileAddress,
     slug: AppSlug,
   ) {
-    val installedAppId = wasmoDb.installedAppQueries.insertInstalledApp(
+    val installedAppId = insertInstalledApp(
       installed_at = clock.now(),
       computer_id = id,
       slug = slug,
       active = true,
       version = 1L,
       wasmo_file_address = wasmoFileAddress,
-    ).executeAsOne()
-    transactionCallbacks.afterCommit {
+    )
+    sqlTransaction.afterCommit {
       jobQueue.enqueue(InstallAppJob(installedAppId))
     }
   }
 
   override suspend fun snapshot(): ComputerSnapshot {
-    val installedApps = wasmoDb.transactionWithResult(noEnclosing = true) {
-      wasmoDb.installedAppQueries.selectInstalledAppsByComputerId(
+    val installedApps = wasmoDb.transaction {
+      selectInstalledAppsByComputerId(
         computer_id = id,
         active = true,
         limit = 100,
-        mapper = InstalledAppAndRelease::invoke,
-      ).executeAsList()
+      )
     }
 
     val apps = installedApps.map { row ->

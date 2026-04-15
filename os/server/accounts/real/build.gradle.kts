@@ -29,6 +29,7 @@ kotlin {
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:passkeys:api"))
         implementation(project(":os:server:sendemail:api"))
+        implementation(project(":os:server:sql:api"))
         implementation(project(":os:server:website:api"))
         implementation(project(":os:server:website:real"))
         implementation(project(":platform:api"))

@@ -13,7 +13,6 @@ import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.loadDefaultAppCatalogFromResources
-import com.wasmo.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.events.LoggingEventListener
@@ -63,6 +62,7 @@ import okio.FileSystem
 import wasmo.app.WasmoApp
 import wasmo.http.HttpService
 import wasmo.objectstore.ObjectStore
+import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlService
 
 @DependencyGraph(
@@ -236,7 +236,7 @@ internal interface WasmoServiceGraph {
     fun create(
       @Provides config: WasmoService.Config,
       @Provides server: EmbeddedServer<*, *>,
-      @Provides wasmoDb: WasmoDb,
+      @Provides wasmoDb: SqlDatabase,
       @Provides sqlService: SqlService,
     ): WasmoServiceGraph
   }

@@ -1,6 +1,6 @@
 package com.wasmo.accounts
 
-import app.cash.sqldelight.TransactionCallbacks
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.identifiers.AccountId
 
 /**
@@ -12,6 +12,6 @@ interface Caller {
   val userAgent: String?
   val ip: String?
 
-  context(transactionCallbacks: TransactionCallbacks)
-  fun getAccountIdOrNull(): AccountId?
+  context(sqlTransaction: SqlTransaction)
+  suspend fun getAccountIdOrNull(): AccountId?
 }

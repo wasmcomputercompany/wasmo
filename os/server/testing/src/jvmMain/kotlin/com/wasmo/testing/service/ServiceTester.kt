@@ -2,14 +2,14 @@ package com.wasmo.testing.service
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
-import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.accounts.ClientAuthenticator
-import com.wasmo.app.db.WasmoDbService
+import com.wasmo.db.migrate
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.asSqlService
-import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.sql.testing.TestDatabaseAddress
+import com.wasmo.sql.testing.clearSchema
+import com.wasmo.sql.withConnection
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePasskey
@@ -19,9 +19,12 @@ import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.TestEventListener
-import com.wasmo.testing.sql.clearSchema
 import dev.zacsweers.metro.createGraphFactory
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
@@ -88,31 +91,37 @@ class ServiceTester : CoroutineTestInterceptor {
   }
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    val dataSource = connectPostgresql(TestDatabaseAddress)
-    dataSource.clearSchema()
-
     val fileSystem = FileSystem.SYSTEM
     val testDirectory = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / testFunction.toString() / newToken()
     fileSystem.createDirectories(testDirectory)
 
-    WasmoDbService(
-      dataSource = dataSource,
-      jdbcDriver = dataSource.asJdbcDriver(),
-    ).use { wasmoDb ->
-      wasmoDb.migrate()
+    val postgresqlClient = PostgresqlClient(TestDatabaseAddress)
+    postgresqlClient.withConnection {
+      it.clearSchema()
+    }
 
-      val postgresqlClient = PostgresqlClient(TestDatabaseAddress)
-      postgresqlClient.asSqlService().use { sqlService ->
-        val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
-        coroutineScope {
-          this@ServiceTester.graph = serviceTesterGraphFactory.create(
-            wasmoDbService = wasmoDb,
-            sqlService = sqlService,
-            coroutineScope = this,
-            fileSystem = fileSystem,
-            testDirectory = testDirectory,
-          )
-          testFunction()
+    postgresqlClient.asSqlService().use { sqlService ->
+      sqlService.getOrCreate().use { wasmoDb ->
+        wasmoDb.withConnection {
+          migrate()
+        }
+
+        // Use a custom, non-test dispatcher because the PostgreSQL dispatcher client suspends
+        // waiting on I/O, and the test dispatchers don't like that.
+        withContext(Dispatchers.Default) {
+          withTimeout(5.seconds) {
+            val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
+            coroutineScope {
+              this@ServiceTester.graph = serviceTesterGraphFactory.create(
+                wasmoDb = wasmoDb,
+                sqlService = sqlService,
+                coroutineScope = this,
+                fileSystem = fileSystem,
+                testDirectory = testDirectory,
+              )
+              testFunction()
+            }
+          }
         }
       }
     }

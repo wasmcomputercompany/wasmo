@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.db.Computer
+import com.wasmo.db.computers.Computer
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerScope

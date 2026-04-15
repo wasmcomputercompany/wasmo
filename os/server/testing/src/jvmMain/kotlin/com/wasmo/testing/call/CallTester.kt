@@ -69,7 +69,7 @@ class CallTester(
 
   fun createChallenge() = challenger.create()
 
-  fun accountSnapshot(request: AccountSnapshotRequest) =
+  suspend fun accountSnapshot(request: AccountSnapshotRequest) =
     accountSnapshotActionProvider().get(request)
 
   suspend fun linkEmailAddress(request: LinkEmailAddressRequest) =
@@ -78,7 +78,7 @@ class CallTester(
   fun confirmEmailAddress(request: ConfirmEmailAddressRequest) =
     confirmEmailAddressActionProvider().confirm(request)
 
-  fun registerPasskey(request: RegisterPasskeyRequest) =
+  suspend fun registerPasskey(request: RegisterPasskeyRequest) =
     registerPasskeyActionProvider().register(request)
 
   suspend fun osPage(url: Url): ServerOsPage =
@@ -88,16 +88,16 @@ class CallTester(
     url = routeCodec().encode(route),
   )
 
-  fun authenticatePasskey(request: AuthenticatePasskeyRequest) =
+  suspend fun authenticatePasskey(request: AuthenticatePasskeyRequest) =
     authenticatePasskeyActionProvider().authenticate(request)
 
-  fun createComputerSpec(request: CreateComputerSpecRequest) =
+  suspend fun createComputerSpec(request: CreateComputerSpecRequest) =
     createComputerSpecActionProvider().create(request)
 
-  fun afterCheckout(checkoutSessionId: String) =
+  suspend fun afterCheckout(checkoutSessionId: String) =
     afterCheckoutActionProvider().get(checkoutSessionId)
 
-  fun createInvite(request: CreateInviteRequest) =
+  suspend fun createInvite(request: CreateInviteRequest) =
     createInviteActionProvider().create(request)
 
   suspend fun installApp(
@@ -122,7 +122,7 @@ class CallTester(
     ),
   )
 
-  fun authenticate(
+  suspend fun authenticate(
     passkey: FakePasskey,
     inviteCode: String? = null,
   ) = authenticatePasskey(

@@ -18,7 +18,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
 
-fun main(args: Array<String>) {
+suspend fun main(args: Array<String>) {
   val stripePublishableKey = System.getenv("STRIPE_PUBLISHABLE_KEY")
     ?: error("required env STRIPE_PUBLISHABLE_KEY not set")
   val stripeSecretKey = System.getenv("STRIPE_SECRET_KEY")

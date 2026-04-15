@@ -1,11 +1,10 @@
 package com.wasmo.accounts.passkeys
 
-import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
-import com.wasmo.db.CookieQueries
-import com.wasmo.db.Passkey
-import com.wasmo.db.WasmoDb
+import com.wasmo.db.accounts.updateAccountIdByAccountId
+import com.wasmo.db.passkeys.Passkey
+import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -24,21 +23,17 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(CallScope::class)
 class PasskeyLinker(
-  private val wasmoDb: WasmoDb,
   private val client: Client,
 ) {
-  private val cookieQueries: CookieQueries
-    get() = wasmoDb.cookieQueries
-
-  context(transactionCallbacks: TransactionCallbacks)
-  fun link(passkey: Passkey) {
+  context(sqlTransaction: SqlTransaction)
+  suspend fun link(passkey: Passkey) {
     val cookieAccountId = client.getOrCreateAccountId()
 
     // Nothing to do.
     if (cookieAccountId == passkey.account_id) return
 
     // Transfer all cookies.
-    cookieQueries.updateAccountIdByAccountId(
+    updateAccountIdByAccountId(
       target_account_id = passkey.account_id,
       source_account_id = cookieAccountId,
     )

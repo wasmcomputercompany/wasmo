@@ -17,7 +17,7 @@ import com.wasmo.stripe.StripeCredentials
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.decodeHex
 
-fun main(args: Array<String>) {
+suspend fun main(args: Array<String>) {
   val cookieSecret = System.getenv("COOKIE_SECRET")
     ?: error("required env COOKIE_SECRET not set")
 

@@ -1,44 +1,46 @@
 package com.wasmo.computers
 
-import app.cash.sqldelight.TransactionCallbacks
 import com.wasmo.accounts.Client
-import com.wasmo.db.Computer
-import com.wasmo.db.WasmoDb
+import com.wasmo.db.computers.Computer
+import com.wasmo.db.computers.insertComputer
+import com.wasmo.db.computers.insertComputerAccess
+import com.wasmo.db.computers.linkComputer
+import com.wasmo.db.computers.selectComputerByAccountIdAndSlug
+import com.wasmo.db.computers.selectComputerById
+import com.wasmo.db.computers.selectComputerSpecByToken
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.OsScope
+import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
 @Inject
 @SingleIn(OsScope::class)
 class RealComputerStore(
-  private val wasmoDb: WasmoDb,
   private val computerServiceGraphFactory: ComputerServiceGraph.Factory,
 ) : ComputerStore {
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun initializeFromSpec(computerSpecToken: String): ComputerService {
-    val computerSpec = wasmoDb.computerSpecQueries
-      .selectComputerSpecByToken(computerSpecToken)
-      .executeAsOneOrNull()
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun initializeFromSpec(computerSpecToken: String): ComputerService {
+    val computerSpec = selectComputerSpecByToken(computerSpecToken)
       ?: throw IllegalStateException("no such computer spec: $computerSpecToken")
 
     val computerId = computerSpec.computer_id
       ?: run {
-        val insertedComputerId = wasmoDb.computerQueries.insertComputer(
+        val insertedComputerId = insertComputer(
           created_at = computerSpec.created_at,
           version = 1,
           slug = computerSpec.slug,
-        ).executeAsOne()
+        )
 
-        wasmoDb.computerAccessQueries.insertComputerAccess(
+        insertComputerAccess(
           created_at = computerSpec.created_at,
           version = 1,
           computer_id = insertedComputerId,
           account_id = computerSpec.account_id,
-        ).executeAsOne()
+        )
 
-        wasmoDb.computerSpecQueries.linkComputer(
+        linkComputer(
           new_version = computerSpec.version + 1,
           computer_id = insertedComputerId,
           expected_version = computerSpec.version,
@@ -53,28 +55,27 @@ class RealComputerStore(
     return result
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun getOrNull(
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun getOrNull(
     client: Client,
     slug: ComputerSlug,
   ): ComputerService? {
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
-    val computer = wasmoDb.computerQueries.selectComputerByAccountIdAndSlug(
+    val computer = selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = slug,
-    ).executeAsOneOrNull()
-      ?: return null
+    ) ?: return null
 
     return get(computer)
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
-  override fun get(computerId: ComputerId): ComputerService {
-    val computer = wasmoDb.computerQueries.selectComputerById(
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun get(computerId: ComputerId): ComputerService {
+    val computer = selectComputerById(
       id = computerId,
-    ).executeAsOne()
+    )
 
     return get(computer)
   }

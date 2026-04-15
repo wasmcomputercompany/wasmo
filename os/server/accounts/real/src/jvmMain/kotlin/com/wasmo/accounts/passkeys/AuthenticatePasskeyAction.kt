@@ -6,12 +6,14 @@ import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
 import com.wasmo.calls.CallDataService
-import com.wasmo.db.WasmoDb
+import com.wasmo.db.passkeys.findPasskeyByPasskeyId
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
+import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
@@ -20,15 +22,14 @@ class AuthenticatePasskeyAction(
   private val passkeyChecker: PasskeyChecker,
   private val passkeyLinker: PasskeyLinker,
   private val callDataService: CallDataService,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val inviteService: InviteService,
 ) {
-  fun authenticate(
+  suspend fun authenticate(
     request: AuthenticatePasskeyRequest,
   ): Response<AuthenticatePasskeyResponse> {
-    return wasmoDb.transactionWithResult(noEnclosing = true) {
-      val passkey = wasmoDb.passkeyQueries.findPasskeyByPasskeyId(request.authentication.id)
-        .executeAsOneOrNull()
+    return wasmoDb.transaction {
+      val passkey = findPasskeyByPasskeyId(request.authentication.id)
         ?: throw ArgumentUserException("no such passkey")
 
       try {

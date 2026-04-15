@@ -1,14 +1,22 @@
 package com.wasmo.computers
 
-import com.wasmo.db.WasmoDb
+import com.wasmo.db.computers.findComputerAllocationByStripeSubscriptionId
+import com.wasmo.db.computers.insertComputerAllocation
+import com.wasmo.db.computers.truncateComputerAllocation
+import com.wasmo.db.payments.stripe.findStripeCustomerByStripeCustomerId
+import com.wasmo.db.payments.stripe.insertStripeCustomer
+import com.wasmo.db.payments.stripe.updateStripeCustomer
 import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.payments.ComputerAllocationSnapshot
 import com.wasmo.payments.PaymentsService
 import com.wasmo.payments.SubscriptionSnapshot
+import com.wasmo.sql.SqlTransaction
+import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
+import wasmo.sql.SqlDatabase
 
 /**
  * Call the Stripe API and sync a subscription to the database.
@@ -18,10 +26,10 @@ import kotlin.time.Clock
 class SubscriptionUpdater(
   private val clock: Clock,
   private val paymentsService: PaymentsService,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val computerStore: ComputerStore,
 ) {
-  fun update(subscriptionId: String): SubscriptionSnapshot {
+  suspend fun update(subscriptionId: String): SubscriptionSnapshot {
     val now = clock.now()
     val subscription = paymentsService.getSubscription(subscriptionId)
 
@@ -30,14 +38,14 @@ class SubscriptionUpdater(
       activeEnd = subscription.currentPeriodEnd,
     )
 
-    return wasmoDb.transactionWithResult(noEnclosing = true) {
-      val existingCustomer = wasmoDb.stripeCustomerQueries
-        .findStripeCustomerByStripeCustomerId(subscription.customer.id)
-        .executeAsOneOrNull()
+    return wasmoDb.transaction {
+      val existingCustomer = with(contextOf<SqlTransaction>()) {
+        findStripeCustomerByStripeCustomerId(subscription.customer.id)
+      }
 
       val customerId: StripeCustomerId
       if (existingCustomer != null) {
-        wasmoDb.stripeCustomerQueries.updateStripeCustomer(
+        updateStripeCustomer(
           new_version = existingCustomer.version + 1,
           name = subscription.customer.name,
           email = subscription.customer.email,
@@ -48,7 +56,7 @@ class SubscriptionUpdater(
         )
         customerId = existingCustomer.id
       } else {
-        customerId = wasmoDb.stripeCustomerQueries.insertStripeCustomer(
+        customerId = insertStripeCustomer(
           created_at = now,
           version = 1,
           stripe_customer_id = subscription.customer.id,
@@ -56,14 +64,13 @@ class SubscriptionUpdater(
           email = subscription.customer.email,
           country = subscription.customer.address.country,
           postal_code = subscription.customer.address.postalCode,
-        ).executeAsOne()
+        )
       }
 
-      val latestAllocation = wasmoDb.computerAllocationQueries
-        .findComputerAllocationByStripeSubscriptionId(
-          stripe_subscription_id = subscriptionId,
-          limit = 1L,
-        ).executeAsOneOrNull()
+      val latestAllocation = findComputerAllocationByStripeSubscriptionId(
+        stripe_subscription_id = subscriptionId,
+        limit = 1L,
+      )
 
       val computer = computerStore.initializeFromSpec(
         computerSpecToken = subscription.computerSpecToken,
@@ -71,7 +78,7 @@ class SubscriptionUpdater(
 
       if (latestAllocation == null) {
         // Create an allocation if we don't have one.
-        wasmoDb.computerAllocationQueries.insertComputerAllocation(
+        insertComputerAllocation(
           created_at = now,
           version = 1,
           stripe_customer_id = customerId,
@@ -82,13 +89,13 @@ class SubscriptionUpdater(
         )
       } else if (latestAllocation.active_end != currentAllocation.activeEnd) {
         // If we have an allocation that's different, truncate it and create a replacement.
-        wasmoDb.computerAllocationQueries.truncateComputerAllocation(
-          active_end = now,
+        truncateComputerAllocation(
           new_version = latestAllocation.version + 1,
+          active_end = now,
           expected_version = latestAllocation.version,
           id = latestAllocation.id,
         )
-        wasmoDb.computerAllocationQueries.insertComputerAllocation(
+        insertComputerAllocation(
           created_at = now,
           version = 1,
           stripe_customer_id = customerId,

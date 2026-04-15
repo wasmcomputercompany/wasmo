@@ -4,8 +4,8 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.toHttpUrl
+import com.wasmo.sql.transaction
 import com.wasmo.calls.CallDataService
-import com.wasmo.db.WasmoDb
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.redirect
@@ -13,6 +13,7 @@ import com.wasmo.payments.CheckoutStatus
 import com.wasmo.payments.PaymentsService
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmo.sql.SqlDatabase
 
 /**
  * We navigate to `/after-checkout/{CHECKOUT_SESSION_ID}` after the Stripe checkout screen.
@@ -25,13 +26,13 @@ import dev.zacsweers.metro.SingleIn
 class AfterCheckoutAction(
   private val callDataService: CallDataService,
   private val paymentsService: PaymentsService,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val subscriptionUpdater: SubscriptionUpdater,
 ) {
-  fun get(checkoutSessionId: String): Response<ResponseBody> {
+  suspend fun get(checkoutSessionId: String): Response<ResponseBody> {
     val session = paymentsService.getCheckoutSession(checkoutSessionId)
 
-    val routeCodec = wasmoDb.transactionWithResult(noEnclosing = true) {
+    val routeCodec = wasmoDb.transaction {
       callDataService.routeCodec()
     }
 
