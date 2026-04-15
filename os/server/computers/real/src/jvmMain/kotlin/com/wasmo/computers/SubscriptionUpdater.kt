@@ -1,11 +1,9 @@
 package com.wasmo.computers
 
-import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.findComputerAllocationByStripeSubscriptionId
 import com.wasmo.app.db.findStripeCustomerByStripeCustomerId
 import com.wasmo.app.db.insertComputerAllocation
 import com.wasmo.app.db.insertStripeCustomer
-import com.wasmo.sql.transaction
 import com.wasmo.app.db.truncateComputerAllocation
 import com.wasmo.app.db.updateStripeCustomer
 import com.wasmo.identifiers.OsScope
@@ -13,6 +11,8 @@ import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.payments.ComputerAllocationSnapshot
 import com.wasmo.payments.PaymentsService
 import com.wasmo.payments.SubscriptionSnapshot
+import com.wasmo.sql.SqlTransaction
+import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
@@ -66,11 +66,10 @@ class SubscriptionUpdater(
         )
       }
 
-      val latestAllocation = contextOf<SqlTransaction>()
-        .findComputerAllocationByStripeSubscriptionId(
-          stripe_subscription_id = subscriptionId,
-          limit = 1L,
-        )
+      val latestAllocation = findComputerAllocationByStripeSubscriptionId(
+        stripe_subscription_id = subscriptionId,
+        limit = 1L,
+      )
 
       val computer = computerStore.initializeFromSpec(
         computerSpecToken = subscription.computerSpecToken,
@@ -78,7 +77,7 @@ class SubscriptionUpdater(
 
       if (latestAllocation == null) {
         // Create an allocation if we don't have one.
-        contextOf<SqlTransaction>().insertComputerAllocation(
+        insertComputerAllocation(
           created_at = now,
           version = 1,
           stripe_customer_id = customerId,
@@ -89,13 +88,13 @@ class SubscriptionUpdater(
         )
       } else if (latestAllocation.active_end != currentAllocation.activeEnd) {
         // If we have an allocation that's different, truncate it and create a replacement.
-        contextOf<SqlTransaction>().truncateComputerAllocation(
-          active_end = now,
+        truncateComputerAllocation(
           new_version = latestAllocation.version + 1,
+          active_end = now,
           expected_version = latestAllocation.version,
           id = latestAllocation.id,
         )
-        contextOf<SqlTransaction>().insertComputerAllocation(
+        insertComputerAllocation(
           created_at = now,
           version = 1,
           stripe_customer_id = customerId,

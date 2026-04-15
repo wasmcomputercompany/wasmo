@@ -4,8 +4,9 @@ import com.wasmo.identifiers.AccountId
 import com.wasmo.sql.single
 import wasmo.sql.SqlConnection
 
-suspend fun SqlConnection.insertAccount(version: Int): AccountId {
-  val rowIterator = executeQuery(
+context(connection: SqlConnection)
+suspend fun insertAccount(version: Int): AccountId {
+  val rowIterator = connection.executeQuery(
     """
     INSERT INTO Account(
       version

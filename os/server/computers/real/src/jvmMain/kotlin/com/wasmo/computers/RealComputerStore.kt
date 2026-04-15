@@ -33,7 +33,7 @@ class RealComputerStore(
           slug = computerSpec.slug,
         )
 
-        sqlTransaction.insertComputerAccess(
+        insertComputerAccess(
           created_at = computerSpec.created_at,
           version = 1,
           computer_id = insertedComputerId,

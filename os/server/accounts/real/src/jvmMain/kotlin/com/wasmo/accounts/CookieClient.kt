@@ -46,7 +46,7 @@ class CookieClient(
     val cookie = SqlTransaction.findCookieByToken(sessionCookie.token)
     if (cookie != null) return cookie.account_id
 
-    val accountId = SqlTransaction.insertAccount(
+    val accountId = insertAccount(
       version = 1,
     )
 

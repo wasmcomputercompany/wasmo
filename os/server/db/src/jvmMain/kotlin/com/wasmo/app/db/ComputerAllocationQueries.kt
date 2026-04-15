@@ -7,11 +7,12 @@ import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
-suspend fun SqlConnection.findComputerAllocationByStripeSubscriptionId(
+context(connection: SqlConnection)
+suspend fun findComputerAllocationByStripeSubscriptionId(
   stripe_subscription_id: String,
   limit: Long,
 ): ComputerAllocation? {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     SELECT ComputerAllocation.id, ComputerAllocation.created_at, ComputerAllocation.version, ComputerAllocation.stripe_customer_id, ComputerAllocation.stripe_subscription_id, ComputerAllocation.computer_id, ComputerAllocation.active_start, ComputerAllocation.active_end
     FROM ComputerAllocation
@@ -41,7 +42,8 @@ suspend fun SqlConnection.findComputerAllocationByStripeSubscriptionId(
   }
 }
 
-suspend fun SqlConnection.insertComputerAllocation(
+context(connection: SqlConnection)
+suspend fun insertComputerAllocation(
   created_at: Instant,
   version: Int,
   stripe_customer_id: StripeCustomerId,
@@ -50,7 +52,7 @@ suspend fun SqlConnection.insertComputerAllocation(
   active_start: Instant,
   active_end: Instant,
 ): Long {
-  return execute(
+  return connection.execute(
     """
     INSERT INTO ComputerAllocation(
       created_at,
@@ -83,13 +85,14 @@ suspend fun SqlConnection.insertComputerAllocation(
   }
 }
 
-suspend fun SqlConnection.truncateComputerAllocation(
+context(connection: SqlConnection)
+suspend fun truncateComputerAllocation(
   new_version: Int,
   active_end: Instant,
   expected_version: Int,
   id: ComputerAllocationId,
 ): Long {
-  return execute(
+  return connection.execute(
     """
     UPDATE ComputerAllocation
     SET

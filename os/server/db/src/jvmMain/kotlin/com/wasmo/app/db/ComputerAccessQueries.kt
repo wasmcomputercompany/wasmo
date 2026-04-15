@@ -7,13 +7,14 @@ import com.wasmo.sql.single
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
-suspend fun SqlConnection.insertComputerAccess(
+context(connection: SqlConnection)
+suspend fun insertComputerAccess(
   created_at: Instant,
   version: Int,
   computer_id: ComputerId,
   account_id: AccountId,
 ): ComputerAccessId {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     INSERT INTO ComputerAccess(
       created_at,
