@@ -33,7 +33,7 @@ class PasskeyLinker(
     if (cookieAccountId == passkey.account_id) return
 
     // Transfer all cookies.
-    sqlTransaction.updateAccountIdByAccountId(
+    updateAccountIdByAccountId(
       target_account_id = passkey.account_id,
       source_account_id = cookieAccountId,
     )

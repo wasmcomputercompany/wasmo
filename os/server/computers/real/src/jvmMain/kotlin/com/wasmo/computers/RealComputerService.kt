@@ -1,10 +1,8 @@
 package com.wasmo.computers
 
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.insertInstalledApp
 import com.wasmo.app.db.selectInstalledAppsByComputerId
-import com.wasmo.sql.transaction
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
@@ -14,6 +12,8 @@ import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.jobs.OsJobQueue
+import com.wasmo.sql.SqlTransaction
+import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
@@ -53,7 +53,7 @@ class RealComputerService(
     wasmoFileAddress: WasmoFileAddress,
     slug: AppSlug,
   ) {
-    val installedAppId = sqlTransaction.insertInstalledApp(
+    val installedAppId = insertInstalledApp(
       installed_at = clock.now(),
       computer_id = id,
       slug = slug,
@@ -68,7 +68,7 @@ class RealComputerService(
 
   override suspend fun snapshot(): ComputerSnapshot {
     val installedApps = wasmoDb.transaction {
-      contextOf<SqlTransaction>().selectInstalledAppsByComputerId(
+      selectInstalledAppsByComputerId(
         computer_id = id,
         active = true,
         limit = 100,

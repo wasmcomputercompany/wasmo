@@ -1,16 +1,16 @@
 package com.wasmo.installedapps
 
 import com.wasmo.app.db.InstalledAppRelease
-import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.insertInstalledAppRelease
 import com.wasmo.app.db.selectInstalledAppById
 import com.wasmo.app.db.setRelease
-import com.wasmo.sql.transaction
 import com.wasmo.computers.ComputerStore
 import com.wasmo.events.EventListener
 import com.wasmo.identifiers.OsScope
 import com.wasmo.issues.IssueCollector
 import com.wasmo.jobs.OsJobHandler
+import com.wasmo.sql.SqlTransaction
+import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
@@ -27,7 +27,7 @@ class InstallAppJobHandler(
 ) : OsJobHandler<InstallAppJob> {
   override suspend fun execute(job: InstallAppJob) {
     val (installedApp, computerService) = wasmoDb.transaction {
-      val installedApp = contextOf<SqlTransaction>().selectInstalledAppById(job.installedAppId)
+      val installedApp = selectInstalledAppById(job.installedAppId)
       installedApp to computerStore.get(installedApp.computer_id)
     }
 
@@ -72,11 +72,11 @@ class InstallAppJobHandler(
       service.app()?.afterInstall(0L, installedManifest.version)
 
       wasmoDb.transaction {
-        val rowCount = contextOf<SqlTransaction>().setRelease(
-          id = installedApp.id,
-          expected_version = installedApp.version,
+        val rowCount = setRelease(
           new_version = installedApp.version + 1L,
           active_release_id = installedAppRelease.id,
+          expected_version = installedApp.version,
+          id = installedApp.id,
         )
         require(rowCount == 1L)
       }

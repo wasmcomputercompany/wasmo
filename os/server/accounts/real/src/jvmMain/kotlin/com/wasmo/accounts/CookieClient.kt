@@ -32,7 +32,7 @@ class CookieClient(
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = sqlTransaction.findCookieByToken(sessionCookie.token)
+    val cookie = findCookieByToken(sessionCookie.token)
       ?: return null
     return cookie.account_id
       .also { this.cachedAccountId = it }
@@ -43,14 +43,14 @@ class CookieClient(
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = SqlTransaction.findCookieByToken(sessionCookie.token)
+    val cookie = findCookieByToken(sessionCookie.token)
     if (cookie != null) return cookie.account_id
 
     val accountId = insertAccount(
       version = 1,
     )
 
-    SqlTransaction.insertCookie(
+    insertCookie(
       created_at = clock.now(),
       account_id = accountId,
       token = sessionCookie.token,

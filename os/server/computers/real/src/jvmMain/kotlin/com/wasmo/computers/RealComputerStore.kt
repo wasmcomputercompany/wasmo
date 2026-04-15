@@ -22,12 +22,12 @@ class RealComputerStore(
 ) : ComputerStore {
   context(sqlTransaction: SqlTransaction)
   override suspend fun initializeFromSpec(computerSpecToken: String): ComputerService {
-    val computerSpec = sqlTransaction.selectComputerSpecByToken(computerSpecToken)
+    val computerSpec = selectComputerSpecByToken(computerSpecToken)
       ?: throw IllegalStateException("no such computer spec: $computerSpecToken")
 
     val computerId = computerSpec.computer_id
       ?: run {
-        val insertedComputerId = sqlTransaction.insertComputer(
+        val insertedComputerId = insertComputer(
           created_at = computerSpec.created_at,
           version = 1,
           slug = computerSpec.slug,
@@ -40,7 +40,7 @@ class RealComputerStore(
           account_id = computerSpec.account_id,
         )
 
-        sqlTransaction.linkComputer(
+        linkComputer(
           new_version = computerSpec.version + 1,
           computer_id = insertedComputerId,
           expected_version = computerSpec.version,
@@ -63,7 +63,7 @@ class RealComputerStore(
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
-    val computer = sqlTransaction.selectComputerByAccountIdAndSlug(
+    val computer = selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = slug,
     ) ?: return null
@@ -73,7 +73,7 @@ class RealComputerStore(
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun get(computerId: ComputerId): ComputerService {
-    val computer = sqlTransaction.selectComputerById(
+    val computer = selectComputerById(
       id = computerId,
     )
 

@@ -14,7 +14,8 @@ import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlRow
 
-suspend fun SqlConnection.insertInstalledApp(
+context(connection: SqlConnection)
+suspend fun insertInstalledApp(
   installed_at: Instant,
   computer_id: ComputerId,
   slug: AppSlug,
@@ -22,7 +23,7 @@ suspend fun SqlConnection.insertInstalledApp(
   version: Long,
   wasmo_file_address: WasmoFileAddress,
 ): InstalledAppId {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     INSERT INTO InstalledApp(
       installed_at,
@@ -55,12 +56,13 @@ suspend fun SqlConnection.insertInstalledApp(
   }
 }
 
-suspend fun SqlConnection.selectInstalledAppsByComputerId(
+context(connection: SqlConnection)
+suspend fun selectInstalledAppsByComputerId(
   computer_id: ComputerId,
   active: Boolean?,
   limit: Long,
 ): List<InstalledAppAndRelease> {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     SELECT
       ia.id,
@@ -126,12 +128,13 @@ private fun SqlRow.getInstalledAppAndRelease(): InstalledAppAndRelease {
   )
 }
 
-suspend fun SqlConnection.selectInstalledAppByComputerIdAndSlug(
+context(connection: SqlConnection)
+suspend fun selectInstalledAppByComputerIdAndSlug(
   computer_id: ComputerId,
   slug: AppSlug,
   active: Boolean?,
 ): InstalledAppAndRelease? {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     SELECT
       ia.id,
@@ -166,8 +169,9 @@ suspend fun SqlConnection.selectInstalledAppByComputerIdAndSlug(
   }
 }
 
-suspend fun SqlConnection.selectInstalledAppById(id: InstalledAppId): InstalledApp {
-  val rowIterator = executeQuery(
+context(connection: SqlConnection)
+suspend fun selectInstalledAppById(id: InstalledAppId): InstalledApp {
+  val rowIterator = connection.executeQuery(
     """
     SELECT
       InstalledApp.id,
@@ -201,13 +205,14 @@ suspend fun SqlConnection.selectInstalledAppById(id: InstalledAppId): InstalledA
   }
 }
 
-suspend fun SqlConnection.setRelease(
+context(connection: SqlConnection)
+suspend fun setRelease(
   new_version: Long,
   active_release_id: InstalledAppReleaseId?,
   expected_version: Long,
   id: InstalledAppId,
 ): Long {
-  return execute(
+  return connection.execute(
     """
     UPDATE InstalledApp
     SET

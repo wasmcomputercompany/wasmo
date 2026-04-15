@@ -5,8 +5,9 @@ import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
-suspend fun SqlConnection.findCookieByToken(token: String): Cookie? {
-  val rowIterator = executeQuery(
+context(connection: SqlConnection)
+suspend fun findCookieByToken(token: String): Cookie? {
+  val rowIterator = connection.executeQuery(
     """
     SELECT
       Cookie.id,
@@ -35,14 +36,15 @@ suspend fun SqlConnection.findCookieByToken(token: String): Cookie? {
   }
 }
 
-suspend fun SqlConnection.insertCookie(
+context(connection: SqlConnection)
+suspend fun insertCookie(
   created_at: Instant,
   account_id: AccountId,
   token: String,
   created_by_user_agent: String?,
   created_by_ip: String?,
 ): Long {
-  return execute(
+  return connection.execute(
     """
     INSERT INTO Cookie(
       created_at,
@@ -69,11 +71,12 @@ suspend fun SqlConnection.insertCookie(
   }
 }
 
-suspend fun SqlConnection.updateAccountIdByAccountId(
+context(connection: SqlConnection)
+suspend fun updateAccountIdByAccountId(
   target_account_id: AccountId,
   source_account_id: AccountId,
 ): Long {
-  return execute(
+  return connection.execute(
     """
     UPDATE Cookie
     SET account_id = $1

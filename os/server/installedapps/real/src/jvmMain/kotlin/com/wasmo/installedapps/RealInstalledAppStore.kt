@@ -32,12 +32,12 @@ class RealInstalledAppStore(
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
-    val computer = sqlTransaction.selectComputerByAccountIdAndSlug(
+    val computer = selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = computerSlug,
     ) ?: return null
 
-    val row = sqlTransaction.selectInstalledAppByComputerIdAndSlug(
+    val row = selectInstalledAppByComputerIdAndSlug(
       computer_id = computer.id,
       slug = appSlug,
       active = true,
@@ -52,7 +52,7 @@ class RealInstalledAppStore(
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun get(installedAppId: InstalledAppId): InstalledAppService? {
-    val installedApp = sqlTransaction.selectInstalledAppById(installedAppId)
+    val installedApp = selectInstalledAppById(installedAppId)
     val installedAppRelease = sqlTransaction.selectInstalledAppReleaseById(
       id = installedApp.active_release_id ?: return null,
     )
@@ -67,7 +67,7 @@ class RealInstalledAppStore(
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,
   ): InstalledAppService {
-    val computer = sqlTransaction.selectComputerById(installedApp.computer_id)
+    val computer = selectComputerById(installedApp.computer_id)
     return get(computer.slug, installedApp, installedAppRelease)
   }
 

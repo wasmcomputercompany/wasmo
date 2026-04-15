@@ -9,8 +9,9 @@ import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
-suspend fun SqlConnection.selectComputerSpecByToken(token: String): ComputerSpec? {
-  val rowIterator = executeQuery(
+context(connection: SqlConnection)
+suspend fun selectComputerSpecByToken(token: String): ComputerSpec? {
+  val rowIterator = connection.executeQuery(
     """
     SELECT ComputerSpec.id, ComputerSpec.created_at, ComputerSpec.version, ComputerSpec.account_id, ComputerSpec.token, ComputerSpec.slug, ComputerSpec.computer_id
     FROM
@@ -37,14 +38,15 @@ suspend fun SqlConnection.selectComputerSpecByToken(token: String): ComputerSpec
   }
 }
 
-suspend fun SqlConnection.insertComputerSpec(
+context(connection: SqlConnection)
+suspend fun insertComputerSpec(
   created_at: Instant,
   version: Long,
   account_id: AccountId,
   token: String,
   slug: ComputerSlug,
 ): ComputerSpecId {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     INSERT INTO ComputerSpec(
       created_at,
@@ -74,13 +76,14 @@ suspend fun SqlConnection.insertComputerSpec(
   }
 }
 
-suspend fun SqlConnection.linkComputer(
+context(connection: SqlConnection)
+suspend fun linkComputer(
   new_version: Long,
   computer_id: ComputerId?,
   expected_version: Long,
   id: ComputerSpecId,
 ): Long {
-  return execute(
+  return connection.execute(
     """
     UPDATE ComputerSpec
     SET

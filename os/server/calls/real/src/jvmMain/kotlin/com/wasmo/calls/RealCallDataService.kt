@@ -95,7 +95,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
         ?: return ComputerListSnapshot()
 
-      val computers = sqlTransaction.selectComputersByAccountId(
+      val computers = selectComputersByAccountId(
         account_id = accountId,
         limit = 100,
       )

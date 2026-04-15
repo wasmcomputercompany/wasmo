@@ -9,12 +9,13 @@ import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
-suspend fun SqlConnection.insertComputer(
+context(connection: SqlConnection)
+suspend fun insertComputer(
   created_at: Instant,
   version: Long,
   slug: ComputerSlug,
 ): ComputerId {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     INSERT INTO Computer(
       created_at,
@@ -39,11 +40,12 @@ suspend fun SqlConnection.insertComputer(
   }
 }
 
-suspend fun SqlConnection.selectComputersByAccountId(
+context(connection: SqlConnection)
+suspend fun selectComputersByAccountId(
   account_id: AccountId,
   limit: Long,
 ): List<Computer> {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     SELECT
       c.id, c.created_at, c.version, c.slug
@@ -73,11 +75,12 @@ suspend fun SqlConnection.selectComputersByAccountId(
   }
 }
 
-suspend fun SqlConnection.selectComputerByAccountIdAndSlug(
+context(connection: SqlConnection)
+suspend fun selectComputerByAccountIdAndSlug(
   account_id: AccountId,
   slug: ComputerSlug,
 ): Computer? {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     SELECT
       c.id, c.created_at, c.version, c.slug
@@ -106,10 +109,11 @@ suspend fun SqlConnection.selectComputerByAccountIdAndSlug(
   }
 }
 
-suspend fun SqlConnection.selectComputerById(
+context(connection: SqlConnection)
+suspend fun selectComputerById(
   id: ComputerId,
 ): Computer {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
     SELECT Computer.id, Computer.created_at, Computer.version, Computer.slug
     FROM

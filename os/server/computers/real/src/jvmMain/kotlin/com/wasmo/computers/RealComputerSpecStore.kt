@@ -22,7 +22,7 @@ class ComputerSpecStore(
     computerSpecToken: String,
   ) {
     try {
-      sqlTransaction.insertComputerSpec(
+      insertComputerSpec(
         created_at = clock.now(),
         version = 1,
         account_id = accountId,
