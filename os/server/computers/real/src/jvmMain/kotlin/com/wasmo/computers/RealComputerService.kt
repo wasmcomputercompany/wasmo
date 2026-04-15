@@ -1,10 +1,10 @@
 package com.wasmo.computers
 
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.SqlTransaction
 import com.wasmo.app.db.insertInstalledApp
 import com.wasmo.app.db.selectInstalledAppsByComputerId
+import com.wasmo.app.db.transactionWithResult
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
@@ -18,13 +18,14 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import okhttp3.HttpUrl
+import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(ComputerScope::class)
 class RealComputerService(
   private val deployment: Deployment,
   private val clock: Clock,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val appCatalog: AppCatalog,
   private val jobQueue: OsJobQueue,
   private val installedAppStore: InstalledAppStore,

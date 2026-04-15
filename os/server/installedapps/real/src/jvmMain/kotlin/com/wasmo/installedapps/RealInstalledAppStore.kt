@@ -4,7 +4,6 @@ import com.wasmo.accounts.Client
 import com.wasmo.app.db.InstalledApp
 import com.wasmo.app.db.InstalledAppRelease
 import com.wasmo.app.db.SqlTransaction
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.selectComputerByAccountIdAndSlug
 import com.wasmo.app.db.selectComputerById
 import com.wasmo.app.db.selectInstalledAppByComputerIdAndSlug
@@ -20,7 +19,6 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(OsScope::class)
 class RealInstalledAppStore(
-  private val wasmoDb: WasmoDb,
   private val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory,
   private val appManifestLoaderFactory: RealAppManifestLoaderFactory,
 ) : InstalledAppStore {

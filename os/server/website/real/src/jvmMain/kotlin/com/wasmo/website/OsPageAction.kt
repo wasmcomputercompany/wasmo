@@ -10,7 +10,7 @@ import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.Url
-import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db.transactionWithResult
 import com.wasmo.calls.CallDataService
 import com.wasmo.computers.ComputerService
 import com.wasmo.computers.ComputerStore
@@ -18,6 +18,7 @@ import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.UnauthorizedUserException
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmo.sql.SqlDatabase
 
 /**
  * We serve the same page to most routes, with different embedded page data.
@@ -28,7 +29,7 @@ class OsPageAction(
   private val computerStore: ComputerStore,
   private val callDataService: CallDataService,
   private val osPageFactory: ServerOsPage.Factory,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val client: Client,
 ) {
   suspend fun get(url: Url): ServerOsPage {

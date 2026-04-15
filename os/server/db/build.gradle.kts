@@ -16,7 +16,6 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
         implementation(libs.postgresql)
-        implementation(libs.sqldelight.jdbc.driver)
         implementation(libs.tomlkt)
         implementation(project(":identifiers"))
         implementation(project(":os:api"))

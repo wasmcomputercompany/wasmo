@@ -6,9 +6,9 @@ import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.app.db.SqlTransaction
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.findPasskeyByPasskeyIdAndAccountId
 import com.wasmo.app.db.insertPasskey
+import com.wasmo.app.db.transactionWithResult
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
@@ -17,6 +17,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import org.postgresql.util.PSQLException
+import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
@@ -25,7 +26,7 @@ class RegisterPasskeyAction(
   private val callDataService: CallDataService,
   private val client: Client,
   private val passkeyChecker: PasskeyChecker,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val inviteService: InviteService,
 ) {
   suspend fun register(

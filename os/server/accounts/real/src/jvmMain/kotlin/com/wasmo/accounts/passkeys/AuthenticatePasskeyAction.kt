@@ -5,15 +5,16 @@ import com.wasmo.accounts.Client
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
-import com.wasmo.calls.CallDataService
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.SqlTransaction
 import com.wasmo.app.db.findPasskeyByPasskeyId
+import com.wasmo.app.db.transactionWithResult
+import com.wasmo.calls.CallDataService
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
 import com.wasmo.passkeys.PasskeyChecker
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
@@ -22,7 +23,7 @@ class AuthenticatePasskeyAction(
   private val passkeyChecker: PasskeyChecker,
   private val passkeyLinker: PasskeyLinker,
   private val callDataService: CallDataService,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val inviteService: InviteService,
 ) {
   suspend fun authenticate(

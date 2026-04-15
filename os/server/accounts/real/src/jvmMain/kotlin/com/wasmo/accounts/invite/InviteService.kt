@@ -2,7 +2,6 @@ package com.wasmo.accounts.invite
 
 import com.wasmo.accounts.Client
 import com.wasmo.api.InviteTicket
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.SqlTransaction
 import com.wasmo.app.db.claimInvite
 import com.wasmo.app.db.findInvitesByCode
@@ -19,7 +18,6 @@ import kotlin.time.Clock
 @SingleIn(OsScope::class)
 class InviteService(
   private val clock: Clock,
-  private val wasmoDb: WasmoDb,
 ) {
   context(sqlTransaction: SqlTransaction)
   suspend fun create(createdBy: Client): InviteTicket {

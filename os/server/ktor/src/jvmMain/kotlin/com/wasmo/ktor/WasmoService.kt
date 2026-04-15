@@ -2,9 +2,7 @@
 
 package com.wasmo.ktor
 
-import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.wasmo.accounts.SessionCookieSpec
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.OsScope
@@ -13,7 +11,6 @@ import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.asSqlService
-import com.wasmo.sql.jdbc.connectPostgresql
 import com.wasmo.stripe.StripeCredentials
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -52,16 +49,11 @@ suspend fun startWasmoService(
 ): WasmoService {
   val server = EngineMain.createServer(args)
 
-  val osDataSource = connectPostgresql(config.osPostgresqlAddress)
   val osPostgresqlClient = PostgresqlClient(config.osPostgresqlAddress)
-  val wasmoDb = WasmoDbService(
-    database = osPostgresqlClient.asSqlService().getOrCreate(),
-    dataSource = osDataSource,
-    jdbcDriver = osDataSource.asJdbcDriver(),
-  )
+  val wasmoDb = osPostgresqlClient.asSqlService().getOrCreate()
 
-  val postgresqlClient = PostgresqlClient(config.applicationPostgresqlAddress)
-  val sqlService = postgresqlClient.asSqlService()
+  val applicationPostgresqlClient = PostgresqlClient(config.applicationPostgresqlAddress)
+  val sqlService = applicationPostgresqlClient.asSqlService()
 
   val wasmoServiceGraphFactory = createGraphFactory<WasmoServiceGraph.Factory>()
   val serviceGraph = wasmoServiceGraphFactory.create(

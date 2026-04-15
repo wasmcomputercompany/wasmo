@@ -1,10 +1,11 @@
 package com.wasmo.installedapps
 
-import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db.transactionWithResult
 import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.OsJobHandler
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmo.sql.SqlDatabase
 
 /**
  * TODO: This drops jobs if the app isn't currently runnable. For example, if the jobs are eligible
@@ -13,7 +14,7 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(OsScope::class)
 class ApplicationJobHandler(
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val installedAppStore: InstalledAppStore,
 ) : OsJobHandler<ApplicationJob> {
 

@@ -1,11 +1,12 @@
 package com.wasmo.installedapps
 
 import com.wasmo.app.db.InstalledAppRelease
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.SqlTransaction
 import com.wasmo.app.db.insertInstalledAppRelease
 import com.wasmo.app.db.selectInstalledAppById
 import com.wasmo.app.db.setRelease
+import com.wasmo.app.db.transaction
+import com.wasmo.app.db.transactionWithResult
 import com.wasmo.computers.ComputerStore
 import com.wasmo.events.EventListener
 import com.wasmo.identifiers.OsScope
@@ -14,12 +15,13 @@ import com.wasmo.jobs.OsJobHandler
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
+import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(OsScope::class)
 class InstallAppJobHandler(
   private val clock: Clock,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val computerStore: ComputerStore,
   private val eventListener: EventListener,
   private val installedAppStore: InstalledAppStore,

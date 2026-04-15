@@ -22,7 +22,39 @@ import kotlin.time.Instant
 import wasmo.sql.RowIterator
 import wasmo.sql.SqlBinder
 import wasmo.sql.SqlConnection
+import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlRow
+
+suspend fun <T> SqlDatabase.transactionWithResult(
+  noEnclosing: Boolean,
+  block: suspend context(SqlTransaction) () -> T,
+): T {
+  return transaction(noEnclosing, block)
+}
+
+suspend fun <T> SqlDatabase.transaction(
+  noEnclosing: Boolean,
+  block: suspend context(SqlTransaction) () -> T,
+): T {
+  val transaction = RealSqlTransaction(newConnection())
+  transaction.use { transaction ->
+    context(transaction) {
+      val result = block()
+      for (action in transaction.afterCommitActions) {
+        action()
+      }
+      return result
+    }
+  }
+}
+
+suspend fun <T> SqlDatabase.withConnection(block: suspend context(SqlConnection) () -> T): T {
+  newConnection().use { connection ->
+    context(connection) {
+      return block()
+    }
+  }
+}
 
 suspend fun <R> SqlConnection.executeQuery(
   sql: String,

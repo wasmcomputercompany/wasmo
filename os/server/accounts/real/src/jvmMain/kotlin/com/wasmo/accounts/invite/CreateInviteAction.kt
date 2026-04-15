@@ -6,18 +6,19 @@ import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.CreateInviteResponse
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.toHttpUrl
-import com.wasmo.app.db.WasmoDb
+import com.wasmo.app.db.transactionWithResult
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
 class CreateInviteAction(
   private val client: Client,
   private val callDataService: CallDataService,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
   private val inviteService: InviteService,
 ) {
   suspend fun create(

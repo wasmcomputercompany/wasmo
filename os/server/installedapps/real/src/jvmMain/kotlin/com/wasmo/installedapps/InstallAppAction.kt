@@ -4,8 +4,8 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
+import com.wasmo.app.db.transactionWithResult
 import com.wasmo.computers.ComputerStore
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.AppSlugRegex
@@ -13,13 +13,14 @@ import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
 class InstallAppAction(
   private val client: Client,
   private val computerStore: ComputerStore,
-  private val wasmoDb: WasmoDb,
+  private val wasmoDb: SqlDatabase,
 ) {
   suspend fun install(
     computerSlug: ComputerSlug,

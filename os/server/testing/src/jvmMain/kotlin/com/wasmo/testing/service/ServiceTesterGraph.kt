@@ -5,11 +5,9 @@ import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
-import com.wasmo.app.db.WasmoDbService
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerServiceGraph
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.framework.ContentTypeDatabase
@@ -53,6 +51,7 @@ import wasmo.http.FakeHttpService
 import wasmo.http.HttpService
 import wasmo.objectstore.FakeObjectStore
 import wasmo.objectstore.ObjectStore
+import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlService
 import wasmo.time.FakeClock
 
@@ -81,7 +80,7 @@ interface ServiceTesterGraph {
   val objectStore: FakeObjectStore
   val sendEmailService: FakeSendEmailService
   val appPublisher: FakeAppPublisher
-  val wasmoDb: WasmoDbService
+  val wasmoDb: SqlDatabase
   val sampleApps: SampleApps
 
   @Provides
@@ -151,9 +150,6 @@ interface ServiceTesterGraph {
   fun bindClock(real: FakeClock): Clock
 
   @Binds
-  fun bindWasmoDb(real: WasmoDbService): WasmoDb
-
-  @Binds
   fun bindSendEmailService(real: FakeSendEmailService): SendEmailService
 
   @Binds
@@ -186,7 +182,7 @@ interface ServiceTesterGraph {
   @DependencyGraph.Factory
   interface Factory {
     fun create(
-      @Provides wasmoDbService: WasmoDbService,
+      @Provides wasmoDb: SqlDatabase,
       @Provides sqlService: SqlService,
       @Provides coroutineScope: CoroutineScope,
       @Provides fileSystem: FileSystem,

@@ -1,7 +1,6 @@
 package com.wasmo.computers
 
 import com.wasmo.app.db.SqlTransaction
-import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db.insertComputerSpec
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerSlug
@@ -15,7 +14,6 @@ import org.postgresql.util.PSQLException
 @SingleIn(OsScope::class)
 class ComputerSpecStore(
   private val clock: Clock,
-  private val wasmoDb: WasmoDb,
 ) {
   context(sqlTransaction: SqlTransaction)
   suspend fun insertIfAbsent(
