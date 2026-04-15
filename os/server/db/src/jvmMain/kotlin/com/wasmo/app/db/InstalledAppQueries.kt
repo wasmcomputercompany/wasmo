@@ -1,8 +1,8 @@
 package com.wasmo.app.db
 
+import com.wasmo.app.db2.RealSqlCursor
 import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
-import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
 import com.wasmo.db.sqlservice.Query2 as Query
@@ -26,7 +26,14 @@ public class InstalledAppQueries(
     active: Boolean?,
     version: Long,
     wasmo_file_address: WasmoFileAddress,
-  ): ExecutableQuery<InstalledAppId> = InsertInstalledAppQuery(installed_at, computer_id, slug, active, version, wasmo_file_address) { cursor ->
+  ): ExecutableQuery<InstalledAppId> = InsertInstalledAppQuery(
+    installed_at,
+    computer_id,
+    slug,
+    active,
+    version,
+    wasmo_file_address,
+  ) { cursor ->
     check(cursor is JdbcCursor)
     InstalledAppAdapter.idAdapter.decode(cursor.getS64(0)!!)
   }
@@ -67,7 +74,7 @@ public class InstalledAppQueries(
       cursor.getS64(10)?.let { InstalledAppReleaseAdapter.computer_idAdapter.decode(it) },
       cursor.getS64(11)?.let { InstalledAppReleaseAdapter.installed_app_idAdapter.decode(it) },
       cursor.getS64(12),
-      cursor.getString(13)?.let { InstalledAppReleaseAdapter.app_manifest_dataAdapter.decode(it) }
+      cursor.getString(13)?.let { InstalledAppReleaseAdapter.app_manifest_dataAdapter.decode(it) },
     )
   }
 
@@ -75,7 +82,8 @@ public class InstalledAppQueries(
     computer_id: ComputerId,
     active: Boolean?,
     limit: Long,
-  ): Query<SelectInstalledAppsByComputerId> = selectInstalledAppsByComputerId(computer_id, active, limit, ::SelectInstalledAppsByComputerId)
+  ): Query<SelectInstalledAppsByComputerId> =
+    selectInstalledAppsByComputerId(computer_id, active, limit, ::SelectInstalledAppsByComputerId)
 
   public fun <T : Any> selectInstalledAppByComputerIdAndSlug(
     computer_id: ComputerId,
@@ -113,7 +121,7 @@ public class InstalledAppQueries(
       cursor.getS64(10)?.let { InstalledAppReleaseAdapter.computer_idAdapter.decode(it) },
       cursor.getS64(11)?.let { InstalledAppReleaseAdapter.installed_app_idAdapter.decode(it) },
       cursor.getS64(12),
-      cursor.getString(13)?.let { InstalledAppReleaseAdapter.app_manifest_dataAdapter.decode(it) }
+      cursor.getString(13)?.let { InstalledAppReleaseAdapter.app_manifest_dataAdapter.decode(it) },
     )
   }
 
@@ -121,18 +129,26 @@ public class InstalledAppQueries(
     computer_id: ComputerId,
     slug: AppSlug,
     active: Boolean?,
-  ): Query<SelectInstalledAppByComputerIdAndSlug> = selectInstalledAppByComputerIdAndSlug(computer_id, slug, active, ::SelectInstalledAppByComputerIdAndSlug)
+  ): Query<SelectInstalledAppByComputerIdAndSlug> = selectInstalledAppByComputerIdAndSlug(
+    computer_id,
+    slug,
+    active,
+    ::SelectInstalledAppByComputerIdAndSlug,
+  )
 
-  public fun <T : Any> selectInstalledAppById(id: InstalledAppId, mapper: (
+  public fun <T : Any> selectInstalledAppById(
     id: InstalledAppId,
-    installed_at: Instant,
-    computer_id: ComputerId,
-    slug: AppSlug,
-    active: Boolean?,
-    version: Long,
-    wasmo_file_address: WasmoFileAddress,
-    active_release_id: InstalledAppReleaseId?,
-  ) -> T): Query<T> = SelectInstalledAppByIdQuery(id) { cursor ->
+    mapper: (
+      id: InstalledAppId,
+      installed_at: Instant,
+      computer_id: ComputerId,
+      slug: AppSlug,
+      active: Boolean?,
+      version: Long,
+      wasmo_file_address: WasmoFileAddress,
+      active_release_id: InstalledAppReleaseId?,
+    ) -> T,
+  ): Query<T> = SelectInstalledAppByIdQuery(id) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
       InstalledAppAdapter.idAdapter.decode(cursor.getS64(0)!!),
@@ -142,11 +158,12 @@ public class InstalledAppQueries(
       cursor.getBool(4),
       cursor.getS64(5)!!,
       InstalledAppAdapter.wasmo_file_addressAdapter.decode(cursor.getString(6)!!),
-      cursor.getS64(7)?.let { InstalledAppAdapter.active_release_idAdapter.decode(it) }
+      cursor.getS64(7)?.let { InstalledAppAdapter.active_release_idAdapter.decode(it) },
     )
   }
 
-  public fun selectInstalledAppById(id: InstalledAppId): Query<InstalledApp> = selectInstalledAppById(id, ::InstalledApp)
+  public fun selectInstalledAppById(id: InstalledAppId): Query<InstalledApp> =
+    selectInstalledAppById(id, ::InstalledApp)
 
   /**
    * @return The number of rows updated.
@@ -157,22 +174,26 @@ public class InstalledAppQueries(
     expected_version: Long,
     id: InstalledAppId,
   ): Long {
-    val result = driver.execute(-1_970_953_018, """
-        |UPDATE InstalledApp
-        |SET
-        |  version = $1,
-        |  active_release_id = $2
-        |WHERE
-        |  version = $3 AND
-        |  id = $4
-        """.trimMargin(), 4) {
-          check(this is JdbcPreparedStatement)
-          var parameterIndex = 0
-          bindLong(parameterIndex++, new_version)
-          bindLong(parameterIndex++, active_release_id?.let { InstalledAppAdapter.active_release_idAdapter.encode(it) })
-          bindLong(parameterIndex++, expected_version)
-          bindLong(parameterIndex++, InstalledAppAdapter.idAdapter.encode(id))
-        }
+    val result = driver.execute(
+      """
+          |UPDATE InstalledApp
+          |SET
+          |  version = $1,
+          |  active_release_id = $2
+          |WHERE
+          |  version = $3 AND
+          |  id = $4
+          """.trimMargin(),
+    ) {
+      var parameterIndex = 0
+      bindS64(parameterIndex++, new_version)
+      bindS64(
+        parameterIndex++,
+        active_release_id?.let { InstalledAppAdapter.active_release_idAdapter.encode(it) },
+      )
+      bindS64(parameterIndex++, expected_version)
+      bindS64(parameterIndex++, InstalledAppAdapter.idAdapter.encode(id))
+    }
     return result
   }
 
@@ -185,32 +206,39 @@ public class InstalledAppQueries(
     public val wasmo_file_address: WasmoFileAddress,
     mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(1_804_962_849, """
-    |INSERT INTO InstalledApp(
-    |  installed_at,
-    |  computer_id,
-    |  slug,
-    |  active,
-    |  version,
-    |  wasmo_file_address
-    |)
-    |VALUES (
-    |  $1,
-    |  $2,
-    |  $3,
-    |  $4,
-    |  $5,
-    |  $6
-    |) RETURNING id
-    """.trimMargin(), mapper, 6) {
-      check(this is JdbcPreparedStatement)
-      var parameterIndex = 0
-      bindInstant(parameterIndex++, installed_at)
-      bindLong(parameterIndex++, InstalledAppAdapter.computer_idAdapter.encode(computer_id))
-      bindString(parameterIndex++, InstalledAppAdapter.slugAdapter.encode(slug))
-      bindBoolean(parameterIndex++, active)
-      bindLong(parameterIndex++, version)
-      bindString(parameterIndex++, InstalledAppAdapter.wasmo_file_addressAdapter.encode(wasmo_file_address))
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+      val rowIterator = driver.executeQuery(
+        """
+          |INSERT INTO InstalledApp(
+          |  installed_at,
+          |  computer_id,
+          |  slug,
+          |  active,
+          |  version,
+          |  wasmo_file_address
+          |)
+          |VALUES (
+          |  $1,
+          |  $2,
+          |  $3,
+          |  $4,
+          |  $5,
+          |  $6
+          |) RETURNING id
+          """.trimMargin(),
+      ) {
+        var parameterIndex = 0
+        bindInstant(parameterIndex++, installed_at)
+        bindS64(parameterIndex++, InstalledAppAdapter.computer_idAdapter.encode(computer_id))
+        bindString(parameterIndex++, InstalledAppAdapter.slugAdapter.encode(slug))
+        bindBool(parameterIndex++, active)
+        bindS64(parameterIndex++, version)
+        bindString(
+          parameterIndex++,
+          InstalledAppAdapter.wasmo_file_addressAdapter.encode(wasmo_file_address),
+        )
+      }
+      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "InstalledApp.sq:insertInstalledApp"
@@ -222,24 +250,28 @@ public class InstalledAppQueries(
     public val limit: Long,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(null, """
-    |SELECT
-    |  ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
-    |  iar.id, iar.first_active_at, iar.computer_id, iar.installed_app_id, iar.app_version, iar.app_manifest_data
-    |FROM InstalledApp ia
-    |LEFT JOIN InstalledAppRelease iar
-    |  ON ia.active_release_id = iar.id
-    |WHERE
-    |  ia.computer_id = $1 AND
-    |  ia.active ${ if (active == null) "IS" else "=" } $2
-    |ORDER BY slug
-    |LIMIT $3
-    """.trimMargin(), mapper, 3) {
-      check(this is JdbcPreparedStatement)
-      var parameterIndex = 0
-      bindLong(parameterIndex++, InstalledAppAdapter.computer_idAdapter.encode(computer_id))
-      bindBoolean(parameterIndex++, active)
-      bindLong(parameterIndex++, limit)
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+      val rowIterator = driver.executeQuery(
+        """
+          |SELECT
+          |  ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
+          |  iar.id, iar.first_active_at, iar.computer_id, iar.installed_app_id, iar.app_version, iar.app_manifest_data
+          |FROM InstalledApp ia
+          |LEFT JOIN InstalledAppRelease iar
+          |  ON ia.active_release_id = iar.id
+          |WHERE
+          |  ia.computer_id = $1 AND
+          |  ia.active ${if (active == null) "IS" else "="} $2
+          |ORDER BY slug
+          |LIMIT $3
+          """.trimMargin(),
+      ) {
+        var parameterIndex = 0
+        bindS64(parameterIndex++, InstalledAppAdapter.computer_idAdapter.encode(computer_id))
+        bindBool(parameterIndex++, active)
+        bindS64(parameterIndex++, limit)
+      }
+      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "InstalledApp.sq:selectInstalledAppsByComputerId"
@@ -251,24 +283,28 @@ public class InstalledAppQueries(
     public val active: Boolean?,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(null, """
-    |SELECT
-    |  ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
-    |  iar.id, iar.first_active_at, iar.computer_id, iar.installed_app_id, iar.app_version, iar.app_manifest_data
-    |FROM InstalledApp ia
-    |LEFT JOIN InstalledAppRelease iar
-    |  ON ia.active_release_id = iar.id
-    |WHERE
-    |  ia.computer_id = $1 AND
-    |  ia.slug = $2 AND
-    |  ia.active ${ if (active == null) "IS" else "=" } $3
-    |LIMIT 1
-    """.trimMargin(), mapper, 3) {
-      check(this is JdbcPreparedStatement)
-      var parameterIndex = 0
-      bindLong(parameterIndex++, InstalledAppAdapter.computer_idAdapter.encode(computer_id))
-      bindString(parameterIndex++, InstalledAppAdapter.slugAdapter.encode(slug))
-      bindBoolean(parameterIndex++, active)
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+      val rowIterator = driver.executeQuery(
+        """
+          |SELECT
+          |  ia.id, ia.installed_at, ia.computer_id, ia.slug, ia.active, ia.version, ia.wasmo_file_address, ia.active_release_id,
+          |  iar.id, iar.first_active_at, iar.computer_id, iar.installed_app_id, iar.app_version, iar.app_manifest_data
+          |FROM InstalledApp ia
+          |LEFT JOIN InstalledAppRelease iar
+          |  ON ia.active_release_id = iar.id
+          |WHERE
+          |  ia.computer_id = $1 AND
+          |  ia.slug = $2 AND
+          |  ia.active ${if (active == null) "IS" else "="} $3
+          |LIMIT 1
+          """.trimMargin()
+      ) {
+        var parameterIndex = 0
+        bindS64(parameterIndex++, InstalledAppAdapter.computer_idAdapter.encode(computer_id))
+        bindString(parameterIndex++, InstalledAppAdapter.slugAdapter.encode(slug))
+        bindBool(parameterIndex++, active)
+      }
+      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "InstalledApp.sq:selectInstalledAppByComputerIdAndSlug"
@@ -278,14 +314,18 @@ public class InstalledAppQueries(
     public val id: InstalledAppId,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(1_170_206_678, """
-    |SELECT InstalledApp.id, InstalledApp.installed_at, InstalledApp.computer_id, InstalledApp.slug, InstalledApp.active, InstalledApp.version, InstalledApp.wasmo_file_address, InstalledApp.active_release_id FROM InstalledApp
-    |WHERE id = $1
-    |LIMIT 1
-    """.trimMargin(), mapper, 1) {
-      check(this is JdbcPreparedStatement)
-      var parameterIndex = 0
-      bindLong(parameterIndex++, InstalledAppAdapter.idAdapter.encode(id))
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+      val rowIterator = driver.executeQuery(
+        """
+          |SELECT InstalledApp.id, InstalledApp.installed_at, InstalledApp.computer_id, InstalledApp.slug, InstalledApp.active, InstalledApp.version, InstalledApp.wasmo_file_address, InstalledApp.active_release_id FROM InstalledApp
+          |WHERE id = $1
+          |LIMIT 1
+          """.trimMargin()
+      ) {
+        var parameterIndex = 0
+        bindS64(parameterIndex++, InstalledAppAdapter.idAdapter.encode(id))
+      }
+      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "InstalledApp.sq:selectInstalledAppById"

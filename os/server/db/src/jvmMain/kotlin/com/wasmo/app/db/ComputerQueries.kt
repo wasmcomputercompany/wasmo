@@ -1,7 +1,7 @@
 package com.wasmo.app.db
 
+import com.wasmo.app.db2.RealSqlCursor
 import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
-import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as ExecutableQuery
@@ -90,23 +90,27 @@ public class ComputerQueries(
     public val slug: ComputerSlug,
     mapper: suspend (SqlCursor) -> T,
   ) : ExecutableQuery<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-1_964_359_735, """
-    |INSERT INTO Computer(
-    |  created_at,
-    |  version,
-    |  slug
-    |)
-    |VALUES (
-    |  $1,
-    |  $2,
-    |  $3
-    |) RETURNING id
-    """.trimMargin(), mapper, 3) {
-      check(this is JdbcPreparedStatement)
-      var parameterIndex = 0
-      bindInstant(parameterIndex++, created_at)
-      bindLong(parameterIndex++, version)
-      bindString(parameterIndex++, ComputerAdapter.slugAdapter.encode(slug))
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+      val rowIterator = driver.executeQuery(
+        """
+          |INSERT INTO Computer(
+          |  created_at,
+          |  version,
+          |  slug
+          |)
+          |VALUES (
+          |  $1,
+          |  $2,
+          |  $3
+          |) RETURNING id
+          """.trimMargin()
+      ) {
+        var parameterIndex = 0
+        bindInstant(parameterIndex++, created_at)
+        bindS64(parameterIndex++, version)
+        bindString(parameterIndex++, ComputerAdapter.slugAdapter.encode(slug))
+      }
+      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Computer.sq:insertComputer"
@@ -117,23 +121,27 @@ public class ComputerQueries(
     public val limit: Long,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-11_321_302, """
-    |SELECT
-    |  c.id, c.created_at, c.version, c.slug
-    |FROM
-    |  ComputerAccess ca,
-    |  Computer c
-    |WHERE
-    |  c.id = ca.id AND
-    |  ca.account_id = $1
-    |ORDER BY
-    |  c.slug
-    |LIMIT $2
-    """.trimMargin(), mapper, 2) {
-      check(this is JdbcPreparedStatement)
-      var parameterIndex = 0
-      bindLong(parameterIndex++, ComputerAccessAdapter.account_idAdapter.encode(account_id))
-      bindLong(parameterIndex++, limit)
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+      val rowIterator = driver.executeQuery(
+        """
+          |SELECT
+          |  c.id, c.created_at, c.version, c.slug
+          |FROM
+          |  ComputerAccess ca,
+          |  Computer c
+          |WHERE
+          |  c.id = ca.id AND
+          |  ca.account_id = $1
+          |ORDER BY
+          |  c.slug
+          |LIMIT $2
+          """.trimMargin()
+      ) {
+        var parameterIndex = 0
+        bindS64(parameterIndex++, ComputerAccessAdapter.account_idAdapter.encode(account_id))
+        bindS64(parameterIndex++, limit)
+      }
+      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Computer.sq:selectComputersByAccountId"
@@ -144,22 +152,26 @@ public class ComputerQueries(
     public val slug: ComputerSlug,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(341_935_741, """
-    |SELECT
-    |  c.id, c.created_at, c.version, c.slug
-    |FROM
-    |  ComputerAccess ca,
-    |  Computer c
-    |WHERE
-    |  c.id = ca.id AND
-    |  ca.account_id = $1 AND
-    |  c.slug = $2
-    |LIMIT 1
-    """.trimMargin(), mapper, 2) {
-      check(this is JdbcPreparedStatement)
-      var parameterIndex = 0
-      bindLong(parameterIndex++, ComputerAccessAdapter.account_idAdapter.encode(account_id))
-      bindString(parameterIndex++, ComputerAdapter.slugAdapter.encode(slug))
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+      val rowIterator = driver.executeQuery(
+        """
+          |SELECT
+          |  c.id, c.created_at, c.version, c.slug
+          |FROM
+          |  ComputerAccess ca,
+          |  Computer c
+          |WHERE
+          |  c.id = ca.id AND
+          |  ca.account_id = $1 AND
+          |  c.slug = $2
+          |LIMIT 1
+          """.trimMargin()
+      ) {
+        var parameterIndex = 0
+        bindS64(parameterIndex++, ComputerAccessAdapter.account_idAdapter.encode(account_id))
+        bindString(parameterIndex++, ComputerAdapter.slugAdapter.encode(slug))
+      }
+      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Computer.sq:selectComputerByAccountIdAndSlug"
@@ -169,17 +181,21 @@ public class ComputerQueries(
     public val id: ComputerId,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(-106_878_722, """
-    |SELECT Computer.id, Computer.created_at, Computer.version, Computer.slug
-    |FROM
-    |  Computer
-    |WHERE
-    |  id = $1
-    |LIMIT 1
-    """.trimMargin(), mapper, 1) {
-      check(this is JdbcPreparedStatement)
-      var parameterIndex = 0
-      bindLong(parameterIndex++, ComputerAdapter.idAdapter.encode(id))
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+      val rowIterator = driver.executeQuery(
+        """
+          |SELECT Computer.id, Computer.created_at, Computer.version, Computer.slug
+          |FROM
+          |  Computer
+          |WHERE
+          |  id = $1
+          |LIMIT 1
+          """.trimMargin()
+      ) {
+        var parameterIndex = 0
+        bindS64(parameterIndex++, ComputerAdapter.idAdapter.encode(id))
+      }
+      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Computer.sq:selectComputerById"

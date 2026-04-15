@@ -1,8 +1,8 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor as SqlCursor
+import com.wasmo.app.db2.RealSqlCursor
 import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
-import com.wasmo.app.db2.RealSqlPreparedStatement as JdbcPreparedStatement
+import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
@@ -34,21 +34,25 @@ public class InviteQueries(
       cursor.getS32(3)!!,
       cursor.getString(4)!!,
       cursor.getInstant(5),
-      cursor.getS64(6)?.let { InviteAdapter.claimed_byAdapter.decode(it) }
+      cursor.getS64(6)?.let { InviteAdapter.claimed_byAdapter.decode(it) },
     )
   }
 
-  public fun findInvitesByClaimedBy(claimed_by: AccountId?, limit: Long): Query<Invite> = findInvitesByClaimedBy(claimed_by, limit, ::Invite)
+  public fun findInvitesByClaimedBy(claimed_by: AccountId?, limit: Long): Query<Invite> =
+    findInvitesByClaimedBy(claimed_by, limit, ::Invite)
 
-  public fun <T : Any> findInvitesByCode(code: String, mapper: (
-    id: InviteId,
-    created_at: Instant,
-    created_by: AccountId,
-    version: Int,
+  public fun <T : Any> findInvitesByCode(
     code: String,
-    claimed_at: Instant?,
-    claimed_by: AccountId?,
-  ) -> T): Query<T> = FindInvitesByCodeQuery(code) { cursor ->
+    mapper: (
+      id: InviteId,
+      created_at: Instant,
+      created_by: AccountId,
+      version: Int,
+      code: String,
+      claimed_at: Instant?,
+      claimed_by: AccountId?,
+    ) -> T,
+  ): Query<T> = FindInvitesByCodeQuery(code) { cursor ->
     check(cursor is JdbcCursor)
     mapper(
       InviteAdapter.idAdapter.decode(cursor.getS64(0)!!),
@@ -57,7 +61,7 @@ public class InviteQueries(
       cursor.getS32(3)!!,
       cursor.getString(4)!!,
       cursor.getInstant(5),
-      cursor.getS64(6)?.let { InviteAdapter.claimed_byAdapter.decode(it) }
+      cursor.getS64(6)?.let { InviteAdapter.claimed_byAdapter.decode(it) },
     )
   }
 
@@ -72,27 +76,28 @@ public class InviteQueries(
     version: Int,
     code: String,
   ): Long {
-    val result = driver.execute(132_921_893, """
-        |INSERT INTO Invite(
-        |  created_at,
-        |  created_by,
-        |  version,
-        |  code
-        |)
-        |VALUES (
-        |  $1,
-        |  $2,
-        |  $3,
-        |  $4
-        |)
-        """.trimMargin(), 4) {
-          check(this is JdbcPreparedStatement)
-          var parameterIndex = 0
-          bindInstant(parameterIndex++, created_at)
-          bindLong(parameterIndex++, InviteAdapter.created_byAdapter.encode(created_by))
-          bindInt(parameterIndex++, version)
-          bindString(parameterIndex++, code)
-        }
+    val result = driver.execute(
+      """
+          |INSERT INTO Invite(
+          |  created_at,
+          |  created_by,
+          |  version,
+          |  code
+          |)
+          |VALUES (
+          |  $1,
+          |  $2,
+          |  $3,
+          |  $4
+          |)
+          """.trimMargin(),
+    ) {
+      var parameterIndex = 0
+      bindInstant(parameterIndex++, created_at)
+      bindS64(parameterIndex++, InviteAdapter.created_byAdapter.encode(created_by))
+      bindS32(parameterIndex++, version)
+      bindString(parameterIndex++, code)
+    }
     return result
   }
 
@@ -106,24 +111,25 @@ public class InviteQueries(
     expected_version: Int,
     id: InviteId,
   ): Long {
-    val result = driver.execute(-1_917_276_414, """
-        |UPDATE Invite
-        |SET
-        |  version = $1,
-        |  claimed_at = $2,
-        |  claimed_by = $3
-        |WHERE
-        |  version = $4 AND
-        |  id = $5
-        """.trimMargin(), 5) {
-          check(this is JdbcPreparedStatement)
-          var parameterIndex = 0
-          bindInt(parameterIndex++, new_version)
-          bindInstant(parameterIndex++, claimed_at)
-          bindLong(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
-          bindInt(parameterIndex++, expected_version)
-          bindLong(parameterIndex++, InviteAdapter.idAdapter.encode(id))
-        }
+    val result = driver.execute(
+      """
+          |UPDATE Invite
+          |SET
+          |  version = $1,
+          |  claimed_at = $2,
+          |  claimed_by = $3
+          |WHERE
+          |  version = $4 AND
+          |  id = $5
+          """.trimMargin(),
+    ) {
+      var parameterIndex = 0
+      bindS32(parameterIndex++, new_version)
+      bindInstant(parameterIndex++, claimed_at)
+      bindS64(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
+      bindS32(parameterIndex++, expected_version)
+      bindS64(parameterIndex++, InviteAdapter.idAdapter.encode(id))
+    }
     return result
   }
 
@@ -132,11 +138,15 @@ public class InviteQueries(
     public val limit: Long,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(null, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${ if (claimed_by == null) "IS" else "=" } $1 LIMIT $2""", mapper, 2) {
-      check(this is JdbcPreparedStatement)
-      var parameterIndex = 0
-      bindLong(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
-      bindLong(parameterIndex++, limit)
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+      val rowIterator = driver.executeQuery(
+        """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${if (claimed_by == null) "IS" else "="} $1 LIMIT $2""",
+      ) {
+        var parameterIndex = 0
+        bindS64(parameterIndex++, claimed_by?.let { InviteAdapter.claimed_byAdapter.encode(it) })
+        bindS64(parameterIndex++, limit)
+      }
+      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Invite.sq:findInvitesByClaimedBy"
@@ -146,10 +156,14 @@ public class InviteQueries(
     public val code: String,
     mapper: suspend (SqlCursor) -> T,
   ) : Query<T>(mapper) {
-    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R = driver.executeQuery(445_097_906, """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = $1""", mapper, 1) {
-      check(this is JdbcPreparedStatement)
-      var parameterIndex = 0
-      bindString(parameterIndex++, code)
+    override suspend fun <R> execute(mapper: suspend (SqlCursor) -> R): R {
+      val rowIterator = driver.executeQuery(
+        """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = $1""",
+      ) {
+        var parameterIndex = 0
+        bindString(parameterIndex++, code)
+      }
+      return mapper(RealSqlCursor(rowIterator))
     }
 
     override fun toString(): String = "Invite.sq:findInvitesByCode"
