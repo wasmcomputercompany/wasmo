@@ -34,10 +34,9 @@ suspend fun insertComputer(
     ) RETURNING id
     """,
   ) {
-    var parameterIndex = 0
-    bindInstant(parameterIndex++, created_at)
-    bindS64(parameterIndex++, version)
-    bindComputerSlug(parameterIndex++, slug)
+    bindInstant(0, created_at)
+    bindS64(1, version)
+    bindComputerSlug(2, slug)
   }
 
   return rowIterator.single { cursor ->
@@ -65,9 +64,8 @@ suspend fun selectComputersByAccountId(
     LIMIT $2
     """,
   ) {
-    var parameterIndex = 0
-    bindAccountId(parameterIndex++, account_id)
-    bindS64(parameterIndex++, limit)
+    bindAccountId(0, account_id)
+    bindS64(1, limit)
   }
 
   return rowIterator.list { cursor ->
@@ -99,9 +97,8 @@ suspend fun selectComputerByAccountIdAndSlug(
     LIMIT 1
     """,
   ) {
-    var parameterIndex = 0
-    bindAccountId(parameterIndex++, account_id)
-    bindComputerSlug(parameterIndex++, slug)
+    bindAccountId(0, account_id)
+    bindComputerSlug(1, slug)
   }
 
   return rowIterator.singleOrNull { cursor ->
@@ -128,8 +125,7 @@ suspend fun selectComputerById(
     LIMIT 1
     """,
   ) {
-    var parameterIndex = 0
-    bindComputerId(parameterIndex++, id)
+    bindComputerId(0, id)
   }
 
   return rowIterator.single { cursor ->

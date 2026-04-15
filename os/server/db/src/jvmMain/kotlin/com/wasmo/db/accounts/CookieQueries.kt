@@ -23,8 +23,7 @@ suspend fun findCookieByToken(token: String): Cookie? {
     WHERE token = $1
     """,
   ) {
-    var parameterIndex = 0
-    bindString(parameterIndex++, token)
+    bindString(0, token)
   }
 
   return rowIterator.singleOrNull { cursor ->
@@ -65,12 +64,11 @@ suspend fun insertCookie(
     )
     """,
   ) {
-    var parameterIndex = 0
-    bindInstant(parameterIndex++, created_at)
-    bindAccountId(parameterIndex++, account_id)
-    bindString(parameterIndex++, token)
-    bindString(parameterIndex++, created_by_user_agent)
-    bindString(parameterIndex++, created_by_ip)
+    bindInstant(0, created_at)
+    bindAccountId(1, account_id)
+    bindString(2, token)
+    bindString(3, created_by_user_agent)
+    bindString(4, created_by_ip)
   }
 }
 
@@ -86,8 +84,7 @@ suspend fun updateAccountIdByAccountId(
     WHERE account_id = $2
     """,
   ) {
-    var parameterIndex = 0
-    bindAccountId(parameterIndex++, target_account_id)
-    bindAccountId(parameterIndex++, source_account_id)
+    bindAccountId(0, target_account_id)
+    bindAccountId(1, source_account_id)
   }
 }

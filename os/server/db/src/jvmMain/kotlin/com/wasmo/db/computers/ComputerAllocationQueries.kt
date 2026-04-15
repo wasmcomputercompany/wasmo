@@ -20,18 +20,23 @@ suspend fun findComputerAllocationByStripeSubscriptionId(
 ): ComputerAllocation? {
   val rowIterator = connection.executeQuery(
     """
-    SELECT ComputerAllocation.id, ComputerAllocation.created_at, ComputerAllocation.version, ComputerAllocation.stripe_customer_id, ComputerAllocation.stripe_subscription_id, ComputerAllocation.computer_id, ComputerAllocation.active_start, ComputerAllocation.active_end
+    SELECT
+      ComputerAllocation.id,
+      ComputerAllocation.created_at,
+      ComputerAllocation.version,
+      ComputerAllocation.stripe_customer_id,
+      ComputerAllocation.stripe_subscription_id,
+      ComputerAllocation.computer_id,
+      ComputerAllocation.active_start,
+      ComputerAllocation.active_end
     FROM ComputerAllocation
-    WHERE
-      stripe_subscription_id = $1
-    ORDER BY
-      active_start DESC
+    WHERE stripe_subscription_id = $1
+    ORDER BY active_start DESC
     LIMIT $2
     """,
   ) {
-    var parameterIndex = 0
-    bindString(parameterIndex++, stripe_subscription_id)
-    bindS64(parameterIndex++, limit)
+    bindString(0, stripe_subscription_id)
+    bindS64(1, limit)
   }
 
   return rowIterator.singleOrNull { cursor ->
@@ -80,14 +85,13 @@ suspend fun insertComputerAllocation(
     )
     """,
   ) {
-    var parameterIndex = 0
-    bindInstant(parameterIndex++, created_at)
-    bindS32(parameterIndex++, version)
-    bindStripeCustomerId(parameterIndex++, stripe_customer_id)
-    bindString(parameterIndex++, stripe_subscription_id)
-    bindComputerId(parameterIndex++, computer_id)
-    bindInstant(parameterIndex++, active_start)
-    bindInstant(parameterIndex++, active_end)
+    bindInstant(0, created_at)
+    bindS32(1, version)
+    bindStripeCustomerId(2, stripe_customer_id)
+    bindString(3, stripe_subscription_id)
+    bindComputerId(4, computer_id)
+    bindInstant(5, active_start)
+    bindInstant(6, active_end)
   }
 }
 
@@ -109,10 +113,9 @@ suspend fun truncateComputerAllocation(
       id = $4
     """,
   ) {
-    var parameterIndex = 0
-    bindS32(parameterIndex++, new_version)
-    bindInstant(parameterIndex++, active_end)
-    bindS32(parameterIndex++, expected_version)
-    bindComputerAllocationId(parameterIndex++, id)
+    bindS32(0, new_version)
+    bindInstant(1, active_end)
+    bindS32(2, expected_version)
+    bindComputerAllocationId(3, id)
   }
 }

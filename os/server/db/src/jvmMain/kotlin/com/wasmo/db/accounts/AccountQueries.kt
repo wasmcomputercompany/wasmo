@@ -17,8 +17,7 @@ suspend fun insertAccount(version: Int): AccountId {
     ) RETURNING id
     """,
   ) {
-    var parameterIndex = 0
-    bindS32(parameterIndex++, version)
+    bindS32(0, version)
   }
 
   return rowIterator.single { cursor ->

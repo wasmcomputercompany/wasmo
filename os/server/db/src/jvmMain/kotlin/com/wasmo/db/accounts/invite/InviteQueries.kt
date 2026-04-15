@@ -14,11 +14,22 @@ import wasmo.sql.SqlConnection
 context(connection: SqlConnection)
 suspend fun findInvitesByClaimedBy(claimed_by: AccountId?, limit: Long): Invite? {
   val rowIterator = connection.executeQuery(
-    """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE claimed_by ${if (claimed_by == null) "IS" else "="} $1 LIMIT $2""",
+    """
+    SELECT
+      Invite.id,
+      Invite.created_at,
+      Invite.created_by,
+      Invite.version,
+      Invite.code,
+      Invite.claimed_at,
+      Invite.claimed_by
+    FROM Invite
+    WHERE claimed_by ${if (claimed_by == null) "IS" else "="} $1
+    LIMIT $2
+    """,
   ) {
-    var parameterIndex = 0
-    bindAccountId(parameterIndex++, claimed_by)
-    bindS64(parameterIndex++, limit)
+    bindAccountId(0, claimed_by)
+    bindS64(1, limit)
   }
   return rowIterator.singleOrNull { cursor ->
     Invite(
@@ -36,10 +47,20 @@ suspend fun findInvitesByClaimedBy(claimed_by: AccountId?, limit: Long): Invite?
 context(connection: SqlConnection)
 suspend fun findInvitesByCode(code: String): Invite? {
   val rowIterator = connection.executeQuery(
-    """SELECT Invite.id, Invite.created_at, Invite.created_by, Invite.version, Invite.code, Invite.claimed_at, Invite.claimed_by FROM Invite WHERE code = $1""",
+    """
+    SELECT
+      Invite.id,
+      Invite.created_at,
+      Invite.created_by,
+      Invite.version,
+      Invite.code,
+      Invite.claimed_at,
+      Invite.claimed_by
+    FROM Invite
+    WHERE code = $1
+    """,
   ) {
-    var parameterIndex = 0
-    bindString(parameterIndex++, code)
+    bindString(0, code)
   }
 
   return rowIterator.singleOrNull { cursor ->
@@ -78,11 +99,10 @@ suspend fun insertInvite(
     )
     """,
   ) {
-    var parameterIndex = 0
-    bindInstant(parameterIndex++, created_at)
-    bindAccountId(parameterIndex++, created_by)
-    bindS32(parameterIndex++, version)
-    bindString(parameterIndex++, code)
+    bindInstant(0, created_at)
+    bindAccountId(1, created_by)
+    bindS32(2, version)
+    bindString(3, code)
   }
 }
 
@@ -106,11 +126,10 @@ suspend fun claimInvite(
       id = $5
     """,
   ) {
-    var parameterIndex = 0
-    bindS32(parameterIndex++, new_version)
-    bindInstant(parameterIndex++, claimed_at)
-    bindAccountId(parameterIndex++, claimed_by)
-    bindS32(parameterIndex++, expected_version)
-    bindInviteId(parameterIndex++, id)
+    bindS32(0, new_version)
+    bindInstant(1, claimed_at)
+    bindAccountId(2, claimed_by)
+    bindS32(3, expected_version)
+    bindInviteId(4, id)
   }
 }

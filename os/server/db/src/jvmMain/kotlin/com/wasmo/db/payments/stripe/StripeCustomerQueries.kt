@@ -40,14 +40,13 @@ suspend fun insertStripeCustomer(
     ) RETURNING id
     """,
   ) {
-    var parameterIndex = 0
-    bindInstant(parameterIndex++, created_at)
-    bindS32(parameterIndex++, version)
-    bindString(parameterIndex++, stripe_customer_id)
-    bindString(parameterIndex++, name)
-    bindString(parameterIndex++, email)
-    bindString(parameterIndex++, country)
-    bindString(parameterIndex++, postal_code)
+    bindInstant(0, created_at)
+    bindS32(1, version)
+    bindString(2, stripe_customer_id)
+    bindString(3, name)
+    bindString(4, email)
+    bindString(5, country)
+    bindString(6, postal_code)
   }
   return rowIterator.single { cursor ->
     cursor.getStripeCustomerId(0)
@@ -58,14 +57,20 @@ context(connection: SqlConnection)
 suspend fun findStripeCustomerByStripeCustomerId(stripe_customer_id: String): StripeCustomer? {
   val rowIterator = connection.executeQuery(
     """
-    SELECT StripeCustomer.id, StripeCustomer.created_at, StripeCustomer.version, StripeCustomer.stripe_customer_id, StripeCustomer.name, StripeCustomer.email, StripeCustomer.country, StripeCustomer.postal_code
+    SELECT
+      StripeCustomer.id,
+      StripeCustomer.created_at,
+      StripeCustomer.version,
+      StripeCustomer.stripe_customer_id,
+      StripeCustomer.name,
+      StripeCustomer.email,
+      StripeCustomer.country,
+      StripeCustomer.postal_code
     FROM StripeCustomer
-    WHERE
-      stripe_customer_id = $1
+    WHERE stripe_customer_id = $1
     """,
   ) {
-    var parameterIndex = 0
-    bindString(parameterIndex++, stripe_customer_id)
+    bindString(0, stripe_customer_id)
   }
   return rowIterator.singleOrNull { cursor ->
     StripeCustomer(
@@ -105,13 +110,12 @@ suspend fun updateStripeCustomer(
       id = $7
     """,
   ) {
-    var parameterIndex = 0
-    bindS32(parameterIndex++, new_version)
-    bindString(parameterIndex++, name)
-    bindString(parameterIndex++, email)
-    bindString(parameterIndex++, country)
-    bindString(parameterIndex++, postal_code)
-    bindS32(parameterIndex++, expected_version)
-    bindStripeCustomerId(parameterIndex++, id)
+    bindS32(0, new_version)
+    bindString(1, name)
+    bindString(2, email)
+    bindString(3, country)
+    bindString(4, postal_code)
+    bindS32(5, expected_version)
+    bindStripeCustomerId(6, id)
   }
 }

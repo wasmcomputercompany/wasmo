@@ -29,8 +29,7 @@ suspend fun findPasskeyByPasskeyId(passkey_id: String): Passkey? {
     WHERE passkey_id = $1
     """,
   ) {
-    var parameterIndex = 0
-    bindString(parameterIndex++, passkey_id)
+    bindString(0, passkey_id)
   }
 
   return rowIterator.singleOrNull { cursor ->
@@ -68,9 +67,8 @@ suspend fun findPasskeyByPasskeyIdAndAccountId(
       AND account_id = $2
     """,
   ) {
-    var parameterIndex = 0
-    bindString(parameterIndex++, passkey_id)
-    bindAccountId(parameterIndex++, account_id)
+    bindString(0, passkey_id)
+    bindAccountId(1, account_id)
   }
 
   return rowIterator.singleOrNull { cursor ->
@@ -104,8 +102,7 @@ suspend fun findPasskeysByAccountId(account_id: AccountId): List<Passkey> {
     WHERE account_id = $1
     """,
   ) {
-    var parameterIndex = 0
-    bindAccountId(parameterIndex++, account_id)
+    bindAccountId(0, account_id)
   }
   return rowIterator.list { cursor ->
     Passkey(
@@ -153,13 +150,12 @@ suspend fun insertPasskey(
     )
     """,
   ) {
-    var parameterIndex = 0
-    bindInstant(parameterIndex++, created_at)
-    bindAccountId(parameterIndex++, account_id)
-    bindString(parameterIndex++, passkey_id)
-    bindString(parameterIndex++, aaguid)
-    bindString(parameterIndex++, created_by_user_agent)
-    bindString(parameterIndex++, created_by_ip)
-    bindJson<RegistrationRecord>(parameterIndex++, registration_record)
+    bindInstant(0, created_at)
+    bindAccountId(1, account_id)
+    bindString(2, passkey_id)
+    bindString(3, aaguid)
+    bindString(4, created_by_user_agent)
+    bindString(5, created_by_ip)
+    bindJson<RegistrationRecord>(6, registration_record)
   }
 }

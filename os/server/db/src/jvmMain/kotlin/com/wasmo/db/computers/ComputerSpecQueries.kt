@@ -21,16 +21,20 @@ context(connection: SqlConnection)
 suspend fun selectComputerSpecByToken(token: String): ComputerSpec? {
   val rowIterator = connection.executeQuery(
     """
-    SELECT ComputerSpec.id, ComputerSpec.created_at, ComputerSpec.version, ComputerSpec.account_id, ComputerSpec.token, ComputerSpec.slug, ComputerSpec.computer_id
-    FROM
-      ComputerSpec
-    WHERE
-      token = $1
+    SELECT
+      ComputerSpec.id,
+      ComputerSpec.created_at,
+      ComputerSpec.version,
+      ComputerSpec.account_id,
+      ComputerSpec.token,
+      ComputerSpec.slug,
+      ComputerSpec.computer_id
+    FROM ComputerSpec
+    WHERE token = $1
     LIMIT 1
     """,
   ) {
-    var parameterIndex = 0
-    bindString(parameterIndex++, token)
+    bindString(0, token)
   }
 
   return rowIterator.singleOrNull { cursor ->
@@ -72,12 +76,11 @@ suspend fun insertComputerSpec(
     ) RETURNING id
     """,
   ) {
-    var parameterIndex = 0
-    bindInstant(parameterIndex++, created_at)
-    bindS64(parameterIndex++, version)
-    bindAccountId(parameterIndex++, account_id)
-    bindString(parameterIndex++, token)
-    bindComputerSlug(parameterIndex++, slug)
+    bindInstant(0, created_at)
+    bindS64(1, version)
+    bindAccountId(2, account_id)
+    bindString(3, token)
+    bindComputerSlug(4, slug)
   }
   return rowIterator.single { cursor ->
     cursor.getComputerSpecId(0)
@@ -102,10 +105,9 @@ suspend fun linkComputer(
       id = $4
     """,
   ) {
-    var parameterIndex = 0
-    bindS64(parameterIndex++, new_version)
-    bindComputerId(parameterIndex++, computer_id)
-    bindS64(parameterIndex++, expected_version)
-    bindComputerSpecId(parameterIndex++, id)
+    bindS64(0, new_version)
+    bindComputerId(1, computer_id)
+    bindS64(2, expected_version)
+    bindComputerSpecId(3, id)
   }
 }

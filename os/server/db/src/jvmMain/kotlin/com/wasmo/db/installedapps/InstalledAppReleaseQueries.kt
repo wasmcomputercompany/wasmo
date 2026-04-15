@@ -43,12 +43,11 @@ suspend fun insertInstalledAppRelease(
     ) RETURNING id
     """,
   ) {
-    var parameterIndex = 0
-    bindInstant(parameterIndex++, first_active_at)
-    bindComputerId(parameterIndex++, computer_id)
-    bindInstalledAppId(parameterIndex++, installed_app_id)
-    bindS64(parameterIndex++, app_version)
-    bindJson(parameterIndex++, app_manifest_data)
+    bindInstant(0, first_active_at)
+    bindComputerId(1, computer_id)
+    bindInstalledAppId(2, installed_app_id)
+    bindS64(3, app_version)
+    bindJson(4, app_manifest_data)
   }
   return rowIterator.single { cursor ->
     cursor.getInstalledAppReleaseId(0)
@@ -73,8 +72,7 @@ suspend fun selectInstalledAppReleaseById(
     LIMIT 1
     """
   ) {
-    var parameterIndex = 0
-    bindInstalledAppReleaseId(parameterIndex++, id)
+    bindInstalledAppReleaseId(0, id)
   }
 
   return rowIterator.singleOrNull { cursor ->

@@ -54,13 +54,12 @@ suspend fun insertInstalledApp(
     ) RETURNING id
     """,
   ) {
-    var parameterIndex = 0
-    bindInstant(parameterIndex++, installed_at)
-    bindComputerId(parameterIndex++, computer_id)
-    bindAppSlug(parameterIndex++, slug)
-    bindBool(parameterIndex++, active)
-    bindS64(parameterIndex++, version)
-    bindWasmoFileAddress(parameterIndex++, wasmo_file_address)
+    bindInstant(0, installed_at)
+    bindComputerId(1, computer_id)
+    bindAppSlug(2, slug)
+    bindBool(3, active)
+    bindS64(4, version)
+    bindWasmoFileAddress(5, wasmo_file_address)
   }
   return rowIterator.single { cursor ->
     cursor.getInstalledAppId(0)
@@ -98,10 +97,9 @@ suspend fun selectInstalledAppsByComputerId(
     LIMIT $3
     """,
   ) {
-    var parameterIndex = 0
-    bindComputerId(parameterIndex++, computer_id)
-    bindBool(parameterIndex++, active)
-    bindS64(parameterIndex++, limit)
+    bindComputerId(0, computer_id)
+    bindBool(1, active)
+    bindS64(2, limit)
   }
 
   return rowIterator.list { cursor ->
@@ -170,10 +168,9 @@ suspend fun selectInstalledAppByComputerIdAndSlug(
     LIMIT 1
     """,
   ) {
-    var parameterIndex = 0
-    bindComputerId(parameterIndex++, computer_id)
-    bindAppSlug(parameterIndex++, slug)
-    bindBool(parameterIndex++, active)
+    bindComputerId(0, computer_id)
+    bindAppSlug(1, slug)
+    bindBool(2, active)
   }
   return rowIterator.singleOrNull { cursor ->
     cursor.getInstalledAppAndRelease()
@@ -198,8 +195,7 @@ suspend fun selectInstalledAppById(id: InstalledAppId): InstalledApp {
     LIMIT 1
     """,
   ) {
-    var parameterIndex = 0
-    bindInstalledAppId(parameterIndex++, id)
+    bindInstalledAppId(0, id)
   }
 
   return rowIterator.single { cursor ->
@@ -234,10 +230,9 @@ suspend fun setRelease(
       id = $4
     """,
   ) {
-    var parameterIndex = 0
-    bindS64(parameterIndex++, new_version)
-    bindInstalledAppReleaseId(parameterIndex++, active_release_id)
-    bindS64(parameterIndex++, expected_version)
-    bindInstalledAppId(parameterIndex++, id)
+    bindS64(0, new_version)
+    bindInstalledAppReleaseId(1, active_release_id)
+    bindS64(2, expected_version)
+    bindInstalledAppId(3, id)
   }
 }

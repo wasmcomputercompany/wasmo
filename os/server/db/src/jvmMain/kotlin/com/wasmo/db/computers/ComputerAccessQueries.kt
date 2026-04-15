@@ -33,11 +33,10 @@ suspend fun insertComputerAccess(
     ) RETURNING id
     """,
   ) {
-    var parameterIndex = 0
-    bindInstant(parameterIndex++, created_at)
-    bindS32(parameterIndex++, version)
-    bindComputerId(parameterIndex++, computer_id)
-    bindAccountId(parameterIndex++, account_id)
+    bindInstant(0, created_at)
+    bindS32(1, version)
+    bindComputerId(2, computer_id)
+    bindAccountId(3, account_id)
   }
 
   return rowIterator.single { cursor ->
