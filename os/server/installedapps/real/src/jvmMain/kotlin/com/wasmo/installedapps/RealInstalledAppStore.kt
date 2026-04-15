@@ -3,8 +3,8 @@ package com.wasmo.installedapps
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.InstalledApp
 import com.wasmo.app.db.InstalledAppRelease
+import com.wasmo.app.db.SqlTransaction
 import com.wasmo.app.db.WasmoDb
-import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
@@ -20,7 +20,7 @@ class RealInstalledAppStore(
   private val appManifestLoaderFactory: RealAppManifestLoaderFactory,
 ) : InstalledAppStore {
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun getOrNull(
     client: Client,
     computerSlug: ComputerSlug,
@@ -29,12 +29,12 @@ class RealInstalledAppStore(
     val accountId = client.getAccountIdOrNull()
       ?: return null
 
-    val computer = transactionCallbacks.computerQueries.selectComputerByAccountIdAndSlug(
+    val computer = sqlTransaction.computerQueries.selectComputerByAccountIdAndSlug(
       account_id = accountId,
       slug = computerSlug,
     ) ?: return null
 
-    val row = transactionCallbacks.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
+    val row = sqlTransaction.installedAppQueries.selectInstalledAppByComputerIdAndSlug(
       computer_id = computer.id,
       slug = appSlug,
       active = true,
@@ -47,10 +47,10 @@ class RealInstalledAppStore(
     )
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun get(installedAppId: InstalledAppId): InstalledAppService? {
-    val installedApp = transactionCallbacks.installedAppQueries.selectInstalledAppById(installedAppId)
-    val installedAppRelease = transactionCallbacks.installedAppReleaseQueries
+    val installedApp = sqlTransaction.installedAppQueries.selectInstalledAppById(installedAppId)
+    val installedAppRelease = sqlTransaction.installedAppReleaseQueries
       .selectInstalledAppReleaseById(installedApp.active_release_id ?: return null)
     return get(
       installedApp = installedApp,
@@ -58,12 +58,12 @@ class RealInstalledAppStore(
     )
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun get(
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,
   ): InstalledAppService {
-    val computer = transactionCallbacks.computerQueries.selectComputerById(installedApp.computer_id)
+    val computer = sqlTransaction.computerQueries.selectComputerById(installedApp.computer_id)
     return get(computer.slug, installedApp, installedAppRelease)
   }
 

@@ -1,10 +1,6 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
-import com.wasmo.app.db2.bindStripeCustomerId
-import com.wasmo.app.db2.getStripeCustomerId
-import com.wasmo.app.db2.single
-import com.wasmo.app.db2.singleOrNull
+import com.wasmo.app.db.WasmoDbConnection as SqlDriver
 import com.wasmo.identifiers.StripeCustomerId
 import kotlin.time.Instant
 

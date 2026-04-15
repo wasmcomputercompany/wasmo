@@ -12,7 +12,7 @@ import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.Invite
 import com.wasmo.app.db.Passkey
 import com.wasmo.app.db.WasmoDb
-import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
+import com.wasmo.app.db.SqlTransaction
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
 import dev.zacsweers.metro.Inject
@@ -28,12 +28,12 @@ class RealCallDataService(
   private val client: Client,
 ) : CallDataService {
   private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
-    context(transactionCallbacks: TransactionCallbacks)
+    context(sqlTransaction: SqlTransaction)
     override suspend fun load(): List<PasskeySnapshot> {
       val accountId = client.getAccountIdOrNull()
 
       return when {
-        accountId != null -> transactionCallbacks.passkeyQueries.findPasskeysByAccountId(accountId)
+        accountId != null -> sqlTransaction.passkeyQueries.findPasskeysByAccountId(accountId)
           .map { it.toSnapshot() }
 
         else -> listOf()
@@ -47,12 +47,12 @@ class RealCallDataService(
   }
 
   private val firstClaimedInvite = object : DbLazy<Invite?>() {
-    context(transactionCallbacks: TransactionCallbacks)
+    context(sqlTransaction: SqlTransaction)
     override suspend fun load(): Invite? {
       val accountId = client.getAccountIdOrNull()
       return when {
         accountId != null -> {
-          transactionCallbacks.inviteQueries.findInvitesByClaimedBy(
+          sqlTransaction.inviteQueries.findInvitesByClaimedBy(
             claimed_by = accountId,
             limit = 1,
           )
@@ -64,7 +64,7 @@ class RealCallDataService(
   }
 
   private val routingContext = object : DbLazy<RoutingContext>() {
-    context(transactionCallbacks: TransactionCallbacks)
+    context(sqlTransaction: SqlTransaction)
     override suspend fun load() = RoutingContext(
       rootUrl = deployment.baseUrl.toString(),
       hasComputers = computerListSnapshot.get().items.isNotEmpty(),
@@ -74,7 +74,7 @@ class RealCallDataService(
   }
 
   private val accountSnapshot = object : DbLazy<AccountSnapshot>() {
-    context(transactionCallbacks: TransactionCallbacks)
+    context(sqlTransaction: SqlTransaction)
     override suspend fun load(): AccountSnapshot {
       val passkeys = passkeys.get()
       val firstInvite = firstClaimedInvite.get()
@@ -88,12 +88,12 @@ class RealCallDataService(
   }
 
   private val computerListSnapshot = object : DbLazy<ComputerListSnapshot>() {
-    context(transactionCallbacks: TransactionCallbacks)
+    context(sqlTransaction: SqlTransaction)
     override suspend fun load(): ComputerListSnapshot {
       val accountId = client.getAccountIdOrNull()
         ?: return ComputerListSnapshot()
 
-      val computers = transactionCallbacks.computerQueries.selectComputersByAccountId(
+      val computers = sqlTransaction.computerQueries.selectComputersByAccountId(
         account_id = accountId,
         limit = 100,
       )
@@ -106,21 +106,21 @@ class RealCallDataService(
     }
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun routingContext() = routingContext.get()
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun routeCodec() = routeCodecFactory.create(routingContext())
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun accountSnapshot() = accountSnapshot.get()
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun computerListSnapshot() = computerListSnapshot.get()
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun inviteTicketOrNull(code: String): InviteTicket? {
-    val invite = transactionCallbacks.inviteQueries.findInvitesByCode(code)
+    val invite = sqlTransaction.inviteQueries.findInvitesByCode(code)
       ?: return null
 
     return InviteTicket(

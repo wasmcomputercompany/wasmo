@@ -1,19 +1,8 @@
-package com.wasmo.app.db2
+package com.wasmo.app.db
 
 import com.wasmo.api.WasmoJson
-import com.wasmo.app.db.AccountQueries
-import com.wasmo.app.db.ComputerAccessQueries
-import com.wasmo.app.db.ComputerAllocationQueries
-import com.wasmo.app.db.ComputerQueries
-import com.wasmo.app.db.ComputerSpecQueries
-import com.wasmo.app.db.CookieQueries
-import com.wasmo.app.db.InstalledAppQueries
-import com.wasmo.app.db.InstalledAppReleaseQueries
-import com.wasmo.app.db.InviteQueries
-import com.wasmo.app.db.PasskeyQueries
-import com.wasmo.app.db.StripeCustomerQueries
-import com.wasmo.app.db2.RealSqlCursor
-import com.wasmo.app.db2.RealSqlCursor as SqlCursor
+import com.wasmo.app.db.RealSqlCursor
+import com.wasmo.app.db.RealSqlCursor as SqlCursor
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerAccessId
@@ -38,10 +27,7 @@ import wasmo.sql.SqlRow
 
 interface WasmoDbConnection : Closeable, SqlConnection {
   val sqlConnection: SqlConnection
-  val accountQueries: AccountQueries
   val computerQueries: ComputerQueries
-  val computerAccessQueries: ComputerAccessQueries
-  val computerAllocationQueries: ComputerAllocationQueries
   val computerSpecQueries: ComputerSpecQueries
   val cookieQueries: CookieQueries
   val installedAppQueries: InstalledAppQueries
@@ -60,13 +46,13 @@ suspend fun <R> SqlConnection.executeQuery(
   return mapper(RealSqlCursor(rowIterator))
 }
 
-interface WasmoDbTransaction : WasmoDbConnection {
+interface SqlTransaction : WasmoDbConnection {
   fun afterCommit(function: () -> Unit)
 }
 
-open class RealWasmoDbTransaction(
+open class RealSqlTransaction(
   sqlConnection: SqlConnection,
-) : RealWasmoDbConnection(sqlConnection), WasmoDbTransaction {
+) : RealWasmoDbConnection(sqlConnection), SqlTransaction {
   val afterCommitActions = mutableListOf<() -> Unit>()
 
   override fun afterCommit(function: () -> Unit) {
@@ -77,14 +63,8 @@ open class RealWasmoDbTransaction(
 open class RealWasmoDbConnection(
   override val sqlConnection: SqlConnection,
 ) : WasmoDbConnection, SqlConnection by sqlConnection {
-  override val accountQueries: AccountQueries
-    get() = AccountQueries(this)
   override val computerQueries: ComputerQueries
     get() = ComputerQueries(this)
-  override val computerAccessQueries: ComputerAccessQueries
-    get() = ComputerAccessQueries(this)
-  override val computerAllocationQueries: ComputerAllocationQueries
-    get() = ComputerAllocationQueries(this)
   override val computerSpecQueries: ComputerSpecQueries
     get() = ComputerSpecQueries(this)
   override val cookieQueries: CookieQueries

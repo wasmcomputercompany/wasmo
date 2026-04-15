@@ -1,22 +1,6 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
-import com.wasmo.app.db2.bindAppSlug
-import com.wasmo.app.db2.bindComputerId
-import com.wasmo.app.db2.bindInstalledAppId
-import com.wasmo.app.db2.bindInstalledAppReleaseId
-import com.wasmo.app.db2.bindWasmoFileAddress
-import com.wasmo.app.db2.getAppSlug
-import com.wasmo.app.db2.getComputerId
-import com.wasmo.app.db2.getComputerIdOrNull
-import com.wasmo.app.db2.getInstalledAppId
-import com.wasmo.app.db2.getInstalledAppIdOrNull
-import com.wasmo.app.db2.getInstalledAppReleaseIdOrNull
-import com.wasmo.app.db2.getJson2
-import com.wasmo.app.db2.getWasmoFileAddress
-import com.wasmo.app.db2.list
-import com.wasmo.app.db2.single
-import com.wasmo.app.db2.singleOrNull
+import com.wasmo.app.db.WasmoDbConnection as SqlDriver
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId

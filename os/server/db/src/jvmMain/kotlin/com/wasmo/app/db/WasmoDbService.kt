@@ -1,10 +1,6 @@
 package com.wasmo.app.db
 
 import app.cash.sqldelight.driver.jdbc.JdbcDriver
-import com.wasmo.app.db2.RealWasmoDbConnection
-import com.wasmo.app.db2.RealWasmoDbTransaction
-import com.wasmo.app.db2.WasmoDbConnection
-import com.wasmo.app.db2.WasmoDbTransaction
 import java.io.Closeable
 import org.apache.commons.dbcp2.PoolingDataSource
 import wasmo.sql.SqlDatabase
@@ -16,16 +12,16 @@ class WasmoDbService(
 ) : WasmoDb, Closeable {
   override suspend fun <T> transactionWithResult(
     noEnclosing: Boolean,
-    block: suspend context(WasmoDbTransaction) () -> T,
+    block: suspend context(SqlTransaction) () -> T,
   ): T {
     return transaction(noEnclosing, block)
   }
 
   override suspend fun <T> transaction(
     noEnclosing: Boolean,
-    block: suspend context(WasmoDbTransaction) () -> T,
+    block: suspend context(SqlTransaction) () -> T,
   ): T {
-    val transaction = RealWasmoDbTransaction(database.newConnection())
+    val transaction = RealSqlTransaction(database.newConnection())
     transaction.use { transaction ->
       context(transaction) {
         val result = block()

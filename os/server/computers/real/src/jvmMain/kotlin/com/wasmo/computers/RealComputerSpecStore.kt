@@ -1,7 +1,7 @@
 package com.wasmo.computers
 
+import com.wasmo.app.db.SqlTransaction
 import com.wasmo.app.db.WasmoDb
-import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.OsScope
@@ -16,14 +16,14 @@ class ComputerSpecStore(
   private val clock: Clock,
   private val wasmoDb: WasmoDb,
 ) {
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   suspend fun insertIfAbsent(
     accountId: AccountId,
     slug: ComputerSlug,
     computerSpecToken: String,
   ) {
     try {
-      transactionCallbacks.computerSpecQueries.insertComputerSpec(
+      sqlTransaction.computerSpecQueries.insertComputerSpec(
         created_at = clock.now(),
         version = 1,
         account_id = accountId,

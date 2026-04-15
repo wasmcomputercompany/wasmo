@@ -1,6 +1,6 @@
 package com.wasmo.installedapps
 
-import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
+import com.wasmo.app.db.SqlTransaction
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.InstalledApp
 import com.wasmo.app.db.InstalledAppRelease
@@ -9,13 +9,13 @@ import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
 
 interface InstalledAppStore {
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   suspend fun getOrNull(client: Client, computerSlug: ComputerSlug, appSlug: AppSlug): InstalledAppService?
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   suspend fun get(installedAppId: InstalledAppId): InstalledAppService?
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   suspend fun get(
     installedApp: InstalledApp,
     installedAppRelease: InstalledAppRelease?,

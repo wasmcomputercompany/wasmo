@@ -1,6 +1,7 @@
 package com.wasmo.accounts
 
-import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
+import com.wasmo.app.db.SqlTransaction
+import com.wasmo.app.db.insertAccount
 import com.wasmo.identifiers.AccountId
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -24,30 +25,30 @@ class CookieClient(
 
   private var cachedAccountId: AccountId? = null
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun getAccountIdOrNull(): AccountId? {
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = transactionCallbacks.cookieQueries.findCookieByToken(sessionCookie.token)
+    val cookie = sqlTransaction.cookieQueries.findCookieByToken(sessionCookie.token)
       ?: return null
     return cookie.account_id
       .also { this.cachedAccountId = it }
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(SqlTransaction: SqlTransaction)
   override suspend fun getOrCreateAccountId(): AccountId {
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
-    val cookie = transactionCallbacks.cookieQueries.findCookieByToken(sessionCookie.token)
+    val cookie = SqlTransaction.cookieQueries.findCookieByToken(sessionCookie.token)
     if (cookie != null) return cookie.account_id
 
-    val accountId = transactionCallbacks.accountQueries.insertAccount(
+    val accountId = SqlTransaction.insertAccount(
       version = 1,
     )
 
-    transactionCallbacks.cookieQueries.insertCookie(
+    SqlTransaction.cookieQueries.insertCookie(
       created_at = clock.now(),
       account_id = accountId,
       token = sessionCookie.token,
@@ -59,7 +60,7 @@ class CookieClient(
       .also { this.cachedAccountId = it }
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(SqlTransaction: SqlTransaction)
   override fun invalidate() {
     this.cachedAccountId = null
   }

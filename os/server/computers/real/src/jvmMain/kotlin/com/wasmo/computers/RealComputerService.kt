@@ -2,8 +2,7 @@ package com.wasmo.computers
 
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.app.db.WasmoDb
-import com.wasmo.app.db2.WasmoDbTransaction
-import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
+import com.wasmo.app.db.SqlTransaction
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
@@ -36,7 +35,7 @@ class RealComputerService(
       .host("$slug.${deployment.baseUrl.host}")
       .build()
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun initialize() {
     for (entry in appCatalog.entries) {
       enqueueInstall(
@@ -46,12 +45,12 @@ class RealComputerService(
     }
   }
 
-  context(transactionCallbacks: TransactionCallbacks)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun enqueueInstall(
     wasmoFileAddress: WasmoFileAddress,
     slug: AppSlug,
   ) {
-    val installedAppId = transactionCallbacks.installedAppQueries.insertInstalledApp(
+    val installedAppId = sqlTransaction.installedAppQueries.insertInstalledApp(
       installed_at = clock.now(),
       computer_id = id,
       slug = slug,
@@ -59,14 +58,14 @@ class RealComputerService(
       version = 1L,
       wasmo_file_address = wasmoFileAddress,
     )
-    transactionCallbacks.afterCommit {
+    sqlTransaction.afterCommit {
       jobQueue.enqueue(InstallAppJob(installedAppId))
     }
   }
 
   override suspend fun snapshot(): ComputerSnapshot {
     val installedApps = wasmoDb.transactionWithResult(noEnclosing = true) {
-      contextOf<WasmoDbTransaction>().installedAppQueries.selectInstalledAppsByComputerId(
+      contextOf<SqlTransaction>().installedAppQueries.selectInstalledAppsByComputerId(
         computer_id = id,
         active = true,
         limit = 100,

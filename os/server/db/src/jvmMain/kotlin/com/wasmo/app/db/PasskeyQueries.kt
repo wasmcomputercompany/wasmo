@@ -1,13 +1,6 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
-import com.wasmo.app.db2.bindAccountId
-import com.wasmo.app.db2.bindJson
-import com.wasmo.app.db2.getAccountId
-import com.wasmo.app.db2.getJson2
-import com.wasmo.app.db2.getPasskeyId
-import com.wasmo.app.db2.list
-import com.wasmo.app.db2.singleOrNull
+import com.wasmo.app.db.WasmoDbConnection as SqlDriver
 import com.wasmo.identifiers.AccountId
 import com.wasmo.passkeys.RegistrationRecord
 import kotlin.time.Instant

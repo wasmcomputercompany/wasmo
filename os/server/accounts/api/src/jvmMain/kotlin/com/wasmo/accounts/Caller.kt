@@ -1,6 +1,6 @@
 package com.wasmo.accounts
 
-import com.wasmo.app.db2.WasmoDbTransaction
+import com.wasmo.app.db.SqlTransaction
 import com.wasmo.identifiers.AccountId
 
 /**
@@ -12,6 +12,6 @@ interface Caller {
   val userAgent: String?
   val ip: String?
 
-  context(transactionCallbacks: WasmoDbTransaction)
+  context(sqlTransaction: SqlTransaction)
   suspend fun getAccountIdOrNull(): AccountId?
 }
