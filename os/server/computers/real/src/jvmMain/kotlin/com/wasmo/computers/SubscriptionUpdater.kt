@@ -34,7 +34,6 @@ class SubscriptionUpdater(
     return wasmoDb.transactionWithResult(noEnclosing = true) {
       val existingCustomer = contextOf<WasmoDbTransaction>().stripeCustomerQueries
         .findStripeCustomerByStripeCustomerId(subscription.customer.id)
-        .executeAsOneOrNull()
 
       val customerId: StripeCustomerId
       if (existingCustomer != null) {
@@ -57,7 +56,7 @@ class SubscriptionUpdater(
           email = subscription.customer.email,
           country = subscription.customer.address.country,
           postal_code = subscription.customer.address.postalCode,
-        ).executeAsOne()
+        )
       }
 
       val latestAllocation = contextOf<WasmoDbTransaction>().computerAllocationQueries

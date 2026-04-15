@@ -2,7 +2,6 @@ package com.wasmo.installedapps
 
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.InstalledApp
-import com.wasmo.app.db.InstalledAppAndRelease
 import com.wasmo.app.db.InstalledAppRelease
 import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
@@ -39,9 +38,7 @@ class RealInstalledAppStore(
       computer_id = computer.id,
       slug = appSlug,
       active = true,
-      mapper = InstalledAppAndRelease::invoke,
-    ).executeAsOneOrNull()
-      ?: return null
+    ) ?: return null
 
     return get(
       computerSlug = computer.slug,

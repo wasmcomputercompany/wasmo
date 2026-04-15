@@ -1,7 +1,6 @@
 package com.wasmo.computers
 
 import com.wasmo.api.ComputerSnapshot
-import com.wasmo.app.db.InstalledAppAndRelease
 import com.wasmo.app.db.WasmoDb
 import com.wasmo.app.db2.WasmoDbTransaction
 import com.wasmo.app.db2.WasmoDbTransaction as TransactionCallbacks
@@ -59,7 +58,7 @@ class RealComputerService(
       active = true,
       version = 1L,
       wasmo_file_address = wasmoFileAddress,
-    ).executeAsOne()
+    )
     transactionCallbacks.afterCommit {
       jobQueue.enqueue(InstallAppJob(installedAppId))
     }
@@ -71,8 +70,7 @@ class RealComputerService(
         computer_id = id,
         active = true,
         limit = 100,
-        mapper = InstalledAppAndRelease::invoke,
-      ).executeAsList()
+      )
     }
 
     val apps = installedApps.map { row ->
