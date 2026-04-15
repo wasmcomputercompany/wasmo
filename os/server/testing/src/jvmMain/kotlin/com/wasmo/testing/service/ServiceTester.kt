@@ -4,7 +4,7 @@ import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.app.db.migrate
-import com.wasmo.app.db.withConnection
+import com.wasmo.sql.withConnection
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.asSqlService

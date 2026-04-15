@@ -2,7 +2,7 @@ package com.wasmo.accounts.invite
 
 import com.wasmo.accounts.Client
 import com.wasmo.api.InviteTicket
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.claimInvite
 import com.wasmo.app.db.findInvitesByCode
 import com.wasmo.app.db.insertInvite

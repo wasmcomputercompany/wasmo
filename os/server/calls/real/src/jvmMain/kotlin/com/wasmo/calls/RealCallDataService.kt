@@ -11,7 +11,7 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.Invite
 import com.wasmo.app.db.Passkey
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.findInvitesByClaimedBy
 import com.wasmo.app.db.findInvitesByCode
 import com.wasmo.app.db.findPasskeysByAccountId

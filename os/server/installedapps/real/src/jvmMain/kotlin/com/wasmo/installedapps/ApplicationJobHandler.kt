@@ -1,6 +1,6 @@
 package com.wasmo.installedapps
 
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.OsJobHandler
 import dev.zacsweers.metro.Inject
@@ -19,7 +19,7 @@ class ApplicationJobHandler(
 ) : OsJobHandler<ApplicationJob> {
 
   override suspend fun execute(job: ApplicationJob) {
-    val installedAppService = wasmoDb.transactionWithResult(noEnclosing = true) {
+    val installedAppService = wasmoDb.transaction {
       installedAppStore.get(job.installedAppId)
     }
 

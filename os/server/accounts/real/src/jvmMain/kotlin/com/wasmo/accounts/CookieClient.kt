@@ -1,6 +1,6 @@
 package com.wasmo.accounts
 
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.findCookieByToken
 import com.wasmo.app.db.insertAccount
 import com.wasmo.app.db.insertCookie

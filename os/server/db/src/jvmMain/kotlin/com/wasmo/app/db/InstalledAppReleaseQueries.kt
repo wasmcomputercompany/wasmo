@@ -4,6 +4,10 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.packaging.AppManifest
+import com.wasmo.sql.bindJson
+import com.wasmo.sql.decodeJson
+import com.wasmo.sql.single
+import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
@@ -65,7 +69,7 @@ suspend fun SqlConnection.selectInstalledAppReleaseById(
       cursor.getComputerId(2),
       cursor.getInstalledAppId(3),
       cursor.getS64(4)!!,
-      cursor.getJson2<AppManifest>(5),
+      cursor.decodeJson<AppManifest>(5),
     )
   }
 }

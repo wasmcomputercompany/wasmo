@@ -4,7 +4,7 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.CreateComputerSpecResponse
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.framework.Response
 import com.wasmo.payments.CreateCheckoutSessionRequest
 import com.wasmo.payments.PaymentsService
@@ -23,7 +23,7 @@ class CreateComputerSpecAction(
   suspend fun create(
     request: CreateComputerSpecRequest,
   ): Response<CreateComputerSpecResponse> {
-    wasmoDb.transactionWithResult(noEnclosing = true) {
+    wasmoDb.transaction {
       computerSpecStore.insertIfAbsent(
         accountId = client.getOrCreateAccountId(),
         slug = request.slug,

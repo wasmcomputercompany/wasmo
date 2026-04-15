@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.insertComputerSpec
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.ComputerSlug

@@ -1,11 +1,11 @@
 package com.wasmo.computers
 
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.findComputerAllocationByStripeSubscriptionId
 import com.wasmo.app.db.findStripeCustomerByStripeCustomerId
 import com.wasmo.app.db.insertComputerAllocation
 import com.wasmo.app.db.insertStripeCustomer
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.app.db.truncateComputerAllocation
 import com.wasmo.app.db.updateStripeCustomer
 import com.wasmo.identifiers.OsScope
@@ -38,7 +38,7 @@ class SubscriptionUpdater(
       activeEnd = subscription.currentPeriodEnd,
     )
 
-    return wasmoDb.transactionWithResult(noEnclosing = true) {
+    return wasmoDb.transaction {
       val existingCustomer = contextOf<SqlTransaction>()
         .findStripeCustomerByStripeCustomerId(subscription.customer.id)
 

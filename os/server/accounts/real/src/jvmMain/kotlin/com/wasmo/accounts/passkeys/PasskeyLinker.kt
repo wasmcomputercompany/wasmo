@@ -3,7 +3,7 @@ package com.wasmo.accounts.passkeys
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.Passkey
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.updateAccountIdByAccountId
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

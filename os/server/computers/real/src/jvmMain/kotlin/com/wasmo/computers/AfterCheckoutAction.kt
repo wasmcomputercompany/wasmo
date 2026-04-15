@@ -4,7 +4,7 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.toHttpUrl
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
@@ -32,7 +32,7 @@ class AfterCheckoutAction(
   suspend fun get(checkoutSessionId: String): Response<ResponseBody> {
     val session = paymentsService.getCheckoutSession(checkoutSessionId)
 
-    val routeCodec = wasmoDb.transactionWithResult(noEnclosing = true) {
+    val routeCodec = wasmoDb.transaction {
       callDataService.routeCodec()
     }
 

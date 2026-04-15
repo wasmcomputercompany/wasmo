@@ -2,7 +2,7 @@ package com.wasmo.accounts
 
 import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AccountSnapshotResponse
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
 import dev.zacsweers.metro.Inject
@@ -18,7 +18,7 @@ class AccountSnapshotAction(
   suspend fun get(
     request: AccountSnapshotRequest,
   ): Response<AccountSnapshotResponse> {
-    return wasmoDb.transactionWithResult(noEnclosing = true) {
+    return wasmoDb.transaction {
       Response(
         body = AccountSnapshotResponse(
           account = callDataService.accountSnapshot(),

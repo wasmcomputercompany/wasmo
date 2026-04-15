@@ -1,6 +1,6 @@
 package com.wasmo.testing.installedapp
 
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.AppSlug
@@ -48,7 +48,7 @@ class InstalledAppTester private constructor(
   }
 
   private suspend fun installedAppService(): InstalledAppService {
-    return wasmoDb.transactionWithResult(noEnclosing = true) {
+    return wasmoDb.transaction {
       installedAppStore.getOrNull(
         client = client.clientAuthenticator.get(),
         computerSlug = computerSlug,

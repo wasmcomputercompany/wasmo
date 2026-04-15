@@ -10,7 +10,7 @@ import com.wasmo.api.routes.ComputerListRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.Url
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.calls.CallDataService
 import com.wasmo.computers.ComputerService
 import com.wasmo.computers.ComputerStore
@@ -39,7 +39,7 @@ class OsPageAction(
     var computerService: ComputerService? = null
     var computerListSnapshot: ComputerListSnapshot? = null
 
-    wasmoDb.transactionWithResult(noEnclosing = true) {
+    wasmoDb.transaction {
       accountSnapshot = callDataService.accountSnapshot()
       routingContext = callDataService.routingContext()
       val routeCodec = callDataService.routeCodec()

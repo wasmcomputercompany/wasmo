@@ -3,6 +3,7 @@ package com.wasmo.app.db
 import com.wasmo.identifiers.ComputerAllocationId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.StripeCustomerId
+import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 

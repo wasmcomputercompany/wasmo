@@ -6,7 +6,7 @@ import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.CreateInviteResponse
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.toHttpUrl
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
 import dev.zacsweers.metro.Inject
@@ -24,7 +24,7 @@ class CreateInviteAction(
   suspend fun create(
     request: CreateInviteRequest,
   ): Response<CreateInviteResponse> {
-    return wasmoDb.transactionWithResult(noEnclosing = true) {
+    return wasmoDb.transaction {
       val inviteTicket = inviteService.create(client)
       val inviteRoute = InviteRoute(
         code = inviteTicket.code,

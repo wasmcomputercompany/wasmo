@@ -3,7 +3,7 @@ package com.wasmo.installedapps
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.InstalledApp
 import com.wasmo.app.db.InstalledAppRelease
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.selectComputerByAccountIdAndSlug
 import com.wasmo.app.db.selectComputerById
 import com.wasmo.app.db.selectInstalledAppByComputerIdAndSlug

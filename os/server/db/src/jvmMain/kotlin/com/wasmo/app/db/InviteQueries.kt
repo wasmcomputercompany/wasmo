@@ -2,6 +2,7 @@ package com.wasmo.app.db
 
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.InviteId
+import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 

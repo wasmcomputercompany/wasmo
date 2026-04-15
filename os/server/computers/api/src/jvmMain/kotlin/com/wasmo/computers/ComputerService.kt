@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId

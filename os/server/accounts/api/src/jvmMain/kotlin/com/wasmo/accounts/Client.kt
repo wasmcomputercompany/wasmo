@@ -1,6 +1,6 @@
 package com.wasmo.accounts
 
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.identifiers.AccountId
 
 /**

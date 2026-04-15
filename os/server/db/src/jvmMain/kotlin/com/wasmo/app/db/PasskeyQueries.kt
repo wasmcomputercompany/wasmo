@@ -2,6 +2,10 @@ package com.wasmo.app.db
 
 import com.wasmo.identifiers.AccountId
 import com.wasmo.passkeys.RegistrationRecord
+import com.wasmo.sql.bindJson
+import com.wasmo.sql.decodeJson
+import com.wasmo.sql.list
+import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
@@ -27,7 +31,7 @@ suspend fun SqlConnection.findPasskeyByPasskeyId(passkey_id: String): Passkey? {
       cursor.getString(4)!!,
       cursor.getString(5),
       cursor.getString(6),
-      cursor.getJson2<RegistrationRecord>(7),
+      cursor.decodeJson<RegistrationRecord>(7),
     )
   }
 }
@@ -58,7 +62,7 @@ suspend fun SqlConnection.findPasskeyByPasskeyIdAndAccountId(
       cursor.getString(4)!!,
       cursor.getString(5),
       cursor.getString(6),
-      cursor.getJson2<RegistrationRecord>(7),
+      cursor.decodeJson<RegistrationRecord>(7),
     )
   }
 }
@@ -79,7 +83,7 @@ suspend fun SqlConnection.findPasskeysByAccountId(account_id: AccountId): List<P
       cursor.getString(4)!!,
       cursor.getString(5),
       cursor.getString(6),
-      cursor.getJson2<RegistrationRecord>(7),
+      cursor.decodeJson<RegistrationRecord>(7),
     )
   }
 }

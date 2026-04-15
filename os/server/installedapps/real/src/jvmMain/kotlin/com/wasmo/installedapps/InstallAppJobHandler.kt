@@ -1,12 +1,11 @@
 package com.wasmo.installedapps
 
 import com.wasmo.app.db.InstalledAppRelease
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.insertInstalledAppRelease
 import com.wasmo.app.db.selectInstalledAppById
 import com.wasmo.app.db.setRelease
-import com.wasmo.app.db.transaction
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.computers.ComputerStore
 import com.wasmo.events.EventListener
 import com.wasmo.identifiers.OsScope
@@ -27,7 +26,7 @@ class InstallAppJobHandler(
   private val installedAppStore: InstalledAppStore,
 ) : OsJobHandler<InstallAppJob> {
   override suspend fun execute(job: InstallAppJob) {
-    val (installedApp, computerService) = wasmoDb.transactionWithResult(noEnclosing = true) {
+    val (installedApp, computerService) = wasmoDb.transaction {
       val installedApp = contextOf<SqlTransaction>().selectInstalledAppById(job.installedAppId)
       installedApp to computerStore.get(installedApp.computer_id)
     }
@@ -45,7 +44,7 @@ class InstallAppJobHandler(
     val completedAt = clock.now()
 
     if (installedManifest != null) {
-      val installedAppRelease = wasmoDb.transactionWithResult(noEnclosing = true) {
+      val installedAppRelease = wasmoDb.transaction {
         val releaseId = contextOf<SqlTransaction>().insertInstalledAppRelease(
           first_active_at = completedAt,
           computer_id = computerService.id,
@@ -72,7 +71,7 @@ class InstallAppJobHandler(
 
       service.app()?.afterInstall(0L, installedManifest.version)
 
-      wasmoDb.transaction(noEnclosing = true) {
+      wasmoDb.transaction {
         val rowCount = contextOf<SqlTransaction>().setRelease(
           id = installedApp.id,
           expected_version = installedApp.version,

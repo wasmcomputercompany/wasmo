@@ -4,7 +4,7 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.routes.AppRoute
 import com.wasmo.api.routes.toWasmoUrl
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
@@ -26,7 +26,7 @@ class CallAppAction(
   private val installedAppStore: InstalledAppStore,
 ) {
   suspend fun call(request: Request): Response<ResponseBody> {
-    val installedApp = wasmoDb.transactionWithResult(noEnclosing = true) {
+    val installedApp = wasmoDb.transaction {
       val routeCodec = callDataService.routeCodec()
       val route = routeCodec.decode(request.url.toWasmoUrl()) as AppRoute
       installedAppStore.getOrNull(client, route.computerSlug, route.appSlug)

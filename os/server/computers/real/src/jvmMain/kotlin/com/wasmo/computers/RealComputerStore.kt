@@ -2,7 +2,7 @@ package com.wasmo.computers
 
 import com.wasmo.accounts.Client
 import com.wasmo.app.db.Computer
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.insertComputer
 import com.wasmo.app.db.insertComputerAccess
 import com.wasmo.app.db.linkComputer

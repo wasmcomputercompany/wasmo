@@ -5,10 +5,10 @@ import com.wasmo.accounts.Client
 import com.wasmo.accounts.invite.InviteService
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.findPasskeyByPasskeyIdAndAccountId
 import com.wasmo.app.db.insertPasskey
-import com.wasmo.app.db.transactionWithResult
+import com.wasmo.sql.transaction
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
@@ -34,7 +34,7 @@ class RegisterPasskeyAction(
   ): Response<RegisterPasskeyResponse> {
     val registerResult = passkeyChecker.register(request.registration)
 
-    return wasmoDb.transactionWithResult(noEnclosing = true) {
+    return wasmoDb.transaction {
       val accountId = client.getOrCreateAccountId()
 
       val existing = contextOf<SqlTransaction>()

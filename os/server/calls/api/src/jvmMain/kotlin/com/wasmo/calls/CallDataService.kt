@@ -5,7 +5,7 @@ import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.app.db.SqlTransaction
+import com.wasmo.sql.SqlTransaction
 
 /**
  * This is scoped to a single API call or page load, and loads just the data we need for that call.
