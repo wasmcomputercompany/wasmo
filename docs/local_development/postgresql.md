@@ -46,19 +46,12 @@ $ psql "host=localhost user=postgres" \
   -c "CREATE DATABASE journal_test WITH ENCODING = 'UTF8'"
 ```
 
-Build migrations `.sql` files:
-
-```bash
-$ cd ../..
-$ ./gradlew :os:server:db:generateMainWasmoDbMigrations
-```
-
 Run all migrations:
 
 ```bash
 $ cd ../..
 $ export PGPASSWORD=password
-$ find ./os/server/db/build/resources/main/migrations \
+$ find ./os/server/db/src/jvmMain/resources/migrations \
   -name '*.sql' \
   | sort --version-sort \
   | xargs -n 1 \
@@ -72,14 +65,9 @@ Run an individual migration:
 
 ```bash
 $ cd ../..
-$ ./gradlew :os:server:db:generateMainWasmoDbMigrations
-```
-
-Replace _XXX_ with the migration number.
-
-```bash
-$ cd ../..
 $ export PGPASSWORD=password
 $ psql "host=localhost dbname=wasmo_development user=postgres" -a -f \
-     ./os/server/db/build/resources/main/migrations/vXXX__db.sql
+     ./os/server/db/src/jvmMain/resources/migrations/vXXX.sql
 ```
+
+(Replace _XXX_ with the migration file.)

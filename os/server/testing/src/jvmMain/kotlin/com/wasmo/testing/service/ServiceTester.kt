@@ -31,7 +31,6 @@ import okio.FileSystem
 import okio.Path
 import wasmo.http.FakeHttpService
 import wasmo.objectstore.FakeObjectStore
-import wasmo.sql.SqlConnection
 import wasmo.time.FakeClock
 
 /**
@@ -104,7 +103,7 @@ class ServiceTester : CoroutineTestInterceptor {
     postgresqlClient.asSqlService().use { sqlService ->
       sqlService.getOrCreate().use { wasmoDb ->
         wasmoDb.withConnection {
-          contextOf<SqlConnection>().migrate()
+          migrate()
         }
 
         // Use a custom, non-test dispatcher because the PostgreSQL dispatcher client suspends

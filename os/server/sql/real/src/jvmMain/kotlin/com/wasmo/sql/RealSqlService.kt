@@ -80,39 +80,29 @@ internal class RealSqlConnection(
   override suspend fun execute(
     sql: String,
     bindParameters: (SqlBinder.() -> Unit)?,
-  ): Long {
-    val preparedQuery = sqlClient.preparedQuery(sql)
-
-    val rows = when {
-      bindParameters != null -> {
-        val tupleBuilder = TupleBuilder()
-        tupleBuilder.bindParameters()
-        preparedQuery.execute(tupleBuilder.build()).asDeferred().await()
-      }
-
-      else -> preparedQuery.execute().asDeferred().await()
-    }
-
-    return rows.rowCount().toLong()
-  }
+  ) = executeInternal(sql, bindParameters).rowCount().toLong()
 
   override suspend fun executeQuery(
     sql: String,
     bindParameters: (SqlBinder.() -> Unit)?,
-  ): RowIterator {
-    val preparedQuery = sqlClient.preparedQuery(sql)
+  ) = RealRowIterator(executeInternal(sql, bindParameters).iterator())
 
-    val rows: RowSet<VertxRow?> = when {
+  private suspend fun executeInternal(
+    sql: String,
+    bindParameters: (SqlBinder.() -> Unit)?,
+  ): RowSet<VertxRow?> {
+    val future = when {
       bindParameters != null -> {
+        val preparedQuery = sqlClient.preparedQuery(sql)
         val tupleBuilder = TupleBuilder()
         tupleBuilder.bindParameters()
-        preparedQuery.execute(tupleBuilder.build()).asDeferred().await()
+        preparedQuery.execute(tupleBuilder.build())
       }
 
-      else -> preparedQuery.execute().asDeferred().await()
+      else -> sqlClient.query(sql).execute()
     }
 
-    return RealRowIterator(rows.iterator())
+    return future.asDeferred().await()
   }
 
   override fun close() {
