@@ -56,7 +56,7 @@ class RealCallDataService(
           transactionCallbacks.inviteQueries.findInvitesByClaimedBy(
             claimed_by = accountId,
             limit = 1,
-          ).executeAsOneOrNull()
+          )
         }
 
         else -> null
@@ -122,7 +122,6 @@ class RealCallDataService(
   context(transactionCallbacks: TransactionCallbacks)
   override suspend fun inviteTicketOrNull(code: String): InviteTicket? {
     val invite = transactionCallbacks.inviteQueries.findInvitesByCode(code)
-      .executeAsOneOrNull()
       ?: return null
 
     return InviteTicket(

@@ -36,7 +36,6 @@ class InviteService(
   context(transactionCallbacks: TransactionCallbacks)
   suspend fun claim(claimedBy: Client, code: String): InviteTicket {
     val invite = transactionCallbacks.inviteQueries.findInvitesByCode(code)
-      .executeAsOneOrNull()
       ?: throw NotFoundUserException("unknown invite")
 
     val claimedById = claimedBy.getOrCreateAccountId()
