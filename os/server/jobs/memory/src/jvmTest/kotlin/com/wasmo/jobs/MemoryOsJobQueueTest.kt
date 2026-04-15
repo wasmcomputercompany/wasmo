@@ -42,6 +42,7 @@ class MemoryOsJobQueueTest {
   }
 
   @Test
+  @Ignore("our ServiceTester currently runs tests with a non-test dispatcher")
   fun jobExecutedWithDelay() = runTest {
     val channel = Channel<String>(capacity = 1)
     val jobQueue = MemoryOsJobQueue(

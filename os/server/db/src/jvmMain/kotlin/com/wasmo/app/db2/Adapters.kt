@@ -7,7 +7,6 @@ import com.wasmo.app.db.Computer
 import com.wasmo.app.db.ComputerAccess
 import com.wasmo.app.db.ComputerAllocation
 import com.wasmo.app.db.ComputerSpec
-import com.wasmo.app.db.Cookie
 import com.wasmo.app.db.InstalledApp
 import com.wasmo.app.db.InstalledAppRelease
 import com.wasmo.identifiers.AccountId
@@ -161,19 +160,9 @@ val ComputerSpecAdapter = ComputerSpec.Adapter(
   slugAdapter = ComputerSlugAdapter,
 )
 
-val CookieAdapter = Cookie.Adapter(
-  idAdapter = CookieIdAdapter,
-  created_atAdapter = InstantAdapter,
-  account_idAdapter = AccountIdAdapter,
-)
-
 val InstalledAppAdapter = InstalledApp.Adapter(
-  idAdapter = InstalledAppIdAdapter,
-  installed_atAdapter = InstantAdapter,
-  computer_idAdapter = ComputerIdAdapter,
   slugAdapter = AppSlugAdapter,
   wasmo_file_addressAdapter = WasmoFileAddressAdapter,
-  active_release_idAdapter = InstalledAppReleaseIdAdapter,
 )
 
 val InstalledAppReleaseAdapter = InstalledAppRelease.Adapter(

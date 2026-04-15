@@ -1,8 +1,10 @@
 package com.wasmo.app.db
 
-import com.wasmo.app.db2.RealSqlCursor as JdbcCursor
 import com.wasmo.app.db2.RealSqlCursor as SqlCursor
 import com.wasmo.app.db2.WasmoDbConnection as SqlDriver
+import com.wasmo.app.db2.bindAccountId
+import com.wasmo.app.db2.getAccountId
+import com.wasmo.app.db2.getCookieId
 import com.wasmo.db.sqlservice.Query2 as Query
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.CookieId
@@ -11,7 +13,6 @@ import wasmo.sql.RowIterator
 
 public class CookieQueries(
   private val driver: SqlDriver,
-  private val CookieAdapter: Cookie.Adapter,
 ) {
   public fun <T : Any> findCookieByToken(
     token: String,
@@ -25,9 +26,9 @@ public class CookieQueries(
     ) -> T,
   ): Query<T> = FindCookieByTokenQuery(token) { cursor ->
     mapper(
-      CookieAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getCookieId(0),
       cursor.getInstant(1)!!,
-      CookieAdapter.account_idAdapter.decode(cursor.getS64(2)!!),
+      cursor.getAccountId(2),
       cursor.getString(3)!!,
       cursor.getString(4),
       cursor.getString(5),
@@ -48,9 +49,9 @@ public class CookieQueries(
     ) -> T,
   ): Query<T> = FindCookieByAccountIdQuery(account_id) { cursor ->
     mapper(
-      CookieAdapter.idAdapter.decode(cursor.getS64(0)!!),
+      cursor.getCookieId(0),
       cursor.getInstant(1)!!,
-      CookieAdapter.account_idAdapter.decode(cursor.getS64(2)!!),
+      cursor.getAccountId(2),
       cursor.getString(3)!!,
       cursor.getString(4),
       cursor.getString(5),
@@ -90,7 +91,7 @@ public class CookieQueries(
     ) {
       var parameterIndex = 0
       bindInstant(parameterIndex++, created_at)
-      bindS64(parameterIndex++, CookieAdapter.account_idAdapter.encode(account_id))
+      bindAccountId(parameterIndex++, account_id)
       bindString(parameterIndex++, token)
       bindString(parameterIndex++, created_by_user_agent)
       bindString(parameterIndex++, created_by_ip)
@@ -113,8 +114,8 @@ public class CookieQueries(
           """.trimMargin(),
     ) {
       var parameterIndex = 0
-      bindS64(parameterIndex++, CookieAdapter.account_idAdapter.encode(target_account_id))
-      bindS64(parameterIndex++, CookieAdapter.account_idAdapter.encode(source_account_id))
+      bindAccountId(parameterIndex++, target_account_id)
+      bindAccountId(parameterIndex++, source_account_id)
     }
     return result
   }
@@ -144,7 +145,7 @@ public class CookieQueries(
         """SELECT Cookie.id, Cookie.created_at, Cookie.account_id, Cookie.token, Cookie.created_by_user_agent, Cookie.created_by_ip FROM Cookie WHERE account_id = $1""",
       ) {
         var parameterIndex = 0
-        bindS64(parameterIndex++, CookieAdapter.account_idAdapter.encode(account_id))
+        bindAccountId(parameterIndex++, account_id)
       }
     }
 
