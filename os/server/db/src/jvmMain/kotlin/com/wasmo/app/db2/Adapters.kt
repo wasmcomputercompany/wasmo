@@ -11,7 +11,6 @@ import com.wasmo.app.db.Cookie
 import com.wasmo.app.db.InstalledApp
 import com.wasmo.app.db.InstalledAppRelease
 import com.wasmo.app.db.Invite
-import com.wasmo.app.db.Passkey
 import com.wasmo.app.db.StripeCustomer
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppSlug
@@ -193,13 +192,6 @@ val InviteAdapter = Invite.Adapter(
   created_byAdapter = AccountIdAdapter,
   claimed_atAdapter = InstantAdapter,
   claimed_byAdapter = AccountIdAdapter,
-)
-
-val PasskeyAdapter = Passkey.Adapter(
-  idAdapter = PasskeyIdAdapter,
-  created_atAdapter = InstantAdapter,
-  account_idAdapter = AccountIdAdapter,
-  registration_recordAdapter = RegistrationRecordAdapter,
 )
 
 val StripeCustomerAdapter = StripeCustomer.Adapter(

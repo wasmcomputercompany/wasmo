@@ -4,9 +4,6 @@ import app.cash.sqldelight.ColumnAdapter
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.passkeys.RegistrationRecord
-import java.time.OffsetDateTime
-import kotlin.Long
-import kotlin.String
 import kotlin.time.Instant
 
 data class Passkey(
@@ -21,8 +18,5 @@ data class Passkey(
 ) {
   class Adapter(
     val idAdapter: ColumnAdapter<PasskeyId, Long>,
-    val created_atAdapter: ColumnAdapter<Instant, OffsetDateTime>,
-    val account_idAdapter: ColumnAdapter<AccountId, Long>,
-    val registration_recordAdapter: ColumnAdapter<RegistrationRecord, String>,
   )
 }
