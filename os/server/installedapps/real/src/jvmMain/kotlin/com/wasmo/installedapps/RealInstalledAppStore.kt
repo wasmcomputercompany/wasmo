@@ -68,7 +68,6 @@ class RealInstalledAppStore(
     installedAppRelease: InstalledAppRelease?,
   ): InstalledAppService {
     val computer = transactionCallbacks.computerQueries.selectComputerById(installedApp.computer_id)
-      .executeAsOne()
     return get(computer.slug, installedApp, installedAppRelease)
   }
 

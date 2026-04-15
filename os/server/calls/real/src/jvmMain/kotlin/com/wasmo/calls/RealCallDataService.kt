@@ -97,7 +97,7 @@ class RealCallDataService(
       val computers = transactionCallbacks.computerQueries.selectComputersByAccountId(
         account_id = accountId,
         limit = 100,
-      ).executeAsList()
+      )
 
       return ComputerListSnapshot(
         items = computers.map {

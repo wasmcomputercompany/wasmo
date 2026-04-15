@@ -29,7 +29,7 @@ class RealComputerStore(
           created_at = computerSpec.created_at,
           version = 1,
           slug = computerSpec.slug,
-        ).executeAsOne()
+        )
 
         transactionCallbacks.computerAccessQueries.insertComputerAccess(
           created_at = computerSpec.created_at,
@@ -73,7 +73,7 @@ class RealComputerStore(
   override suspend fun get(computerId: ComputerId): ComputerService {
     val computer = transactionCallbacks.computerQueries.selectComputerById(
       id = computerId,
-    ).executeAsOne()
+    )
 
     return get(computer)
   }
