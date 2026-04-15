@@ -9,13 +9,21 @@ import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
-suspend fun SqlConnection.findPasskeyByPasskeyId(passkey_id: String): Passkey? {
-  val rowIterator = executeQuery(
+context(connection: SqlConnection)
+suspend fun findPasskeyByPasskeyId(passkey_id: String): Passkey? {
+  val rowIterator = connection.executeQuery(
     """
-    SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record
+    SELECT
+      Passkey.id,
+      Passkey.created_at,
+      Passkey.account_id,
+      Passkey.passkey_id,
+      Passkey.aaguid,
+      Passkey.created_by_user_agent,
+      Passkey.created_by_ip,
+      Passkey.registration_record
     FROM Passkey
-    WHERE
-      passkey_id = $1
+    WHERE passkey_id = $1
     """,
   ) {
     var parameterIndex = 0
@@ -36,16 +44,25 @@ suspend fun SqlConnection.findPasskeyByPasskeyId(passkey_id: String): Passkey? {
   }
 }
 
-suspend fun SqlConnection.findPasskeyByPasskeyIdAndAccountId(
+context(connection: SqlConnection)
+suspend fun findPasskeyByPasskeyIdAndAccountId(
   passkey_id: String,
   account_id: AccountId,
 ): Passkey? {
-  val rowIterator = executeQuery(
+  val rowIterator = connection.executeQuery(
     """
-    SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey
-    WHERE
-       passkey_id = $1 AND
-       account_id = $2
+    SELECT
+      Passkey.id,
+      Passkey.created_at,
+      Passkey.account_id,
+      Passkey.passkey_id,
+      Passkey.aaguid,
+      Passkey.created_by_user_agent,
+      Passkey.created_by_ip,
+      Passkey.registration_record
+    FROM Passkey
+    WHERE passkey_id = $1
+      AND account_id = $2
     """,
   ) {
     var parameterIndex = 0
@@ -67,9 +84,22 @@ suspend fun SqlConnection.findPasskeyByPasskeyIdAndAccountId(
   }
 }
 
-suspend fun SqlConnection.findPasskeysByAccountId(account_id: AccountId): List<Passkey> {
-  val rowIterator = executeQuery(
-    """SELECT Passkey.id, Passkey.created_at, Passkey.account_id, Passkey.passkey_id, Passkey.aaguid, Passkey.created_by_user_agent, Passkey.created_by_ip, Passkey.registration_record FROM Passkey WHERE account_id = $1""",
+context(connection: SqlConnection)
+suspend fun findPasskeysByAccountId(account_id: AccountId): List<Passkey> {
+  val rowIterator = connection.executeQuery(
+    """
+    SELECT
+      Passkey.id,
+      Passkey.created_at,
+      Passkey.account_id,
+      Passkey.passkey_id,
+      Passkey.aaguid,
+      Passkey.created_by_user_agent,
+      Passkey.created_by_ip,
+      Passkey.registration_record
+    FROM Passkey
+    WHERE account_id = $1
+    """,
   ) {
     var parameterIndex = 0
     bindAccountId(parameterIndex++, account_id)
@@ -88,7 +118,8 @@ suspend fun SqlConnection.findPasskeysByAccountId(account_id: AccountId): List<P
   }
 }
 
-suspend fun SqlConnection.insertPasskey(
+context(connection: SqlConnection)
+suspend fun insertPasskey(
   created_at: Instant,
   account_id: AccountId,
   passkey_id: String,
@@ -97,7 +128,7 @@ suspend fun SqlConnection.insertPasskey(
   created_by_ip: String?,
   registration_record: RegistrationRecord,
 ): Long {
-  return execute(
+  return connection.execute(
     """
     INSERT INTO Passkey(
       created_at,

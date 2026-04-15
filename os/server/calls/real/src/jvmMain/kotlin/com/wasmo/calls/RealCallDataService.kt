@@ -11,13 +11,13 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.app.db.Invite
 import com.wasmo.app.db.Passkey
-import com.wasmo.sql.SqlTransaction
 import com.wasmo.app.db.findInvitesByClaimedBy
 import com.wasmo.app.db.findInvitesByCode
 import com.wasmo.app.db.findPasskeysByAccountId
 import com.wasmo.app.db.selectComputersByAccountId
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
+import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -35,7 +35,7 @@ class RealCallDataService(
       val accountId = client.getAccountIdOrNull()
 
       return when {
-        accountId != null -> sqlTransaction.findPasskeysByAccountId(accountId)
+        accountId != null -> findPasskeysByAccountId(accountId)
           .map { it.toSnapshot() }
 
         else -> listOf()
