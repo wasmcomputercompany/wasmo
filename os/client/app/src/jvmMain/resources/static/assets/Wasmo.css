@@ -309,17 +309,17 @@ a:hover {
   background-color: rgb(255 255 255);
 }
 
-/* TeaserScreen */
+/* HomeScreen */
 
-.TeaserScreen {
+.HomeScreen {
   background-color: #00C55F;
 }
 
-.TeaserScreen a {
+.HomeScreen a {
   text-decoration: none;
 }
 
-.TeaserScreen h1, .TeaserScreen h2, .TeaserScreen h3 {
+.HomeScreen h1, .HomeScreen h2, .HomeScreen h3 {
   font-weight: 400;
   color: rgba(0 0 0 / 0.8);
 }

@@ -15,7 +15,7 @@ import com.wasmo.client.app.buildyours.BuildYoursUi
 import com.wasmo.client.app.computer.ComputerUi
 import com.wasmo.client.app.computerlist.ComputerListUi
 import com.wasmo.client.app.invite.InviteUi
-import com.wasmo.client.app.teaser.TeaserUi
+import com.wasmo.client.app.home.HomeUi
 import com.wasmo.client.framework.Ui
 import com.wasmo.client.identifiers.ClientAppScope
 import com.wasmo.framework.PageData
@@ -28,7 +28,7 @@ class UiFactory(
   private val pageData: PageData,
   private val inviteUiFactory: InviteUi.Factory,
   private val buildYoursUiFactory: BuildYoursUi.Factory,
-  private val teaserUiFactory: TeaserUi.Factory,
+  private val homeUiFactory: HomeUi.Factory,
   private val computerListUiFactory: ComputerListUi.Factory,
   private val computerUiFactory: ComputerUi.Factory,
 ) {
@@ -53,7 +53,7 @@ class UiFactory(
 
       NotFoundRoute -> UnimplementedUi("Not Found")
 
-      TeaserRoute -> teaserUiFactory.create()
+      TeaserRoute -> homeUiFactory.create()
     }
   }
 }

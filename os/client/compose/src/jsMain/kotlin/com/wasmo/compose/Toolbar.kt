@@ -28,7 +28,7 @@ fun Toolbar(
   ) -> Unit)? = null,
   title: @Composable DOMScope<HTMLDivElement>.(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
-  ) -> Unit,
+  ) -> Unit = { attrs -> ToolbarTitle(attrs) {} },
   right: (@Composable DOMScope<HTMLDivElement>.(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
   ) -> Unit)? = null,
