@@ -45,7 +45,7 @@ these changes, or to regenerate with the instructions below.
 To force new golden snapshots to be generated, run this:
 
 ```bash
-../../gradlew cleanDomTester jsBrowserTest --continue || ../../gradlew jsBrowserTest
+$ ../../gradlew cleanDomTester jsBrowserTest --continue || ../../gradlew jsBrowserTest
 ```
 
 Notice that we run `jsBrowserTest` twice. That's because we deliberately fail the task whenever new
