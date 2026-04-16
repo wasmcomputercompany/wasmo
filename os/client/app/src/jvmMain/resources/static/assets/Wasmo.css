@@ -5,7 +5,7 @@ html, body {
 }
 
 body {
-  background-color: #ffffff;
+  background: #ffffff;
 }
 
 body, input, button {
@@ -66,7 +66,7 @@ a:hover {
 .Form button {
   margin-top: 8px;
   margin-bottom: 8px;
-  background-color: transparent;
+  background: transparent;
   text-align: center;
   text-transform: uppercase;
   border-style: solid;
@@ -165,13 +165,19 @@ a:hover {
 }
 
 .SignUpFormScreen button:hover {
-  background-color: rgb(108 34 179 / 0.3);
+  background: rgb(108 34 179 / 0.3);
 }
 
 /* BuildYoursScreen */
 
 .BuildYoursScreen {
   background: #4c6d81;
+}
+
+/* AuthScreen */
+
+.AuthScreen {
+  background: #00C55F;
 }
 
 /* InviteScreen */
@@ -196,7 +202,7 @@ a:hover {
 }
 
 .ToolbarImageButton {
-  background-color: rgb(255 255 255);
+  background: rgb(255 255 255);
   width: 40px;
   height: 64px;
   opacity: 0.7;
@@ -207,12 +213,20 @@ a:hover {
   opacity: 1;
 }
 
+.Toolbar > *:last-child {
+  margin-right: 24px;
+}
+
+.Toolbar > *:first-child {
+  margin-left: 24px;
+}
+
 /* Scrim */
 
 .Scrim {
   transition: opacity 300ms ease-in;
   backdrop-filter: blur(2px);
-  background-color: #00000088;
+  background: #00000088;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -232,7 +246,7 @@ a:hover {
 
 .Dialog {
   margin: 16px;
-  background-color: rgb(36 36 36);
+  background: rgb(36 36 36);
   color: rgb(255 255 255);
   border-radius: 24px;
   transition: all 300ms ease-in;
@@ -257,13 +271,13 @@ a:hover {
 }
 
 .Dialog .ToolbarImageButton {
-  background-color: rgb(255 255 255);
+  background: rgb(255 255 255);
 }
 
 /* Menu */
 
 .Menu {
-  background-color: rgb(36 36 36);
+  background: rgb(36 36 36);
   color: rgb(255 255 255);
   border-top-left-radius: 16px;
   border-bottom-left-radius: 16px;
@@ -301,18 +315,25 @@ a:hover {
 }
 
 .Menu .Toolbar {
-  padding: 0 12px;
   margin-bottom: 0;
 }
 
+.Menu .Toolbar > *:last-child {
+  margin-right: 12px;
+}
+
+.Menu .Toolbar > *:first-child {
+  margin-left: 12px;
+}
+
 .Menu .ToolbarImageButton {
-  background-color: rgb(255 255 255);
+  background: rgb(255 255 255);
 }
 
 /* HomeScreen */
 
 .HomeScreen {
-  background-color: #00C55F;
+  background: #00C55F;
 }
 
 .HomeScreen a {
@@ -339,13 +360,13 @@ a:hover {
   padding: 10px;
   font-size: 60px;
   color: rgba(255 255 255 / 0.9);
-  background-color: rgba(0 0 0 / 0.5);
+  background: rgba(0 0 0 / 0.5);
   transition: all 200ms ease-in;
 }
 
 .SmartphoneFrame:hover .NameOverlay {
   color: rgba(255 255 255 / 1.0);
-  background-color: rgba(0 0 0 / 0.3);
+  background: rgba(0 0 0 / 0.3);
 }
 
 /* Launcher */

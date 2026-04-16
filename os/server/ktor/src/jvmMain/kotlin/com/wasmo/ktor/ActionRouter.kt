@@ -130,7 +130,15 @@ class ActionRouter(
   }
 
   private fun Route.createPages() {
-    for (path in listOf("/", "/build-yours", "/computers", "/teaser", "/invite/{code}")) {
+    val osPagePaths = listOf(
+      "/",
+      "/build-yours",
+      "/computers",
+      "/invite/{code}",
+      "/sign-up",
+      "/teaser",
+    )
+    for (path in osPagePaths) {
       route(path, HttpMethod.Get) {
         handle { callGraph, url, _ ->
           callGraph.osPageAction.get(url).response
@@ -226,6 +234,7 @@ class ActionRouter(
           is NotFoundUserException -> {
             // Don't log stack traces for these; everything is working as designed.
           }
+
           else -> {
             application.log.info("call failed", e)
           }

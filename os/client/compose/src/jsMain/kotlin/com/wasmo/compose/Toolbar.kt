@@ -50,19 +50,6 @@ fun Toolbar(
     title {
       style {
         flex(100, 100, 0.px)
-
-        marginLeft(
-          when {
-            left != null -> 8.px
-            else -> 0.px
-          },
-        )
-        marginRight(
-          when {
-            right != null -> 8.px
-            else -> 0.px
-          },
-        )
       }
     }
     right?.invoke(this) {

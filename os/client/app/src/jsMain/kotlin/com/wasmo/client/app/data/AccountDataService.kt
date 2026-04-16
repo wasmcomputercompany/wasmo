@@ -1,6 +1,8 @@
 package com.wasmo.client.app.data
 
 import com.wasmo.api.AccountSnapshot
+import com.wasmo.api.LinkEmailAddressRequest
+import com.wasmo.api.WasmoApi
 import com.wasmo.client.identifiers.ClientAppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -13,11 +15,14 @@ interface AccountDataService {
 
   /** Call this when a new account snapshot is received. */
   fun receiveAccountSnapshot(snapshot: AccountSnapshot)
+
+  suspend fun linkEmailAddress(unverifiedEmailAddress: String): Boolean
 }
 
 @Inject
 @SingleIn(ClientAppScope::class)
 class RealAccountDataService(
+  private val wasmoApi: WasmoApi,
   accountSnapshot: AccountSnapshot,
 ) : AccountDataService {
   private val accountSnapshot_ = MutableStateFlow(accountSnapshot)
@@ -30,5 +35,12 @@ class RealAccountDataService(
 
   override fun receiveAccountSnapshot(snapshot: AccountSnapshot) {
     accountSnapshot_.value = snapshot
+  }
+
+  override suspend fun linkEmailAddress(unverifiedEmailAddress: String): Boolean {
+    val response = wasmoApi.linkEmailAddress(
+      LinkEmailAddressRequest(unverifiedEmailAddress),
+    )
+    return response.challengeSent
   }
 }

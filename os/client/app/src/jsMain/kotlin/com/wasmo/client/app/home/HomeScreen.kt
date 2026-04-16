@@ -75,6 +75,7 @@ fun HomeScreen(
 
       Div(
         attrs = {
+          classes("ScreenContentWidth")
           style {
             flex(100, 100, 0.px)
             display(DisplayStyle.Flex)

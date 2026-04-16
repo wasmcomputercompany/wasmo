@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.wasmo.api.routes.BuildYoursRoute
+import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.client.app.Environment
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
@@ -53,9 +54,13 @@ class HomeUi(
       }
 
       HomeEvent.ClickSignIn -> {
+        menuModel = null
+        router.goTo(SignUpRoute, TransitionDirection.PUSH)
       }
 
       HomeEvent.ClickSignUp -> {
+        menuModel = null
+        router.goTo(SignUpRoute, TransitionDirection.PUSH)
       }
     }
   }

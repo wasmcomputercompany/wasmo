@@ -11,6 +11,7 @@ import com.wasmo.api.routes.NotFoundRoute
 import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
+import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.api.routes.TeaserRoute
 import com.wasmo.api.routes.Url
 import com.wasmo.identifiers.AppSlug
@@ -51,6 +52,7 @@ class RealRouteCodec(
         "build-yours" -> BuildYoursRoute
         "computers" -> ComputerListRoute
         "teaser" -> TeaserRoute
+        "sign-up" -> SignUpRoute
         else -> NotFoundRoute
       }
     }
@@ -106,6 +108,10 @@ class RealRouteCodec(
       }
 
       NotFoundRoute -> routingContext.root.copy(path = listOf("not-found"))
+
+      SignUpRoute -> routingContext.root.copy(
+        path = listOf("sign-up"),
+      )
     }
   }
 

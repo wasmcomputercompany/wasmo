@@ -22,6 +22,8 @@ data class InviteRoute(
 
 data object AdminRoute : Route
 
+data object SignUpRoute : Route
+
 data object TeaserRoute : Route
 
 data object BuildYoursRoute : Route
