@@ -20,6 +20,7 @@ import com.wasmo.installedapps.ApplicationJobHandler
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
+import com.wasmo.installedapps.RealSqlService
 import com.wasmo.jobs.MemoryOsJobQueue
 import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.OsJobQueue
@@ -27,6 +28,9 @@ import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
+import com.wasmo.sql.ProvisioningDb
+import com.wasmo.sql.RealSqlDatabaseFactory
+import com.wasmo.sql.SqlDatabaseFactory
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePaymentsService
 import com.wasmo.testing.FakeSendEmailService
@@ -81,6 +85,7 @@ interface ServiceTesterGraph {
   val sendEmailService: FakeSendEmailService
   val appPublisher: FakeAppPublisher
   val wasmoDb: SqlDatabase
+  val provisioningDb: SqlDatabase
   val sampleApps: SampleApps
 
   @Provides
@@ -179,11 +184,17 @@ interface ServiceTesterGraph {
   @ForOs
   fun bindObjectStore(real: FakeObjectStore): ObjectStore
 
+  @Binds
+  fun bindSqlDatabaseFactory(real: RealSqlDatabaseFactory): SqlDatabaseFactory
+
+  @Binds
+  fun bindSqlService(real: RealSqlService): SqlService
+
   @DependencyGraph.Factory
   interface Factory {
     fun create(
       @Provides wasmoDb: SqlDatabase,
-      @Provides sqlService: SqlService,
+      @Provides provisioningDb: ProvisioningDb,
       @Provides coroutineScope: CoroutineScope,
       @Provides fileSystem: FileSystem,
       @Provides @TestDirectory testDirectory: Path,

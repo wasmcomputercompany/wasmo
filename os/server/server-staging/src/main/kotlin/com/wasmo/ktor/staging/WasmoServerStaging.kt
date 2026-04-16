@@ -60,7 +60,7 @@ suspend fun main(args: Array<String>) {
     ),
     catalog = DevelopmentCatalog,
     osPostgresqlAddress = sharedPostgresqlAddress,
-    applicationPostgresqlAddress = sharedPostgresqlAddress,
+    provisioningPostgresqlAddress = sharedPostgresqlAddress,
     deployment = Deployment(
       baseUrl = "https://wasmo.dev/".toHttpUrl(),
       sendFromEmailAddress = "noreply@wasmo.dev",

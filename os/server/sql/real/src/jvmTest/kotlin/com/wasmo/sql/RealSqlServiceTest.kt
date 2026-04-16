@@ -45,8 +45,7 @@ class RealSqlServiceTest {
       valueUuid = Uuid.parse("00000000-0000-4000-8000-000000000000"),
       valueJson = JsonLiteral("""{"a":1,"b":2}"""), // Must be in canonical form.
     )
-    val database = tester.sqlService.getOrCreate()
-    database.newConnection().use { connection ->
+    tester.sqlDatabase.newConnection().use { connection ->
       connection.createTableAllTypes()
       connection.insertIntoAllTypes(value)
       assertThat(connection.selectFromAllTypes()).containsExactly(value)
@@ -56,8 +55,7 @@ class RealSqlServiceTest {
   @Test
   fun `read and write all types as null`() = runTest {
     val value = AllTypes()
-    val database = tester.sqlService.getOrCreate()
-    database.newConnection().use { connection ->
+    tester.sqlDatabase.newConnection().use { connection ->
       connection.createTableAllTypes()
       connection.insertIntoAllTypes(value)
       assertThat(connection.selectFromAllTypes()).containsExactly(value)
@@ -66,8 +64,7 @@ class RealSqlServiceTest {
 
   @Test
   fun `json values are json`() = runTest {
-    val database = tester.sqlService.getOrCreate()
-    database.newConnection().use { connection ->
+    tester.sqlDatabase.newConnection().use { connection ->
       connection.createTableKeyValues()
       connection.insertKeyValue(
         KeyValue(
@@ -102,8 +99,7 @@ class RealSqlServiceTest {
 
   @Test
   fun `transaction commits`() = runTest {
-    val database = tester.sqlService.getOrCreate()
-    database.newConnection().use { connection ->
+    tester.sqlDatabase.newConnection().use { connection ->
       connection.createTableBalances()
       connection.insertBalances(
         Balance("mike", 200_00L),
@@ -126,8 +122,7 @@ class RealSqlServiceTest {
 
   @Test
   fun `transaction rollback`() = runTest {
-    val database = tester.sqlService.getOrCreate()
-    database.newConnection().use { connection ->
+    tester.sqlDatabase.newConnection().use { connection ->
       connection.createTableBalances()
       connection.insertBalances(
         Balance("mike", 200_00L),
@@ -150,17 +145,16 @@ class RealSqlServiceTest {
 
   @Test
   fun `transaction scoped settings are isolated`() = runTest {
-    val database = tester.sqlService.getOrCreate()
-    database.newConnection().use { connection ->
+    tester.sqlDatabase.newConnection().use { connection ->
       connection.executeQuery("SELECT current_setting('TIMEZONE')").use { rowIterator ->
         val row = rowIterator.next()!!
         assertThat(row.getString(0)).isEqualTo("Etc/UTC")
       }
     }
-    database.newConnection().use { connection ->
+    tester.sqlDatabase.newConnection().use { connection ->
       connection.execute("SET TIME ZONE 'America/Toronto'")
     }
-    database.newConnection().use { connection ->
+    tester.sqlDatabase.newConnection().use { connection ->
       connection.executeQuery("SELECT current_setting('TIMEZONE')").use { rowIterator ->
         val row = rowIterator.next()!!
         assertThat(row.getString(0)).isEqualTo("Etc/UTC")
@@ -170,8 +164,7 @@ class RealSqlServiceTest {
 
   @Test
   fun `dangling commit is rolled back`() = runTest {
-    val database = tester.sqlService.getOrCreate()
-    database.newConnection().use { connection ->
+    tester.sqlDatabase.newConnection().use { connection ->
       connection.createTableBalances()
       connection.insertBalances(
         Balance("mike", 200_00L),
@@ -185,7 +178,7 @@ class RealSqlServiceTest {
       )
     }
 
-    database.newConnection().use { connection ->
+    tester.sqlDatabase.newConnection().use { connection ->
       assertThat(connection.allBalances()).containsExactly(
         Balance("mike", 200_00L),
         Balance("jesse", 100_00L),

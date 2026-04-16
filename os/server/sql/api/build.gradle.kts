@@ -12,7 +12,9 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
+        implementation(project(":identifiers"))
         implementation(project(":platform:api"))
+        implementation(project(":support:close-tracker"))
       }
     }
   }

@@ -24,38 +24,13 @@ import kotlin.uuid.toKotlinUuid
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
 import wasmo.json.JsonLiteral
-import wasmo.sql.RowIterator
-import wasmo.sql.SqlBinder
-import wasmo.sql.SqlConnection
-import wasmo.sql.SqlDatabase
-import wasmo.sql.SqlRow
-import wasmo.sql.SqlService
+import wasmo.sql.*
 
-fun PostgresqlClient.asSqlService(): SqlService = RealSqlService(this)
-
-internal class RealSqlService(
-  private val client: PostgresqlClient,
-) : SqlService {
-  private val closeTracker = CloseTracker()
-
-  override suspend fun getOrCreate(name: String): SqlDatabase {
-    require(name == "") {
-      "SqlService doesn't support named databases yet"
-    }
-
-    return closeTracker.track { closeListener ->
-      RealSqlDatabase(client, closeListener)
-    }
-  }
-
-  override fun close() {
-    closeTracker.closeAll()
-  }
-}
+fun PostgresqlClient.asSqlDatabase(): SqlDatabase = RealSqlDatabase(this)
 
 internal class RealSqlDatabase(
   private val client: PostgresqlClient,
-  private val closeListener: CloseListener,
+  private val closeListener: CloseListener? = null,
 ) : SqlDatabase {
   private val closeTracker = CloseTracker()
 
@@ -66,7 +41,7 @@ internal class RealSqlDatabase(
   }
 
   override fun close() {
-    closeListener.onClose()
+    closeListener?.onClose()
     closeTracker.closeAll()
   }
 }
