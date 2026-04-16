@@ -6,4 +6,4 @@ build
 kotlin-js-store/yarn.lock
 
 # dom-tester
-generated-dom-tester.js
+**/karma.config.d/generated-dom-tester.js
