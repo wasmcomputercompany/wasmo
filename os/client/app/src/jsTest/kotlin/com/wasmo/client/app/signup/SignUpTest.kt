@@ -15,9 +15,25 @@ class SignUpTest {
   )
 
   @Test
-  fun initial() = runTest {
+  fun enterEmailAddress() = runTest {
     snapshotTester.snapshot {
-      SignUpScreen(
+      EnterEmailAddressScreen(
+        emailAddress = "",
+        emailAddressCaption = "We’ll email you a challenge code",
+        canSubmit = true,
+        eventListener = {
+        },
+      )
+    }
+  }
+
+  @Test
+  fun enterChallengeCode() = runTest {
+    snapshotTester.snapshot {
+      EnterChallengeCodeScreen(
+        challengeCode = "",
+        challengeCodeCaption = "Enter the code sent to jesse@example.com",
+        canSubmit = true,
         eventListener = {
         },
       )

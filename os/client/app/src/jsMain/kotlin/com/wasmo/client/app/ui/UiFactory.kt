@@ -12,12 +12,13 @@ import com.wasmo.api.routes.NotFoundRoute
 import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.api.routes.TeaserRoute
-import com.wasmo.client.app.signup.SignUpUi
 import com.wasmo.client.app.buildyours.BuildYoursUi
 import com.wasmo.client.app.computer.ComputerUi
 import com.wasmo.client.app.computerlist.ComputerListUi
 import com.wasmo.client.app.home.HomeUi
 import com.wasmo.client.app.invite.InviteUi
+import com.wasmo.client.app.signup.SignUpPresenter
+import com.wasmo.client.app.signup.SignUpUi
 import com.wasmo.client.framework.Ui
 import com.wasmo.client.identifiers.ClientAppScope
 import com.wasmo.framework.PageData
@@ -33,6 +34,7 @@ class UiFactory(
   private val homeUiFactory: HomeUi.Factory,
   private val computerListUiFactory: ComputerListUi.Factory,
   private val computerUiFactory: ComputerUi.Factory,
+  private val signUpPresenterFactory: SignUpPresenter.Factory,
   private val signUpUiFactory: SignUpUi.Factory,
 ) {
   fun create(route: Route): Ui {
@@ -58,7 +60,10 @@ class UiFactory(
 
       TeaserRoute -> homeUiFactory.create()
 
-      SignUpRoute -> signUpUiFactory.create()
+      SignUpRoute -> {
+        val presenter = signUpPresenterFactory.create()
+        signUpUiFactory.create(presenter)
+      }
     }
   }
 }

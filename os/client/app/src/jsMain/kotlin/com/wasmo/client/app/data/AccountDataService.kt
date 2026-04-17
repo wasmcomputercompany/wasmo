@@ -1,6 +1,8 @@
 package com.wasmo.client.app.data
 
 import com.wasmo.api.AccountSnapshot
+import com.wasmo.api.ConfirmEmailAddressRequest
+import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.WasmoApi
 import com.wasmo.client.identifiers.ClientAppScope
@@ -16,7 +18,14 @@ interface AccountDataService {
   /** Call this when a new account snapshot is received. */
   fun receiveAccountSnapshot(snapshot: AccountSnapshot)
 
-  suspend fun linkEmailAddress(unverifiedEmailAddress: String): Boolean
+  suspend fun linkEmailAddress(
+    unverifiedEmailAddress: String,
+  ): Boolean
+
+  suspend fun confirmEmailAddress(
+    unverifiedEmailAddress: String,
+    challengeCode: String,
+  ): ConfirmEmailAddressResponse
 }
 
 @Inject
@@ -42,5 +51,17 @@ class RealAccountDataService(
       LinkEmailAddressRequest(unverifiedEmailAddress),
     )
     return response.challengeSent
+  }
+
+  override suspend fun confirmEmailAddress(
+    unverifiedEmailAddress: String,
+    challengeCode: String,
+  ): ConfirmEmailAddressResponse {
+    return wasmoApi.confirmEmailAddress(
+      ConfirmEmailAddressRequest(
+        unverifiedEmailAddress = unverifiedEmailAddress,
+        challengeCode = challengeCode,
+      ),
+    )
   }
 }
