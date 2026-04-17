@@ -41,7 +41,9 @@ class SnapshotTester(
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     this.testFunction = testFunction
     val stylesheetLinkElements = (document.documentElement as HTMLElement)
-      .addStylesheets(stylesheetsUrls)
+      .addStylesheetUrls(stylesheetsUrls)
+    val domTesterStylesheetElement = (document.documentElement as HTMLElement)
+      .addStylesheetText(DomTesterStylesheet)
     try {
       testFunction()
 
@@ -52,6 +54,7 @@ class SnapshotTester(
       }
     } finally {
       this.testFunction = null
+      domTesterStylesheetElement.remove()
       for (element in stylesheetLinkElements) {
         element.remove()
       }

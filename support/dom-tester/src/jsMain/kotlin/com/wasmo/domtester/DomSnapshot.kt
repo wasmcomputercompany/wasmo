@@ -43,7 +43,8 @@ data class DomSnapshot(
       },
     )
 
-    addStylesheets(stylesheetsUrls)
+    addStylesheetUrls(stylesheetsUrls)
+    addStylesheetText(DomTesterStylesheet)
 
     outerHTML
   }
