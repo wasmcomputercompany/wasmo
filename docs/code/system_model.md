@@ -6,6 +6,9 @@ Accounts & Authentication
 
 An `Account` is a unit of access.
 
+Each account has zero or more linked email addresses that can be used to sign in. An email address
+may be linked to at most one account at a time.
+
 Each account has zero or more `Cookies` that grant the holder full access to the account's data.
 
 Each account has zero or more `Passkeys` that also grant the holder full access to the account's
