@@ -2,6 +2,7 @@ package com.wasmo.domtester.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.Delete
 
 class DomTesterPlugin : Plugin<Project> {
   override fun apply(project: Project) {
@@ -25,8 +26,12 @@ internal class RealDomTesterExtension(
       fullyQualifiedProjectDirectory.set(project.projectDir.path)
       jvmResources.from(project.tasks.named { it == "jvmProcessResources" })
     }
+    val cleanDomTesterSnapshotsTask = project.tasks.register("cleanDomTester", Delete::class.java) {
+      delete(project.layout.projectDirectory.dir("dom-tester-snapshots"))
+    }
     project.tasks.named { it == "jsBrowserTest" }.configureEach {
       dependsOn(writeSnapshotTestingJsTask)
+      mustRunAfter(cleanDomTesterSnapshotsTask)
       outputs.dirs(
         project.layout.projectDirectory.dir("dom-tester-snapshots"),
         project.layout.buildDirectory.dir("dom-tester-snapshots"),

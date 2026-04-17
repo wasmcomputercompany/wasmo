@@ -34,6 +34,24 @@ is intended to avoid a usability problem for tests that take multiple snapshots.
 snapshots are emitted before any failures are reported.
 
 
+### Snapshots Deleted?
+
+It's a known bug that `./gradlew clean` deletes the generated snapshot files. It is safe to revert
+these changes, or to regenerate with the instructions below.
+
+
+### Generating New Golden Snapshots
+
+To force new golden snapshots to be generated, run this:
+
+```bash
+$ ../../gradlew cleanDomTester jsBrowserTest --continue || ../../gradlew jsBrowserTest
+```
+
+Notice that we run `jsBrowserTest` twice. That's because we deliberately fail the task whenever new
+snapshots are written. (The second test run should succeed.)
+
+
 [Karma]: https://karma-runner.github.io/0.13/config/configuration-file.html
 [html-to-image]: https://github.com/bubkoo/html-to-image
 [redwood]: https://github.com/cashapp/redwood/
