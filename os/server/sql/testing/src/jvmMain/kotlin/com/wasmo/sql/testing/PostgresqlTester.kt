@@ -3,16 +3,16 @@ package com.wasmo.sql.testing
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.sql.PostgresqlClient
-import com.wasmo.sql.asSqlService
-import wasmo.sql.SqlService
+import com.wasmo.sql.asSqlDatabase
+import wasmo.sql.SqlDatabase
 
 class PostgresqlTester : CoroutineTestInterceptor {
   private var run: Run? = null
 
   val client: PostgresqlClient
     get() = run!!.client
-  val sqlService: SqlService
-    get() = run!!.sqlService
+  val sqlDatabase: SqlDatabase
+    get() = run!!.sqlDatabase
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     val client = PostgresqlClient(TestDatabaseAddress)
@@ -22,7 +22,7 @@ class PostgresqlTester : CoroutineTestInterceptor {
 
     run = Run(
       client = client,
-      sqlService = client.asSqlService(),
+      sqlDatabase = client.asSqlDatabase(),
     )
     try {
       testFunction.invoke()
@@ -33,6 +33,6 @@ class PostgresqlTester : CoroutineTestInterceptor {
 
   private class Run(
     val client: PostgresqlClient,
-    val sqlService: SqlService,
+    val sqlDatabase: SqlDatabase
   )
 }

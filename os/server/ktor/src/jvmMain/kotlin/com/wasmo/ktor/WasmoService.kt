@@ -10,7 +10,8 @@ import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.PostgresqlClient
-import com.wasmo.sql.asSqlService
+import com.wasmo.sql.ProvisioningDb
+import com.wasmo.sql.asSqlDatabase
 import com.wasmo.stripe.StripeCredentials
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -36,7 +37,7 @@ class WasmoService(
     val stripeCredentials: StripeCredentials,
     val catalog: Catalog,
     val osPostgresqlAddress: PostgresqlAddress,
-    val applicationPostgresqlAddress: PostgresqlAddress,
+    val provisioningPostgresqlAddress: PostgresqlAddress,
     val deployment: Deployment,
     val objectStoreAddress: ObjectStoreAddress,
     val sessionCookieSpec: SessionCookieSpec,
@@ -50,17 +51,18 @@ suspend fun startWasmoService(
   val server = EngineMain.createServer(args)
 
   val osPostgresqlClient = PostgresqlClient(config.osPostgresqlAddress)
-  val wasmoDb = osPostgresqlClient.asSqlService().getOrCreate()
-
-  val applicationPostgresqlClient = PostgresqlClient(config.applicationPostgresqlAddress)
-  val sqlService = applicationPostgresqlClient.asSqlService()
+  val provisioningDb = ProvisioningDb(
+    address = config.provisioningPostgresqlAddress,
+    provisioningDb = PostgresqlClient(config.provisioningPostgresqlAddress).asSqlDatabase(),
+  )
+  val wasmoDb = osPostgresqlClient.asSqlDatabase()
 
   val wasmoServiceGraphFactory = createGraphFactory<WasmoServiceGraph.Factory>()
   val serviceGraph = wasmoServiceGraphFactory.create(
     config = config,
     server = server,
     wasmoDb = wasmoDb,
-    sqlService = sqlService,
+    provisioningDb = provisioningDb,
   )
 
   serviceGraph.wasmoService.start()

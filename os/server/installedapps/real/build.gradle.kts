@@ -38,6 +38,7 @@ kotlin {
         implementation(project(":os:server:wasm:api"))
         implementation(project(":platform:api"))
         implementation(project(":platform:packaging"))
+        implementation(project(":support:close-tracker"))
         implementation(project(":support:issues"))
       }
     }

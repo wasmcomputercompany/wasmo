@@ -1,6 +1,7 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.burst)
+  alias(libs.plugins.metro)
   id("wasmo-build")
 }
 
@@ -16,6 +17,8 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
         implementation(libs.vertx.postgresql)
+        implementation(project(":identifiers"))
+        implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:sql:api"))
         implementation(project(":platform:api"))
         implementation(project(":support:close-tracker"))

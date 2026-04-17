@@ -65,12 +65,12 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
 
     val postgresql = PostgresqlClient(connectOptions)
     postgresql.withConnection<Unit> {
-      execute("DROP SCHEMA public CASCADE")
+      execute("DROP SCHEMA IF EXISTS public CASCADE")
       execute("CREATE SCHEMA public")
       execute("GRANT ALL ON SCHEMA public TO postgres")
       execute("GRANT ALL ON SCHEMA public TO public")
 
-      execute("DROP SCHEMA absurd CASCADE")
+      execute("DROP SCHEMA IF EXISTS absurd CASCADE")
       execute("CREATE SCHEMA absurd")
       execute("GRANT ALL ON SCHEMA absurd TO postgres")
       execute("GRANT ALL ON SCHEMA absurd TO public")

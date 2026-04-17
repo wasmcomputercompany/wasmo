@@ -6,7 +6,8 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.db.migrate
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.sql.PostgresqlClient
-import com.wasmo.sql.asSqlService
+import com.wasmo.sql.ProvisioningDb
+import com.wasmo.sql.asSqlDatabase
 import com.wasmo.sql.testing.TestDatabaseAddress
 import com.wasmo.sql.testing.clearSchema
 import com.wasmo.sql.withConnection
@@ -100,28 +101,30 @@ class ServiceTester : CoroutineTestInterceptor {
       it.clearSchema()
     }
 
-    postgresqlClient.asSqlService().use { sqlService ->
-      sqlService.getOrCreate().use { wasmoDb ->
-        wasmoDb.withConnection {
-          migrate()
-        }
+    val wasmoDb = postgresqlClient.asSqlDatabase()
+    val provisioningDb = ProvisioningDb(
+      address = TestDatabaseAddress,
+      provisioningDb = PostgresqlClient(TestDatabaseAddress).asSqlDatabase(),
+    )
 
-        // Use a custom, non-test dispatcher because the PostgreSQL dispatcher client suspends
-        // waiting on I/O, and the test dispatchers don't like that.
-        withContext(Dispatchers.Default) {
-          withTimeout(5.seconds) {
-            val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
-            coroutineScope {
-              this@ServiceTester.graph = serviceTesterGraphFactory.create(
-                wasmoDb = wasmoDb,
-                sqlService = sqlService,
-                coroutineScope = this,
-                fileSystem = fileSystem,
-                testDirectory = testDirectory,
-              )
-              testFunction()
-            }
-          }
+    wasmoDb.withConnection {
+      migrate()
+    }
+
+    // Use a custom, non-test dispatcher because the PostgreSQL dispatcher client suspends
+    // waiting on I/O, and the test dispatchers don't like that.
+    withContext(Dispatchers.Default) {
+      withTimeout(5.seconds) {
+        val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
+        coroutineScope {
+          this@ServiceTester.graph = serviceTesterGraphFactory.create(
+            wasmoDb = wasmoDb,
+            provisioningDb = provisioningDb,
+            coroutineScope = this,
+            fileSystem = fileSystem,
+            testDirectory = testDirectory,
+          )
+          testFunction()
         }
       }
     }

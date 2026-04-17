@@ -28,6 +28,7 @@ import com.wasmo.installedapps.ApplicationJobHandler
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
+import com.wasmo.installedapps.RealSqlService
 import com.wasmo.jobs.MemoryOsJobQueue
 import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.OsJobQueue
@@ -41,6 +42,9 @@ import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
+import com.wasmo.sql.ProvisioningDb
+import com.wasmo.sql.RealSqlDatabaseFactory
+import com.wasmo.sql.SqlDatabaseFactory
 import com.wasmo.stripe.StripePaymentsService
 import com.wasmo.wasm.AppLoader
 import com.wasmo.wasm.JvmAppLoader
@@ -231,13 +235,19 @@ internal interface WasmoServiceGraph {
   @Binds
   fun bindAppLoader(real: JvmAppLoader): AppLoader
 
+  @Binds
+  fun bindSqlDatabaseFactory(real: RealSqlDatabaseFactory): SqlDatabaseFactory
+
+  @Binds
+  fun bindSqlService(real: RealSqlService): SqlService
+
   @DependencyGraph.Factory
   interface Factory {
     fun create(
       @Provides config: WasmoService.Config,
       @Provides server: EmbeddedServer<*, *>,
       @Provides wasmoDb: SqlDatabase,
-      @Provides sqlService: SqlService,
+      @Provides provisioningDb: ProvisioningDb,
     ): WasmoServiceGraph
   }
 }

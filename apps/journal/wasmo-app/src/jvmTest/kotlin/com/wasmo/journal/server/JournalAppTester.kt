@@ -4,7 +4,7 @@ import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.journal.server.publishing.SitePublisher
 import wasmo.app.FakePlatform
-import wasmo.sql.testSqlService
+import wasmo.sql.FakeSqlService
 import wasmo.time.FakeClock
 
 class JournalAppTester : CoroutineTestInterceptor {
@@ -22,7 +22,7 @@ class JournalAppTester : CoroutineTestInterceptor {
     get() = platform.clock
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    testSqlService(
+    FakeSqlService(
       databaseName = "journal_test",
       clearSchema = true,
     ).use { sqlService ->

@@ -1,7 +1,7 @@
 Wasm
 ====
 
-We use the [WebAssembly Binary Toolkit][wabt] in our tests.
+We use the [WebAssembly Binary Toolkit][wabt] in our tests. If you see `Cannot run program "wat2wasm"` then install this.
 
 Install it:
 
