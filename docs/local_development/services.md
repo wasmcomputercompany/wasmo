@@ -11,7 +11,7 @@ Fly.io
 ------
 
 ```bash
-brew install flyctl
+$ brew install flyctl
 ```
 
 
