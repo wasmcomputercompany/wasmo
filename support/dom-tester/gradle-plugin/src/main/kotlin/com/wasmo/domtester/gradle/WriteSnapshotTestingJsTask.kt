@@ -69,6 +69,7 @@ internal abstract class WriteSnapshotTestingJsTask : DefaultTask() {
         |
         |installSnapshotsStore(config, "${fullyQualifiedProjectDirectory.get()}");
         |configureMochaTimeout(config, "10s");
+        |configureBrowser(config);
         |
         |""".trimMargin(),
       )

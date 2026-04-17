@@ -86,3 +86,17 @@ function configureMochaTimeout(config, timeout) {
   config.client.mocha = config.client.mocha || {};
   config.client.mocha.timeout = timeout;
 }
+
+/**
+ * Customize the headless Chrome to use a fixed device pixel ratio. Otherwise, it's derived from
+ * the host computer and therefore environment-dependent.
+ */
+function configureBrowser(config) {
+  config.customLaunchers = config.customLaunchers || {};
+  config.customLaunchers['DomTesterChrome'] = {
+    base: 'ChromeHeadless',
+    flags: ['--screen-info={3200x3200 label=1st devicePixelRatio=2}'],
+    displayName: 'DomTesterChrome'
+  };
+  config.browsers = ['DomTesterChrome'];
+}
