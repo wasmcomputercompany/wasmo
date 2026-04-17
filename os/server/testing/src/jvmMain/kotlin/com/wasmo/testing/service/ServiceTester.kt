@@ -5,6 +5,7 @@ import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.db.migrate
 import com.wasmo.passkeys.RealAuthenticatorDatabase
+import com.wasmo.permits.RealPermitService
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.asSqlDatabase
@@ -65,6 +66,8 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.sampleApps
   val eventListener: TestEventListener
     get() = graph.eventListener
+  val permitService: RealPermitService
+    get() = graph.permitService
 
   val origin: String
     get() = baseUrl.toString()

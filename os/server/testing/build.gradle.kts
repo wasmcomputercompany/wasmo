@@ -50,6 +50,8 @@ kotlin {
         implementation(project(":os:server:passkeys:api"))
         implementation(project(":os:server:passkeys:real"))
         implementation(project(":os:server:payments:api"))
+        implementation(project(":os:server:permits:api"))
+        implementation(project(":os:server:permits:real"))
         implementation(project(":os:server:sendemail:api"))
         implementation(project(":os:server:sql:api"))
         implementation(project(":os:server:sql:real"))

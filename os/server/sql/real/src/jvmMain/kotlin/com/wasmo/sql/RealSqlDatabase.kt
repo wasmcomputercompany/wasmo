@@ -6,6 +6,7 @@ import com.wasmo.support.closetracker.CloseListener
 import com.wasmo.support.closetracker.CloseTracker
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.Json
+import io.vertx.pgclient.PgException
 import io.vertx.sqlclient.Row as VertxRow
 import io.vertx.sqlclient.RowIterator as VertxRowIterator
 import io.vertx.sqlclient.RowSet
@@ -24,7 +25,12 @@ import kotlin.uuid.toKotlinUuid
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
 import wasmo.json.JsonLiteral
-import wasmo.sql.*
+import wasmo.sql.RowIterator
+import wasmo.sql.SqlBinder
+import wasmo.sql.SqlConnection
+import wasmo.sql.SqlDatabase
+import wasmo.sql.SqlException
+import wasmo.sql.SqlRow
 
 fun PostgresqlClient.asSqlDatabase(): SqlDatabase = RealSqlDatabase(this)
 
@@ -66,18 +72,22 @@ internal class RealSqlConnection(
     sql: String,
     bindParameters: (SqlBinder.() -> Unit)?,
   ): RowSet<VertxRow?> {
-    val future = when {
-      bindParameters != null -> {
-        val preparedQuery = sqlClient.preparedQuery(sql)
-        val tupleBuilder = TupleBuilder()
-        tupleBuilder.bindParameters()
-        preparedQuery.execute(tupleBuilder.build())
+    try {
+      val future = when {
+        bindParameters != null -> {
+          val preparedQuery = sqlClient.preparedQuery(sql)
+          val tupleBuilder = TupleBuilder()
+          tupleBuilder.bindParameters()
+          preparedQuery.execute(tupleBuilder.build())
+        }
+
+        else -> sqlClient.query(sql).execute()
       }
 
-      else -> sqlClient.query(sql).execute()
+      return future.asDeferred().await()
+    } catch (e: PgException) {
+      throw e.toSqlException()
     }
-
-    return future.asDeferred().await()
   }
 
   override fun close() {
@@ -201,3 +211,20 @@ internal class RealSqlRow(
     return JsonLiteral(Json.CODEC.toString(json))
   }
 }
+
+private fun PgException.toSqlException() = SqlException(
+  message = message,
+  sqlState = sqlState,
+  detail = detail,
+  hint = hint,
+  position = position,
+  where = where,
+  schema = schema,
+  table = table,
+  column = column,
+  dataType = dataType,
+  constraint = constraint,
+  file = file,
+  line = line,
+  routine = routine,
+)

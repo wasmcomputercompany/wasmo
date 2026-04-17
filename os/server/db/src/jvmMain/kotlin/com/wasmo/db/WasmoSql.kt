@@ -12,6 +12,7 @@ import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.PasskeyId
+import com.wasmo.identifiers.PermitId
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
@@ -53,5 +54,6 @@ fun SqlRow.getInstalledAppReleaseId(index: Int) = InstalledAppReleaseId(getS64(i
 fun SqlRow.getInstalledAppReleaseIdOrNull(index: Int) = getS64(index)?.let { InstalledAppReleaseId(it) }
 fun SqlRow.getInviteId(index: Int) = InviteId(getS64(index)!!)
 fun SqlRow.getPasskeyId(index: Int) = PasskeyId(getS64(index)!!)
+fun SqlRow.getPermitId(index: Int) = PermitId(getS64(index)!!)
 fun SqlRow.getStripeCustomerId(index: Int) = StripeCustomerId(getS64(index)!!)
 fun SqlRow.getWasmoFileAddress(index: Int) = getString(index)!!.toWasmoFileAddress()

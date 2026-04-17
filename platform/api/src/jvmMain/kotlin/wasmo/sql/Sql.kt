@@ -42,8 +42,26 @@ interface SqlConnection : Closeable {
   ): RowIterator
 }
 
+/**
+ * See the Postgresql docs for an explanation of each of these properties.
+ * https://www.postgresql.org/docs/current/protocol-error-fields.html
+ */
 open class SqlException(
   message: String?,
+  /** https://www.postgresql.org/docs/current/errcodes-appendix.html */
+  val sqlState: String? = null,
+  val detail: String? = null,
+  val hint: String? = null,
+  val position: String? = null,
+  val where: String? = null,
+  val schema: String? = null,
+  val table: String? = null,
+  val column: String? = null,
+  val dataType: String? = null,
+  val constraint: String? = null,
+  val file: String? = null,
+  val line: String? = null,
+  val routine: String? = null,
 ) : Exception(message)
 
 class ConstraintViolationException(

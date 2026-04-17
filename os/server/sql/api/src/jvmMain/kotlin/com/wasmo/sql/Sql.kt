@@ -3,19 +3,40 @@ package com.wasmo.sql
 import wasmo.sql.RowIterator
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlDatabase
+import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
 
 suspend fun <T> SqlDatabase.transaction(
+  attemptCount: Int = 1,
   block: suspend context(SqlTransaction) () -> T,
 ): T {
-  val transaction = RealSqlTransaction(newConnection())
-  transaction.use { transaction ->
-    context(transaction) {
-      val result = block()
-      for (action in transaction.afterCommitActions) {
-        action()
+  check(attemptCount >= 1)
+  var attempt = 0
+  var suppressedExceptions = listOf<SqlException>()
+  while (true) {
+    attempt++
+    try {
+      val transaction = RealSqlTransaction(newConnection())
+      transaction.use { transaction ->
+        context(transaction) {
+          val result = block()
+          for (action in transaction.afterCommitActions) {
+            action()
+          }
+          return result
+        }
       }
-      return result
+    } catch (e: SqlException) {
+      // Race. Retry!
+      if (attempt < attemptCount && e.isUniqueViolation) {
+        suppressedExceptions += e
+        continue
+      }
+
+      for (exception in suppressedExceptions) {
+        e.addSuppressed(exception)
+      }
+      throw e
     }
   }
 }
@@ -70,3 +91,6 @@ suspend fun <T> RowIterator.singleOrNull(mapper: (SqlRow) -> T): T? {
     return result
   }
 }
+
+val SqlException.isUniqueViolation: Boolean
+  get() = sqlState == "23505"

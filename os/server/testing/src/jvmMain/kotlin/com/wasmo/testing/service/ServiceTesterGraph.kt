@@ -27,6 +27,8 @@ import com.wasmo.jobs.OsJobQueue
 import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
+import com.wasmo.permits.PermitService
+import com.wasmo.permits.RealPermitService
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.RealSqlDatabaseFactory
@@ -78,6 +80,7 @@ interface ServiceTesterGraph {
   val eventListener: TestEventListener
   val fakeHttpClient: FakeHttpService
   val fileSystem: FileSystem
+  val permitService: RealPermitService
 
   @TestDirectory
   val testDirectory: Path
@@ -189,6 +192,9 @@ interface ServiceTesterGraph {
 
   @Binds
   fun bindSqlService(real: RealSqlService): SqlService
+
+  @Binds
+  fun bindPermitService(real: RealPermitService): PermitService
 
   @DependencyGraph.Factory
   interface Factory {
