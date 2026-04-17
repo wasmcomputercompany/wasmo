@@ -2,8 +2,6 @@ package com.wasmo.testing.call
 
 import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.Challenger
-import com.wasmo.accounts.ConfirmEmailAddressAction
-import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.invite.CreateInviteAction
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.RegisterPasskeyAction
@@ -22,6 +20,8 @@ import com.wasmo.api.routes.Url
 import com.wasmo.computers.AfterCheckoutAction
 import com.wasmo.computers.CreateComputerSpecAction
 import com.wasmo.deployment.Deployment
+import com.wasmo.emails.ConfirmEmailAddressAction
+import com.wasmo.emails.LinkEmailAddressAction
 import com.wasmo.framework.Request
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.installedapps.CallAppAction

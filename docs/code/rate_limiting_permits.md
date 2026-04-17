@@ -14,9 +14,9 @@ CREATE TABLE Permit (
 
 CREATE UNIQUE INDEX PermitTypeValueSerialNumber
 ON Permit (
-   type,
-   value,
-   serial_number
+  type,
+  value,
+  serial_number
 );
 ```
 

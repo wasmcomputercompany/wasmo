@@ -1,5 +1,6 @@
-package com.wasmo.accounts
+package com.wasmo.emails
 
+import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.emails.challengeCodeEmailMessage
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
@@ -27,7 +28,7 @@ class LinkEmailAddressAction(
         baseUrl = deployment.baseUrl.toString(),
         baseUrlHost = deployment.baseUrl.host,
         code = code,
-      )
+      ),
     )
 
     return Response(

@@ -4,8 +4,6 @@ import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Challenger
 import com.wasmo.accounts.Client
-import com.wasmo.accounts.ConfirmEmailAddressAction
-import com.wasmo.accounts.LinkEmailAddressAction
 import com.wasmo.accounts.invite.CreateInviteAction
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.RegisterPasskeyAction
@@ -13,6 +11,8 @@ import com.wasmo.calls.CallDataService
 import com.wasmo.calls.RealCallDataService
 import com.wasmo.computers.AfterCheckoutAction
 import com.wasmo.computers.CreateComputerSpecAction
+import com.wasmo.emails.ConfirmEmailAddressAction
+import com.wasmo.emails.LinkEmailAddressAction
 import com.wasmo.installedapps.CallAppAction
 import com.wasmo.installedapps.InstallAppAction
 import com.wasmo.passkeys.PasskeyChecker

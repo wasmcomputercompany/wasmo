@@ -39,6 +39,7 @@ kotlin {
         implementation(project(":os:server:computers:real"))
         implementation(project(":os:server:db"))
         implementation(project(":os:server:deployment"))
+        implementation(project(":os:server:emails:real"))
         implementation(project(":os:server:events:api"))
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:installedapps:api"))

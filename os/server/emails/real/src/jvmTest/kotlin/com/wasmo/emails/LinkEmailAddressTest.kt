@@ -1,4 +1,4 @@
-package com.wasmo.accounts
+package com.wasmo.emails
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat

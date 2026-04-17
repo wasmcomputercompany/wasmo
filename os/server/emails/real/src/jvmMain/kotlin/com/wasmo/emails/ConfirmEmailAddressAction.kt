@@ -1,5 +1,6 @@
-package com.wasmo.accounts
+package com.wasmo.emails
 
+import com.wasmo.accounts.CallScope
 import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.framework.Response
