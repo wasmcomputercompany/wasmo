@@ -5,9 +5,23 @@ insert_final_newline = true
 end_of_line = lf
 charset = utf-8
 indent_size = 2
+tab_width = 2
 trim_trailing_whitespace = true
+max_line_length = 100
 
 [*.{kt,kts}]
 ij_kotlin_allow_trailing_comma=true
 ij_kotlin_allow_trailing_comma_on_call_site=true
 ij_kotlin_imports_layout=*
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
+ij_kotlin_packages_to_use_import_on_demand =
+
+[*.java]
+ij_java_delete_unused_module_imports = true
+ij_java_imports_layout = *
+ij_java_use_single_class_imports = true
+ij_java_layout_static_imports_separately = true
+ij_java_class_count_to_use_import_on_demand = 2147483647
+ij_java_names_count_to_use_import_on_demand = 2147483647
+ij_java_packages_to_use_import_on_demand =
