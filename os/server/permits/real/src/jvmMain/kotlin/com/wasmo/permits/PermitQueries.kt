@@ -27,6 +27,7 @@ suspend fun selectPrecedingPermits(
       id,
       type,
       value,
+      count,
       serial_number,
       acquire_at
     FROM Permit
@@ -36,13 +37,11 @@ suspend fun selectPrecedingPermits(
       acquire_at > $3
     ORDER BY
       serial_number DESC
-    LIMIT $4
     """,
   ) {
     bindString(0, type.value)
     bindString(1, value)
     bindInstant(2, now - rateLimit.duration)
-    bindS32(3, rateLimit.count)
   }
 
   return rowIterator.list {
@@ -61,6 +60,7 @@ suspend fun selectLatestPermit(
       id,
       type,
       value,
+      count,
       serial_number,
       acquire_at
     FROM Permit
@@ -86,6 +86,7 @@ context(connection: SqlConnection)
 suspend fun insertPermit(
   type: PermitType,
   value: String,
+  count: Long,
   serialNumber: Long,
   acquireAt: Instant,
 ): PermitId {
@@ -94,6 +95,7 @@ suspend fun insertPermit(
     INSERT INTO Permit(
       type,
       value,
+      count,
       serial_number,
       acquire_at
     )
@@ -101,14 +103,16 @@ suspend fun insertPermit(
       $1,
       $2,
       $3,
-      $4
+      $4,
+      $5
     ) RETURNING id
     """,
   ) {
     bindString(0, type.value)
     bindString(1, value)
-    bindS64(2, serialNumber)
-    bindInstant(3, acquireAt)
+    bindS64(2, count)
+    bindS64(3, serialNumber)
+    bindInstant(4, acquireAt)
   }
 
   return rowIterator.single {
@@ -120,6 +124,7 @@ private fun SqlRow.getPermit() = Permit(
   id = getPermitId(0),
   type = PermitType(getString(1)!!),
   value = getString(2)!!,
-  serialNumber = getS64(3)!!,
-  acquireAt = getInstant(4)!!,
+  count = getS64(3)!!,
+  serialNumber = getS64(4)!!,
+  acquireAt = getInstant(5)!!,
 )

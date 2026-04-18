@@ -6,11 +6,16 @@ import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
 interface PermitService {
+  /**
+   * @param count the number of permits to acquire. Use -1 to release a permit, typically after a
+   *   successful action that shouldn't consume a permit.
+   */
   context(sqlConnection: SqlConnection)
   suspend fun tryAcquire(
     now: Instant,
     type: PermitType,
     value: String,
+    count: Long = 1L,
     rateLimit: RateLimit,
     hook: Hook? = null,
   ): Boolean

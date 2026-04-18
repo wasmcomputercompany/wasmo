@@ -21,6 +21,7 @@ class RealPermitService : PermitService {
     now: Instant,
     type: PermitType,
     value: String,
+    count: Long,
     rateLimit: RateLimit,
     hook: Hook?,
   ): Boolean {
@@ -30,7 +31,7 @@ class RealPermitService : PermitService {
       value = value,
       rateLimit = rateLimit,
     )
-    if (permits.size >= rateLimit.count) return false
+    if (count > 0L && permits.sumOf { it.count } >= rateLimit.count) return false
 
     val latestPermit = permits.firstOrNull()
       ?: selectLatestPermit(
@@ -48,6 +49,7 @@ class RealPermitService : PermitService {
     insertPermit(
       type = type,
       value = value,
+      count = count,
       serialNumber = serialNumber,
       acquireAt = now,
     )

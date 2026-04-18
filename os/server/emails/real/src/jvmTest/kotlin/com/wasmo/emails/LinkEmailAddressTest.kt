@@ -6,7 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import com.wasmo.api.ConfirmEmailAddressResponse
+import com.wasmo.api.ConfirmEmailAddressResponse.Decision
 import com.wasmo.testing.emails.differentCode
 import com.wasmo.testing.emails.extractChallengeCode
 import com.wasmo.testing.service.ServiceTester
@@ -33,10 +33,8 @@ class LinkEmailAddressTest {
       challengeToken = linkResponse.body.challengeToken,
       challengeCode = email.extractChallengeCode(),
     )
-    assertThat(confirmResponse.body.decision)
-      .isEqualTo(ConfirmEmailAddressResponse.Decision.LinkedNew)
-    assertThat(confirmResponse.body.account)
-      .isNotNull()
+    assertThat(confirmResponse.body.decision).isEqualTo(Decision.LinkedNew)
+    assertThat(confirmResponse.body.account).isNotNull()
   }
 
   @Test
@@ -44,11 +42,9 @@ class LinkEmailAddressTest {
     val client = tester.newClient()
 
     val confirmResponse1 = client.linkAndConfirmEmailAddress("jesse@example.com")
-    assertThat(confirmResponse1.body.decision)
-      .isEqualTo(ConfirmEmailAddressResponse.Decision.LinkedNew)
+    assertThat(confirmResponse1.body.decision).isEqualTo(Decision.LinkedNew)
     val confirmResponse2 = client.linkAndConfirmEmailAddress("jessewilson@example.com")
-    assertThat(confirmResponse2.body.decision)
-      .isEqualTo(ConfirmEmailAddressResponse.Decision.LinkedNew)
+    assertThat(confirmResponse2.body.decision).isEqualTo(Decision.LinkedNew)
   }
 
   /** Sign in just means linking an email address that's already linked. */
@@ -70,10 +66,20 @@ class LinkEmailAddressTest {
       challengeToken = linkResponse.body.challengeToken,
       challengeCode = email.extractChallengeCode(),
     )
-    assertThat(confirmResponse.body.decision)
-      .isEqualTo(ConfirmEmailAddressResponse.Decision.LinkedExisting)
-    assertThat(confirmResponse.body.account)
-      .isNotNull()
+    assertThat(confirmResponse.body.decision).isEqualTo(Decision.LinkedExisting)
+    assertThat(confirmResponse.body.account).isNotNull()
+  }
+
+  @Test
+  fun `sign in success does not consume rate limit permits`() = runTest {
+    for (i in 0 until ChallengeAttemptRateLimit.count) {
+      val client = tester.newClient()
+      client.linkAndConfirmEmailAddress("jesse@example.com")
+    }
+
+    val anotherClient = tester.newClient()
+    val response = anotherClient.linkAndConfirmEmailAddress("jesse@example.com")
+    assertThat(response.body.decision).isEqualTo(Decision.LinkedExisting)
   }
 
   @Test
@@ -89,10 +95,8 @@ class LinkEmailAddressTest {
       challengeToken = linkResponse.body.challengeToken,
       challengeCode = email.extractChallengeCode().differentCode(),
     )
-    assertThat(confirmResponse.body.decision)
-      .isEqualTo(ConfirmEmailAddressResponse.Decision.WrongChallengeCode)
-    assertThat(confirmResponse.body.account)
-      .isNull()
+    assertThat(confirmResponse.body.decision).isEqualTo(Decision.WrongChallengeCode)
+    assertThat(confirmResponse.body.account).isNull()
   }
 
   @Test
@@ -117,10 +121,8 @@ class LinkEmailAddressTest {
       challengeToken = linkResponse.body.challengeToken,
       challengeCode = email.extractChallengeCode(),
     )
-    assertThat(confirmResponse.body.decision)
-      .isEqualTo(ConfirmEmailAddressResponse.Decision.TooManyAttempts)
-    assertThat(confirmResponse.body.account)
-      .isNull()
+    assertThat(confirmResponse.body.decision).isEqualTo(Decision.TooManyAttempts)
+    assertThat(confirmResponse.body.account).isNull()
   }
 
   @Test
@@ -146,8 +148,7 @@ class LinkEmailAddressTest {
       challengeToken = linkResponse.body.challengeToken,
       challengeCode = email.extractChallengeCode(),
     )
-    assertThat(confirmResponse.body.decision)
-      .isEqualTo(ConfirmEmailAddressResponse.Decision.LinkedNew)
+    assertThat(confirmResponse.body.decision).isEqualTo(Decision.LinkedNew)
     assertThat(confirmResponse.body.account).isNotNull()
   }
 
@@ -163,10 +164,8 @@ class LinkEmailAddressTest {
       challengeToken = client1LinkResponse.body.challengeToken,
       challengeCode = client1Email.extractChallengeCode(),
     )
-    assertThat(confirmResponse.body.decision)
-      .isEqualTo(ConfirmEmailAddressResponse.Decision.BadRequest)
-    assertThat(confirmResponse.body.account)
-      .isNull()
+    assertThat(confirmResponse.body.decision).isEqualTo(Decision.BadRequest)
+    assertThat(confirmResponse.body.account).isNull()
   }
 }
 

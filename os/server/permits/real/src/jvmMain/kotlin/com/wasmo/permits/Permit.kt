@@ -8,6 +8,7 @@ data class Permit(
   val id: PermitId,
   val type: PermitType,
   val value: String,
+  val count: Long,
   val serialNumber: Long,
   val acquireAt: Instant,
 )

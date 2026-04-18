@@ -81,6 +81,15 @@ class ConfirmEmailAddressAction(
     )
     if (!challengeCodeAccepted) return Decision.WrongChallengeCode
 
+    // Upon a successful challenge we release the permit.
+    permitService.tryAcquire(
+      now = now,
+      type = EmailAddressLinkPermitType,
+      value = request.unverifiedEmailAddress,
+      count = -1L,
+      rateLimit = ChallengeAttemptRateLimit,
+    )
+
     val linkedEmailAddress = selectLinkedEmailAddressOrNull(request.unverifiedEmailAddress)
 
     return when {

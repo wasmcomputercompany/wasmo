@@ -18,7 +18,7 @@ class RealPermitServiceTest {
   val tester = ServiceTester()
 
   @Test
-  fun permitsReplenishedOnRollingWindow() = runTest {
+  fun `permits replenished on rolling window`() = runTest {
     tester.clock.now += 8.hours
     assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
     tester.clock.now += 8.hours
@@ -35,7 +35,7 @@ class RealPermitServiceTest {
   }
 
   @Test
-  fun allPermitsReplenishedWhenDurationElapses() = runTest {
+  fun `all permits replenished when duration elapses`() = runTest {
     assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
     assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
     assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
@@ -52,7 +52,29 @@ class RealPermitServiceTest {
   }
 
   @Test
-  fun noCollisionFromSeparateValues() = runTest {
+  fun `permit replenished by release`() = runTest {
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(false)
+
+    assertThat(tryAcquire(Snack, "doritos", count = -1L)).isEqualTo(true)
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(false)
+  }
+
+  @Test
+  fun `proactive release is possible`() = runTest {
+    assertThat(tryAcquire(Snack, "doritos", count = -1L)).isEqualTo(true)
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
+    assertThat(tryAcquire(Snack, "doritos")).isEqualTo(false)
+  }
+
+  @Test
+  fun `no collision from separate values`() = runTest {
     assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
     assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
     assertThat(tryAcquire(Snack, "doritos")).isEqualTo(true)
@@ -65,7 +87,7 @@ class RealPermitServiceTest {
   }
 
   @Test
-  fun noCollisionFromSeparateTypes() = runTest {
+  fun `no collision from separate types`() = runTest {
     assertThat(tryAcquire(Snack, "apple")).isEqualTo(true)
     assertThat(tryAcquire(Snack, "apple")).isEqualTo(true)
     assertThat(tryAcquire(Snack, "apple")).isEqualTo(true)
@@ -82,7 +104,7 @@ class RealPermitServiceTest {
    * is updated. This leverages a hook in the production code specifically created for this test!
    */
   @Test
-  fun failsAfterRepeatedCollisions() = runTest {
+  fun `fails after repeated collisions`() = runTest {
     assertFailsWith<SqlException> {
       tryAcquire(
         type = Snack,
@@ -127,12 +149,20 @@ class RealPermitServiceTest {
   private suspend fun tryAcquire(
     type: PermitType,
     value: String,
+    count: Long = 1L,
     rateLimit: RateLimit = ThreePerDay,
     hook: Hook? = null,
   ): Boolean {
     val now = tester.clock.now()
     return tester.wasmoDb.transaction(attemptCount = 3) {
-      tester.permitService.tryAcquire(now, type, value, rateLimit, hook)
+      tester.permitService.tryAcquire(
+        now = now,
+        type = type,
+        value = value,
+        count = count,
+        rateLimit = rateLimit,
+        hook = hook,
+      )
     }
   }
 
