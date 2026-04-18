@@ -68,8 +68,6 @@ class HmacChallenger(
   }
 }
 
-class CookieSecret(val value: ByteString)
-
 internal data class Challenge(
   val cookieToken: String,
   val issuedAt: Instant,

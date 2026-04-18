@@ -2,8 +2,10 @@ package com.wasmo.support.tokens
 
 private const val base32 = "0123456789abcdefghjkmnpqrstvwxyz"
 
+const val TokenLength = 25
+
 fun newToken(): String {
-  val array = ByteArray(25)
+  val array = ByteArray(TokenLength)
   nextBytes(array)
   return buildString {
     for (value in array) {

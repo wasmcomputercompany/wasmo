@@ -16,6 +16,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okhttp)
         implementation(libs.okio)
+        implementation(project(":identifiers"))
         implementation(project(":os:api"))
         implementation(project(":os:framework"))
         implementation(project(":os:server:db"))
@@ -26,6 +27,7 @@ kotlin {
         implementation(project(":os:server:sendemail:api"))
         implementation(project(":os:server:sql:api"))
         implementation(project(":platform:api"))
+        implementation(project(":support:tokens"))
       }
     }
     val jvmTest by getting {
