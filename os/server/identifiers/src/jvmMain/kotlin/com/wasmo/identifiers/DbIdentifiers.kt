@@ -44,6 +44,10 @@ value class InviteId(val id: Long)
 
 @Serializable
 @JvmInline
+value class LinkedEmailAddressId(val id: Long)
+
+@Serializable
+@JvmInline
 value class PasskeyId(val id: Long)
 
 @Serializable

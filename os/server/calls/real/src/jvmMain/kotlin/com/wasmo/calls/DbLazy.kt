@@ -16,4 +16,9 @@ internal abstract class DbLazy<T> {
 
   context(sqlTransaction: SqlTransaction)
   protected abstract suspend fun load(): T
+
+  fun invalidate() {
+    loaded = false
+    cached = null
+  }
 }

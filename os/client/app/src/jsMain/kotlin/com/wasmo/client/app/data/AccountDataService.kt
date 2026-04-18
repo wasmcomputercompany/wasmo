@@ -20,10 +20,11 @@ interface AccountDataService {
 
   suspend fun linkEmailAddress(
     unverifiedEmailAddress: String,
-  ): Boolean
+  ): String
 
   suspend fun confirmEmailAddress(
     unverifiedEmailAddress: String,
+    challengeToken: String,
     challengeCode: String,
   ): ConfirmEmailAddressResponse
 }
@@ -46,20 +47,22 @@ class RealAccountDataService(
     accountSnapshot_.value = snapshot
   }
 
-  override suspend fun linkEmailAddress(unverifiedEmailAddress: String): Boolean {
+  override suspend fun linkEmailAddress(unverifiedEmailAddress: String): String {
     val response = wasmoApi.linkEmailAddress(
       LinkEmailAddressRequest(unverifiedEmailAddress),
     )
-    return response.challengeSent
+    return response.challengeToken
   }
 
   override suspend fun confirmEmailAddress(
     unverifiedEmailAddress: String,
+    challengeToken: String,
     challengeCode: String,
   ): ConfirmEmailAddressResponse {
     return wasmoApi.confirmEmailAddress(
       ConfirmEmailAddressRequest(
         unverifiedEmailAddress = unverifiedEmailAddress,
+        challengeToken = challengeToken,
         challengeCode = challengeCode,
       ),
     )

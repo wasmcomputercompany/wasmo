@@ -31,15 +31,15 @@ suspend fun findInvitesByClaimedBy(claimed_by: AccountId?, limit: Long): Invite?
     bindAccountId(0, claimed_by)
     bindS64(1, limit)
   }
-  return rowIterator.singleOrNull { cursor ->
+  return rowIterator.singleOrNull {
     Invite(
-      cursor.getInviteId(0),
-      cursor.getInstant(1)!!,
-      cursor.getAccountId(2),
-      cursor.getS32(3)!!,
-      cursor.getString(4)!!,
-      cursor.getInstant(5),
-      cursor.getAccountIdOrNull(6),
+      getInviteId(0),
+      getInstant(1)!!,
+      getAccountId(2),
+      getS32(3)!!,
+      getString(4)!!,
+      getInstant(5),
+      getAccountIdOrNull(6),
     )
   }
 }
@@ -49,13 +49,13 @@ suspend fun findInvitesByCode(code: String): Invite? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
-      Invite.id,
-      Invite.created_at,
-      Invite.created_by,
-      Invite.version,
-      Invite.code,
-      Invite.claimed_at,
-      Invite.claimed_by
+      id,
+      created_at,
+      created_by,
+      version,
+      code,
+      claimed_at,
+      claimed_by
     FROM Invite
     WHERE code = $1
     """,
@@ -63,15 +63,15 @@ suspend fun findInvitesByCode(code: String): Invite? {
     bindString(0, code)
   }
 
-  return rowIterator.singleOrNull { cursor ->
+  return rowIterator.singleOrNull {
     Invite(
-      cursor.getInviteId(0),
-      cursor.getInstant(1)!!,
-      cursor.getAccountId(2),
-      cursor.getS32(3)!!,
-      cursor.getString(4)!!,
-      cursor.getInstant(5),
-      cursor.getAccountIdOrNull(6),
+      getInviteId(0),
+      getInstant(1)!!,
+      getAccountId(2),
+      getS32(3)!!,
+      getString(4)!!,
+      getInstant(5),
+      getAccountIdOrNull(6),
     )
   }
 }

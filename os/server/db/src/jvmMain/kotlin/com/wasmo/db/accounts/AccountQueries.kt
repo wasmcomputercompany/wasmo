@@ -20,7 +20,7 @@ suspend fun insertAccount(version: Int): AccountId {
     bindS32(0, version)
   }
 
-  return rowIterator.single { cursor ->
-    cursor.getAccountId(0)
+  return rowIterator.single {
+    getAccountId(0)
   }
 }

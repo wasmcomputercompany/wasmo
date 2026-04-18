@@ -33,6 +33,7 @@ import okio.FileSystem
 import okio.Path
 import wasmo.http.FakeHttpService
 import wasmo.objectstore.FakeObjectStore
+import wasmo.sql.SqlDatabase
 import wasmo.time.FakeClock
 
 /**
@@ -68,6 +69,8 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.eventListener
   val permitService: RealPermitService
     get() = graph.permitService
+  val wasmoDb: SqlDatabase
+    get() = graph.wasmoDb
 
   val origin: String
     get() = baseUrl.toString()

@@ -45,8 +45,8 @@ suspend fun selectPrecedingPermits(
     bindS32(3, rateLimit.count)
   }
 
-  return rowIterator.list { row ->
-    row.getPermit()
+  return rowIterator.list {
+    getPermit()
   }
 }
 
@@ -77,8 +77,8 @@ suspend fun selectLatestPermit(
     bindS32(2, 1)
   }
 
-  return rowIterator.singleOrNull { row ->
-    row.getPermit()
+  return rowIterator.singleOrNull {
+    getPermit()
   }
 }
 
@@ -111,8 +111,8 @@ suspend fun insertPermit(
     bindInstant(3, acquireAt)
   }
 
-  return rowIterator.single { row ->
-    row.getPermitId(0)
+  return rowIterator.single {
+    getPermitId(0)
   }
 }
 

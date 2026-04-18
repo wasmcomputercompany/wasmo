@@ -3,7 +3,9 @@ package com.wasmo.support.tokens
 import kotlin.jvm.JvmInline
 
 @JvmInline
-value class ChallengeCode(val value: String)
+value class ChallengeCode(val value: String) {
+  override fun toString() = "██████"
+}
 
 fun String.toChallengeCodeOrNull(): ChallengeCode? {
   val digitsOnly = buildString {

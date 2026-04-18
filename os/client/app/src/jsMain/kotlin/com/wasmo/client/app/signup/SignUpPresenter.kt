@@ -1,5 +1,6 @@
 package com.wasmo.client.app.signup
 
+import com.wasmo.api.ConfirmEmailAddressResponse.Decision
 import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.framework.Presenter
 import dev.zacsweers.metro.AssistedFactory
@@ -38,20 +39,15 @@ class SignUpPresenter(
 
       is SignUpEvent.ClickSendCode -> {
         callServer { state ->
-          val success = accountDataService.linkEmailAddress(
+          val challengeToken = accountDataService.linkEmailAddress(
             unverifiedEmailAddress = state.emailAddress,
           )
-          if (success) {
-            mutableModel.update {
-              it.copy(
-                challengeCodeEmailAddress = state.emailAddress,
-                challengeCodeCaption = "Enter the code sent to ${state.emailAddress}",
-              )
-            }
-          } else {
-            mutableModel.update {
-              it.copy(emailAddressCaption = "Something failed")
-            }
+          mutableModel.update {
+            it.copy(
+              challengeCodeEmailAddress = state.emailAddress,
+              challengeCodeCaption = "Enter the code sent to ${state.emailAddress}",
+              challengeToken = challengeToken,
+            )
           }
         }
       }
@@ -66,29 +62,49 @@ class SignUpPresenter(
 
       SignUpEvent.ClickSubmitCode -> {
         callServer { state ->
+          val challengeToken = state.challengeToken
+            ?: return@callServer // Race?
           val challengeCodeEmailAddress = state.challengeCodeEmailAddress
             ?: return@callServer // Race?
 
           val response = accountDataService.confirmEmailAddress(
             unverifiedEmailAddress = challengeCodeEmailAddress,
+            challengeToken = challengeToken,
             challengeCode = state.challengeCode,
           )
 
-          if (response.success) {
-            // TODO: navigate.
-          } else if (response.hasMoreAttempts) {
-            mutableModel.update {
-              it.copy(
-                canSubmitChallengeCode = true,
-                challengeCodeCaption = "That ain't it. please try again",
-              )
+          when (response.decision) {
+            Decision.LinkedNew,
+            Decision.LinkedExisting,
+              -> {
+              // TODO: navigate.
             }
-          } else {
-            mutableModel.update {
-              it.copy(
-                canSubmitChallengeCode = false,
-                challengeCodeCaption = "Too many failed attempts! You're locked out.",
-              )
+
+            Decision.BadRequest -> {
+              mutableModel.update {
+                it.copy(
+                  canSubmitChallengeCode = true,
+                  challengeCodeCaption = "Something broke.",
+                )
+              }
+            }
+
+            Decision.WrongChallengeCode -> {
+              mutableModel.update {
+                it.copy(
+                  canSubmitChallengeCode = true,
+                  challengeCodeCaption = "That ain't it. Try again.",
+                )
+              }
+            }
+
+            Decision.TooManyAttempts -> {
+              mutableModel.update {
+                it.copy(
+                  canSubmitChallengeCode = true,
+                  challengeCodeCaption = "That ain't it. Give up!",
+                )
+              }
             }
           }
         }

@@ -26,6 +26,7 @@ import com.wasmo.framework.Request
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.installedapps.CallAppAction
 import com.wasmo.installedapps.InstallAppAction
+import com.wasmo.support.tokens.ChallengeCode
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.framework.snapshot
 import com.wasmo.website.OsPageAction
@@ -75,8 +76,27 @@ class CallTester(
   suspend fun linkEmailAddress(request: LinkEmailAddressRequest) =
     linkEmailAddressActionProvider().link(request)
 
-  fun confirmEmailAddress(request: ConfirmEmailAddressRequest) =
+  suspend fun linkEmailAddress(emailAddress: String) =
+    linkEmailAddress(
+      LinkEmailAddressRequest(
+        unverifiedEmailAddress = emailAddress,
+      ),
+    )
+
+  suspend fun confirmEmailAddress(request: ConfirmEmailAddressRequest) =
     confirmEmailAddressActionProvider().confirm(request)
+
+  suspend fun confirmEmailAddress(
+    emailAddress: String,
+    challengeToken: String,
+    challengeCode: ChallengeCode,
+  ) = confirmEmailAddress(
+    request = ConfirmEmailAddressRequest(
+      unverifiedEmailAddress = emailAddress,
+      challengeToken = challengeToken,
+      challengeCode = challengeCode.value,
+    ),
+  )
 
   suspend fun registerPasskey(request: RegisterPasskeyRequest) =
     registerPasskeyActionProvider().register(request)

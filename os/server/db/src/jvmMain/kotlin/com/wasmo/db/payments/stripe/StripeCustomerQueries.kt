@@ -48,8 +48,8 @@ suspend fun insertStripeCustomer(
     bindString(5, country)
     bindString(6, postal_code)
   }
-  return rowIterator.single { cursor ->
-    cursor.getStripeCustomerId(0)
+  return rowIterator.single {
+    getStripeCustomerId(0)
   }
 }
 
@@ -58,30 +58,30 @@ suspend fun findStripeCustomerByStripeCustomerId(stripe_customer_id: String): St
   val rowIterator = connection.executeQuery(
     """
     SELECT
-      StripeCustomer.id,
-      StripeCustomer.created_at,
-      StripeCustomer.version,
-      StripeCustomer.stripe_customer_id,
-      StripeCustomer.name,
-      StripeCustomer.email,
-      StripeCustomer.country,
-      StripeCustomer.postal_code
+      id,
+      created_at,
+      version,
+      stripe_customer_id,
+      name,
+      email,
+      country,
+      postal_code
     FROM StripeCustomer
     WHERE stripe_customer_id = $1
     """,
   ) {
     bindString(0, stripe_customer_id)
   }
-  return rowIterator.singleOrNull { cursor ->
+  return rowIterator.singleOrNull {
     StripeCustomer(
-      cursor.getStripeCustomerId(0),
-      cursor.getInstant(1)!!,
-      cursor.getS32(2)!!,
-      cursor.getString(3)!!,
-      cursor.getString(4)!!,
-      cursor.getString(5)!!,
-      cursor.getString(6)!!,
-      cursor.getString(7)!!,
+      getStripeCustomerId(0),
+      getInstant(1)!!,
+      getS32(2)!!,
+      getString(3)!!,
+      getString(4)!!,
+      getString(5)!!,
+      getString(6)!!,
+      getString(7)!!,
     )
   }
 }

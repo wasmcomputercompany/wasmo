@@ -37,15 +37,15 @@ suspend fun selectComputerSpecByToken(token: String): ComputerSpec? {
     bindString(0, token)
   }
 
-  return rowIterator.singleOrNull { cursor ->
+  return rowIterator.singleOrNull {
     ComputerSpec(
-      cursor.getComputerSpecId(0),
-      cursor.getInstant(1)!!,
-      cursor.getS64(2)!!,
-      cursor.getAccountId(3),
-      cursor.getString(4)!!,
-      cursor.getComputerSlug(5),
-      cursor.getComputerIdOrNull(6),
+      getComputerSpecId(0),
+      getInstant(1)!!,
+      getS64(2)!!,
+      getAccountId(3),
+      getString(4)!!,
+      getComputerSlug(5),
+      getComputerIdOrNull(6),
     )
   }
 }
@@ -82,8 +82,8 @@ suspend fun insertComputerSpec(
     bindString(3, token)
     bindComputerSlug(4, slug)
   }
-  return rowIterator.single { cursor ->
-    cursor.getComputerSpecId(0)
+  return rowIterator.single {
+    getComputerSpecId(0)
   }
 }
 

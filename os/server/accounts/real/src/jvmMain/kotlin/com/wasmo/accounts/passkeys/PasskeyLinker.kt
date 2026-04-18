@@ -2,7 +2,6 @@ package com.wasmo.accounts.passkeys
 
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
-import com.wasmo.db.accounts.updateAccountIdByAccountId
 import com.wasmo.db.passkeys.Passkey
 import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
@@ -29,15 +28,10 @@ class PasskeyLinker(
   suspend fun link(passkey: Passkey) {
     val cookieAccountId = client.getOrCreateAccountId()
 
-    // Nothing to do.
-    if (cookieAccountId == passkey.account_id) return
-
     // Transfer all cookies.
-    updateAccountIdByAccountId(
-      target_account_id = passkey.account_id,
-      source_account_id = cookieAccountId,
+    client.signIn(
+      source = cookieAccountId,
+      target = passkey.account_id,
     )
-
-    client.invalidate()
   }
 }

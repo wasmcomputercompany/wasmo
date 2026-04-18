@@ -1,7 +1,7 @@
 package com.wasmo.accounts
 
-import com.wasmo.sql.SqlTransaction
 import com.wasmo.identifiers.AccountId
+import com.wasmo.sql.SqlTransaction
 
 /**
  * A caller that may have associated server-side data.
@@ -16,9 +16,21 @@ interface Client : Caller {
   context(sqlTransaction: SqlTransaction)
   suspend fun getOrCreateAccountId(): AccountId
 
+  /** Switch the client from [source] to [target]. */
+  context(sqlTransaction: SqlTransaction)
+  suspend fun signIn(source: AccountId, target: AccountId)
+
   /** Call this when the account ID itself may have changed. */
   context(sqlTransaction: SqlTransaction)
   fun invalidate()
+
+  fun addListener(listener: Listener)
+
+  interface Listener {
+    /** Invalidate in-memory caches if the signed-in account ID changes mid-call. */
+    context(sqlTransaction: SqlTransaction)
+    fun onInvalidate()
+  }
 }
 
 abstract class CallScope private constructor()

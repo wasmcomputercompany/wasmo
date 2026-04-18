@@ -39,16 +39,16 @@ suspend fun findComputerAllocationByStripeSubscriptionId(
     bindS64(1, limit)
   }
 
-  return rowIterator.singleOrNull { cursor ->
+  return rowIterator.singleOrNull {
     ComputerAllocation(
-      cursor.getComputerAllocationId(0),
-      cursor.getInstant(1)!!,
-      cursor.getS32(2)!!,
-      cursor.getStripeCustomerId(3),
-      cursor.getString(4)!!,
-      cursor.getComputerId(5),
-      cursor.getInstant(6)!!,
-      cursor.getInstant(7)!!,
+      getComputerAllocationId(0),
+      getInstant(1)!!,
+      getS32(2)!!,
+      getStripeCustomerId(3),
+      getString(4)!!,
+      getComputerId(5),
+      getInstant(6)!!,
+      getInstant(7)!!,
     )
   }
 }

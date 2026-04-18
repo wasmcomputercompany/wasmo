@@ -49,8 +49,8 @@ suspend fun insertInstalledAppRelease(
     bindS64(3, app_version)
     bindJson(4, app_manifest_data)
   }
-  return rowIterator.single { cursor ->
-    cursor.getInstalledAppReleaseId(0)
+  return rowIterator.single {
+    getInstalledAppReleaseId(0)
   }
 }
 
@@ -61,12 +61,12 @@ suspend fun selectInstalledAppReleaseById(
   val rowIterator = connection.executeQuery(
     """
     SELECT
-      InstalledAppRelease.id,
-      InstalledAppRelease.first_active_at,
-      InstalledAppRelease.computer_id,
-      InstalledAppRelease.installed_app_id,
-      InstalledAppRelease.app_version,
-      InstalledAppRelease.app_manifest_data
+      id,
+      first_active_at,
+      computer_id,
+      installed_app_id,
+      app_version,
+      app_manifest_data
     FROM InstalledAppRelease
     WHERE id = $1
     LIMIT 1
@@ -75,14 +75,14 @@ suspend fun selectInstalledAppReleaseById(
     bindInstalledAppReleaseId(0, id)
   }
 
-  return rowIterator.singleOrNull { cursor ->
+  return rowIterator.singleOrNull {
     InstalledAppRelease(
-      cursor.getInstalledAppReleaseId(0),
-      cursor.getInstant(1)!!,
-      cursor.getComputerId(2),
-      cursor.getInstalledAppId(3),
-      cursor.getS64(4)!!,
-      cursor.decodeJson<AppManifest>(5),
+      getInstalledAppReleaseId(0),
+      getInstant(1)!!,
+      getComputerId(2),
+      getInstalledAppId(3),
+      getS64(4)!!,
+      decodeJson<AppManifest>(5),
     )
   }
 }

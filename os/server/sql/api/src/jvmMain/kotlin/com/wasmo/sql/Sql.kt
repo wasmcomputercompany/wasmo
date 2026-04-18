@@ -63,7 +63,7 @@ internal class RealSqlTransaction(
   }
 }
 
-suspend fun <T> RowIterator.list(mapper: (SqlRow) -> T): List<T> {
+suspend fun <T> RowIterator.list(mapper: SqlRow.() -> T): List<T> {
   use {
     return buildList {
       while (true) {
@@ -74,7 +74,7 @@ suspend fun <T> RowIterator.list(mapper: (SqlRow) -> T): List<T> {
   }
 }
 
-suspend fun <T> RowIterator.single(mapper: (SqlRow) -> T): T {
+suspend fun <T> RowIterator.single(mapper: SqlRow.() -> T): T {
   use {
     val row = next() ?: error("expected one element but was none")
     val result = mapper(row)
@@ -83,7 +83,7 @@ suspend fun <T> RowIterator.single(mapper: (SqlRow) -> T): T {
   }
 }
 
-suspend fun <T> RowIterator.singleOrNull(mapper: (SqlRow) -> T): T? {
+suspend fun <T> RowIterator.singleOrNull(mapper: SqlRow.() -> T): T? {
   use {
     val row = next() ?: return null
     val result = mapper(row)

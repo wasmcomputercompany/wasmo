@@ -2,6 +2,7 @@ package com.wasmo.accounts.emails
 
 import com.wasmo.sendemail.EmailMessage
 import com.wasmo.support.okiohtml.writeHtml
+import com.wasmo.support.tokens.ChallengeCode
 import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.div
@@ -14,11 +15,11 @@ fun challengeCodeEmailMessage(
   to: String,
   baseUrl: String,
   baseUrlHost: String,
-  code: String,
+  challengeCode: ChallengeCode,
 ) = EmailMessage(
   from = from,
   to = to,
-  subject = "Sign in to $baseUrlHost with code $code",
+  subject = "Sign in to $baseUrlHost with code ${challengeCode.value}",
   html = Buffer().run {
     writeHtml {
       body {
@@ -44,7 +45,7 @@ fun challengeCodeEmailMessage(
               |text-align: center;
               |letter-spacing: 5px;
               """.trimMargin()
-            text(code)
+            text(challengeCode.value)
           }
 
           p {

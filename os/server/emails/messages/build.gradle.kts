@@ -22,6 +22,7 @@ kotlin {
         implementation(project(":os:framework"))
         implementation(project(":os:server:sendemail:api"))
         implementation(project(":support:okio-html"))
+        implementation(project(":support:tokens"))
       }
     }
     jsTest {

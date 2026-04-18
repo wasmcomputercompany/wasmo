@@ -61,8 +61,8 @@ suspend fun insertInstalledApp(
     bindS64(4, version)
     bindWasmoFileAddress(5, wasmo_file_address)
   }
-  return rowIterator.single { cursor ->
-    cursor.getInstalledAppId(0)
+  return rowIterator.single {
+    getInstalledAppId(0)
   }
 }
 
@@ -102,8 +102,8 @@ suspend fun selectInstalledAppsByComputerId(
     bindS64(2, limit)
   }
 
-  return rowIterator.list { cursor ->
-    cursor.getInstalledAppAndRelease()
+  return rowIterator.list {
+    getInstalledAppAndRelease()
   }
 }
 
@@ -172,8 +172,8 @@ suspend fun selectInstalledAppByComputerIdAndSlug(
     bindAppSlug(1, slug)
     bindBool(2, active)
   }
-  return rowIterator.singleOrNull { cursor ->
-    cursor.getInstalledAppAndRelease()
+  return rowIterator.singleOrNull {
+    getInstalledAppAndRelease()
   }
 }
 
@@ -182,14 +182,14 @@ suspend fun selectInstalledAppById(id: InstalledAppId): InstalledApp {
   val rowIterator = connection.executeQuery(
     """
     SELECT
-      InstalledApp.id,
-      InstalledApp.installed_at,
-      InstalledApp.computer_id,
-      InstalledApp.slug,
-      InstalledApp.active,
-      InstalledApp.version,
-      InstalledApp.wasmo_file_address,
-      InstalledApp.active_release_id
+      id,
+      installed_at,
+      computer_id,
+      slug,
+      active,
+      version,
+      wasmo_file_address,
+      active_release_id
     FROM InstalledApp
     WHERE id = $1
     LIMIT 1
@@ -198,17 +198,8 @@ suspend fun selectInstalledAppById(id: InstalledAppId): InstalledApp {
     bindInstalledAppId(0, id)
   }
 
-  return rowIterator.single { cursor ->
-    InstalledApp(
-      cursor.getInstalledAppId(0),
-      cursor.getInstant(1)!!,
-      cursor.getComputerId(2),
-      cursor.getAppSlug(3),
-      cursor.getBool(4),
-      cursor.getS64(5)!!,
-      cursor.getWasmoFileAddress(6),
-      cursor.getInstalledAppReleaseIdOrNull(7),
-    )
+  return rowIterator.single {
+    getInstalledApp()
   }
 }
 
@@ -236,3 +227,15 @@ suspend fun setRelease(
     bindInstalledAppId(3, id)
   }
 }
+
+private fun SqlRow.getInstalledApp() = InstalledApp(
+  id = getInstalledAppId(0),
+  installed_at = getInstant(1)!!,
+  computer_id = getComputerId(2),
+  slug = getAppSlug(3),
+  active = getBool(4),
+  version = getS64(5)!!,
+  wasmo_file_address = getWasmoFileAddress(6),
+  active_release_id = getInstalledAppReleaseIdOrNull(7),
+)
+

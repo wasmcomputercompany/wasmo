@@ -39,6 +39,8 @@ import com.wasmo.objectstore.s3.S3ObjectStoreBindings
 import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
+import com.wasmo.permits.PermitService
+import com.wasmo.permits.RealPermitService
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
@@ -240,6 +242,9 @@ internal interface WasmoServiceGraph {
 
   @Binds
   fun bindSqlService(real: RealSqlService): SqlService
+
+  @Binds
+  fun bindPermitService(real: RealPermitService): PermitService
 
   @DependencyGraph.Factory
   interface Factory {

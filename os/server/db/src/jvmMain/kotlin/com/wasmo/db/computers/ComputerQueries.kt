@@ -13,6 +13,7 @@ import com.wasmo.sql.single
 import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
+import wasmo.sql.SqlRow
 
 context(connection: SqlConnection)
 suspend fun insertComputer(
@@ -39,8 +40,8 @@ suspend fun insertComputer(
     bindComputerSlug(2, slug)
   }
 
-  return rowIterator.single { cursor ->
-    cursor.getComputerId(0)
+  return rowIterator.single {
+    getComputerId(0)
   }
 }
 
@@ -68,13 +69,8 @@ suspend fun selectComputersByAccountId(
     bindS64(1, limit)
   }
 
-  return rowIterator.list { cursor ->
-    Computer(
-      cursor.getComputerId(0),
-      cursor.getInstant(1)!!,
-      cursor.getS64(2)!!,
-      cursor.getComputerSlug(3),
-    )
+  return rowIterator.list {
+    getComputer()
   }
 }
 
@@ -101,13 +97,8 @@ suspend fun selectComputerByAccountIdAndSlug(
     bindComputerSlug(1, slug)
   }
 
-  return rowIterator.singleOrNull { cursor ->
-    Computer(
-      cursor.getComputerId(0),
-      cursor.getInstant(1)!!,
-      cursor.getS64(2)!!,
-      cursor.getComputerSlug(3),
-    )
+  return rowIterator.singleOrNull {
+    getComputer()
   }
 }
 
@@ -128,12 +119,14 @@ suspend fun selectComputerById(
     bindComputerId(0, id)
   }
 
-  return rowIterator.single { cursor ->
-    Computer(
-      cursor.getComputerId(0),
-      cursor.getInstant(1)!!,
-      cursor.getS64(2)!!,
-      cursor.getComputerSlug(3),
-    )
+  return rowIterator.single {
+    getComputer()
   }
 }
+
+private fun SqlRow.getComputer() = Computer(
+  id = getComputerId(0),
+  created_at = getInstant(1)!!,
+  version = getS64(2)!!,
+  slug = getComputerSlug(3),
+)

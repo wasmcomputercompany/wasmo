@@ -2,7 +2,9 @@ package com.wasmo.testing.client
 
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.SessionCookie
+import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.CreateComputerSpecRequest
+import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.deployment.Deployment
@@ -11,9 +13,11 @@ import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.FakePaymentsService
+import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.call.CallTester
 import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.computer.ComputerTester
+import com.wasmo.testing.emails.extractChallengeCode
 import com.wasmo.testing.events.TestEventListener
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -29,6 +33,7 @@ class ClientTester(
   private val callTesterGraphFactory: CallTesterGraph.Factory,
   private val eventListener: TestEventListener,
   private val computerTesterFactory: ComputerTester.Factory,
+  private val sendEmailService: FakeSendEmailService,
   val paymentsService: FakePaymentsService,
   @Assisted val clientAuthenticator: ClientAuthenticator,
   @Assisted private val sessionCookie: SessionCookie,
@@ -80,6 +85,24 @@ class ClientTester(
     eventListener.receiveAll()
 
     return getComputer(slug)
+  }
+
+  suspend fun linkAndConfirmEmailAddress(
+    emailAddress: String,
+  ): Response<ConfirmEmailAddressResponse> {
+    val linkResponse = call().linkEmailAddress(
+      LinkEmailAddressRequest(
+        unverifiedEmailAddress = emailAddress,
+      ),
+    )
+
+    val email = sendEmailService.takeEmail()
+
+    return call().confirmEmailAddress(
+      emailAddress = emailAddress,
+      challengeToken = linkResponse.body.challengeToken,
+      challengeCode = email.extractChallengeCode(),
+    )
   }
 
   fun getComputer(slug: ComputerSlug) = computerTesterFactory.create(

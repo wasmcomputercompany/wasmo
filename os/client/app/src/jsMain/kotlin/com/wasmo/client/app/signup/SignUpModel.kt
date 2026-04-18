@@ -9,6 +9,7 @@ data class SignUpModel(
   val emailAddress: String = "",
   val emailAddressCaption: String,
   val canSubmitEmailAddress: Boolean = false,
+  val challengeToken: String? = null,
 
   val challengeCode: String = "",
   val challengeCodeCaption: String,

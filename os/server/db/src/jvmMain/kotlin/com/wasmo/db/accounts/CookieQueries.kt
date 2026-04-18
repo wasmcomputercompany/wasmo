@@ -13,12 +13,12 @@ suspend fun findCookieByToken(token: String): Cookie? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
-      Cookie.id,
-      Cookie.created_at,
-      Cookie.account_id,
-      Cookie.token,
-      Cookie.created_by_user_agent,
-      Cookie.created_by_ip
+      id,
+      created_at,
+      account_id,
+      token,
+      created_by_user_agent,
+      created_by_ip
     FROM Cookie
     WHERE token = $1
     """,
@@ -26,14 +26,14 @@ suspend fun findCookieByToken(token: String): Cookie? {
     bindString(0, token)
   }
 
-  return rowIterator.singleOrNull { cursor ->
+  return rowIterator.singleOrNull {
     Cookie(
-      cursor.getCookieId(0),
-      cursor.getInstant(1)!!,
-      cursor.getAccountId(2),
-      cursor.getString(3)!!,
-      cursor.getString(4),
-      cursor.getString(5),
+      getCookieId(0),
+      getInstant(1)!!,
+      getAccountId(2),
+      getString(3)!!,
+      getString(4),
+      getString(5),
     )
   }
 }

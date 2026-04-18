@@ -28,7 +28,11 @@ class RealCallDataService(
   private val routeCodecFactory: RouteCodec.Factory,
   private val authenticatorDatabase: AuthenticatorDatabase,
   private val client: Client,
-) : CallDataService {
+) : CallDataService, Client.Listener {
+  init {
+    client.addListener(this)
+  }
+
   private val passkeys = object : DbLazy<List<PasskeySnapshot>>() {
     context(sqlTransaction: SqlTransaction)
     override suspend fun load(): List<PasskeySnapshot> {
@@ -106,6 +110,15 @@ class RealCallDataService(
         },
       )
     }
+  }
+
+  context(sqlTransaction: SqlTransaction)
+  override fun onInvalidate() {
+    passkeys.invalidate()
+    firstClaimedInvite.invalidate()
+    routingContext.invalidate()
+    accountSnapshot.invalidate()
+    computerListSnapshot.invalidate()
   }
 
   context(sqlTransaction: SqlTransaction)

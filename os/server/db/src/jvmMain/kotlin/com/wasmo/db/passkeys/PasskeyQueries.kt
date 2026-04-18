@@ -11,20 +11,21 @@ import com.wasmo.sql.list
 import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
+import wasmo.sql.SqlRow
 
 context(connection: SqlConnection)
 suspend fun findPasskeyByPasskeyId(passkey_id: String): Passkey? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
-      Passkey.id,
-      Passkey.created_at,
-      Passkey.account_id,
-      Passkey.passkey_id,
-      Passkey.aaguid,
-      Passkey.created_by_user_agent,
-      Passkey.created_by_ip,
-      Passkey.registration_record
+      id,
+      created_at,
+      account_id,
+      passkey_id,
+      aaguid,
+      created_by_user_agent,
+      created_by_ip,
+      registration_record
     FROM Passkey
     WHERE passkey_id = $1
     """,
@@ -32,17 +33,8 @@ suspend fun findPasskeyByPasskeyId(passkey_id: String): Passkey? {
     bindString(0, passkey_id)
   }
 
-  return rowIterator.singleOrNull { cursor ->
-    Passkey(
-      cursor.getPasskeyId(0),
-      cursor.getInstant(1)!!,
-      cursor.getAccountId(2),
-      cursor.getString(3)!!,
-      cursor.getString(4)!!,
-      cursor.getString(5),
-      cursor.getString(6),
-      cursor.decodeJson<RegistrationRecord>(7),
-    )
+  return rowIterator.singleOrNull {
+    getPasskey()
   }
 }
 
@@ -54,14 +46,14 @@ suspend fun findPasskeyByPasskeyIdAndAccountId(
   val rowIterator = connection.executeQuery(
     """
     SELECT
-      Passkey.id,
-      Passkey.created_at,
-      Passkey.account_id,
-      Passkey.passkey_id,
-      Passkey.aaguid,
-      Passkey.created_by_user_agent,
-      Passkey.created_by_ip,
-      Passkey.registration_record
+      id,
+      created_at,
+      account_id,
+      passkey_id,
+      aaguid,
+      created_by_user_agent,
+      created_by_ip,
+      registration_record
     FROM Passkey
     WHERE passkey_id = $1
       AND account_id = $2
@@ -71,16 +63,16 @@ suspend fun findPasskeyByPasskeyIdAndAccountId(
     bindAccountId(1, account_id)
   }
 
-  return rowIterator.singleOrNull { cursor ->
+  return rowIterator.singleOrNull {
     Passkey(
-      cursor.getPasskeyId(0),
-      cursor.getInstant(1)!!,
-      cursor.getAccountId(2),
-      cursor.getString(3)!!,
-      cursor.getString(4)!!,
-      cursor.getString(5),
-      cursor.getString(6),
-      cursor.decodeJson<RegistrationRecord>(7),
+      getPasskeyId(0),
+      getInstant(1)!!,
+      getAccountId(2),
+      getString(3)!!,
+      getString(4)!!,
+      getString(5),
+      getString(6),
+      decodeJson<RegistrationRecord>(7),
     )
   }
 }
@@ -90,31 +82,22 @@ suspend fun findPasskeysByAccountId(account_id: AccountId): List<Passkey> {
   val rowIterator = connection.executeQuery(
     """
     SELECT
-      Passkey.id,
-      Passkey.created_at,
-      Passkey.account_id,
-      Passkey.passkey_id,
-      Passkey.aaguid,
-      Passkey.created_by_user_agent,
-      Passkey.created_by_ip,
-      Passkey.registration_record
+      id,
+      created_at,
+      account_id,
+      passkey_id,
+      aaguid,
+      created_by_user_agent,
+      created_by_ip,
+      registration_record
     FROM Passkey
     WHERE account_id = $1
     """,
   ) {
     bindAccountId(0, account_id)
   }
-  return rowIterator.list { cursor ->
-    Passkey(
-      cursor.getPasskeyId(0),
-      cursor.getInstant(1)!!,
-      cursor.getAccountId(2),
-      cursor.getString(3)!!,
-      cursor.getString(4)!!,
-      cursor.getString(5),
-      cursor.getString(6),
-      cursor.decodeJson<RegistrationRecord>(7),
-    )
+  return rowIterator.list {
+    getPasskey()
   }
 }
 
@@ -159,3 +142,14 @@ suspend fun insertPasskey(
     bindJson<RegistrationRecord>(6, registration_record)
   }
 }
+
+private fun SqlRow.getPasskey(): Passkey = Passkey(
+  getPasskeyId(0),
+  getInstant(1)!!,
+  getAccountId(2),
+  getString(3)!!,
+  getString(4)!!,
+  getString(5),
+  getString(6),
+  decodeJson<RegistrationRecord>(7),
+)

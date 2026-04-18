@@ -39,7 +39,7 @@ suspend fun insertComputerAccess(
     bindAccountId(3, account_id)
   }
 
-  return rowIterator.single { cursor ->
-    cursor.getComputerAccessId(0)
+  return rowIterator.single {
+    getComputerAccessId(0)
   }
 }

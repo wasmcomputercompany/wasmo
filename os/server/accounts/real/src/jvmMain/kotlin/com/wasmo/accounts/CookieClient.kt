@@ -3,6 +3,7 @@ package com.wasmo.accounts
 import com.wasmo.db.accounts.findCookieByToken
 import com.wasmo.db.accounts.insertAccount
 import com.wasmo.db.accounts.insertCookie
+import com.wasmo.db.accounts.updateAccountIdByAccountId
 import com.wasmo.identifiers.AccountId
 import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Assisted
@@ -23,9 +24,29 @@ class CookieClient(
   @Assisted override val ip: String?,
   hmacChallengerFactory: HmacChallenger.Factory,
 ) : Client {
+  private var listeners = listOf<Client.Listener>()
+
   override val challenger: Challenger = hmacChallengerFactory.create(sessionCookie.token)
 
   private var cachedAccountId: AccountId? = null
+
+  override fun addListener(listener: Client.Listener) {
+    listeners += listener
+  }
+
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun signIn(
+    source: AccountId,
+    target: AccountId,
+  ) {
+    if (source == target) return // Nothing to do.
+
+    updateAccountIdByAccountId(
+      target_account_id = target,
+      source_account_id = source,
+    )
+    invalidate()
+  }
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun getAccountIdOrNull(): AccountId? {
@@ -38,7 +59,7 @@ class CookieClient(
       .also { this.cachedAccountId = it }
   }
 
-  context(SqlTransaction: SqlTransaction)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun getOrCreateAccountId(): AccountId {
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
@@ -62,9 +83,13 @@ class CookieClient(
       .also { this.cachedAccountId = it }
   }
 
-  context(SqlTransaction: SqlTransaction)
+  context(sqlTransaction: SqlTransaction)
   override fun invalidate() {
     this.cachedAccountId = null
+
+    for (listener in listeners) {
+      listener.onInvalidate()
+    }
   }
 
   @AssistedFactory
