@@ -2,6 +2,7 @@ package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
 import com.wasmo.client.app.FormScreen
+import com.wasmo.client.app.LocalFormState
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.SmallText
 import com.wasmo.client.app.TextField

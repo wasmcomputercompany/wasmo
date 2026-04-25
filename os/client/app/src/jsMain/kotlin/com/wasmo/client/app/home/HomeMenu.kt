@@ -23,7 +23,7 @@ fun HomeMenu(
         MenuItem(
           label = "Sign Out",
           onClick = {
-            eventListener(HomeEvent.ClickSignUp)
+            eventListener(HomeEvent.ClickSignOut)
           },
         )
       } else {

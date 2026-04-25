@@ -3,6 +3,7 @@ package com.wasmo.client.app.signup
 import com.wasmo.api.ConfirmEmailAddressResponse.Decision
 import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.framework.Presenter
+import com.wasmo.support.tokens.toChallengeCodeOrNull
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
@@ -55,6 +56,7 @@ class SignUpPresenter(
       is SignUpEvent.EditChallengeCode -> {
         mutableModel.update {
           it.copy(
+            canSubmitChallengeCode = event.challengeCode.toChallengeCodeOrNull() != null,
             challengeCode = event.challengeCode,
           )
         }

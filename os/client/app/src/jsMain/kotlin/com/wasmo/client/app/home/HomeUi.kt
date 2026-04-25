@@ -3,6 +3,8 @@ package com.wasmo.client.app.home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
@@ -10,14 +12,14 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.api.routes.toURL
 import com.wasmo.client.app.Environment
+import com.wasmo.client.app.browser.Browser
 import com.wasmo.client.app.computerlist.Item
+import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.HTMLElement
 
@@ -25,24 +27,25 @@ import org.w3c.dom.HTMLElement
 class HomeUi(
   private val routeCodec: RouteCodec,
   private val environment: Environment,
+  private val browser: Browser,
   private val router: Router,
   computerListSnapshot: ComputerListSnapshot?,
+  private val accountDataService: AccountDataService,
 ) : Ui {
   private val computerListSnapshot: ComputerListSnapshot = computerListSnapshot
     ?: error("unexpected call of HomeUi.Factory.create(), snapshot is absent")
-
-  private var menuModelFlow = MutableStateFlow(
-    HomeMenuModel(
-      visible = false,
-      signedIn = true,
-    ),
-  )
+  private var menuVisible by mutableStateOf(false)
 
   @Composable
   override fun Show(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
   ) {
-    val menuModel by menuModelFlow.collectAsState()
+    val accountSnapshot by accountDataService.accountSnapshotFlow.collectAsState()
+    val menuModel = HomeMenuModel(
+      visible = menuVisible,
+      signedIn = accountSnapshot.emailAddresses.isNotEmpty(),
+    )
+
     HomeScreen(
       attrs = attrs,
       menuModel = menuModel,
@@ -65,20 +68,20 @@ class HomeUi(
       }
 
       HomeEvent.ClickScrim, HomeEvent.ClickDismissMenu -> {
-        menuModelFlow.update { it.copy(visible = false) }
+        menuVisible = false
       }
 
       HomeEvent.ClickShowMenu -> {
-        menuModelFlow.update { it.copy(visible = true) }
+        menuVisible = true
       }
 
       HomeEvent.ClickSignIn -> {
-        menuModelFlow.update { it.copy(visible = false) }
+        menuVisible = false
         router.goTo(SignUpRoute, TransitionDirection.PUSH)
       }
 
       HomeEvent.ClickSignUp -> {
-        menuModelFlow.update { it.copy(visible = false) }
+        menuVisible = false
         router.goTo(SignUpRoute, TransitionDirection.PUSH)
       }
 
@@ -89,7 +92,9 @@ class HomeUi(
         )
       }
 
-      HomeEvent.ClickSignOut -> error("Unexpected event: $event")
+      HomeEvent.ClickSignOut -> {
+        browser.locationHref = "/sign-out"
+      }
     }
   }
 

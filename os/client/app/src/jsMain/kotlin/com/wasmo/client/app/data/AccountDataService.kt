@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 interface AccountDataService {
-  val accountSnapshotState: StateFlow<AccountSnapshot>
+  val accountSnapshotFlow: StateFlow<AccountSnapshot>
   val accountSnapshot: AccountSnapshot
 
   /** Call this when a new account snapshot is received. */
@@ -37,11 +37,11 @@ class RealAccountDataService(
 ) : AccountDataService {
   private val accountSnapshot_ = MutableStateFlow(accountSnapshot)
 
-  override val accountSnapshotState: StateFlow<AccountSnapshot>
+  override val accountSnapshotFlow: StateFlow<AccountSnapshot>
     get() = accountSnapshot_
 
   override val accountSnapshot: AccountSnapshot
-    get() = accountSnapshotState.value
+    get() = accountSnapshotFlow.value
 
   override fun receiveAccountSnapshot(snapshot: AccountSnapshot) {
     accountSnapshot_.value = snapshot
