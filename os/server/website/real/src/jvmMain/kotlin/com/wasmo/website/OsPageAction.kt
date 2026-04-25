@@ -6,16 +6,16 @@ import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.routes.ComputerHomeRoute
-import com.wasmo.api.routes.ComputerListRoute
+import com.wasmo.api.routes.HomeRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.Url
-import com.wasmo.sql.transaction
 import com.wasmo.calls.CallDataService
 import com.wasmo.computers.ComputerService
 import com.wasmo.computers.ComputerStore
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.UnauthorizedUserException
+import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
@@ -50,7 +50,7 @@ class OsPageAction(
             ?: throw UnauthorizedUserException()
         }
 
-        ComputerListRoute -> {
+        HomeRoute -> {
           computerListSnapshot = callDataService.computerListSnapshot()
         }
 

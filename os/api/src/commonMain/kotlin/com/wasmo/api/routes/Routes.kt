@@ -24,11 +24,9 @@ data object AdminRoute : Route
 
 data object SignUpRoute : Route
 
-data object TeaserRoute : Route
+data object HomeRoute : Route
 
 data object BuildYoursRoute : Route
-
-data object ComputerListRoute : Route
 
 data class AfterCheckoutRoute(
   val checkoutSessionId: String,

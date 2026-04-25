@@ -133,10 +133,8 @@ class ActionRouter(
     val osPagePaths = listOf(
       "/",
       "/build-yours",
-      "/computers",
       "/invite/{code}",
       "/sign-up",
-      "/teaser",
     )
     for (path in osPagePaths) {
       route(path, HttpMethod.Get) {

@@ -74,16 +74,6 @@ Invite tickets have a name and email address attached.
 Invite tickets track whether they're claimed.
 
 
-Teaser
-------
-
-```
-https://wasmo.com/teaser
-```
-
-This shows a Wasmo logo and a link to GitHub.
-
-
 Build Yours
 -----------
 
@@ -94,16 +84,6 @@ https://wasmo.com/build-yours
 This is the form to build a new Wasmo. It links to the Stripe checkout site.
 
 
-Computers
----------
-
-```
-https://wasmo.com/computers
-```
-
-This is a list of the current user's Wasmos.
-
-
 Home
 ----
 
@@ -111,11 +91,11 @@ Home
 https://wasmo.com/
 ```
 
-If there's no invite_ticket in the page data, this shows `/teaser`.
+If the user has any computers, they are listed.
 
-If there is a computer_list in the page data, this shows `/computers`.
+If the user is signed in, this shows an option to create a computer.
 
-Otherwise, this shows `/build-yours`.
+Otherwise, this shows a teaser graphic.
 
 
 After Checkout

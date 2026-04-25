@@ -7,7 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import com.wasmo.api.routes.ComputerHomeRoute
-import com.wasmo.api.routes.ComputerListRoute
+import com.wasmo.api.routes.HomeRoute
 import com.wasmo.framework.UnauthorizedUserException
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
@@ -23,7 +23,7 @@ class ComputerAccessTest {
     val clientA = tester.newClient()
     val computer = clientA.createComputer()
 
-    val computerListPage = clientA.call().osPage(ComputerListRoute)
+    val computerListPage = clientA.call().osPage(HomeRoute)
     assertThat(computerListPage.computerListSnapshot?.items)
       .isNotNull()
       .isNotEmpty()
@@ -38,7 +38,7 @@ class ComputerAccessTest {
     val computer = clientA.createComputer()
 
     val clientB = tester.newClient()
-    val computerListPage = clientB.call().osPage(ComputerListRoute)
+    val computerListPage = clientB.call().osPage(HomeRoute)
     assertThat(computerListPage.computerListSnapshot?.items).isNotNull().isEmpty()
 
     assertFailsWith<UnauthorizedUserException> {

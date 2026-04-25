@@ -1,6 +1,9 @@
 package com.wasmo.client.app.home
 
 import androidx.compose.runtime.Composable
+import com.wasmo.client.app.computerlist.ComputerList
+import com.wasmo.client.app.computerlist.Item
+import com.wasmo.client.app.teaser.Teaser
 import com.wasmo.compose.OverlayContainer
 import com.wasmo.identifiers.ComputerSlug
 import org.jetbrains.compose.web.attributes.AttrsScope
@@ -26,8 +29,38 @@ import org.w3c.dom.HTMLElement
 @Composable
 fun HomeScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
-  scrimVisible: Boolean,
-  menuModel: HomeMenuModel?,
+  menuModel: HomeMenuModel,
+  items: List<Item>,
+  teaser: Boolean,
+  showSignUp: Boolean,
+  eventListener: (HomeEvent) -> Unit,
+) {
+  HomeScreen(
+    attrs = attrs,
+    menuModel = menuModel,
+    eventListener = eventListener,
+    content = { homeScreenChildAttrs ->
+      if (items.isNotEmpty()) {
+        ComputerList(
+          attrs = homeScreenChildAttrs,
+          items = items,
+          eventListener = eventListener,
+        )
+      } else if (teaser) {
+        Teaser(
+          attrs = homeScreenChildAttrs,
+          showSignUp = showSignUp,
+          eventListener = eventListener,
+        )
+      }
+    },
+  )
+}
+
+@Composable
+fun HomeScreen(
+  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
+  menuModel: HomeMenuModel,
   eventListener: (HomeEvent) -> Unit,
   content: @Composable DOMScope<HTMLDivElement>.(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
@@ -42,7 +75,7 @@ fun HomeScreen(
       }
       attrs()
     },
-    showScrim = scrimVisible,
+    showScrim = menuModel.visible,
     onClickScrim = {
       eventListener(HomeEvent.ClickScrim)
     },
@@ -88,5 +121,6 @@ sealed interface HomeEvent {
   object ClickDismissMenu : HomeEvent
   object ClickSignUp : HomeEvent
   object ClickSignIn : HomeEvent
+  object ClickSignOut : HomeEvent
   data class ClickComputer(val slug: ComputerSlug) : HomeEvent
 }

@@ -9,7 +9,7 @@ import com.wasmo.api.ComputerListItem
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.api.routes.ComputerHomeRoute
-import com.wasmo.api.routes.ComputerListRoute
+import com.wasmo.api.routes.HomeRoute
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.testing.apps.MusicApp
 import com.wasmo.testing.apps.SnakeApp
@@ -40,8 +40,8 @@ class CreateComputerActionTest {
       "https://jesse99.wasmo.com/",
     )
 
-    val computerListPage = client.call().osPage(ComputerListRoute)
-    assertThat(computerListPage.computerListSnapshot?.items)
+    val homePage = client.call().osPage(HomeRoute)
+    assertThat(homePage.computerListSnapshot?.items)
       .isNotNull()
       .containsExactly(ComputerListItem(computerSlug))
 

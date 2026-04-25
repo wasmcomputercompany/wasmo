@@ -8,7 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.wasmo.api.CreateComputerSpecRequest
-import com.wasmo.api.routes.TeaserRoute
+import com.wasmo.api.routes.HomeRoute
 import com.wasmo.client.app.FormState
 import com.wasmo.client.app.LocalFormState
 import com.wasmo.client.app.routing.Router
@@ -65,7 +65,7 @@ class BuildYoursUi(
             }
 
             BuildYoursScreenEvent.ClickQuestions -> {
-              router.goTo(TeaserRoute, TransitionDirection.POP)
+              router.goTo(HomeRoute, TransitionDirection.POP)
             }
           }
         },

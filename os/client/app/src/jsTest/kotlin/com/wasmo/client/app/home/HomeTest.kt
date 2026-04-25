@@ -1,15 +1,17 @@
 package com.wasmo.client.app.home
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import app.cash.burst.InterceptTest
-import com.wasmo.client.app.computerlist.HomeScreenWithComputerList
 import com.wasmo.client.app.computerlist.Item
 import com.wasmo.domtester.SnapshotTester
 import com.wasmo.identifiers.ComputerSlug
 import kotlin.test.Test
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
 
 class HomeTest {
@@ -21,8 +23,14 @@ class HomeTest {
     ),
   )
 
-  private var menuModel by mutableStateOf<HomeMenuModel?>(null)
-  private var teaser by mutableStateOf<Boolean>(true)
+  private var menuModelFlow = MutableStateFlow(
+    HomeMenuModel(
+      visible = false,
+      signedIn = false,
+    ),
+  )
+  private var teaser by mutableStateOf(true)
+  private var items by mutableStateOf<List<Item>>(listOf())
 
   @Test
   fun teaser() = runTest {
@@ -31,7 +39,7 @@ class HomeTest {
       Subject()
     }
 
-    menuModel = HomeMenuModel()
+    menuModelFlow.update { it.copy(visible = true) }
     snapshotTester.snapshot(name = "menuVisible") {
       Subject()
     }
@@ -40,13 +48,24 @@ class HomeTest {
   @Test
   fun computerList() = runTest {
     teaser = false
+    items = listOf(
+      Item(
+        slug = ComputerSlug("jesse99"),
+        iframeSrc = "https://jesse99.wasmo.com/",
+      ),
+      Item(
+        slug = ComputerSlug("rounds"),
+        iframeSrc = "https://rounds.wasmo.com/",
+      ),
+    )
+
     snapshotTester.snapshot(
       scrolling = true,
     ) {
       Subject()
     }
 
-    menuModel = HomeMenuModel()
+    menuModelFlow.update { it.copy(visible = true) }
     snapshotTester.snapshot(
       name = "menuVisible",
       scrolling = true,
@@ -57,29 +76,13 @@ class HomeTest {
 
   @Composable
   fun Subject() {
-    if (teaser) {
-      HomeScreenWithTeaser(
-        showSignUp = true,
-        scrimVisible = menuModel != null,
-        menuModel = menuModel,
-        eventListener = {},
-      )
-    } else {
-      HomeScreenWithComputerList(
-        scrimVisible = menuModel != null,
-        menuModel = menuModel,
-        items = listOf(
-          Item(
-            slug = ComputerSlug("jesse99"),
-            iframeSrc = "https://jesse99.wasmo.com/",
-          ),
-          Item(
-            slug = ComputerSlug("rounds"),
-            iframeSrc = "https://rounds.wasmo.com/",
-          ),
-        ),
-        eventListener = {},
-      )
-    }
+    val menuModel by menuModelFlow.collectAsState()
+    HomeScreen(
+      menuModel = menuModel,
+      showSignUp = true,
+      items = items,
+      teaser = teaser,
+      eventListener = {},
+    )
   }
 }

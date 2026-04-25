@@ -59,9 +59,6 @@ class CallTester(
 ) {
   fun routingContext() = RoutingContext(
     rootUrl = deployment.baseUrl.toString(),
-    hasComputers = false,
-    hasInvite = false,
-    isAdmin = false,
   )
 
   fun routeCodec() = routeCodecFactory.create(

@@ -73,9 +73,6 @@ class RealCallDataService(
     context(sqlTransaction: SqlTransaction)
     override suspend fun load() = RoutingContext(
       rootUrl = deployment.baseUrl.toString(),
-      hasComputers = computerListSnapshot.get().items.isNotEmpty(),
-      hasInvite = firstClaimedInvite.get() != null,
-      isAdmin = false,
     )
   }
 
