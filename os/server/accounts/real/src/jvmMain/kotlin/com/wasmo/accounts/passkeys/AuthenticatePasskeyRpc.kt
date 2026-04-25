@@ -17,7 +17,7 @@ import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
-class AuthenticatePasskeyAction(
+class AuthenticatePasskeyRpc(
   private val client: Client,
   private val passkeyChecker: PasskeyChecker,
   private val passkeyLinker: PasskeyLinker,

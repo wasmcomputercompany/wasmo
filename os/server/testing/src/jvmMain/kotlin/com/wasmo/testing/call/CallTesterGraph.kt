@@ -11,8 +11,8 @@ import com.wasmo.calls.RealCallDataService
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
-import com.wasmo.website.RealServerOsPage
-import com.wasmo.website.ServerOsPage
+import com.wasmo.website.RealServerOsHtml
+import com.wasmo.website.ServerOsHtml
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
@@ -38,7 +38,7 @@ interface CallTesterGraph {
   fun bindPasskeyChecker(real: RealPasskeyChecker): PasskeyChecker
 
   @Binds
-  fun bindServerOsPageFactory(real: RealServerOsPage.Factory): ServerOsPage.Factory
+  fun bindServerOsHtmlFactory(real: RealServerOsHtml.Factory): ServerOsHtml.Factory
 
   @Binds
   fun bindRouteCodecFactory(real: RealRouteCodec.Factory): RouteCodec.Factory

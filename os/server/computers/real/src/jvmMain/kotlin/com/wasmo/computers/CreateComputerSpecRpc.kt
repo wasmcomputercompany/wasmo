@@ -14,7 +14,7 @@ import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
-class CreateComputerSpecAction(
+class CreateComputerSpecRpc(
   private val paymentsService: PaymentsService,
   private val client: Client,
   private val wasmoDb: SqlDatabase,

@@ -28,7 +28,7 @@ val ChallengeAttemptRateLimit = RateLimit(
 
 @Inject
 @SingleIn(CallScope::class)
-class ConfirmEmailAddressAction(
+class ConfirmEmailAddressRpc(
   private val clock: Clock,
   private val client: Client,
   private val challengeTokenChecker: ChallengeTokenChecker,

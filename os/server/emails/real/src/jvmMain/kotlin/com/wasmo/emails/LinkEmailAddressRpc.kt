@@ -16,7 +16,7 @@ import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
-class LinkEmailAddressAction(
+class LinkEmailAddressRpc(
   private val client: Client,
   private val deployment: Deployment,
   private val sendEmailService: SendEmailService,

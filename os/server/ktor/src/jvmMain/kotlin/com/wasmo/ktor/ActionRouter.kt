@@ -107,14 +107,14 @@ class ActionRouter(
   private fun Route.createComputerRoutes() {
     route("/", HttpMethod.Get) {
       handle { callGraph, url, _ ->
-        callGraph.osPageAction.get(url).response
+        callGraph.osPage.get(url).response
       }
     }
 
     rpc<InstallAppRequest, InstallAppResponse>(
       path = "/install-app",
     ) { callGraph, request, wasmoUrl, _ ->
-      callGraph.installAppAction.install(
+      callGraph.installAppRpc.install(
         computerSlug = ComputerSlug(wasmoUrl.subdomain ?: throw NotFoundUserException()),
         request = request,
       )
@@ -141,14 +141,20 @@ class ActionRouter(
     for (path in osPagePaths) {
       route(path, HttpMethod.Get) {
         handle { callGraph, url, _ ->
-          callGraph.osPageAction.get(url).response
+          callGraph.osPage.get(url).response
         }
       }
     }
 
     route("/after-checkout/{checkoutSessionId}", HttpMethod.Get) {
       handle { callGraph, _, call ->
-        callGraph.afterCheckoutAction.get(call.pathParameters["checkoutSessionId"]!!)
+        callGraph.afterCheckoutPage.get(call.pathParameters["checkoutSessionId"]!!)
+      }
+    }
+
+    route("/sign-out", HttpMethod.Get) {
+      handle { callGraph, _, _ ->
+        callGraph.signOutPage.get()
       }
     }
   }
@@ -157,49 +163,49 @@ class ActionRouter(
     rpc<AccountSnapshotRequest, AccountSnapshotResponse>(
       path = "/account-snapshot",
     ) { callGraph, request, _, _ ->
-      callGraph.accountSnapshotAction.get(request)
+      callGraph.accountSnapshotRpc.get(request)
     }
 
     rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
       path = "/authenticate-passkey",
     ) { callGraph, request, _, _ ->
-      callGraph.authenticatePasskeyAction.authenticate(request)
+      callGraph.authenticatePasskeyRpc.authenticate(request)
     }
 
     rpc<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse>(
       path = "/confirm-email-address",
     ) { callGraph, request, _, _ ->
-      callGraph.confirmEmailAddressAction.confirm(request)
+      callGraph.confirmEmailAddressRpc.confirm(request)
     }
 
     rpc<CreateComputerSpecRequest, CreateComputerSpecResponse>(
       path = "/create-computer-spec",
     ) { callGraph, request, _, _ ->
-      callGraph.createComputerSpecAction.create(request)
+      callGraph.createComputerSpecRpc.create(request)
     }
 
     rpc<CreateInviteRequest, CreateInviteResponse>(
       path = "/create-invite",
     ) { callGraph, request, _, _ ->
-      callGraph.createInviteAction.create(request)
+      callGraph.createInviteRpc.create(request)
     }
 
     rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
       path = "/link-email-address",
     ) { callGraph, request, _, _ ->
-      callGraph.linkEmailAddressAction.link(request)
+      callGraph.linkEmailAddressRpc.link(request)
     }
 
     rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
       path = "/register-passkey",
     ) { callGraph, request, _, _ ->
-      callGraph.registerPasskeyAction.register(request)
+      callGraph.registerPasskeyRpc.register(request)
     }
 
     rpc<SignOutRequest, SignOutResponse>(
       path = "/sign-out",
     ) { callGraph, request, _, _ ->
-      callGraph.signOutAction.signOut(request)
+      callGraph.signOutRpc.signOut(request)
     }
   }
 

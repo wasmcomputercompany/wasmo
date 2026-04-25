@@ -17,7 +17,7 @@ import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
-class CreateComputerActionTest {
+class CreateComputerSpecRpcTest {
   @InterceptTest
   val tester = ServiceTester()
 

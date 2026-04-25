@@ -1,11 +1,12 @@
 package com.wasmo.testing.call
 
-import com.wasmo.accounts.AccountSnapshotAction
+import com.wasmo.accounts.AccountSnapshotRpc
 import com.wasmo.accounts.Challenger
-import com.wasmo.accounts.SignOutAction
-import com.wasmo.accounts.invite.CreateInviteAction
-import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
-import com.wasmo.accounts.passkeys.RegisterPasskeyAction
+import com.wasmo.accounts.SignOutPage
+import com.wasmo.accounts.SignOutRpc
+import com.wasmo.accounts.invite.CreateInviteRpc
+import com.wasmo.accounts.passkeys.AuthenticatePasskeyRpc
+import com.wasmo.accounts.passkeys.RegisterPasskeyRpc
 import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.ConfirmEmailAddressRequest
@@ -19,20 +20,20 @@ import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.Url
-import com.wasmo.computers.AfterCheckoutAction
-import com.wasmo.computers.CreateComputerSpecAction
+import com.wasmo.computers.AfterCheckoutPage
+import com.wasmo.computers.CreateComputerSpecRpc
 import com.wasmo.deployment.Deployment
-import com.wasmo.emails.ConfirmEmailAddressAction
-import com.wasmo.emails.LinkEmailAddressAction
+import com.wasmo.emails.ConfirmEmailAddressRpc
+import com.wasmo.emails.LinkEmailAddressRpc
 import com.wasmo.framework.Request
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.installedapps.CallAppAction
-import com.wasmo.installedapps.InstallAppAction
+import com.wasmo.installedapps.InstallAppRpc
 import com.wasmo.support.tokens.ChallengeCode
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.framework.snapshot
-import com.wasmo.website.OsPageAction
-import com.wasmo.website.ServerOsPage
+import com.wasmo.website.OsPage
+import com.wasmo.website.ServerOsHtml
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provider
 import okhttp3.HttpUrl
@@ -46,18 +47,19 @@ import wasmo.http.Header
 class CallTester(
   private val deployment: Deployment,
   private val challenger: Challenger,
-  private val accountSnapshotActionProvider: Provider<AccountSnapshotAction>,
-  private val afterCheckoutActionProvider: Provider<AfterCheckoutAction>,
-  private val authenticatePasskeyActionProvider: Provider<AuthenticatePasskeyAction>,
+  private val accountSnapshotRpcProvider: Provider<AccountSnapshotRpc>,
+  private val afterCheckoutPageProvider: Provider<AfterCheckoutPage>,
+  private val authenticatePasskeyRpcProvider: Provider<AuthenticatePasskeyRpc>,
   private val callAppActionProvider: Provider<CallAppAction>,
-  private val confirmEmailAddressActionProvider: Provider<ConfirmEmailAddressAction>,
-  private val createComputerSpecActionProvider: Provider<CreateComputerSpecAction>,
-  private val createInviteActionProvider: Provider<CreateInviteAction>,
-  private val installAppActionProvider: Provider<InstallAppAction>,
-  private val linkEmailAddressActionProvider: Provider<LinkEmailAddressAction>,
-  private val osPageActionProvider: Provider<OsPageAction>,
-  private val registerPasskeyActionProvider: Provider<RegisterPasskeyAction>,
-  private val signOutActionProvider: Provider<SignOutAction>,
+  private val confirmEmailAddressRpcProvider: Provider<ConfirmEmailAddressRpc>,
+  private val createComputerSpecRpcProvider: Provider<CreateComputerSpecRpc>,
+  private val createInviteRpcProvider: Provider<CreateInviteRpc>,
+  private val installAppRpcProvider: Provider<InstallAppRpc>,
+  private val linkEmailAddressRpcProvider: Provider<LinkEmailAddressRpc>,
+  private val osPageProvider: Provider<OsPage>,
+  private val registerPasskeyRpcProvider: Provider<RegisterPasskeyRpc>,
+  private val signOutRpcProvider: Provider<SignOutRpc>,
+  private val signOutPageProvider: Provider<SignOutPage>,
   private val routeCodecFactory: RouteCodec.Factory,
 ) {
   fun routingContext() = RoutingContext(
@@ -71,10 +73,10 @@ class CallTester(
   fun createChallenge() = challenger.create()
 
   suspend fun accountSnapshot(request: AccountSnapshotRequest) =
-    accountSnapshotActionProvider().get(request)
+    accountSnapshotRpcProvider().get(request)
 
   suspend fun afterCheckout(checkoutSessionId: String) =
-    afterCheckoutActionProvider().get(checkoutSessionId)
+    afterCheckoutPageProvider().get(checkoutSessionId)
 
   suspend fun authenticate(
     passkey: FakePasskey,
@@ -90,7 +92,7 @@ class CallTester(
   )
 
   suspend fun authenticatePasskey(request: AuthenticatePasskeyRequest) =
-    authenticatePasskeyActionProvider().authenticate(request)
+    authenticatePasskeyRpcProvider().authenticate(request)
 
   suspend fun callApp(request: Request) =
     callAppActionProvider().call(request).snapshot()
@@ -110,7 +112,7 @@ class CallTester(
   )
 
   suspend fun confirmEmailAddress(request: ConfirmEmailAddressRequest) =
-    confirmEmailAddressActionProvider().confirm(request)
+    confirmEmailAddressRpcProvider().confirm(request)
 
   suspend fun confirmEmailAddress(
     emailAddress: String,
@@ -125,18 +127,18 @@ class CallTester(
   )
 
   suspend fun createComputerSpec(request: CreateComputerSpecRequest) =
-    createComputerSpecActionProvider().create(request)
+    createComputerSpecRpcProvider().create(request)
 
   suspend fun createInvite(request: CreateInviteRequest) =
-    createInviteActionProvider().create(request)
+    createInviteRpcProvider().create(request)
 
   suspend fun installApp(
     computerSlug: ComputerSlug,
     request: InstallAppRequest,
-  ) = installAppActionProvider().install(computerSlug, request)
+  ) = installAppRpcProvider().install(computerSlug, request)
 
   suspend fun linkEmailAddress(request: LinkEmailAddressRequest) =
-    linkEmailAddressActionProvider().link(request)
+    linkEmailAddressRpcProvider().link(request)
 
   suspend fun linkEmailAddress(emailAddress: String) =
     linkEmailAddress(
@@ -145,16 +147,18 @@ class CallTester(
       ),
     )
 
-  suspend fun osPage(url: Url): ServerOsPage =
-    osPageActionProvider().get(url)
+  suspend fun osPage(url: Url): ServerOsHtml =
+    osPageProvider().get(url)
 
-  suspend fun osPage(route: Route): ServerOsPage = osPage(
+  suspend fun osPage(route: Route): ServerOsHtml = osPage(
     url = routeCodec().encode(route),
   )
 
   suspend fun registerPasskey(request: RegisterPasskeyRequest) =
-    registerPasskeyActionProvider().register(request)
+    registerPasskeyRpcProvider().register(request)
 
   suspend fun signOut(request: SignOutRequest) =
-    signOutActionProvider().signOut(request)
+    signOutRpcProvider().signOut(request)
+
+  suspend fun signOutPage() = signOutPageProvider().get()
 }

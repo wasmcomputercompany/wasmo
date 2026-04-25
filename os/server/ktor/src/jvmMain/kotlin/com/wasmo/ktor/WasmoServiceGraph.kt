@@ -50,8 +50,8 @@ import com.wasmo.sql.SqlDatabaseFactory
 import com.wasmo.stripe.StripePaymentsService
 import com.wasmo.wasm.AppLoader
 import com.wasmo.wasm.JvmAppLoader
-import com.wasmo.website.RealServerOsPage
-import com.wasmo.website.ServerOsPage
+import com.wasmo.website.RealServerOsHtml
+import com.wasmo.website.ServerOsHtml
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -211,7 +211,7 @@ internal interface WasmoServiceGraph {
   fun bindRouteCodecFactory(real: RealRouteCodec.Factory): RouteCodec.Factory
 
   @Binds
-  fun bindServerOsPageFactory(real: RealServerOsPage.Factory): ServerOsPage.Factory
+  fun bindServerOsHtmlFactory(real: RealServerOsHtml.Factory): ServerOsHtml.Factory
 
   @Binds
   fun bindEventListener(real: LoggingEventListener): EventListener

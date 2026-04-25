@@ -17,7 +17,7 @@ import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
-class InstallAppAction(
+class InstallAppRpc(
   private val client: Client,
   private val computerStore: ComputerStore,
   private val wasmoDb: SqlDatabase,

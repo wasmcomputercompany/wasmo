@@ -10,7 +10,7 @@ import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
-class SignOutAction(
+class SignOutRpc(
   private val client: Client,
   private val wasmoDb: SqlDatabase,
 ) {

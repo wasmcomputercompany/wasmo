@@ -23,7 +23,7 @@ import wasmo.sql.SqlDatabase
  */
 @Inject
 @SingleIn(CallScope::class)
-class AfterCheckoutAction(
+class AfterCheckoutPage(
   private val callDataService: CallDataService,
   private val paymentsService: PaymentsService,
   private val wasmoDb: SqlDatabase,

@@ -15,7 +15,7 @@ import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
-class CreateInviteAction(
+class CreateInviteRpc(
   private val client: Client,
   private val callDataService: CallDataService,
   private val wasmoDb: SqlDatabase,

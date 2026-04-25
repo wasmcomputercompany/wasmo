@@ -20,7 +20,7 @@ import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
-class RegisterPasskeyAction(
+class RegisterPasskeyRpc(
   private val clock: Clock,
   private val callDataService: CallDataService,
   private val client: Client,

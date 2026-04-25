@@ -2,16 +2,16 @@ package com.wasmo.accounts
 
 import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AccountSnapshotResponse
-import com.wasmo.sql.transaction
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
+import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
 
 @Inject
 @SingleIn(CallScope::class)
-class AccountSnapshotAction(
+class AccountSnapshotRpc(
   private val callDataService: CallDataService,
   private val wasmoDb: SqlDatabase,
 ) {

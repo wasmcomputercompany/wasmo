@@ -17,7 +17,7 @@ class SignInSignOutTest {
   val tester = ServiceTester()
 
   @Test
-  fun `sign up sign out`() = runTest {
+  fun `sign up sign out rpc`() = runTest {
     val client = tester.newClient()
 
     val confirmResponse = client.linkAndConfirmEmailAddress("jesse@example.com")
@@ -40,7 +40,31 @@ class SignInSignOutTest {
   }
 
   @Test
-  fun `sign in sign out`() = runTest {
+  fun `sign up sign out page`() = runTest {
+    val client = tester.newClient()
+
+    val confirmResponse = client.linkAndConfirmEmailAddress("jesse@example.com")
+    assertThat(confirmResponse.body.account?.emailAddresses)
+      .isNotNull()
+      .isNotEmpty()
+
+    val accountSnapshotResponse1 = client.accountSnapshot()
+    assertThat(accountSnapshotResponse1.emailAddresses)
+      .isNotNull()
+      .isNotEmpty()
+
+    val signOutResponse = client.call().signOutPage()
+    assertThat(signOutResponse.header("Location"))
+      .isEqualTo("https://wasmo.com/")
+
+    val accountSnapshotResponse2 = client.accountSnapshot()
+    assertThat(accountSnapshotResponse2.emailAddresses)
+      .isNotNull()
+      .isEmpty()
+  }
+
+  @Test
+  fun `sign in sign out rpc`() = runTest {
     // Sign up with client1.
     val client1 = tester.newClient()
     client1.linkAndConfirmEmailAddress("jesse@example.com")

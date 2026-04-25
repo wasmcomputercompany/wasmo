@@ -25,14 +25,14 @@ import wasmo.sql.SqlDatabase
  */
 @Inject
 @SingleIn(CallScope::class)
-class OsPageAction(
+class OsPage(
   private val computerStore: ComputerStore,
   private val callDataService: CallDataService,
-  private val osPageFactory: ServerOsPage.Factory,
+  private val osHtmlFactory: ServerOsHtml.Factory,
   private val wasmoDb: SqlDatabase,
   private val client: Client,
 ) {
-  suspend fun get(url: Url): ServerOsPage {
+  suspend fun get(url: Url): ServerOsHtml {
     var accountSnapshot: AccountSnapshot? = null
     var routingContext: RoutingContext? = null
     var inviteTicket: InviteTicket? = null
@@ -64,7 +64,7 @@ class OsPageAction(
       }
     }
 
-    return osPageFactory.create(
+    return osHtmlFactory.create(
       routingContext = routingContext!!,
       accountSnapshot = accountSnapshot!!,
       inviteTicket = inviteTicket,

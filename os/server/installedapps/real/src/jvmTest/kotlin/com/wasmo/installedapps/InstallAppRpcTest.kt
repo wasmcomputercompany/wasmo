@@ -18,7 +18,7 @@ import okio.ByteString.Companion.encodeUtf8
 import wasmo.http.FakeHttpService
 import wasmo.http.HttpResponse
 
-class InstallAppActionTest {
+class InstallAppRpcTest {
   @InterceptTest
   val tester = ServiceTester()
 
