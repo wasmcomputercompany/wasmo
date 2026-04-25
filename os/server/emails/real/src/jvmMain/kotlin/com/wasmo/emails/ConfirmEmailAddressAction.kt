@@ -107,8 +107,8 @@ class ConfirmEmailAddressAction(
 
       else -> {
         client.signIn(
-          source = accountId,
-          target = linkedEmailAddress.accountId,
+          sourceAccountId = accountId,
+          targetAccountId = linkedEmailAddress.accountId,
         )
         Decision.LinkedExisting
       }

@@ -36,14 +36,29 @@ class CookieClient(
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun signIn(
-    source: AccountId,
-    target: AccountId,
+    sourceAccountId: AccountId,
+    targetAccountId: AccountId,
   ) {
-    if (source == target) return // Nothing to do.
+    if (sourceAccountId == targetAccountId) return // Nothing to do.
 
     updateAccountIdByAccountId(
-      target_account_id = target,
-      source_account_id = source,
+      sourceAccountId = sourceAccountId,
+      targetAccountId = targetAccountId,
+    )
+    invalidate()
+  }
+
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun signOut() {
+    val sourceAccountId = getAccountIdOrNull() ?: return // Nothing to do.
+
+    val targetAccountId = insertAccount(
+      version = 1,
+    )
+
+    updateAccountIdByAccountId(
+      targetAccountId = targetAccountId,
+      sourceAccountId = sourceAccountId,
     )
     invalidate()
   }

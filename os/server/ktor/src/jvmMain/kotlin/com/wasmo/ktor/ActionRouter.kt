@@ -17,6 +17,8 @@ import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
+import com.wasmo.api.SignOutRequest
+import com.wasmo.api.SignOutResponse
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.decodeUrl
@@ -152,34 +154,16 @@ class ActionRouter(
   }
 
   private fun Route.createRpcs() {
-    rpc<CreateInviteRequest, CreateInviteResponse>(
-      path = "/create-invite",
-    ) { callGraph, request, _, _ ->
-      callGraph.createInviteAction.create(request)
-    }
-
     rpc<AccountSnapshotRequest, AccountSnapshotResponse>(
       path = "/account-snapshot",
     ) { callGraph, request, _, _ ->
       callGraph.accountSnapshotAction.get(request)
     }
 
-    rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
-      path = "/register-passkey",
-    ) { callGraph, request, _, _ ->
-      callGraph.registerPasskeyAction.register(request)
-    }
-
     rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
       path = "/authenticate-passkey",
     ) { callGraph, request, _, _ ->
       callGraph.authenticatePasskeyAction.authenticate(request)
-    }
-
-    rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
-      path = "/link-email-address",
-    ) { callGraph, request, _, _ ->
-      callGraph.linkEmailAddressAction.link(request)
     }
 
     rpc<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse>(
@@ -192,6 +176,30 @@ class ActionRouter(
       path = "/create-computer-spec",
     ) { callGraph, request, _, _ ->
       callGraph.createComputerSpecAction.create(request)
+    }
+
+    rpc<CreateInviteRequest, CreateInviteResponse>(
+      path = "/create-invite",
+    ) { callGraph, request, _, _ ->
+      callGraph.createInviteAction.create(request)
+    }
+
+    rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
+      path = "/link-email-address",
+    ) { callGraph, request, _, _ ->
+      callGraph.linkEmailAddressAction.link(request)
+    }
+
+    rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
+      path = "/register-passkey",
+    ) { callGraph, request, _, _ ->
+      callGraph.registerPasskeyAction.register(request)
+    }
+
+    rpc<SignOutRequest, SignOutResponse>(
+      path = "/sign-out",
+    ) { callGraph, request, _, _ ->
+      callGraph.signOutAction.signOut(request)
     }
   }
 

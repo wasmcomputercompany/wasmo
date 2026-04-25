@@ -74,8 +74,8 @@ suspend fun insertCookie(
 
 context(connection: SqlConnection)
 suspend fun updateAccountIdByAccountId(
-  target_account_id: AccountId,
-  source_account_id: AccountId,
+  targetAccountId: AccountId,
+  sourceAccountId: AccountId,
 ): Long {
   return connection.execute(
     """
@@ -84,7 +84,7 @@ suspend fun updateAccountIdByAccountId(
     WHERE account_id = $2
     """,
   ) {
-    bindAccountId(0, target_account_id)
-    bindAccountId(1, source_account_id)
+    bindAccountId(0, targetAccountId)
+    bindAccountId(1, sourceAccountId)
   }
 }

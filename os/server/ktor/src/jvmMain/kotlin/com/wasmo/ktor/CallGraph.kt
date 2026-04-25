@@ -4,6 +4,7 @@ import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Challenger
 import com.wasmo.accounts.Client
+import com.wasmo.accounts.SignOutAction
 import com.wasmo.accounts.invite.CreateInviteAction
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.RegisterPasskeyAction
@@ -28,16 +29,17 @@ import dev.zacsweers.metro.SingleIn
 )
 interface CallGraph {
   val accountSnapshotAction: AccountSnapshotAction
-  val createInviteAction: CreateInviteAction
-  val registerPasskeyAction: RegisterPasskeyAction
+  val afterCheckoutAction: AfterCheckoutAction
   val authenticatePasskeyAction: AuthenticatePasskeyAction
-  val linkEmailAddressAction: LinkEmailAddressAction
+  val callAppAction: CallAppAction
   val confirmEmailAddressAction: ConfirmEmailAddressAction
   val createComputerSpecAction: CreateComputerSpecAction
+  val createInviteAction: CreateInviteAction
   val installAppAction: InstallAppAction
+  val linkEmailAddressAction: LinkEmailAddressAction
   val osPageAction: OsPageAction
-  val afterCheckoutAction: AfterCheckoutAction
-  val callAppAction: CallAppAction
+  val registerPasskeyAction: RegisterPasskeyAction
+  val signOutAction: SignOutAction
 
   @Provides
   @SingleIn(CallScope::class)

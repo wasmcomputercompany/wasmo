@@ -2,6 +2,8 @@ package com.wasmo.testing.client
 
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.SessionCookie
+import com.wasmo.api.AccountSnapshot
+import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.LinkEmailAddressRequest
@@ -103,6 +105,11 @@ class ClientTester(
       challengeToken = linkResponse.body.challengeToken,
       challengeCode = email.extractChallengeCode(),
     )
+  }
+
+  suspend fun accountSnapshot(): AccountSnapshot {
+    val response = call().accountSnapshot(request = AccountSnapshotRequest)
+    return response.body.account
   }
 
   fun getComputer(slug: ComputerSlug) = computerTesterFactory.create(

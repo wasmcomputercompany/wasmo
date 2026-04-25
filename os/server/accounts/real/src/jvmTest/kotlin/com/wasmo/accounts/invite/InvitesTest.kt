@@ -5,7 +5,6 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.decodeUrl
@@ -41,8 +40,8 @@ class InvitesTest {
     assertThat(appPage.inviteTicket?.code).isEqualTo(inviteRoute.code)
     assertThat(appPage.inviteTicket?.claimed).isEqualTo(false)
 
-    val accountSnapshotResponse = claimedByClient.call().accountSnapshot(AccountSnapshotRequest)
-    assertThat(accountSnapshotResponse.body.account.hasInvite).isFalse()
+    val accountSnapshotResponse = claimedByClient.accountSnapshot()
+    assertThat(accountSnapshotResponse.hasInvite).isFalse()
 
     val passkey = tester.newPasskey()
     val registerResponse = claimedByClient.register(passkey, inviteRoute.code)
@@ -97,8 +96,8 @@ class InvitesTest {
     val inviteRoute = createdByClient.call().routeCodec().decode(inviteUrl) as InviteRoute
 
     val claimedByClient = tester.newClient()
-    val accountSnapshotResponse = claimedByClient.call().accountSnapshot(AccountSnapshotRequest)
-    assertThat(accountSnapshotResponse.body.account.hasInvite).isFalse()
+    val accountSnapshotResponse = claimedByClient.accountSnapshot()
+    assertThat(accountSnapshotResponse.hasInvite).isFalse()
 
     val authenticateResponse = claimedByClient.call().authenticate(passkey, inviteRoute.code)
     assertThat(authenticateResponse.body.account.hasInvite).isTrue()

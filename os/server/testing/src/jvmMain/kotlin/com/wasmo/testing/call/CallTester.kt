@@ -2,6 +2,7 @@ package com.wasmo.testing.call
 
 import com.wasmo.accounts.AccountSnapshotAction
 import com.wasmo.accounts.Challenger
+import com.wasmo.accounts.SignOutAction
 import com.wasmo.accounts.invite.CreateInviteAction
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyAction
 import com.wasmo.accounts.passkeys.RegisterPasskeyAction
@@ -13,6 +14,7 @@ import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.RegisterPasskeyRequest
+import com.wasmo.api.SignOutRequest
 import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
@@ -45,16 +47,17 @@ class CallTester(
   private val deployment: Deployment,
   private val challenger: Challenger,
   private val accountSnapshotActionProvider: Provider<AccountSnapshotAction>,
-  private val linkEmailAddressActionProvider: Provider<LinkEmailAddressAction>,
-  private val confirmEmailAddressActionProvider: Provider<ConfirmEmailAddressAction>,
-  private val registerPasskeyActionProvider: Provider<RegisterPasskeyAction>,
-  private val osPageActionProvider: Provider<OsPageAction>,
-  private val authenticatePasskeyActionProvider: Provider<AuthenticatePasskeyAction>,
-  private val createComputerSpecActionProvider: Provider<CreateComputerSpecAction>,
   private val afterCheckoutActionProvider: Provider<AfterCheckoutAction>,
+  private val authenticatePasskeyActionProvider: Provider<AuthenticatePasskeyAction>,
+  private val callAppActionProvider: Provider<CallAppAction>,
+  private val confirmEmailAddressActionProvider: Provider<ConfirmEmailAddressAction>,
+  private val createComputerSpecActionProvider: Provider<CreateComputerSpecAction>,
   private val createInviteActionProvider: Provider<CreateInviteAction>,
   private val installAppActionProvider: Provider<InstallAppAction>,
-  private val callAppActionProvider: Provider<CallAppAction>,
+  private val linkEmailAddressActionProvider: Provider<LinkEmailAddressAction>,
+  private val osPageActionProvider: Provider<OsPageAction>,
+  private val registerPasskeyActionProvider: Provider<RegisterPasskeyAction>,
+  private val signOutActionProvider: Provider<SignOutAction>,
   private val routeCodecFactory: RouteCodec.Factory,
 ) {
   fun routingContext() = RoutingContext(
@@ -70,57 +73,24 @@ class CallTester(
   suspend fun accountSnapshot(request: AccountSnapshotRequest) =
     accountSnapshotActionProvider().get(request)
 
-  suspend fun linkEmailAddress(request: LinkEmailAddressRequest) =
-    linkEmailAddressActionProvider().link(request)
+  suspend fun afterCheckout(checkoutSessionId: String) =
+    afterCheckoutActionProvider().get(checkoutSessionId)
 
-  suspend fun linkEmailAddress(emailAddress: String) =
-    linkEmailAddress(
-      LinkEmailAddressRequest(
-        unverifiedEmailAddress = emailAddress,
+  suspend fun authenticate(
+    passkey: FakePasskey,
+    inviteCode: String? = null,
+  ) = authenticatePasskey(
+    request = AuthenticatePasskeyRequest(
+      authentication = passkey.authentication(
+        challenge = createChallenge(),
+        origin = deployment.baseUrl.toString(),
       ),
-    )
-
-  suspend fun confirmEmailAddress(request: ConfirmEmailAddressRequest) =
-    confirmEmailAddressActionProvider().confirm(request)
-
-  suspend fun confirmEmailAddress(
-    emailAddress: String,
-    challengeToken: String,
-    challengeCode: ChallengeCode,
-  ) = confirmEmailAddress(
-    request = ConfirmEmailAddressRequest(
-      unverifiedEmailAddress = emailAddress,
-      challengeToken = challengeToken,
-      challengeCode = challengeCode.value,
+      inviteCode = inviteCode,
     ),
-  )
-
-  suspend fun registerPasskey(request: RegisterPasskeyRequest) =
-    registerPasskeyActionProvider().register(request)
-
-  suspend fun osPage(url: Url): ServerOsPage =
-    osPageActionProvider().get(url)
-
-  suspend fun osPage(route: Route): ServerOsPage = osPage(
-    url = routeCodec().encode(route),
   )
 
   suspend fun authenticatePasskey(request: AuthenticatePasskeyRequest) =
     authenticatePasskeyActionProvider().authenticate(request)
-
-  suspend fun createComputerSpec(request: CreateComputerSpecRequest) =
-    createComputerSpecActionProvider().create(request)
-
-  suspend fun afterCheckout(checkoutSessionId: String) =
-    afterCheckoutActionProvider().get(checkoutSessionId)
-
-  suspend fun createInvite(request: CreateInviteRequest) =
-    createInviteActionProvider().create(request)
-
-  suspend fun installApp(
-    computerSlug: ComputerSlug,
-    request: InstallAppRequest,
-  ) = installAppActionProvider().install(computerSlug, request)
 
   suspend fun callApp(request: Request) =
     callAppActionProvider().call(request).snapshot()
@@ -139,16 +109,52 @@ class CallTester(
     ),
   )
 
-  suspend fun authenticate(
-    passkey: FakePasskey,
-    inviteCode: String? = null,
-  ) = authenticatePasskey(
-    request = AuthenticatePasskeyRequest(
-      authentication = passkey.authentication(
-        challenge = createChallenge(),
-        origin = deployment.baseUrl.toString(),
-      ),
-      inviteCode = inviteCode,
+  suspend fun confirmEmailAddress(request: ConfirmEmailAddressRequest) =
+    confirmEmailAddressActionProvider().confirm(request)
+
+  suspend fun confirmEmailAddress(
+    emailAddress: String,
+    challengeToken: String,
+    challengeCode: ChallengeCode,
+  ) = confirmEmailAddress(
+    request = ConfirmEmailAddressRequest(
+      unverifiedEmailAddress = emailAddress,
+      challengeToken = challengeToken,
+      challengeCode = challengeCode.value,
     ),
   )
+
+  suspend fun createComputerSpec(request: CreateComputerSpecRequest) =
+    createComputerSpecActionProvider().create(request)
+
+  suspend fun createInvite(request: CreateInviteRequest) =
+    createInviteActionProvider().create(request)
+
+  suspend fun installApp(
+    computerSlug: ComputerSlug,
+    request: InstallAppRequest,
+  ) = installAppActionProvider().install(computerSlug, request)
+
+  suspend fun linkEmailAddress(request: LinkEmailAddressRequest) =
+    linkEmailAddressActionProvider().link(request)
+
+  suspend fun linkEmailAddress(emailAddress: String) =
+    linkEmailAddress(
+      LinkEmailAddressRequest(
+        unverifiedEmailAddress = emailAddress,
+      ),
+    )
+
+  suspend fun osPage(url: Url): ServerOsPage =
+    osPageActionProvider().get(url)
+
+  suspend fun osPage(route: Route): ServerOsPage = osPage(
+    url = routeCodec().encode(route),
+  )
+
+  suspend fun registerPasskey(request: RegisterPasskeyRequest) =
+    registerPasskeyActionProvider().register(request)
+
+  suspend fun signOut(request: SignOutRequest) =
+    signOutActionProvider().signOut(request)
 }

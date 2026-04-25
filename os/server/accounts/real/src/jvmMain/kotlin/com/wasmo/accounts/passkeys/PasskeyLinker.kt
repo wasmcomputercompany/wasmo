@@ -30,8 +30,8 @@ class PasskeyLinker(
 
     // Transfer all cookies.
     client.signIn(
-      source = cookieAccountId,
-      target = passkey.account_id,
+      sourceAccountId = cookieAccountId,
+      targetAccountId = passkey.account_id,
     )
   }
 }

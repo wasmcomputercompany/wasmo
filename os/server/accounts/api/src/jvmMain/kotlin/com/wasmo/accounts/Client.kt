@@ -8,7 +8,8 @@ import com.wasmo.sql.SqlTransaction
  *
  * We create database accounts lazily for clients that need persisted data.
  *
- * Multiple clients may share an account. This is typically by sharing passkeys.
+ * Multiple clients may share an account. This is typically by sharing passkeys or signing in to the
+ * same email address.
  */
 interface Client : Caller {
   val challenger: Challenger
@@ -16,9 +17,21 @@ interface Client : Caller {
   context(sqlTransaction: SqlTransaction)
   suspend fun getOrCreateAccountId(): AccountId
 
-  /** Switch the client from [source] to [target]. */
+  /** Switch the client from [sourceAccountId] to [targetAccountId]. */
   context(sqlTransaction: SqlTransaction)
-  suspend fun signIn(source: AccountId, target: AccountId)
+  suspend fun signIn(
+    sourceAccountId: AccountId,
+    targetAccountId: AccountId,
+  )
+
+  /**
+   * Disconnect the current cookie from the account ID it's linked to.
+   *
+   * This leaves the cookie in-place, to potentially someday support user-friendly features like
+   * suggested accounts to sign back in.
+   */
+  context(sqlTransaction: SqlTransaction)
+  suspend fun signOut()
 
   /** Call this when the account ID itself may have changed. */
   context(sqlTransaction: SqlTransaction)
