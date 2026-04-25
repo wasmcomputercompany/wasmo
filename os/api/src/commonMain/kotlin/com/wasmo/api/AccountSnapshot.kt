@@ -10,6 +10,7 @@ import okio.ByteString
 data class AccountSnapshot(
   val nextChallenge: @Serializable(Base64UrlSerializer::class) ByteString,
   val passkeys: List<PasskeySnapshot>,
+  val emailAddresses: List<LinkedEmailAddressSnapshot>,
   val hasInvite: Boolean,
 )
 

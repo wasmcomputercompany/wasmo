@@ -6,6 +6,7 @@ import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListItem
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.LinkedEmailAddressSnapshot
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
@@ -13,6 +14,8 @@ import com.wasmo.db.accounts.invite.Invite
 import com.wasmo.db.accounts.invite.findInvitesByClaimedBy
 import com.wasmo.db.accounts.invite.findInvitesByCode
 import com.wasmo.db.computers.selectComputersByAccountId
+import com.wasmo.db.emails.LinkedEmailAddress
+import com.wasmo.db.emails.findLinkedEmailAddresses
 import com.wasmo.db.passkeys.Passkey
 import com.wasmo.db.passkeys.findPasskeysByAccountId
 import com.wasmo.deployment.Deployment
@@ -52,6 +55,25 @@ class RealCallDataService(
     )
   }
 
+  private val linkedEmailAddresses = object : DbLazy<List<LinkedEmailAddressSnapshot>>() {
+    context(sqlTransaction: SqlTransaction)
+    override suspend fun load(): List<LinkedEmailAddressSnapshot> {
+      val accountId = client.getAccountIdOrNull()
+
+      return when {
+        accountId != null -> findLinkedEmailAddresses(accountId)
+          .map { it.toSnapshot() }
+
+        else -> listOf()
+      }
+    }
+
+    private fun LinkedEmailAddress.toSnapshot() = LinkedEmailAddressSnapshot(
+      linkedAt = createdAt,
+      emailAddress = emailAddress,
+    )
+  }
+
   private val firstClaimedInvite = object : DbLazy<Invite?>() {
     context(sqlTransaction: SqlTransaction)
     override suspend fun load(): Invite? {
@@ -79,12 +101,12 @@ class RealCallDataService(
   private val accountSnapshot = object : DbLazy<AccountSnapshot>() {
     context(sqlTransaction: SqlTransaction)
     override suspend fun load(): AccountSnapshot {
-      val passkeys = passkeys.get()
       val firstInvite = firstClaimedInvite.get()
 
       return AccountSnapshot(
         nextChallenge = client.challenger.create(),
-        passkeys = passkeys,
+        passkeys = passkeys.get(),
+        emailAddresses = linkedEmailAddresses.get(),
         hasInvite = firstInvite != null,
       )
     }

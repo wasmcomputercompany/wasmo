@@ -1,5 +1,6 @@
 package com.wasmo.api
 
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -36,3 +37,9 @@ data class ConfirmEmailAddressResponse(
     TooManyAttempts,
   }
 }
+
+@Serializable
+data class LinkedEmailAddressSnapshot(
+  val linkedAt: Instant,
+  val emailAddress: String,
+)

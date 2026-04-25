@@ -2,11 +2,13 @@ package com.wasmo.emails
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat
+import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import com.wasmo.api.ConfirmEmailAddressResponse.Decision
+import com.wasmo.api.LinkedEmailAddressSnapshot
 import com.wasmo.testing.emails.differentCode
 import com.wasmo.testing.emails.extractChallengeCode
 import com.wasmo.testing.service.ServiceTester
@@ -34,7 +36,14 @@ class LinkEmailAddressTest {
       challengeCode = email.extractChallengeCode(),
     )
     assertThat(confirmResponse.body.decision).isEqualTo(Decision.LinkedNew)
-    assertThat(confirmResponse.body.account).isNotNull()
+    assertThat(confirmResponse.body.account?.emailAddresses)
+      .isNotNull()
+      .containsExactly(
+        LinkedEmailAddressSnapshot(
+          linkedAt = tester.clock.now(),
+          emailAddress = "jesse@example.com",
+        ),
+      )
   }
 
   @Test
@@ -45,6 +54,18 @@ class LinkEmailAddressTest {
     assertThat(confirmResponse1.body.decision).isEqualTo(Decision.LinkedNew)
     val confirmResponse2 = client.linkAndConfirmEmailAddress("jessewilson@example.com")
     assertThat(confirmResponse2.body.decision).isEqualTo(Decision.LinkedNew)
+    assertThat(confirmResponse2.body.account?.emailAddresses)
+      .isNotNull()
+      .containsExactly(
+        LinkedEmailAddressSnapshot(
+          linkedAt = tester.clock.now(),
+          emailAddress = "jesse@example.com",
+        ),
+        LinkedEmailAddressSnapshot(
+          linkedAt = tester.clock.now(),
+          emailAddress = "jessewilson@example.com",
+        ),
+      )
   }
 
   /** Sign in just means linking an email address that's already linked. */
@@ -67,7 +88,14 @@ class LinkEmailAddressTest {
       challengeCode = email.extractChallengeCode(),
     )
     assertThat(confirmResponse.body.decision).isEqualTo(Decision.LinkedExisting)
-    assertThat(confirmResponse.body.account).isNotNull()
+    assertThat(confirmResponse.body.account?.emailAddresses)
+      .isNotNull()
+      .containsExactly(
+        LinkedEmailAddressSnapshot(
+          linkedAt = tester.clock.now(),
+          emailAddress = "jesse@example.com",
+        ),
+      )
   }
 
   @Test

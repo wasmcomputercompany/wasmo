@@ -1,4 +1,4 @@
-package com.wasmo.emails
+package com.wasmo.db.emails
 
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.LinkedEmailAddressId

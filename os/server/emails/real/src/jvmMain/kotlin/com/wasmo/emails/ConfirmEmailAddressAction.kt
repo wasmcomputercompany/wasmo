@@ -6,6 +6,8 @@ import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.ConfirmEmailAddressResponse.Decision
 import com.wasmo.calls.CallDataService
+import com.wasmo.db.emails.insertLinkedEmailAddress
+import com.wasmo.db.emails.selectLinkedEmailAddressOrNull
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.EmailAddressLinkPermitType
 import com.wasmo.permits.PermitService
