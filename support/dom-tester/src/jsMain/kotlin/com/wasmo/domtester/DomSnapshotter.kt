@@ -64,6 +64,10 @@ class DomSnapshotter {
           val totalPages =
             ceil(scrollableElement.scrollHeight.toDouble() / scrollableElement.clientHeight).toInt()
 
+          check(totalPages <= 10) {
+            "expected at most 10 scrollable pages but was $totalPages"
+          }
+
           for (page in 0 until totalPages) {
             scrollableElement.scrollTop = page * scrollableElement.clientHeight.toDouble()
             add(captureImage())

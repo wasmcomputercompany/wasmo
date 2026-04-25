@@ -26,7 +26,7 @@ class HomeUi(
   override fun Show(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
   ) {
-    HomeScreen(
+    HomeScreenWithTeaser(
       attrs = attrs,
       showSignUp = environment.showSignUp,
       scrimVisible = menuModel != null,
@@ -62,6 +62,8 @@ class HomeUi(
         menuModel = null
         router.goTo(SignUpRoute, TransitionDirection.PUSH)
       }
+
+      else -> error("Unexpected event: $event")
     }
   }
 

@@ -5,6 +5,7 @@ import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.toURL
+import com.wasmo.client.app.home.HomeEvent
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
@@ -26,8 +27,10 @@ class ComputerListUi private constructor(
   override fun Show(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
   ) {
-    ComputerListScreen(
+    HomeScreenWithComputerList(
       attrs = attrs,
+      scrimVisible = false,
+      menuModel = null,
       items = computerListSnapshot.items.map {
         Item(
           slug = it.slug,
@@ -36,12 +39,13 @@ class ComputerListUi private constructor(
       },
     ) { event ->
       when (event) {
-        is ComputerListEvent.ClickComputer -> {
+        is HomeEvent.ClickComputer -> {
           router.goTo(
             ComputerHomeRoute(slug = event.slug),
             TransitionDirection.PUSH,
           )
         }
+        else -> error("Unexpected event: $event")
       }
     }
   }

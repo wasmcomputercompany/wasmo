@@ -333,7 +333,8 @@ a:hover {
 /* HomeScreen */
 
 .HomeScreen {
-  background: #00C55F;
+  background: #043c70;
+  background: linear-gradient(63deg, rgba(4, 60, 112, 1) 0%, rgba(189, 81, 189, 1) 56%, rgba(209, 63, 10, 1) 100%);
 }
 
 .HomeScreen a {
@@ -345,14 +346,7 @@ a:hover {
   color: rgba(0 0 0 / 0.8);
 }
 
-/* ComputerListUi */
-
-.ComputerListScreen {
-  background: #043c70;
-  background: linear-gradient(63deg, rgba(4, 60, 112, 1) 0%, rgba(189, 81, 189, 1) 56%, rgba(209, 63, 10, 1) 100%);
-}
-
-.ComputerListScreen .SmartphoneFrame {
+.HomeScreen .SmartphoneFrame {
   cursor: pointer;
 }
 
