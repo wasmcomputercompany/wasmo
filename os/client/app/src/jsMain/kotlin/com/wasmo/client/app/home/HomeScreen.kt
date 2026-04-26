@@ -18,6 +18,8 @@ import org.jetbrains.compose.web.css.flex
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
+import org.jetbrains.compose.web.css.minHeight
+import org.jetbrains.compose.web.css.overflowY
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
@@ -57,6 +59,13 @@ fun HomeScreen(
   )
 }
 
+/**
+ * This supports:
+ *
+ *  * Toolbar + Menu
+ *  * Scrim for menus and dialogs
+ *  * Vertically-center content if it's shorter than the screen, scroll it otherwise
+ */
 @Composable
 fun HomeScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
@@ -91,23 +100,33 @@ fun HomeScreen(
       attrs = {
         classes("HomeScreen")
         style {
-          width(100.percent)
-          height(100.percent)
           display(DisplayStyle.Flex)
           flexDirection(FlexDirection.Column)
-          alignItems(AlignItems.Center)
           justifyContent(JustifyContent.Center)
+          alignItems(AlignItems.Stretch)
         }
         zstackChildAttrs()
       },
     ) {
-      HomeToolbar(
-        eventListener = eventListener,
-      )
+      Div(
+        attrs = {
+          style {
+            minHeight(100.percent)
+            display(DisplayStyle.Flex)
+            flexDirection(FlexDirection.Column)
+            alignItems(AlignItems.Center)
+            overflowY("scroll")
+          }
+        },
+      ) {
+        HomeToolbar(
+          eventListener = eventListener,
+        )
 
-      content {
-        style {
-          flex(100, 100, 0.px)
+        content {
+          style {
+            flex(100, 100, 0.px)
+          }
         }
       }
     }

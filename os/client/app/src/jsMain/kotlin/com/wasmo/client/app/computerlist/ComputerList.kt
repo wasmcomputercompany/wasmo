@@ -36,7 +36,6 @@ fun ComputerList(
         flexDirection(FlexDirection.Column)
         alignItems(AlignItems.Center)
         justifyContent(JustifyContent.Start)
-        overflowY("scroll")
         paddingBottom(48.px)
       }
       attrs()
