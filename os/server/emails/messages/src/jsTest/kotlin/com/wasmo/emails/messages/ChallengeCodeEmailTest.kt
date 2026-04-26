@@ -1,4 +1,4 @@
-package com.wasmo.accounts.emails
+package com.wasmo.emails.messages
 
 import app.cash.burst.InterceptTest
 import com.wasmo.domtester.Frame
@@ -23,6 +23,6 @@ class ChallengeCodeEmailTest {
     )
 
     document.body!!.innerHTML = email.html
-    snapshotTester.snapshot(document.body!!, Frame.Iphone14)
+    snapshotTester.snapshot(document.body!!, Frame.Companion.Iphone14)
   }
 }

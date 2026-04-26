@@ -1,5 +1,6 @@
-package com.wasmo.accounts.emails
+package com.wasmo.emails.messages
 
+import com.wasmo.emails.attachments.StandardEmailAttachments
 import com.wasmo.sendemail.EmailMessage
 import com.wasmo.support.okiohtml.writeHtml
 import com.wasmo.support.tokens.ChallengeCode
@@ -7,6 +8,7 @@ import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.div
 import kotlinx.html.h1
+import kotlinx.html.img
 import kotlinx.html.p
 import okio.Buffer
 
@@ -65,9 +67,29 @@ fun challengeCodeEmailMessage(
             text(" to ")
             text(to)
           }
+
+          p {
+            attributes["style"] = """
+              |margin: 24px;
+              |text-align: center;
+              """.trimMargin()
+            a(href = baseUrl) {
+              img {
+                attributes["style"] = """
+                  |width: 64px;
+                  |height: 20px;
+                  """.trimMargin()
+                src = StandardEmailAttachments.wordmark512x160.url
+                alt = "Wasmo"
+              }
+            }
+          }
         }
       }
     }
     readUtf8()
   },
+  attachments = listOf(
+    StandardEmailAttachments.wordmark512x160,
+  ),
 )

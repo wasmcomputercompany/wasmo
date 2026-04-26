@@ -1,5 +1,6 @@
 package com.wasmo.sendemail.postmark
 
+import com.wasmo.emails.attachments.StandardEmailAttachments
 import com.wasmo.sendemail.EmailMessage
 import com.wasmo.sendemail.EmailSendFailedException
 import kotlin.test.Test
@@ -17,7 +18,13 @@ class PostmarkConnectivityTest {
         from = "noreply@wasmo.com",
         to = "jesse@wasmo.com",
         subject = "PostmarkConnectivityTest",
-        html = """<h1>Hello</h1> from PostmarkConnectivityTest""",
+        html = """
+          |<h1>Hello</h1> from PostmarkConnectivityTest
+          |<img src="${StandardEmailAttachments.wordmark512x160.url}">
+          """.trimMargin(),
+        attachments = listOf(
+          StandardEmailAttachments.wordmark512x160,
+        ),
       ),
     )
   }
@@ -33,6 +40,7 @@ class PostmarkConnectivityTest {
           to = "jesse@wasmo.com",
           subject = "PostmarkConnectivityTest",
           html = """<h1>Hello</h1> from PostmarkConnectivityTest""",
+          attachments = listOf(),
         ),
       )
     }

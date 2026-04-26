@@ -2,10 +2,10 @@ package com.wasmo.emails
 
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
-import com.wasmo.accounts.emails.challengeCodeEmailMessage
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.deployment.Deployment
+import com.wasmo.emails.messages.challengeCodeEmailMessage
 import com.wasmo.framework.Response
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.sql.transaction

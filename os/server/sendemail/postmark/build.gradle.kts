@@ -25,6 +25,7 @@ kotlin {
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
+        implementation(project(":os:server:emails:attachments"))
         implementation(project(":platform:testing"))
       }
     }

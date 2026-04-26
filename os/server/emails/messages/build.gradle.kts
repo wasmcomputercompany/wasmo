@@ -20,6 +20,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.kotlinx.html)
         implementation(project(":os:framework"))
+        implementation(project(":os:server:emails:attachments"))
         implementation(project(":os:server:sendemail:api"))
         implementation(project(":support:okio-html"))
         implementation(project(":support:tokens"))

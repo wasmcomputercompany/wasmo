@@ -7,13 +7,21 @@ import com.wasmo.sendemail.SendEmailService
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Instant
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okio.ByteString
+import okio.ByteString.Companion.decodeBase64
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -37,6 +45,14 @@ class PostmarkEmailService private constructor(
           To = message.to,
           Subject = message.subject,
           HtmlBody = message.html,
+          Attachments = message.attachments.map {
+            Attachment(
+              Name = it.fileName,
+              Content = it.content,
+              ContentType = it.contentType,
+              ContentID = it.url,
+            )
+          },
         ),
       )
     } catch (e: Exception) {
@@ -119,6 +135,15 @@ internal data class SendEmailRequest(
   val Subject: String,
   val HtmlBody: String,
   val MessageStream: String = "outbound",
+  val Attachments: List<Attachment> = listOf(),
+)
+
+@Serializable
+internal data class Attachment(
+  val Name: String,
+  val Content: @Serializable(Base64Serializer::class) ByteString,
+  val ContentType: String,
+  val ContentID: String,
 )
 
 @Serializable
@@ -129,3 +154,19 @@ internal data class SendEmailResponse(
   val ErrorCode: Int,
   val Message: String,
 )
+
+/** Note that this does not use Base64Url, that's not what Postmark accepts. */
+internal object Base64Serializer : KSerializer<ByteString> {
+  private val delegateSerializer = String.serializer()
+  override val descriptor = SerialDescriptor("okio.ByteString", delegateSerializer.descriptor)
+
+  override fun serialize(encoder: Encoder, value: ByteString) {
+    encoder.encodeSerializableValue(delegateSerializer, value.base64())
+  }
+
+  override fun deserialize(decoder: Decoder): ByteString {
+    val string = decoder.decodeSerializableValue(delegateSerializer)
+    return string.decodeBase64() ?: throw SerializationException("base64 decode failed")
+  }
+}
+
