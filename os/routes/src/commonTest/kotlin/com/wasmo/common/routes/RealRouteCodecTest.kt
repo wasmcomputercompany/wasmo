@@ -11,6 +11,7 @@ import com.wasmo.api.routes.HomeRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.NotFoundRoute
 import com.wasmo.api.routes.RoutingContext
+import com.wasmo.api.routes.SignOutRoute
 import com.wasmo.api.routes.Url
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -53,6 +54,8 @@ class RealRouteCodecTest {
       .isEqualTo(root.copy(path = listOf("after-checkout", "5678")))
     assertThat(routeCodec.encode(NotFoundRoute))
       .isEqualTo(root.copy(path = listOf("not-found")))
+    assertThat(routeCodec.encode(SignOutRoute))
+      .isEqualTo(root.copy(path = listOf("sign-out")))
   }
 
   @Test
@@ -77,5 +80,7 @@ class RealRouteCodecTest {
       .isEqualTo(AfterCheckoutRoute("5678"))
     assertThat(routeCodec.decode(root.copy(path = listOf("not-found"))))
       .isEqualTo(NotFoundRoute)
+    assertThat(routeCodec.decode(root.copy(path = listOf("sign-out"))))
+      .isEqualTo(SignOutRoute)
   }
 }

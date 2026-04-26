@@ -10,6 +10,7 @@ import com.wasmo.api.routes.HomeRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.NotFoundRoute
 import com.wasmo.api.routes.Route
+import com.wasmo.api.routes.SignOutRoute
 import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.client.app.buildyours.BuildYoursUi
 import com.wasmo.client.app.computer.ComputerUi
@@ -58,7 +59,7 @@ class UiFactory(
         signUpUiFactory.create(presenter)
       }
 
-      NotFoundRoute -> UnimplementedUi("Not Found")
+      SignOutRoute, NotFoundRoute -> UnimplementedUi("Not Found")
     }
   }
 }

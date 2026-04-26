@@ -1,7 +1,10 @@
 package com.wasmo.client.app.signup
 
 import com.wasmo.api.ConfirmEmailAddressResponse.Decision
+import com.wasmo.api.routes.HomeRoute
 import com.wasmo.client.app.data.AccountDataService
+import com.wasmo.client.app.routing.Router
+import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Presenter
 import com.wasmo.support.tokens.toChallengeCodeOrNull
 import dev.zacsweers.metro.AssistedFactory
@@ -15,6 +18,7 @@ import kotlinx.coroutines.launch
 @AssistedInject
 class SignUpPresenter(
   private val scope: CoroutineScope,
+  private val router: Router,
   private val accountDataService: AccountDataService,
 ) : Presenter<SignUpModel, SignUpEvent> {
   private val mutableModel = MutableStateFlow(
@@ -79,7 +83,10 @@ class SignUpPresenter(
             Decision.LinkedNew,
             Decision.LinkedExisting,
               -> {
-              // TODO: navigate.
+              response.account?.let { accountSnapshot ->
+                accountDataService.receiveAccountSnapshot(accountSnapshot)
+              }
+              router.goTo(HomeRoute, TransitionDirection.PUSH)
             }
 
             Decision.BadRequest -> {

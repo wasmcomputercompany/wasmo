@@ -3,6 +3,7 @@ package com.wasmo.client.app.routing
 import androidx.compose.runtime.mutableStateOf
 import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
+import com.wasmo.api.routes.SignOutRoute
 import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.decodeUrl
 import com.wasmo.api.routes.encode
@@ -60,7 +61,7 @@ class Router(
     if (nextUrl == currentUrl) return
 
     // Switching subdomains triggers a browser navigation & fresh page load.
-    if (currentUrl != null && nextUrl.subdomain != currentUrl.subdomain) {
+    if (requiresBrowserNavigation(currentUrl, nextUrl, nextRoute)) {
       browser.locationHref = nextUrl.encode()
       return
     }
@@ -95,6 +96,19 @@ class Router(
 
     // TODO: show transition?
     current.value = nextRoute
+  }
+
+  /** Returns true to trigger a page load on this navigation. */
+  private fun requiresBrowserNavigation(currentUrl: Url?, nextUrl: Url, nextRoute: Route): Boolean {
+    // When the subdomain changes, get the browser to do the navigation.
+    if (currentUrl != null && nextUrl.subdomain != currentUrl.subdomain) {
+      return true
+    }
+
+    return when (nextRoute) {
+      SignOutRoute -> true
+      else -> false
+    }
   }
 }
 

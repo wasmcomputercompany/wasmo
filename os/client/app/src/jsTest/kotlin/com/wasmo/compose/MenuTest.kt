@@ -36,6 +36,10 @@ class MenuTest {
           onDismiss = {},
           content = {
             MenuItem(
+              label = "Sign Out",
+              onClick = {},
+            )
+            MenuItem(
               label = "Install App",
               onClick = {},
             )

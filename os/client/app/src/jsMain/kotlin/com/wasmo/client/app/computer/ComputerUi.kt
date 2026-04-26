@@ -6,8 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.routes.RouteCodec
+import com.wasmo.api.routes.SignOutRoute
 import com.wasmo.api.routes.decodeUrl
 import com.wasmo.client.app.FormState
+import com.wasmo.client.app.browser.Browser
 import com.wasmo.client.app.data.ComputerDataService
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
@@ -98,6 +100,10 @@ class ComputerUi(
 
       ComputerMenuEvent.ClickSettings -> {
         menuModel = null
+      }
+
+      ComputerMenuEvent.ClickSignOut -> {
+        router.goTo(SignOutRoute, TransitionDirection.PUSH)
       }
     }
   }

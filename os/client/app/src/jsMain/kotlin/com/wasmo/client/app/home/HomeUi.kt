@@ -9,10 +9,10 @@ import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.RouteCodec
+import com.wasmo.api.routes.SignOutRoute
 import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.api.routes.toURL
 import com.wasmo.client.app.Environment
-import com.wasmo.client.app.browser.Browser
 import com.wasmo.client.app.computerlist.Item
 import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.app.routing.Router
@@ -27,7 +27,6 @@ import org.w3c.dom.HTMLElement
 class HomeUi(
   private val routeCodec: RouteCodec,
   private val environment: Environment,
-  private val browser: Browser,
   private val router: Router,
   computerListSnapshot: ComputerListSnapshot?,
   private val accountDataService: AccountDataService,
@@ -93,7 +92,7 @@ class HomeUi(
       }
 
       HomeEvent.ClickSignOut -> {
-        browser.locationHref = "/sign-out"
+        router.goTo(SignOutRoute, TransitionDirection.PUSH)
       }
     }
   }

@@ -20,6 +20,12 @@ fun ComputerMenu(
     },
     content = {
       MenuItem(
+        label = "Sign Out",
+        onClick = {
+          eventListener(ComputerMenuEvent.ClickSignOut)
+        },
+      )
+      MenuItem(
         label = "Install App",
         onClick = {
           eventListener(ComputerMenuEvent.ClickInstallApp)
@@ -39,4 +45,5 @@ sealed interface ComputerMenuEvent {
   object ClickDismiss : ComputerMenuEvent
   object ClickInstallApp : ComputerMenuEvent
   object ClickSettings : ComputerMenuEvent
+  object ClickSignOut : ComputerMenuEvent
 }
