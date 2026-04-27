@@ -56,18 +56,18 @@ class HomeUi(
         )
       },
       teaser = computerListSnapshot.items.isEmpty(),
-      showSignUp = environment.showSignUp,
+      showNewComputer = environment.showSignUp,
     )
   }
 
   fun onHomeEvent(event: HomeEvent) {
     when (event) {
-      HomeEvent.SignUp -> {
-        router.goTo(BuildYoursRoute, TransitionDirection.PUSH)
-      }
-
       HomeEvent.ClickScrim, HomeEvent.ClickDismissMenu -> {
         menuVisible = false
+      }
+
+      HomeEvent.ClickNewComputer -> {
+        router.goTo(BuildYoursRoute, TransitionDirection.PUSH)
       }
 
       HomeEvent.ClickShowMenu -> {

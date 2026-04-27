@@ -9,7 +9,6 @@ import androidx.compose.runtime.setValue
 import com.wasmo.client.app.Checkbox
 import com.wasmo.client.app.FinePrint
 import com.wasmo.client.app.FormScreen
-import com.wasmo.client.app.FormWasmoLogo
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.SecondaryButton
 import com.wasmo.client.app.SectionTitle
@@ -29,10 +28,8 @@ import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
-import org.jetbrains.compose.web.css.textAlign
 import org.jetbrains.compose.web.dom.Br
 import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.H2
 import org.jetbrains.compose.web.dom.Li
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
@@ -41,12 +38,10 @@ import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun BuildYoursScreen(
-  showBuildForm: Boolean,
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (BuildYoursScreenEvent) -> Unit,
 ) {
   var nameState by remember { mutableStateOf("jesse99") }
-  var emailState by remember { mutableStateOf("jesse@swank.ca") }
 
   FormScreen(
     attrs = {
@@ -56,24 +51,8 @@ fun BuildYoursScreen(
   ) {
     BuildYoursToolbar()
 
-    FormWasmoLogo()
-
-    H2(
-      attrs = {
-        style {
-          textAlign("center")
-          marginTop(24.px)
-          marginBottom(36.px)
-        }
-      },
-    ) {
-      Text("Your Cloud Computer")
-    }
-
-    if (showBuildForm) {
-      SectionTitle {
-        Text("Give it a name:")
-      }
+    SectionTitle {
+      Text("Give it a name:")
     }
 
     WasmoNameField(
@@ -87,145 +66,121 @@ fun BuildYoursScreen(
       },
     )
 
-    if (showBuildForm) {
-      SmallText {
-        Text("$nameState.wasmo.com is available.")
-      }
-      SmallText {
-        Text("Names may use lowercase a-z characters and 0-9 numbers. No spaces or punctuation!")
-      }
+    SmallText {
+      Text("$nameState.wasmo.com is available.")
+    }
+    SmallText {
+      Text("Names may use lowercase a-z characters and 0-9 numbers. No spaces or punctuation!")
+    }
 
-      SectionTitle {
-        Text("Preinstall some apps:")
-      }
+    SectionTitle {
+      Text("Preinstall some apps:")
+    }
 
-      Checkbox(
-        attrs = {},
-        label = "Cloud Photo Library",
-        inputAttrs = {
-          checked(true)
-        },
-      ) {
-        P {
-          Text("Our photo management is just as good as big tech, but built to serve you and not a stock price.")
+    Checkbox(
+      attrs = {},
+      label = "Cloud Photo Library",
+      inputAttrs = {
+        checked(true)
+      },
+    ) {
+      P {
+        Text("Our photo management is just as good as big tech, but built to serve you and not a stock price.")
+      }
+      P {
+        Text("It has everything you need:")
+      }
+      Ul {
+        Li {
+          Text("Import from Google or Apple")
         }
-        P {
-          Text("It has everything you need:")
+        Li {
+          Text("Automatically tag for quick search")
         }
-        Ul {
-          Li {
-            Text("Import from Google or Apple")
-          }
-          Li {
-            Text("Automatically tag for quick search")
-          }
-          Li {
-            Text("Sync your phone to the cloud")
-          }
-        }
-        P {
-          Text($$"Wasmo.com charges $5 CAD / month for each 500 GiB of storage. That’s enough for most photo libraries.")
+        Li {
+          Text("Sync your phone to the cloud")
         }
       }
+      P {
+        Text($$"Wasmo.com charges $5 CAD / month for each 500 GiB of storage. That’s enough for most photo libraries.")
+      }
+    }
 
-      Checkbox(
-        attrs = {},
-        label = "Cloud Music Library",
-        inputAttrs = {
-          checked(true)
-        },
-      ) {
-        P {
-          Text("The big streaming services aren’t paying artists enough. Buy music from the bands you love and listen to it on all of your devices.")
-        }
+    Checkbox(
+      attrs = {},
+      label = "Cloud Music Library",
+      inputAttrs = {
+        checked(true)
+      },
+    ) {
+      P {
+        Text("The big streaming services aren’t paying artists enough. Buy music from the bands you love and listen to it on all of your devices.")
       }
+    }
 
-      Checkbox(
-        attrs = {},
-        label = "Cloud Audiobooks Library",
-        inputAttrs = {
-          checked(true)
-        },
-      ) {
-        P {
-          Text("Keeps your audiobook library in the cloud.")
-        }
+    Checkbox(
+      attrs = {},
+      label = "Cloud Audiobooks Library",
+      inputAttrs = {
+        checked(true)
+      },
+    ) {
+      P {
+        Text("Keeps your audiobook library in the cloud.")
       }
+    }
 
-      Checkbox(
-        attrs = {},
-        label = "Smart Home",
-        inputAttrs = {
-          checked(true)
-        },
-      ) {
-        P {
-          Text("Secure access to your smart home from anywhere.")
-        }
+    Checkbox(
+      attrs = {},
+      label = "Smart Home",
+      inputAttrs = {
+        checked(true)
+      },
+    ) {
+      P {
+        Text("Secure access to your smart home from anywhere.")
       }
+    }
 
-      Checkbox(
-        attrs = {},
-        label = "Plus a growing ecosystem",
-        inputAttrs = {
-          checked(true)
-        },
-      ) {
-        P {
-          Text("Wasmo has a capable SDK so anyone can build new apps for your cloud computer.")
-        }
-        P {
-          Text("Your cloud computer is secure by construction. It’s always safe to try new apps.")
-        }
-        P {
-          Text("We don’t do app review gatekeeping. It’s your computer and you can do what you like with it.")
-        }
+    Checkbox(
+      attrs = {},
+      label = "Plus a growing ecosystem",
+      inputAttrs = {
+        checked(true)
+      },
+    ) {
+      P {
+        Text("Wasmo has a capable SDK so anyone can build new apps for your cloud computer.")
       }
+      P {
+        Text("Your cloud computer is secure by construction. It’s always safe to try new apps.")
+      }
+      P {
+        Text("We don’t do app review gatekeeping. It’s your computer and you can do what you like with it.")
+      }
+    }
 
-      SectionTitle {
-        Text("Start with this:")
-      }
+    SectionTitle {
+      Text("Start with this:")
+    }
 
-      Checkbox(
-        attrs = {},
-        type = InputType.Radio,
-        label = "Wasmo Standard",
-        inputAttrs = {
-          checked(true)
-        },
-      ) {
-        P {
-          Text($$"$5 CAD / month")
-          Br()
-          Text("500 GiB of storage")
-          Br()
-          Text("Standard performance")
-        }
-        FinePrint {
-          Text($$"You can buy additional storage later. $5 per 500 GiB.")
-        }
+    Checkbox(
+      attrs = {},
+      type = InputType.Radio,
+      label = "Wasmo Standard",
+      inputAttrs = {
+        checked(true)
+      },
+    ) {
+      P {
+        Text($$"$5 CAD / month")
+        Br()
+        Text("500 GiB of storage")
+        Br()
+        Text("Standard performance")
       }
-
-      SectionTitle {
-        Text("Make it yours:")
-      }
-
-      TextField(
-        label = "Email Address",
-      ) {
-        value(emailState)
-        onInput { event ->
-          emailState = event.value
-        }
-      }
-      SmallText(
-        attrs = {
-          style {
-            marginBottom(32.px)
-          }
-        },
-      ) {
-        Text("We’ll email you a link to access your Wasmo. We’ll also invite you to set up a passkey.")
+      FinePrint {
+        Text($$"You can buy additional storage later. $5 per 500 GiB.")
       }
     }
 
@@ -236,35 +191,21 @@ fun BuildYoursScreen(
           marginBottom(24.px)
         }
         onClick {
-          eventListener(
-            when {
-              showBuildForm -> BuildYoursScreenEvent.ClickCheckOut(ComputerSlug(nameState))
-              else -> BuildYoursScreenEvent.ClickBuildYours
-            },
-          )
+          eventListener(BuildYoursScreenEvent.ClickCheckOut(ComputerSlug(nameState)))
         }
       },
     ) {
-      Text(
-        when {
-          showBuildForm -> "Check Out"
-          else -> "Build Yours"
-        },
-      )
+      Text("Check Out")
     }
 
-    if (showBuildForm) {
-      SecondaryButton(
-        attrs = {
-          onClick {
-            eventListener(
-              BuildYoursScreenEvent.ClickQuestions,
-            )
-          }
-        },
-      ) {
-        Text("Questions")
-      }
+    SecondaryButton(
+      attrs = {
+        onClick {
+          eventListener(BuildYoursScreenEvent.ClickQuestions)
+        }
+      },
+    ) {
+      Text("Questions")
     }
   }
 }
@@ -323,7 +264,6 @@ fun BuildYoursToolbar(
 }
 
 sealed interface BuildYoursScreenEvent {
-  object ClickBuildYours : BuildYoursScreenEvent
   data class ClickCheckOut(
     val slug: ComputerSlug,
   ) : BuildYoursScreenEvent

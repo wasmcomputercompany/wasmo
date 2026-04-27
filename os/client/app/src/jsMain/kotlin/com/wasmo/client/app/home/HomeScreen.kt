@@ -3,6 +3,7 @@ package com.wasmo.client.app.home
 import androidx.compose.runtime.Composable
 import com.wasmo.client.app.computerlist.ComputerList
 import com.wasmo.client.app.computerlist.Item
+import com.wasmo.client.app.computerlist.NewComputer
 import com.wasmo.client.app.teaser.Teaser
 import com.wasmo.compose.OverlayContainer
 import com.wasmo.identifiers.ComputerSlug
@@ -20,6 +21,7 @@ import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.minHeight
 import org.jetbrains.compose.web.css.overflowY
+import org.jetbrains.compose.web.css.paddingBottom
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
@@ -34,7 +36,7 @@ fun HomeScreen(
   menuModel: HomeMenuModel,
   items: List<Item>,
   teaser: Boolean,
-  showSignUp: Boolean,
+  showNewComputer: Boolean,
   eventListener: (HomeEvent) -> Unit,
 ) {
   HomeScreen(
@@ -44,15 +46,29 @@ fun HomeScreen(
     content = { homeScreenChildAttrs ->
       if (items.isNotEmpty()) {
         ComputerList(
-          attrs = homeScreenChildAttrs,
+          attrs = {
+            style {
+              paddingBottom(24.px)
+            }
+            homeScreenChildAttrs()
+          },
           items = items,
           eventListener = eventListener,
         )
+        if (showNewComputer) {
+          NewComputer(
+            attrs = {
+              style {
+                paddingBottom(48.px)
+              }
+              homeScreenChildAttrs()
+            },
+            eventListener = eventListener,
+          )
+        }
       } else if (teaser) {
         Teaser(
           attrs = homeScreenChildAttrs,
-          showSignUp = showSignUp,
-          eventListener = eventListener,
         )
       }
     },
@@ -114,7 +130,7 @@ fun HomeScreen(
             minHeight(100.percent)
             display(DisplayStyle.Flex)
             flexDirection(FlexDirection.Column)
-            alignItems(AlignItems.Center)
+            alignItems(AlignItems.Stretch)
             overflowY("scroll")
           }
         },
@@ -134,12 +150,12 @@ fun HomeScreen(
 }
 
 sealed interface HomeEvent {
-  object SignUp : HomeEvent
   object ClickScrim : HomeEvent
   object ClickShowMenu : HomeEvent
   object ClickDismissMenu : HomeEvent
   object ClickSignUp : HomeEvent
   object ClickSignIn : HomeEvent
   object ClickSignOut : HomeEvent
+  object ClickNewComputer : HomeEvent
   data class ClickComputer(val slug: ComputerSlug) : HomeEvent
 }

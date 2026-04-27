@@ -79,7 +79,7 @@ class HomeTest {
     val menuModel by menuModelFlow.collectAsState()
     HomeScreen(
       menuModel = menuModel,
-      showSignUp = true,
+      showNewComputer = true,
       items = items,
       teaser = teaser,
       eventListener = {},
