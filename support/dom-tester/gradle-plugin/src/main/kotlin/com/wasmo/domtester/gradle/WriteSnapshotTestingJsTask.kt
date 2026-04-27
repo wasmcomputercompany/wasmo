@@ -19,11 +19,9 @@ import okio.FileSystem
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
@@ -35,8 +33,8 @@ internal abstract class WriteSnapshotTestingJsTask : DefaultTask() {
   @get:OutputDirectory
   abstract val karmaConfigD: DirectoryProperty
 
-  @get:InputFiles
-  abstract val jvmResources: ConfigurableFileCollection
+  @get:Input
+  abstract val fullyQualifiedResourcesDirectory: Property<String>
 
   @get:Input
   abstract val fullyQualifiedProjectDirectory: Property<String>
@@ -76,25 +74,23 @@ internal abstract class WriteSnapshotTestingJsTask : DefaultTask() {
 
       // This combination of features clumsily gets Karma to serve an arbitrary directory at
       // /static/, which is what our web server does.
-      for (file in jvmResources.files) {
-        writeUtf8(
-          """
-          |config.files.push(
-          |  {
-          |    pattern: '${file}/static/**/*',
-          |    watched: false,
-          |    included: false,
-          |    served: true,
-          |    nocache: false
-          |  }
-          |);
-          |
-          |config.proxies = {
-          |  "/assets/": "${file}/static/assets/"
-          |};
-          """.trimMargin()
-        )
-      }
+      writeUtf8(
+        """
+        |config.files.push(
+        |  {
+        |    pattern: '${fullyQualifiedResourcesDirectory.get()}/static/assets/**/*',
+        |    watched: false,
+        |    included: false,
+        |    served: true,
+        |    nocache: false
+        |  }
+        |);
+        |
+        |config.proxies = {
+        |  "/assets/": "${fullyQualifiedResourcesDirectory.get()}/static/assets/"
+        |};
+        """.trimMargin(),
+      )
     }
   }
 }
