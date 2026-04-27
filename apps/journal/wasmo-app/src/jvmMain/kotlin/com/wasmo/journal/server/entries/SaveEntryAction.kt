@@ -8,7 +8,7 @@ import com.wasmo.journal.api.Visibility
 import com.wasmo.journal.db.JournalDb
 import com.wasmo.journal.server.publishing.PublishTracker
 import kotlin.time.Clock
-import wasmo.sql.ConstraintViolationException
+import wasmo.sql.SqlException
 
 /**
  * ```
@@ -60,8 +60,8 @@ class SaveEntryAction(
         )
         check(rowCount == 1L)
       }
-    } catch (e: ConstraintViolationException) {
-      if (e.constraintName == "entry_slug_key") {
+    } catch (e: SqlException) {
+      if (e.constraint == "entry_slug_key") {
         return SaveEntryResponse(
           error = SaveEntryError.SlugConflict,
         )

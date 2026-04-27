@@ -8,6 +8,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlDatabase
+import wasmo.sql.SqlException
 
 /** Between 1 and 15 letters or digits, and the first is not a digit. */
 val DatabaseNameRegex = Regex("[a-z][a-z0-9]{0,14}")
@@ -32,10 +33,14 @@ class RealSqlDatabaseFactory(
       else -> "app_${computerSlug}_${appSlug}_$name"
     }
 
-    provisioningDb.provisioningDb.withConnection {
-      contextOf<SqlConnection>().execute(
-        sql = "CREATE DATABASE $databaseName WITH ENCODING = 'UTF8'",
-      )
+    try {
+      provisioningDb.provisioningDb.withConnection {
+        contextOf<SqlConnection>().execute(
+          sql = "CREATE DATABASE $databaseName WITH ENCODING = 'UTF8'",
+        )
+      }
+    } catch (e: SqlException) {
+      if (!e.isDuplicateDatabase) throw e
     }
 
     // TODO: figure out secrets and settings before invoking

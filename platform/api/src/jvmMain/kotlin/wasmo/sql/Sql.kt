@@ -64,10 +64,6 @@ open class SqlException(
   val routine: String? = null,
 ) : Exception(message)
 
-class ConstraintViolationException(
-  val constraintName: String,
-) : SqlException("violated constraint: $constraintName")
-
 interface RowIterator : Closeable {
   /** Returns null if there is no next row. */
   suspend fun next(): SqlRow?
