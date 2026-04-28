@@ -71,7 +71,7 @@ suspend fun selectInstalledAppsByComputerId(
   computerId: ComputerId,
   active: Boolean?,
   limit: Long,
-): List<InstalledAppAndRelease> {
+): List<DbInstalledAppAndRelease> {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -107,7 +107,7 @@ suspend fun selectInstalledAppsByComputerId(
   }
 }
 
-private fun SqlRow.getInstalledAppAndRelease(): InstalledAppAndRelease {
+private fun SqlRow.getInstalledAppAndRelease(): DbInstalledAppAndRelease {
   val installedApp = DbInstalledApp(
     getInstalledAppId(0),
     getInstant(1)!!,
@@ -131,7 +131,7 @@ private fun SqlRow.getInstalledAppAndRelease(): InstalledAppAndRelease {
     )
   }
 
-  return InstalledAppAndRelease(
+  return DbInstalledAppAndRelease(
     installedApp,
     release,
   )
@@ -142,7 +142,7 @@ suspend fun selectInstalledAppByComputerIdAndSlug(
   computerId: ComputerId,
   slug: AppSlug,
   active: Boolean?,
-): InstalledAppAndRelease? {
+): DbInstalledAppAndRelease? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
