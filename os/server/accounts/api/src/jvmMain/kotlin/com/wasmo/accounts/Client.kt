@@ -11,8 +11,14 @@ import com.wasmo.sql.SqlTransaction
  * Multiple clients may share an account. This is typically by sharing passkeys or signing in to the
  * same email address.
  */
-interface Client : Caller {
+interface Client {
+  val userAgent: String?
+  val ip: String?
+
   val challenger: Challenger
+
+  context(sqlTransaction: SqlTransaction)
+  suspend fun getAccountIdOrNull(): AccountId?
 
   context(sqlTransaction: SqlTransaction)
   suspend fun getOrCreateAccountId(): AccountId

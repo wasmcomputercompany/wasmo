@@ -6,7 +6,7 @@ import kotlin.time.Instant
 
 data class Computer(
   val id: ComputerId,
-  val created_at: Instant,
+  val createdAt: Instant,
   val version: Long,
   val slug: ComputerSlug,
 )

@@ -28,8 +28,8 @@ class InstalledAppHttpServiceTest {
     )
     tester.publishApp(app)
 
-    val client = tester.newClient()
-    val computer = client.createComputer()
+    val owner = tester.newClient()
+    val computer = owner.createComputer()
     val installedApp = computer.installApp(app)
 
     assertThat(installedApp.call("/resource1.txt"))
@@ -39,6 +39,11 @@ class InstalledAppHttpServiceTest {
           body = ResponseBodySnapshot("This is a resource in www"),
         ),
       )
+
+    val anotherUser = tester.newClient()
+    assertFailsWith<NotFoundUserException> {
+      anotherUser.call().callApp(url = installedApp.url.resolve("/resource1.txt")!!)
+    }
   }
 
   @Test
@@ -50,11 +55,20 @@ class InstalledAppHttpServiceTest {
     )
     tester.publishApp(app)
 
-    val client = tester.newClient()
-    val computer = client.createComputer()
+    val owner = tester.newClient()
+    val computer = owner.createComputer()
     val installedApp = computer.installApp(app)
 
     assertThat(installedApp.call("/resource1.txt"))
+      .isEqualTo(
+        Response(
+          contentType = "text/plain".toMediaType(),
+          body = ResponseBodySnapshot("This is a resource in www-public"),
+        ),
+      )
+
+    val anotherUser = tester.newClient()
+    assertThat(anotherUser.call().callApp(url = installedApp.url.resolve("/resource1.txt")!!))
       .isEqualTo(
         Response(
           contentType = "text/plain".toMediaType(),

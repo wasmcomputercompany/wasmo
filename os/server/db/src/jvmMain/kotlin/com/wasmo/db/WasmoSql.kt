@@ -15,6 +15,7 @@ import com.wasmo.identifiers.LinkedEmailAddressId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.identifiers.PermitId
 import com.wasmo.identifiers.StripeCustomerId
+import com.wasmo.identifiers.UserId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import wasmo.sql.SqlBinder
@@ -33,6 +34,7 @@ fun SqlBinder.bindInstalledAppReleaseId(index: Int, value: InstalledAppReleaseId
 fun SqlBinder.bindInviteId(index: Int, value: InviteId?) = bindS64(index, value?.id)
 fun SqlBinder.bindPasskeyId(index: Int, value: PasskeyId?) = bindS64(index, value?.id)
 fun SqlBinder.bindStripeCustomerId(index: Int, value: StripeCustomerId?) = bindS64(index, value?.id)
+fun SqlBinder.bindUserId(index: Int, value: UserId?) = bindS64(index, value?.id)
 fun SqlBinder.bindWasmoFileAddress(index: Int, value: WasmoFileAddress?) = bindString(index, value?.toString())
 
 fun SqlRow.getAccountId(index: Int) = AccountId(getS64(index)!!)
@@ -58,4 +60,5 @@ fun SqlRow.getLinkedEmailAddressId(index: Int) = LinkedEmailAddressId(getS64(ind
 fun SqlRow.getPasskeyId(index: Int) = PasskeyId(getS64(index)!!)
 fun SqlRow.getPermitId(index: Int) = PermitId(getS64(index)!!)
 fun SqlRow.getStripeCustomerId(index: Int) = StripeCustomerId(getS64(index)!!)
+fun SqlRow.getUserId(index: Int) = UserId(getS64(index)!!)
 fun SqlRow.getWasmoFileAddress(index: Int) = getString(index)!!.toWasmoFileAddress()

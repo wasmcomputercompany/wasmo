@@ -3,7 +3,8 @@ CREATE TABLE ComputerAccess (
   created_at TIMESTAMPTZ NOT NULL,
   version INTEGER NOT NULL,
   computer_id BIGINT NOT NULL,
-  account_id BIGINT NOT NULL
+  account_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL
 );
 
 CREATE INDEX ComputerAccessByComputerIdAccountId ON ComputerAccess (
@@ -14,4 +15,9 @@ CREATE INDEX ComputerAccessByComputerIdAccountId ON ComputerAccess (
 CREATE INDEX ComputerAccessByAccountIdComputerId ON ComputerAccess (
   account_id,
   computer_id
+);
+
+CREATE UNIQUE INDEX ComputerAccessByComputerIdUserId ON ComputerAccess (
+  computer_id,
+  user_id
 );

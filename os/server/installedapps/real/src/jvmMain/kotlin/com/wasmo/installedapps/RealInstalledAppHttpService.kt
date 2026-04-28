@@ -10,6 +10,8 @@ import com.wasmo.identifiers.InstalledAppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import wasmo.access.Caller
+import wasmo.access.ComputerAccess
 import wasmo.http.Header as PlatformHeader
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
@@ -27,7 +29,10 @@ class RealInstalledAppHttpService(
   private val contentTypeDatabase: ContentTypeDatabase,
   @ForInstalledApp private val objectStore: ObjectStore,
 ) : InstalledAppHttpService {
-  override suspend fun execute(request: Request): Response<ResponseBody> {
+  override suspend fun execute(
+    caller: Caller,
+    request: Request,
+  ): Response<ResponseBody> {
     val encodedUrlPath = request.url.encodedPath
     val urlPath = when {
       encodedUrlPath.endsWith("/") -> "${encodedUrlPath}index.html"
@@ -40,16 +45,17 @@ class RealInstalledAppHttpService(
     val publicResource = loadResourceOrNull(urlPath, "www-public")
     if (publicResource != null) return publicResource
 
-    // TODO: only if signed in as the computer's owner.
-    val privateObject = loadObjectOrNull(urlPath, "www")
-    if (privateObject != null) return privateObject
+    if (caller.computerAccess == ComputerAccess.Owner) {
+      val privateObject = loadObjectOrNull(urlPath, "www")
+      if (privateObject != null) return privateObject
 
-    // TODO: only if signed in as the computer's owner.
-    val privateResource = loadResourceOrNull(urlPath, "www")
-    if (privateResource != null) return privateResource
+      val privateResource = loadResourceOrNull(urlPath, "www")
+      if (privateResource != null) return privateResource
 
-    val callHttpServiceResponse = callHttpService(request)
-    if (callHttpServiceResponse != null) return callHttpServiceResponse
+      // TODO: pass the computerAccess to the HTTP service.
+      val callHttpServiceResponse = callHttpService(request)
+      if (callHttpServiceResponse != null) return callHttpServiceResponse
+    }
 
     throw NotFoundUserException()
   }

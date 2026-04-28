@@ -119,7 +119,7 @@ class RealCallDataService(
         ?: return ComputerListSnapshot()
 
       val computers = selectComputersByAccountId(
-        account_id = accountId,
+        accountId = accountId,
         limit = 100,
       )
 

@@ -1,6 +1,10 @@
 package com.wasmo.installedapps
 
 import com.wasmo.accounts.Client
+import com.wasmo.db.computers.Computer
+import com.wasmo.db.computers.DbComputerAccess
+import com.wasmo.db.computers.selectComputer
+import com.wasmo.db.computers.selectComputerAndComputerAccess
 import com.wasmo.db.computers.selectComputerByAccountIdAndSlug
 import com.wasmo.db.computers.selectComputerById
 import com.wasmo.db.installedapps.InstalledApp
@@ -15,6 +19,8 @@ import com.wasmo.identifiers.OsScope
 import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmo.access.Caller
+import wasmo.access.ComputerAccess
 
 @Inject
 @SingleIn(OsScope::class)
@@ -22,6 +28,54 @@ class RealInstalledAppStore(
   private val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory,
   private val appManifestLoaderFactory: RealAppManifestLoaderFactory,
 ) : InstalledAppStore {
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun getHttpServiceAndAccessOrNull(
+    client: Client,
+    computerSlug: ComputerSlug,
+    appSlug: AppSlug,
+  ): Pair<InstalledAppHttpService, Caller>? {
+    val accountId = client.getAccountIdOrNull()
+
+    val (computer: Computer, caller: Caller) = when {
+      accountId == null -> {
+        val computer = selectComputer(computerSlug) ?: return null
+        computer to createCaller(client, null)
+      }
+
+      else -> {
+        val (computer, access) = selectComputerAndComputerAccess(accountId, computerSlug)
+          ?: return null
+        computer to createCaller(client, access)
+      }
+    }
+
+    val row = selectInstalledAppByComputerIdAndSlug(
+      computer_id = computer.id,
+      slug = appSlug,
+      active = true,
+    ) ?: return null
+
+    val installedAppService = get(
+      computerSlug = computer.slug,
+      installedApp = row.installedApp,
+      installedAppRelease = row.installedAppRelease,
+    )
+
+    return installedAppService.httpService to caller
+  }
+
+  private fun createCaller(
+    client: Client,
+    dbComputerAccess: DbComputerAccess?,
+  ) = Caller(
+    userId = dbComputerAccess?.userId?.id,
+    computerAccess = when {
+      dbComputerAccess != null -> ComputerAccess.Owner
+      else -> ComputerAccess.Anonymous
+    },
+    userAgent = client.userAgent,
+    ip = client.ip,
+  )
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun getOrNull(
@@ -33,7 +87,7 @@ class RealInstalledAppStore(
       ?: return null
 
     val computer = selectComputerByAccountIdAndSlug(
-      account_id = accountId,
+      accountId = accountId,
       slug = computerSlug,
     ) ?: return null
 

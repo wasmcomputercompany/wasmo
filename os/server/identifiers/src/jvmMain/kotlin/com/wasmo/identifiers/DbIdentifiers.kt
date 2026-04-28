@@ -8,18 +8,6 @@ value class AccountId(val id: Long)
 
 @Serializable
 @JvmInline
-value class InstalledAppId(val id: Long)
-
-@Serializable
-@JvmInline
-value class InstalledAppReleaseId(val id: Long)
-
-@Serializable
-@JvmInline
-value class CookieId(val id: Long)
-
-@Serializable
-@JvmInline
 value class ComputerAccessId(val id: Long)
 
 @Serializable
@@ -36,7 +24,15 @@ value class ComputerSpecId(val id: Long)
 
 @Serializable
 @JvmInline
-value class StripeCustomerId(val id: Long)
+value class CookieId(val id: Long)
+
+@Serializable
+@JvmInline
+value class InstalledAppId(val id: Long)
+
+@Serializable
+@JvmInline
+value class InstalledAppReleaseId(val id: Long)
 
 @Serializable
 @JvmInline
@@ -53,3 +49,12 @@ value class PasskeyId(val id: Long)
 @Serializable
 @JvmInline
 value class PermitId(val id: Long)
+
+@Serializable
+@JvmInline
+value class StripeCustomerId(val id: Long)
+
+@Serializable
+@JvmInline
+value class UserId(val id: Long)
+

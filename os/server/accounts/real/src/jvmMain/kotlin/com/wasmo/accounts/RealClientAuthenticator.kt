@@ -66,11 +66,6 @@ class RealClientAuthenticator(
     )
   }
 
-  override fun unauthenticated(): Caller = UnauthenticatedCaller(
-    userAgent = userAgent.userAgent,
-    ip = userAgent.ip,
-  )
-
   @AssistedFactory
   interface Factory : ClientAuthenticator.Factory {
     override fun create(userAgent: UserAgent): RealClientAuthenticator

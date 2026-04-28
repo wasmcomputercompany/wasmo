@@ -8,9 +8,11 @@ import com.wasmo.db.computers.linkComputer
 import com.wasmo.db.computers.selectComputerByAccountIdAndSlug
 import com.wasmo.db.computers.selectComputerById
 import com.wasmo.db.computers.selectComputerSpecByToken
+import com.wasmo.db.computers.selectMaxUserIdFromComputerAccess
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.OsScope
+import com.wasmo.identifiers.UserId
 import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -28,16 +30,25 @@ class RealComputerStore(
     val computerId = computerSpec.computer_id
       ?: run {
         val insertedComputerId = insertComputer(
-          created_at = computerSpec.created_at,
+          createdAt = computerSpec.created_at,
           version = 1,
           slug = computerSpec.slug,
         )
 
+        // Note that we know this will always be null, but someday we'll be able to grant access
+        // on existing computers and this should handle that too.
+        val maxUserId = selectMaxUserIdFromComputerAccess(insertedComputerId)
+        val userId = when {
+          maxUserId == null -> UserId(0L)
+          else -> UserId(maxUserId.id + 1L)
+        }
+
         insertComputerAccess(
-          created_at = computerSpec.created_at,
+          createdAt = computerSpec.created_at,
           version = 1,
-          computer_id = insertedComputerId,
-          account_id = computerSpec.account_id,
+          computerId = insertedComputerId,
+          accountId = computerSpec.account_id,
+          userId = userId,
         )
 
         linkComputer(
@@ -64,7 +75,7 @@ class RealComputerStore(
       ?: return null
 
     val computer = selectComputerByAccountIdAndSlug(
-      account_id = accountId,
+      accountId = accountId,
       slug = slug,
     ) ?: return null
 
