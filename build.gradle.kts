@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.gradle.jvm.tasks.Jar
 
 plugins {
   id("wasmo-build").apply(false)
@@ -18,6 +19,12 @@ plugins {
 }
 
 allprojects {
+  // Ensure jar file name derives from the whole gradle task path so that the various :real tasks don't conflict.
+  val uniqueArchiveBaseName = path.removePrefix(":").replace(':', '-')
+  tasks.withType<Jar>().configureEach {
+    archiveBaseName.set(uniqueArchiveBaseName)
+  }
+
   plugins.withType<KotlinMultiplatformPluginWrapper> {
     extensions.configure<KotlinMultiplatformExtension> {
       compilerOptions {
