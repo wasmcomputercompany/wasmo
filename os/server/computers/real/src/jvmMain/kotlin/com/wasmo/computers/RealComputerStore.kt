@@ -39,7 +39,7 @@ class RealComputerStore(
         // on existing computers and this should handle that too.
         val maxUserId = selectMaxUserIdFromComputerAccess(insertedComputerId)
         val userId = when {
-          maxUserId == null -> UserId(0L)
+          maxUserId == null -> UserId(1L)
           else -> UserId(maxUserId.id + 1L)
         }
 

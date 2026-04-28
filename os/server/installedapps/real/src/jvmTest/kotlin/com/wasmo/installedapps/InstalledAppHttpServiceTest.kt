@@ -32,7 +32,7 @@ class InstalledAppHttpServiceTest {
     val computer = owner.createComputer()
     val installedApp = computer.installApp(app)
 
-    assertThat(installedApp.call("/resource1.txt"))
+    assertThat(owner.call().callApp(url = installedApp.url.resolve("/resource1.txt")!!))
       .isEqualTo(
         Response(
           contentType = "text/plain".toMediaType(),
@@ -59,7 +59,7 @@ class InstalledAppHttpServiceTest {
     val computer = owner.createComputer()
     val installedApp = computer.installApp(app)
 
-    assertThat(installedApp.call("/resource1.txt"))
+    assertThat(owner.call().callApp(url = installedApp.url.resolve("/resource1.txt")!!))
       .isEqualTo(
         Response(
           contentType = "text/plain".toMediaType(),
@@ -105,8 +105,8 @@ class InstalledAppHttpServiceTest {
     val app = tester.sampleApps.recipes.publishedApp
     tester.publishApp(app)
 
-    val client = tester.newClient()
-    val computer = client.createComputer()
+    val owner = tester.newClient()
+    val computer = owner.createComputer()
     val installedApp = computer.installApp(app)
 
     val recipesApp = installedApp.load() as RecipesApp
@@ -118,13 +118,18 @@ class InstalledAppHttpServiceTest {
       ),
     )
 
-    assertThat(installedApp.call("/resource1.txt"))
+    assertThat(owner.call().callApp(url = installedApp.url.resolve("/resource1.txt")!!))
       .isEqualTo(
         Response(
           contentType = "text/sample".toMediaType(),
           body = ResponseBodySnapshot("This is an object in www"),
         ),
       )
+
+    val anotherUser = tester.newClient()
+    assertFailsWith<NotFoundUserException> {
+      anotherUser.call().callApp(url = installedApp.url.resolve("/resource1.txt")!!)
+    }
   }
 
   @Test
@@ -132,8 +137,8 @@ class InstalledAppHttpServiceTest {
     val app = tester.sampleApps.recipes.publishedApp
     tester.publishApp(app)
 
-    val client = tester.newClient()
-    val computer = client.createComputer()
+    val owner = tester.newClient()
+    val computer = owner.createComputer()
     val installedApp = computer.installApp(app)
 
     val recipesApp = installedApp.load() as RecipesApp
@@ -145,7 +150,16 @@ class InstalledAppHttpServiceTest {
       ),
     )
 
-    assertThat(installedApp.call("/resource1.txt"))
+    assertThat(owner.call().callApp(url = installedApp.url.resolve("/resource1.txt")!!))
+      .isEqualTo(
+        Response(
+          contentType = "text/sample".toMediaType(),
+          body = ResponseBodySnapshot("This is an object in www-public"),
+        ),
+      )
+
+    val anotherUser = tester.newClient()
+    assertThat(anotherUser.call().callApp(url = installedApp.url.resolve("/resource1.txt")!!))
       .isEqualTo(
         Response(
           contentType = "text/sample".toMediaType(),
