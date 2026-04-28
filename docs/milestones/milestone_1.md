@@ -2,6 +2,7 @@ Milestone 1
 ===========
 
 Proposed on 2026-02-06 by Jesse
+
 ✅ Status: complete on 2026-03-20
 
 Create an account and a computer through the web user interface. We will initially skip payment so

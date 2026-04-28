@@ -2,6 +2,7 @@ Milestone 2
 ===========
 
 Proposed on 2026-03-20 by Jesse
+
 ✅ Status: complete on 2026-04-28
 
 Journal App
