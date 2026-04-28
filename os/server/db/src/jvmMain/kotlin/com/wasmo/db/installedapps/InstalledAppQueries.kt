@@ -27,12 +27,12 @@ import wasmo.sql.SqlRow
 
 context(connection: SqlConnection)
 suspend fun insertInstalledApp(
-  installed_at: Instant,
-  computer_id: ComputerId,
+  installedAt: Instant,
+  computerId: ComputerId,
   slug: AppSlug,
   active: Boolean?,
   version: Long,
-  wasmo_file_address: WasmoFileAddress,
+  wasmoFileAddress: WasmoFileAddress,
 ): InstalledAppId {
   val rowIterator = connection.executeQuery(
     """
@@ -54,12 +54,12 @@ suspend fun insertInstalledApp(
     ) RETURNING id
     """,
   ) {
-    bindInstant(0, installed_at)
-    bindComputerId(1, computer_id)
+    bindInstant(0, installedAt)
+    bindComputerId(1, computerId)
     bindAppSlug(2, slug)
     bindBool(3, active)
     bindS64(4, version)
-    bindWasmoFileAddress(5, wasmo_file_address)
+    bindWasmoFileAddress(5, wasmoFileAddress)
   }
   return rowIterator.single {
     getInstalledAppId(0)
@@ -68,7 +68,7 @@ suspend fun insertInstalledApp(
 
 context(connection: SqlConnection)
 suspend fun selectInstalledAppsByComputerId(
-  computer_id: ComputerId,
+  computerId: ComputerId,
   active: Boolean?,
   limit: Long,
 ): List<InstalledAppAndRelease> {
@@ -97,7 +97,7 @@ suspend fun selectInstalledAppsByComputerId(
     LIMIT $3
     """,
   ) {
-    bindComputerId(0, computer_id)
+    bindComputerId(0, computerId)
     bindBool(1, active)
     bindS64(2, limit)
   }
@@ -108,7 +108,7 @@ suspend fun selectInstalledAppsByComputerId(
 }
 
 private fun SqlRow.getInstalledAppAndRelease(): InstalledAppAndRelease {
-  val installedApp = InstalledApp(
+  val installedApp = DbInstalledApp(
     getInstalledAppId(0),
     getInstant(1)!!,
     getComputerId(2),
@@ -121,7 +121,7 @@ private fun SqlRow.getInstalledAppAndRelease(): InstalledAppAndRelease {
 
   val release = when (val releaseId = getInstalledAppReleaseIdOrNull(8)) {
     null -> null
-    else -> InstalledAppRelease(
+    else -> DbInstalledAppRelease(
       releaseId,
       getInstant(9)!!,
       getComputerIdOrNull(10)!!,
@@ -139,7 +139,7 @@ private fun SqlRow.getInstalledAppAndRelease(): InstalledAppAndRelease {
 
 context(connection: SqlConnection)
 suspend fun selectInstalledAppByComputerIdAndSlug(
-  computer_id: ComputerId,
+  computerId: ComputerId,
   slug: AppSlug,
   active: Boolean?,
 ): InstalledAppAndRelease? {
@@ -168,7 +168,7 @@ suspend fun selectInstalledAppByComputerIdAndSlug(
     LIMIT 1
     """,
   ) {
-    bindComputerId(0, computer_id)
+    bindComputerId(0, computerId)
     bindAppSlug(1, slug)
     bindBool(2, active)
   }
@@ -178,7 +178,7 @@ suspend fun selectInstalledAppByComputerIdAndSlug(
 }
 
 context(connection: SqlConnection)
-suspend fun selectInstalledAppById(id: InstalledAppId): InstalledApp {
+suspend fun selectInstalledAppById(id: InstalledAppId): DbInstalledApp {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -205,9 +205,9 @@ suspend fun selectInstalledAppById(id: InstalledAppId): InstalledApp {
 
 context(connection: SqlConnection)
 suspend fun setRelease(
-  new_version: Long,
-  active_release_id: InstalledAppReleaseId?,
-  expected_version: Long,
+  newVersion: Long,
+  activeReleaseId: InstalledAppReleaseId?,
+  expectedVersion: Long,
   id: InstalledAppId,
 ): Long {
   return connection.execute(
@@ -221,21 +221,21 @@ suspend fun setRelease(
       id = $4
     """,
   ) {
-    bindS64(0, new_version)
-    bindInstalledAppReleaseId(1, active_release_id)
-    bindS64(2, expected_version)
+    bindS64(0, newVersion)
+    bindInstalledAppReleaseId(1, activeReleaseId)
+    bindS64(2, expectedVersion)
     bindInstalledAppId(3, id)
   }
 }
 
-private fun SqlRow.getInstalledApp() = InstalledApp(
+private fun SqlRow.getInstalledApp() = DbInstalledApp(
   id = getInstalledAppId(0),
-  installed_at = getInstant(1)!!,
-  computer_id = getComputerId(2),
+  installedAt = getInstant(1)!!,
+  computerId = getComputerId(2),
   slug = getAppSlug(3),
   active = getBool(4),
   version = getS64(5)!!,
-  wasmo_file_address = getWasmoFileAddress(6),
-  active_release_id = getInstalledAppReleaseIdOrNull(7),
+  wasmoFileAddress = getWasmoFileAddress(6),
+  activeReleaseId = getInstalledAppReleaseIdOrNull(7),
 )
 

@@ -1,7 +1,7 @@
 package com.wasmo.computers
 
 import com.wasmo.accounts.Client
-import com.wasmo.db.computers.Computer
+import com.wasmo.db.computers.DbComputer
 import com.wasmo.db.computers.insertComputer
 import com.wasmo.db.computers.insertComputerAccess
 import com.wasmo.db.computers.linkComputer
@@ -27,10 +27,10 @@ class RealComputerStore(
     val computerSpec = selectComputerSpecByToken(computerSpecToken)
       ?: throw IllegalStateException("no such computer spec: $computerSpecToken")
 
-    val computerId = computerSpec.computer_id
+    val computerId = computerSpec.computerId
       ?: run {
         val insertedComputerId = insertComputer(
-          createdAt = computerSpec.created_at,
+          createdAt = computerSpec.createdAt,
           version = 1,
           slug = computerSpec.slug,
         )
@@ -44,10 +44,10 @@ class RealComputerStore(
         }
 
         insertComputerAccess(
-          createdAt = computerSpec.created_at,
+          createdAt = computerSpec.createdAt,
           version = 1,
           computerId = insertedComputerId,
-          accountId = computerSpec.account_id,
+          accountId = computerSpec.accountId,
           userId = userId,
         )
 
@@ -91,6 +91,6 @@ class RealComputerStore(
     return get(computer)
   }
 
-  private fun get(computer: Computer): ComputerService =
+  private fun get(computer: DbComputer): ComputerService =
     computerServiceGraphFactory.create(computer).service
 }

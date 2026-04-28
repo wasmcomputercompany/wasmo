@@ -23,8 +23,8 @@ class InviteService(
   suspend fun create(createdBy: Client): InviteTicket {
     val code = newToken()
     insertInvite(
-      created_at = clock.now(),
-      created_by = createdBy.getOrCreateAccountId(),
+      createdAt = clock.now(),
+      createdBy = createdBy.getOrCreateAccountId(),
       version = 1,
       code = code,
     )
@@ -41,13 +41,13 @@ class InviteService(
 
     val claimedById = claimedBy.getOrCreateAccountId()
 
-    if (invite.claimed_by != claimedById) {
-      if (invite.claimed_by != null) throw ArgumentUserException("already claimed")
+    if (invite.claimedBy != claimedById) {
+      if (invite.claimedBy != null) throw ArgumentUserException("already claimed")
       claimInvite(
-        new_version = invite.version + 1,
-        claimed_at = clock.now(),
-        claimed_by = claimedById,
-        expected_version = invite.version,
+        newVersion = invite.version + 1,
+        claimedAt = clock.now(),
+        claimedBy = claimedById,
+        expectedVersion = invite.version,
         id = invite.id,
       )
     }

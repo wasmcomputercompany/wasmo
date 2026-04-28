@@ -10,13 +10,13 @@ import wasmo.sql.SqlConnection
 
 context(connection: SqlConnection)
 suspend fun insertStripeCustomer(
-  created_at: Instant,
+  createdAt: Instant,
   version: Int,
-  stripe_customer_id: String,
+  stripeCustomerId: String,
   name: String,
   email: String,
   country: String,
-  postal_code: String,
+  postalCode: String,
 ): StripeCustomerId {
   val rowIterator = connection.executeQuery(
     """
@@ -40,13 +40,13 @@ suspend fun insertStripeCustomer(
     ) RETURNING id
     """,
   ) {
-    bindInstant(0, created_at)
+    bindInstant(0, createdAt)
     bindS32(1, version)
-    bindString(2, stripe_customer_id)
+    bindString(2, stripeCustomerId)
     bindString(3, name)
     bindString(4, email)
     bindString(5, country)
-    bindString(6, postal_code)
+    bindString(6, postalCode)
   }
   return rowIterator.single {
     getStripeCustomerId(0)
@@ -54,7 +54,9 @@ suspend fun insertStripeCustomer(
 }
 
 context(connection: SqlConnection)
-suspend fun findStripeCustomerByStripeCustomerId(stripe_customer_id: String): StripeCustomer? {
+suspend fun findStripeCustomerByStripeCustomerId(
+  stripeCustomerId: String,
+): DbStripeCustomer? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -70,10 +72,10 @@ suspend fun findStripeCustomerByStripeCustomerId(stripe_customer_id: String): St
     WHERE stripe_customer_id = $1
     """,
   ) {
-    bindString(0, stripe_customer_id)
+    bindString(0, stripeCustomerId)
   }
   return rowIterator.singleOrNull {
-    StripeCustomer(
+    DbStripeCustomer(
       getStripeCustomerId(0),
       getInstant(1)!!,
       getS32(2)!!,
@@ -88,12 +90,12 @@ suspend fun findStripeCustomerByStripeCustomerId(stripe_customer_id: String): St
 
 context(connection: SqlConnection)
 suspend fun updateStripeCustomer(
-  new_version: Int,
+  newVersion: Int,
   name: String,
   email: String,
   country: String,
-  postal_code: String,
-  expected_version: Int,
+  postalCode: String,
+  expectedVersion: Int,
   id: StripeCustomerId,
 ): Long {
   return connection.execute(
@@ -110,12 +112,12 @@ suspend fun updateStripeCustomer(
       id = $7
     """,
   ) {
-    bindS32(0, new_version)
+    bindS32(0, newVersion)
     bindString(1, name)
     bindString(2, email)
     bindString(3, country)
-    bindString(4, postal_code)
-    bindS32(5, expected_version)
+    bindString(4, postalCode)
+    bindS32(5, expectedVersion)
     bindStripeCustomerId(6, id)
   }
 }

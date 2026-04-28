@@ -7,13 +7,13 @@ import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.WasmoFileAddress
 import kotlin.time.Instant
 
-data class InstalledApp(
+data class DbInstalledApp(
   val id: InstalledAppId,
-  val installed_at: Instant,
-  val computer_id: ComputerId,
+  val installedAt: Instant,
+  val computerId: ComputerId,
   val slug: AppSlug,
   val active: Boolean?,
   val version: Long,
-  val wasmo_file_address: WasmoFileAddress,
-  val active_release_id: InstalledAppReleaseId?,
+  val wasmoFileAddress: WasmoFileAddress,
+  val activeReleaseId: InstalledAppReleaseId?,
 )

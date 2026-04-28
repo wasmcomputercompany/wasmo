@@ -20,7 +20,7 @@ suspend fun selectPrecedingPermits(
   type: PermitType,
   value: String,
   rateLimit: RateLimit,
-): List<Permit> {
+): List<DbPermit> {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -53,7 +53,7 @@ context(connection: SqlConnection)
 suspend fun selectLatestPermit(
   type: PermitType,
   value: String,
-): Permit? {
+): DbPermit? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -120,7 +120,7 @@ suspend fun insertPermit(
   }
 }
 
-private fun SqlRow.getPermit() = Permit(
+private fun SqlRow.getPermit() = DbPermit(
   id = getPermitId(0),
   type = PermitType(getString(1)!!),
   value = getString(2)!!,

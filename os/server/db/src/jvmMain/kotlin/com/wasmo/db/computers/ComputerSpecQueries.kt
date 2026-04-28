@@ -18,7 +18,7 @@ import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
 context(connection: SqlConnection)
-suspend fun selectComputerSpecByToken(token: String): ComputerSpec? {
+suspend fun selectComputerSpecByToken(token: String): DbComputerSpec? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -38,7 +38,7 @@ suspend fun selectComputerSpecByToken(token: String): ComputerSpec? {
   }
 
   return rowIterator.singleOrNull {
-    ComputerSpec(
+    DbComputerSpec(
       getComputerSpecId(0),
       getInstant(1)!!,
       getS64(2)!!,

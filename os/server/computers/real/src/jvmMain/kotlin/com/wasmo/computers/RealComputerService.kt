@@ -54,12 +54,12 @@ class RealComputerService(
     slug: AppSlug,
   ) {
     val installedAppId = insertInstalledApp(
-      installed_at = clock.now(),
-      computer_id = id,
+      installedAt = clock.now(),
+      computerId = id,
       slug = slug,
       active = true,
       version = 1L,
-      wasmo_file_address = wasmoFileAddress,
+      wasmoFileAddress = wasmoFileAddress,
     )
     sqlTransaction.afterCommit {
       jobQueue.enqueue(InstallAppJob(installedAppId))
@@ -69,7 +69,7 @@ class RealComputerService(
   override suspend fun snapshot(): ComputerSnapshot {
     val installedApps = wasmoDb.transaction {
       selectInstalledAppsByComputerId(
-        computer_id = id,
+        computerId = id,
         active = true,
         limit = 100,
       )

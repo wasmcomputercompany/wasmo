@@ -1,7 +1,7 @@
 package com.wasmo.installedapps
 
-import com.wasmo.db.installedapps.InstalledApp
-import com.wasmo.db.installedapps.InstalledAppRelease
+import com.wasmo.db.installedapps.DbInstalledApp
+import com.wasmo.db.installedapps.DbInstalledAppRelease
 import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
@@ -26,16 +26,16 @@ class RealAppManifestLoaderFactory(
   private val fileSystem: FileSystem,
 ) {
   fun create(
-    installedApp: InstalledApp,
-    installedAppRelease: InstalledAppRelease?,
+    installedApp: DbInstalledApp,
+    installedAppRelease: DbInstalledAppRelease?,
   ): AppManifestLoader {
-    val wasmoFileAddress = installedApp.wasmo_file_address
+    val wasmoFileAddress = installedApp.wasmoFileAddress
     if (wasmoFileAddress is WasmoFileAddress.FileSystem) {
       return FileSystemAppManifestLoader(fileSystem, wasmoFileAddress.path)
     }
 
     if (installedAppRelease != null) {
-      return ImmediateAppManifestLoader(installedAppRelease.app_manifest_data)
+      return ImmediateAppManifestLoader(installedAppRelease.appManifestData)
     }
 
     return EmptyAppManifestLoader

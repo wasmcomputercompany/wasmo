@@ -43,7 +43,7 @@ suspend fun insertLinkedEmailAddress(
 context(connection: SqlConnection)
 suspend fun selectLinkedEmailAddressOrNull(
   emailAddress: String,
-): LinkedEmailAddress? {
+): DbLinkedEmailAddress? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -70,7 +70,7 @@ suspend fun selectLinkedEmailAddressOrNull(
 context(connection: SqlConnection)
 suspend fun findLinkedEmailAddresses(
   accountId: AccountId,
-): List<LinkedEmailAddress> {
+): List<DbLinkedEmailAddress> {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -91,7 +91,7 @@ suspend fun findLinkedEmailAddresses(
   }
 }
 
-private fun SqlRow.getLinkedEmailAddress() = LinkedEmailAddress(
+private fun SqlRow.getLinkedEmailAddress() = DbLinkedEmailAddress(
   id = getLinkedEmailAddressId(0),
   createdAt = getInstant(1)!!,
   accountId = getAccountId(2),

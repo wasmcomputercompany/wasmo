@@ -70,7 +70,7 @@ class CookieClient(
 
     val cookie = findCookieByToken(sessionCookie.token)
       ?: return null
-    return cookie.account_id
+    return cookie.accountId
       .also { this.cachedAccountId = it }
   }
 
@@ -80,7 +80,7 @@ class CookieClient(
     if (cachedAccountId != null) return cachedAccountId
 
     val cookie = findCookieByToken(sessionCookie.token)
-    if (cookie != null) return cookie.account_id
+    if (cookie != null) return cookie.accountId
 
     val accountId = insertAccount(
       version = 1,

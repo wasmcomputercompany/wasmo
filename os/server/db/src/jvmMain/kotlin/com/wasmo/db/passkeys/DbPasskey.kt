@@ -5,13 +5,13 @@ import com.wasmo.identifiers.PasskeyId
 import com.wasmo.passkeys.RegistrationRecord
 import kotlin.time.Instant
 
-data class Passkey(
+data class DbPasskey(
   val id: PasskeyId,
-  val created_at: Instant,
-  val account_id: AccountId,
-  val passkey_id: String,
+  val createdAt: Instant,
+  val accountId: AccountId,
+  val passkeyId: String,
   val aaguid: String,
-  val created_by_user_agent: String?,
-  val created_by_ip: String?,
-  val registration_record: RegistrationRecord,
+  val createdByUserAgent: String?,
+  val createdByIp: String?,
+  val registrationRecord: RegistrationRecord,
 )

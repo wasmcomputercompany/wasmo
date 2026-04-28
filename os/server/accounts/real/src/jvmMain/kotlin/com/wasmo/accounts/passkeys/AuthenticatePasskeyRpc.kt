@@ -35,7 +35,7 @@ class AuthenticatePasskeyRpc(
       try {
         passkeyChecker.authenticate(
           authentication = request.authentication,
-          registrationRecord = passkey.registration_record,
+          registrationRecord = passkey.registrationRecord,
         )
       } catch (_: Exception) {
         // TODO: log the exception

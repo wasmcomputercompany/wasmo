@@ -12,7 +12,10 @@ import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
 context(connection: SqlConnection)
-suspend fun findInvitesByClaimedBy(claimed_by: AccountId?, limit: Long): Invite? {
+suspend fun findInvitesByClaimedBy(
+  claimedBy: AccountId?,
+  limit: Long,
+): DbInvite? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -24,15 +27,15 @@ suspend fun findInvitesByClaimedBy(claimed_by: AccountId?, limit: Long): Invite?
       Invite.claimed_at,
       Invite.claimed_by
     FROM Invite
-    WHERE claimed_by ${if (claimed_by == null) "IS" else "="} $1
+    WHERE claimed_by ${if (claimedBy == null) "IS" else "="} $1
     LIMIT $2
     """,
   ) {
-    bindAccountId(0, claimed_by)
+    bindAccountId(0, claimedBy)
     bindS64(1, limit)
   }
   return rowIterator.singleOrNull {
-    Invite(
+    DbInvite(
       getInviteId(0),
       getInstant(1)!!,
       getAccountId(2),
@@ -45,7 +48,7 @@ suspend fun findInvitesByClaimedBy(claimed_by: AccountId?, limit: Long): Invite?
 }
 
 context(connection: SqlConnection)
-suspend fun findInvitesByCode(code: String): Invite? {
+suspend fun findInvitesByCode(code: String): DbInvite? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -64,7 +67,7 @@ suspend fun findInvitesByCode(code: String): Invite? {
   }
 
   return rowIterator.singleOrNull {
-    Invite(
+    DbInvite(
       getInviteId(0),
       getInstant(1)!!,
       getAccountId(2),
@@ -78,8 +81,8 @@ suspend fun findInvitesByCode(code: String): Invite? {
 
 context(connection: SqlConnection)
 suspend fun insertInvite(
-  created_at: Instant,
-  created_by: AccountId,
+  createdAt: Instant,
+  createdBy: AccountId,
   version: Int,
   code: String,
 ): Long {
@@ -99,8 +102,8 @@ suspend fun insertInvite(
     )
     """,
   ) {
-    bindInstant(0, created_at)
-    bindAccountId(1, created_by)
+    bindInstant(0, createdAt)
+    bindAccountId(1, createdBy)
     bindS32(2, version)
     bindString(3, code)
   }
@@ -108,10 +111,10 @@ suspend fun insertInvite(
 
 context(connection: SqlConnection)
 suspend fun claimInvite(
-  new_version: Int,
-  claimed_at: Instant?,
-  claimed_by: AccountId?,
-  expected_version: Int,
+  newVersion: Int,
+  claimedAt: Instant?,
+  claimedBy: AccountId?,
+  expectedVersion: Int,
   id: InviteId,
 ): Long {
   return connection.execute(
@@ -126,10 +129,10 @@ suspend fun claimInvite(
       id = $5
     """,
   ) {
-    bindS32(0, new_version)
-    bindInstant(1, claimed_at)
-    bindAccountId(2, claimed_by)
-    bindS32(3, expected_version)
+    bindS32(0, newVersion)
+    bindInstant(1, claimedAt)
+    bindAccountId(2, claimedBy)
+    bindS32(3, expectedVersion)
     bindInviteId(4, id)
   }
 }

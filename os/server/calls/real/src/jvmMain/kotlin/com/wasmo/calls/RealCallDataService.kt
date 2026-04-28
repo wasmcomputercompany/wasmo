@@ -10,13 +10,13 @@ import com.wasmo.api.LinkedEmailAddressSnapshot
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.db.accounts.invite.Invite
+import com.wasmo.db.accounts.invite.DbInvite
 import com.wasmo.db.accounts.invite.findInvitesByClaimedBy
 import com.wasmo.db.accounts.invite.findInvitesByCode
 import com.wasmo.db.computers.selectComputersByAccountId
-import com.wasmo.db.emails.LinkedEmailAddress
+import com.wasmo.db.emails.DbLinkedEmailAddress
 import com.wasmo.db.emails.findLinkedEmailAddresses
-import com.wasmo.db.passkeys.Passkey
+import com.wasmo.db.passkeys.DbPasskey
 import com.wasmo.db.passkeys.findPasskeysByAccountId
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
@@ -49,9 +49,9 @@ class RealCallDataService(
       }
     }
 
-    private fun Passkey.toSnapshot() = PasskeySnapshot(
+    private fun DbPasskey.toSnapshot() = PasskeySnapshot(
       authenticator = authenticatorDatabase.forAaguid(aaguid),
-      createdAt = created_at,
+      createdAt = createdAt,
     )
   }
 
@@ -68,20 +68,20 @@ class RealCallDataService(
       }
     }
 
-    private fun LinkedEmailAddress.toSnapshot() = LinkedEmailAddressSnapshot(
+    private fun DbLinkedEmailAddress.toSnapshot() = LinkedEmailAddressSnapshot(
       linkedAt = createdAt,
       emailAddress = emailAddress,
     )
   }
 
-  private val firstClaimedInvite = object : DbLazy<Invite?>() {
+  private val firstClaimedInvite = object : DbLazy<DbInvite?>() {
     context(sqlTransaction: SqlTransaction)
-    override suspend fun load(): Invite? {
+    override suspend fun load(): DbInvite? {
       val accountId = client.getAccountIdOrNull()
       return when {
         accountId != null -> {
           findInvitesByClaimedBy(
-            claimed_by = accountId,
+            claimedBy = accountId,
             limit = 1,
           )
         }
@@ -158,7 +158,7 @@ class RealCallDataService(
       ?: return null
 
     return InviteTicket(
-      claimed = invite.claimed_by != null,
+      claimed = invite.claimedBy != null,
       code = invite.code,
     )
   }

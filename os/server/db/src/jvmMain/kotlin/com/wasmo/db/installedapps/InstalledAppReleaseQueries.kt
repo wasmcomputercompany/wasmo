@@ -19,11 +19,11 @@ import wasmo.sql.SqlConnection
 
 context(connection: SqlConnection)
 suspend fun insertInstalledAppRelease(
-  first_active_at: Instant,
-  computer_id: ComputerId,
-  installed_app_id: InstalledAppId,
-  app_version: Long,
-  app_manifest_data: AppManifest,
+  firstActiveAt: Instant,
+  computerId: ComputerId,
+  installedAppId: InstalledAppId,
+  appVersion: Long,
+  appManifestData: AppManifest,
 ): InstalledAppReleaseId {
   val rowIterator = connection.executeQuery(
     """
@@ -43,11 +43,11 @@ suspend fun insertInstalledAppRelease(
     ) RETURNING id
     """,
   ) {
-    bindInstant(0, first_active_at)
-    bindComputerId(1, computer_id)
-    bindInstalledAppId(2, installed_app_id)
-    bindS64(3, app_version)
-    bindJson(4, app_manifest_data)
+    bindInstant(0, firstActiveAt)
+    bindComputerId(1, computerId)
+    bindInstalledAppId(2, installedAppId)
+    bindS64(3, appVersion)
+    bindJson(4, appManifestData)
   }
   return rowIterator.single {
     getInstalledAppReleaseId(0)
@@ -57,7 +57,7 @@ suspend fun insertInstalledAppRelease(
 context(connection: SqlConnection)
 suspend fun selectInstalledAppReleaseById(
   id: InstalledAppReleaseId,
-): InstalledAppRelease? {
+): DbInstalledAppRelease? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -76,7 +76,7 @@ suspend fun selectInstalledAppReleaseById(
   }
 
   return rowIterator.singleOrNull {
-    InstalledAppRelease(
+    DbInstalledAppRelease(
       getInstalledAppReleaseId(0),
       getInstant(1)!!,
       getComputerId(2),

@@ -40,13 +40,13 @@ class RegisterPasskeyRpc(
       if (existing == null) {
         try {
           insertPasskey(
-            created_at = clock.now(),
-            account_id = accountId,
-            passkey_id = registerResult.id,
+            createdAt = clock.now(),
+            accountId = accountId,
+            passkeyId = registerResult.id,
             aaguid = registerResult.aaguid,
-            created_by_user_agent = client.userAgent,
-            created_by_ip = client.ip,
-            registration_record = registerResult.record,
+            createdByUserAgent = client.userAgent,
+            createdByIp = client.ip,
+            registrationRecord = registerResult.record,
           )
         } catch (_: PSQLException) {
           throw ArgumentUserException("already registered")

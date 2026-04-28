@@ -115,7 +115,7 @@ context(connection: SqlConnection)
 suspend fun selectComputersByAccountId(
   accountId: AccountId,
   limit: Long,
-): List<Computer> {
+): List<DbComputer> {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -144,7 +144,7 @@ context(connection: SqlConnection)
 suspend fun selectComputerByAccountIdAndSlug(
   accountId: AccountId,
   slug: ComputerSlug,
-): Computer? {
+): DbComputer? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -171,7 +171,7 @@ suspend fun selectComputerByAccountIdAndSlug(
 context(connection: SqlConnection)
 suspend fun selectComputerById(
   id: ComputerId,
-): Computer {
+): DbComputer {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -195,7 +195,7 @@ context(connection: SqlConnection)
 suspend fun selectComputerAndComputerAccess(
   accountId: AccountId,
   slug: ComputerSlug,
-): Pair<Computer, DbComputerAccess?>? {
+): Pair<DbComputer, DbComputerAccess?>? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -233,7 +233,7 @@ suspend fun selectComputerAndComputerAccess(
 context(connection: SqlConnection)
 suspend fun selectComputer(
   slug: ComputerSlug,
-): Computer? {
+): DbComputer? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -269,7 +269,7 @@ private const val computerAccessColumns =
   ca.user_id
   """
 
-private fun SqlRow.getComputer() = Computer(
+private fun SqlRow.getComputer() = DbComputer(
   id = getComputerId(0),
   createdAt = getInstant(1)!!,
   version = getS64(2)!!,

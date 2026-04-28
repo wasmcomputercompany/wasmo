@@ -1,7 +1,7 @@
 package com.wasmo.db.installedapps
 
-/** Join the [InstalledApp] and [InstalledAppRelease] tables. */
+/** Join the [DbInstalledApp] and [DbInstalledAppRelease] tables. */
 data class InstalledAppAndRelease(
-  val installedApp: InstalledApp,
-  val installedAppRelease: InstalledAppRelease?,
+  val installedApp: DbInstalledApp,
+  val installedAppRelease: DbInstalledAppRelease?,
 )

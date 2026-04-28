@@ -1,14 +1,14 @@
 package com.wasmo.installedapps
 
 import com.wasmo.accounts.Client
-import com.wasmo.db.computers.Computer
+import com.wasmo.db.computers.DbComputer
 import com.wasmo.db.computers.DbComputerAccess
 import com.wasmo.db.computers.selectComputer
 import com.wasmo.db.computers.selectComputerAndComputerAccess
 import com.wasmo.db.computers.selectComputerByAccountIdAndSlug
 import com.wasmo.db.computers.selectComputerById
-import com.wasmo.db.installedapps.InstalledApp
-import com.wasmo.db.installedapps.InstalledAppRelease
+import com.wasmo.db.installedapps.DbInstalledApp
+import com.wasmo.db.installedapps.DbInstalledAppRelease
 import com.wasmo.db.installedapps.selectInstalledAppByComputerIdAndSlug
 import com.wasmo.db.installedapps.selectInstalledAppById
 import com.wasmo.db.installedapps.selectInstalledAppReleaseById
@@ -36,7 +36,7 @@ class RealInstalledAppStore(
   ): Pair<InstalledAppHttpService, Caller>? {
     val accountId = client.getAccountIdOrNull()
 
-    val (computer: Computer, caller: Caller) = when {
+    val (computer: DbComputer, caller: Caller) = when {
       accountId == null -> {
         val computer = selectComputer(computerSlug) ?: return null
         computer to createCaller(client, null)
@@ -50,7 +50,7 @@ class RealInstalledAppStore(
     }
 
     val row = selectInstalledAppByComputerIdAndSlug(
-      computer_id = computer.id,
+      computerId = computer.id,
       slug = appSlug,
       active = true,
     ) ?: return null
@@ -92,7 +92,7 @@ class RealInstalledAppStore(
     ) ?: return null
 
     val row = selectInstalledAppByComputerIdAndSlug(
-      computer_id = computer.id,
+      computerId = computer.id,
       slug = appSlug,
       active = true,
     ) ?: return null
@@ -108,7 +108,7 @@ class RealInstalledAppStore(
   override suspend fun get(installedAppId: InstalledAppId): InstalledAppService? {
     val installedApp = selectInstalledAppById(installedAppId)
     val installedAppRelease = selectInstalledAppReleaseById(
-      id = installedApp.active_release_id ?: return null,
+      id = installedApp.activeReleaseId ?: return null,
     )
     return get(
       installedApp = installedApp,
@@ -118,17 +118,17 @@ class RealInstalledAppStore(
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun get(
-    installedApp: InstalledApp,
-    installedAppRelease: InstalledAppRelease?,
+    installedApp: DbInstalledApp,
+    installedAppRelease: DbInstalledAppRelease?,
   ): InstalledAppService {
-    val computer = selectComputerById(installedApp.computer_id)
+    val computer = selectComputerById(installedApp.computerId)
     return get(computer.slug, installedApp, installedAppRelease)
   }
 
   override suspend fun get(
     computerSlug: ComputerSlug,
-    installedApp: InstalledApp,
-    installedAppRelease: InstalledAppRelease?,
+    installedApp: DbInstalledApp,
+    installedAppRelease: DbInstalledAppRelease?,
   ): InstalledAppService {
     val appManifestLoader = appManifestLoaderFactory.create(
       installedApp = installedApp,

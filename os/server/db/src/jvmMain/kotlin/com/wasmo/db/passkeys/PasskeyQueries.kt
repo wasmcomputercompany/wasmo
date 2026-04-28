@@ -14,7 +14,7 @@ import wasmo.sql.SqlConnection
 import wasmo.sql.SqlRow
 
 context(connection: SqlConnection)
-suspend fun findPasskeyByPasskeyId(passkey_id: String): Passkey? {
+suspend fun findPasskeyByPasskeyId(passkey_id: String): DbPasskey? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -40,9 +40,9 @@ suspend fun findPasskeyByPasskeyId(passkey_id: String): Passkey? {
 
 context(connection: SqlConnection)
 suspend fun findPasskeyByPasskeyIdAndAccountId(
-  passkey_id: String,
-  account_id: AccountId,
-): Passkey? {
+  passkeyId: String,
+  accountId: AccountId,
+): DbPasskey? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -59,12 +59,12 @@ suspend fun findPasskeyByPasskeyIdAndAccountId(
       AND account_id = $2
     """,
   ) {
-    bindString(0, passkey_id)
-    bindAccountId(1, account_id)
+    bindString(0, passkeyId)
+    bindAccountId(1, accountId)
   }
 
   return rowIterator.singleOrNull {
-    Passkey(
+    DbPasskey(
       getPasskeyId(0),
       getInstant(1)!!,
       getAccountId(2),
@@ -78,7 +78,9 @@ suspend fun findPasskeyByPasskeyIdAndAccountId(
 }
 
 context(connection: SqlConnection)
-suspend fun findPasskeysByAccountId(account_id: AccountId): List<Passkey> {
+suspend fun findPasskeysByAccountId(
+  accountId: AccountId,
+): List<DbPasskey> {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -94,7 +96,7 @@ suspend fun findPasskeysByAccountId(account_id: AccountId): List<Passkey> {
     WHERE account_id = $1
     """,
   ) {
-    bindAccountId(0, account_id)
+    bindAccountId(0, accountId)
   }
   return rowIterator.list {
     getPasskey()
@@ -103,13 +105,13 @@ suspend fun findPasskeysByAccountId(account_id: AccountId): List<Passkey> {
 
 context(connection: SqlConnection)
 suspend fun insertPasskey(
-  created_at: Instant,
-  account_id: AccountId,
-  passkey_id: String,
+  createdAt: Instant,
+  accountId: AccountId,
+  passkeyId: String,
   aaguid: String,
-  created_by_user_agent: String?,
-  created_by_ip: String?,
-  registration_record: RegistrationRecord,
+  createdByUserAgent: String?,
+  createdByIp: String?,
+  registrationRecord: RegistrationRecord,
 ): Long {
   return connection.execute(
     """
@@ -133,17 +135,17 @@ suspend fun insertPasskey(
     )
     """,
   ) {
-    bindInstant(0, created_at)
-    bindAccountId(1, account_id)
-    bindString(2, passkey_id)
+    bindInstant(0, createdAt)
+    bindAccountId(1, accountId)
+    bindString(2, passkeyId)
     bindString(3, aaguid)
-    bindString(4, created_by_user_agent)
-    bindString(5, created_by_ip)
-    bindJson<RegistrationRecord>(6, registration_record)
+    bindString(4, createdByUserAgent)
+    bindString(5, createdByIp)
+    bindJson<RegistrationRecord>(6, registrationRecord)
   }
 }
 
-private fun SqlRow.getPasskey(): Passkey = Passkey(
+private fun SqlRow.getPasskey(): DbPasskey = DbPasskey(
   getPasskeyId(0),
   getInstant(1)!!,
   getAccountId(2),

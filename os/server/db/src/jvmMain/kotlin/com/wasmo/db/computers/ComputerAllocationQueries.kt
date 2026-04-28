@@ -17,7 +17,7 @@ context(connection: SqlConnection)
 suspend fun findComputerAllocationByStripeSubscriptionId(
   stripe_subscription_id: String,
   limit: Long,
-): ComputerAllocation? {
+): DbComputerAllocation? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -40,7 +40,7 @@ suspend fun findComputerAllocationByStripeSubscriptionId(
   }
 
   return rowIterator.singleOrNull {
-    ComputerAllocation(
+    DbComputerAllocation(
       getComputerAllocationId(0),
       getInstant(1)!!,
       getS32(2)!!,

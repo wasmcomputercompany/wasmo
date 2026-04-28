@@ -2,7 +2,7 @@ package com.wasmo.db.accounts
 
 import com.wasmo.identifiers.AccountId
 
-data class Account(
+data class DbAccount(
   val id: AccountId,
   val version: Int,
 )

@@ -1,6 +1,6 @@
 package com.wasmo.installedapps
 
-import com.wasmo.db.installedapps.InstalledApp
+import com.wasmo.db.installedapps.DbInstalledApp
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -42,20 +42,20 @@ interface InstalledAppServiceGraph {
   @Provides
   @SingleIn(InstalledAppScope::class)
   fun provideAppSlug(
-    installedApp: InstalledApp,
+    installedApp: DbInstalledApp,
   ): AppSlug = installedApp.slug
 
   @Provides
   @SingleIn(InstalledAppScope::class)
   fun provideInstalledAppId(
-    installedApp: InstalledApp,
+    installedApp: DbInstalledApp,
   ): InstalledAppId = installedApp.id
 
   @Provides
   @SingleIn(InstalledAppScope::class)
   fun provideWasmoFileAddress(
-    installedApp: InstalledApp,
-  ): WasmoFileAddress = installedApp.wasmo_file_address
+    installedApp: DbInstalledApp,
+  ): WasmoFileAddress = installedApp.wasmoFileAddress
 
   @Provides
   @ForInstalledApp
@@ -92,7 +92,7 @@ interface InstalledAppServiceGraph {
   interface Factory {
     fun create(
       @Provides computerSlug: ComputerSlug,
-      @Provides installedApp: InstalledApp,
+      @Provides installedApp: DbInstalledApp,
       @Provides appManifestLoader: AppManifestLoader,
     ): InstalledAppServiceGraph
   }

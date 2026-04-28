@@ -5,13 +5,13 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.StripeCustomerId
 import kotlin.time.Instant
 
-data class ComputerAllocation(
+data class DbComputerAllocation(
   val id: ComputerAllocationId,
-  val created_at: Instant,
+  val createdAt: Instant,
   val version: Int,
-  val stripe_customer_id: StripeCustomerId,
-  val stripe_subscription_id: String,
-  val computer_id: ComputerId,
-  val active_start: Instant,
-  val active_end: Instant,
+  val stripeCustomerId: StripeCustomerId,
+  val stripeSubscriptionId: String,
+  val computerId: ComputerId,
+  val activeStart: Instant,
+  val activeEnd: Instant,
 )

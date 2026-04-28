@@ -1,6 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.db.computers.Computer
+import com.wasmo.db.computers.DbComputer
 import com.wasmo.downloader.RealDownloader
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerScope
@@ -36,13 +36,13 @@ interface ComputerServiceGraph {
   @Provides
   @SingleIn(ComputerScope::class)
   fun provideComputerSlug(
-    computer: Computer,
+    computer: DbComputer,
   ): ComputerSlug = computer.slug
 
   @Provides
   @SingleIn(ComputerScope::class)
   fun provideComputerId(
-    computer: Computer,
+    computer: DbComputer,
   ): ComputerId = computer.id
 
   @Provides
@@ -67,7 +67,7 @@ interface ComputerServiceGraph {
   @GraphExtension.Factory
   interface Factory {
     fun create(
-      @Provides computer: Computer,
+      @Provides computer: DbComputer,
     ): ComputerServiceGraph
   }
 }

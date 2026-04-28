@@ -4,7 +4,7 @@ import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.LinkedEmailAddressId
 import kotlin.time.Instant
 
-data class LinkedEmailAddress(
+data class DbLinkedEmailAddress(
   val id: LinkedEmailAddressId,
   val createdAt: Instant,
   val accountId: AccountId,

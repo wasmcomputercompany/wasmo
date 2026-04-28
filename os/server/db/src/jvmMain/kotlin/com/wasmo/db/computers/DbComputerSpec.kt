@@ -6,12 +6,12 @@ import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
 import kotlin.time.Instant
 
-data class ComputerSpec(
+data class DbComputerSpec(
   val id: ComputerSpecId,
-  val created_at: Instant,
+  val createdAt: Instant,
   val version: Long,
-  val account_id: AccountId,
+  val accountId: AccountId,
   val token: String,
   val slug: ComputerSlug,
-  val computer_id: ComputerId?,
+  val computerId: ComputerId?,
 )

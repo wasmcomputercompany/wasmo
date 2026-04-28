@@ -9,7 +9,7 @@ import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
 context(connection: SqlConnection)
-suspend fun findCookieByToken(token: String): Cookie? {
+suspend fun findCookieByToken(token: String): DbCookie? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
@@ -27,7 +27,7 @@ suspend fun findCookieByToken(token: String): Cookie? {
   }
 
   return rowIterator.singleOrNull {
-    Cookie(
+    DbCookie(
       getCookieId(0),
       getInstant(1)!!,
       getAccountId(2),

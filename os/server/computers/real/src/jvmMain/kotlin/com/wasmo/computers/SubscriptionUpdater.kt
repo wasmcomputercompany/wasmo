@@ -46,24 +46,24 @@ class SubscriptionUpdater(
       val customerId: StripeCustomerId
       if (existingCustomer != null) {
         updateStripeCustomer(
-          new_version = existingCustomer.version + 1,
+          newVersion = existingCustomer.version + 1,
           name = subscription.customer.name,
           email = subscription.customer.email,
           country = subscription.customer.address.country,
-          postal_code = subscription.customer.address.postalCode,
-          expected_version = existingCustomer.version,
+          postalCode = subscription.customer.address.postalCode,
+          expectedVersion = existingCustomer.version,
           id = existingCustomer.id,
         )
         customerId = existingCustomer.id
       } else {
         customerId = insertStripeCustomer(
-          created_at = now,
+          createdAt = now,
           version = 1,
-          stripe_customer_id = subscription.customer.id,
+          stripeCustomerId = subscription.customer.id,
           name = subscription.customer.name,
           email = subscription.customer.email,
           country = subscription.customer.address.country,
-          postal_code = subscription.customer.address.postalCode,
+          postalCode = subscription.customer.address.postalCode,
         )
       }
 
@@ -87,7 +87,7 @@ class SubscriptionUpdater(
           active_start = currentAllocation.activeStart,
           active_end = currentAllocation.activeEnd,
         )
-      } else if (latestAllocation.active_end != currentAllocation.activeEnd) {
+      } else if (latestAllocation.activeEnd != currentAllocation.activeEnd) {
         // If we have an allocation that's different, truncate it and create a replacement.
         truncateComputerAllocation(
           new_version = latestAllocation.version + 1,

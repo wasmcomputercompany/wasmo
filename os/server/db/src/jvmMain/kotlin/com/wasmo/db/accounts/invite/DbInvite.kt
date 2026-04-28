@@ -4,12 +4,12 @@ import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.InviteId
 import kotlin.time.Instant
 
-data class Invite(
+data class DbInvite(
   val id: InviteId,
-  val created_at: Instant,
-  val created_by: AccountId,
+  val createdAt: Instant,
+  val createdBy: AccountId,
   val version: Int,
   val code: String,
-  val claimed_at: Instant?,
-  val claimed_by: AccountId?,
+  val claimedAt: Instant?,
+  val claimedBy: AccountId?,
 )
