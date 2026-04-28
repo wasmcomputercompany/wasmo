@@ -5,6 +5,8 @@ import com.wasmo.client.app.Form
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.home.HomeEvent
 import org.jetbrains.compose.web.attributes.AttrsScope
+import org.jetbrains.compose.web.css.JustifyContent
+import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLDivElement
 
@@ -15,6 +17,9 @@ fun NewComputer(
 ) {
   Form(
     attrs = {
+      style {
+        justifyContent(JustifyContent.Center)
+      }
       attrs()
     },
   ) {

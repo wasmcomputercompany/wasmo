@@ -71,6 +71,7 @@ fun Computer(
 
 @Composable
 fun ComputerToolbar(
+  attrs: AttrsScope<HTMLElement>.() -> Unit = {},
   slug: ComputerSlug,
   eventListener: (ComputerEvent) -> Unit,
 ) {
@@ -80,6 +81,7 @@ fun ComputerToolbar(
       style {
         marginBottom(32.px)
       }
+      attrs()
     },
     title = { toolbarChildAttrs ->
       ToolbarTitle(attrs = toolbarChildAttrs) {

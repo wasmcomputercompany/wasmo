@@ -55,8 +55,7 @@ class HomeUi(
           iframeSrc = routeCodec.encode(ComputerHomeRoute(it.slug)).toURL().href,
         )
       },
-      teaser = computerListSnapshot.items.isEmpty(),
-      showNewComputer = environment.showSignUp,
+      showNewComputer = environment.showSignUp && accountSnapshot.emailAddresses.isNotEmpty(),
     )
   }
 

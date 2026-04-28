@@ -102,7 +102,6 @@ fun Form(
         display(DisplayStyle.Flex)
         flexDirection(FlexDirection.Column)
         alignItems(AlignItems.Stretch)
-        justifyContent(JustifyContent.Start)
       }
       attrs()
     },

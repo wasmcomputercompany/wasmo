@@ -35,7 +35,6 @@ fun HomeScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   menuModel: HomeMenuModel,
   items: List<Item>,
-  teaser: Boolean,
   showNewComputer: Boolean,
   eventListener: (HomeEvent) -> Unit,
 ) {
@@ -55,20 +54,27 @@ fun HomeScreen(
           items = items,
           eventListener = eventListener,
         )
-        if (showNewComputer) {
-          NewComputer(
-            attrs = {
-              style {
-                paddingBottom(48.px)
-              }
-              homeScreenChildAttrs()
-            },
-            eventListener = eventListener,
-          )
-        }
-      } else if (teaser) {
+      }
+
+      if (showNewComputer) {
+        NewComputer(
+          attrs = {
+            classes("ScreenContentWidth")
+            style {
+              paddingBottom(48.px)
+            }
+            homeScreenChildAttrs()
+          },
+          eventListener = eventListener,
+        )
+      }
+
+      if (items.isEmpty() && !showNewComputer) {
         Teaser(
-          attrs = homeScreenChildAttrs,
+          attrs = {
+            classes("ScreenContentWidth")
+            homeScreenChildAttrs()
+          },
         )
       }
     },
@@ -130,7 +136,7 @@ fun HomeScreen(
             minHeight(100.percent)
             display(DisplayStyle.Flex)
             flexDirection(FlexDirection.Column)
-            alignItems(AlignItems.Stretch)
+            alignItems(AlignItems.Center)
             overflowY("scroll")
           }
         },

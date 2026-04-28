@@ -29,12 +29,11 @@ class HomeTest {
       signedIn = false,
     ),
   )
-  private var teaser by mutableStateOf(true)
+  private var showNewComputer by mutableStateOf(false)
   private var items by mutableStateOf<List<Item>>(listOf())
 
   @Test
   fun teaser() = runTest {
-    teaser = true
     snapshotTester.snapshot {
       Subject()
     }
@@ -46,8 +45,16 @@ class HomeTest {
   }
 
   @Test
+  fun newComputerOnly() = runTest {
+    showNewComputer = true
+    snapshotTester.snapshot {
+      Subject()
+    }
+  }
+
+  @Test
   fun computerList() = runTest {
-    teaser = false
+    showNewComputer = true
     items = listOf(
       Item(
         slug = ComputerSlug("jesse99"),
@@ -64,14 +71,6 @@ class HomeTest {
     ) {
       Subject()
     }
-
-    menuModelFlow.update { it.copy(visible = true) }
-    snapshotTester.snapshot(
-      name = "menuVisible",
-      scrolling = true,
-    ) {
-      Subject()
-    }
   }
 
   @Composable
@@ -79,9 +78,8 @@ class HomeTest {
     val menuModel by menuModelFlow.collectAsState()
     HomeScreen(
       menuModel = menuModel,
-      showNewComputer = true,
+      showNewComputer = showNewComputer,
       items = items,
-      teaser = teaser,
       eventListener = {},
     )
   }

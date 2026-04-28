@@ -3,12 +3,10 @@ package com.wasmo.client.app.teaser
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.AlignItems
-import org.jetbrains.compose.web.css.AlignSelf
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.alignItems
-import org.jetbrains.compose.web.css.alignSelf
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.justifyContent
@@ -28,9 +26,7 @@ fun Teaser(
 ) {
   Div(
     attrs = {
-      classes("ScreenContentWidth")
       style {
-        alignSelf(AlignSelf.Center)
         display(DisplayStyle.Flex)
         flexDirection(FlexDirection.Column)
         alignItems(AlignItems.Center)
