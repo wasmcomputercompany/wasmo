@@ -3,6 +3,10 @@ package com.wasmo.vault
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
+import com.wasmo.identifiers.decodeAsCiphertext
+import com.wasmo.identifiers.decodeAsCiphertextOrNull
+import com.wasmo.identifiers.encode
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import okio.Buffer
@@ -52,7 +56,7 @@ class VaultTest {
   @Test
   fun cannotDecryptIfTampered() {
     val cleartext = "This is the K1 secret message".encodeUtf8()
-    val ciphertext = vaultWithK1.encrypt(cleartext)
+    val ciphertext = vaultWithK1.encrypt(cleartext).encode()
 
     val malformed = Buffer().run {
       write(ciphertext, 0, ciphertext.size - 2)
@@ -60,20 +64,17 @@ class VaultTest {
       writeByte(ciphertext[ciphertext.size - 1].toInt())
       readByteString()
     }
+    val malformedCiphertext = malformed.decodeAsCiphertext()
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        vaultWithK1.decrypt(malformed)
+        vaultWithK1.decrypt(malformedCiphertext)
       },
     ).hasMessage("unexpected ciphertext")
   }
 
   @Test
   fun cannotDecryptEmpty() {
-    assertThat(
-      assertFailsWith<IllegalArgumentException> {
-        vaultWithK1.decrypt(ByteString.EMPTY)
-      },
-    ).hasMessage("unexpected ciphertext")
+    assertThat(ByteString.EMPTY.decodeAsCiphertextOrNull()).isNull()
   }
 
   @Test

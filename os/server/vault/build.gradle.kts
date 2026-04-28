@@ -12,6 +12,7 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(libs.okio)
+        implementation(project(":os:server:identifiers"))
       }
     }
   }
