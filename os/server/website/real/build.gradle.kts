@@ -26,6 +26,7 @@ kotlin {
         implementation(project(":os:server:deployment"))
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:sql:api"))
+        implementation(project(":os:server:wallpapers"))
         implementation(project(":os:server:website:api"))
         implementation(project(":identifiers"))
         implementation(project(":platform:api"))
