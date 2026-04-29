@@ -104,7 +104,7 @@ class RealInstalledAppHttpService(
 
   private fun Request.toApplicationHttpRequest() = HttpRequest(
     method = method,
-    url = url,
+    url = url.toString(),
     headers = headers.map { PlatformHeader(it.name, it.value) },
     body = body,
   )

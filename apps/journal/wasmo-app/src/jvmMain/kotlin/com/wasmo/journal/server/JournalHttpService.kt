@@ -25,6 +25,7 @@ import wasmo.http.Header
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
 import wasmo.http.HttpService
+import wasmo.http.httpUrl
 import wasmo.jobs.JobQueue
 
 class JournalHttpService(
@@ -71,24 +72,25 @@ class JournalHttpService(
   )
 
   override suspend fun execute(request: HttpRequest): HttpResponse {
+    val encodedPath = request.httpUrl.encodedPath
     if (request.method == "POST") {
-      SaveEntryAction.PathRegex.matchEntire(request.url.encodedPath)?.let { match ->
+      SaveEntryAction.PathRegex.matchEntire(encodedPath)?.let { match ->
         return postApi<SaveEntryRequest, SaveEntryResponse>(request) { requestBody ->
           saveEntryAction().save(match, requestBody)
         }
       }
 
-      ListEntriesAction.PathRegex.matchEntire(request.url.encodedPath)?.let {
+      ListEntriesAction.PathRegex.matchEntire(encodedPath)?.let {
         return postApi<ListEntriesRequest, ListEntriesResponse>(request) {
           listEntriesAction().list(it)
         }
       }
 
-      PostAttachmentAction.PathRegex.matchEntire(request.url.encodedPath)?.let {
+      PostAttachmentAction.PathRegex.matchEntire(encodedPath)?.let {
         return postAttachmentAction().post(it, request)
       }
 
-      RequestPublishAction.PathRegex.matchEntire(request.url.encodedPath)?.let {
+      RequestPublishAction.PathRegex.matchEntire(encodedPath)?.let {
         return postApi<RequestPublishRequest, PublishState>(request) { requestBody ->
           requestPublishAction().requestPublish(requestBody)
         }
@@ -96,25 +98,25 @@ class JournalHttpService(
     }
 
     if (request.method == "GET") {
-      AdminPageAction.AdminHomePathRegex.matchEntire(request.url.encodedPath)?.let {
+      AdminPageAction.AdminHomePathRegex.matchEntire(encodedPath)?.let {
         return adminPageAction().admin()
       }
 
-      AdminPageAction.AdminEntryPathRegex.matchEntire(request.url.encodedPath)?.let {
+      AdminPageAction.AdminEntryPathRegex.matchEntire(encodedPath)?.let {
         return adminPageAction().admin()
       }
 
-      GetEntryAction.PathRegex.matchEntire(request.url.encodedPath)?.let { match ->
+      GetEntryAction.PathRegex.matchEntire(encodedPath)?.let { match ->
         return getApi<EntrySnapshot> {
           getEntryAction().get(match)
         }
       }
 
-      GetAttachmentAction.PathRegex.matchEntire(request.url.encodedPath)?.let {
+      GetAttachmentAction.PathRegex.matchEntire(encodedPath)?.let {
         return getAttachmentAction().get(it)
       }
 
-      GetPublishStateAction.PathRegex.matchEntire(request.url.encodedPath)?.let { match ->
+      GetPublishStateAction.PathRegex.matchEntire(encodedPath)?.let { match ->
         return getApi<PublishState> {
           getPublishStateAction().get(match)
         }

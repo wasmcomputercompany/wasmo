@@ -7,7 +7,6 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import okio.ByteString
 import okio.Closeable
-import org.intellij.lang.annotations.Language
 import wasmo.json.JsonLiteral
 
 /**
@@ -94,3 +93,10 @@ interface SqlBinder {
   fun bindUuid(index: Int, value: Uuid?)
   fun bindJson(index: Int, value: JsonLiteral?)
 }
+
+/** We use `@Language` to get syntax highlighting for SQL in IntelliJ. */
+internal expect annotation class Language(
+  val value: String,
+  val prefix: String = "",
+  val suffix: String = "",
+)

@@ -9,6 +9,7 @@ import okio.ByteString
 import wasmo.app.WasmoApp
 import wasmo.http.FakeHttpService
 import wasmo.http.HttpResponse
+import wasmo.http.httpUrl
 
 /**
  * An installable app, not installed on a particular computer.
@@ -27,7 +28,7 @@ data class PublishedApp(
 
   val httpHandler: FakeHttpService.Handler
     get() = FakeHttpService.Handler { request ->
-      when (request.url) {
+      when (request.httpUrl) {
         wasmoFileUrl -> HttpResponse(
           body = buildZip {
             put(appManifest)

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+
 package com.wasmo.gradle
 
 import org.gradle.accessors.dm.LibrariesForLibs
@@ -14,11 +16,13 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.project
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackOutput
 
+@Suppress("unused") // Used reflectively.
 class WasmoProjectPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     val libs = project.extensions.getByName("libs") as LibrariesForLibs
@@ -46,6 +50,10 @@ internal class RealWasmoBuildExtension(
     multiplatformConvention(jvm = true, js = true)
   }
 
+  override fun libraryJvmWasm() {
+    multiplatformConvention(jvm = true, wasm = true)
+  }
+
   override fun libraryJvm() {
     multiplatformConvention(jvm = true)
   }
@@ -53,6 +61,7 @@ internal class RealWasmoBuildExtension(
   private fun multiplatformConvention(
     jvm: Boolean = false,
     js: Boolean = false,
+    wasm: Boolean = false,
   ) {
     project.plugins.withType<KotlinMultiplatformPluginWrapper> {
       val kotlin = project.extensions.getByName("kotlin") as KotlinMultiplatformExtension
@@ -82,6 +91,12 @@ internal class RealWasmoBuildExtension(
             dependencies {
               implementation(libs.kotlin.test.junit)
             }
+          }
+        }
+
+        if (wasm) {
+          wasmWasi {
+            nodejs()
           }
         }
       }

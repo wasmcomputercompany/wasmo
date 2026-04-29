@@ -19,6 +19,7 @@ import wasmo.http.Header
 import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
 import wasmo.http.HttpService
+import wasmo.http.httpUrl
 
 @Inject
 @SingleIn(OsScope::class)
@@ -65,7 +66,7 @@ internal fun HttpRequest.toOkHttp(): Request {
   }
 
   return Request(
-    url = url,
+    url = httpUrl,
     headers = headersBuilder.build(),
     method = method,
     body = body?.toRequestBody(contentType),
