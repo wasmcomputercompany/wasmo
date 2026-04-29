@@ -1,7 +1,7 @@
 package wasmo.objectstore
 
+import okio.Buffer
 import okio.ByteString
-import okio.utf8Size
 
 /**
  * An S3-like object store.
@@ -143,17 +143,19 @@ val ByteString.etag: String
  * https://www.backblaze.com/docs/cloud-storage-files#file-names
  */
 fun String.validateKey() {
-  val utf8Size = utf8Size()
+  val buffer = Buffer()
+    .writeUtf8(this)
+
+  val utf8Size = buffer.size
   require(utf8Size in 1..1024) {
     "key length must be in 1..1024 but was $utf8Size: $this"
   }
 
-  var pos = 0
-  while (pos < length) {
-    val codePoint = codePointAt(pos)
+  while (!buffer.exhausted()) {
+    val pos = utf8Size - buffer.size
+    val codePoint = buffer.readUtf8CodePoint()
     require(codePoint >= ' '.code && codePoint != '\u007f'.code) {
       "key has invalid code point at $pos: 0x${codePoint.toString(radix = 16)}"
     }
-    pos += Character.charCount(codePoint)
   }
 }

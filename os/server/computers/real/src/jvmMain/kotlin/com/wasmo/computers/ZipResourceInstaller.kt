@@ -50,7 +50,7 @@ class ZipResourceInstaller(
     val httpResponse = try {
       httpService.execute(
         HttpRequest(
-          url = wasmoFileAddress.url,
+          url = wasmoFileAddress.url.toString(),
         ),
       )
     } catch (e: IOException) {

@@ -30,7 +30,7 @@ class FakeHttpService : HttpService {
   override suspend fun execute(request: HttpRequest): HttpResponse {
     return handlersFlow.value
       .firstNotNullOfOrNull { it.handle(request) }
-      ?: responses[request.url]
+      ?: responses[request.httpUrl]
       ?: HttpResponse(
         code = 404,
         body = "no handler for $request".encodeUtf8(),

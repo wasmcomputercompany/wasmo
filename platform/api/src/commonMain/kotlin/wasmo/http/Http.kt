@@ -1,10 +1,6 @@
 package wasmo.http
 
-import dev.eav.tomlkt.Toml
-import kotlinx.serialization.encodeToString
-import okhttp3.HttpUrl
 import okio.ByteString
-import okio.ByteString.Companion.encodeUtf8
 
 interface HttpService {
   suspend fun execute(request: HttpRequest): HttpResponse
@@ -12,7 +8,7 @@ interface HttpService {
 
 data class HttpRequest(
   val method: String = "GET",
-  val url: HttpUrl,
+  val url: String,
   val headers: List<Header> = listOf(),
   val body: ByteString? = null,
 ) {
@@ -35,17 +31,4 @@ data class HttpResponse(
 
   val contentType: String?
     get() = headers.firstOrNull { it.name.equals(other = "content-type", ignoreCase = true) }?.value
-
-  companion object {
-    inline operator fun <reified T> invoke(
-      toml: Toml,
-      code: Int = 200,
-      headers: List<Header> = listOf(),
-      body: T,
-    ) = HttpResponse(
-      code = code,
-      headers = headers + Header("content-type", "application/toml"),
-      body = toml.encodeToString<T>(body).encodeUtf8(),
-    )
-  }
 }
