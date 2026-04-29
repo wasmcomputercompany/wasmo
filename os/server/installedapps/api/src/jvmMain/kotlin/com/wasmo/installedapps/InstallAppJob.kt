@@ -1,20 +1,14 @@
 package com.wasmo.installedapps
 
 import com.wasmo.identifiers.InstalledAppId
-import com.wasmo.identifiers.Job
-import com.wasmo.identifiers.JobHandlerId
+import com.wasmo.identifiers.JobName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class InstallAppJob(
   val installedAppId: InstalledAppId,
-) : Job {
-  override val handlerId: JobHandlerId<InstallAppJob>
-    get() = HandlerId
-
+) {
   companion object {
-    val HandlerId = object : JobHandlerId<InstallAppJob> {
-      override val serializer = serializer()
-    }
+    val JobName = JobName<InstallAppJob, Unit>("InstallAppJob")
   }
 }

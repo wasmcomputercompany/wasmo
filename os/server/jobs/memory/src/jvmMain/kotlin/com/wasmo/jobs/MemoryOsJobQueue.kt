@@ -2,8 +2,7 @@ package com.wasmo.jobs
 
 import com.wasmo.api.WasmoJson
 import com.wasmo.events.EventListener
-import com.wasmo.identifiers.Job
-import com.wasmo.identifiers.JobHandlerId
+import com.wasmo.identifiers.JobName
 import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -11,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job as CoroutinesJob
 import kotlinx.coroutines.launch
-import kotlinx.serialization.KSerializer
 import wasmo.sql.SqlConnection
 
 /**
@@ -22,36 +20,42 @@ import wasmo.sql.SqlConnection
 @Suppress("UNCHECKED_CAST") // The handler map is type-keyed so we need unchecked casts.
 class MemoryOsJobQueue(
   private val scope: CoroutineScope,
-  private val jobHandlerMap: Map<JobHandlerId<*>, OsJobHandler<*>>,
+  private val jobHandlerMap: Map<JobName<*, *>, OsJobHandler<*>>,
   private val eventListener: EventListener,
 ) : OsJobQueue {
-  private val jobs = ConcurrentHashMap<Job, CoroutinesJob>()
+  private val jobs = ConcurrentHashMap<Any, CoroutinesJob>()
 
   context(sqlConnection: SqlConnection)
-  override suspend fun enqueue(job: Job) {
+  override suspend fun <P : Any, R : Any> enqueue(
+    jobName: JobName<P, R>,
+    job: P,
+  ) {
     eventListener.onEvent(JobEnqueuedEvent)
 
-    cancel(job)
+    cancel(jobName, job)
 
-    val serializer = job.handlerId.serializer as KSerializer<Job>
+    val serializer = jobName.paramsSerializer
     val encodedJob = WasmoJson.encodeToString(serializer, job)
 
-    jobs[job] = enqueueEncoded(serializer, encodedJob)
+    jobs[job] = enqueueEncoded(jobName, encodedJob)
   }
 
   context(sqlConnection: SqlConnection)
-  override suspend fun cancel(job: Job) {
+  override suspend fun <P : Any, R : Any> cancel(
+    jobName: JobName<P, R>,
+    job: P,
+  ) {
     jobs.remove(job)?.cancel()
   }
 
-  private fun enqueueEncoded(
-    serializer: KSerializer<Job>,
+  private fun <P : Any, R : Any> enqueueEncoded(
+    jobName: JobName<P, R>,
     encodedJob: String,
   ): CoroutinesJob {
     return scope.launch {
-      val job = WasmoJson.decodeFromString(serializer, encodedJob)
+      val job = WasmoJson.decodeFromString(jobName.paramsSerializer, encodedJob)
       try {
-        val handler = jobHandlerMap[job.handlerId] as OsJobHandler<Job>?
+        val handler = jobHandlerMap[jobName] as OsJobHandler<P>?
         handler?.execute(job)
       } catch (e: Throwable) {
         e.printStackTrace() // TODO.

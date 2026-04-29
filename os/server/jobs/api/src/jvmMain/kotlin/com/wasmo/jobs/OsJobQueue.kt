@@ -1,6 +1,6 @@
 package com.wasmo.jobs
 
-import com.wasmo.identifiers.Job
+import com.wasmo.identifiers.JobName
 import wasmo.sql.SqlConnection
 
 /**
@@ -10,8 +10,8 @@ import wasmo.sql.SqlConnection
  */
 interface OsJobQueue {
   context(sqlConnection: SqlConnection)
-  suspend fun enqueue(job: Job)
+  suspend fun <P : Any, R : Any> enqueue(jobName: JobName<P, R>, job: P)
 
   context(sqlConnection: SqlConnection)
-  suspend fun cancel(job: Job)
+  suspend fun <P : Any, R : Any> cancel(jobName: JobName<P, R>, job: P)
 }

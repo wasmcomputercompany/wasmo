@@ -3,8 +3,7 @@ package com.wasmo.jobs
 import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.identifiers.Job
-import com.wasmo.identifiers.JobHandlerId
+import com.wasmo.identifiers.JobName
 import com.wasmo.sql.transaction
 import com.wasmo.testing.measureTestTime
 import com.wasmo.testing.service.ServiceTester
@@ -19,7 +18,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 
 class MemoryOsJobQueueTest {
@@ -31,12 +29,12 @@ class MemoryOsJobQueueTest {
     val channel = Channel<String>(capacity = 1)
     val jobQueue = MemoryOsJobQueue(
       scope = this,
-      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(tester.clock, channel)),
+      jobHandlerMap = mapOf(SampleJob.JobName to FakeJobHandler(tester.clock, channel)),
       eventListener = tester.eventListener,
     )
 
     tester.wasmoDb.transaction {
-      jobQueue.enqueue(SampleJob("hello"))
+      jobQueue.enqueue(SampleJob.JobName, SampleJob("hello"))
     }
 
     val elapsed = measureTestTime {
@@ -51,12 +49,12 @@ class MemoryOsJobQueueTest {
     val channel = Channel<String>(capacity = 1)
     val jobQueue = MemoryOsJobQueue(
       scope = this,
-      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(tester.clock, channel)),
+      jobHandlerMap = mapOf(SampleJob.JobName to FakeJobHandler(tester.clock, channel)),
       eventListener = tester.eventListener,
     )
 
     tester.wasmoDb.transaction {
-      jobQueue.enqueue(SampleJob("hello", tester.clock.now.plus(1.minutes)))
+      jobQueue.enqueue(SampleJob.JobName, SampleJob("hello", tester.clock.now.plus(1.minutes)))
     }
 
     val elapsed = measureTestTime {
@@ -74,16 +72,16 @@ class MemoryOsJobQueueTest {
     }
     val jobQueue = MemoryOsJobQueue(
       scope = this,
-      jobHandlerMap = mapOf(SampleJobHandlerId to explodingJobHandler),
+      jobHandlerMap = mapOf(SampleJob.JobName to explodingJobHandler),
       eventListener = tester.eventListener,
     )
 
     val job = SampleJob("hello")
     tester.wasmoDb.transaction {
-      jobQueue.enqueue(job)
+      jobQueue.enqueue(SampleJob.JobName, job)
     }
     tester.wasmoDb.transaction {
-      jobQueue.cancel(job)
+      jobQueue.cancel(SampleJob.JobName, job)
     }
   }
 
@@ -92,12 +90,12 @@ class MemoryOsJobQueueTest {
     val channel = Channel<String>(capacity = Channel.RENDEZVOUS)
     val jobQueue = MemoryOsJobQueue(
       scope = this,
-      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(tester.clock, channel)),
+      jobHandlerMap = mapOf(SampleJob.JobName to FakeJobHandler(tester.clock, channel)),
       eventListener = tester.eventListener,
     )
 
     tester.wasmoDb.transaction {
-      jobQueue.enqueue(SampleJob("hello"))
+      jobQueue.enqueue(SampleJob.JobName, SampleJob("hello"))
     }
 
     delay(500.milliseconds)
@@ -118,12 +116,12 @@ class MemoryOsJobQueueTest {
     val channel = Channel<String>(capacity = Channel.RENDEZVOUS)
     val jobQueue = MemoryOsJobQueue(
       scope = this,
-      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(tester.clock, channel)),
+      jobHandlerMap = mapOf(SampleJob.JobName to FakeJobHandler(tester.clock, channel)),
       eventListener = tester.eventListener,
     )
 
     tester.wasmoDb.transaction {
-      jobQueue.enqueue(SampleJob("hello"))
+      jobQueue.enqueue(SampleJob.JobName, SampleJob("hello"))
     }
 
     val durationDeferred = async {
@@ -138,18 +136,14 @@ class MemoryOsJobQueueTest {
     assertThat(durationDeferred.await()).isEqualTo(500.milliseconds)
   }
 
-  object SampleJobHandlerId : JobHandlerId<SampleJob> {
-    override val serializer: KSerializer<SampleJob>
-      get() = SampleJob.serializer()
-  }
-
   @Serializable
   data class SampleJob(
     val message: String,
     val executeAt: Instant? = null,
-  ) : Job {
-    override val handlerId: JobHandlerId<*>
-      get() = SampleJobHandlerId
+  ) {
+    companion object {
+      val JobName = JobName<SampleJob, Unit>("SampleJob")
+    }
   }
 
   class FakeJobHandler(

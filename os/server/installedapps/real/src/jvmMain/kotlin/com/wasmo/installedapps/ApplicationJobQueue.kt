@@ -24,13 +24,19 @@ class ApplicationJobQueue private constructor(
 
   override suspend fun enqueue(job: ByteString, executeAt: Instant?) {
     wasmoDb.transaction {
-      osJobQueue.enqueue(ApplicationJob(installedAppId, queueName, job, executeAt))
+      osJobQueue.enqueue(
+        ApplicationJob.JobName,
+        ApplicationJob(installedAppId, queueName, job, executeAt),
+      )
     }
   }
 
   override suspend fun cancel(job: ByteString) {
     wasmoDb.transaction {
-      osJobQueue.cancel(ApplicationJob(installedAppId, queueName, job, null))
+      osJobQueue.cancel(
+        ApplicationJob.JobName,
+        ApplicationJob(installedAppId, queueName, job, null),
+      )
     }
   }
 

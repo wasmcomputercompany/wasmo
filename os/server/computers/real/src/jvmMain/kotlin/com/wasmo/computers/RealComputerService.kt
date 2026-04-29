@@ -61,7 +61,7 @@ class RealComputerService(
       version = 1L,
       wasmoFileAddress = wasmoFileAddress,
     )
-    jobQueue.enqueue(InstallAppJob(installedAppId))
+    jobQueue.enqueue(InstallAppJob.JobName, InstallAppJob(installedAppId))
   }
 
   override suspend fun snapshot(): ComputerSnapshot {
