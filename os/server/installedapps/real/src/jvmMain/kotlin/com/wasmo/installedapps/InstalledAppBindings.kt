@@ -1,5 +1,6 @@
 package com.wasmo.installedapps
 
+import com.wasmo.identifiers.JobName
 import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.JobRegistration
 import com.wasmo.jobs.OsJobQueue
@@ -15,30 +16,33 @@ interface InstalledAppBindings {
   fun bindInstalledAppStore(real: RealInstalledAppStore): InstalledAppStore
 
   companion object {
+    private val InstallAppJobName = JobName<InstallAppJob, Unit>("InstallAppJob")
+    private val ApplicationJobName = JobName<ApplicationJob, Unit>("ApplicationJob")
+
     @Provides
     @SingleIn(OsScope::class)
     fun provideInstallAppJobQueue(
       jobQueueFactory: OsJobQueue.Factory,
-    ): OsJobQueue<InstallAppJob> = jobQueueFactory.create(InstallAppJob.JobName)
+    ): OsJobQueue<InstallAppJob> = jobQueueFactory.create(InstallAppJobName)
 
     @Provides
     @IntoSet
     @SingleIn(OsScope::class)
     fun provideInstallAppJobRegistration(
       installAppJobHandler: InstallAppJobHandler,
-    ): JobRegistration<*, *> = JobRegistration(InstallAppJob.JobName, installAppJobHandler)
+    ): JobRegistration<*, *> = JobRegistration(InstallAppJobName, installAppJobHandler)
 
     @Provides
     @SingleIn(OsScope::class)
     fun provideApplicationJobQueue(
       jobQueueFactory: OsJobQueue.Factory,
-    ): OsJobQueue<ApplicationJob> = jobQueueFactory.create(ApplicationJob.JobName)
+    ): OsJobQueue<ApplicationJob> = jobQueueFactory.create(ApplicationJobName)
 
     @Provides
     @IntoSet
     @SingleIn(OsScope::class)
     fun provideApplicationJobRegistration(
       applicationJobHandler: ApplicationJobHandler,
-    ): JobRegistration<*, *> = JobRegistration(ApplicationJob.JobName, applicationJobHandler)
+    ): JobRegistration<*, *> = JobRegistration(ApplicationJobName, applicationJobHandler)
   }
 }
