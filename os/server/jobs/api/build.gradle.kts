@@ -19,6 +19,7 @@ kotlin {
         implementation(project(":os:api"))
         implementation(project(":os:server:identifiers"))
         implementation(project(":platform:api"))
+        implementation(project(":wasmox:wasmox-sql"))
       }
     }
   }

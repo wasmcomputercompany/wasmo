@@ -26,6 +26,7 @@ kotlin {
         implementation(project(":platform:api"))
         implementation(project(":support:absurd"))
         implementation(project(":support:tokens"))
+        implementation(project(":wasmox:wasmox-sql"))
       }
     }
     val jvmTest by getting {

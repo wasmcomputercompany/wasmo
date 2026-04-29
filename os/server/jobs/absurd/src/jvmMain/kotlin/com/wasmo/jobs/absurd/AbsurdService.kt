@@ -2,9 +2,11 @@
 
 package com.wasmo.jobs.absurd
 
+import com.wasmo.events.EventListener
 import com.wasmo.identifiers.JobName
 import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.CancellationPolicy
+import com.wasmo.jobs.JobCompletedEvent
 import com.wasmo.jobs.JobRegistration
 import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.StepHandle
@@ -33,6 +35,7 @@ class AbsurdService(
   clock: Clock,
   postgresqlAddress: PostgresqlAddress,
   registrations: List<JobRegistration<*, *>>,
+  eventListener: EventListener,
 ) {
   val absurd: Absurd = Absurd(
     clock = clock,
@@ -49,7 +52,9 @@ class AbsurdService(
           },
         ),
     ),
-    registrations = registrations.map { it.toAbsurd() },
+    registrations = registrations.map {
+      it.toAbsurd(eventListener)
+    },
   )
 
   suspend fun createQueue() {
@@ -57,9 +62,11 @@ class AbsurdService(
   }
 }
 
-internal fun <P : Any, R : Any> JobRegistration<P, R>.toAbsurd() = AbsurdJobRegistration(
+internal fun <P : Any, R : Any> JobRegistration<P, R>.toAbsurd(
+  eventListener: EventListener,
+) = AbsurdJobRegistration(
   taskName = jobName.toAbsurd(),
-  taskHandler = jobHandler.toAbsurd(),
+  taskHandler = jobHandler.toAbsurd(eventListener),
   defaultMaxAttempts = defaultMaxAttempts,
   defaultCancellation = defaultCancellation?.toAbsurd(),
 )
@@ -70,7 +77,9 @@ internal fun <P : Any, R : Any> JobName<P, R>.toAbsurd() = AbsurdJobName(
   resultSerializer = resultSerializer,
 )
 
-internal fun <P : Any, R : Any> OsJobHandler<P, R>.toAbsurd() = RealTaskHandler(this)
+internal fun <P : Any, R : Any> OsJobHandler<P, R>.toAbsurd(
+  eventListener: EventListener,
+) = RealTaskHandler(this, eventListener)
 
 internal fun <P : Any, R : Any> AbsurdJobName<P, R>.toWasmo() = JobName(
   value = value,
@@ -85,11 +94,14 @@ internal fun CancellationPolicy.toAbsurd() = AbsurdCancellationPolicy(
 
 internal class RealTaskHandler<P : Any, R : Any>(
   private val delegate: OsJobHandler<P, R>,
+  private val eventListener: EventListener,
 ) : AbsurdJobHandler<P, R> {
   context(context: AbsurdJobHandler.Context)
   override suspend fun handle(params: P): R {
     context(RealJobHandlerContext(context)) {
-      return delegate.handle(job = params)
+      val result = delegate.handle(job = params)
+      eventListener.onEvent(JobCompletedEvent)
+      return result
     }
   }
 }

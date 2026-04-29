@@ -5,7 +5,6 @@ package com.wasmo.jobs.absurd
 import com.wasmo.events.EventListener
 import com.wasmo.identifiers.JobName
 import com.wasmo.identifiers.OsScope
-import com.wasmo.jobs.JobCompletedEvent
 import com.wasmo.jobs.JobEnqueuedEvent
 import com.wasmo.jobs.OsJobQueue
 import dev.zacsweers.metro.Inject
@@ -14,6 +13,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import wasmo.sql.SqlConnection
+import wasmox.sql.SqlTransaction
 
 /**
  * Bridge Wasmo's opinionated job queue API to Absurd's slightly-differently-opinionated task queue
@@ -29,24 +29,26 @@ class AbsurdOsJobQueue(
   private val absurdService: AbsurdService,
   private val eventListener: EventListener,
 ) : OsJobQueue {
-  context(sqlConnection: SqlConnection)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun <P : Any, R : Any> enqueue(
     jobName: JobName<P, R>,
     job: P,
   ) {
     eventListener.onEvent(JobEnqueuedEvent)
-    absurdService.absurd.spawn(jobName.toAbsurd(), job)
+    absurdService.absurd.spawn(
+      taskName = jobName.toAbsurd(),
+      params = job,
+    )
 
     // TODO: in production, have continuous workers
-    // TODO: in test, launch runners when the current transaction commits.
-    scope.launch {
-      absurdService.absurd.executeBatch("AbsurdOsJobQueue")
-      // TODO: don't emit a completed event until the job itself completes successfully.
-      eventListener.onEvent(JobCompletedEvent)
+    sqlTransaction.afterCommit {
+      scope.launch {
+        absurdService.absurd.executeBatch("AbsurdOsJobQueue")
+      }
     }
   }
 
-  context(sqlConnection: SqlConnection)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun <P : Any, R : Any> cancel(
     jobName: JobName<P, R>,
     job: P,
