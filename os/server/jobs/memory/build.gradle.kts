@@ -21,12 +21,14 @@ kotlin {
         implementation(project(":os:server:events:api"))
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:jobs:api"))
+        implementation(project(":platform:api"))
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
+        implementation(project(":os:server:sql:api"))
         implementation(project(":os:server:testing"))
         implementation(project(":platform:testing"))
       }

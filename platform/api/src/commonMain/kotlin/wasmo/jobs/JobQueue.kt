@@ -15,7 +15,7 @@ interface JobQueue {
    * @param executeAt the time when the OS will attempt to run the job. Actual execution may be
    *   delayed due to availability of resources.
    */
-  fun enqueue(
+  suspend fun enqueue(
     job: ByteString,
     executeAt: Instant? = null,
   )
@@ -24,7 +24,7 @@ interface JobQueue {
    * Attempts to cancel [job] from executing. This has no effect if the job has already started
    * executing.
    */
-  fun cancel(job: ByteString)
+  suspend fun cancel(job: ByteString)
 
   interface Factory {
     /** Get the named job queue. Use `""` for the application's default job queue. */

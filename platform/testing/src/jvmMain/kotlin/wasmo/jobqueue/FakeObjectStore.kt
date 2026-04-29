@@ -13,11 +13,11 @@ class FakeJobQueueFactory : JobQueue.Factory {
   class FakeJobQueue internal constructor(
     private val queueName: String,
   ) : JobQueue {
-    override fun enqueue(job: ByteString, executeAt: Instant?) {
+    override suspend fun enqueue(job: ByteString, executeAt: Instant?) {
       TODO()
     }
 
-    override fun cancel(job: ByteString) {
+    override suspend fun cancel(job: ByteString) {
       TODO()
     }
   }

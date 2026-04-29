@@ -61,9 +61,7 @@ class RealComputerService(
       version = 1L,
       wasmoFileAddress = wasmoFileAddress,
     )
-    sqlTransaction.afterCommit {
-      jobQueue.enqueue(InstallAppJob(installedAppId))
-    }
+    jobQueue.enqueue(InstallAppJob(installedAppId))
   }
 
   override suspend fun snapshot(): ComputerSnapshot {

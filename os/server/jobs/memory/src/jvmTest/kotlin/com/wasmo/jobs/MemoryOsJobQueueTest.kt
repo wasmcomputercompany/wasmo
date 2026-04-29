@@ -5,13 +5,16 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.identifiers.Job
 import com.wasmo.identifiers.JobHandlerId
+import com.wasmo.sql.transaction
 import com.wasmo.testing.measureTestTime
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -28,12 +31,13 @@ class MemoryOsJobQueueTest {
     val channel = Channel<String>(capacity = 1)
     val jobQueue = MemoryOsJobQueue(
       scope = this,
-      clock = tester.clock,
-      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
+      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(tester.clock, channel)),
       eventListener = tester.eventListener,
     )
 
-    jobQueue.enqueue(SampleJob("hello"))
+    tester.wasmoDb.transaction {
+      jobQueue.enqueue(SampleJob("hello"))
+    }
 
     val elapsed = measureTestTime {
       assertThat(channel.receive()).isEqualTo("hello")
@@ -47,12 +51,13 @@ class MemoryOsJobQueueTest {
     val channel = Channel<String>(capacity = 1)
     val jobQueue = MemoryOsJobQueue(
       scope = this,
-      clock = tester.clock,
-      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
+      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(tester.clock, channel)),
       eventListener = tester.eventListener,
     )
 
-    jobQueue.enqueue(SampleJob("hello"), tester.clock.now.plus(1.minutes))
+    tester.wasmoDb.transaction {
+      jobQueue.enqueue(SampleJob("hello", tester.clock.now.plus(1.minutes)))
+    }
 
     val elapsed = measureTestTime {
       assertThat(channel.receive()).isEqualTo("hello")
@@ -69,14 +74,17 @@ class MemoryOsJobQueueTest {
     }
     val jobQueue = MemoryOsJobQueue(
       scope = this,
-      clock = tester.clock,
       jobHandlerMap = mapOf(SampleJobHandlerId to explodingJobHandler),
       eventListener = tester.eventListener,
     )
 
     val job = SampleJob("hello")
-    jobQueue.enqueue(job)
-    jobQueue.cancel(job)
+    tester.wasmoDb.transaction {
+      jobQueue.enqueue(job)
+    }
+    tester.wasmoDb.transaction {
+      jobQueue.cancel(job)
+    }
   }
 
   @Test
@@ -84,12 +92,13 @@ class MemoryOsJobQueueTest {
     val channel = Channel<String>(capacity = Channel.RENDEZVOUS)
     val jobQueue = MemoryOsJobQueue(
       scope = this,
-      clock = tester.clock,
-      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
+      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(tester.clock, channel)),
       eventListener = tester.eventListener,
     )
 
-    jobQueue.enqueue(SampleJob("hello"))
+    tester.wasmoDb.transaction {
+      jobQueue.enqueue(SampleJob("hello"))
+    }
 
     delay(500.milliseconds)
     assertThat(channel.receive()).isEqualTo("hello")
@@ -109,12 +118,13 @@ class MemoryOsJobQueueTest {
     val channel = Channel<String>(capacity = Channel.RENDEZVOUS)
     val jobQueue = MemoryOsJobQueue(
       scope = this,
-      clock = tester.clock,
-      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(channel)),
+      jobHandlerMap = mapOf(SampleJobHandlerId to FakeJobHandler(tester.clock, channel)),
       eventListener = tester.eventListener,
     )
 
-    jobQueue.enqueue(SampleJob("hello"))
+    tester.wasmoDb.transaction {
+      jobQueue.enqueue(SampleJob("hello"))
+    }
 
     val durationDeferred = async {
       measureTestTime {
@@ -136,15 +146,22 @@ class MemoryOsJobQueueTest {
   @Serializable
   data class SampleJob(
     val message: String,
+    val executeAt: Instant? = null,
   ) : Job {
     override val handlerId: JobHandlerId<*>
       get() = SampleJobHandlerId
   }
 
   class FakeJobHandler(
+    val clock: Clock,
     val channel: Channel<String>,
   ) : OsJobHandler<SampleJob> {
     override suspend fun execute(job: SampleJob) {
+      val executeAt = job.executeAt
+      if (executeAt != null) {
+        delay(clock.now() - executeAt)
+      }
+
       channel.send(job.message)
     }
   }
