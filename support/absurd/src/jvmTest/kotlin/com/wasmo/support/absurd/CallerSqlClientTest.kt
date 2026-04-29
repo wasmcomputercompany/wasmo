@@ -25,7 +25,7 @@ class CallerSqlClientTest {
     )
 
     val spawnResult = tester.postgresql.withConnection {
-      execute("BEGIN")
+      begin()
 
       val spawnResult = absurd.spawn(
         taskName = SandwichMaker.TaskName,
@@ -33,7 +33,15 @@ class CallerSqlClientTest {
         sqlClient = this,
       )
 
-      execute("ROLLBACK")
+      assertThat(
+        absurd.fetchTaskResult(
+          taskId = spawnResult.taskId,
+          taskName = SandwichMaker.TaskName,
+          sqlClient = this,
+        ),
+      ).isEqualTo(TaskResult.Pending())
+
+      rollback()
       return@withConnection spawnResult
     }
 

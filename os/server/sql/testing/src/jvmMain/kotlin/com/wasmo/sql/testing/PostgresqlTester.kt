@@ -16,8 +16,8 @@ class PostgresqlTester : CoroutineTestInterceptor {
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     val client = PostgresqlClient(TestDatabaseAddress)
-    client.withConnection { connection ->
-      connection.clearSchema()
+    client.withConnection {
+      clearSchema()
     }
 
     run = Run(

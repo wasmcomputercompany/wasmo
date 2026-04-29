@@ -13,7 +13,6 @@ import com.wasmo.events.EventListener
 import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.MDN
 import com.wasmo.identifiers.ForOs
-import com.wasmo.identifiers.JobName
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.ApplicationJob
 import com.wasmo.installedapps.ApplicationJobHandler
@@ -21,15 +20,18 @@ import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.installedapps.RealSqlService
-import com.wasmo.jobs.MemoryOsJobQueue
+import com.wasmo.jobs.JobRegistration
 import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.OsJobQueue
+import com.wasmo.jobs.absurd.AbsurdOsJobQueue
+import com.wasmo.jobs.absurd.AbsurdService
 import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.RealPermitService
 import com.wasmo.sendemail.SendEmailService
+import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.RealSqlDatabaseFactory
 import com.wasmo.sql.SqlDatabaseFactory
@@ -90,6 +92,7 @@ interface ServiceTesterGraph {
   val wasmoDb: SqlDatabase
   val provisioningDb: SqlDatabase
   val sampleApps: SampleApps
+  val absurdService: AbsurdService
 
   @Provides
   @SingleIn(OsScope::class)
@@ -144,15 +147,21 @@ interface ServiceTesterGraph {
   @Provides
   @SingleIn(OsScope::class)
   fun bindJobHandlerMap(
-    applicationJobHandler: OsJobHandler<ApplicationJob>,
-    installAppJobHandler: OsJobHandler<InstallAppJob>,
-  ): Map<JobName<*, *>, OsJobHandler<*>> = mapOf(
-    ApplicationJob.JobName to applicationJobHandler,
-    InstallAppJob.JobName to installAppJobHandler,
+    applicationJobHandler: OsJobHandler<ApplicationJob, Unit>,
+    installAppJobHandler: OsJobHandler<InstallAppJob, Unit>,
+  ): List<JobRegistration<*, *>> = listOf(
+    JobRegistration(
+      ApplicationJob.JobName,
+      applicationJobHandler,
+    ),
+    JobRegistration(
+      InstallAppJob.JobName,
+      installAppJobHandler,
+    ),
   )
 
   @Binds
-  fun bindApplicationJobHandler(real: ApplicationJobHandler): OsJobHandler<ApplicationJob>
+  fun bindApplicationJobHandler(real: ApplicationJobHandler): OsJobHandler<ApplicationJob, Unit>
 
   @Binds
   fun bindClock(real: FakeClock): Clock
@@ -175,7 +184,7 @@ interface ServiceTesterGraph {
   ): ClientAuthenticator.Factory
 
   @Binds
-  fun bindOsJobQueue(real: MemoryOsJobQueue): OsJobQueue
+  fun bindOsJobQueue(real: AbsurdOsJobQueue): OsJobQueue
 
   @Binds
   fun bindEventListener(real: TestEventListener): EventListener
@@ -200,6 +209,7 @@ interface ServiceTesterGraph {
   interface Factory {
     fun create(
       @Provides wasmoDb: SqlDatabase,
+      @Provides postgresqlAddress: PostgresqlAddress,
       @Provides provisioningDb: ProvisioningDb,
       @Provides coroutineScope: CoroutineScope,
       @Provides fileSystem: FileSystem,

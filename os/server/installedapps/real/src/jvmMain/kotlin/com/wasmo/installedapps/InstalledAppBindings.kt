@@ -10,5 +10,5 @@ interface InstalledAppBindings {
   fun bindInstalledAppStore(real: RealInstalledAppStore): InstalledAppStore
 
   @Binds
-  fun bindInstallAppJobHandler(real: InstallAppJobHandler): OsJobHandler<InstallAppJob>
+  fun bindInstallAppJobHandler(real: InstallAppJobHandler): OsJobHandler<InstallAppJob, Unit>
 }

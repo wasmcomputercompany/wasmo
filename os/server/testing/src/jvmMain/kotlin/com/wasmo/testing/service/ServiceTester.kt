@@ -4,6 +4,7 @@ import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.db.migrate
+import com.wasmo.jobs.absurd.AbsurdService
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.permits.RealPermitService
 import com.wasmo.sql.PostgresqlClient
@@ -12,6 +13,8 @@ import com.wasmo.sql.asSqlDatabase
 import com.wasmo.sql.testing.TestDatabaseAddress
 import com.wasmo.sql.testing.clearSchema
 import com.wasmo.sql.withConnection
+import com.wasmo.support.absurd.dangerouslyClearAbsurdSchema
+import com.wasmo.support.absurd.initAbsurdSchema
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePasskey
@@ -71,6 +74,8 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.permitService
   val wasmoDb: SqlDatabase
     get() = graph.wasmoDb
+  val absurdService: AbsurdService
+    get() = graph.absurdService
 
   val origin: String
     get() = baseUrl.toString()
@@ -104,7 +109,9 @@ class ServiceTester : CoroutineTestInterceptor {
 
     val postgresqlClient = PostgresqlClient(TestDatabaseAddress)
     postgresqlClient.withConnection {
-      it.clearSchema()
+      clearSchema()
+      dangerouslyClearAbsurdSchema()
+      initAbsurdSchema()
     }
 
     val wasmoDb = postgresqlClient.asSqlDatabase()
@@ -123,13 +130,16 @@ class ServiceTester : CoroutineTestInterceptor {
       withTimeout(5.seconds) {
         val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
         coroutineScope {
-          this@ServiceTester.graph = serviceTesterGraphFactory.create(
+          graph = serviceTesterGraphFactory.create(
             wasmoDb = wasmoDb,
+            postgresqlAddress = TestDatabaseAddress,
             provisioningDb = provisioningDb,
             coroutineScope = this,
             fileSystem = fileSystem,
             testDirectory = testDirectory,
           )
+          graph.absurdService.createQueue()
+
           testFunction()
         }
       }

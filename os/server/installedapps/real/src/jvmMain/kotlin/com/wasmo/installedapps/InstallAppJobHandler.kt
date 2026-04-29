@@ -23,8 +23,9 @@ class InstallAppJobHandler(
   private val computerStore: ComputerStore,
   private val eventListener: EventListener,
   private val installedAppStore: InstalledAppStore,
-) : OsJobHandler<InstallAppJob> {
-  override suspend fun execute(job: InstallAppJob) {
+) : OsJobHandler<InstallAppJob, Unit> {
+  context(context: OsJobHandler.Context)
+  override suspend fun handle(job: InstallAppJob) {
     val (installedApp, computerService) = wasmoDb.transaction {
       val installedApp = selectInstalledAppById(job.installedAppId)
       installedApp to computerStore.get(installedApp.computerId)

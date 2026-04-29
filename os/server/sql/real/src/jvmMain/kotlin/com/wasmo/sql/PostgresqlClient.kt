@@ -34,7 +34,7 @@ class PostgresqlClient(
       .build()
   }
 
-  suspend fun <T> withConnection(block: suspend (SqlClient) -> T): T {
+  suspend fun <T> withConnection(block: suspend SqlClient.() -> T): T {
     val connection = connect()
     try {
       return block(connection)

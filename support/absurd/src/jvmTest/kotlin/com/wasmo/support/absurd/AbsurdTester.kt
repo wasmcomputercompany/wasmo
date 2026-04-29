@@ -11,8 +11,6 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
 import kotlinx.coroutines.channels.Channel
-import okio.FileSystem
-import okio.Path.Companion.toPath
 
 class AbsurdTester : CoroutineTestInterceptor, Log {
   private var run: Run? = null
@@ -64,22 +62,9 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
       .setSslMode(SslMode.DISABLE)
 
     val postgresql = PostgresqlClient(connectOptions)
-    postgresql.withConnection<Unit> {
-      execute("DROP SCHEMA IF EXISTS public CASCADE")
-      execute("CREATE SCHEMA public")
-      execute("GRANT ALL ON SCHEMA public TO postgres")
-      execute("GRANT ALL ON SCHEMA public TO public")
-
-      execute("DROP SCHEMA IF EXISTS absurd CASCADE")
-      execute("CREATE SCHEMA absurd")
-      execute("GRANT ALL ON SCHEMA absurd TO postgres")
-      execute("GRANT ALL ON SCHEMA absurd TO public")
-
-      execute(
-        FileSystem.RESOURCES.read("/absurd/sql/absurd.sql".toPath()) {
-          readUtf8()
-        },
-      )
+    postgresql.withConnection {
+      dangerouslyClearAbsurdSchema()
+      initAbsurdSchema()
     }
 
     val clock = FakeClock(postgresql)

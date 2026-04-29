@@ -44,8 +44,8 @@ kotlin {
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:installedapps:api"))
         implementation(project(":os:server:installedapps:real"))
+        implementation(project(":os:server:jobs:absurd"))
         implementation(project(":os:server:jobs:api"))
-        implementation(project(":os:server:jobs:memory"))
         implementation(project(":os:server:objectstore:api"))
         implementation(project(":os:server:objectstore:fs"))
         implementation(project(":os:server:passkeys:api"))
@@ -64,6 +64,7 @@ kotlin {
         implementation(project(":platform:api"))
         implementation(project(":platform:packaging"))
         implementation(project(":platform:testing"))
+        implementation(project(":support:absurd"))
         implementation(project(":support:tokens"))
       }
     }

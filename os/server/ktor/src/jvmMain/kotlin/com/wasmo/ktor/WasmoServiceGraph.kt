@@ -21,7 +21,6 @@ import com.wasmo.framework.MDN
 import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ForOs
-import com.wasmo.identifiers.JobName
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.ApplicationJob
 import com.wasmo.installedapps.ApplicationJobHandler
@@ -29,9 +28,10 @@ import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.installedapps.RealSqlService
-import com.wasmo.jobs.MemoryOsJobQueue
+import com.wasmo.jobs.JobRegistration
 import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.OsJobQueue
+import com.wasmo.jobs.absurd.AbsurdOsJobQueue
 import com.wasmo.journal.server.JournalWasmoApp
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
@@ -44,6 +44,7 @@ import com.wasmo.permits.RealPermitService
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
+import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.RealSqlDatabaseFactory
 import com.wasmo.sql.SqlDatabaseFactory
@@ -187,19 +188,30 @@ internal interface WasmoServiceGraph {
 
   @Provides
   @SingleIn(OsScope::class)
-  fun bindJobHandlerMap(
-    applicationJobHandler: OsJobHandler<ApplicationJob>,
-    installAppJobHandler: OsJobHandler<InstallAppJob>,
-  ): Map<JobName<*, *>, OsJobHandler<*>> = mapOf(
-    ApplicationJob.JobName to applicationJobHandler,
-    InstallAppJob.JobName to installAppJobHandler,
+  fun bindJobRegistrationsList(
+    applicationJobHandler: OsJobHandler<ApplicationJob, Unit>,
+    installAppJobHandler: OsJobHandler<InstallAppJob, Unit>,
+  ): List<JobRegistration<*, *>> = listOf(
+    JobRegistration(
+      ApplicationJob.JobName,
+      applicationJobHandler,
+    ),
+    JobRegistration(
+      InstallAppJob.JobName,
+      installAppJobHandler,
+    ),
   )
 
-  @Binds
-  fun bindApplicationJobHandler(real: ApplicationJobHandler): OsJobHandler<ApplicationJob>
+  @Provides
+  @SingleIn(OsScope::class)
+  fun providePostgresqlAddress(config: WasmoService.Config): PostgresqlAddress =
+    config.osPostgresqlAddress
 
   @Binds
-  fun bindOsJobQueue(real: MemoryOsJobQueue): OsJobQueue
+  fun bindApplicationJobHandler(real: ApplicationJobHandler): OsJobHandler<ApplicationJob, Unit>
+
+  @Binds
+  fun bindOsJobQueue(real: AbsurdOsJobQueue): OsJobQueue
 
   @Binds
   fun bindCallFactory(real: OkHttpClient): Call.Factory
