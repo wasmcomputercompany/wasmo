@@ -4,10 +4,10 @@ import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.AccountSnapshotResponse
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
-import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 @Inject
 @SingleIn(CallScope::class)

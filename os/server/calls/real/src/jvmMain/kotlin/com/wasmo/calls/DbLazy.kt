@@ -1,6 +1,6 @@
 package com.wasmo.calls
 
-import com.wasmo.sql.SqlTransaction
+import wasmox.sql.SqlTransaction
 
 internal abstract class DbLazy<T> {
   var loaded = false

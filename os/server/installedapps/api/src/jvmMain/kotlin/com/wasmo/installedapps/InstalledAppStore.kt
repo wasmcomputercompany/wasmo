@@ -6,8 +6,8 @@ import com.wasmo.db.installedapps.DbInstalledAppRelease
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.InstalledAppId
-import com.wasmo.sql.SqlTransaction
 import wasmo.access.Caller
+import wasmox.sql.SqlTransaction
 
 interface InstalledAppStore {
   /** Note that this returns the HTTP service even if the current client is not its owner. */

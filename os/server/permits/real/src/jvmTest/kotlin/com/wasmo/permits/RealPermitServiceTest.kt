@@ -5,13 +5,13 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.identifiers.PermitType
 import com.wasmo.permits.PermitService.Hook
-import com.wasmo.sql.transaction
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.test.runTest
 import wasmo.sql.SqlException
+import wasmox.sql.transaction
 
 class RealPermitServiceTest {
   @InterceptTest

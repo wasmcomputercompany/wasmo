@@ -4,13 +4,13 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.CreateComputerSpecResponse
-import com.wasmo.sql.transaction
 import com.wasmo.framework.Response
 import com.wasmo.payments.CreateCheckoutSessionRequest
 import com.wasmo.payments.PaymentsService
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 @Inject
 @SingleIn(CallScope::class)

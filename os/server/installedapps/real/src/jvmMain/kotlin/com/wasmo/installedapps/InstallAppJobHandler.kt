@@ -9,11 +9,11 @@ import com.wasmo.events.EventListener
 import com.wasmo.identifiers.OsScope
 import com.wasmo.issues.IssueCollector
 import com.wasmo.jobs.OsJobHandler
-import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 @Inject
 @SingleIn(OsScope::class)

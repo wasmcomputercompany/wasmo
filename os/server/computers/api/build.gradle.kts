@@ -24,6 +24,7 @@ kotlin {
         implementation(project(":os:server:sql:api"))
         implementation(project(":platform:packaging"))
         implementation(project(":support:issues"))
+        implementation(project(":support:wasmox-sql"))
       }
     }
   }

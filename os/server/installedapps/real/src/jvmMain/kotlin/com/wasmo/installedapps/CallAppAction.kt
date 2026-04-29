@@ -9,10 +9,10 @@ import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
-import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 /**
  * Figure the right [InstalledAppHttpService] to call, and call it as the right caller.

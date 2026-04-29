@@ -12,7 +12,6 @@ import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.asSqlDatabase
 import com.wasmo.sql.testing.TestDatabaseAddress
 import com.wasmo.sql.testing.clearSchema
-import com.wasmo.sql.withConnection
 import com.wasmo.support.absurd.dangerouslyClearAbsurdSchema
 import com.wasmo.support.absurd.initAbsurdSchema
 import com.wasmo.support.tokens.newToken
@@ -38,6 +37,7 @@ import wasmo.http.FakeHttpService
 import wasmo.objectstore.FakeObjectStore
 import wasmo.sql.SqlDatabase
 import wasmo.time.FakeClock
+import wasmox.sql.withConnection
 
 /**
  * Use this with Burst and [app.cash.burst.InterceptTest].

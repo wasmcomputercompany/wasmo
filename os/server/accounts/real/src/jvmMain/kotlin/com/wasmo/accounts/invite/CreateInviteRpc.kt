@@ -6,12 +6,12 @@ import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.CreateInviteResponse
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.toHttpUrl
-import com.wasmo.sql.transaction
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 @Inject
 @SingleIn(CallScope::class)

@@ -3,9 +3,9 @@ package com.wasmo.accounts.passkeys
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.db.passkeys.DbPasskey
-import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmox.sql.SqlTransaction
 
 /**
  * After we authenticate a passkey we have two accounts for one person.

@@ -3,10 +3,10 @@ package com.wasmo.accounts
 import com.wasmo.api.SignOutRequest
 import com.wasmo.api.SignOutResponse
 import com.wasmo.framework.Response
-import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 @Inject
 @SingleIn(CallScope::class)

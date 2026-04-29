@@ -1,9 +1,9 @@
 package com.wasmo.computers
 
-import com.wasmo.sql.SqlTransaction
 import com.wasmo.accounts.Client
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
+import wasmox.sql.SqlTransaction
 
 interface ComputerStore {
   context(sqlTransaction: SqlTransaction)

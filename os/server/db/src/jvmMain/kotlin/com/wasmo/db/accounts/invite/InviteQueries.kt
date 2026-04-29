@@ -7,9 +7,9 @@ import com.wasmo.db.getAccountIdOrNull
 import com.wasmo.db.getInviteId
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.InviteId
-import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
+import wasmox.sql.singleOrNull
 
 context(connection: SqlConnection)
 suspend fun findInvitesByClaimedBy(

@@ -1,5 +1,6 @@
-package com.wasmo.sql
+package wasmox.sql
 
+import okio.use
 import wasmo.sql.RowIterator
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlDatabase

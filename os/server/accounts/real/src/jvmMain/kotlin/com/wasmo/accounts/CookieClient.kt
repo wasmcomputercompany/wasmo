@@ -5,11 +5,11 @@ import com.wasmo.db.accounts.insertAccount
 import com.wasmo.db.accounts.insertCookie
 import com.wasmo.db.accounts.updateAccountIdByAccountId
 import com.wasmo.identifiers.AccountId
-import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlin.time.Clock
+import wasmox.sql.SqlTransaction
 
 /**
  * This holds a single session cookie and uses it to find the corresponding account.

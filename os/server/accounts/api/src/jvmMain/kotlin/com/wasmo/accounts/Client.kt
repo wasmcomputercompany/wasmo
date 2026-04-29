@@ -1,7 +1,7 @@
 package com.wasmo.accounts
 
 import com.wasmo.identifiers.AccountId
-import com.wasmo.sql.SqlTransaction
+import wasmox.sql.SqlTransaction
 
 /**
  * A caller that may have associated server-side data.

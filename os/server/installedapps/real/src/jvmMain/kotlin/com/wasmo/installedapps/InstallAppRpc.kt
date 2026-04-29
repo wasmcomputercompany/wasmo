@@ -4,7 +4,6 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
-import com.wasmo.sql.transaction
 import com.wasmo.computers.ComputerStore
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
@@ -14,6 +13,7 @@ import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 @Inject
 @SingleIn(CallScope::class)

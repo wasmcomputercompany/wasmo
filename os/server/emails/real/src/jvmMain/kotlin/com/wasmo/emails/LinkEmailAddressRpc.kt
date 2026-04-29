@@ -8,11 +8,11 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.emails.messages.challengeCodeEmailMessage
 import com.wasmo.framework.Response
 import com.wasmo.sendemail.SendEmailService
-import com.wasmo.sql.transaction
 import com.wasmo.support.tokens.newChallengeCode
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 @Inject
 @SingleIn(CallScope::class)

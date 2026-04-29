@@ -7,11 +7,11 @@ import com.wasmo.db.getAccountId
 import com.wasmo.db.getPasskeyId
 import com.wasmo.identifiers.AccountId
 import com.wasmo.passkeys.RegistrationRecord
-import com.wasmo.sql.list
-import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlRow
+import wasmox.sql.list
+import wasmox.sql.singleOrNull
 
 context(connection: SqlConnection)
 suspend fun findPasskeyByPasskeyId(passkey_id: String): DbPasskey? {

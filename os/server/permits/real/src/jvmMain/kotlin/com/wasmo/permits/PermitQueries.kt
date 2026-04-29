@@ -3,12 +3,12 @@ package com.wasmo.permits
 import com.wasmo.db.getPermitId
 import com.wasmo.identifiers.PermitId
 import com.wasmo.identifiers.PermitType
-import com.wasmo.sql.list
-import com.wasmo.sql.single
-import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlRow
+import wasmox.sql.list
+import wasmox.sql.single
+import wasmox.sql.singleOrNull
 
 /**
  * Returns up to [RateLimit.count] permits since `(now - [RateLimit.duration])`. If this result is

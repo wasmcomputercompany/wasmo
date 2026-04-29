@@ -12,13 +12,13 @@ import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.jobs.OsJobQueue
-import com.wasmo.sql.SqlTransaction
-import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import okhttp3.HttpUrl
 import wasmo.sql.SqlDatabase
+import wasmox.sql.SqlTransaction
+import wasmox.sql.transaction
 
 @Inject
 @SingleIn(ComputerScope::class)

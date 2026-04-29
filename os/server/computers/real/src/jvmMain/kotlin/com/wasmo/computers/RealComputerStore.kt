@@ -13,9 +13,9 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.UserId
-import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmox.sql.SqlTransaction
 
 @Inject
 @SingleIn(OsScope::class)

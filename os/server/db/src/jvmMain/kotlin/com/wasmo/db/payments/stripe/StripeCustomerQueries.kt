@@ -3,10 +3,10 @@ package com.wasmo.db.payments.stripe
 import com.wasmo.db.bindStripeCustomerId
 import com.wasmo.db.getStripeCustomerId
 import com.wasmo.identifiers.StripeCustomerId
-import com.wasmo.sql.single
-import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
+import wasmox.sql.single
+import wasmox.sql.singleOrNull
 
 context(connection: SqlConnection)
 suspend fun insertStripeCustomer(

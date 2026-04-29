@@ -2,8 +2,8 @@ package com.wasmo.db.accounts
 
 import com.wasmo.db.getAccountId
 import com.wasmo.identifiers.AccountId
-import com.wasmo.sql.single
 import wasmo.sql.SqlConnection
+import wasmox.sql.single
 
 context(connection: SqlConnection)
 suspend fun insertAccount(version: Int): AccountId {

@@ -8,11 +8,11 @@ import com.wasmo.db.accounts.invite.insertInvite
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.identifiers.OsScope
-import com.wasmo.sql.SqlTransaction
 import com.wasmo.support.tokens.newToken
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
+import wasmox.sql.SqlTransaction
 
 @Inject
 @SingleIn(OsScope::class)

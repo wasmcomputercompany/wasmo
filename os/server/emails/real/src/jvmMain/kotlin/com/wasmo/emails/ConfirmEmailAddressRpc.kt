@@ -12,14 +12,14 @@ import com.wasmo.framework.Response
 import com.wasmo.identifiers.EmailAddressLinkPermitType
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.RateLimit
-import com.wasmo.sql.SqlTransaction
-import com.wasmo.sql.transaction
 import com.wasmo.support.tokens.toChallengeCodeOrNull
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import wasmo.sql.SqlDatabase
+import wasmox.sql.SqlTransaction
+import wasmox.sql.transaction
 
 val ChallengeAttemptRateLimit = RateLimit(
   count = 3,

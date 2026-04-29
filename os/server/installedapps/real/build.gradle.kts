@@ -40,6 +40,7 @@ kotlin {
         implementation(project(":platform:packaging"))
         implementation(project(":support:close-tracker"))
         implementation(project(":support:issues"))
+        implementation(project(":support:wasmox-sql"))
       }
     }
     val jvmTest by getting {

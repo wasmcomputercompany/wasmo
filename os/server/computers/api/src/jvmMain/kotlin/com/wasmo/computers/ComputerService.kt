@@ -1,12 +1,12 @@
 package com.wasmo.computers
 
-import com.wasmo.sql.SqlTransaction
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.WasmoFileAddress
 import okhttp3.HttpUrl
+import wasmox.sql.SqlTransaction
 
 interface ComputerService {
   val id: ComputerId

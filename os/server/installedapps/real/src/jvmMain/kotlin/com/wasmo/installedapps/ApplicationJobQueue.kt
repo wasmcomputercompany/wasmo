@@ -3,13 +3,13 @@ package com.wasmo.installedapps
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppScope
 import com.wasmo.jobs.OsJobQueue
-import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Instant
 import okio.ByteString
 import wasmo.jobs.JobQueue
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 /**
  * Adapts the platform's installed app [JobQueue] to the OS job queue.

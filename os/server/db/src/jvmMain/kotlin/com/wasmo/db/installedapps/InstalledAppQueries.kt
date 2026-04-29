@@ -18,12 +18,12 @@ import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.packaging.AppManifest
-import com.wasmo.sql.list
-import com.wasmo.sql.single
-import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlRow
+import wasmox.sql.list
+import wasmox.sql.single
+import wasmox.sql.singleOrNull
 
 context(connection: SqlConnection)
 suspend fun insertInstalledApp(

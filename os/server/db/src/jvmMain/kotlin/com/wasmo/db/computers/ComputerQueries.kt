@@ -15,12 +15,12 @@ import com.wasmo.identifiers.ComputerAccessId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.UserId
-import com.wasmo.sql.list
-import com.wasmo.sql.single
-import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlRow
+import wasmox.sql.list
+import wasmox.sql.single
+import wasmox.sql.singleOrNull
 
 context(connection: SqlConnection)
 suspend fun insertComputer(

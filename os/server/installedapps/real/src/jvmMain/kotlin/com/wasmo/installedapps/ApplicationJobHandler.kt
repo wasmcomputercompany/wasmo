@@ -2,10 +2,10 @@ package com.wasmo.installedapps
 
 import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.OsJobHandler
-import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 /**
  * TODO: This drops jobs if the app isn't currently runnable. For example, if the jobs are eligible

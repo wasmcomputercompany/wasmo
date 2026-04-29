@@ -20,9 +20,9 @@ import com.wasmo.db.passkeys.DbPasskey
 import com.wasmo.db.passkeys.findPasskeysByAccountId
 import com.wasmo.deployment.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
-import com.wasmo.sql.SqlTransaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import wasmox.sql.SqlTransaction
 
 @Inject
 @SingleIn(CallScope::class)

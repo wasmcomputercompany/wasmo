@@ -9,6 +9,8 @@ import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlException
+import wasmox.sql.isDuplicateDatabase
+import wasmox.sql.withConnection
 
 /** Between 1 and 15 letters or digits, and the first is not a digit. */
 val DatabaseNameRegex = Regex("[a-z][a-z0-9]{0,14}")

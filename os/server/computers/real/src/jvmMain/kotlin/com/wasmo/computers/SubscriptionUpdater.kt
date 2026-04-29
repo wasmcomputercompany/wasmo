@@ -11,12 +11,12 @@ import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.payments.ComputerAllocationSnapshot
 import com.wasmo.payments.PaymentsService
 import com.wasmo.payments.SubscriptionSnapshot
-import com.wasmo.sql.SqlTransaction
-import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock
 import wasmo.sql.SqlDatabase
+import wasmox.sql.SqlTransaction
+import wasmox.sql.transaction
 
 /**
  * Call the Stripe API and sync a subscription to the database.

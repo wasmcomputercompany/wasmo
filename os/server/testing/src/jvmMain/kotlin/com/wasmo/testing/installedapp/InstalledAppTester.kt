@@ -1,6 +1,5 @@
 package com.wasmo.testing.installedapp
 
-import com.wasmo.sql.transaction
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.AppSlug
@@ -17,6 +16,7 @@ import dev.zacsweers.metro.AssistedInject
 import okhttp3.HttpUrl
 import wasmo.app.WasmoApp
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 /**
  * Tests an app installed on a specific computer.

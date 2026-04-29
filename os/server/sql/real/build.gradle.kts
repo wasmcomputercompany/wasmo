@@ -22,6 +22,7 @@ kotlin {
         implementation(project(":os:server:sql:api"))
         implementation(project(":platform:api"))
         implementation(project(":support:close-tracker"))
+        implementation(project(":support:wasmox-sql"))
       }
     }
     val jvmTest by getting {

@@ -4,9 +4,9 @@ import com.wasmo.db.bindAccountId
 import com.wasmo.db.getAccountId
 import com.wasmo.db.getCookieId
 import com.wasmo.identifiers.AccountId
-import com.wasmo.sql.singleOrNull
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
+import wasmox.sql.singleOrNull
 
 context(connection: SqlConnection)
 suspend fun findCookieByToken(token: String): DbCookie? {

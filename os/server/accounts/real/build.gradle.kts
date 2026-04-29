@@ -34,6 +34,7 @@ kotlin {
         implementation(project(":os:server:website:real"))
         implementation(project(":platform:api"))
         implementation(project(":support:tokens"))
+        implementation(project(":support:wasmox-sql"))
       }
     }
     val jvmTest by getting {
