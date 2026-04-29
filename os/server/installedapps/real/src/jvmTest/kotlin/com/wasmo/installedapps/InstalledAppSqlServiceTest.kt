@@ -58,7 +58,7 @@ class InstalledAppSqlServiceTest {
 
   @Test
   @Ignore("not implemented yet")
-  fun independentComputersHaveIndependentStores() = runTest {
+  fun independentComputersHaveIndependentSqlDatabases() = runTest {
     val client = tester.newClient()
 
     val computer1 = client.createComputer()

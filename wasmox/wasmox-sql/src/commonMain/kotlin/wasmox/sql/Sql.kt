@@ -16,29 +16,37 @@ suspend fun <T> SqlDatabase.transaction(
   var suppressedExceptions = listOf<SqlException>()
   while (true) {
     attempt++
-    try {
-      val transaction = RealSqlTransaction(newConnection())
+    val transaction = RealSqlTransaction(newConnection())
+    val result = context(transaction) {
       transaction.use { transaction ->
-        context(transaction) {
-          val result = block()
-          for (action in transaction.afterCommitActions) {
-            action()
-          }
-          return result
-        }
-      }
-    } catch (e: SqlException) {
-      // Race. Retry!
-      if (attempt < attemptCount && e.isUniqueViolation) {
-        suppressedExceptions += e
-        continue
-      }
+        transaction.execute("BEGIN")
+        val result = try {
+          block()
+        } catch (e: Throwable) {
+          transaction.execute("ROLLBACK")
 
-      for (exception in suppressedExceptions) {
-        e.addSuppressed(exception)
+          // Race. Retry!
+          if (attempt < attemptCount && e is SqlException && e.isUniqueViolation) {
+            suppressedExceptions += e
+            continue
+          }
+
+          for (exception in suppressedExceptions) {
+            e.addSuppressed(exception)
+          }
+
+          throw e
+        }
+        transaction.execute("COMMIT")
+        result
       }
-      throw e
     }
+
+    for (action in transaction.afterCommitActions) {
+      action()
+    }
+
+    return result
   }
 }
 
@@ -51,11 +59,13 @@ suspend fun <T> SqlDatabase.withConnection(block: suspend context(SqlConnection)
 }
 
 interface SqlTransaction : SqlConnection {
+  val sqlConnection: SqlConnection
+
   fun afterCommit(function: () -> Unit)
 }
 
 internal class RealSqlTransaction(
-  sqlConnection: SqlConnection,
+  override val sqlConnection: SqlConnection,
 ) : SqlConnection by sqlConnection, SqlTransaction {
   val afterCommitActions = mutableListOf<() -> Unit>()
 

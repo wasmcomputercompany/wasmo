@@ -53,9 +53,9 @@ internal class RealSqlDatabase(
 }
 
 internal class RealSqlConnection(
-  private val sqlClient: SqlClient,
+  override val sqlClient: SqlClient,
   private val closeListener: CloseListener,
-) : SqlConnection {
+) : OsSqlConnection {
   private val closeTracker = CloseTracker()
 
   override suspend fun execute(

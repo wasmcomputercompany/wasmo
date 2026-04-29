@@ -8,6 +8,7 @@ import com.wasmo.jobs.JobRegistration
 import com.wasmo.jobs.OsJobHandler
 import com.wasmo.testing.measureTestTime
 import com.wasmo.testing.service.ServiceTester
+import kotlin.test.assertFailsWith
 import kotlin.time.Duration
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
@@ -37,6 +38,28 @@ class AbsurdOsJobQueueTest {
     assertThat(elapsed).isEqualTo(Duration.ZERO)
   }
 
+  @Test
+  fun jobIsNotEnqueuedWhenTransactionIsRolledBack() = runTest {
+    val channel = Channel<String>(capacity = 1)
+
+    val jobQueueFactory = tester.jobQueueFactory +
+      JobRegistration(SampleJob.JobName, SampleJobHandler(channel))
+    val jobQueue = jobQueueFactory.create(SampleJob.JobName)
+
+    assertFailsWith<BoomException> {
+      tester.wasmoDb.transaction {
+        jobQueue.enqueue(SampleJob("this will be rolled back"))
+        throw BoomException()
+      }
+    }
+
+    tester.wasmoDb.transaction {
+      jobQueue.enqueue(SampleJob("this will be enqueued"))
+    }
+
+    assertThat(channel.receive()).isEqualTo("this will be enqueued")
+  }
+
   @Serializable
   data class SampleJob(
     val message: String,
@@ -54,4 +77,6 @@ class AbsurdOsJobQueueTest {
       channel.send(job.message)
     }
   }
+
+  class BoomException : Exception("boom")
 }

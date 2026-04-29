@@ -8,6 +8,7 @@ import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.JobEnqueuedEvent
 import com.wasmo.jobs.JobRegistration
 import com.wasmo.jobs.OsJobQueue
+import com.wasmo.sql.OsSqlConnection
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.uuid.ExperimentalUuidApi
@@ -34,6 +35,7 @@ class AbsurdOsJobQueue<P : Any, R : Any> private constructor(
     factory.absurdService.absurd.spawn(
       taskName = jobName.toAbsurd(),
       params = job,
+      sqlClient = (sqlTransaction.sqlConnection as OsSqlConnection).sqlClient,
     )
 
     // TODO: in production, have continuous workers
