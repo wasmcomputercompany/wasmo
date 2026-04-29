@@ -23,43 +23,45 @@ import wasmox.sql.SqlTransaction
  * The main difference is that Wasmo requires callers have a [SqlConnection] context to enqueue,
  * whereas Absurd makes that optional.
  */
-@Inject
-@SingleIn(OsScope::class)
-class AbsurdOsJobQueue(
-  private val scope: CoroutineScope,
-  private val absurdService: AbsurdService,
-  private val eventListener: EventListener,
-) : OsJobQueue {
+class AbsurdOsJobQueue<P : Any, R : Any> private constructor(
+  private val factory: Factory,
+  private val jobName: JobName<P, R>,
+) : OsJobQueue<P> {
+
   context(sqlTransaction: SqlTransaction)
-  override suspend fun <P : Any, R : Any> enqueue(
-    jobName: JobName<P, R>,
-    job: P,
-  ) {
-    eventListener.onEvent(JobEnqueuedEvent)
-    absurdService.absurd.spawn(
+  override suspend fun enqueue(job: P) {
+    factory.eventListener.onEvent(JobEnqueuedEvent)
+    factory.absurdService.absurd.spawn(
       taskName = jobName.toAbsurd(),
       params = job,
     )
 
     // TODO: in production, have continuous workers
     sqlTransaction.afterCommit {
-      scope.launch {
-        absurdService.absurd.executeBatch("AbsurdOsJobQueue")
+      factory.scope.launch {
+        factory.absurdService.absurd.executeBatch("AbsurdOsJobQueue")
       }
     }
   }
 
   context(sqlTransaction: SqlTransaction)
-  override suspend fun <P : Any, R : Any> cancel(
-    jobName: JobName<P, R>,
-    job: P,
-  ) {
+  override suspend fun cancel(job: P) {
     TODO()
   }
 
-  operator fun plus(registration: JobRegistration<*, *>) = AbsurdOsJobQueue(
-    scope = scope,
-    absurdService = absurdService + registration,
-    eventListener = eventListener,
-  )
+  @Inject
+  @SingleIn(OsScope::class)
+  class Factory(
+    internal val scope: CoroutineScope,
+    internal val absurdService: AbsurdService,
+    internal val eventListener: EventListener,
+  ) : OsJobQueue.Factory {
+    override fun <P : Any> create(jobName: JobName<P, *>) = AbsurdOsJobQueue(this, jobName)
+
+    override operator fun plus(registration: JobRegistration<*, *>) = Factory(
+      scope = scope,
+      absurdService = absurdService + registration,
+      eventListener = eventListener,
+    )
+  }
 }

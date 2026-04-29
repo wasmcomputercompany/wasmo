@@ -8,10 +8,15 @@ import wasmox.sql.SqlTransaction
  *
  * Unlike the app job queue, this can do strongly-typed jobs for the OS's internal use.
  */
-interface OsJobQueue {
+interface OsJobQueue<P : Any> {
   context(sqlTransaction: SqlTransaction)
-  suspend fun <P : Any, R : Any> enqueue(jobName: JobName<P, R>, job: P)
+  suspend fun enqueue(job: P)
 
   context(sqlTransaction: SqlTransaction)
-  suspend fun <P : Any, R : Any> cancel(jobName: JobName<P, R>, job: P)
+  suspend fun cancel(job: P)
+
+  interface Factory {
+    fun <P : Any> create(jobName: JobName<P, *>): OsJobQueue<P>
+    operator fun plus(registration: JobRegistration<*, *>): Factory
+  }
 }

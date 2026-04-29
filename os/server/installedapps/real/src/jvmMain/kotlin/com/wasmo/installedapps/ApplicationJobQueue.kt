@@ -15,7 +15,7 @@ import wasmox.sql.transaction
  * Adapts the platform's installed app [JobQueue] to the OS job queue.
  */
 class ApplicationJobQueue private constructor(
-  private val osJobQueue: OsJobQueue,
+  private val jobQueue: OsJobQueue<ApplicationJob>,
   private val installedAppId: InstalledAppId,
   private val wasmoDb: SqlDatabase,
   private val queueName: String,
@@ -24,8 +24,7 @@ class ApplicationJobQueue private constructor(
 
   override suspend fun enqueue(job: ByteString, executeAt: Instant?) {
     wasmoDb.transaction {
-      osJobQueue.enqueue(
-        ApplicationJob.JobName,
+      jobQueue.enqueue(
         ApplicationJob(installedAppId, queueName, job, executeAt),
       )
     }
@@ -33,8 +32,7 @@ class ApplicationJobQueue private constructor(
 
   override suspend fun cancel(job: ByteString) {
     wasmoDb.transaction {
-      osJobQueue.cancel(
-        ApplicationJob.JobName,
+      jobQueue.cancel(
         ApplicationJob(installedAppId, queueName, job, null),
       )
     }
@@ -43,12 +41,12 @@ class ApplicationJobQueue private constructor(
   @Inject
   @SingleIn(InstalledAppScope::class)
   class Factory(
-    val osJobQueue: OsJobQueue,
+    val jobQueue: OsJobQueue<ApplicationJob>,
     val installedAppId: InstalledAppId,
     val wasmoDb: SqlDatabase,
   ) : JobQueue.Factory {
     override fun get(name: String) = ApplicationJobQueue(
-      osJobQueue = osJobQueue,
+      jobQueue = jobQueue,
       installedAppId = installedAppId,
       wasmoDb = wasmoDb,
       queueName = name,

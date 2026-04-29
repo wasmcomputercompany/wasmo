@@ -27,7 +27,7 @@ class RealComputerService(
   private val clock: Clock,
   private val wasmoDb: SqlDatabase,
   private val appCatalog: AppCatalog,
-  private val jobQueue: OsJobQueue,
+  private val jobQueue: OsJobQueue<InstallAppJob>,
   private val installedAppStore: InstalledAppStore,
   override val id: ComputerId,
   override val slug: ComputerSlug,
@@ -61,7 +61,7 @@ class RealComputerService(
       version = 1L,
       wasmoFileAddress = wasmoFileAddress,
     )
-    jobQueue.enqueue(InstallAppJob.JobName, InstallAppJob(installedAppId))
+    jobQueue.enqueue(InstallAppJob(installedAppId))
   }
 
   override suspend fun snapshot(): ComputerSnapshot {

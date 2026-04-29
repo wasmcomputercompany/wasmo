@@ -14,14 +14,9 @@ import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.MDN
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
-import com.wasmo.installedapps.ApplicationJob
-import com.wasmo.installedapps.ApplicationJobHandler
-import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.installedapps.RealSqlService
-import com.wasmo.jobs.JobRegistration
-import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.jobs.absurd.AbsurdOsJobQueue
 import com.wasmo.jobs.absurd.AbsurdService
@@ -93,7 +88,7 @@ interface ServiceTesterGraph {
   val provisioningDb: SqlDatabase
   val sampleApps: SampleApps
   val absurdService: AbsurdService
-  val jobQueue: AbsurdOsJobQueue
+  val jobQueueFactory: OsJobQueue.Factory
 
   @Provides
   @SingleIn(OsScope::class)
@@ -145,25 +140,6 @@ interface ServiceTesterGraph {
   @SingleIn(OsScope::class)
   fun provideContentTypeDatabase(): ContentTypeDatabase = ContentTypeDatabase.MDN
 
-  @Provides
-  @SingleIn(OsScope::class)
-  fun bindJobHandlerMap(
-    applicationJobHandler: OsJobHandler<ApplicationJob, Unit>,
-    installAppJobHandler: OsJobHandler<InstallAppJob, Unit>,
-  ): List<JobRegistration<*, *>> = listOf(
-    JobRegistration(
-      ApplicationJob.JobName,
-      applicationJobHandler,
-    ),
-    JobRegistration(
-      InstallAppJob.JobName,
-      installAppJobHandler,
-    ),
-  )
-
-  @Binds
-  fun bindApplicationJobHandler(real: ApplicationJobHandler): OsJobHandler<ApplicationJob, Unit>
-
   @Binds
   fun bindClock(real: FakeClock): Clock
 
@@ -185,7 +161,7 @@ interface ServiceTesterGraph {
   ): ClientAuthenticator.Factory
 
   @Binds
-  fun bindOsJobQueue(real: AbsurdOsJobQueue): OsJobQueue
+  fun bindOsJobQueueFactory(real: AbsurdOsJobQueue.Factory): OsJobQueue.Factory
 
   @Binds
   fun bindEventListener(real: TestEventListener): EventListener

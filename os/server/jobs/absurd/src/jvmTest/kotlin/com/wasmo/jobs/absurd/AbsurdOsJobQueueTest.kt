@@ -23,10 +23,12 @@ class AbsurdOsJobQueueTest {
   fun happyPath() = runTest {
     val channel = Channel<String>(capacity = 1)
 
-    val jobQueue = tester.jobQueue + JobRegistration(SampleJob.JobName, SampleJobHandler(channel))
+    val jobQueueFactory = tester.jobQueueFactory +
+      JobRegistration(SampleJob.JobName, SampleJobHandler(channel))
+    val jobQueue = jobQueueFactory.create(SampleJob.JobName)
 
     tester.wasmoDb.transaction {
-      jobQueue.enqueue(SampleJob.JobName, SampleJob("hello"))
+      jobQueue.enqueue(SampleJob("hello"))
     }
 
     val elapsed = measureTestTime {

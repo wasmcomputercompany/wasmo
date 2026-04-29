@@ -22,14 +22,9 @@ import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
-import com.wasmo.installedapps.ApplicationJob
-import com.wasmo.installedapps.ApplicationJobHandler
-import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.installedapps.RealSqlService
-import com.wasmo.jobs.JobRegistration
-import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.jobs.absurd.AbsurdOsJobQueue
 import com.wasmo.journal.server.JournalWasmoApp
@@ -188,30 +183,11 @@ internal interface WasmoServiceGraph {
 
   @Provides
   @SingleIn(OsScope::class)
-  fun bindJobRegistrationsList(
-    applicationJobHandler: OsJobHandler<ApplicationJob, Unit>,
-    installAppJobHandler: OsJobHandler<InstallAppJob, Unit>,
-  ): List<JobRegistration<*, *>> = listOf(
-    JobRegistration(
-      ApplicationJob.JobName,
-      applicationJobHandler,
-    ),
-    JobRegistration(
-      InstallAppJob.JobName,
-      installAppJobHandler,
-    ),
-  )
-
-  @Provides
-  @SingleIn(OsScope::class)
   fun providePostgresqlAddress(config: WasmoService.Config): PostgresqlAddress =
     config.osPostgresqlAddress
 
   @Binds
-  fun bindApplicationJobHandler(real: ApplicationJobHandler): OsJobHandler<ApplicationJob, Unit>
-
-  @Binds
-  fun bindOsJobQueue(real: AbsurdOsJobQueue): OsJobQueue
+  fun bindOsJobQueueFactory(real: AbsurdOsJobQueue.Factory): OsJobQueue.Factory
 
   @Binds
   fun bindCallFactory(real: OkHttpClient): Call.Factory

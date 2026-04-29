@@ -34,7 +34,7 @@ import kotlinx.serialization.KSerializer
 class AbsurdService(
   private val clock: Clock,
   private val postgresqlAddress: PostgresqlAddress,
-  private val registrations: List<JobRegistration<*, *>>,
+  private val registrations: Set<JobRegistration<*, *>>,
   private val eventListener: EventListener,
 ) {
   private val postgresqlClient = PostgresqlClient(
