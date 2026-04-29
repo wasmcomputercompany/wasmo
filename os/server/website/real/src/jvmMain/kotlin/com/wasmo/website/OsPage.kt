@@ -15,10 +15,10 @@ import com.wasmo.computers.ComputerService
 import com.wasmo.computers.ComputerStore
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.UnauthorizedUserException
-import com.wasmo.sql.transaction
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
+import wasmox.sql.transaction
 
 /**
  * We serve the same page to most routes, with different embedded page data.
