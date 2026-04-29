@@ -32,26 +32,28 @@ import kotlinx.serialization.KSerializer
 @Inject
 @SingleIn(OsScope::class)
 class AbsurdService(
-  clock: Clock,
-  postgresqlAddress: PostgresqlAddress,
-  registrations: List<JobRegistration<*, *>>,
-  eventListener: EventListener,
+  private val clock: Clock,
+  private val postgresqlAddress: PostgresqlAddress,
+  private val registrations: List<JobRegistration<*, *>>,
+  private val eventListener: EventListener,
 ) {
+  private val postgresqlClient = PostgresqlClient(
+    PgConnectOptions()
+      .setHost(postgresqlAddress.hostname)
+      .setDatabase(postgresqlAddress.databaseName)
+      .setUser(postgresqlAddress.user)
+      .setPassword(postgresqlAddress.password)
+      .setSslMode(
+        when {
+          postgresqlAddress.ssl -> SslMode.VERIFY_FULL
+          else -> SslMode.DISABLE
+        },
+      ),
+  )
+
   val absurd: Absurd = Absurd(
     clock = clock,
-    postgresql = PostgresqlClient(
-      PgConnectOptions()
-        .setHost(postgresqlAddress.hostname)
-        .setDatabase(postgresqlAddress.databaseName)
-        .setUser(postgresqlAddress.user)
-        .setPassword(postgresqlAddress.password)
-        .setSslMode(
-          when {
-            postgresqlAddress.ssl -> SslMode.VERIFY_FULL
-            else -> SslMode.DISABLE
-          },
-        ),
-    ),
+    postgresql = postgresqlClient,
     registrations = registrations.map {
       it.toAbsurd(eventListener)
     },
@@ -60,6 +62,13 @@ class AbsurdService(
   suspend fun createQueue() {
     absurd.createQueue()
   }
+
+  operator fun plus(registration: JobRegistration<*, *>) = AbsurdService(
+    clock = clock,
+    postgresqlAddress = postgresqlAddress,
+    registrations = registrations + registration,
+    eventListener = eventListener,
+  )
 }
 
 internal fun <P : Any, R : Any> JobRegistration<P, R>.toAbsurd(

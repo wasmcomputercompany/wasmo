@@ -6,6 +6,7 @@ import com.wasmo.events.EventListener
 import com.wasmo.identifiers.JobName
 import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.JobEnqueuedEvent
+import com.wasmo.jobs.JobRegistration
 import com.wasmo.jobs.OsJobQueue
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -55,4 +56,10 @@ class AbsurdOsJobQueue(
   ) {
     TODO()
   }
+
+  operator fun plus(registration: JobRegistration<*, *>) = AbsurdOsJobQueue(
+    scope = scope,
+    absurdService = absurdService + registration,
+    eventListener = eventListener,
+  )
 }

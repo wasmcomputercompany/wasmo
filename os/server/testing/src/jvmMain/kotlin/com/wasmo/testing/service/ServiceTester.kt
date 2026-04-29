@@ -4,7 +4,7 @@ import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.db.migrate
-import com.wasmo.jobs.absurd.AbsurdService
+import com.wasmo.jobs.absurd.AbsurdOsJobQueue
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.permits.RealPermitService
 import com.wasmo.sql.PostgresqlClient
@@ -74,8 +74,8 @@ class ServiceTester : CoroutineTestInterceptor {
     get() = graph.permitService
   val wasmoDb: SqlDatabase
     get() = graph.wasmoDb
-  val absurdService: AbsurdService
-    get() = graph.absurdService
+  val jobQueue: AbsurdOsJobQueue
+    get() = graph.jobQueue
 
   val origin: String
     get() = baseUrl.toString()

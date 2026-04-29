@@ -10,6 +10,9 @@ import kotlin.uuid.Uuid
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
+/**
+ * Wasmo's job interface is a thin wrapper around Absurd's API.
+ */
 interface OsJobHandler<P : Any, R : Any> {
   context(context: Context)
   suspend fun handle(job: P): R

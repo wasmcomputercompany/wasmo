@@ -93,6 +93,7 @@ interface ServiceTesterGraph {
   val provisioningDb: SqlDatabase
   val sampleApps: SampleApps
   val absurdService: AbsurdService
+  val jobQueue: AbsurdOsJobQueue
 
   @Provides
   @SingleIn(OsScope::class)
