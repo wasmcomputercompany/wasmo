@@ -1,4 +1,4 @@
-package com.wasmo.sqldelight
+package wasmox.sqldelight
 
 import app.cash.sqldelight.Query
 import app.cash.sqldelight.Transacter

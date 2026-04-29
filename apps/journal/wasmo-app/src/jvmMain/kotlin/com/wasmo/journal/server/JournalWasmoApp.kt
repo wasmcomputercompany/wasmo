@@ -7,10 +7,10 @@ import com.wasmo.journal.server.publishing.PublishTracker
 import com.wasmo.journal.server.publishing.SitePublisher
 import com.wasmo.journal.server.publishing.SiteRenderer
 import com.wasmo.journal.server.publishing.SiteStore
-import com.wasmo.sqldelight.driver
 import okio.Closeable
 import wasmo.app.Platform
 import wasmo.app.WasmoApp
+import wasmox.sqldelight.driver
 
 class JournalWasmoApp(
   private val journalDb: JournalDbService,

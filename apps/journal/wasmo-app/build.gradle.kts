@@ -34,7 +34,7 @@ kotlin {
         implementation(project(":support:tokens"))
         implementation(project(":platform:api"))
         implementation(project(":support:okio-html"))
-        implementation(project(":support:sqldelight-wasmo"))
+        implementation(project(":wasmox:wasmox-sqldelight"))
         resources.srcDir(journalDotWasmo)
       }
     }

@@ -15,7 +15,7 @@ kotlin {
         implementation(libs.okio)
         implementation(project(":apps:journal:api"))
         implementation(project(":platform:api"))
-        implementation(project(":support:sqldelight-wasmo"))
+        implementation(project(":wasmox:wasmox-sqldelight"))
       }
     }
   }

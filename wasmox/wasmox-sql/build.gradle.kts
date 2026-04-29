@@ -4,12 +4,12 @@ plugins {
 }
 
 wasmoBuild {
-  libraryJvm()
+  libraryJvmWasm()
 }
 
 kotlin {
   sourceSets {
-    val jvmMain by getting {
+    val commonMain by getting {
       dependencies {
         implementation(libs.okio)
         implementation(project(":platform:api"))

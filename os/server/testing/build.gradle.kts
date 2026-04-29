@@ -66,7 +66,7 @@ kotlin {
         implementation(project(":platform:testing"))
         implementation(project(":support:absurd"))
         implementation(project(":support:tokens"))
-        implementation(project(":support:wasmox-sql"))
+        implementation(project(":wasmox:wasmox-sql"))
       }
     }
   }

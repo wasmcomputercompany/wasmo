@@ -31,7 +31,7 @@ kotlin {
         implementation(project(":identifiers"))
         implementation(project(":platform:api"))
         implementation(project(":support:okio-html"))
-        implementation(project(":support:wasmox-sql"))
+        implementation(project(":wasmox:wasmox-sql"))
       }
     }
   }

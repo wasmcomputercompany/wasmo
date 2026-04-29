@@ -112,9 +112,10 @@ Project layout
 | ` '- dom-tester`        | A library for snapshot testing HTML elements                        |
 | ` '- issues`            | A library for modeling warnings and errors                          |
 | ` '- router`            | A library for typesafe navigation in web apps                       |
-| ` '- sqldelight-wasmo`  | A library for running [SQLDelight] in a Wasmo app                   |
 | ` '- tokens`            | A library for generating unguessable tokens for identifiers         |
+| `wasmox`                | WasmoX support libraries. These build upon the Wasmo platform.      |
+| ` '- wasmo-sql`         | Transactions and other abstractions for SQL.                        |
+| ` '- wasmo-sqldelight`  | A library for running [SQLDelight] in a Wasmo app                   |
 | `wasmo-build`           | Gradle stuff for building this project                              |
-
 
 [SQLDelight]: https://github.com/sqldelight/sqldelight
