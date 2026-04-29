@@ -4,6 +4,7 @@ package com.wasmo.support.absurd
 
 import io.vertx.pgclient.PgException
 import io.vertx.sqlclient.Row
+import io.vertx.sqlclient.SqlClient
 import io.vertx.sqlclient.Tuple.tuple
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -44,6 +45,7 @@ internal class RealAbsurd(
     headers: Headers?,
     cancellation: CancellationPolicy?,
     idempotencyKey: String?,
+    sqlClient: SqlClient?,
   ): SpawnResult {
     val registration = registry[taskName]
       ?: error("""Task "$taskName" is not registered.""")
@@ -56,7 +58,7 @@ internal class RealAbsurd(
       idempotency_key = idempotencyKey,
     )
 
-    postgresql.withConnection {
+    withConnection(sqlClient) {
       val rows = executeQuery(
         """
         SELECT task_id, run_id, attempt
@@ -83,6 +85,7 @@ internal class RealAbsurd(
     taskName: TaskName<P, R>,
     maxAttempts: Int?,
     spawnNew: Boolean,
+    sqlClient: SqlClient?,
   ): RetryTaskResult {
 
     val options = SpawnOptionsJson(
@@ -94,7 +97,7 @@ internal class RealAbsurd(
     )
 
     try {
-      postgresql.withConnection {
+      withConnection(sqlClient) {
         val rows = executeQuery(
           """
           SELECT task_id, run_id, attempt, created
@@ -124,8 +127,9 @@ internal class RealAbsurd(
   override suspend fun <P : Any, R : Any> fetchTaskResult(
     taskId: Uuid,
     taskName: TaskName<P, R>,
+    sqlClient: SqlClient?,
   ): TaskResult<P, R>? {
-    postgresql.withConnection {
+    withConnection(sqlClient) {
       val rows: List<TaskResult<P, R>> = executeQuery(
         """
         SELECT state, result, failure_reason
@@ -160,8 +164,11 @@ internal class RealAbsurd(
     }
   }
 
-  override suspend fun cancelTask(taskId: Uuid) {
-    postgresql.withConnection {
+  override suspend fun cancelTask(
+    taskId: Uuid,
+    sqlClient: SqlClient?,
+  ) {
+    withConnection(sqlClient) {
       execute(
         "SELECT absurd.cancel_task($1, $2)",
         tuple()
@@ -336,10 +343,11 @@ internal class RealAbsurd(
     eventName: String,
     serializer: KSerializer<T>,
     payload: T,
+    sqlClient: SqlClient?,
   ) {
     require(eventName.isNotEmpty()) { "eventName must be a non-empty string" }
 
-    postgresql.withConnection {
+    withConnection(sqlClient) {
       execute(
         "SELECT absurd.emit_event($1, $2, $3)",
         tuple()
@@ -347,6 +355,17 @@ internal class RealAbsurd(
           .addString(eventName)
           .addJson(KotlinJson.encodeToJsonElement(serializer, payload)),
       )
+    }
+  }
+
+  /** Uses [sqlClient] if its is non-null, otherwise this borrows a connection from the pool. */
+  suspend inline fun <T> withConnection(
+    sqlClient: SqlClient?,
+    block: suspend SqlClient.() -> T,
+  ): T {
+    return when {
+      sqlClient != null -> sqlClient.block()
+      else -> postgresql.withConnection(block)
     }
   }
 

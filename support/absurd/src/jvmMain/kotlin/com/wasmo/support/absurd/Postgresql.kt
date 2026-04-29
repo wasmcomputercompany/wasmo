@@ -94,6 +94,14 @@ internal suspend inline fun <R : Any> SqlClient.executeQuery(
   return result.map(rowMapper)
 }
 
+internal suspend fun SqlClient.begin() {
+  execute("BEGIN")
+}
+
+internal suspend fun SqlClient.rollback() {
+  execute("ROLLBACK")
+}
+
 @PublishedApi
 internal val KotlinJson = Json {
   ignoreUnknownKeys = true

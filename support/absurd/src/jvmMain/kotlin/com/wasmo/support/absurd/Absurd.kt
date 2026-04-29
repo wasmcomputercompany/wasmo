@@ -2,6 +2,7 @@
 
 package com.wasmo.support.absurd
 
+import io.vertx.sqlclient.SqlClient
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -26,6 +27,11 @@ fun Absurd(
   registrations = registrations,
 )
 
+/**
+ * Functions that accept a [SqlClient] will use that client if it is not null, and use a pooled
+ * connection to the database otherwise. Passing your own [SqlClient] may be used to perform
+ * in-transaction operations with Absurd.
+ */
 abstract class Absurd {
   abstract suspend fun createQueue()
 
@@ -37,6 +43,7 @@ abstract class Absurd {
     headers: Headers? = null,
     cancellation: CancellationPolicy? = null,
     idempotencyKey: String? = null,
+    sqlClient: SqlClient? = null,
   ): SpawnResult
 
   /**
@@ -48,20 +55,26 @@ abstract class Absurd {
     taskName: TaskName<P, R>,
     maxAttempts: Int? = null,
     spawnNew: Boolean = false,
+    sqlClient: SqlClient? = null,
   ): RetryTaskResult
 
   abstract suspend fun <P : Any, R : Any> fetchTaskResult(
     taskId: Uuid,
     taskName: TaskName<P, R>,
+    sqlClient: SqlClient? = null,
   ): TaskResult<P, R>?
 
   abstract suspend fun cancelTask(
     taskId: Uuid,
+    sqlClient: SqlClient? = null,
   )
 
   /**
    * Returns the number of tasks executed. If this is lower than [batchSize], then fewer tasks
    * were eligible to be claimed.
+   *
+   * This function does not accept a [SqlClient] as it is inappropriate to execute a batch in an
+   * existing transaction.
    */
   abstract suspend fun executeBatch(
     workerId: String,
@@ -73,12 +86,14 @@ abstract class Absurd {
     eventName: String,
     serializer: KSerializer<T>,
     payload: T,
+    sqlClient: SqlClient? = null,
   )
 
   suspend inline fun <reified T> emitEvent(
     eventName: String,
     payload: T,
-  ) = emitEvent(eventName, serializer<T>(), payload)
+    sqlClient: SqlClient? = null,
+  ) = emitEvent(eventName, serializer<T>(), payload, sqlClient)
 }
 
 interface TaskHandler<P : Any, R : Any> {
