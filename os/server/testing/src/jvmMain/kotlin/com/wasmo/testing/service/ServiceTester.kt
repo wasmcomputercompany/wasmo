@@ -122,7 +122,7 @@ class ServiceTester : CoroutineTestInterceptor {
       val wasmoDb = postgresqlClient.asSqlDatabase()
       val provisioningDb = ProvisioningDb(
         address = TestDatabaseAddress,
-        provisioningDb = postgresqlClientFactory.connect(TestDatabaseAddress).asSqlDatabase(),
+        provisioningDb = wasmoDb,
       )
 
       wasmoDb.withConnection {
@@ -134,7 +134,7 @@ class ServiceTester : CoroutineTestInterceptor {
         provisioningDb = provisioningDb,
         fileSystem = fileSystem,
         testDirectory = testDirectory,
-        testFunction = testFunction
+        testFunction = testFunction,
       )
     }
   }
