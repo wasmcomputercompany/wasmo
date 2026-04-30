@@ -1,6 +1,0 @@
-services:
-  gradle:
-    image: gradle:9.5.0-jdk21-alpine
-    volumes:
-      - ../:/home/gradle/project
-    working_dir: /home/gradle/project

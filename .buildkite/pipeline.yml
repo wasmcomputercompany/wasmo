@@ -2,6 +2,5 @@ steps:
   - label: ":gradle: Test"
     command: "gradle jsTest jvmTest wasmWasiTest test compileKotlinJvm compileKotlinJs compileKotlinWasmWasi --continue"
     plugins:
-      docker-compose#v3.8.0:
-        run: gradle
-        config: .buildkite/docker-compose.yml
+      - docker#v5.9.0:
+          image: "gradle:9.5.0-jdk21-alpine"
