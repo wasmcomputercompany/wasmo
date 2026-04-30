@@ -14,16 +14,14 @@ import wasmo.sql.SqlService
 @Inject
 @SingleIn(InstalledAppScope::class)
 class RealSqlService(
-  private val sqlDatabaseFactory: SqlDatabaseFactory,
+  private val sqlDatabaseProvisioner: SqlDatabaseProvisioner,
 ) : SqlService {
   private val closeTracker = CloseTracker()
 
   override suspend fun getOrCreate(name: String): SqlDatabase {
     val databaseSlug = DatabaseSlug(name)
     return closeTracker.track { closeListener ->
-      val databaseAddress = sqlDatabaseFactory.getOrCreate(
-        databaseSlug,
-      )
+      val databaseAddress = sqlDatabaseProvisioner.getOrProvision(databaseSlug)
       val client = PostgresqlClient.Factory()
         .connect(databaseAddress)
 

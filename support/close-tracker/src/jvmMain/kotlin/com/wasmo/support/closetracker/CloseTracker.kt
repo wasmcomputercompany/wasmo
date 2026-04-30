@@ -47,3 +47,12 @@ class CloseTracker {
     }
   }
 }
+
+suspend fun <T> trackAndClose(block: suspend (CloseTracker) -> T) : T {
+  val closeTracker = CloseTracker()
+  try {
+    return block(closeTracker)
+  } finally {
+    closeTracker.closeAll()
+  }
+}

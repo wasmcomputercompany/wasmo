@@ -40,9 +40,9 @@ import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
-import com.wasmo.sql.RealSqlDatabaseFactory
+import com.wasmo.sql.RealSqlDatabaseProvisioner
 import com.wasmo.sql.RealSqlService
-import com.wasmo.sql.SqlDatabaseFactory
+import com.wasmo.sql.SqlDatabaseProvisioner
 import com.wasmo.stripe.StripePaymentsService
 import com.wasmo.wasm.AppLoader
 import com.wasmo.wasm.JvmAppLoader
@@ -226,7 +226,7 @@ internal interface WasmoServiceGraph {
   fun bindAppLoader(real: JvmAppLoader): AppLoader
 
   @Binds
-  fun bindSqlDatabaseFactory(real: RealSqlDatabaseFactory): SqlDatabaseFactory
+  fun bindSqlDatabaseProvisioner(real: RealSqlDatabaseProvisioner): SqlDatabaseProvisioner
 
   @Binds
   fun bindSqlService(real: RealSqlService): SqlService
