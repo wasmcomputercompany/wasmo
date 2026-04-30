@@ -16,7 +16,6 @@ import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
-import com.wasmo.installedapps.RealSqlService
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.jobs.absurd.AbsurdOsJobQueue
 import com.wasmo.jobs.absurd.AbsurdService
@@ -29,6 +28,7 @@ import com.wasmo.sendemail.SendEmailService
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.RealSqlDatabaseFactory
+import com.wasmo.sql.RealSqlService
 import com.wasmo.sql.SqlDatabaseFactory
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePaymentsService

@@ -8,6 +8,8 @@ import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
 import com.wasmo.identifiers.CookieId
+import com.wasmo.identifiers.DatabaseSlug
+import com.wasmo.identifiers.InstalledAppDatabaseId
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.InviteId
@@ -31,6 +33,8 @@ fun SqlBinder.bindComputerSpecId(index: Int, value: ComputerSpecId?) = bindS64(i
 fun SqlBinder.bindCookieId(index: Int, value: CookieId?) = bindS64(index, value?.id)
 fun SqlBinder.bindInstalledAppId(index: Int, value: InstalledAppId?) = bindS64(index, value?.id)
 fun SqlBinder.bindInstalledAppReleaseId(index: Int, value: InstalledAppReleaseId?) = bindS64(index, value?.id)
+fun SqlBinder.bindInstalledAppDatabaseId(index: Int, value: InstalledAppDatabaseId?) = bindS64(index, value?.id)
+fun SqlBinder.bindDatabaseSlug(index: Int, value: DatabaseSlug?) = bindString(index, value?.value)
 fun SqlBinder.bindInviteId(index: Int, value: InviteId?) = bindS64(index, value?.id)
 fun SqlBinder.bindPasskeyId(index: Int, value: PasskeyId?) = bindS64(index, value?.id)
 fun SqlBinder.bindStripeCustomerId(index: Int, value: StripeCustomerId?) = bindS64(index, value?.id)
@@ -55,6 +59,9 @@ fun SqlRow.getInstalledAppId(index: Int) = InstalledAppId(getS64(index)!!)
 fun SqlRow.getInstalledAppIdOrNull(index: Int) = getS64(index)?.let { InstalledAppId(it) }
 fun SqlRow.getInstalledAppReleaseId(index: Int) = InstalledAppReleaseId(getS64(index)!!)
 fun SqlRow.getInstalledAppReleaseIdOrNull(index: Int) = getS64(index)?.let { InstalledAppReleaseId(it) }
+fun SqlRow.getDatabaseSlug(index: Int) = DatabaseSlug(getString(index)!!)
+fun SqlRow.getInstalledAppDatabaseId(index: Int) = InstalledAppDatabaseId(getS64(index)!!)
+fun SqlRow.getInstalledAppDatabaseIdOrNull(index: Int) = getS64(index)?.let { InstalledAppDatabaseId(it) }
 fun SqlRow.getInviteId(index: Int) = InviteId(getS64(index)!!)
 fun SqlRow.getLinkedEmailAddressId(index: Int) = LinkedEmailAddressId(getS64(index)!!)
 fun SqlRow.getPasskeyId(index: Int) = PasskeyId(getS64(index)!!)
