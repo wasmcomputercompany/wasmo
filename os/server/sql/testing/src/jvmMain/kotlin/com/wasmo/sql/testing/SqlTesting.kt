@@ -18,3 +18,29 @@ suspend fun SqlClient.clearSchema() {
   execute("GRANT ALL ON SCHEMA public TO postgres")
   execute("GRANT ALL ON SCHEMA public TO public")
 }
+
+suspend fun SqlClient.dropAppDatabases() {
+  val appDatabases = execute(
+    """
+      SELECT datname
+      FROM pg_database
+      WHERE datname like 'app_%'
+      """)
+  appDatabases.forEach {
+    val appDatabase = it.getString(0)
+    execute("DROP DATABASE IF EXISTS $appDatabase")
+  }
+}
+
+suspend fun SqlClient.dropAppRoles() {
+  val appRoles = execute(
+    """
+      SELECT rolname
+      FROM pg_roles
+      WHERE rolname like 'app_%'
+      """)
+  appRoles.forEach {
+    val appRole = it.getString(0)
+    execute("DROP ROLE IF EXISTS $appRole")
+  }
+}

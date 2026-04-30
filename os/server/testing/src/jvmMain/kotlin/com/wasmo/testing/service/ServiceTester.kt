@@ -12,6 +12,8 @@ import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.asSqlDatabase
 import com.wasmo.sql.testing.TestDatabaseAddress
 import com.wasmo.sql.testing.clearSchema
+import com.wasmo.sql.testing.dropAppDatabases
+import com.wasmo.sql.testing.dropAppRoles
 import com.wasmo.support.absurd.dangerouslyClearAbsurdSchema
 import com.wasmo.support.absurd.initAbsurdSchema
 import com.wasmo.support.tokens.newToken
@@ -111,6 +113,8 @@ class ServiceTester : CoroutineTestInterceptor {
     postgresqlClientFactory.connect(TestDatabaseAddress).use { postgresqlClient ->
       postgresqlClient.withConnection {
         clearSchema()
+        dropAppDatabases()
+        dropAppRoles()
         dangerouslyClearAbsurdSchema()
         initAbsurdSchema()
       }
