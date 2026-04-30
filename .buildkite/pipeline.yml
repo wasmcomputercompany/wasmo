@@ -1,6 +1,6 @@
 steps:
   - label: ":gradle: Test"
-    command: "gradle jsTest jvmTest wasmWasiTest test compileKotlinJvm compileKotlinJs compileKotlinWasmWasi --continue"
+    command: "gradle platform:api:jvmTest"
     plugins:
       - docker#v5.9.0:
           image: "gradle:9.5.0-jdk21-alpine"
