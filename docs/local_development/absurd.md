@@ -18,8 +18,10 @@ chmod +x absurdctl
 
 
 ```bash
-export PGDATABASE="postgresql://postgres:password@localhost:5432/absurd_test"
+export PGDATABASE="postgresql://postgres:password@localhost:5432/wasmo_development"
+absurdctl init
 absurdctl schema-version
+absurdctl create-queue default
 ```
 
 [Absurd Installation]: https://earendil-works.github.io/absurd/tools/absurdctl/

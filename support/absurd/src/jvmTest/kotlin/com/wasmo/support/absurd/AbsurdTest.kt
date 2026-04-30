@@ -360,13 +360,9 @@ class AbsurdTest {
       .isEqualTo(TaskResult.Sleeping())
 
     // Nothing to do immediately because the toast isn't ready.
-    // TODO: Absurd's SQL doesn't honor the fake clock when selecting tasks, so this batch contains
-    //   one more element than it needs to.
     tester.clock.sleep(29.seconds)
-    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(1) // Why not 0?
-    tester.assertLogs(
-      "toasting for 30 seconds",
-    )
+    assertThat(absurd.executeBatch("sandwich-artist-1")).isEqualTo(0)
+    tester.assertLogs()
     assertThat(absurd.fetchTaskResult(spawnResult.taskId, SandwichMaker.TaskName))
       .isEqualTo(TaskResult.Sleeping())
 

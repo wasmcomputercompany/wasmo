@@ -53,8 +53,11 @@ class RealSqlDatabaseFactory(
       databaseName = databaseName,
     )
 
+    val client = PostgresqlClient.Factory()
+      .connect(postgresqlAddress)
+
     return RealSqlDatabase(
-      client = PostgresqlClient(postgresqlAddress),
+      client = client,
       closeListener = closeListener,
     )
   }

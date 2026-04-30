@@ -15,24 +15,26 @@ class PostgresqlTester : CoroutineTestInterceptor {
     get() = run!!.sqlDatabase
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    val client = PostgresqlClient(TestDatabaseAddress)
-    client.withConnection {
-      clearSchema()
-    }
+    val postgresqlClientFactory = PostgresqlClient.Factory()
+    postgresqlClientFactory.connect(TestDatabaseAddress).use { client ->
+      client.withConnection {
+        clearSchema()
+      }
 
-    run = Run(
-      client = client,
-      sqlDatabase = client.asSqlDatabase(),
-    )
-    try {
-      testFunction.invoke()
-    } finally {
-      run = null
+      run = Run(
+        client = client,
+        sqlDatabase = client.asSqlDatabase(),
+      )
+      try {
+        testFunction.invoke()
+      } finally {
+        run = null
+      }
     }
   }
 
   private class Run(
     val client: PostgresqlClient,
-    val sqlDatabase: SqlDatabase
+    val sqlDatabase: SqlDatabase,
   )
 }

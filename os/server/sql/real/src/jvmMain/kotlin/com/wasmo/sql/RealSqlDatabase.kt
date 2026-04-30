@@ -49,6 +49,7 @@ internal class RealSqlDatabase(
   override fun close() {
     closeListener?.onClose()
     closeTracker.closeAll()
+    client.close()
   }
 }
 

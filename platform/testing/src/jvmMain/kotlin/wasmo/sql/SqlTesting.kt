@@ -27,7 +27,8 @@ class FakeSqlService(
       ssl = false,
     )
 
-    val client = PostgresqlClient(postgresqlAddress)
+    val client = PostgresqlClient.Factory()
+      .connect(postgresqlAddress)
     if (clearSchema) {
       client.withConnection {
         clearSchema()

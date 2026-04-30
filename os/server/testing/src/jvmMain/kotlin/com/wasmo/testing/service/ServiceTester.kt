@@ -24,7 +24,7 @@ import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.TestEventListener
 import dev.zacsweers.metro.createGraphFactory
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
@@ -107,27 +107,46 @@ class ServiceTester : CoroutineTestInterceptor {
     val testDirectory = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / testFunction.toString() / newToken()
     fileSystem.createDirectories(testDirectory)
 
-    val postgresqlClient = PostgresqlClient(TestDatabaseAddress)
-    postgresqlClient.withConnection {
-      clearSchema()
-      dangerouslyClearAbsurdSchema()
-      initAbsurdSchema()
+    val postgresqlClientFactory = PostgresqlClient.Factory()
+    postgresqlClientFactory.connect(TestDatabaseAddress).use { postgresqlClient ->
+      postgresqlClient.withConnection {
+        clearSchema()
+        dangerouslyClearAbsurdSchema()
+        initAbsurdSchema()
+      }
+
+      val wasmoDb = postgresqlClient.asSqlDatabase()
+      val provisioningDb = ProvisioningDb(
+        address = TestDatabaseAddress,
+        provisioningDb = postgresqlClientFactory.connect(TestDatabaseAddress).asSqlDatabase(),
+      )
+
+      wasmoDb.withConnection {
+        migrate()
+      }
+
+      intercept(
+        wasmoDb = wasmoDb,
+        provisioningDb = provisioningDb,
+        fileSystem = fileSystem,
+        testDirectory = testDirectory,
+        testFunction = testFunction
+      )
     }
+  }
 
-    val wasmoDb = postgresqlClient.asSqlDatabase()
-    val provisioningDb = ProvisioningDb(
-      address = TestDatabaseAddress,
-      provisioningDb = PostgresqlClient(TestDatabaseAddress).asSqlDatabase(),
-    )
-
-    wasmoDb.withConnection {
-      migrate()
-    }
-
+  private suspend fun intercept(
+    testFunction: CoroutineTestFunction,
+    fileSystem: FileSystem,
+    testDirectory: Path,
+    wasmoDb: SqlDatabase,
+    provisioningDb: ProvisioningDb,
+  ) {
     // Use a custom, non-test dispatcher because the PostgreSQL dispatcher client suspends
-    // waiting on I/O, and the test dispatchers don't like that.
+    // waiting on I/O, and the test dispatchers don't like that. Set a timeout of 5 minutes,
+    // otherwise we get timeouts when doing interactive development.
     withContext(Dispatchers.Default) {
-      withTimeout(5.seconds) {
+      withTimeout(5.minutes) {
         val serviceTesterGraphFactory = createGraphFactory<ServiceTesterGraph.Factory>()
         coroutineScope {
           graph = serviceTesterGraphFactory.create(

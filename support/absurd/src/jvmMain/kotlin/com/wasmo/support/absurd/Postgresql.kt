@@ -24,6 +24,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.serializer
+import okio.Closeable
 
 /*
  * This file attempts to make Postgresql a little bit friendlier to interact with from
@@ -31,15 +32,15 @@ import kotlinx.serialization.serializer
  */
 
 class PostgresqlClient(
-  private val connectOptions: PgConnectOptions,
-) {
+  connectOptions: PgConnectOptions,
+) : Closeable {
+  private val pool = PgBuilder
+    .pool()
+    .connectingTo(connectOptions)
+    .build()
+
   /** Returns a new connection that the caller must close when they're done with it. */
-  suspend fun connect(): SqlClient {
-    return PgBuilder
-      .client()
-      .connectingTo(connectOptions)
-      .build()
-  }
+  suspend fun connect(): SqlClient = pool.connection.asDeferred().await()
 
   suspend inline fun <T> withConnection(block: suspend SqlClient.() -> T): T {
     val connection = connect()
@@ -48,6 +49,10 @@ class PostgresqlClient(
     } finally {
       connection.close().asDeferred().await()
     }
+  }
+
+  override fun close() {
+    pool.close()
   }
 }
 

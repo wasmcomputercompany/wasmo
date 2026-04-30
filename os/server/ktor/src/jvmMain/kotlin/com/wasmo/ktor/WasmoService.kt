@@ -50,10 +50,12 @@ suspend fun startWasmoService(
 ): WasmoService {
   val server = EngineMain.createServer(args)
 
-  val osPostgresqlClient = PostgresqlClient(config.osPostgresqlAddress)
+  val postgresqlClientFactory = PostgresqlClient.Factory()
+  val osPostgresqlClient = postgresqlClientFactory.connect(config.osPostgresqlAddress)
   val provisioningDb = ProvisioningDb(
     address = config.provisioningPostgresqlAddress,
-    provisioningDb = PostgresqlClient(config.provisioningPostgresqlAddress).asSqlDatabase(),
+    provisioningDb = postgresqlClientFactory.connect(config.provisioningPostgresqlAddress)
+      .asSqlDatabase(),
   )
   val wasmoDb = osPostgresqlClient.asSqlDatabase()
 
