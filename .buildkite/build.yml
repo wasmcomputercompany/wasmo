@@ -1,5 +1,5 @@
 steps:
-  - label: ":gradle: Test"
+  - label: ":gradle: Build"
     command: "gradle platform:api:jvmTest"
     plugins:
       - docker#v5.9.0:

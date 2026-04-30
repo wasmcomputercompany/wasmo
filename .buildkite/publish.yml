@@ -1,0 +1,6 @@
+steps:
+  - label: ":gradle: Publish"
+    command: "gradle publishAndReleaseToMavenCentral"
+    plugins:
+      - docker#v5.9.0:
+          image: "gradle:9.5.0-jdk21-alpine"
