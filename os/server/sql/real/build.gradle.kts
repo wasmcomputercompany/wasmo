@@ -19,6 +19,7 @@ kotlin {
         implementation(libs.vertx.postgresql)
         implementation(project(":identifiers"))
         implementation(project(":os:server:identifiers"))
+        implementation(project(":os:server:db"))
         implementation(project(":os:server:sql:api"))
         implementation(project(":platform:api"))
         implementation(project(":support:close-tracker"))

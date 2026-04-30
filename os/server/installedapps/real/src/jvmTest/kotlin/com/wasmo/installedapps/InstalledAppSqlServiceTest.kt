@@ -16,7 +16,6 @@ class InstalledAppSqlServiceTest {
   val tester = ServiceTester()
 
   @Test
-  @Ignore("broken")
   fun readAndWriteSql() = runTest {
     val client = tester.newClient()
     val computer = client.createComputer()
@@ -34,7 +33,6 @@ class InstalledAppSqlServiceTest {
   }
 
   @Test
-  @Ignore("not implemented yet")
   fun independentAppsHaveIndependentStores() = runTest {
     val client = tester.newClient()
     val computer = client.createComputer()
@@ -57,7 +55,6 @@ class InstalledAppSqlServiceTest {
   }
 
   @Test
-  @Ignore("not implemented yet")
   fun independentComputersHaveIndependentSqlDatabases() = runTest {
     val client = tester.newClient()
 

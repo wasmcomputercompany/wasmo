@@ -1,15 +1,10 @@
-@file:OptIn(ExperimentalUuidApi::class)
+package com.wasmo.sql
 
-package com.wasmo.installedapps
-
-import com.wasmo.identifiers.AppSlug
-import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.DatabaseSlug
 import com.wasmo.identifiers.InstalledAppScope
-import com.wasmo.sql.SqlDatabaseFactory
 import com.wasmo.support.closetracker.CloseTracker
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import kotlin.uuid.ExperimentalUuidApi
 import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlService
 
@@ -19,19 +14,20 @@ import wasmo.sql.SqlService
 @Inject
 @SingleIn(InstalledAppScope::class)
 class RealSqlService(
-  private val computerSlug: ComputerSlug,
-  private val appSlug: AppSlug,
-  private val sqlDatabaseFactory: SqlDatabaseFactory,
+  private val sqlDatabaseProvisioner: SqlDatabaseProvisioner,
 ) : SqlService {
   private val closeTracker = CloseTracker()
 
   override suspend fun getOrCreate(name: String): SqlDatabase {
+    val databaseSlug = DatabaseSlug(name)
     return closeTracker.track { closeListener ->
-      sqlDatabaseFactory.create(
-        appSlug,
-        computerSlug,
-        name,
-        closeListener,
+      val databaseAddress = sqlDatabaseProvisioner.getOrProvision(databaseSlug)
+      val client = PostgresqlClient.Factory()
+        .connect(databaseAddress)
+
+      RealSqlDatabase(
+        client = client,
+        closeListener = closeListener,
       )
     }
   }

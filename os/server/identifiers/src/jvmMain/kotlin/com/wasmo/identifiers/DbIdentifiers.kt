@@ -32,6 +32,10 @@ value class InstalledAppId(val id: Long)
 
 @Serializable
 @JvmInline
+value class InstalledAppDatabaseId(val id: Long)
+
+@Serializable
+@JvmInline
 value class InstalledAppReleaseId(val id: Long)
 
 @Serializable
