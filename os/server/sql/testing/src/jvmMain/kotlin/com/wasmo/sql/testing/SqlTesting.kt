@@ -28,7 +28,9 @@ suspend fun SqlClient.dropAppDatabases() {
       """)
   appDatabases.forEach {
     val appDatabase = it.getString(0)
-    execute("DROP DATABASE IF EXISTS $appDatabase")
+    // TODO: Figure out why we need "WITH (FORCE)". We shouldn't if it is cleaning up correctly.
+    // Although maybe we leave it anyway.
+    execute("DROP DATABASE IF EXISTS $appDatabase WITH (FORCE)")
   }
 }
 
