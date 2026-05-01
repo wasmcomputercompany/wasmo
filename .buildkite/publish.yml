@@ -8,3 +8,7 @@ steps:
       ORG_GRADLE_PROJECT_mavenCentralUsername: SONATYPE_CENTRAL_USERNAME
       ORG_GRADLE_PROJECT_mavenCentralPassword: SONATYPE_CENTRAL_PASSWORD
       ORG_GRADLE_PROJECT_signingInMemoryKey: GPG_SECRET_KEY
+    environment:
+      - "ORG_GRADLE_PROJECT_mavenCentralUsername"
+      - "ORG_GRADLE_PROJECT_mavenCentralPassword"
+      - "ORG_GRADLE_PROJECT_signingInMemoryKey"
