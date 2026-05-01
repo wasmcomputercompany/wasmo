@@ -10,7 +10,9 @@ repositories {
 dependencies {
   add("compileOnly", kotlin("gradle-plugin"))
   add("compileOnly", kotlin("gradle-plugin-api"))
+  implementation(libs.dokka)
   implementation(libs.kotlin.gradle.plugin)
+  implementation(libs.maven.publish)
   implementation(libs.okio)
 
   // So the plugin can see org.gradle.accessors.dm.LibrariesForLibs

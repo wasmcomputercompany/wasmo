@@ -2,6 +2,7 @@
 assertk = "0.28.1"
 burst = "2.11.0"
 clikt = "5.0.1"
+dokka = "2.2.0"
 compose = "1.10.0"
 graalvm = "25.0.0"
 gson = "2.13.2"
@@ -14,6 +15,7 @@ kotlinx-io = "0.8.2"
 kotlinx-serialization = "1.9.0"
 ktor = "3.3.2"
 logback = "1.4.14"
+maven-publish = "0.36.0"
 metro = "0.11.2"
 okhttp = "5.3.0"
 okio = "3.16.4"
@@ -30,6 +32,8 @@ clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 commons-dbcp2 = { module = "org.apache.commons:commons-dbcp2", version = "2.13.0" }
 compose-html = { module = "org.jetbrains.compose.html:html-core", version.ref = "compose" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
+dokka = { module = "org.jetbrains.dokka:org.jetbrains.dokka.gradle.plugin", version.ref = "dokka" }
+maven-publish = { module = "com.vanniktech.maven.publish.base:com.vanniktech.maven.publish.base.gradle.plugin", version.ref = "maven-publish" }
 graalvm-polyglot = { module = "org.graalvm.polyglot:polyglot", version.ref = "graalvm" }
 graalvm-wasm = { module = "org.graalvm.polyglot:wasm", version.ref = "graalvm" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -78,12 +82,13 @@ webauthn4j-core = { module = "com.webauthn4j:webauthn4j-core", version.ref = "we
 burst = { id = "app.cash.burst", version.ref = "burst" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-noarg = { id = "org.jetbrains.kotlin.plugin.noarg", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version = "2.2.21-2.0.4" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
-maven-publish = { id = "com.vanniktech.maven.publish.base", version = "0.36.0" }
+maven-publish = { id = "com.vanniktech.maven.publish.base", version.ref = "maven-publish" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

@@ -1,12 +1,15 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotlin.serialization)
-  alias(libs.plugins.maven.publish)
   id("wasmo-build")
 }
 
 wasmoBuild {
-  libraryJvmWasm()
+  library(
+    jvm = true,
+    wasm = true,
+    publish = true,
+  )
 }
 
 kotlin {

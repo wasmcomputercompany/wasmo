@@ -2,6 +2,11 @@
 
 package com.wasmo.gradle
 
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinMultiplatform
+import com.vanniktech.maven.publish.MavenPublishBaseExtension
+import com.vanniktech.maven.publish.MavenPublishBasePlugin
+import com.vanniktech.maven.publish.SourcesJar
 import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
@@ -11,9 +16,9 @@ import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.named
-import org.gradle.kotlin.dsl.project
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -42,20 +47,27 @@ internal class RealWasmoBuildExtension(
   private val project: Project,
   private val libs: LibrariesForLibs,
 ) : WasmoBuildExtension {
-  override fun libraryJs() {
-    multiplatformConvention(js = true)
-  }
+  override fun library(
+    jvm: Boolean,
+    js: Boolean,
+    wasm: Boolean,
+    publish: Boolean,
+  ) {
+    multiplatformConvention(jvm, js, wasm)
 
-  override fun libraryJvmJs() {
-    multiplatformConvention(jvm = true, js = true)
-  }
+    if (publish) {
+      project.plugins.apply(libs.plugins.maven.publish.get().pluginId)
+      project.plugins.apply(libs.plugins.dokka.get().pluginId)
 
-  override fun libraryJvmWasm() {
-    multiplatformConvention(jvm = true, wasm = true)
-  }
-
-  override fun libraryJvm() {
-    multiplatformConvention(jvm = true)
+      project.plugins.withType<MavenPublishBasePlugin> {
+        project.extensions.configure<MavenPublishBaseExtension> {
+          configure(KotlinMultiplatform(
+            JavadocJar.Dokka("dokkaGenerateHtml"),
+            SourcesJar.Sources(),
+          ))
+        }
+      }
+    }
   }
 
   private fun multiplatformConvention(
