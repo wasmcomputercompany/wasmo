@@ -4,3 +4,7 @@ steps:
     plugins:
       - docker#v5.9.0:
           image: "gradle:9.5.0-jdk21-alpine"
+    secrets:
+      ORG_GRADLE_PROJECT_mavenCentralUsername: SONATYPE_CENTRAL_USERNAME
+      ORG_GRADLE_PROJECT_mavenCentralPassword: SONATYPE_CENTRAL_PASSWORD
+      ORG_GRADLE_PROJECT_signingInMemoryKey: GPG_SECRET_KEY
