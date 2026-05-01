@@ -28,25 +28,25 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core.js)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
-        implementation(project(":identifiers"))
-        implementation(project(":os:api"))
-        implementation(project(":os:client:compose"))
-        implementation(project(":os:client:framework"))
-        implementation(project(":os:client:identifiers"))
-        implementation(project(":os:client:passkeys:api"))
-        implementation(project(":os:client:passkeys:real"))
-        implementation(project(":os:client:smartphoneframe"))
-        implementation(project(":os:framework"))
-        implementation(project(":os:logging"))
-        implementation(project(":os:routes"))
-        implementation(project(":support:tokens"))
+        implementation(projects.identifiers)
+        implementation(projects.os.api)
+        implementation(projects.os.client.compose)
+        implementation(projects.os.client.framework)
+        implementation(projects.os.client.identifiers)
+        implementation(projects.os.client.passkeys.api)
+        implementation(projects.os.client.passkeys.real)
+        implementation(projects.os.client.smartphoneframe)
+        implementation(projects.os.framework)
+        implementation(projects.os.logging)
+        implementation(projects.os.routes)
+        implementation(projects.support.tokens)
       }
     }
     val jsTest by getting {
       dependencies {
         implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":support:dom-tester"))
+        implementation(projects.support.domTester)
       }
     }
   }

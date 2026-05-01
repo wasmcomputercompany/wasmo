@@ -27,16 +27,16 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core.js)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
-        implementation(project(":apps:journal:api"))
-        implementation(project(":support:router"))
-        implementation(project(":support:tokens"))
+        implementation(projects.apps.journal.api)
+        implementation(projects.support.router)
+        implementation(projects.support.tokens)
       }
     }
     val jsTest by getting {
       dependencies {
         implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":support:dom-tester"))
+        implementation(projects.support.domTester)
       }
     }
   }

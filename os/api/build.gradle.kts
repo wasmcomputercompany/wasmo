@@ -17,10 +17,10 @@ kotlin {
         implementation(libs.kotlinx.serialization.core)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
-        implementation(project(":os:json"))
-        implementation(project(":identifiers"))
-        implementation(project(":platform:packaging"))
-        implementation(project(":support:tokens"))
+        implementation(projects.os.json)
+        implementation(projects.identifiers)
+        implementation(projects.platform.packaging)
+        implementation(projects.support.tokens)
       }
     }
     jvmMain {

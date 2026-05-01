@@ -14,7 +14,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
         implementation(libs.sqldelight.runtime)
-        implementation(project(":platform:api"))
+        implementation(projects.platform.api)
       }
     }
   }

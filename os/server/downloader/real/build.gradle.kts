@@ -12,7 +12,7 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(libs.okio)
-        implementation(project(":platform:api"))
+        implementation(projects.platform.api)
       }
     }
   }

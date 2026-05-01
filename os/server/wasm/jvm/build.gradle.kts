@@ -15,16 +15,16 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okhttp)
         implementation(libs.okio)
-        implementation(project(":identifiers"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:wasm:api"))
-        implementation(project(":platform:api"))
-        implementation(project(":platform:packaging"))
+        implementation(projects.identifiers)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.wasm.api)
+        implementation(projects.platform.api)
+        implementation(projects.platform.packaging)
       }
     }
     val jvmTest by getting {
       dependencies {
-        implementation(project(":os:server:testing"))
+        implementation(projects.os.server.testing)
       }
     }
   }

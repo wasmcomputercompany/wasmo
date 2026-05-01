@@ -13,12 +13,12 @@ kotlin {
     commonMain {
       dependencies {
         implementation(libs.okio)
-        implementation(project(":identifiers"))
-        implementation(project(":os:logging"))
-        implementation(project(":os:server:events:api"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:installedapps:api"))
-        implementation(project(":support:issues"))
+        implementation(projects.identifiers)
+        implementation(projects.os.logging)
+        implementation(projects.os.server.events.api)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.installedapps.api)
+        implementation(projects.support.issues)
       }
     }
   }

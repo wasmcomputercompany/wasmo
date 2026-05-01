@@ -12,7 +12,7 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        implementation(project(":os:client:app"))
+        implementation(projects.os.client.app)
       }
     }
   }

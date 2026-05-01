@@ -18,10 +18,10 @@ kotlin {
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.okio)
         implementation(libs.vertx.postgresql)
-        implementation(project(":os:server:sql:api"))
-        implementation(project(":os:server:sql:real"))
-        implementation(project(":platform:api"))
-        implementation(project(":support:close-tracker"))
+        implementation(projects.os.server.sql.api)
+        implementation(projects.os.server.sql.real)
+        implementation(projects.platform.api)
+        implementation(projects.support.closeTracker)
       }
     }
   }

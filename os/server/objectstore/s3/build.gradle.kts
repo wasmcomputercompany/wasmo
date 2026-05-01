@@ -29,15 +29,15 @@ kotlin {
         implementation(libs.retrofit)
         implementation(libs.retrofit.converter.kotlinx.serialization)
         implementation(libs.retrofit.converter.jaxb3)
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:objectstore:api"))
-        implementation(project(":platform:api"))
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.objectstore.api)
+        implementation(projects.platform.api)
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":platform:testing"))
+        implementation(projects.platform.testing)
       }
     }
   }

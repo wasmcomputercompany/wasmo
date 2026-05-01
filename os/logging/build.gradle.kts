@@ -12,7 +12,7 @@ kotlin {
     commonMain {
       dependencies {
         implementation(libs.okio)
-        implementation(project(":support:issues"))
+        implementation(projects.support.issues)
       }
     }
   }

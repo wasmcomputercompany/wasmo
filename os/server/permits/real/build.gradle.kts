@@ -15,20 +15,20 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
-        implementation(project(":os:server:db"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:permits:api"))
-        implementation(project(":os:server:sql:api"))
-        implementation(project(":platform:api"))
-        implementation(project(":wasmox:wasmox-sql"))
+        implementation(projects.os.server.db)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.permits.api)
+        implementation(projects.os.server.sql.api)
+        implementation(projects.platform.api)
+        implementation(projects.wasmox.wasmoxSql)
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.burst.coroutines)
-        implementation(project(":platform:testing"))
-        implementation(project(":os:server:testing"))
+        implementation(projects.platform.testing)
+        implementation(projects.os.server.testing)
       }
     }
   }

@@ -14,8 +14,8 @@ kotlin {
     commonMain {
       dependencies {
         implementation(libs.kotlinx.serialization.json)
-        implementation(project(":os:api"))
-        implementation(project(":identifiers"))
+        implementation(projects.os.api)
+        implementation(projects.identifiers)
       }
     }
   }

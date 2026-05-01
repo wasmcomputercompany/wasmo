@@ -21,8 +21,8 @@ kotlin {
     jvmMain {
       dependencies {
         implementation(libs.okhttp)
-        implementation(project(":platform:api"))
-        implementation(project(":support:okio-html"))
+        implementation(projects.platform.api)
+        implementation(projects.support.okioHtml)
       }
     }
   }

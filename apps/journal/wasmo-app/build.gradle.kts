@@ -29,12 +29,12 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.sqldelight.async.extensions)
         implementation(libs.vertx.postgresql)
-        implementation(project(":apps:journal:api"))
-        implementation(project(":apps:journal:db"))
-        implementation(project(":support:tokens"))
-        implementation(project(":platform:api"))
-        implementation(project(":support:okio-html"))
-        implementation(project(":wasmox:wasmox-sqldelight"))
+        implementation(projects.apps.journal.api)
+        implementation(projects.apps.journal.db)
+        implementation(projects.support.tokens)
+        implementation(projects.platform.api)
+        implementation(projects.support.okioHtml)
+        implementation(projects.wasmox.wasmoxSqldelight)
         resources.srcDir(journalDotWasmo)
       }
     }
@@ -44,14 +44,14 @@ kotlin {
         implementation(libs.commons.dbcp2)
         implementation(libs.kotlinx.coroutines.reactive)
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":platform:testing"))
-        implementation(project(":os:server:sql:api"))
-        implementation(project(":os:server:sql:real"))
+        implementation(projects.platform.testing)
+        implementation(projects.os.server.sql.api)
+        implementation(projects.os.server.sql.real)
       }
     }
   }
 }
 
 dependencies {
-  add("jsResources", project(":apps:journal:admin-web-app"))
+  add("jsResources", projects.apps.journal.adminWebApp)
 }

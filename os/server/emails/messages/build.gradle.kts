@@ -19,18 +19,18 @@ kotlin {
       dependencies {
         implementation(libs.okio)
         implementation(libs.kotlinx.html)
-        implementation(project(":os:framework"))
-        implementation(project(":os:server:emails:attachments"))
-        implementation(project(":os:server:sendemail:api"))
-        implementation(project(":support:okio-html"))
-        implementation(project(":support:tokens"))
+        implementation(projects.os.framework)
+        implementation(projects.os.server.emails.attachments)
+        implementation(projects.os.server.sendemail.api)
+        implementation(projects.support.okioHtml)
+        implementation(projects.support.tokens)
       }
     }
     jsTest {
       dependencies {
         implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":support:dom-tester"))
+        implementation(projects.support.domTester)
       }
     }
   }

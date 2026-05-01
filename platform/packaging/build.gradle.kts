@@ -15,8 +15,8 @@ kotlin {
         implementation(libs.kotlinx.serialization.core)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
-        implementation(project(":identifiers"))
-        implementation(project(":support:issues"))
+        implementation(projects.identifiers)
+        implementation(projects.support.issues)
       }
     }
     val jvmMain by getting {

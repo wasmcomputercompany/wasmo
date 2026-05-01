@@ -12,7 +12,7 @@ kotlin {
     commonMain {
       dependencies {
         implementation(libs.okio)
-        implementation(project(":os:server:sendemail:api"))
+        implementation(projects.os.server.sendemail.api)
       }
     }
   }

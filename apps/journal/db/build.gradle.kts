@@ -13,9 +13,9 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(libs.okio)
-        implementation(project(":apps:journal:api"))
-        implementation(project(":platform:api"))
-        implementation(project(":wasmox:wasmox-sqldelight"))
+        implementation(projects.apps.journal.api)
+        implementation(projects.platform.api)
+        implementation(projects.wasmox.wasmoxSqldelight)
       }
     }
   }

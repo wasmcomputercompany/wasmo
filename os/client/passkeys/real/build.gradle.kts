@@ -14,9 +14,9 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-        implementation(project(":os:api"))
-        implementation(project(":os:client:identifiers"))
-        implementation(project(":os:client:passkeys:api"))
+        implementation(projects.os.api)
+        implementation(projects.os.client.identifiers)
+        implementation(projects.os.client.passkeys.api)
         implementation(libs.okio)
         implementation(libs.kotlinx.serialization.json)
       }

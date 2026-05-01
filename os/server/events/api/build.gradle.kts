@@ -11,9 +11,9 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        implementation(project(":identifiers"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":support:issues"))
+        implementation(projects.identifiers)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.support.issues)
       }
     }
   }

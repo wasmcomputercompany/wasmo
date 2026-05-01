@@ -111,3 +111,5 @@ include(":support:router")
 include(":support:tokens")
 include(":wasmox:wasmox-sqldelight")
 include(":wasmox:wasmox-sql")
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

@@ -13,22 +13,22 @@ application {
 }
 
 dependencies {
-  add("jsResources", project(":os:client:app-staging"))
+  add("jsResources", projects.os.client.appStaging)
   implementation(libs.okhttp)
   implementation(libs.okio)
-  implementation(project(":os:api"))
-  implementation(project(":os:catalog"))
-  implementation(project(":os:server:accounts:real"))
-  implementation(project(":os:server:computers:api"))
-  implementation(project(":os:server:computers:real"))
-  implementation(project(":os:server:deployment"))
-  implementation(project(":os:server:ktor"))
-  implementation(project(":os:server:objectstore:api"))
-  implementation(project(":os:server:payments:stripe"))
-  implementation(project(":os:server:sendemail:postmark"))
-  implementation(project(":os:server:sql:api"))
-  implementation(project(":os:server:website:real"))
-  implementation(project(":platform:api"))
+  implementation(projects.os.api)
+  implementation(projects.os.catalog)
+  implementation(projects.os.server.accounts.real)
+  implementation(projects.os.server.computers.api)
+  implementation(projects.os.server.computers.real)
+  implementation(projects.os.server.deployment)
+  implementation(projects.os.server.ktor)
+  implementation(projects.os.server.objectstore.api)
+  implementation(projects.os.server.payments.stripe)
+  implementation(projects.os.server.sendemail.postmark)
+  implementation(projects.os.server.sql.api)
+  implementation(projects.os.server.website.real)
+  implementation(projects.platform.api)
 }
 
 ktor {

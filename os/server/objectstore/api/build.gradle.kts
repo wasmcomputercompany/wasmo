@@ -14,17 +14,17 @@ kotlin {
       dependencies {
         implementation(libs.okhttp)
         implementation(libs.okio)
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":platform:api"))
+        implementation(projects.os.server.identifiers)
+        implementation(projects.platform.api)
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.okio.fakefilesystem)
-        implementation(project(":os:server:objectstore:fs"))
-        implementation(project(":platform:testing"))
-        implementation(project(":support:tokens"))
+        implementation(projects.os.server.objectstore.fs)
+        implementation(projects.platform.testing)
+        implementation(projects.support.tokens)
       }
     }
   }

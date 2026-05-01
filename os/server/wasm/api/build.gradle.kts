@@ -16,14 +16,14 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okhttp)
         implementation(libs.okio)
-        implementation(project(":os:api"))
-        implementation(project(":os:framework"))
-        implementation(project(":os:server:accounts:api"))
-        implementation(project(":os:server:db"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":identifiers"))
-        implementation(project(":platform:api"))
-        implementation(project(":platform:packaging"))
+        implementation(projects.os.api)
+        implementation(projects.os.framework)
+        implementation(projects.os.server.accounts.api)
+        implementation(projects.os.server.db)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.identifiers)
+        implementation(projects.platform.api)
+        implementation(projects.platform.packaging)
       }
     }
   }

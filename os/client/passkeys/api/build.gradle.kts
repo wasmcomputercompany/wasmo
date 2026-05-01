@@ -11,7 +11,7 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-        implementation(project(":os:api"))
+        implementation(projects.os.api)
         implementation(libs.okio)
       }
     }

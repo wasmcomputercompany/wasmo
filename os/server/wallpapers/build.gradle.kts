@@ -25,8 +25,8 @@ kotlin {
         implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.kotlinx.html)
-        implementation(project(":support:dom-tester"))
-        implementation(project(":support:okio-html"))
+        implementation(projects.support.domTester)
+        implementation(projects.support.okioHtml)
       }
     }
   }

@@ -18,19 +18,19 @@ kotlin {
         implementation(libs.okhttp)
         implementation(libs.okio)
         implementation(libs.webauthn4j.core)
-        implementation(project(":os:api"))
-        implementation(project(":os:framework"))
-        implementation(project(":os:server:accounts:api"))
-        implementation(project(":os:server:deployment"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:passkeys:api"))
+        implementation(projects.os.api)
+        implementation(projects.os.framework)
+        implementation(projects.os.server.accounts.api)
+        implementation(projects.os.server.deployment)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.passkeys.api)
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":platform:testing"))
-        implementation(project(":os:server:testing"))
+        implementation(projects.platform.testing)
+        implementation(projects.os.server.testing)
       }
     }
   }

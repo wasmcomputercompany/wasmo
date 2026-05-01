@@ -21,22 +21,22 @@ kotlin {
         implementation(libs.postgresql)
         implementation(libs.vertx.postgresql)
         implementation(libs.vertx.sql.client)
-        implementation(project(":os:server:events:api"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:jobs:api"))
-        implementation(project(":os:server:sql:api"))
-        implementation(project(":platform:api"))
-        implementation(project(":support:absurd"))
-        implementation(project(":support:tokens"))
-        implementation(project(":wasmox:wasmox-sql"))
+        implementation(projects.os.server.events.api)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.jobs.api)
+        implementation(projects.os.server.sql.api)
+        implementation(projects.platform.api)
+        implementation(projects.support.absurd)
+        implementation(projects.support.tokens)
+        implementation(projects.wasmox.wasmoxSql)
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":platform:testing"))
-        implementation(project(":os:server:testing"))
+        implementation(projects.platform.testing)
+        implementation(projects.os.server.testing)
       }
     }
   }

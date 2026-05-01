@@ -14,9 +14,9 @@ kotlin {
       dependencies {
         implementation(libs.okio)
         implementation(libs.vertx.postgresql)
-        implementation(project(":identifiers"))
-        implementation(project(":platform:api"))
-        implementation(project(":support:close-tracker"))
+        implementation(projects.identifiers)
+        implementation(projects.platform.api)
+        implementation(projects.support.closeTracker)
       }
     }
   }

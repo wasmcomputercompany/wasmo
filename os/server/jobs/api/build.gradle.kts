@@ -17,10 +17,10 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.serialization.core)
         implementation(libs.kotlinx.serialization.json)
-        implementation(project(":os:api"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":platform:api"))
-        implementation(project(":wasmox:wasmox-sql"))
+        implementation(projects.os.api)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.platform.api)
+        implementation(projects.wasmox.wasmoxSql)
       }
     }
   }

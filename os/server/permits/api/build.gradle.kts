@@ -11,8 +11,8 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":platform:api"))
+        implementation(projects.os.server.identifiers)
+        implementation(projects.platform.api)
       }
     }
   }

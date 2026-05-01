@@ -22,14 +22,14 @@ kotlin {
         compileOnly(libs.jetbrains.annotations)
         implementation(libs.compose.html)
         implementation(libs.compose.runtime)
-        implementation(project(":os:client:compose"))
+        implementation(projects.os.client.compose)
       }
     }
     val jsTest by getting {
       dependencies {
         implementation(libs.burst.coroutines)
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":support:dom-tester"))
+        implementation(projects.support.domTester)
       }
     }
   }

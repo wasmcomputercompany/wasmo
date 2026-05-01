@@ -17,6 +17,6 @@ dependencies {
   implementation(libs.clikt)
   implementation(libs.clikt.core)
   implementation(libs.okio)
-  implementation(project(":platform:packaging"))
-  implementation(project(":support:issues"))
+  implementation(projects.platform.packaging)
+  implementation(projects.support.issues)
 }

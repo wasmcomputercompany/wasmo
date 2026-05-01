@@ -21,12 +21,12 @@ kotlin {
         implementation(libs.okhttp)
         implementation(libs.vertx.postgresql)
         implementation(libs.vertx.sql.client)
-        implementation(project(":os:server:downloader:real"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:objectstore:fs"))
-        implementation(project(":os:server:sql:api"))
-        implementation(project(":os:server:sql:real"))
-        implementation(project(":platform:api"))
+        implementation(projects.os.server.downloader.real)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.objectstore.fs)
+        implementation(projects.os.server.sql.api)
+        implementation(projects.os.server.sql.real)
+        implementation(projects.platform.api)
       }
     }
   }

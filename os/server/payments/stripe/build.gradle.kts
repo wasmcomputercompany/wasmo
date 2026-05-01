@@ -20,22 +20,22 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.postgresql)
         implementation(libs.stripe)
-        implementation(project(":os:api"))
-        implementation(project(":os:catalog"))
-        implementation(project(":os:framework"))
-        implementation(project(":os:logging"))
-        implementation(project(":os:server:accounts:api"))
-        implementation(project(":os:server:db"))
-        implementation(project(":os:server:deployment"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:payments:api"))
+        implementation(projects.os.api)
+        implementation(projects.os.catalog)
+        implementation(projects.os.framework)
+        implementation(projects.os.logging)
+        implementation(projects.os.server.accounts.api)
+        implementation(projects.os.server.db)
+        implementation(projects.os.server.deployment)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.payments.api)
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":os:server:testing"))
-        implementation(project(":platform:testing"))
+        implementation(projects.os.server.testing)
+        implementation(projects.platform.testing)
       }
     }
   }

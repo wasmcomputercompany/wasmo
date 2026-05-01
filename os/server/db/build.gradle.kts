@@ -18,21 +18,21 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.postgresql)
         implementation(libs.tomlkt)
-        implementation(project(":identifiers"))
-        implementation(project(":os:api"))
-        implementation(project(":os:framework"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:passkeys:api"))
-        implementation(project(":os:server:sql:api"))
-        implementation(project(":platform:api"))
-        implementation(project(":platform:packaging"))
-        implementation(project(":support:tokens"))
-        implementation(project(":wasmox:wasmox-sql"))
+        implementation(projects.identifiers)
+        implementation(projects.os.api)
+        implementation(projects.os.framework)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.passkeys.api)
+        implementation(projects.os.server.sql.api)
+        implementation(projects.platform.api)
+        implementation(projects.platform.packaging)
+        implementation(projects.support.tokens)
+        implementation(projects.wasmox.wasmoxSql)
       }
     }
     val jvmTest by getting {
       dependencies {
-        implementation(project(":os:server:testing"))
+        implementation(projects.os.server.testing)
       }
     }
   }

@@ -17,21 +17,21 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
         implementation(libs.vertx.postgresql)
-        implementation(project(":identifiers"))
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:db"))
-        implementation(project(":os:server:sql:api"))
-        implementation(project(":platform:api"))
-        implementation(project(":support:close-tracker"))
-        implementation(project(":wasmox:wasmox-sql"))
+        implementation(projects.identifiers)
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.db)
+        implementation(projects.os.server.sql.api)
+        implementation(projects.platform.api)
+        implementation(projects.support.closeTracker)
+        implementation(projects.wasmox.wasmoxSql)
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.burst.coroutines)
-        implementation(project(":os:server:sql:testing"))
-        implementation(project(":os:server:testing"))
+        implementation(projects.os.server.sql.testing)
+        implementation(projects.os.server.testing)
       }
     }
   }

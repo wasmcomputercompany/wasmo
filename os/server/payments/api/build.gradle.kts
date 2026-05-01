@@ -13,9 +13,9 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
-        implementation(project(":os:api"))
-        implementation(project(":identifiers"))
-        implementation(project(":platform:api"))
+        implementation(projects.os.api)
+        implementation(projects.identifiers)
+        implementation(projects.platform.api)
       }
     }
   }

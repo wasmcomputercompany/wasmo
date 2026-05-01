@@ -18,15 +18,15 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.retrofit)
         implementation(libs.retrofit.converter.kotlinx.serialization)
-        implementation(project(":os:server:identifiers"))
-        implementation(project(":os:server:sendemail:api"))
+        implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.sendemail.api)
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.test)
-        implementation(project(":os:server:emails:attachments"))
-        implementation(project(":platform:testing"))
+        implementation(projects.os.server.emails.attachments)
+        implementation(projects.platform.testing)
       }
     }
   }
