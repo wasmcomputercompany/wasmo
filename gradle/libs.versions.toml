@@ -23,12 +23,14 @@ retrofit = "3.0.0"
 sqldelight = "2.2.1"
 stripe = "31.3.0"
 tomlkt = "0.6.0"
+vertx = "5.0.10"
 webauthn4j = "0.30.2.RELEASE"
 
 [libraries]
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
 burst-coroutines = { module = "app.cash.burst:burst-coroutines", version.ref = "burst" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
+clikt-core = { module = "com.github.ajalt.clikt:clikt-core", version.ref = "clikt" }
 commons-dbcp2 = { module = "org.apache.commons:commons-dbcp2", version = "2.13.0" }
 compose-html = { module = "org.jetbrains.compose.html:html-core", version.ref = "compose" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
@@ -52,6 +54,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "kotlinx-html" }
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
 kotlinx-io-okio = { module = "org.jetbrains.kotlinx:kotlinx-io-okio", version.ref = "kotlinx-io" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
 ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor" }
@@ -75,7 +78,9 @@ sqldelight-async-extensions = { module = "app.cash.sqldelight:async-extensions",
 sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
 stripe = { module = "com.stripe:stripe-java", version.ref = "stripe" }
 tomlkt = { module = "dev.eav.tomlkt:tomlkt", version.ref = "tomlkt" }
-vertx-postgresql = { module = "io.vertx:vertx-pg-client", version = "5.0.10" }
+vertx-core = { module = "io.vertx:vertx-core", version.ref = "vertx" }
+vertx-sql-client = { module = "io.vertx:vertx-sql-client", version.ref = "vertx" }
+vertx-postgresql = { module = "io.vertx:vertx-pg-client", version.ref = "vertx" }
 webauthn4j-core = { module = "com.webauthn4j:webauthn4j-core", version.ref = "webauthn4j" }
 
 [plugins]

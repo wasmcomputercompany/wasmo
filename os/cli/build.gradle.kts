@@ -15,9 +15,8 @@ application {
 
 dependencies {
   implementation(libs.clikt)
+  implementation(libs.clikt.core)
   implementation(libs.okio)
-  implementation(libs.tomlkt)
   implementation(project(":platform:packaging"))
   implementation(project(":support:issues"))
-  testImplementation(libs.okio.fakefilesystem)
 }

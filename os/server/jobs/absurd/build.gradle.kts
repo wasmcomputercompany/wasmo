@@ -15,10 +15,12 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.serialization.core)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
         implementation(libs.postgresql)
         implementation(libs.vertx.postgresql)
+        implementation(libs.vertx.sql.client)
         implementation(project(":os:server:events:api"))
         implementation(project(":os:server:identifiers"))
         implementation(project(":os:server:jobs:api"))
