@@ -60,8 +60,8 @@ Wasmo is under active development. We hope to have a public preview in July 2026
 
 Work-in-progress:
 
-* [wasmo.dev (staging)](https://wasmo.dev/): our unstable experimentation environment.
-* [wasmo.com (production)](https://wasmo.com/): an incomplete preview of the production service.
+* [wasmo.dev](https://wasmo.dev/): an incomplete sandbox environment for developers.
+* [wasmo.com](https://wasmo.com/): an incomplete hosted service for end-users.
 
 ### ⚠️ Warning! ⚠️
 
@@ -93,29 +93,31 @@ Project layout
 | Directory               | What it's for                                                       |
 |:------------------------|:--------------------------------------------------------------------|
 | `apps`                  | Wasm-packaged applications that use the framework.                  |
-| ` '- journal`           | A sample app                                                        |
+| ` '- journal`           | A sample app.                                                       |
 | `docs`                  |                                                                     |
-| ` '- code`              | Design docs for Wasmo OS                                            |
-| ` '- local_development` | Run Wasmo OS locally                                                |
-| ` '- platform`          | Build Wasmo apps                                                    |
-| ` '- runbooks`          | Operate the hosted Wasmo service                                    |
-| `os`                    | Wasmo OS, a cloud service that hosts computers and apps             |
-| ` '- api`               | HTTP APIs and data models shared by client and server               |
-| ` '- catalog`           | The catalog of Wasmo products that may be purchased                 |
-| ` '- client`            | The frontend JavaScript application of the OS                       |
-| ` '- framework`         | Wasmo OS's own web framework, built on Kotlin and Ktor              |
-| ` '- logging`           | A small-enough logging API for client and server                    |
-| ` '- routes`            | Encode and decode Wasmo OS's URLs as values                         |
-| ` '- server`            | The backend Kotlin server of Wasmo OS                               |
+| ` '- code`              | Design docs for Wasmo OS.                                           |
+| ` '- local_development` | Run Wasmo OS locally.                                               |
+| ` '- platform`          | Build Wasmo apps.                                                   |
+| ` '- runbooks`          | Operate the hosted Wasmo.com service.                               |
+| `identifiers`           | Zero-dependency symbols and types used by both platform and OS.     |
+| `os`                    | Wasmo OS, the software that hosts computers and apps.               |
+| ` '- api`               | HTTP APIs and data models shared by client and server.              |
+| ` '- catalog`           | The catalog of Wasmo products that may be purchased.                |
+| ` '- client`            | The frontend JavaScript application of the OS.                      |
+| ` '- distributions`     | Deployable artifacts to run Wasmo OS.                               |
+| ` '- framework`         | Wasmo OS's own web framework, built on Kotlin and Ktor.             |
+| ` '- logging`           | A small-enough logging API for client and server.                   |
+| ` '- routes`            | Encode and decode Wasmo OS's URLs as values.                        |
+| ` '- server`            | The backend Kotlin server of Wasmo OS.                              |
 | `platform`              | APIs exposed by Wasmo OS to its apps.                               |
 | `support`               | Standalone support libraries. This is not intended as a stable API. |
-| ` '- dom-tester`        | A library for snapshot testing HTML elements                        |
-| ` '- issues`            | A library for modeling warnings and errors                          |
-| ` '- router`            | A library for typesafe navigation in web apps                       |
-| ` '- tokens`            | A library for generating unguessable tokens for identifiers         |
+| ` '- dom-tester`        | A library for snapshot testing HTML elements.                       |
+| ` '- issues`            | A library for modeling warnings and errors.                         |
+| ` '- router`            | A library for typesafe navigation in web apps.                      |
+| ` '- tokens`            | A library for generating unguessable tokens for identifiers.        |
 | `wasmox`                | WasmoX support libraries. These build upon the Wasmo platform.      |
-| ` '- wasmo-sql`         | Transactions and other abstractions for SQL.                        |
-| ` '- wasmo-sqldelight`  | A library for running [SQLDelight] in a Wasmo app                   |
-| `wasmo-build`           | Gradle stuff for building this project                              |
+| ` '- wasmox-sql`        | Transactions and other abstractions for SQL.                        |
+| ` '- wasmox-sqldelight` | A library for running [SQLDelight] in a Wasmo app.                  |
+| `wasmo-build`           | Gradle stuff for building this project.                             |
 
 [SQLDelight]: https://github.com/sqldelight/sqldelight

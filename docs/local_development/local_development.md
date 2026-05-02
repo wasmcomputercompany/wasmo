@@ -5,7 +5,7 @@ Run a local server:
 
 ```bash
 $ cd ../..
-$ ./gradlew os:server:server-development:run
+$ ./gradlew os:distributions:homelab:run
 ```
 
 Navigate to [wasmo.localhost:8080](http://wasmo.localhost:8080) to view this.
