@@ -52,6 +52,13 @@ value class PasskeyId(val id: Long)
 
 @Serializable
 @JvmInline
+value class PasswordId(val id: Long) {
+  companion object {
+  }
+}
+
+@Serializable
+@JvmInline
 value class PermitId(val id: Long)
 
 @Serializable

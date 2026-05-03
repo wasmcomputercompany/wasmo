@@ -3,6 +3,7 @@
 package com.wasmo.ktor
 
 import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.api.AccountType
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.OsScope
@@ -32,6 +33,7 @@ class WasmoService(
   }
 
   data class Config(
+    val accountType: AccountType,
     val cookieSecret: ByteString,
     val postmarkCredentials: PostmarkCredentials,
     val stripeCredentials: StripeCredentials,

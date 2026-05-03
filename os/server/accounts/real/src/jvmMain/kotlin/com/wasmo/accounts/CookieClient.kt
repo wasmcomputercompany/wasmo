@@ -19,6 +19,7 @@ import wasmox.sql.SqlTransaction
 @AssistedInject
 class CookieClient(
   private val clock: Clock,
+  private val autoSignIn: AutoSignIn,
   @Assisted private val sessionCookie: SessionCookie,
   @Assisted override val userAgent: String?,
   @Assisted override val ip: String?,
@@ -69,7 +70,7 @@ class CookieClient(
     if (cachedAccountId != null) return cachedAccountId
 
     val cookie = findCookieByToken(sessionCookie.token)
-    return cookie?.accountId
+    return cookie?.accountId ?: autoSignIn.accountToAutoSignInto()
   }
 
   context(sqlTransaction: SqlTransaction)

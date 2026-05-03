@@ -15,6 +15,7 @@ import com.wasmo.identifiers.InstalledAppReleaseId
 import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.LinkedEmailAddressId
 import com.wasmo.identifiers.PasskeyId
+import com.wasmo.identifiers.PasswordId
 import com.wasmo.identifiers.PermitId
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.identifiers.UserId
@@ -65,6 +66,7 @@ fun SqlRow.getInstalledAppDatabaseIdOrNull(index: Int) = getS64(index)?.let { In
 fun SqlRow.getInviteId(index: Int) = InviteId(getS64(index)!!)
 fun SqlRow.getLinkedEmailAddressId(index: Int) = LinkedEmailAddressId(getS64(index)!!)
 fun SqlRow.getPasskeyId(index: Int) = PasskeyId(getS64(index)!!)
+fun SqlRow.getPasswordId(index: Int) = PasswordId(getS64(index)!!)
 fun SqlRow.getPermitId(index: Int) = PermitId(getS64(index)!!)
 fun SqlRow.getStripeCustomerId(index: Int) = StripeCustomerId(getS64(index)!!)
 fun SqlRow.getUserId(index: Int) = UserId(getS64(index)!!)

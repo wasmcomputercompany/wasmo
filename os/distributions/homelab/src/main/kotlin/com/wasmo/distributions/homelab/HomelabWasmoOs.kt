@@ -4,6 +4,8 @@
 package com.wasmo.distributions.homelab
 
 import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.api.AccountType
+import com.wasmo.api.AccountType.Local
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.deployment.Deployment
@@ -31,6 +33,7 @@ suspend fun main(args: Array<String>) {
     ssl = false,
   )
   val config = WasmoService.Config(
+    accountType = Local,
     cookieSecret = "butters".encodeUtf8(),
     postmarkCredentials = PostmarkCredentials(
       baseUrl = PostmarkProductionBaseUrl,

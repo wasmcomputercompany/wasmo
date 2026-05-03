@@ -2,6 +2,8 @@ package com.wasmo.emails
 
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
+import com.wasmo.api.AccountType
+import com.wasmo.api.AuthenticationMethod
 import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.ConfirmEmailAddressResponse.Decision
@@ -35,6 +37,7 @@ class ConfirmEmailAddressRpc(
   private val callDataService: CallDataService,
   private val permitService: PermitService,
   private val wasmDb: SqlDatabase,
+  private val accountType: AccountType,
 ) {
   suspend fun confirm(
     request: ConfirmEmailAddressRequest,
@@ -60,6 +63,9 @@ class ConfirmEmailAddressRpc(
     request: ConfirmEmailAddressRequest,
   ): Decision {
     val now = clock.now()
+    if (AuthenticationMethod.EmailAddress !in accountType.supportedAuthenticationMethods) {
+      return Decision.BadRequest
+    }
 
     val accountId = client.getAccountIdOrNull()
       ?: return Decision.BadRequest

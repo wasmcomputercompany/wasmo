@@ -1,10 +1,14 @@
 package com.wasmo.ktor
 
 import com.stripe.StripeClient
+import com.wasmo.accounts.AutoSignIn
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.CookieSecret
+import com.wasmo.accounts.DoNotAutoSignIn
+import com.wasmo.accounts.LocalAccountAutoSignIn
 import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.api.AccountType
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.logging.Logger
@@ -81,6 +85,15 @@ internal interface WasmoServiceGraph {
   val callGraphFactory: CallGraph.Factory
   val computerServiceGraphFactory: ComputerServiceGraph.Factory
   val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory
+
+  @Provides
+  @SingleIn(OsScope::class)
+  fun provideAutoSignIn(accountType: AccountType, clock: Clock): AutoSignIn =
+    if (accountType == AccountType.Local) {
+      LocalAccountAutoSignIn(clock, accountType)
+    } else {
+      DoNotAutoSignIn()
+    }
 
   @Provides
   @SingleIn(OsScope::class)
@@ -166,6 +179,11 @@ internal interface WasmoServiceGraph {
   @Provides
   @SingleIn(OsScope::class)
   fun provideAppCatalog(): AppCatalog = loadDefaultAppCatalogFromResources()
+
+  @Provides
+  @SingleIn(OsScope::class)
+  fun provideAccountType(config: WasmoService.Config): AccountType =
+    config.accountType
 
   @Provides
   @SingleIn(OsScope::class)
