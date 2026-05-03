@@ -32,6 +32,8 @@ class RegisterPasskeyRpc(
     request: RegisterPasskeyRequest,
   ): Response<RegisterPasskeyResponse> {
     val registerResult = passkeyChecker.register(request.registration)
+    // TODO: Generalize Response<RegisterPasskeyResponse> so it can represent the failure case w/o account
+    // Use it for AuthenticationMethod.Passkey !in accountType.supportedAuthenticationMethods
 
     return wasmoDb.transaction {
       val accountId = client.getOrCreateAccountId()
