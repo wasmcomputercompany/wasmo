@@ -64,25 +64,25 @@ class CookieClient(
   }
 
   context(sqlTransaction: SqlTransaction)
-  override suspend fun getAccountIdOrNull(): AccountId? {
+  private suspend fun internalGetAccountIdOrNull(): AccountId? {
     val cachedAccountId = cachedAccountId
     if (cachedAccountId != null) return cachedAccountId
 
     val cookie = findCookieByToken(sessionCookie.token)
-      ?: return null
-    return cookie.accountId
-      .also { this.cachedAccountId = it }
+    return cookie?.accountId
+  }
+
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun getAccountIdOrNull(): AccountId? {
+    val accountId: AccountId = internalGetAccountIdOrNull() ?: return null
+    return accountId.also { this.cachedAccountId = it }
   }
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun getOrCreateAccountId(): AccountId {
-    val cachedAccountId = cachedAccountId
-    if (cachedAccountId != null) return cachedAccountId
-
-    val cookie = findCookieByToken(sessionCookie.token)
-    if (cookie != null) return cookie.accountId
-
-    val accountId = insertAccount(
+    val maybeAccountId: AccountId? = internalGetAccountIdOrNull()
+    maybeAccountId ?.let { return it }
+    val accountId: AccountId = insertAccount(
       version = 1,
     )
 
