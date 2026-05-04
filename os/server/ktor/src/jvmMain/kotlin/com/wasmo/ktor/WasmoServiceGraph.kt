@@ -1,12 +1,8 @@
 package com.wasmo.ktor
 
-import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.identifiers.OsScope
-import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
-import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
-import com.wasmo.objectstore.s3.S3ObjectStoreBindings
 import com.wasmo.sql.ProvisioningDb
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -16,11 +12,7 @@ import wasmo.sql.SqlDatabase
 @DependencyGraph(
   scope = OsScope::class,
   bindingContainers = [
-    ComputerBindings::class,
-    FileSystemObjectStoreBindings::class,
-    InstalledAppBindings::class,
-    ServiceBindings::class,
-    S3ObjectStoreBindings::class,
+    HostedDistributionBindings::class,
   ],
 )
 internal interface WasmoServiceGraph {

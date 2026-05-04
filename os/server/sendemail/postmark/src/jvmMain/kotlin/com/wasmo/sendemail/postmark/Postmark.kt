@@ -33,7 +33,7 @@ import retrofit2.http.POST
  * Adapt the Postmark API.
  * https://postmarkapp.com/developer/api/overview#error-codes
  */
-class PostmarkEmailService private constructor(
+internal class PostmarkEmailService private constructor(
   private val postmarkApi: PostmarkApi,
 ) : SendEmailService {
 

@@ -29,9 +29,6 @@ import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.RealPermitService
-import com.wasmo.sendemail.SendEmailService
-import com.wasmo.sendemail.postmark.PostmarkCredentials
-import com.wasmo.sendemail.postmark.PostmarkEmailService
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.RealSqlDatabaseProvisioner
 import com.wasmo.sql.RealSqlService
@@ -138,11 +135,6 @@ interface ServiceBindings {
 
     @Provides
     @SingleIn(OsScope::class)
-    fun providePostmarkCredentials(config: WasmoService.Config): PostmarkCredentials =
-      config.postmarkCredentials
-
-    @Provides
-    @SingleIn(OsScope::class)
     fun provideStripePublishableKey(config: WasmoService.Config): StripePublishableKey =
       config.stripeCredentials.publishableKey
 
@@ -175,12 +167,6 @@ interface ServiceBindings {
       subscriptionService = stripeClient.v1().subscriptions(),
       catalog = config.catalog,
     )
-
-    @Provides
-    @SingleIn(OsScope::class)
-    fun provideSendEmailService(
-      factory: PostmarkEmailService.Factory,
-    ): SendEmailService = factory.create()
 
     @Provides
     @SingleIn(OsScope::class)
