@@ -34,6 +34,7 @@ import com.wasmo.framework.redirect
 import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSlugRegex
+import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import io.ktor.http.HttpMethod
@@ -61,7 +62,7 @@ import okio.buffer
 import wasmo.http.Header
 
 @Inject
-@SingleIn(com.wasmo.identifiers.OsScope::class)
+@SingleIn(OsScope::class)
 class ActionRouter(
   deployment: Deployment,
   private val application: Application,

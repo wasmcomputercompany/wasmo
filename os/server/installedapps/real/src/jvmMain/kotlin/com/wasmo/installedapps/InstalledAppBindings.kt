@@ -11,9 +11,9 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 
 @BindingContainer
-interface InstalledAppBindings {
+abstract class InstalledAppBindings {
   @Binds
-  fun bindInstalledAppStore(real: RealInstalledAppStore): InstalledAppStore
+  abstract fun bindInstalledAppStore(real: RealInstalledAppStore): InstalledAppStore
 
   companion object {
     private val InstallAppJobName = JobName<InstallAppJob, Unit>("InstallAppJob")

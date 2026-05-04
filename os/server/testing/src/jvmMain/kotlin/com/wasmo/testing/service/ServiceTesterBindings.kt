@@ -33,29 +33,29 @@ import wasmo.objectstore.ObjectStore
 import wasmo.time.FakeClock
 
 @BindingContainer
-interface TestServiceBindings {
+abstract class ServiceTesterBindings {
 
   @Binds
-  fun bindClock(real: FakeClock): Clock
+  abstract fun bindClock(real: FakeClock): Clock
 
   @Binds
-  fun bindSendEmailService(real: FakeSendEmailService): SendEmailService
+  abstract fun bindSendEmailService(real: FakeSendEmailService): SendEmailService
 
   @Binds
-  fun bindPaymentsService(real: FakePaymentsService): PaymentsService
+  abstract fun bindPaymentsService(real: FakePaymentsService): PaymentsService
 
   @Binds
-  fun bindHttpClient(real: FakeHttpService): HttpService
+  abstract fun bindHttpClient(real: FakeHttpService): HttpService
 
   @Binds
-  fun bindEventListener(real: TestEventListener): EventListener
+  abstract fun bindEventListener(real: TestEventListener): EventListener
 
   @Binds
-  fun bindAppLoader(real: FakeAppPublisher): AppLoader
+  abstract fun bindAppLoader(real: FakeAppPublisher): AppLoader
 
   @Binds
   @ForOs
-  fun bindObjectStore(real: FakeObjectStore): ObjectStore
+  abstract fun bindObjectStore(real: FakeObjectStore): ObjectStore
 
   companion object {
 

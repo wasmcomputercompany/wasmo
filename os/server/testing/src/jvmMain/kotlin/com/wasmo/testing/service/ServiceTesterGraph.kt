@@ -44,7 +44,7 @@ import wasmo.time.FakeClock
     PasskeysBindings::class,
     PermitsBindings::class,
     SqlServiceBindings::class,
-    TestServiceBindings::class,
+    ServiceTesterBindings::class,
   ],
 )
 interface ServiceTesterGraph {
