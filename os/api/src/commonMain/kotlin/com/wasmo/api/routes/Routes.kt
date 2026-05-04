@@ -1,5 +1,6 @@
 package com.wasmo.api.routes
 
+import com.wasmo.framework.QueryParameter
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 

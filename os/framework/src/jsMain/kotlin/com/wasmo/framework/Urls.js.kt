@@ -1,4 +1,4 @@
-package com.wasmo.api.routes
+package com.wasmo.framework
 
 import org.w3c.dom.url.URL
 

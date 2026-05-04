@@ -12,7 +12,7 @@ import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.NotFoundRoute
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.SignOutRoute
-import com.wasmo.api.routes.Url
+import com.wasmo.framework.Url
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import kotlin.test.Test

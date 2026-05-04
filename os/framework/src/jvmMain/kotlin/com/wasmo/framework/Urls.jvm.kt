@@ -1,4 +1,4 @@
-package com.wasmo.api.routes
+package com.wasmo.framework
 
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl

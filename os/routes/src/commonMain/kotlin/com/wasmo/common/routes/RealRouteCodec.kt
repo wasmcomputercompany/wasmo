@@ -13,7 +13,7 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.SignOutRoute
 import com.wasmo.api.routes.SignUpRoute
-import com.wasmo.api.routes.Url
+import com.wasmo.framework.Url
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import dev.zacsweers.metro.Assisted

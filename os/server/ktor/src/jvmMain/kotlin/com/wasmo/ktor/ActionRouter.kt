@@ -19,12 +19,13 @@ import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.api.SignOutRequest
 import com.wasmo.api.SignOutResponse
-import com.wasmo.api.routes.decodeUrl
-import com.wasmo.api.routes.toHttpUrl
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.NotFoundUserException
+import com.wasmo.framework.UserAgent
 import com.wasmo.framework.asResponse
+import com.wasmo.framework.decodeUrl
 import com.wasmo.framework.redirect
+import com.wasmo.framework.toHttpUrl
 import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSlugRegex
@@ -213,7 +214,7 @@ class ActionRouter(
     }
   }
 
-  private fun callGraph(userAgent: ClientAuthenticator.UserAgent): CallGraph {
+  private fun callGraph(userAgent: UserAgent): CallGraph {
     val clientAuthenticator = clientAuthenticatorFactory.create(userAgent)
     clientAuthenticator.updateSessionCookie()
     return callGraphFactory.create(clientAuthenticator.get())

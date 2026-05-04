@@ -15,6 +15,7 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.serialization.json)
         implementation(projects.os.api)
+        implementation(projects.os.framework)
         implementation(projects.identifiers)
       }
     }

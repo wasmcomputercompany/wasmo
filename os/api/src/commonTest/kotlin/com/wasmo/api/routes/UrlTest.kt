@@ -3,6 +3,11 @@ package com.wasmo.api.routes
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isIn
+import com.wasmo.framework.QueryParameter
+import com.wasmo.framework.Url
+import com.wasmo.framework.decodeUrl
+import com.wasmo.framework.encode
+import com.wasmo.framework.encodePathAndQuery
 import kotlin.test.Test
 
 class UrlTest {

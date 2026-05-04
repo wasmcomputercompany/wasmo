@@ -1,6 +1,6 @@
 package com.wasmo.ktor
 
-import com.wasmo.accounts.ClientAuthenticator
+import com.wasmo.framework.UserAgent
 import io.ktor.http.CookieEncoding
 import io.ktor.server.plugins.origin
 import io.ktor.server.request.header
@@ -8,7 +8,7 @@ import io.ktor.server.routing.RoutingContext
 
 class KtorUserAgent(
   private val routingContext: RoutingContext,
-) : ClientAuthenticator.UserAgent {
+) : UserAgent {
   override val userAgent: String?
     get() = routingContext.call.request.header("user-agent")
 

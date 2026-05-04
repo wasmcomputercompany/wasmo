@@ -1,17 +1,17 @@
 package com.wasmo.ktor
 
-import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.api.WasmoJson
-import com.wasmo.api.routes.Url
-import com.wasmo.api.routes.decodeUrl
 import com.wasmo.common.logging.Logger
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
+import com.wasmo.framework.Url
+import com.wasmo.framework.UserAgent
 import com.wasmo.framework.UserException
 import com.wasmo.framework.asResponse
+import com.wasmo.framework.decodeUrl
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -78,7 +78,7 @@ class KtorHttpActionBinder(
     path: String,
     requestAdapter: KSerializer<R>,
     responseAdapter: KSerializer<S>,
-    action: suspend (ClientAuthenticator.UserAgent, R, Url) -> Response<S>,
+    action: suspend (UserAgent, R, Url) -> Response<S>,
   ) {
     route.route(path, HttpMethod.Post) {
       withRoute(this).handleInternal { userAgent, wasmoUrl, call ->
@@ -97,7 +97,7 @@ class KtorHttpActionBinder(
   }
 
   override fun httpAction(
-    action: suspend (ClientAuthenticator.UserAgent, Url, Request) -> Response<ResponseBody>,
+    action: suspend (UserAgent, Url, Request) -> Response<ResponseBody>,
   ) {
     return handleInternal { userAgent, url, routingCall ->
       action(userAgent, url, routingCall.request.toRequest())
@@ -106,7 +106,7 @@ class KtorHttpActionBinder(
 
   private fun handleInternal(
     action: suspend (
-      ClientAuthenticator.UserAgent, Url, RoutingCall,
+      UserAgent, Url, RoutingCall,
     ) -> Response<ResponseBody>,
   ) {
     route.handle {

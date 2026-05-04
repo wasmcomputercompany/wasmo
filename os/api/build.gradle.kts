@@ -17,8 +17,9 @@ kotlin {
         implementation(libs.kotlinx.serialization.core)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
-        implementation(projects.os.json)
         implementation(projects.identifiers)
+        implementation(projects.os.framework)
+        implementation(projects.os.json)
         implementation(projects.platform.packaging)
         implementation(projects.support.tokens)
       }

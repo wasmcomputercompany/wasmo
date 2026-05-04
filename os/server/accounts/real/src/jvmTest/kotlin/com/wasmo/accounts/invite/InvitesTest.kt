@@ -7,8 +7,8 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.wasmo.api.CreateInviteRequest
 import com.wasmo.api.routes.InviteRoute
-import com.wasmo.api.routes.decodeUrl
 import com.wasmo.framework.NotFoundUserException
+import com.wasmo.framework.decodeUrl
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
