@@ -19,16 +19,10 @@ import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.api.SignOutRequest
 import com.wasmo.api.SignOutResponse
-import com.wasmo.api.WasmoJson
-import com.wasmo.api.routes.Url
 import com.wasmo.api.routes.decodeUrl
 import com.wasmo.api.routes.toHttpUrl
 import com.wasmo.deployment.Deployment
 import com.wasmo.framework.NotFoundUserException
-import com.wasmo.framework.Request
-import com.wasmo.framework.Response
-import com.wasmo.framework.ResponseBody
-import com.wasmo.framework.UserException
 import com.wasmo.framework.asResponse
 import com.wasmo.framework.redirect
 import com.wasmo.identifiers.AppSlugRegex
@@ -37,29 +31,10 @@ import com.wasmo.identifiers.ComputerSlugRegex
 import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import io.ktor.http.HttpMethod
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
-import io.ktor.server.application.log
-import io.ktor.server.http.content.staticResources
 import io.ktor.server.plugins.calllogging.CallLogging
-import io.ktor.server.request.host
-import io.ktor.server.request.httpMethod
-import io.ktor.server.request.path
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.RoutingCall
-import io.ktor.server.routing.RoutingContext as KtorRoutingContext
-import io.ktor.server.routing.RoutingRequest
-import io.ktor.server.routing.host
-import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
-import io.ktor.server.util.url
-import io.ktor.utils.io.asSource
-import kotlinx.io.okio.asOkioSource
-import kotlinx.serialization.serializer
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import okio.buffer
-import wasmo.http.Header
 
 @Inject
 @SingleIn(OsScope::class)
@@ -68,6 +43,7 @@ class ActionRouter(
   private val application: Application,
   private val clientAuthenticatorFactory: ClientAuthenticator.Factory,
   private val callGraphFactory: CallGraph.Factory,
+  private val httpActionBinderFactory: KtorHttpActionBinder.Factory,
 ) {
   private val rootUrl = deployment.baseUrl.toString().decodeUrl()
 
@@ -79,42 +55,56 @@ class ActionRouter(
     val appRegex = Regex("${AppSlugRegex.pattern}-${ComputerSlugRegex.pattern}$suffixRegex")
 
     application.routing {
-      host(computerRegex) {
-        createComputerRoutes()
+      context(httpActionBinderFactory.create(this)) {
+        bindRoutes(computerRegex, appRegex)
+      }
+    }
+  }
 
-        // TODO: change the web app to always fetch static resources from the root URL.
-        staticResources("/", "static")
-      }
-      host(appRegex) {
-        createAppRoutes()
-      }
-      host(rootUrl.topPrivateDomain) {
-        createPages()
-        createRpcs()
-        staticResources("/", "static")
-      }
-      routeAll {
-        handle {
-          val response = when {
-            call.request.host() != rootUrl.topPrivateDomain -> redirect(rootUrl.toHttpUrl())
-            else -> NotFoundUserException().asResponse()
-          }
-          call.respond(response)
+  context(binder: HttpActionBinder)
+  private fun bindRoutes(
+    computerRegex: Regex,
+    appRegex: Regex,
+  ) {
+    binder.host(computerRegex) {
+      createComputerRoutes()
+
+      // TODO: change the web app to always fetch static resources from the root URL.
+      staticResources("/", "static")
+    }
+    binder.host(appRegex) {
+      createAppRoutes()
+    }
+    binder.host(rootUrl.topPrivateDomain) {
+      createPages()
+      createRpcs()
+      staticResources("/", "static")
+    }
+    binder.routeAll {
+      httpAction { _, url, _ ->
+        when {
+          url.topPrivateDomain != rootUrl.topPrivateDomain || url.subdomain != rootUrl.subdomain ->
+            redirect(rootUrl.toHttpUrl())
+
+          else -> NotFoundUserException().asResponse()
         }
       }
     }
   }
 
-  private fun Route.createComputerRoutes() {
-    route("/", HttpMethod.Get) {
-      handle { callGraph, url, _ ->
+  context(binder: HttpActionBinder)
+  private fun createComputerRoutes() {
+    binder.route("/") {
+      httpAction { userAgent, url, _ ->
+        val callGraph = callGraph(userAgent)
         callGraph.osPage.get(url).response
       }
     }
 
-    rpc<InstallAppRequest, InstallAppResponse>(
+    binder.rpc<InstallAppRequest, InstallAppResponse>(
       path = "/install-app",
-    ) { callGraph, request, wasmoUrl, _ ->
+    ) { userAgent, request, wasmoUrl ->
+      val callGraph = callGraph(userAgent)
       callGraph.installAppRpc.install(
         computerSlug = ComputerSlug(wasmoUrl.subdomain ?: throw NotFoundUserException()),
         request = request,
@@ -122,17 +112,18 @@ class ActionRouter(
     }
   }
 
-  private fun Route.createAppRoutes() {
-    routeAll {
-      handle { callGraph, _, call ->
-        callGraph.callAppAction.call(
-          request = call.request.toRequest(),
-        )
+  context(binder: HttpActionBinder)
+  private fun createAppRoutes() {
+    binder.routeAll {
+      httpAction { userAgent, _, request ->
+        val callGraph = callGraph(userAgent)
+        callGraph.callAppAction.call(request)
       }
     }
   }
 
-  private fun Route.createPages() {
+  context(binder: HttpActionBinder)
+  private fun createPages() {
     val osPagePaths = listOf(
       "/",
       "/build-yours",
@@ -140,155 +131,91 @@ class ActionRouter(
       "/sign-up",
     )
     for (path in osPagePaths) {
-      route(path, HttpMethod.Get) {
-        handle { callGraph, url, _ ->
+      binder.route(path, "GET") {
+        httpAction { userAgent, url, _ ->
+          val callGraph = callGraph(userAgent)
           callGraph.osPage.get(url).response
         }
       }
     }
 
-    route("/after-checkout/{checkoutSessionId}", HttpMethod.Get) {
-      handle { callGraph, _, call ->
-        callGraph.afterCheckoutPage.get(call.pathParameters["checkoutSessionId"]!!)
+    binder.route("/after-checkout/{checkoutSessionId}") {
+      httpAction { userAgent, url, _ ->
+        val callGraph = callGraph(userAgent)
+        callGraph.afterCheckoutPage.get(url.path[1])
       }
     }
 
-    route("/sign-out", HttpMethod.Get) {
-      handle { callGraph, _, _ ->
+    binder.route("/sign-out") {
+      httpAction { userAgent, _, _ ->
+        val callGraph = callGraph(userAgent)
         callGraph.signOutPage.get()
       }
     }
   }
 
-  private fun Route.createRpcs() {
-    rpc<AccountSnapshotRequest, AccountSnapshotResponse>(
+  context(binder: HttpActionBinder)
+  private fun createRpcs() {
+    binder.rpc<AccountSnapshotRequest, AccountSnapshotResponse>(
       path = "/account-snapshot",
-    ) { callGraph, request, _, _ ->
+    ) { userAgent, request, _ ->
+      val callGraph = callGraph(userAgent)
       callGraph.accountSnapshotRpc.get(request)
     }
 
-    rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
+    binder.rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
       path = "/authenticate-passkey",
-    ) { callGraph, request, _, _ ->
+    ) { userAgent, request, _ ->
+      val callGraph = callGraph(userAgent)
       callGraph.authenticatePasskeyRpc.authenticate(request)
     }
 
-    rpc<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse>(
+    binder.rpc<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse>(
       path = "/confirm-email-address",
-    ) { callGraph, request, _, _ ->
+    ) { userAgent, request, _ ->
+      val callGraph = callGraph(userAgent)
       callGraph.confirmEmailAddressRpc.confirm(request)
     }
 
-    rpc<CreateComputerSpecRequest, CreateComputerSpecResponse>(
+    binder.rpc<CreateComputerSpecRequest, CreateComputerSpecResponse>(
       path = "/create-computer-spec",
-    ) { callGraph, request, _, _ ->
+    ) { userAgent, request, _ ->
+      val callGraph = callGraph(userAgent)
       callGraph.createComputerSpecRpc.create(request)
     }
 
-    rpc<CreateInviteRequest, CreateInviteResponse>(
+    binder.rpc<CreateInviteRequest, CreateInviteResponse>(
       path = "/create-invite",
-    ) { callGraph, request, _, _ ->
+    ) { userAgent, request, _ ->
+      val callGraph = callGraph(userAgent)
       callGraph.createInviteRpc.create(request)
     }
 
-    rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
+    binder.rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
       path = "/link-email-address",
-    ) { callGraph, request, _, _ ->
+    ) { userAgent, request, _ ->
+      val callGraph = callGraph(userAgent)
       callGraph.linkEmailAddressRpc.link(request)
     }
 
-    rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
+    binder.rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
       path = "/register-passkey",
-    ) { callGraph, request, _, _ ->
+    ) { userAgent, request, _ ->
+      val callGraph = callGraph(userAgent)
       callGraph.registerPasskeyRpc.register(request)
     }
 
-    rpc<SignOutRequest, SignOutResponse>(
+    binder.rpc<SignOutRequest, SignOutResponse>(
       path = "/sign-out",
-    ) { callGraph, request, _, _ ->
+    ) { userAgent, request, _ ->
+      val callGraph = callGraph(userAgent)
       callGraph.signOutRpc.signOut(request)
     }
   }
 
-  private inline fun <reified R, reified S> Route.rpc(
-    path: String,
-    crossinline action: suspend (CallGraph, R, Url, RoutingCall) -> Response<S>,
-  ) {
-    val requestAdapter = serializer<R>()
-    val responseAdapter = serializer<S>()
-
-    route(path, HttpMethod.Post) {
-      handle { callGraph, wasmoUrl, call ->
-        val request = requestAdapter.decode(call.request)
-        val response = action(callGraph, request, wasmoUrl, call)
-        Response(
-          status = response.status,
-          headers = response.headers,
-          contentType = response.contentType,
-          body = ResponseBody { sink ->
-            sink.writeUtf8(WasmoJson.encodeToString(responseAdapter, response.body))
-          },
-        )
-      }
-    }
-  }
-
-  private inline fun Route.handle(
-    crossinline action: suspend (CallGraph, Url, RoutingCall) -> Response<ResponseBody>,
-  ) {
-    handle {
-      val clientAuthenticator = clientAuthenticatorFactory.create(KtorUserAgent(this))
-      val response = try {
-        clientAuthenticator.updateSessionCookie()
-        val callGraph = callGraphFactory.create(clientAuthenticator.get())
-        action(callGraph, wasmoUrl(), call)
-      } catch (e: UserException) {
-        when (e) {
-          is NotFoundUserException -> {
-            // Don't log stack traces for these; everything is working as designed.
-          }
-
-          else -> {
-            application.log.info("call failed", e)
-          }
-        }
-        call.respond(e.asResponse())
-        return@handle
-      }
-      call.respond(response)
-    }
-  }
-
-  private fun KtorRoutingContext.wasmoUrl(): Url {
-    val host = call.request.host()
-    val dotIndex = host.length - rootUrl.topPrivateDomain.length - 1
-    val subdomain = when {
-      dotIndex >= 1 && host.endsWith(rootUrl.topPrivateDomain) -> host.take(dotIndex)
-      else -> null
-    }
-
-    return rootUrl.copy(
-      subdomain = subdomain,
-      path = call.request.path().removePrefix("/").split("/"),
-    )
-  }
-
-  private fun RoutingRequest.toRequest() = Request(
-    method = call.request.httpMethod.value,
-    url = call.url().toHttpUrl(),
-    headers = buildList {
-      for ((name, values) in headers.entries()) {
-        for (value in values) {
-          add(Header(name, value))
-        }
-      }
-    },
-    body = receiveChannel().asSource().asOkioSource().buffer().readByteString(),
-  )
-
-  private fun Route.routeAll(build: Route.() -> Unit) {
-    route(Regex("/.*")) {
-      build()
-    }
+  private fun callGraph(userAgent: ClientAuthenticator.UserAgent): CallGraph {
+    val clientAuthenticator = clientAuthenticatorFactory.create(userAgent)
+    clientAuthenticator.updateSessionCookie()
+    return callGraphFactory.create(clientAuthenticator.get())
   }
 }
