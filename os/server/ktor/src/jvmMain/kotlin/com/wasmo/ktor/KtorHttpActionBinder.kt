@@ -3,6 +3,7 @@ package com.wasmo.ktor
 import com.wasmo.api.WasmoJson
 import com.wasmo.common.logging.Logger
 import com.wasmo.deployment.Deployment
+import com.wasmo.framework.HttpActionBinder
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response

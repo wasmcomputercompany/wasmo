@@ -1,10 +1,5 @@
-package com.wasmo.ktor
+package com.wasmo.framework
 
-import com.wasmo.framework.Request
-import com.wasmo.framework.Response
-import com.wasmo.framework.ResponseBody
-import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 

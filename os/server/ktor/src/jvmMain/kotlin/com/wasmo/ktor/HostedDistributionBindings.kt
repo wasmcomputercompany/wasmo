@@ -23,6 +23,8 @@ import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
 import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import wasmo.objectstore.ObjectStore
@@ -44,50 +46,65 @@ import wasmo.objectstore.ObjectStore
     StripeBindings::class,
   ],
 )
-object HostedDistributionBindings {
-  @Provides
-  @SingleIn(OsScope::class)
-  fun providePostmarkCredentials(config: WasmoService.Config): PostmarkCredentials =
-    config.postmarkCredentials
+abstract class HostedDistributionBindings {
+  @Binds
+  @IntoSet
+  abstract fun bindComputerHttpActionSource(config: ComputerHttpActionSource): HttpActionSource
 
-  @Provides
-  @SingleIn(OsScope::class)
-  fun provideCookieSecret(config: WasmoService.Config): CookieSecret =
-    CookieSecret(config.cookieSecret)
+  @Binds
+  @IntoSet
+  abstract fun bindInstalledAppActionSource(config: InstalledAppActionSource): HttpActionSource
 
-  @Provides
-  @SingleIn(OsScope::class)
-  fun provideDeployment(config: WasmoService.Config): Deployment =
-    config.deployment
+  @Binds
+  @IntoSet
+  abstract fun bindOsHttpActionSource(config: OsHttpActionSource): HttpActionSource
 
-  @Provides
-  @SingleIn(OsScope::class)
-  fun provideSessionCookieSpec(config: WasmoService.Config): SessionCookieSpec =
-    config.sessionCookieSpec
+  companion object {
+    @Provides
+    @SingleIn(OsScope::class)
+    fun providePostmarkCredentials(config: WasmoService.Config): PostmarkCredentials =
+      config.postmarkCredentials
 
-  @Provides
-  @SingleIn(OsScope::class)
-  fun provideStripePublishableKey(config: WasmoService.Config): StripePublishableKey =
-    config.stripeCredentials.publishableKey
+    @Provides
+    @SingleIn(OsScope::class)
+    fun provideCookieSecret(config: WasmoService.Config): CookieSecret =
+      CookieSecret(config.cookieSecret)
 
-  @Provides
-  @SingleIn(OsScope::class)
-  fun provideStripeCredentials(config: WasmoService.Config): StripeCredentials = config.stripeCredentials
+    @Provides
+    @SingleIn(OsScope::class)
+    fun provideDeployment(config: WasmoService.Config): Deployment =
+      config.deployment
 
-  @Provides
-  @ForOs
-  @SingleIn(OsScope::class)
-  fun provideObjectStore(
-    config: WasmoService.Config,
-    objectStoreFactory: ObjectStoreFactory,
-  ): ObjectStore = objectStoreFactory.open(config.objectStoreAddress)
+    @Provides
+    @SingleIn(OsScope::class)
+    fun provideSessionCookieSpec(config: WasmoService.Config): SessionCookieSpec =
+      config.sessionCookieSpec
 
-  @Provides
-  @SingleIn(OsScope::class)
-  fun provideCatalog(config: WasmoService.Config): Catalog = config.catalog
+    @Provides
+    @SingleIn(OsScope::class)
+    fun provideStripePublishableKey(config: WasmoService.Config): StripePublishableKey =
+      config.stripeCredentials.publishableKey
 
-  @Provides
-  @SingleIn(OsScope::class)
-  fun providePostgresqlAddress(config: WasmoService.Config): PostgresqlAddress =
-    config.osPostgresqlAddress
+    @Provides
+    @SingleIn(OsScope::class)
+    fun provideStripeCredentials(config: WasmoService.Config): StripeCredentials =
+      config.stripeCredentials
+
+    @Provides
+    @ForOs
+    @SingleIn(OsScope::class)
+    fun provideObjectStore(
+      config: WasmoService.Config,
+      objectStoreFactory: ObjectStoreFactory,
+    ): ObjectStore = objectStoreFactory.open(config.objectStoreAddress)
+
+    @Provides
+    @SingleIn(OsScope::class)
+    fun provideCatalog(config: WasmoService.Config): Catalog = config.catalog
+
+    @Provides
+    @SingleIn(OsScope::class)
+    fun providePostgresqlAddress(config: WasmoService.Config): PostgresqlAddress =
+      config.osPostgresqlAddress
+  }
 }
