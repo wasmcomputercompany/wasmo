@@ -9,9 +9,11 @@ import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
+import com.wasmo.jobs.absurd.AbsurdBindings
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
 import com.wasmo.objectstore.s3.S3ObjectStoreBindings
+import com.wasmo.passkeys.PasskeysBindings
 import com.wasmo.sendemail.postmark.PostmarkBindings
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
@@ -25,10 +27,12 @@ import wasmo.objectstore.ObjectStore
 
 @BindingContainer(
   includes = [
+    AbsurdBindings::class,
     ComputerBindings::class,
     FileSystemObjectStoreBindings::class,
     HostedDistributionBindings::class,
     InstalledAppBindings::class,
+    PasskeysBindings::class,
     PostmarkBindings::class,
     S3ObjectStoreBindings::class,
     ServiceBindings::class,

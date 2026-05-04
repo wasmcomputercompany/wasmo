@@ -24,7 +24,7 @@ import wasmox.sql.SqlTransaction
  * The main difference is that Wasmo requires callers have a [SqlConnection] context to enqueue,
  * whereas Absurd makes that optional.
  */
-class AbsurdOsJobQueue<P : Any, R : Any> private constructor(
+internal class AbsurdOsJobQueue<P : Any, R : Any> private constructor(
   private val factory: Factory,
   private val jobName: JobName<P, R>,
 ) : OsJobQueue<P> {

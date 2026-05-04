@@ -8,7 +8,9 @@ import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
 import com.wasmo.jobs.OsJobQueue
+import com.wasmo.jobs.absurd.AbsurdBindings
 import com.wasmo.jobs.absurd.AbsurdService
+import com.wasmo.passkeys.PasskeysBindings
 import com.wasmo.permits.RealPermitService
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
@@ -33,8 +35,10 @@ import wasmo.time.FakeClock
 @DependencyGraph(
   scope = OsScope::class,
   bindingContainers = [
+    AbsurdBindings::class,
     ComputerBindings::class,
     InstalledAppBindings::class,
+    PasskeysBindings::class,
     SqlServiceBindings::class,
     TestServiceBindings::class,
   ],

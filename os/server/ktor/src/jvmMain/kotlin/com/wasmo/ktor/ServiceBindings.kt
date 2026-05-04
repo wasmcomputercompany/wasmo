@@ -14,11 +14,7 @@ import com.wasmo.framework.MDN
 import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.OsScope
-import com.wasmo.jobs.OsJobQueue
-import com.wasmo.jobs.absurd.AbsurdOsJobQueue
 import com.wasmo.journal.server.JournalWasmoApp
-import com.wasmo.passkeys.AuthenticatorDatabase
-import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.RealPermitService
 import com.wasmo.wasm.AppLoader
@@ -44,9 +40,6 @@ import wasmo.http.HttpService
 @BindingContainer
 interface ServiceBindings {
   @Binds
-  fun bindOsJobQueueFactory(real: AbsurdOsJobQueue.Factory): OsJobQueue.Factory
-
-  @Binds
   fun bindCallFactory(real: OkHttpClient): Call.Factory
 
   @Binds
@@ -68,11 +61,6 @@ interface ServiceBindings {
   fun bindClientAuthenticatorFactory(
     real: RealClientAuthenticator.Factory,
   ): ClientAuthenticator.Factory
-
-  @Binds
-  fun bindAuthenticatorDatabase(
-    real: RealAuthenticatorDatabase,
-  ): AuthenticatorDatabase
 
   @Binds
   fun bindAppLoader(real: JvmAppLoader): AppLoader

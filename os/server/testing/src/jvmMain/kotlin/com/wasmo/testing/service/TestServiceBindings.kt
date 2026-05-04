@@ -12,10 +12,6 @@ import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.MDN
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
-import com.wasmo.jobs.OsJobQueue
-import com.wasmo.jobs.absurd.AbsurdOsJobQueue
-import com.wasmo.passkeys.AuthenticatorDatabase
-import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.payments.PaymentsService
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.RealPermitService
@@ -56,15 +52,9 @@ interface TestServiceBindings {
   fun bindHttpClient(real: FakeHttpService): HttpService
 
   @Binds
-  fun bindAuthenticatorDatabase(real: RealAuthenticatorDatabase): AuthenticatorDatabase
-
-  @Binds
   fun bindClientAuthenticatorFactory(
     real: RealClientAuthenticator.Factory,
   ): ClientAuthenticator.Factory
-
-  @Binds
-  fun bindOsJobQueueFactory(real: AbsurdOsJobQueue.Factory): OsJobQueue.Factory
 
   @Binds
   fun bindEventListener(real: TestEventListener): EventListener
