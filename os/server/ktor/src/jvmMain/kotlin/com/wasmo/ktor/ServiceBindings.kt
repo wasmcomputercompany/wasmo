@@ -1,39 +1,26 @@
 package com.wasmo.ktor
 
-import com.stripe.StripeClient
 import com.wasmo.accounts.ClientAuthenticator
-import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.RealClientAuthenticator
-import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.routes.RouteCodec
-import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.logging.Logger
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.loadDefaultAppCatalogFromResources
-import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.events.LoggingEventListener
 import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.MDN
 import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
-import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.jobs.absurd.AbsurdOsJobQueue
 import com.wasmo.journal.server.JournalWasmoApp
-import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.passkeys.AuthenticatorDatabase
 import com.wasmo.passkeys.RealAuthenticatorDatabase
-import com.wasmo.payments.PaymentsService
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.RealPermitService
-import com.wasmo.sql.PostgresqlAddress
-import com.wasmo.sql.RealSqlDatabaseProvisioner
-import com.wasmo.sql.RealSqlService
-import com.wasmo.sql.SqlDatabaseProvisioner
-import com.wasmo.stripe.StripePaymentsService
 import com.wasmo.wasm.AppLoader
 import com.wasmo.wasm.JvmAppLoader
 import com.wasmo.website.RealServerOsHtml
@@ -53,8 +40,6 @@ import okhttp3.OkHttpClient
 import okio.FileSystem
 import wasmo.app.WasmoApp
 import wasmo.http.HttpService
-import wasmo.objectstore.ObjectStore
-import wasmo.sql.SqlService
 
 @BindingContainer
 interface ServiceBindings {
@@ -90,18 +75,7 @@ interface ServiceBindings {
   ): AuthenticatorDatabase
 
   @Binds
-  fun bindPaymentsService(
-    real: StripePaymentsService,
-  ): PaymentsService
-
-  @Binds
   fun bindAppLoader(real: JvmAppLoader): AppLoader
-
-  @Binds
-  fun bindSqlDatabaseProvisioner(real: RealSqlDatabaseProvisioner): SqlDatabaseProvisioner
-
-  @Binds
-  fun bindSqlService(real: RealSqlService): SqlService
 
   @Binds
   fun bindPermitService(real: RealPermitService): PermitService
@@ -117,56 +91,6 @@ interface ServiceBindings {
     fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
       .dns(LocalhostSubdomainsDns(Dns.SYSTEM))
       .build()
-
-    @Provides
-    @SingleIn(OsScope::class)
-    fun provideCookieSecret(config: WasmoService.Config): CookieSecret =
-      CookieSecret(config.cookieSecret)
-
-    @Provides
-    @SingleIn(OsScope::class)
-    fun provideDeployment(config: WasmoService.Config): Deployment =
-      config.deployment
-
-    @Provides
-    @SingleIn(OsScope::class)
-    fun provideSessionCookieSpec(config: WasmoService.Config): SessionCookieSpec =
-      config.sessionCookieSpec
-
-    @Provides
-    @SingleIn(OsScope::class)
-    fun provideStripePublishableKey(config: WasmoService.Config): StripePublishableKey =
-      config.stripeCredentials.publishableKey
-
-    @Provides
-    @ForOs
-    @SingleIn(OsScope::class)
-    fun provideObjectStore(
-      config: WasmoService.Config,
-      objectStoreFactory: ObjectStoreFactory,
-    ): ObjectStore = objectStoreFactory.open(config.objectStoreAddress)
-
-    @Provides
-    @SingleIn(OsScope::class)
-    fun provideStripeClient(
-      config: WasmoService.Config,
-    ): StripeClient {
-      return StripeClient.StripeClientBuilder()
-        .setApiKey(config.stripeCredentials.secretKey)
-        .build()
-    }
-
-    @Provides
-    @SingleIn(OsScope::class)
-    fun provideStripePaymentsService(
-      config: WasmoService.Config,
-      stripeClient: StripeClient,
-    ): StripePaymentsService = StripePaymentsService(
-      deployment = config.deployment,
-      sessionService = stripeClient.v1().checkout().sessions(),
-      subscriptionService = stripeClient.v1().subscriptions(),
-      catalog = config.catalog,
-    )
 
     @Provides
     @SingleIn(OsScope::class)
@@ -195,11 +119,5 @@ interface ServiceBindings {
     @Provides
     @SingleIn(OsScope::class)
     fun provideContentTypeDatabase(): ContentTypeDatabase = ContentTypeDatabase.MDN
-
-    @Provides
-    @SingleIn(OsScope::class)
-    fun providePostgresqlAddress(config: WasmoService.Config): PostgresqlAddress =
-      config.osPostgresqlAddress
-
   }
 }

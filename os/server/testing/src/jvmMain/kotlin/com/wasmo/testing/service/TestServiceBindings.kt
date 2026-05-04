@@ -20,9 +20,6 @@ import com.wasmo.payments.PaymentsService
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.RealPermitService
 import com.wasmo.sendemail.SendEmailService
-import com.wasmo.sql.RealSqlDatabaseProvisioner
-import com.wasmo.sql.RealSqlService
-import com.wasmo.sql.SqlDatabaseProvisioner
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePaymentsService
 import com.wasmo.testing.FakeSendEmailService
@@ -41,7 +38,6 @@ import wasmo.http.FakeHttpService
 import wasmo.http.HttpService
 import wasmo.objectstore.FakeObjectStore
 import wasmo.objectstore.ObjectStore
-import wasmo.sql.SqlService
 import wasmo.time.FakeClock
 
 @BindingContainer
@@ -79,12 +75,6 @@ interface TestServiceBindings {
   @Binds
   @ForOs
   fun bindObjectStore(real: FakeObjectStore): ObjectStore
-
-  @Binds
-  fun bindSqlDatabaseProvisioner(real: RealSqlDatabaseProvisioner): SqlDatabaseProvisioner
-
-  @Binds
-  fun bindSqlService(real: RealSqlService): SqlService
 
   @Binds
   fun bindPermitService(real: RealPermitService): PermitService

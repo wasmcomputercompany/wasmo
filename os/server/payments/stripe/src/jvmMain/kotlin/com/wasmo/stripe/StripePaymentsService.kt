@@ -21,7 +21,7 @@ import kotlin.time.Instant
 
 @Inject
 @SingleIn(OsScope::class)
-class StripePaymentsService(
+internal class StripePaymentsService(
   private val deployment: Deployment,
   private val sessionService: SessionService,
   private val subscriptionService: SubscriptionService,

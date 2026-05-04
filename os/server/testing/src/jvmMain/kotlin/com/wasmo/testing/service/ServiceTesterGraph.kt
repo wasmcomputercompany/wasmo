@@ -12,6 +12,7 @@ import com.wasmo.jobs.absurd.AbsurdService
 import com.wasmo.permits.RealPermitService
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
+import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.TestDirectory
@@ -34,6 +35,7 @@ import wasmo.time.FakeClock
   bindingContainers = [
     ComputerBindings::class,
     InstalledAppBindings::class,
+    SqlServiceBindings::class,
     TestServiceBindings::class,
   ],
 )
