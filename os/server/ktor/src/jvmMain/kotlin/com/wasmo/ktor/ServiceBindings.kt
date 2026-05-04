@@ -1,7 +1,5 @@
 package com.wasmo.ktor
 
-import com.wasmo.accounts.ClientAuthenticator
-import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.common.logging.Logger
 import com.wasmo.common.routes.RealRouteCodec
@@ -15,8 +13,6 @@ import com.wasmo.http.OkHttpClientHttpService
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.OsScope
 import com.wasmo.journal.server.JournalWasmoApp
-import com.wasmo.permits.PermitService
-import com.wasmo.permits.RealPermitService
 import com.wasmo.wasm.AppLoader
 import com.wasmo.wasm.JvmAppLoader
 import com.wasmo.website.RealServerOsHtml
@@ -58,15 +54,7 @@ interface ServiceBindings {
   fun bindLogger(real: KtorLogger): Logger
 
   @Binds
-  fun bindClientAuthenticatorFactory(
-    real: RealClientAuthenticator.Factory,
-  ): ClientAuthenticator.Factory
-
-  @Binds
   fun bindAppLoader(real: JvmAppLoader): AppLoader
-
-  @Binds
-  fun bindPermitService(real: RealPermitService): PermitService
 
   companion object {
 

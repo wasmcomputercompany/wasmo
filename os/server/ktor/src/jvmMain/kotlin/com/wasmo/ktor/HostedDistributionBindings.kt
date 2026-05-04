@@ -1,5 +1,6 @@
 package com.wasmo.ktor
 
+import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
@@ -14,6 +15,7 @@ import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
 import com.wasmo.objectstore.s3.S3ObjectStoreBindings
 import com.wasmo.passkeys.PasskeysBindings
+import com.wasmo.permits.PermitsBindings
 import com.wasmo.sendemail.postmark.PostmarkBindings
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
@@ -28,11 +30,13 @@ import wasmo.objectstore.ObjectStore
 @BindingContainer(
   includes = [
     AbsurdBindings::class,
+    AccountsBindings::class,
     ComputerBindings::class,
     FileSystemObjectStoreBindings::class,
     HostedDistributionBindings::class,
     InstalledAppBindings::class,
     PasskeysBindings::class,
+    PermitsBindings::class,
     PostmarkBindings::class,
     S3ObjectStoreBindings::class,
     ServiceBindings::class,

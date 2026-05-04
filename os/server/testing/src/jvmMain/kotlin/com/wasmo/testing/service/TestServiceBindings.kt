@@ -1,8 +1,6 @@
 package com.wasmo.testing.service
 
-import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.CookieSecret
-import com.wasmo.accounts.RealClientAuthenticator
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.computers.AppCatalog
@@ -13,8 +11,6 @@ import com.wasmo.framework.MDN
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
 import com.wasmo.payments.PaymentsService
-import com.wasmo.permits.PermitService
-import com.wasmo.permits.RealPermitService
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePaymentsService
@@ -52,11 +48,6 @@ interface TestServiceBindings {
   fun bindHttpClient(real: FakeHttpService): HttpService
 
   @Binds
-  fun bindClientAuthenticatorFactory(
-    real: RealClientAuthenticator.Factory,
-  ): ClientAuthenticator.Factory
-
-  @Binds
   fun bindEventListener(real: TestEventListener): EventListener
 
   @Binds
@@ -65,9 +56,6 @@ interface TestServiceBindings {
   @Binds
   @ForOs
   fun bindObjectStore(real: FakeObjectStore): ObjectStore
-
-  @Binds
-  fun bindPermitService(real: RealPermitService): PermitService
 
   companion object {
 

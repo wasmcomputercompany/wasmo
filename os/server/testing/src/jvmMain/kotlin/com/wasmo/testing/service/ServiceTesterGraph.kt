@@ -1,5 +1,6 @@
 package com.wasmo.testing.service
 
+import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerServiceGraph
@@ -11,7 +12,8 @@ import com.wasmo.jobs.OsJobQueue
 import com.wasmo.jobs.absurd.AbsurdBindings
 import com.wasmo.jobs.absurd.AbsurdService
 import com.wasmo.passkeys.PasskeysBindings
-import com.wasmo.permits.RealPermitService
+import com.wasmo.permits.PermitService
+import com.wasmo.permits.PermitsBindings
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.SqlServiceBindings
@@ -36,9 +38,11 @@ import wasmo.time.FakeClock
   scope = OsScope::class,
   bindingContainers = [
     AbsurdBindings::class,
+    AccountsBindings::class,
     ComputerBindings::class,
     InstalledAppBindings::class,
     PasskeysBindings::class,
+    PermitsBindings::class,
     SqlServiceBindings::class,
     TestServiceBindings::class,
   ],
@@ -55,7 +59,7 @@ interface ServiceTesterGraph {
   val eventListener: TestEventListener
   val fakeHttpClient: FakeHttpService
   val fileSystem: FileSystem
-  val permitService: RealPermitService
+  val permitService: PermitService
 
   @TestDirectory
   val testDirectory: Path

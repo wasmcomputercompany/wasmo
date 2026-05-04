@@ -15,7 +15,7 @@ import wasmo.sql.SqlConnection
  */
 @Inject
 @SingleIn(OsScope::class)
-class RealPermitService : PermitService {
+internal class RealPermitService : PermitService {
   context(sqlConnection: SqlConnection)
   override suspend fun tryAcquire(
     now: Instant,
