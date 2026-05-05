@@ -16,6 +16,7 @@ import com.wasmo.computers.AfterCheckoutPage
 import com.wasmo.computers.ComputersActions
 import com.wasmo.computers.CreateComputerSpecRpc
 import com.wasmo.emails.ConfirmEmailAddressRpc
+import com.wasmo.emails.EmailsActions
 import com.wasmo.emails.LinkEmailAddressRpc
 import com.wasmo.installedapps.CallAppAction
 import com.wasmo.installedapps.ComputerActions
@@ -36,6 +37,7 @@ import dev.zacsweers.metro.SingleIn
 interface CallGraph :
   ComputerActions,
   ComputersActions,
+  EmailsActions,
   InstalledAppActions,
   PasskeyActions,
   WebsiteActions {
@@ -43,11 +45,11 @@ interface CallGraph :
   val afterCheckoutPage: AfterCheckoutPage
   override val authenticatePasskeyRpc: AuthenticatePasskeyRpc
   override val callAppAction: CallAppAction
-  val confirmEmailAddressRpc: ConfirmEmailAddressRpc
+  override val confirmEmailAddressRpc: ConfirmEmailAddressRpc
   override val createComputerSpecRpc: CreateComputerSpecRpc
   val createInviteRpc: CreateInviteRpc
   override val installAppRpc: InstallAppRpc
-  val linkEmailAddressRpc: LinkEmailAddressRpc
+  override val linkEmailAddressRpc: LinkEmailAddressRpc
   override val osPage: OsPage
   override val registerPasskeyRpc: RegisterPasskeyRpc
   val signOutRpc: SignOutRpc

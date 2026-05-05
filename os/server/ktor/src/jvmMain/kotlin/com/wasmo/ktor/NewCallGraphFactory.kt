@@ -3,6 +3,7 @@ package com.wasmo.ktor
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.passkeys.PasskeyActions
 import com.wasmo.computers.ComputersActions
+import com.wasmo.emails.EmailsActions
 import com.wasmo.framework.UserAgent
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.ComputerActions
@@ -19,6 +20,7 @@ class NewCallGraphFactory(
 ) :
   ComputerActions.Factory,
   ComputersActions.Factory,
+  EmailsActions.Factory,
   InstalledAppActions.Factory,
   PasskeyActions.Factory,
   WebsiteActions.Factory {

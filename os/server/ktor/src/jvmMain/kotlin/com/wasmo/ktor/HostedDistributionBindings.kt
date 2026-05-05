@@ -10,6 +10,8 @@ import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputersActionSource
 import com.wasmo.computers.ComputersActions
+import com.wasmo.emails.EmailsActionSource
+import com.wasmo.emails.EmailsActions
 import com.wasmo.framework.ActionSource
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.ForOs
@@ -99,6 +101,11 @@ abstract class HostedDistributionBindings {
   abstract fun bindComputersActionsFactory(
     callGraphFactory: NewCallGraphFactory,
   ): ComputersActions.Factory
+
+  @Binds
+  abstract fun bindEmailsActionsFactory(
+    callGraphFactory: NewCallGraphFactory,
+  ): EmailsActions.Factory
 
   @Binds
   abstract fun bindInstalledAppActionsFactory(
