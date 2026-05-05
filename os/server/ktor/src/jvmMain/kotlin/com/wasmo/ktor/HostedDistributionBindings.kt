@@ -1,24 +1,16 @@
 package com.wasmo.ktor
 
-import com.wasmo.accounts.AccountsActionSource
-import com.wasmo.accounts.AccountsActions
 import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
-import com.wasmo.accounts.passkeys.PasskeyActions
-import com.wasmo.accounts.passkeys.PasskeysActionSource
+import com.wasmo.accounts.passkeys.AccountsPasskeysBindings
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.Catalog
-import com.wasmo.computers.ComputersActionSource
-import com.wasmo.computers.ComputersActions
 import com.wasmo.computers.ComputersBindings
-import com.wasmo.emails.EmailsActionSource
-import com.wasmo.emails.EmailsActions
+import com.wasmo.emails.EmailBindings
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
-import com.wasmo.installedapps.InstalledAppActionSource
-import com.wasmo.installedapps.InstalledAppActions
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.jobs.absurd.AbsurdBindings
 import com.wasmo.objectstore.ObjectStoreFactory
@@ -30,14 +22,10 @@ import com.wasmo.sendemail.postmark.PostmarkBindings
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.SqlServiceBindings
-import com.wasmo.stripe.StripeActionSource
-import com.wasmo.stripe.StripeActions
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
-import com.wasmo.website.WebsiteActionSource
-import com.wasmo.website.WebsiteActions
+import com.wasmo.website.WebsiteBindings
 import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import wasmo.objectstore.ObjectStore
@@ -46,7 +34,9 @@ import wasmo.objectstore.ObjectStore
   includes = [
     AbsurdBindings::class,
     AccountsBindings::class,
+    AccountsPasskeysBindings::class,
     ComputersBindings::class,
+    EmailBindings::class,
     FileSystemObjectStoreBindings::class,
     HostedDistributionBindings::class,
     InstalledAppBindings::class,
@@ -57,52 +47,10 @@ import wasmo.objectstore.ObjectStore
     ServiceBindings::class,
     SqlServiceBindings::class,
     StripeBindings::class,
-    // Action sources
-    ComputersActionSource::class,
-    EmailsActionSource::class,
-    InstalledAppActionSource::class,
-    AccountsActionSource::class,
-    PasskeysActionSource::class,
-    StripeActionSource::class,
-    WebsiteActionSource::class,
+    WebsiteBindings::class,
   ],
 )
 abstract class HostedDistributionBindings {
-  @Binds
-  abstract fun bindAccountsActionsFactory(
-    callGraphFactory: NewCallGraphFactory,
-  ): AccountsActions.Factory
-
-  @Binds
-  abstract fun bindComputersActionsFactory(
-    callGraphFactory: NewCallGraphFactory,
-  ): ComputersActions.Factory
-
-  @Binds
-  abstract fun bindEmailsActionsFactory(
-    callGraphFactory: NewCallGraphFactory,
-  ): EmailsActions.Factory
-
-  @Binds
-  abstract fun bindInstalledAppActionsFactory(
-    callGraphFactory: NewCallGraphFactory,
-  ): InstalledAppActions.Factory
-
-  @Binds
-  abstract fun bindPasskeyActionsFactory(
-    callGraphFactory: NewCallGraphFactory,
-  ): PasskeyActions.Factory
-
-  @Binds
-  abstract fun bindStripeActionsFactory(
-    callGraphFactory: NewCallGraphFactory,
-  ): StripeActions.Factory
-
-  @Binds
-  abstract fun bindWebsiteActionsFactory(
-    callGraphFactory: NewCallGraphFactory,
-  ): WebsiteActions.Factory
-
   companion object {
     @Provides
     @SingleIn(OsScope::class)

@@ -10,16 +10,22 @@ import com.wasmo.db.passkeys.findPasskeyByPasskeyIdAndAccountId
 import com.wasmo.db.passkeys.insertPasskey
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
+import com.wasmo.framework.RpcAction
+import com.wasmo.framework.Url
+import com.wasmo.framework.UserAgent
 import com.wasmo.passkeys.PasskeyChecker
+import dev.zacsweers.metro.ClassKey
+import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import kotlin.time.Clock
 import org.postgresql.util.PSQLException
 import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@SingleIn(CallScope::class)
+@ClassKey(RegisterPasskeyRpc::class)
+@ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class RegisterPasskeyRpc(
   private val clock: Clock,
   private val callDataService: CallDataService,
@@ -27,7 +33,7 @@ class RegisterPasskeyRpc(
   private val passkeyChecker: PasskeyChecker,
   private val wasmoDb: SqlDatabase,
   private val inviteService: InviteService,
-) {
+) : RpcAction<RegisterPasskeyRequest, RegisterPasskeyResponse> {
   suspend fun register(
     request: RegisterPasskeyRequest,
   ): Response<RegisterPasskeyResponse> {
@@ -65,4 +71,10 @@ class RegisterPasskeyRpc(
       )
     }
   }
+
+  override suspend fun invoke(
+    userAgent: UserAgent,
+    request: RegisterPasskeyRequest,
+    url: Url,
+  ) = register(request)
 }

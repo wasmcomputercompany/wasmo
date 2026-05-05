@@ -1,5 +1,6 @@
 package com.wasmo.framework
 
+import kotlin.reflect.KClass
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
@@ -8,7 +9,7 @@ sealed interface ActionRegistration {
     val pattern: HttpRequestPattern,
     val requestAdapter: KSerializer<R>,
     val responseAdapter: KSerializer<S>,
-    val action: () -> RpcAction<R, S>,
+    val action: KClass<out RpcAction<R, S>>,
   ) : ActionRegistration {
     init {
       require(pattern.method == null) { "unexpected method on RPC" }
@@ -17,7 +18,7 @@ sealed interface ActionRegistration {
 
   data class Http(
     val pattern: HttpRequestPattern,
-    val action: () -> HttpAction,
+    val action: KClass<out HttpAction>,
   ) : ActionRegistration
 
   data class StaticResources(
@@ -27,40 +28,14 @@ sealed interface ActionRegistration {
   ) : ActionRegistration
 
   companion object {
-    fun Http(
-      pattern: HttpRequestPattern,
-      action: suspend (UserAgent, Url, Request) -> Response<ResponseBody>,
-    ) = Http(
-      pattern = pattern,
-      action = {
-        object : HttpAction {
-          override suspend fun invoke(
-            userAgent: UserAgent,
-            url: Url,
-            request: Request,
-          ) = action(userAgent, url, request)
-        }
-      },
-    )
-
     inline fun <reified R, reified S> Rpc(
       pattern: HttpRequestPattern,
-      noinline action: suspend (UserAgent, R, Url) -> Response<S>,
-    ) = Rpc<R, S>(
+      action: KClass<out RpcAction<R, S>>,
+    ) = Rpc(
       pattern = pattern,
       requestAdapter = serializer<R>(),
       responseAdapter = serializer<S>(),
-      action = {
-        object : RpcAction<R, S> {
-          override suspend fun invoke(
-            userAgent: UserAgent,
-            request: R,
-            url: Url,
-          ): Response<S> {
-            return action(userAgent, request, url)
-          }
-        }
-      },
+      action = action,
     )
   }
 }
