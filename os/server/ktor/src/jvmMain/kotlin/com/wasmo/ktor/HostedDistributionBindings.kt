@@ -8,12 +8,16 @@ import com.wasmo.accounts.passkeys.PasskeysActionSource
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerBindings
+import com.wasmo.computers.ComputersActionSource
+import com.wasmo.computers.ComputersActions
 import com.wasmo.framework.ActionSource
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.ComputerActionSource
 import com.wasmo.installedapps.ComputerActions
+import com.wasmo.installedapps.InstalledAppActionSource
+import com.wasmo.installedapps.InstalledAppActions
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.jobs.absurd.AbsurdBindings
 import com.wasmo.objectstore.ObjectStoreFactory
@@ -60,15 +64,7 @@ abstract class HostedDistributionBindings {
 
   @Binds
   @IntoSet
-  abstract fun bindWebsiteActionSource(config: WebsiteActionSource): ActionSource
-
-  @Binds
-  @IntoSet
-  abstract fun bindInstalledAppActionSource(config: InstalledAppActionSource): ActionSource
-
-  @Binds
-  @IntoSet
-  abstract fun bindPasskeysActionSource(config: PasskeysActionSource): ActionSource
+  abstract fun bindComputersActionSource(config: ComputersActionSource): ActionSource
 
   @Binds
   @IntoSet
@@ -76,21 +72,43 @@ abstract class HostedDistributionBindings {
 
   @Binds
   @IntoSet
-  abstract fun bindStripeActionSource(config: StripeActionSource): ActionSource
+  abstract fun bindInstalledAppActionSource(config: InstalledAppActionSource): ActionSource
 
   @Binds
   @IntoSet
   abstract fun bindOsActionSource(config: OsActionSource): ActionSource
 
   @Binds
-  abstract fun bindPasskeyActionsFactory(
-    callGraphFactory: NewCallGraphFactory,
-  ): PasskeyActions.Factory
+  @IntoSet
+  abstract fun bindPasskeysActionSource(config: PasskeysActionSource): ActionSource
+
+  @Binds
+  @IntoSet
+  abstract fun bindStripeActionSource(config: StripeActionSource): ActionSource
+
+  @Binds
+  @IntoSet
+  abstract fun bindWebsiteActionSource(config: WebsiteActionSource): ActionSource
 
   @Binds
   abstract fun bindComputerActionsFactory(
     callGraphFactory: NewCallGraphFactory,
   ): ComputerActions.Factory
+
+  @Binds
+  abstract fun bindComputersActionsFactory(
+    callGraphFactory: NewCallGraphFactory,
+  ): ComputersActions.Factory
+
+  @Binds
+  abstract fun bindInstalledAppActionsFactory(
+    callGraphFactory: NewCallGraphFactory,
+  ): InstalledAppActions.Factory
+
+  @Binds
+  abstract fun bindPasskeyActionsFactory(
+    callGraphFactory: NewCallGraphFactory,
+  ): PasskeyActions.Factory
 
   @Binds
   abstract fun bindWebsiteActionsFactory(

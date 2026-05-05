@@ -20,7 +20,7 @@ class EmailsActionSource(
   private val hostnamePatterns: HostnamePatterns,
 ) : ActionSource {
   override val order: Int
-    get() = 3
+    get() = 0
 
   private fun callGraph(userAgent: UserAgent) = callGraphFactory.create(userAgent)
 

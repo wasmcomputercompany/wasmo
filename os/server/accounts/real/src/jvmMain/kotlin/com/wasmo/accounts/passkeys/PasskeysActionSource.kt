@@ -19,7 +19,7 @@ class PasskeysActionSource(
   private val hostnamePatterns: HostnamePatterns,
 ) : ActionSource {
   override val order: Int
-    get() = 2
+    get() = 0
 
   context(binder: Binder)
   override fun bindActions() {

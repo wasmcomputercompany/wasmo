@@ -14,7 +14,7 @@ class StripeActionSource(
   private val hostnamePatterns: HostnamePatterns,
 ) : ActionSource {
   override val order: Int
-    get() = 4
+    get() = 0
 
   context(binder: Binder)
   override fun bindActions() {
