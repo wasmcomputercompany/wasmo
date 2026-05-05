@@ -2,6 +2,7 @@ package com.wasmo.installedapps
 
 import com.wasmo.framework.ActionSource
 import com.wasmo.framework.ActionSource.Binder
+import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
@@ -18,13 +19,13 @@ class InstalledAppActionSource(
 
   context(binder: Binder)
   override fun bindActions() {
-    binder.host(hostnamePatterns.appRegex) {
-      routeAll {
-        httpAction { userAgent, _, request ->
-          val action = installedAppActionsFactory.create(userAgent).callAppAction
-          action.call(request)
-        }
-      }
+    binder.httpAction(
+      HttpRequestPattern(
+        host = hostnamePatterns.appRegex,
+      ),
+    ) { userAgent, _, request ->
+      val action = installedAppActionsFactory.create(userAgent).callAppAction
+      action.call(request)
     }
   }
 }

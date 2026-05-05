@@ -2,6 +2,7 @@ package com.wasmo.stripe
 
 import com.wasmo.framework.ActionSource
 import com.wasmo.framework.ActionSource.Binder
+import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
@@ -18,13 +19,14 @@ class StripeActionSource(
 
   context(binder: Binder)
   override fun bindActions() {
-    binder.host(hostnamePatterns.osHostname) {
-      route("/after-checkout/{checkoutSessionId}") {
-        httpAction { userAgent, url, _ ->
-          val action = stripeActionsFactory.create(userAgent).afterCheckoutPage
-          action.get(url.path[1])
-        }
-      }
+    binder.httpAction(
+      HttpRequestPattern(
+        host = hostnamePatterns.osHostname,
+        path = "/after-checkout/{checkoutSessionId}",
+      ),
+    ) { userAgent, url, _ ->
+      val action = stripeActionsFactory.create(userAgent).afterCheckoutPage
+      action.get(url.path[1])
     }
   }
 }

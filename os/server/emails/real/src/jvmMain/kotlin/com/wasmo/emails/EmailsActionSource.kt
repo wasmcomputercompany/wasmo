@@ -6,6 +6,7 @@ import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
 import com.wasmo.framework.ActionSource
 import com.wasmo.framework.ActionSource.Binder
+import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.framework.rpc
 import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.OsScope
@@ -23,20 +24,24 @@ class EmailsActionSource(
 
   context(binder: Binder)
   override fun bindActions() {
-    binder.host(hostnamePatterns.osHostname) {
-      rpc<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse>(
+    binder.rpc<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse>(
+      HttpRequestPattern(
+        host = hostnamePatterns.osHostname,
         path = "/confirm-email-address",
-      ) { userAgent, request, _ ->
-        val action = emailsActionsFactory.create(userAgent).confirmEmailAddressRpc
-        action.confirm(request)
-      }
+      ),
+    ) { userAgent, request, _ ->
+      val action = emailsActionsFactory.create(userAgent).confirmEmailAddressRpc
+      action.confirm(request)
+    }
 
-      rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
+    binder.rpc<LinkEmailAddressRequest, LinkEmailAddressResponse>(
+      HttpRequestPattern(
+        host = hostnamePatterns.osHostname,
         path = "/link-email-address",
-      ) { userAgent, request, _ ->
-        val action = emailsActionsFactory.create(userAgent).linkEmailAddressRpc
-        action.link(request)
-      }
+      ),
+    ) { userAgent, request, _ ->
+      val action = emailsActionsFactory.create(userAgent).linkEmailAddressRpc
+      action.link(request)
     }
   }
 }

@@ -1,6 +1,7 @@
 package com.wasmo.website
 
 import com.wasmo.framework.ActionSource
+import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.asResponse
 import com.wasmo.framework.decodeUrl
@@ -26,45 +27,54 @@ class WebsiteActionSource(
 
   context(binder: ActionSource.Binder)
   override fun bindActions() {
-    binder.host(hostnamePatterns.computerRegex) {
-      route("/") {
-        httpAction { userAgent, url, _ ->
-          val action = websiteActionsFactory.create(userAgent).osPage
-          action.get(url).response
-        }
-      }
-
-      // TODO: change the web app to always fetch static resources from the root URL.
-      staticResources("/", "static")
+    binder.httpAction(
+      HttpRequestPattern(
+        host = hostnamePatterns.computerRegex,
+        path = "/",
+      ),
+    ) { userAgent, url, _ ->
+      val action = websiteActionsFactory.create(userAgent).osPage
+      action.get(url).response
     }
 
-    binder.host(hostnamePatterns.osHostname) {
-      val osPagePaths = listOf(
-        "/",
-        "/build-yours",
-        "/invite/{code}",
-        "/sign-up",
-      )
-      for (path in osPagePaths) {
-        route(path, "GET") {
-          httpAction { userAgent, url, _ ->
-            val callGraph = websiteActionsFactory.create(userAgent)
-            callGraph.osPage.get(url).response
-          }
-        }
-      }
+    // TODO: change the web app to always fetch static resources from the root URL.
+    binder.staticResources(
+      host = hostnamePatterns.computerRegex,
+      pathPrefix = "/",
+      basePackage = "static",
+    )
 
-      staticResources("/", "static")
+    val osPagePaths = listOf(
+      "/",
+      "/build-yours",
+      "/invite/{code}",
+      "/sign-up",
+    )
+    for (path in osPagePaths) {
+      binder.httpAction(
+        HttpRequestPattern(
+          host = hostnamePatterns.osHostname,
+          path = path,
+          method = "GET",
+        ),
+      ) { userAgent, url, _ ->
+        val callGraph = websiteActionsFactory.create(userAgent)
+        callGraph.osPage.get(url).response
+      }
     }
 
-    binder.routeAll {
-      httpAction { _, url, _ ->
-        when {
-          url.topPrivateDomain != rootUrl.topPrivateDomain || url.subdomain != rootUrl.subdomain ->
-            redirect(rootUrl.toHttpUrl())
+    binder.staticResources(
+      host = Regex(Regex.escape(hostnamePatterns.osHostname)),
+      pathPrefix = "/",
+      basePackage = "static",
+    )
 
-          else -> NotFoundUserException().asResponse()
-        }
+    binder.httpAction(HttpRequestPattern.AllRequests) { _, url, _ ->
+      when {
+        url.topPrivateDomain != rootUrl.topPrivateDomain || url.subdomain != rootUrl.subdomain ->
+          redirect(rootUrl.toHttpUrl())
+
+        else -> NotFoundUserException().asResponse()
       }
     }
   }

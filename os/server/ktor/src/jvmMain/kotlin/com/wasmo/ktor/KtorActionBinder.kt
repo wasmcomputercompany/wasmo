@@ -3,6 +3,7 @@ package com.wasmo.ktor
 import com.wasmo.api.WasmoJson
 import com.wasmo.common.logging.Logger
 import com.wasmo.framework.ActionSource.Binder
+import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
@@ -21,12 +22,15 @@ import io.ktor.server.http.content.staticResources
 import io.ktor.server.request.host
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
+import io.ktor.server.routing.HostRouteSelector
+import io.ktor.server.routing.HttpMethodRouteSelector
+import io.ktor.server.routing.PathSegmentRegexRouteSelector
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.RoutingRequest
+import io.ktor.server.routing.createRouteFromPath
 import io.ktor.server.routing.host
-import io.ktor.server.routing.route
 import io.ktor.server.util.url
 import io.ktor.utils.io.asSource
 import kotlinx.io.okio.asOkioSource
@@ -47,61 +51,75 @@ class KtorActionBinder(
 
   private fun withRoute(route: Route) = factory.create(route)
 
-  override fun route(
-    path: String,
-    method: String,
-    build: Binder.() -> Unit,
-  ) {
-    route.route(path, HttpMethod.parse(method)) {
-      withRoute(this).build()
-    }
-  }
-
-  override fun host(
-    hostPattern: Regex,
-    build: Binder.() -> Unit,
-  ) {
-    route.host(hostPattern) {
-      withRoute(this).build()
-    }
-  }
-
-  override fun host(
-    host: String,
-    build: Binder.() -> Unit,
-  ) {
-    route.host(host) {
-      withRoute(this).build()
-    }
-  }
-
   override fun <R, S> rpc(
-    path: String,
+    pattern: HttpRequestPattern,
     requestAdapter: KSerializer<R>,
     responseAdapter: KSerializer<S>,
     action: suspend (UserAgent, R, Url) -> Response<S>,
   ) {
-    route.route(path, HttpMethod.Post) {
-      withRoute(this).handleInternal { userAgent, wasmoUrl, call ->
-        val request = requestAdapter.decode(call.request)
-        val response = action(userAgent, request, wasmoUrl)
-        Response(
-          status = response.status,
-          headers = response.headers,
-          contentType = response.contentType,
-          body = ResponseBody { sink ->
-            sink.writeUtf8(WasmoJson.encodeToString(responseAdapter, response.body))
-          },
-        )
-      }
+    require(pattern.method == null) { "unexpected method on RPC" }
+
+    val rpcPattern = pattern.copy(
+      method = HttpMethod.Post.value,
+    )
+
+    withRoute(rpcPattern.asRoute()).handleInternal { userAgent, wasmoUrl, call ->
+      val request = requestAdapter.decode(call.request)
+      val response = action(userAgent, request, wasmoUrl)
+      Response(
+        status = response.status,
+        headers = response.headers,
+        contentType = response.contentType,
+        body = ResponseBody { sink ->
+          sink.writeUtf8(WasmoJson.encodeToString(responseAdapter, response.body))
+        },
+      )
     }
   }
 
   override fun httpAction(
+    pattern: HttpRequestPattern,
     action: suspend (UserAgent, Url, Request) -> Response<ResponseBody>,
   ) {
-    return handleInternal { userAgent, url, routingCall ->
+    withRoute(pattern.asRoute()).handleInternal { userAgent, url, routingCall ->
       action(userAgent, url, routingCall.request.toRequest())
+    }
+  }
+
+  private fun HttpRequestPattern.asRoute(): Route {
+    var result = route
+    val host = host
+    if (host != null) {
+      result = result.createChild(
+        HostRouteSelector(
+          hostList = listOf(),
+          hostPatterns = listOf(host),
+          portsList = listOf(),
+        ),
+      )
+    }
+
+    val path = path
+    result = when {
+      path != null -> result.createRouteFromPath(path)
+      else -> result.createChild(PathSegmentRegexRouteSelector(Regex(("/.*"))))
+    }
+
+    val method = this.method
+    if (method != null) {
+      result = result.createChild(HttpMethodRouteSelector(HttpMethod.parse(method)))
+    }
+
+    return result
+  }
+
+  override fun staticResources(
+    host: Regex,
+    pathPrefix: String,
+    basePackage: String,
+  ) {
+    route.host(host) {
+      staticResources(pathPrefix, basePackage)
     }
   }
 
@@ -126,19 +144,6 @@ class KtorActionBinder(
       }
       call.respond(response)
     }
-  }
-
-  override fun routeAll(build: Binder.() -> Unit) {
-    route.route(Regex("/.*")) {
-      withRoute(this).build()
-    }
-  }
-
-  override fun staticResources(
-    remotePath: String,
-    basePackage: String,
-  ) {
-    route.staticResources(remotePath, basePackage)
   }
 
   private fun RoutingContext.wasmoUrl(): Url {

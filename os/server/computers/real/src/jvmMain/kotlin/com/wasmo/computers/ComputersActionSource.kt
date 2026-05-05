@@ -5,6 +5,7 @@ import com.wasmo.api.CreateComputerSpecResponse
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.framework.ActionSource
+import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.rpc
 import com.wasmo.identifiers.ComputerSlug
@@ -24,25 +25,27 @@ class ComputersActionSource(
 
   context(binder: ActionSource.Binder)
   override fun bindActions() {
-    binder.host(hostnamePatterns.osHostname) {
-      rpc<CreateComputerSpecRequest, CreateComputerSpecResponse>(
+    binder.rpc<CreateComputerSpecRequest, CreateComputerSpecResponse>(
+      HttpRequestPattern(
+        host = hostnamePatterns.osHostname,
         path = "/create-computer-spec",
-      ) { userAgent, request, _ ->
-        val action = computersActionsFactory.create(userAgent).createComputerSpecRpc
-        action.create(request)
-      }
+      ),
+    ) { userAgent, request, _ ->
+      val action = computersActionsFactory.create(userAgent).createComputerSpecRpc
+      action.create(request)
     }
 
-    binder.host(hostnamePatterns.computerRegex) {
-      rpc<InstallAppRequest, InstallAppResponse>(
+    binder.rpc<InstallAppRequest, InstallAppResponse>(
+      HttpRequestPattern(
+        host = hostnamePatterns.computerRegex,
         path = "/install-app",
-      ) { userAgent, request, wasmoUrl ->
-        val action = computersActionsFactory.create(userAgent).installAppRpc
-        action.install(
-          computerSlug = ComputerSlug(wasmoUrl.subdomain ?: throw NotFoundUserException()),
-          request = request,
-        )
-      }
+      ),
+    ) { userAgent, request, wasmoUrl ->
+      val action = computersActionsFactory.create(userAgent).installAppRpc
+      action.install(
+        computerSlug = ComputerSlug(wasmoUrl.subdomain ?: throw NotFoundUserException()),
+        request = request,
+      )
     }
   }
 }

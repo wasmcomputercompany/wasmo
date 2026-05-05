@@ -14,32 +14,29 @@ interface ActionSource {
    * Use this to register HTTP actions at service start up.
    */
   interface Binder {
-    fun host(hostPattern: Regex, build: Binder.() -> Unit)
-
-    fun host(host: String, build: Binder.() -> Unit)
-
-    fun route(path: String, method: String = "GET", build: Binder.() -> Unit)
-
-    fun routeAll(build: Binder.() -> Unit)
-
     fun <R, S> rpc(
-      path: String,
+      pattern: HttpRequestPattern,
       requestAdapter: KSerializer<R>,
       responseAdapter: KSerializer<S>,
       action: suspend (UserAgent, R, Url) -> Response<S>,
     )
 
     fun httpAction(
+      pattern: HttpRequestPattern,
       action: suspend (UserAgent, Url, Request) -> Response<ResponseBody>,
     )
 
-    fun staticResources(remotePath: String, basePackage: String)
+    fun staticResources(
+      host: Regex,
+      pathPrefix: String,
+      basePackage: String
+    )
   }
 }
 
 inline fun <reified R, reified S> ActionSource.Binder.rpc(
-  path: String,
+  pattern: HttpRequestPattern,
   noinline action: suspend (UserAgent, R, Url) -> Response<S>,
 ) {
-  rpc(path, serializer<R>(), serializer<S>(), action)
+  rpc(pattern, serializer<R>(), serializer<S>(), action)
 }
