@@ -1,4 +1,4 @@
-package com.wasmo.deployment
+package com.wasmo.identifiers
 
 import okhttp3.HttpUrl
 

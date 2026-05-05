@@ -1,5 +1,6 @@
-package com.wasmo.computers
+package com.wasmo.stripe
 
+import com.wasmo.computers.ComputerStore
 import com.wasmo.db.computers.findComputerAllocationByStripeSubscriptionId
 import com.wasmo.db.computers.insertComputerAllocation
 import com.wasmo.db.computers.truncateComputerAllocation

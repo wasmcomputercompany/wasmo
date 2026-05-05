@@ -21,7 +21,6 @@ kotlin {
         implementation(projects.os.api)
         implementation(projects.os.framework)
         implementation(projects.os.server.accounts.api)
-        implementation(projects.os.server.deployment)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.passkeys.api)
       }

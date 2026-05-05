@@ -3,12 +3,12 @@ package com.wasmo.installedapps
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.routes.AppRoute
-import com.wasmo.api.routes.toWasmoUrl
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
+import com.wasmo.framework.toWasmoUrl
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase

@@ -25,7 +25,6 @@ kotlin {
         implementation(projects.os.server.accounts.api)
         implementation(projects.os.server.calls.api)
         implementation(projects.os.server.db)
-        implementation(projects.os.server.deployment)
         implementation(projects.os.server.emails.messages)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.passkeys.api)

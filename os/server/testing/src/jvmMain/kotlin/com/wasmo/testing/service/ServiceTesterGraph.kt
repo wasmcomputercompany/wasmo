@@ -2,9 +2,9 @@ package com.wasmo.testing.service
 
 import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.ClientAuthenticator
-import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputerServiceGraph
-import com.wasmo.deployment.Deployment
+import com.wasmo.computers.ComputersBindings
+import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
@@ -39,12 +39,12 @@ import wasmo.time.FakeClock
   bindingContainers = [
     AbsurdBindings::class,
     AccountsBindings::class,
-    ComputerBindings::class,
+    ComputersBindings::class,
     InstalledAppBindings::class,
     PasskeysBindings::class,
     PermitsBindings::class,
     SqlServiceBindings::class,
-    TestServiceBindings::class,
+    ServiceTesterBindings::class,
   ],
 )
 interface ServiceTesterGraph {

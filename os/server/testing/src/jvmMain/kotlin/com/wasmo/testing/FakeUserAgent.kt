@@ -1,8 +1,8 @@
 package com.wasmo.testing
 
-import com.wasmo.accounts.ClientAuthenticator
+import com.wasmo.framework.UserAgent
 
-class FakeUserAgent : ClientAuthenticator.UserAgent {
+class FakeUserAgent : UserAgent {
   override val userAgent: String
     get() = "Netscape Navigator"
   override val ip: String

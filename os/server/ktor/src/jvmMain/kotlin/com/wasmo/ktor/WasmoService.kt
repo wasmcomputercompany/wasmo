@@ -4,7 +4,7 @@ package com.wasmo.ktor
 
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.common.catalog.Catalog
-import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials

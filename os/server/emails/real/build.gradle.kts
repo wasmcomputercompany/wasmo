@@ -20,7 +20,6 @@ kotlin {
         implementation(projects.os.api)
         implementation(projects.os.framework)
         implementation(projects.os.server.db)
-        implementation(projects.os.server.deployment)
         implementation(projects.os.server.accounts.api)
         implementation(projects.os.server.calls.api)
         implementation(projects.os.server.emails.messages)

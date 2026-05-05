@@ -5,7 +5,7 @@ import com.stripe.param.checkout.SessionCreateParams
 import com.stripe.service.SubscriptionService
 import com.stripe.service.checkout.SessionService
 import com.wasmo.common.catalog.Catalog
-import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
 import com.wasmo.payments.Address
 import com.wasmo.payments.CheckoutSession

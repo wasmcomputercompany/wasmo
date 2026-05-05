@@ -4,11 +4,11 @@ import androidx.compose.runtime.mutableStateOf
 import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.SignOutRoute
-import com.wasmo.api.routes.Url
-import com.wasmo.api.routes.decodeUrl
-import com.wasmo.api.routes.encode
 import com.wasmo.client.app.browser.Browser
 import com.wasmo.client.identifiers.ClientAppScope
+import com.wasmo.framework.Url
+import com.wasmo.framework.decodeUrl
+import com.wasmo.framework.encode
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope

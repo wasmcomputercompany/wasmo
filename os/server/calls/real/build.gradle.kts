@@ -23,7 +23,6 @@ kotlin {
         implementation(projects.os.server.calls.api)
         implementation(projects.os.server.computers.api)
         implementation(projects.os.server.db)
-        implementation(projects.os.server.deployment)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.passkeys.api)
         implementation(projects.os.server.sql.api)

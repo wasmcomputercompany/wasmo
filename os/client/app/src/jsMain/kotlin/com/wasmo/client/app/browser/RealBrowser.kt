@@ -1,8 +1,8 @@
 package com.wasmo.client.app.browser
 
-import com.wasmo.api.routes.Url
-import com.wasmo.api.routes.encodePathAndQuery
 import com.wasmo.client.identifiers.ClientAppScope
+import com.wasmo.framework.Url
+import com.wasmo.framework.encodePathAndQuery
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.browser.window

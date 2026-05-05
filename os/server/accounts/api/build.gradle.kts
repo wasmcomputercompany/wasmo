@@ -1,5 +1,6 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
+  alias(libs.plugins.kotlin.serialization)
   id("wasmo-build")
 }
 
@@ -11,6 +12,8 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
+        implementation(libs.kotlinx.serialization.core)
+        implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
         implementation(projects.os.api)
         implementation(projects.os.framework)

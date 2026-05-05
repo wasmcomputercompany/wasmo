@@ -1,6 +1,5 @@
 package com.wasmo.testing.computer
 
-import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.identifiers.ComputerSlug

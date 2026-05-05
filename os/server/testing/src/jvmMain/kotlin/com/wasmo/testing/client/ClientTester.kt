@@ -9,7 +9,7 @@ import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
-import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.support.tokens.newToken
