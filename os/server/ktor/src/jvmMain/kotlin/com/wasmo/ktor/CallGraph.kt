@@ -8,6 +8,7 @@ import com.wasmo.accounts.SignOutPage
 import com.wasmo.accounts.SignOutRpc
 import com.wasmo.accounts.invite.CreateInviteRpc
 import com.wasmo.accounts.passkeys.AuthenticatePasskeyRpc
+import com.wasmo.accounts.passkeys.PasskeyActions
 import com.wasmo.accounts.passkeys.RegisterPasskeyRpc
 import com.wasmo.calls.CallDataService
 import com.wasmo.calls.RealCallDataService
@@ -28,10 +29,10 @@ import dev.zacsweers.metro.SingleIn
 @GraphExtension(
   scope = CallScope::class,
 )
-interface CallGraph {
+interface CallGraph : PasskeyActions {
   val accountSnapshotRpc: AccountSnapshotRpc
   val afterCheckoutPage: AfterCheckoutPage
-  val authenticatePasskeyRpc: AuthenticatePasskeyRpc
+  override val authenticatePasskeyRpc: AuthenticatePasskeyRpc
   val callAppAction: CallAppAction
   val confirmEmailAddressRpc: ConfirmEmailAddressRpc
   val createComputerSpecRpc: CreateComputerSpecRpc
@@ -39,7 +40,7 @@ interface CallGraph {
   val installAppRpc: InstallAppRpc
   val linkEmailAddressRpc: LinkEmailAddressRpc
   val osPage: OsPage
-  val registerPasskeyRpc: RegisterPasskeyRpc
+  override val registerPasskeyRpc: RegisterPasskeyRpc
   val signOutRpc: SignOutRpc
   val signOutPage: SignOutPage
 

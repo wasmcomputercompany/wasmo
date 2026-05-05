@@ -10,7 +10,7 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(OsScope::class)
 class StripeActionSource(
-  private val callGraphStarter: CallGraphStarter,
+  private val callGraphFactory: NewCallGraphFactory,
   private val hostnamePatterns: HostnamePatterns,
 ) : ActionSource {
   override val order: Int
@@ -21,7 +21,7 @@ class StripeActionSource(
     binder.host(hostnamePatterns.osHostname) {
       route("/after-checkout/{checkoutSessionId}") {
         httpAction { userAgent, url, _ ->
-          val callGraph = callGraphStarter.start(userAgent)
+          val callGraph = callGraphFactory.create(userAgent)
           callGraph.afterCheckoutPage.get(url.path[1])
         }
       }

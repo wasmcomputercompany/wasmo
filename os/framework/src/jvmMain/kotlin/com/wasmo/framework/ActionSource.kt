@@ -4,6 +4,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
 interface ActionSource {
+  /** For precedence; lower items are bound earlier. */
   val order: Int
 
   context(binder: Binder)

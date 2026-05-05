@@ -1,4 +1,4 @@
-package com.wasmo.ktor
+package com.wasmo.accounts.passkeys
 
 import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.AuthenticatePasskeyResponse
@@ -15,7 +15,7 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(OsScope::class)
 class PasskeysActionSource(
-  private val callGraphStarter: CallGraphStarter,
+  private val passkeyActionsFactory: PasskeyActions.Factory,
   private val hostnamePatterns: HostnamePatterns,
 ) : ActionSource {
   override val order: Int
@@ -27,14 +27,14 @@ class PasskeysActionSource(
       rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
         path = "/authenticate-passkey",
       ) { userAgent, request, _ ->
-        val callGraph = callGraphStarter.start(userAgent)
+        val callGraph = passkeyActionsFactory.create(userAgent)
         callGraph.authenticatePasskeyRpc.authenticate(request)
       }
 
       rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
         path = "/register-passkey",
       ) { userAgent, request, _ ->
-        val callGraph = callGraphStarter.start(userAgent)
+        val callGraph = passkeyActionsFactory.create(userAgent)
         callGraph.registerPasskeyRpc.register(request)
       }
     }

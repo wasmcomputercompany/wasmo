@@ -10,7 +10,7 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(OsScope::class)
 class InstalledAppActionSource(
-  private val callGraphStarter: CallGraphStarter,
+  private val callGraphFactory: NewCallGraphFactory,
   private val hostnamePatterns: HostnamePatterns,
 ) : ActionSource {
   override val order: Int
@@ -21,7 +21,7 @@ class InstalledAppActionSource(
     binder.host(hostnamePatterns.appRegex) {
       routeAll {
         httpAction { userAgent, _, request ->
-          val callGraph = callGraphStarter.start(userAgent)
+          val callGraph = callGraphFactory.create(userAgent)
           callGraph.callAppAction.call(request)
         }
       }

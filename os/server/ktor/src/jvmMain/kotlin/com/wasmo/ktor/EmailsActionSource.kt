@@ -16,14 +16,13 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(OsScope::class)
 class EmailsActionSource(
-  private val callGraphStarter: CallGraphStarter,
+  private val callGraphFactory: NewCallGraphFactory,
   private val hostnamePatterns: HostnamePatterns,
 ) : ActionSource {
   override val order: Int
     get() = 3
 
-  private fun callGraph(userAgent: UserAgent) =
-    callGraphStarter.start(userAgent)
+  private fun callGraph(userAgent: UserAgent) = callGraphFactory.create(userAgent)
 
   context(binder: Binder)
   override fun bindActions() {

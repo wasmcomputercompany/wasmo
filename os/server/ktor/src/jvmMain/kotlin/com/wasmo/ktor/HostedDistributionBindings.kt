@@ -3,6 +3,8 @@ package com.wasmo.ktor
 import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.accounts.passkeys.PasskeyActions
+import com.wasmo.accounts.passkeys.PasskeysActionSource
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerBindings
@@ -71,6 +73,11 @@ abstract class HostedDistributionBindings {
   @Binds
   @IntoSet
   abstract fun bindOsActionSource(config: OsActionSource): ActionSource
+
+  @Binds
+  abstract fun bindPasskeyActionsFactory(
+    callGraphFactory: NewCallGraphFactory,
+  ): PasskeyActions.Factory
 
   companion object {
     @Provides
