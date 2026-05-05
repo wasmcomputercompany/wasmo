@@ -1,7 +1,6 @@
 package com.wasmo.website
 
 import com.wasmo.framework.ActionRegistration
-import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.BindingContainer
@@ -18,61 +17,55 @@ abstract class WebsiteBindings {
     fun provideActionRegistrations(
       hostnamePatterns: HostnamePatterns,
     ): List<ActionRegistration> = listOf(
-      ActionRegistration.Http(
-        HttpRequestPattern(
-          host = hostnamePatterns.computerRegex,
-          path = "/",
-        ),
-        action = OsPage::class,
+      pageRegistration(
+        host = hostnamePatterns.computerRegex,
+        path = "/",
       ),
 
       ActionRegistration.StaticResources(
         host = hostnamePatterns.computerRegex,
-        pathPrefix = "/",
+        path = "/",
         basePackage = "static",
       ),
 
       pageRegistration(
-        hostnamePatterns = hostnamePatterns,
+        host = hostnamePatterns.osHostname,
         path = "/",
       ),
 
       pageRegistration(
-        hostnamePatterns = hostnamePatterns,
+        host = hostnamePatterns.osHostname,
         path = "/build-yours",
       ),
 
       pageRegistration(
-        hostnamePatterns = hostnamePatterns,
+        host = hostnamePatterns.osHostname,
         path = "/invite/{code}",
       ),
 
       pageRegistration(
-        hostnamePatterns = hostnamePatterns,
+        host = hostnamePatterns.osHostname,
         path = "/sign-up",
       ),
 
       ActionRegistration.StaticResources(
-        host = Regex(Regex.escape(hostnamePatterns.osHostname)),
-        pathPrefix = "/",
+        host = hostnamePatterns.osHostname,
+        path = "/",
         basePackage = "static",
       ),
 
       ActionRegistration.Http(
-        HttpRequestPattern.AllRequests,
-        FallbackHttpAction::class,
+        action = FallbackHttpAction::class,
       ),
     )
 
     private fun pageRegistration(
-      hostnamePatterns: HostnamePatterns,
+      host: Regex,
       path: String,
     ) = ActionRegistration.Http(
-      HttpRequestPattern(
-        host = hostnamePatterns.osHostname,
-        path = path,
-        method = "GET",
-      ),
+      host = host,
+      path = path,
+      method = "GET",
       action = OsPage::class,
     )
   }

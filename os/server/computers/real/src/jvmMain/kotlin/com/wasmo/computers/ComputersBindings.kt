@@ -1,11 +1,6 @@
 package com.wasmo.computers
 
-import com.wasmo.api.CreateComputerSpecRequest
-import com.wasmo.api.CreateComputerSpecResponse
-import com.wasmo.api.InstallAppRequest
-import com.wasmo.api.InstallAppResponse
 import com.wasmo.framework.ActionRegistration
-import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.JobName
 import com.wasmo.identifiers.OsScope
@@ -34,19 +29,15 @@ abstract class ComputersBindings {
     fun provideActionRegistrations(
       hostnamePatterns: HostnamePatterns,
     ): List<ActionRegistration> = listOf(
-      ActionRegistration.Rpc<CreateComputerSpecRequest, CreateComputerSpecResponse>(
-        pattern = HttpRequestPattern(
-          host = hostnamePatterns.osHostname,
-          path = "/create-computer-spec",
-        ),
+      ActionRegistration.Rpc(
+        host = hostnamePatterns.osHostname,
+        path = "/create-computer-spec",
         action = CreateComputerSpecRpc::class,
       ),
 
-      ActionRegistration.Rpc<InstallAppRequest, InstallAppResponse>(
-        pattern = HttpRequestPattern(
-          host = hostnamePatterns.computerRegex,
-          path = "/install-app",
-        ),
+      ActionRegistration.Rpc(
+        host = hostnamePatterns.computerRegex,
+        path = "/install-app",
         action = InstallAppRpc::class,
       ),
     )

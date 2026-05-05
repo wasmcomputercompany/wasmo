@@ -1,7 +1,6 @@
 package com.wasmo.installedapps
 
 import com.wasmo.framework.ActionRegistration
-import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.JobName
 import com.wasmo.identifiers.OsScope
@@ -29,8 +28,8 @@ abstract class InstalledAppBindings {
       hostnamePatterns: HostnamePatterns,
     ): List<ActionRegistration> = listOf(
       ActionRegistration.Http(
-        HttpRequestPattern(host = hostnamePatterns.appRegex),
-        CallAppAction::class,
+        host = hostnamePatterns.appRegex,
+        action = CallAppAction::class,
       ),
     )
 

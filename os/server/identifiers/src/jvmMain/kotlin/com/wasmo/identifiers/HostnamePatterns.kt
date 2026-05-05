@@ -5,7 +5,7 @@ package com.wasmo.identifiers
  */
 data class HostnamePatterns(
   /** A URL like `https://wasmo.com`. */
-  val osHostname: String,
+  val osHostname: Regex,
 
   /** Computer URLs like `https://jesse99.wasmo.com`. */
   val computerRegex: Regex,
@@ -18,7 +18,7 @@ fun Deployment.hostnamePatterns(): HostnamePatterns {
   val osHostname = baseUrl.topPrivateDomain()!!
   val suffixRegex = Regex.escape(".${osHostname}")
   return HostnamePatterns(
-    osHostname = osHostname,
+    osHostname = Regex(Regex.escape(osHostname)),
     computerRegex = Regex("${ComputerSlugRegex.pattern}$suffixRegex"),
     appRegex = Regex("${AppSlugRegex.pattern}-${ComputerSlugRegex.pattern}$suffixRegex"),
   )

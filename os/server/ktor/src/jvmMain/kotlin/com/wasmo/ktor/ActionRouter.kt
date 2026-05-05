@@ -4,7 +4,6 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.api.WasmoJson
 import com.wasmo.common.logging.Logger
 import com.wasmo.framework.ActionRegistration
-import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
@@ -77,8 +76,8 @@ class ActionRouter(
           is ActionRegistration.Rpc<*, *> -> 0
           is ActionRegistration.Http -> {
             when {
-              it.pattern.host != null && it.pattern.path != null -> 1
-              it.pattern.host != null -> 2
+              it.host != null && it.path != null -> 1
+              it.host != null -> 2
               else -> 3
             }
           }
@@ -102,7 +101,7 @@ class ActionRouter(
   }
 
   private fun <S, R> Route.registerRpc(actionRegistration: ActionRegistration.Rpc<S, R>) {
-    handleInternal(actionRegistration.pattern) { userAgent, wasmoUrl, call ->
+    handleInternal(actionRegistration) { userAgent, wasmoUrl, call ->
       val request = actionRegistration.requestAdapter.decode(call.request)
       val action = callGraph(userAgent).rpcActions[actionRegistration.action]?.invoke()
         ?: error("unknown action: ${actionRegistration.action}, did you forget @ContributesIntoMap?")
@@ -124,7 +123,7 @@ class ActionRouter(
   }
 
   private fun Route.registerHttp(actionRegistration: ActionRegistration.Http) {
-    handleInternal(actionRegistration.pattern) { userAgent, url, routingCall ->
+    handleInternal(actionRegistration) { userAgent, url, routingCall ->
       val action = callGraph(userAgent).httpActions[actionRegistration.action]?.invoke()
         ?: error("unknown action: ${actionRegistration.action}, did you forget @ContributesIntoMap?")
       action.invoke(userAgent, url, routingCall.request.toRequest())
@@ -135,7 +134,7 @@ class ActionRouter(
     actionRegistration: ActionRegistration.StaticResources,
   ) {
     host(actionRegistration.host) {
-      staticResources(actionRegistration.pathPrefix, actionRegistration.basePackage)
+      staticResources(actionRegistration.path, actionRegistration.basePackage)
     }
   }
 
@@ -146,10 +145,10 @@ class ActionRouter(
   }
 
   private fun Route.handleInternal(
-    httpRequestPattern: HttpRequestPattern,
+    actionRegistration: ActionRegistration,
     action: suspend (UserAgent, Url, RoutingCall) -> Response<ResponseBody>,
   ) {
-    childRoute(httpRequestPattern).handle {
+    childRoute(actionRegistration).handle {
       val response = try {
         action(KtorUserAgent(this), wasmoUrl(), call)
       } catch (e: UserException) {
@@ -167,9 +166,9 @@ class ActionRouter(
     }
   }
 
-  private fun Route.childRoute(pattern: HttpRequestPattern): Route {
+  private fun Route.childRoute(actionRegistration: ActionRegistration): Route {
     var result = this
-    val host = pattern.host
+    val host = actionRegistration.host
     if (host != null) {
       result = result.createChild(
         HostRouteSelector(
@@ -180,13 +179,13 @@ class ActionRouter(
       )
     }
 
-    val path = pattern.path
+    val path = actionRegistration.path
     result = when {
       path != null -> result.createRouteFromPath(path)
       else -> result.createChild(PathSegmentRegexRouteSelector(Regex(("/.*"))))
     }
 
-    val method = pattern.method
+    val method = actionRegistration.method
     if (method != null) {
       result = result.createChild(HttpMethodRouteSelector(HttpMethod.parse(method)))
     }

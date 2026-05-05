@@ -3,7 +3,6 @@ package com.wasmo.stripe
 import com.stripe.StripeClient
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.framework.ActionRegistration
-import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.OsScope
@@ -27,10 +26,9 @@ abstract class StripeBindings {
       hostnamePatterns: HostnamePatterns,
     ): List<ActionRegistration> = listOf(
       ActionRegistration.Http(
-        HttpRequestPattern(
-          host = hostnamePatterns.osHostname,
-          path = "/after-checkout/{checkoutSessionId}",
-        ),
+        host = hostnamePatterns.osHostname,
+        path = "/after-checkout/{checkoutSessionId}",
+        method = "GET",
         action = AfterCheckoutPage::class,
       ),
     )
