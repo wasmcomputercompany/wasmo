@@ -20,14 +20,19 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.postgresql)
         implementation(libs.stripe)
+        implementation(projects.identifiers)
         implementation(projects.os.api)
         implementation(projects.os.catalog)
         implementation(projects.os.framework)
         implementation(projects.os.logging)
         implementation(projects.os.server.accounts.api)
+        implementation(projects.os.server.calls.api)
+        implementation(projects.os.server.computers.api)
         implementation(projects.os.server.db)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.payments.api)
+        implementation(projects.platform.api)
+        implementation(projects.wasmox.wasmoxSql)
       }
     }
     val jvmTest by getting {

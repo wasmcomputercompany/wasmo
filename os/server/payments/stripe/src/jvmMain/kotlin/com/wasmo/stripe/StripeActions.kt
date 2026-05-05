@@ -1,4 +1,4 @@
-package com.wasmo.computers
+package com.wasmo.stripe
 
 import com.wasmo.framework.UserAgent
 

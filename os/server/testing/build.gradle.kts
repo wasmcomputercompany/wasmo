@@ -52,6 +52,7 @@ kotlin {
         implementation(projects.os.server.passkeys.api)
         implementation(projects.os.server.passkeys.real)
         implementation(projects.os.server.payments.api)
+        implementation(projects.os.server.payments.stripe)
         implementation(projects.os.server.permits.api)
         implementation(projects.os.server.permits.real)
         implementation(projects.os.server.sendemail.api)

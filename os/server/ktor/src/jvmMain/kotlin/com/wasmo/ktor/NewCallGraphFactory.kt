@@ -4,11 +4,11 @@ import com.wasmo.accounts.AccountsActions
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.passkeys.PasskeyActions
 import com.wasmo.computers.ComputersActions
-import com.wasmo.computers.StripeActions
 import com.wasmo.emails.EmailsActions
 import com.wasmo.framework.UserAgent
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppActions
+import com.wasmo.stripe.StripeActions
 import com.wasmo.website.WebsiteActions
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

@@ -12,8 +12,6 @@ import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputersActionSource
 import com.wasmo.computers.ComputersActions
 import com.wasmo.computers.ComputersBindings
-import com.wasmo.computers.StripeActionSource
-import com.wasmo.computers.StripeActions
 import com.wasmo.emails.EmailsActionSource
 import com.wasmo.emails.EmailsActions
 import com.wasmo.framework.ActionSource
@@ -33,6 +31,8 @@ import com.wasmo.sendemail.postmark.PostmarkBindings
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.SqlServiceBindings
+import com.wasmo.stripe.StripeActionSource
+import com.wasmo.stripe.StripeActions
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.website.WebsiteActionSource

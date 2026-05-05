@@ -13,11 +13,9 @@ import com.wasmo.accounts.passkeys.PasskeyActions
 import com.wasmo.accounts.passkeys.RegisterPasskeyRpc
 import com.wasmo.calls.CallDataService
 import com.wasmo.calls.RealCallDataService
-import com.wasmo.computers.AfterCheckoutPage
 import com.wasmo.computers.ComputersActions
 import com.wasmo.computers.CreateComputerSpecRpc
 import com.wasmo.computers.InstallAppRpc
-import com.wasmo.computers.StripeActions
 import com.wasmo.emails.ConfirmEmailAddressRpc
 import com.wasmo.emails.EmailsActions
 import com.wasmo.emails.LinkEmailAddressRpc
@@ -25,6 +23,8 @@ import com.wasmo.installedapps.CallAppAction
 import com.wasmo.installedapps.InstalledAppActions
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
+import com.wasmo.stripe.AfterCheckoutPage
+import com.wasmo.stripe.StripeActions
 import com.wasmo.website.OsPage
 import com.wasmo.website.WebsiteActions
 import dev.zacsweers.metro.Binds

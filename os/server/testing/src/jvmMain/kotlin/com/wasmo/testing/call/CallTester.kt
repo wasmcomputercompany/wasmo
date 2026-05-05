@@ -19,7 +19,6 @@ import com.wasmo.api.SignOutRequest
 import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.computers.AfterCheckoutPage
 import com.wasmo.computers.CreateComputerSpecRpc
 import com.wasmo.computers.InstallAppRpc
 import com.wasmo.emails.ConfirmEmailAddressRpc
@@ -29,6 +28,7 @@ import com.wasmo.framework.Url
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.Deployment
 import com.wasmo.installedapps.CallAppAction
+import com.wasmo.stripe.AfterCheckoutPage
 import com.wasmo.support.tokens.ChallengeCode
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.framework.snapshot
