@@ -1,6 +1,7 @@
 package com.wasmo.ktor
 
 import com.wasmo.accounts.AccountSnapshotRpc
+import com.wasmo.accounts.AccountsActions
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Challenger
 import com.wasmo.accounts.Client
@@ -15,6 +16,7 @@ import com.wasmo.calls.RealCallDataService
 import com.wasmo.computers.AfterCheckoutPage
 import com.wasmo.computers.ComputersActions
 import com.wasmo.computers.CreateComputerSpecRpc
+import com.wasmo.computers.StripeActions
 import com.wasmo.emails.ConfirmEmailAddressRpc
 import com.wasmo.emails.EmailsActions
 import com.wasmo.emails.LinkEmailAddressRpc
@@ -35,25 +37,27 @@ import dev.zacsweers.metro.SingleIn
   scope = CallScope::class,
 )
 interface CallGraph :
+  AccountsActions,
   ComputerActions,
   ComputersActions,
   EmailsActions,
   InstalledAppActions,
   PasskeyActions,
+  StripeActions,
   WebsiteActions {
-  val accountSnapshotRpc: AccountSnapshotRpc
-  val afterCheckoutPage: AfterCheckoutPage
+  override val accountSnapshotRpc: AccountSnapshotRpc
+  override val afterCheckoutPage: AfterCheckoutPage
   override val authenticatePasskeyRpc: AuthenticatePasskeyRpc
   override val callAppAction: CallAppAction
   override val confirmEmailAddressRpc: ConfirmEmailAddressRpc
   override val createComputerSpecRpc: CreateComputerSpecRpc
-  val createInviteRpc: CreateInviteRpc
+  override val createInviteRpc: CreateInviteRpc
   override val installAppRpc: InstallAppRpc
   override val linkEmailAddressRpc: LinkEmailAddressRpc
   override val osPage: OsPage
   override val registerPasskeyRpc: RegisterPasskeyRpc
-  val signOutRpc: SignOutRpc
-  val signOutPage: SignOutPage
+  override val signOutRpc: SignOutRpc
+  override val signOutPage: SignOutPage
 
   @Provides
   @SingleIn(CallScope::class)

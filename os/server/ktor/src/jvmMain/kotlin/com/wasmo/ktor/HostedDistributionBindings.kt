@@ -1,5 +1,7 @@
 package com.wasmo.ktor
 
+import com.wasmo.accounts.AccountsActionSource
+import com.wasmo.accounts.AccountsActions
 import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
@@ -10,6 +12,8 @@ import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputersActionSource
 import com.wasmo.computers.ComputersActions
+import com.wasmo.computers.StripeActionSource
+import com.wasmo.computers.StripeActions
 import com.wasmo.emails.EmailsActionSource
 import com.wasmo.emails.EmailsActions
 import com.wasmo.framework.ActionSource
@@ -78,7 +82,7 @@ abstract class HostedDistributionBindings {
 
   @Binds
   @IntoSet
-  abstract fun bindOsActionSource(config: OsActionSource): ActionSource
+  abstract fun bindOsActionSource(config: AccountsActionSource): ActionSource
 
   @Binds
   @IntoSet
@@ -91,6 +95,11 @@ abstract class HostedDistributionBindings {
   @Binds
   @IntoSet
   abstract fun bindWebsiteActionSource(config: WebsiteActionSource): ActionSource
+
+  @Binds
+  abstract fun bindAccountsActionsFactory(
+    callGraphFactory: NewCallGraphFactory,
+  ): AccountsActions.Factory
 
   @Binds
   abstract fun bindComputerActionsFactory(
@@ -116,6 +125,11 @@ abstract class HostedDistributionBindings {
   abstract fun bindPasskeyActionsFactory(
     callGraphFactory: NewCallGraphFactory,
   ): PasskeyActions.Factory
+
+  @Binds
+  abstract fun bindStripeActionsFactory(
+    callGraphFactory: NewCallGraphFactory,
+  ): StripeActions.Factory
 
   @Binds
   abstract fun bindWebsiteActionsFactory(

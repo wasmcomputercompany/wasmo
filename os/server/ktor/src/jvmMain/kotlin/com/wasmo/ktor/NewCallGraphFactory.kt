@@ -1,8 +1,10 @@
 package com.wasmo.ktor
 
+import com.wasmo.accounts.AccountsActions
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.passkeys.PasskeyActions
 import com.wasmo.computers.ComputersActions
+import com.wasmo.computers.StripeActions
 import com.wasmo.emails.EmailsActions
 import com.wasmo.framework.UserAgent
 import com.wasmo.identifiers.OsScope
@@ -18,11 +20,13 @@ class NewCallGraphFactory(
   private val clientAuthenticatorFactory: ClientAuthenticator.Factory,
   private val callGraphFactory: CallGraph.Factory,
 ) :
+  AccountsActions.Factory,
   ComputerActions.Factory,
   ComputersActions.Factory,
   EmailsActions.Factory,
   InstalledAppActions.Factory,
   PasskeyActions.Factory,
+  StripeActions.Factory,
   WebsiteActions.Factory {
   override fun create(userAgent: UserAgent): CallGraph {
     val clientAuthenticator = clientAuthenticatorFactory.create(userAgent)

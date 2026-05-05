@@ -1,4 +1,4 @@
-package com.wasmo.ktor
+package com.wasmo.computers
 
 import com.wasmo.framework.ActionSource
 import com.wasmo.framework.ActionSource.Binder
@@ -10,7 +10,7 @@ import dev.zacsweers.metro.SingleIn
 @Inject
 @SingleIn(OsScope::class)
 class StripeActionSource(
-  private val callGraphFactory: NewCallGraphFactory,
+  private val stripeActionsFactory: StripeActions.Factory,
   private val hostnamePatterns: HostnamePatterns,
 ) : ActionSource {
   override val order: Int
@@ -21,8 +21,8 @@ class StripeActionSource(
     binder.host(hostnamePatterns.osHostname) {
       route("/after-checkout/{checkoutSessionId}") {
         httpAction { userAgent, url, _ ->
-          val callGraph = callGraphFactory.create(userAgent)
-          callGraph.afterCheckoutPage.get(url.path[1])
+          val action = stripeActionsFactory.create(userAgent).afterCheckoutPage
+          action.get(url.path[1])
         }
       }
     }
