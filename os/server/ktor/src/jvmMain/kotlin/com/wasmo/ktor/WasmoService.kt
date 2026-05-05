@@ -32,7 +32,8 @@ class WasmoService(
 ) {
   fun start() {
     actionRouter.createRoutes()
-    server.start(true)
+    // don't permanently block the calling thread
+    server.start(wait = false)
   }
 
   data class Config(
@@ -63,6 +64,12 @@ suspend fun startWasmoService(
   )
   val wasmoDb = osPostgresqlClient.asSqlDatabase()
 
+  // On plain JVM outside of UI toolkits, the main thread appears to not have
+  // a coroutine dispatcher that execution can return to.
+  //
+  // withContext(Dispatchers.IO) ensures that remaining execution can at least
+  // return to one of plentiful I/O threads; else, it'd continue on whatever
+  // thread it had migrated to (empirically, the Vert.x eventloop thread).
   withContext(Dispatchers.IO) {
     wasmoDb.transaction {
       ensureSchemaVersion()
