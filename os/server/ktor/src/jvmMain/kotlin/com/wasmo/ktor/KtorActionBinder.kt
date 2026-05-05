@@ -2,6 +2,7 @@ package com.wasmo.ktor
 
 import com.wasmo.api.WasmoJson
 import com.wasmo.common.logging.Logger
+import com.wasmo.framework.ActionRegistration
 import com.wasmo.framework.ActionSource.Binder
 import com.wasmo.framework.HttpRequestPattern
 import com.wasmo.framework.NotFoundUserException
@@ -34,7 +35,6 @@ import io.ktor.server.routing.host
 import io.ktor.server.util.url
 import io.ktor.utils.io.asSource
 import kotlinx.io.okio.asOkioSource
-import kotlinx.serialization.KSerializer
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.buffer
 import wasmo.http.Header
@@ -49,42 +49,41 @@ class KtorActionBinder(
   private val rootUrl: Url
     get() = deployment.baseUrl.toString().decodeUrl()
 
-  private fun withRoute(route: Route) = factory.create(route)
+  override fun register(actionRegistration: ActionRegistration) {
+    when (actionRegistration) {
+      is ActionRegistration.Http -> registerHttp(actionRegistration)
+      is ActionRegistration.Rpc<*, *> -> registerRpc(actionRegistration)
+      is ActionRegistration.StaticResources -> registerStaticResources(actionRegistration)
+    }
+  }
 
-  override fun <R, S> rpc(
-    pattern: HttpRequestPattern,
-    requestAdapter: KSerializer<R>,
-    responseAdapter: KSerializer<S>,
-    action: suspend (UserAgent, R, Url) -> Response<S>,
-  ) {
-    require(pattern.method == null) { "unexpected method on RPC" }
-
-    val rpcPattern = pattern.copy(
-      method = HttpMethod.Post.value,
-    )
-
-    withRoute(rpcPattern.asRoute()).handleInternal { userAgent, wasmoUrl, call ->
-      val request = requestAdapter.decode(call.request)
-      val response = action(userAgent, request, wasmoUrl)
+  private fun <S, R> registerRpc(actionRegistration: ActionRegistration.Rpc<S, R>) {
+    withRoute(actionRegistration.pattern.asRoute()).handleInternal { userAgent, wasmoUrl, call ->
+      val request = actionRegistration.requestAdapter.decode(call.request)
+      val response = actionRegistration.action.invoke().invoke(userAgent, request, wasmoUrl)
       Response(
         status = response.status,
         headers = response.headers,
         contentType = response.contentType,
         body = ResponseBody { sink ->
-          sink.writeUtf8(WasmoJson.encodeToString(responseAdapter, response.body))
+          sink.writeUtf8(
+            WasmoJson.encodeToString(
+              actionRegistration.responseAdapter,
+              response.body,
+            ),
+          )
         },
       )
     }
   }
 
-  override fun httpAction(
-    pattern: HttpRequestPattern,
-    action: suspend (UserAgent, Url, Request) -> Response<ResponseBody>,
-  ) {
-    withRoute(pattern.asRoute()).handleInternal { userAgent, url, routingCall ->
-      action(userAgent, url, routingCall.request.toRequest())
+  private fun registerHttp(actionRegistration: ActionRegistration.Http) {
+    withRoute(actionRegistration.pattern.asRoute()).handleInternal { userAgent, url, routingCall ->
+      actionRegistration.action().invoke(userAgent, url, routingCall.request.toRequest())
     }
   }
+
+  private fun withRoute(route: Route) = factory.create(route)
 
   private fun HttpRequestPattern.asRoute(): Route {
     var result = route
@@ -113,13 +112,9 @@ class KtorActionBinder(
     return result
   }
 
-  override fun staticResources(
-    host: Regex,
-    pathPrefix: String,
-    basePackage: String,
-  ) {
-    route.host(host) {
-      staticResources(pathPrefix, basePackage)
+  private fun registerStaticResources(actionRegistration: ActionRegistration.StaticResources) {
+    route.host(actionRegistration.host) {
+      staticResources(actionRegistration.pathPrefix, actionRegistration.basePackage)
     }
   }
 

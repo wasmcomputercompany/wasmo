@@ -1,5 +1,6 @@
 package com.wasmo.installedapps
 
+import com.wasmo.framework.ActionRegistration
 import com.wasmo.framework.ActionSource
 import com.wasmo.framework.ActionSource.Binder
 import com.wasmo.framework.HttpRequestPattern
@@ -19,13 +20,15 @@ class InstalledAppActionSource(
 
   context(binder: Binder)
   override fun bindActions() {
-    binder.httpAction(
-      HttpRequestPattern(
-        host = hostnamePatterns.appRegex,
-      ),
-    ) { userAgent, _, request ->
-      val action = installedAppActionsFactory.create(userAgent).callAppAction
-      action.call(request)
-    }
+    binder.register(
+      ActionRegistration.Http(
+        HttpRequestPattern(
+          host = hostnamePatterns.appRegex,
+        ),
+      ) { userAgent, _, request ->
+        val action = installedAppActionsFactory.create(userAgent).callAppAction
+        action.call(request)
+      },
+    )
   }
 }
