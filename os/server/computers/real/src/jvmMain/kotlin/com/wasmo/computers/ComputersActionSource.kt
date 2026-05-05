@@ -2,8 +2,12 @@ package com.wasmo.computers
 
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.CreateComputerSpecResponse
+import com.wasmo.api.InstallAppRequest
+import com.wasmo.api.InstallAppResponse
 import com.wasmo.framework.ActionSource
+import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.rpc
+import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
@@ -26,6 +30,18 @@ class ComputersActionSource(
       ) { userAgent, request, _ ->
         val action = computersActionsFactory.create(userAgent).createComputerSpecRpc
         action.create(request)
+      }
+    }
+
+    binder.host(hostnamePatterns.computerRegex) {
+      rpc<InstallAppRequest, InstallAppResponse>(
+        path = "/install-app",
+      ) { userAgent, request, wasmoUrl ->
+        val action = computersActionsFactory.create(userAgent).installAppRpc
+        action.install(
+          computerSlug = ComputerSlug(wasmoUrl.subdomain ?: throw NotFoundUserException()),
+          request = request,
+        )
       }
     }
   }

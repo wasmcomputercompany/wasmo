@@ -16,21 +16,7 @@ abstract class InstalledAppBindings {
   abstract fun bindInstalledAppStore(real: RealInstalledAppStore): InstalledAppStore
 
   companion object {
-    private val InstallAppJobName = JobName<InstallAppJob, Unit>("InstallAppJob")
     private val ApplicationJobName = JobName<ApplicationJob, Unit>("ApplicationJob")
-
-    @Provides
-    @SingleIn(OsScope::class)
-    fun provideInstallAppJobQueue(
-      jobQueueFactory: OsJobQueue.Factory,
-    ): OsJobQueue<InstallAppJob> = jobQueueFactory.create(InstallAppJobName)
-
-    @Provides
-    @IntoSet
-    @SingleIn(OsScope::class)
-    fun provideInstallAppJobRegistration(
-      installAppJobHandler: InstallAppJobHandler,
-    ): JobRegistration<*, *> = JobRegistration(InstallAppJobName, installAppJobHandler)
 
     @Provides
     @SingleIn(OsScope::class)

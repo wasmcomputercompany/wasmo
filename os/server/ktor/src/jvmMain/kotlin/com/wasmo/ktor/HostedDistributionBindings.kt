@@ -9,9 +9,9 @@ import com.wasmo.accounts.passkeys.PasskeyActions
 import com.wasmo.accounts.passkeys.PasskeysActionSource
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.Catalog
-import com.wasmo.computers.ComputerBindings
 import com.wasmo.computers.ComputersActionSource
 import com.wasmo.computers.ComputersActions
+import com.wasmo.computers.ComputersBindings
 import com.wasmo.computers.StripeActionSource
 import com.wasmo.computers.StripeActions
 import com.wasmo.emails.EmailsActionSource
@@ -20,8 +20,6 @@ import com.wasmo.framework.ActionSource
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
-import com.wasmo.installedapps.ComputerActionSource
-import com.wasmo.installedapps.ComputerActions
 import com.wasmo.installedapps.InstalledAppActionSource
 import com.wasmo.installedapps.InstalledAppActions
 import com.wasmo.installedapps.InstalledAppBindings
@@ -50,7 +48,7 @@ import wasmo.objectstore.ObjectStore
   includes = [
     AbsurdBindings::class,
     AccountsBindings::class,
-    ComputerBindings::class,
+    ComputersBindings::class,
     FileSystemObjectStoreBindings::class,
     HostedDistributionBindings::class,
     InstalledAppBindings::class,
@@ -64,10 +62,6 @@ import wasmo.objectstore.ObjectStore
   ],
 )
 abstract class HostedDistributionBindings {
-  @Binds
-  @IntoSet
-  abstract fun bindComputerActionSource(config: ComputerActionSource): ActionSource
-
   @Binds
   @IntoSet
   abstract fun bindComputersActionSource(config: ComputersActionSource): ActionSource
@@ -100,11 +94,6 @@ abstract class HostedDistributionBindings {
   abstract fun bindAccountsActionsFactory(
     callGraphFactory: NewCallGraphFactory,
   ): AccountsActions.Factory
-
-  @Binds
-  abstract fun bindComputerActionsFactory(
-    callGraphFactory: NewCallGraphFactory,
-  ): ComputerActions.Factory
 
   @Binds
   abstract fun bindComputersActionsFactory(

@@ -16,13 +16,12 @@ import com.wasmo.calls.RealCallDataService
 import com.wasmo.computers.AfterCheckoutPage
 import com.wasmo.computers.ComputersActions
 import com.wasmo.computers.CreateComputerSpecRpc
+import com.wasmo.computers.InstallAppRpc
 import com.wasmo.computers.StripeActions
 import com.wasmo.emails.ConfirmEmailAddressRpc
 import com.wasmo.emails.EmailsActions
 import com.wasmo.emails.LinkEmailAddressRpc
 import com.wasmo.installedapps.CallAppAction
-import com.wasmo.installedapps.ComputerActions
-import com.wasmo.installedapps.InstallAppRpc
 import com.wasmo.installedapps.InstalledAppActions
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
@@ -38,7 +37,6 @@ import dev.zacsweers.metro.SingleIn
 )
 interface CallGraph :
   AccountsActions,
-  ComputerActions,
   ComputersActions,
   EmailsActions,
   InstalledAppActions,

@@ -8,7 +8,6 @@ import com.wasmo.computers.StripeActions
 import com.wasmo.emails.EmailsActions
 import com.wasmo.framework.UserAgent
 import com.wasmo.identifiers.OsScope
-import com.wasmo.installedapps.ComputerActions
 import com.wasmo.installedapps.InstalledAppActions
 import com.wasmo.website.WebsiteActions
 import dev.zacsweers.metro.Inject
@@ -21,7 +20,6 @@ class NewCallGraphFactory(
   private val callGraphFactory: CallGraph.Factory,
 ) :
   AccountsActions.Factory,
-  ComputerActions.Factory,
   ComputersActions.Factory,
   EmailsActions.Factory,
   InstalledAppActions.Factory,
