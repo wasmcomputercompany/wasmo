@@ -4,6 +4,8 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.accounts.passkeys.PasskeyActions
 import com.wasmo.framework.UserAgent
 import com.wasmo.identifiers.OsScope
+import com.wasmo.installedapps.ComputerActions
+import com.wasmo.website.WebsiteActions
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 
@@ -12,7 +14,10 @@ import dev.zacsweers.metro.SingleIn
 class NewCallGraphFactory(
   private val clientAuthenticatorFactory: ClientAuthenticator.Factory,
   private val callGraphFactory: CallGraph.Factory,
-) : PasskeyActions.Factory {
+) :
+  ComputerActions.Factory,
+  PasskeyActions.Factory,
+  WebsiteActions.Factory {
   override fun create(userAgent: UserAgent): CallGraph {
     val clientAuthenticator = clientAuthenticatorFactory.create(userAgent)
     clientAuthenticator.updateSessionCookie()

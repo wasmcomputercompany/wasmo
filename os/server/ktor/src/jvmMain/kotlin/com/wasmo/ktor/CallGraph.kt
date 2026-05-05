@@ -17,10 +17,12 @@ import com.wasmo.computers.CreateComputerSpecRpc
 import com.wasmo.emails.ConfirmEmailAddressRpc
 import com.wasmo.emails.LinkEmailAddressRpc
 import com.wasmo.installedapps.CallAppAction
+import com.wasmo.installedapps.ComputerActions
 import com.wasmo.installedapps.InstallAppRpc
 import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
 import com.wasmo.website.OsPage
+import com.wasmo.website.WebsiteActions
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
@@ -29,7 +31,7 @@ import dev.zacsweers.metro.SingleIn
 @GraphExtension(
   scope = CallScope::class,
 )
-interface CallGraph : PasskeyActions {
+interface CallGraph : PasskeyActions, ComputerActions, WebsiteActions {
   val accountSnapshotRpc: AccountSnapshotRpc
   val afterCheckoutPage: AfterCheckoutPage
   override val authenticatePasskeyRpc: AuthenticatePasskeyRpc
@@ -37,9 +39,9 @@ interface CallGraph : PasskeyActions {
   val confirmEmailAddressRpc: ConfirmEmailAddressRpc
   val createComputerSpecRpc: CreateComputerSpecRpc
   val createInviteRpc: CreateInviteRpc
-  val installAppRpc: InstallAppRpc
+  override val installAppRpc: InstallAppRpc
   val linkEmailAddressRpc: LinkEmailAddressRpc
-  val osPage: OsPage
+  override val osPage: OsPage
   override val registerPasskeyRpc: RegisterPasskeyRpc
   val signOutRpc: SignOutRpc
   val signOutPage: SignOutPage

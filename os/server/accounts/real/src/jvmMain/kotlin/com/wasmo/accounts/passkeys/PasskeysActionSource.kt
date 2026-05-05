@@ -27,15 +27,15 @@ class PasskeysActionSource(
       rpc<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse>(
         path = "/authenticate-passkey",
       ) { userAgent, request, _ ->
-        val callGraph = passkeyActionsFactory.create(userAgent)
-        callGraph.authenticatePasskeyRpc.authenticate(request)
+        val action = passkeyActionsFactory.create(userAgent).authenticatePasskeyRpc
+        action.authenticate(request)
       }
 
       rpc<RegisterPasskeyRequest, RegisterPasskeyResponse>(
         path = "/register-passkey",
       ) { userAgent, request, _ ->
-        val callGraph = passkeyActionsFactory.create(userAgent)
-        callGraph.registerPasskeyRpc.register(request)
+        val action = passkeyActionsFactory.create(userAgent).registerPasskeyRpc
+        action.register(request)
       }
     }
   }

@@ -12,6 +12,8 @@ import com.wasmo.framework.ActionSource
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
+import com.wasmo.installedapps.ComputerActionSource
+import com.wasmo.installedapps.ComputerActions
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.jobs.absurd.AbsurdBindings
 import com.wasmo.objectstore.ObjectStoreFactory
@@ -25,6 +27,8 @@ import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
+import com.wasmo.website.WebsiteActionSource
+import com.wasmo.website.WebsiteActions
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.IntoSet
@@ -56,6 +60,10 @@ abstract class HostedDistributionBindings {
 
   @Binds
   @IntoSet
+  abstract fun bindWebsiteActionSource(config: WebsiteActionSource): ActionSource
+
+  @Binds
+  @IntoSet
   abstract fun bindInstalledAppActionSource(config: InstalledAppActionSource): ActionSource
 
   @Binds
@@ -78,6 +86,16 @@ abstract class HostedDistributionBindings {
   abstract fun bindPasskeyActionsFactory(
     callGraphFactory: NewCallGraphFactory,
   ): PasskeyActions.Factory
+
+  @Binds
+  abstract fun bindComputerActionsFactory(
+    callGraphFactory: NewCallGraphFactory,
+  ): ComputerActions.Factory
+
+  @Binds
+  abstract fun bindWebsiteActionsFactory(
+    callGraphFactory: NewCallGraphFactory,
+  ): WebsiteActions.Factory
 
   companion object {
     @Provides
