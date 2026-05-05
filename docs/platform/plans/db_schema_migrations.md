@@ -29,7 +29,7 @@ ON CONFLICT (id) DO NOTHING;
 ```
    2. Then,
      - If `version` from the table `< CURRENT_SCHEMA_VERSION`, run `migrate(oldVersion=version, newVersion=CURRENT_SCHEMA_VERSION)`.
-     - If `version > CURRENT_SCHEMA_VERSION`, wipe the database (drop, recreate DatabaseSchemaVersion table at version 0, run migrations).
+     - If `version > CURRENT_SCHEMA_VERSION`, throw `SqlException`.
      - Else, do nothing.
  - `WasmoService.startWasmoService()` calls `ensureSchemaVersion(CURRENT_SCHEMA_VERSION)` right after
    obtaining `wasmoDb` ([code](https://github.com/wasmcomputercompany/wasmo/blob/8c0da2da837a94fe5f7c66640eb51ca2f8dc5140/os/server/ktor/src/jvmMain/kotlin/com/wasmo/ktor/WasmoService.kt#L60)).

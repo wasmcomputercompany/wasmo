@@ -1,17 +1,24 @@
 package com.wasmo.db
 
+import com.wasmo.db.schemaversion.getOrCreateSchemaVersion
+import com.wasmo.db.schemaversion.setSchemaVersion
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 import wasmo.sql.SqlConnection
+import wasmo.sql.SqlException
 
 /**
  * Applies migrations from resources.
  *
+ * This function is agnostic of schema version metadata. It's the caller's
+ * responsibility to check and update the schema version record before/after
+ * the call.
+ *
  * Migration files must be named like `v1__Account.sql`. They're applied in number order.
  */
 context(sqlConnection: SqlConnection)
-suspend fun migrate(
+private suspend fun migrate(
   oldVersion: Long = 0L,
   newVersion: Long = CURRENT_SCHEMA_VERSION,
 ) {
@@ -30,6 +37,17 @@ suspend fun migrate(
       readUtf8()
     }
     sqlConnection.execute(migrationSql)
+  }
+}
+
+context(sqlConnection: SqlConnection)
+suspend fun ensureSchemaVersion(targetVersion: Long = CURRENT_SCHEMA_VERSION) {
+  val oldVersion = getOrCreateSchemaVersion().version
+  if (oldVersion > targetVersion) {
+    throw SqlException("DB schema downgrade not supported: $oldVersion -> $targetVersion")
+  } else if (oldVersion < targetVersion) {
+    migrate(oldVersion, targetVersion)
+    setSchemaVersion(version = targetVersion)
   }
 }
 

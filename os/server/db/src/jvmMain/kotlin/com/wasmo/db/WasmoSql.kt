@@ -16,6 +16,7 @@ import com.wasmo.identifiers.InviteId
 import com.wasmo.identifiers.LinkedEmailAddressId
 import com.wasmo.identifiers.PasskeyId
 import com.wasmo.identifiers.PermitId
+import com.wasmo.identifiers.SchemaVersionId
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.identifiers.UserId
 import com.wasmo.identifiers.WasmoFileAddress
@@ -66,6 +67,7 @@ fun SqlRow.getInviteId(index: Int) = InviteId(getS64(index)!!)
 fun SqlRow.getLinkedEmailAddressId(index: Int) = LinkedEmailAddressId(getS64(index)!!)
 fun SqlRow.getPasskeyId(index: Int) = PasskeyId(getS64(index)!!)
 fun SqlRow.getPermitId(index: Int) = PermitId(getS64(index)!!)
+fun SqlRow.getSchemaVersionId(index: Int) = SchemaVersionId(getS64(index)!!)
 fun SqlRow.getStripeCustomerId(index: Int) = StripeCustomerId(getS64(index)!!)
 fun SqlRow.getUserId(index: Int) = UserId(getS64(index)!!)
 fun SqlRow.getWasmoFileAddress(index: Int) = getString(index)!!.toWasmoFileAddress()

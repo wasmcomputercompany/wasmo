@@ -56,6 +56,10 @@ value class PermitId(val id: Long)
 
 @Serializable
 @JvmInline
+value class SchemaVersionId(val id: Long)
+
+@Serializable
+@JvmInline
 value class StripeCustomerId(val id: Long)
 
 @Serializable
