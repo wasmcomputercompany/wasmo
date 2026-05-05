@@ -75,6 +75,7 @@ kotlin {
         implementation(projects.platform.packaging)
         implementation(projects.support.issues)
         implementation(projects.support.tokens)
+        implementation(projects.wasmox.wasmoxSql)
       }
     }
   }

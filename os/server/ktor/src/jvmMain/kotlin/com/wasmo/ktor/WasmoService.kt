@@ -4,6 +4,7 @@ package com.wasmo.ktor
 
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.common.catalog.Catalog
+import com.wasmo.db.ensureSchemaVersion
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
 import com.wasmo.objectstore.ObjectStoreAddress
@@ -18,7 +19,10 @@ import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.createGraphFactory
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.netty.EngineMain
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okio.ByteString
+import wasmox.sql.transaction
 
 @Inject
 @SingleIn(OsScope::class)
@@ -58,6 +62,12 @@ suspend fun startWasmoService(
       .asSqlDatabase(),
   )
   val wasmoDb = osPostgresqlClient.asSqlDatabase()
+
+  withContext(Dispatchers.IO) {
+    wasmoDb.transaction {
+      ensureSchemaVersion()
+    }
+  }
 
   val wasmoServiceGraphFactory = createGraphFactory<WasmoServiceGraph.Factory>()
   val serviceGraph = wasmoServiceGraphFactory.create(

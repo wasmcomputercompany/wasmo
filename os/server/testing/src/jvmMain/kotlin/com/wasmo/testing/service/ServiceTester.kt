@@ -3,7 +3,7 @@ package com.wasmo.testing.service
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.accounts.ClientAuthenticator
-import com.wasmo.db.migrate
+import com.wasmo.db.ensureSchemaVersion
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.permits.PermitService
@@ -126,7 +126,7 @@ class ServiceTester : CoroutineTestInterceptor {
       )
 
       wasmoDb.withConnection {
-        migrate()
+        ensureSchemaVersion()
       }
 
       intercept(
