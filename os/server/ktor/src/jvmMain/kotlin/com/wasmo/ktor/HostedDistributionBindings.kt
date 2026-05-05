@@ -14,7 +14,6 @@ import com.wasmo.computers.ComputersActions
 import com.wasmo.computers.ComputersBindings
 import com.wasmo.emails.EmailsActionSource
 import com.wasmo.emails.EmailsActions
-import com.wasmo.framework.ActionSource
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
@@ -39,7 +38,6 @@ import com.wasmo.website.WebsiteActionSource
 import com.wasmo.website.WebsiteActions
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import wasmo.objectstore.ObjectStore
@@ -59,37 +57,17 @@ import wasmo.objectstore.ObjectStore
     ServiceBindings::class,
     SqlServiceBindings::class,
     StripeBindings::class,
+    // Action sources
+    ComputersActionSource::class,
+    EmailsActionSource::class,
+    InstalledAppActionSource::class,
+    AccountsActionSource::class,
+    PasskeysActionSource::class,
+    StripeActionSource::class,
+    WebsiteActionSource::class,
   ],
 )
 abstract class HostedDistributionBindings {
-  @Binds
-  @IntoSet
-  abstract fun bindComputersActionSource(config: ComputersActionSource): ActionSource
-
-  @Binds
-  @IntoSet
-  abstract fun bindEmailsActionSource(config: EmailsActionSource): ActionSource
-
-  @Binds
-  @IntoSet
-  abstract fun bindInstalledAppActionSource(config: InstalledAppActionSource): ActionSource
-
-  @Binds
-  @IntoSet
-  abstract fun bindOsActionSource(config: AccountsActionSource): ActionSource
-
-  @Binds
-  @IntoSet
-  abstract fun bindPasskeysActionSource(config: PasskeysActionSource): ActionSource
-
-  @Binds
-  @IntoSet
-  abstract fun bindStripeActionSource(config: StripeActionSource): ActionSource
-
-  @Binds
-  @IntoSet
-  abstract fun bindWebsiteActionSource(config: WebsiteActionSource): ActionSource
-
   @Binds
   abstract fun bindAccountsActionsFactory(
     callGraphFactory: NewCallGraphFactory,
