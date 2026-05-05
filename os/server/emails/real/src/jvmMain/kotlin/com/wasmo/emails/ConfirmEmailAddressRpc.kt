@@ -9,12 +9,17 @@ import com.wasmo.calls.CallDataService
 import com.wasmo.db.emails.insertLinkedEmailAddress
 import com.wasmo.db.emails.selectLinkedEmailAddressOrNull
 import com.wasmo.framework.Response
+import com.wasmo.framework.RpcAction
+import com.wasmo.framework.Url
+import com.wasmo.framework.UserAgent
 import com.wasmo.identifiers.EmailAddressLinkPermitType
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.RateLimit
 import com.wasmo.support.tokens.toChallengeCodeOrNull
+import dev.zacsweers.metro.ClassKey
+import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import wasmo.sql.SqlDatabase
@@ -27,7 +32,8 @@ val ChallengeAttemptRateLimit = RateLimit(
 )
 
 @Inject
-@SingleIn(CallScope::class)
+@ClassKey(ConfirmEmailAddressRpc::class)
+@ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class ConfirmEmailAddressRpc(
   private val clock: Clock,
   private val client: Client,
@@ -35,7 +41,7 @@ class ConfirmEmailAddressRpc(
   private val callDataService: CallDataService,
   private val permitService: PermitService,
   private val wasmDb: SqlDatabase,
-) {
+) : RpcAction<ConfirmEmailAddressRequest, ConfirmEmailAddressResponse> {
   suspend fun confirm(
     request: ConfirmEmailAddressRequest,
   ): Response<ConfirmEmailAddressResponse> {
@@ -114,4 +120,10 @@ class ConfirmEmailAddressRpc(
       }
     }
   }
+
+  override suspend fun invoke(
+    userAgent: UserAgent,
+    request: ConfirmEmailAddressRequest,
+    url: Url,
+  ) = confirm(request)
 }

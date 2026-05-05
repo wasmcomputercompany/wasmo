@@ -9,14 +9,20 @@ import com.wasmo.calls.CallDataService
 import com.wasmo.db.passkeys.findPasskeyByPasskeyId
 import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
+import com.wasmo.framework.RpcAction
+import com.wasmo.framework.Url
+import com.wasmo.framework.UserAgent
 import com.wasmo.passkeys.PasskeyChecker
+import dev.zacsweers.metro.ClassKey
+import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@SingleIn(CallScope::class)
+@ClassKey(AuthenticatePasskeyRpc::class)
+@ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class AuthenticatePasskeyRpc(
   private val client: Client,
   private val passkeyChecker: PasskeyChecker,
@@ -24,7 +30,7 @@ class AuthenticatePasskeyRpc(
   private val callDataService: CallDataService,
   private val wasmoDb: SqlDatabase,
   private val inviteService: InviteService,
-) {
+) : RpcAction<AuthenticatePasskeyRequest, AuthenticatePasskeyResponse> {
   suspend fun authenticate(
     request: AuthenticatePasskeyRequest,
   ): Response<AuthenticatePasskeyResponse> {
@@ -56,4 +62,10 @@ class AuthenticatePasskeyRpc(
       )
     }
   }
+
+  override suspend fun invoke(
+    userAgent: UserAgent,
+    request: AuthenticatePasskeyRequest,
+    url: Url,
+  ) = authenticate(request)
 }

@@ -7,20 +7,26 @@ import com.wasmo.api.CreateInviteResponse
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
+import com.wasmo.framework.RpcAction
+import com.wasmo.framework.Url
+import com.wasmo.framework.UserAgent
 import com.wasmo.framework.toHttpUrl
+import dev.zacsweers.metro.ClassKey
+import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@SingleIn(CallScope::class)
+@ClassKey(CreateInviteRpc::class)
+@ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class CreateInviteRpc(
   private val client: Client,
   private val callDataService: CallDataService,
   private val wasmoDb: SqlDatabase,
   private val inviteService: InviteService,
-) {
+) : RpcAction<CreateInviteRequest, CreateInviteResponse> {
   suspend fun create(
     request: CreateInviteRequest,
   ): Response<CreateInviteResponse> {
@@ -37,4 +43,10 @@ class CreateInviteRpc(
       )
     }
   }
+
+  override suspend fun invoke(
+    userAgent: UserAgent,
+    request: CreateInviteRequest,
+    url: Url,
+  ) = create(request)
 }

@@ -6,21 +6,27 @@ import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
+import com.wasmo.framework.RpcAction
+import com.wasmo.framework.Url
+import com.wasmo.framework.UserAgent
 import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
+import dev.zacsweers.metro.ClassKey
+import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@SingleIn(CallScope::class)
+@ClassKey(InstallAppRpc::class)
+@ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class InstallAppRpc(
   private val client: Client,
   private val computerStore: ComputerStore,
   private val wasmoDb: SqlDatabase,
-) {
+) : RpcAction<InstallAppRequest, InstallAppResponse> {
   suspend fun install(
     computerSlug: ComputerSlug,
     request: InstallAppRequest,
@@ -52,4 +58,13 @@ class InstallAppRpc(
       ),
     )
   }
+
+  override suspend fun invoke(
+    userAgent: UserAgent,
+    request: InstallAppRequest,
+    url: Url,
+  ) = install(
+    ComputerSlug(value = url.subdomain ?: throw NotFoundUserException()),
+    request,
+  )
 }

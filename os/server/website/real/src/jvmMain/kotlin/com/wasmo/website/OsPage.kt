@@ -12,11 +12,15 @@ import com.wasmo.api.routes.RoutingContext
 import com.wasmo.calls.CallDataService
 import com.wasmo.computers.ComputerService
 import com.wasmo.computers.ComputerStore
+import com.wasmo.framework.HttpAction
 import com.wasmo.framework.NotFoundUserException
+import com.wasmo.framework.Request
 import com.wasmo.framework.UnauthorizedUserException
 import com.wasmo.framework.Url
+import com.wasmo.framework.UserAgent
+import dev.zacsweers.metro.ClassKey
+import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
@@ -24,14 +28,15 @@ import wasmox.sql.transaction
  * We serve the same page to most routes, with different embedded page data.
  */
 @Inject
-@SingleIn(CallScope::class)
+@ClassKey(OsPage::class)
+@ContributesIntoMap(CallScope::class)
 class OsPage(
   private val computerStore: ComputerStore,
   private val callDataService: CallDataService,
   private val osHtmlFactory: ServerOsHtml.Factory,
   private val wasmoDb: SqlDatabase,
   private val client: Client,
-) {
+) : HttpAction {
   suspend fun get(url: Url): ServerOsHtml {
     var accountSnapshot: AccountSnapshot? = null
     var routingContext: RoutingContext? = null
@@ -72,4 +77,10 @@ class OsPage(
       computerListSnapshot = computerListSnapshot,
     )
   }
+
+  override suspend fun invoke(
+    userAgent: UserAgent,
+    url: Url,
+    request: Request,
+  ) = get(url).response
 }

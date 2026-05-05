@@ -4,14 +4,19 @@ import com.wasmo.accounts.CallScope
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.calls.CallDataService
+import com.wasmo.framework.HttpAction
+import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
+import com.wasmo.framework.Url
+import com.wasmo.framework.UserAgent
 import com.wasmo.framework.redirect
 import com.wasmo.framework.toHttpUrl
 import com.wasmo.payments.CheckoutStatus
 import com.wasmo.payments.PaymentsService
+import dev.zacsweers.metro.ClassKey
+import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
 import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
@@ -22,13 +27,14 @@ import wasmox.sql.transaction
  * or to [ComputerHomeRoute] if payment succeeded.
  */
 @Inject
-@SingleIn(CallScope::class)
+@ClassKey(AfterCheckoutPage::class)
+@ContributesIntoMap(CallScope::class)
 class AfterCheckoutPage(
   private val callDataService: CallDataService,
   private val paymentsService: PaymentsService,
   private val wasmoDb: SqlDatabase,
   private val subscriptionUpdater: SubscriptionUpdater,
-) {
+) : HttpAction {
   suspend fun get(checkoutSessionId: String): Response<ResponseBody> {
     val session = paymentsService.getCheckoutSession(checkoutSessionId)
 
@@ -49,4 +55,10 @@ class AfterCheckoutPage(
       }
     }
   }
+
+  override suspend fun invoke(
+    userAgent: UserAgent,
+    url: Url,
+    request: Request,
+  ) = get(url.path[1])
 }

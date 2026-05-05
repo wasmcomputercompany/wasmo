@@ -1,66 +1,64 @@
 package com.wasmo.framework
 
+import kotlin.reflect.KClass
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
 sealed interface ActionRegistration {
+  /**
+   * A pattern to match the request hostname, or null to match any hostname.
+   */
+  val host: Regex?
+
+  /**
+   * An HTTP method like `GET` or `POST`, or null to match any HTTP method.
+   */
+  val method: String?
+
+  /**
+   * A path like `/`, `/sign-out` or `/after-checkout/{checkoutSessionId}`. If a path segment is in
+   * curly braces, that matches any path segment.
+   */
+  val path: String?
+
   data class Rpc<R, S>(
-    val pattern: HttpRequestPattern,
+    override val host: Regex? = null,
+    override val path: String? = null,
     val requestAdapter: KSerializer<R>,
     val responseAdapter: KSerializer<S>,
-    val action: () -> RpcAction<R, S>,
+    val action: KClass<out RpcAction<R, S>>,
   ) : ActionRegistration {
-    init {
-      require(pattern.method == null) { "unexpected method on RPC" }
-    }
+    override val method: String?
+      get() = null
   }
 
   data class Http(
-    val pattern: HttpRequestPattern,
-    val action: () -> HttpAction,
+    override val host: Regex? = null,
+    override val path: String? = null,
+    override val method: String? = null,
+    val action: KClass<out HttpAction>,
   ) : ActionRegistration
 
   data class StaticResources(
-    val host: Regex,
-    val pathPrefix: String,
+    override val host: Regex,
+    override val path: String,
     val basePackage: String,
-  ) : ActionRegistration
+  ) : ActionRegistration {
+    override val method: String
+      get() = "GET"
+  }
 
   companion object {
-    fun Http(
-      pattern: HttpRequestPattern,
-      action: suspend (UserAgent, Url, Request) -> Response<ResponseBody>,
-    ) = Http(
-      pattern = pattern,
-      action = {
-        object : HttpAction {
-          override suspend fun invoke(
-            userAgent: UserAgent,
-            url: Url,
-            request: Request,
-          ) = action(userAgent, url, request)
-        }
-      },
-    )
-
-    inline fun <reified R, reified S> Rpc(
-      pattern: HttpRequestPattern,
-      noinline action: suspend (UserAgent, R, Url) -> Response<S>,
-    ) = Rpc<R, S>(
-      pattern = pattern,
+    inline fun <A : RpcAction<R, S>, reified R, reified S> Rpc(
+      host: Regex? = null,
+      path: String? = null,
+      action: KClass<out RpcAction<R, S>>,
+    ) = Rpc(
+      host = host,
+      path = path,
       requestAdapter = serializer<R>(),
       responseAdapter = serializer<S>(),
-      action = {
-        object : RpcAction<R, S> {
-          override suspend fun invoke(
-            userAgent: UserAgent,
-            request: R,
-            url: Url,
-          ): Response<S> {
-            return action(userAgent, request, url)
-          }
-        }
-      },
+      action = action,
     )
   }
 }
