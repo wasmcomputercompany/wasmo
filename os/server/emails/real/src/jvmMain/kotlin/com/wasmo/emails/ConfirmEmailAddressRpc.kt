@@ -11,7 +11,6 @@ import com.wasmo.db.emails.selectLinkedEmailAddressOrNull
 import com.wasmo.framework.Response
 import com.wasmo.framework.RpcAction
 import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import com.wasmo.identifiers.EmailAddressLinkPermitType
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.RateLimit
@@ -121,8 +120,7 @@ class ConfirmEmailAddressRpc(
     }
   }
 
-  override suspend fun invoke(
-    userAgent: UserAgent,
+  override suspend operator fun invoke(
     request: ConfirmEmailAddressRequest,
     url: Url,
   ) = confirm(request)

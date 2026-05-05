@@ -7,7 +7,6 @@ import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import com.wasmo.framework.redirect
 import com.wasmo.framework.toHttpUrl
 import dev.zacsweers.metro.ClassKey
@@ -35,8 +34,7 @@ class SignOutPage(
     return redirect(url.toHttpUrl())
   }
 
-  override suspend fun invoke(
-    userAgent: UserAgent,
+  override suspend operator fun invoke(
     url: Url,
     request: Request,
   ) = get()

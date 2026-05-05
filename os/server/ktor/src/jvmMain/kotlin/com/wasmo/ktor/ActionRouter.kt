@@ -105,7 +105,7 @@ class ActionRouter(
       val request = actionRegistration.requestAdapter.decode(call.request)
       val action = callGraph(userAgent).rpcActions[actionRegistration.action]?.invoke()
         ?: error("unknown action: ${actionRegistration.action}, did you forget @ContributesIntoMap?")
-      val response = (action as RpcAction<S, R>).invoke(userAgent, request, wasmoUrl)
+      val response = (action as RpcAction<S, R>).invoke(request, wasmoUrl)
       Response(
         status = response.status,
         headers = response.headers,
@@ -126,7 +126,7 @@ class ActionRouter(
     handleInternal(actionRegistration) { userAgent, url, routingCall ->
       val action = callGraph(userAgent).httpActions[actionRegistration.action]?.invoke()
         ?: error("unknown action: ${actionRegistration.action}, did you forget @ContributesIntoMap?")
-      action.invoke(userAgent, url, routingCall.request.toRequest())
+      action.invoke(url, routingCall.request.toRequest())
     }
   }
 

@@ -65,12 +65,11 @@ sealed interface ActionRegistration {
 
 interface HttpAction {
   suspend operator fun invoke(
-    userAgent: UserAgent,
     url: Url,
     request: Request,
   ): Response<ResponseBody>
 }
 
 interface RpcAction<R, S> {
-  suspend operator fun invoke(userAgent: UserAgent, request: R, url: Url): Response<S>
+  suspend operator fun invoke(request: R, url: Url): Response<S>
 }

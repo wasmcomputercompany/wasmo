@@ -10,7 +10,6 @@ import com.wasmo.framework.Request
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import com.wasmo.framework.toWasmoUrl
 import dev.zacsweers.metro.ClassKey
 import dev.zacsweers.metro.ContributesIntoMap
@@ -44,8 +43,7 @@ class CallAppAction(
     return httpService.execute(caller, request)
   }
 
-  override suspend fun invoke(
-    userAgent: UserAgent,
+  override suspend operator fun invoke(
     url: Url,
     request: Request,
   ) = call(request)

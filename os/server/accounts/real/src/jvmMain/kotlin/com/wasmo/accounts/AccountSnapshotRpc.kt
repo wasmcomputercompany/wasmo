@@ -6,7 +6,6 @@ import com.wasmo.calls.CallDataService
 import com.wasmo.framework.Response
 import com.wasmo.framework.RpcAction
 import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import dev.zacsweers.metro.ClassKey
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
@@ -33,8 +32,7 @@ class AccountSnapshotRpc(
     }
   }
 
-  override suspend fun invoke(
-    userAgent: UserAgent,
+  override suspend operator fun invoke(
     request: AccountSnapshotRequest,
     url: Url,
   ) = get(request)

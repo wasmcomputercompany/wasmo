@@ -5,7 +5,6 @@ import com.wasmo.api.SignOutResponse
 import com.wasmo.framework.Response
 import com.wasmo.framework.RpcAction
 import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import dev.zacsweers.metro.ClassKey
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
@@ -29,8 +28,7 @@ class SignOutRpc(
     }
   }
 
-  override suspend fun invoke(
-    userAgent: UserAgent,
+  override suspend operator fun invoke(
     request: SignOutRequest,
     url: Url,
   ) = signOut(request)

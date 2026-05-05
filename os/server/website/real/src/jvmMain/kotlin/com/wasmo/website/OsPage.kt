@@ -17,7 +17,6 @@ import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.UnauthorizedUserException
 import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import dev.zacsweers.metro.ClassKey
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
@@ -78,8 +77,7 @@ class OsPage(
     )
   }
 
-  override suspend fun invoke(
-    userAgent: UserAgent,
+  override suspend operator fun invoke(
     url: Url,
     request: Request,
   ) = get(url).response

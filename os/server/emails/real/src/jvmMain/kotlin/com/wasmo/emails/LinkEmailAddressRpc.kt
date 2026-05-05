@@ -8,7 +8,6 @@ import com.wasmo.emails.messages.challengeCodeEmailMessage
 import com.wasmo.framework.Response
 import com.wasmo.framework.RpcAction
 import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import com.wasmo.identifiers.Deployment
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.support.tokens.newChallengeCode
@@ -61,8 +60,7 @@ class LinkEmailAddressRpc(
     )
   }
 
-  override suspend fun invoke(
-    userAgent: UserAgent,
+  override suspend operator fun invoke(
     request: LinkEmailAddressRequest,
     url: Url,
   ) = link(request)

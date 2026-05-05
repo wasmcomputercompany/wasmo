@@ -8,7 +8,6 @@ import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
 import com.wasmo.framework.RpcAction
 import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import com.wasmo.identifiers.AppSlugRegex
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
@@ -59,8 +58,7 @@ class InstallAppRpc(
     )
   }
 
-  override suspend fun invoke(
-    userAgent: UserAgent,
+  override suspend operator fun invoke(
     request: InstallAppRequest,
     url: Url,
   ) = install(

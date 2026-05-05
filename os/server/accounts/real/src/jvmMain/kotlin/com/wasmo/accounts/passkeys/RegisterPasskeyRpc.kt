@@ -12,7 +12,6 @@ import com.wasmo.framework.ArgumentUserException
 import com.wasmo.framework.Response
 import com.wasmo.framework.RpcAction
 import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import com.wasmo.passkeys.PasskeyChecker
 import dev.zacsweers.metro.ClassKey
 import dev.zacsweers.metro.ContributesIntoMap
@@ -72,8 +71,7 @@ class RegisterPasskeyRpc(
     }
   }
 
-  override suspend fun invoke(
-    userAgent: UserAgent,
+  override suspend operator fun invoke(
     request: RegisterPasskeyRequest,
     url: Url,
   ) = register(request)

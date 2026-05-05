@@ -7,7 +7,6 @@ import com.wasmo.api.CreateComputerSpecResponse
 import com.wasmo.framework.Response
 import com.wasmo.framework.RpcAction
 import com.wasmo.framework.Url
-import com.wasmo.framework.UserAgent
 import com.wasmo.payments.CreateCheckoutSessionRequest
 import com.wasmo.payments.PaymentsService
 import dev.zacsweers.metro.ClassKey
@@ -48,8 +47,7 @@ class CreateComputerSpecRpc(
     )
   }
 
-  override suspend fun invoke(
-    userAgent: UserAgent,
+  override suspend operator fun invoke(
     request: CreateComputerSpecRequest,
     url: Url,
   ) = create(request)
