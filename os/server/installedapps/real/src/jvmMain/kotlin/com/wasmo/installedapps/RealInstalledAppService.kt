@@ -1,9 +1,9 @@
 package com.wasmo.installedapps
 
 import com.wasmo.api.InstalledAppSnapshot
-import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.InstalledAppScope
 import com.wasmo.wasm.AppLoader
 import dev.zacsweers.metro.Inject

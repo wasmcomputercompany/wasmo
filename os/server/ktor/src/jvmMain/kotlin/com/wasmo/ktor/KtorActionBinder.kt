@@ -2,8 +2,7 @@ package com.wasmo.ktor
 
 import com.wasmo.api.WasmoJson
 import com.wasmo.common.logging.Logger
-import com.wasmo.deployment.Deployment
-import com.wasmo.framework.HttpActionBinder
+import com.wasmo.framework.ActionSource.Binder
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Request
 import com.wasmo.framework.Response
@@ -13,6 +12,7 @@ import com.wasmo.framework.UserAgent
 import com.wasmo.framework.UserException
 import com.wasmo.framework.asResponse
 import com.wasmo.framework.decodeUrl
+import com.wasmo.identifiers.Deployment
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -36,12 +36,12 @@ import okio.buffer
 import wasmo.http.Header
 
 @AssistedInject
-class KtorHttpActionBinder(
+class KtorActionBinder(
   private val deployment: Deployment,
   private val factory: Factory,
   private val logger: Logger,
   @Assisted private val route: Route,
-) : HttpActionBinder {
+) : Binder {
   private val rootUrl: Url
     get() = deployment.baseUrl.toString().decodeUrl()
 
@@ -50,7 +50,7 @@ class KtorHttpActionBinder(
   override fun route(
     path: String,
     method: String,
-    build: HttpActionBinder.() -> Unit,
+    build: Binder.() -> Unit,
   ) {
     route.route(path, HttpMethod.parse(method)) {
       withRoute(this).build()
@@ -59,7 +59,7 @@ class KtorHttpActionBinder(
 
   override fun host(
     hostPattern: Regex,
-    build: HttpActionBinder.() -> Unit,
+    build: Binder.() -> Unit,
   ) {
     route.host(hostPattern) {
       withRoute(this).build()
@@ -68,7 +68,7 @@ class KtorHttpActionBinder(
 
   override fun host(
     host: String,
-    build: HttpActionBinder.() -> Unit,
+    build: Binder.() -> Unit,
   ) {
     route.host(host) {
       withRoute(this).build()
@@ -128,7 +128,7 @@ class KtorHttpActionBinder(
     }
   }
 
-  override fun routeAll(build: HttpActionBinder.() -> Unit) {
+  override fun routeAll(build: Binder.() -> Unit) {
     route.route(Regex("/.*")) {
       withRoute(this).build()
     }
@@ -174,6 +174,6 @@ class KtorHttpActionBinder(
 
   @AssistedFactory
   interface Factory {
-    fun create(route: Route): KtorHttpActionBinder
+    fun create(route: Route): KtorActionBinder
   }
 }

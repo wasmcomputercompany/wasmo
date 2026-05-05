@@ -17,7 +17,7 @@ kotlin {
         implementation(libs.okio)
         implementation(projects.os.api)
         implementation(projects.os.framework)
-        implementation(projects.os.server.deployment)
+        implementation(projects.os.server.identifiers)
         implementation(projects.platform.api)
       }
     }

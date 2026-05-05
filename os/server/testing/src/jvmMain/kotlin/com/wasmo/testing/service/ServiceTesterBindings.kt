@@ -4,12 +4,14 @@ import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.computers.AppCatalog
-import com.wasmo.deployment.Deployment
 import com.wasmo.events.EventListener
 import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.MDN
+import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.ForOs
+import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.OsScope
+import com.wasmo.identifiers.hostnamePatterns
 import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
 import com.wasmo.testing.FakeAppPublisher
@@ -108,5 +110,10 @@ abstract class ServiceTesterBindings {
     @Provides
     @SingleIn(OsScope::class)
     fun provideContentTypeDatabase(): ContentTypeDatabase = ContentTypeDatabase.MDN
+
+    @Provides
+    @SingleIn(OsScope::class)
+    fun provideHostnamePatterns(deployment: Deployment): HostnamePatterns =
+      deployment.hostnamePatterns()
   }
 }

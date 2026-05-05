@@ -3,7 +3,7 @@ package com.wasmo.passkeys
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.accounts.UnexpectedChallengeException
-import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.Deployment
 import com.wasmo.testing.FakeChallenger
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.registrationRecord

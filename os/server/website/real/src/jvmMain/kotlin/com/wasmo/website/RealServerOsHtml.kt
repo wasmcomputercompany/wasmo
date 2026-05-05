@@ -7,12 +7,12 @@ import com.wasmo.api.InviteTicket
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.stripe.StripePublishableKey
-import com.wasmo.deployment.Deployment
 import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.MapPageData
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
 import com.wasmo.framework.write
+import com.wasmo.identifiers.Deployment
 import com.wasmo.support.okiohtml.writeHtml
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory

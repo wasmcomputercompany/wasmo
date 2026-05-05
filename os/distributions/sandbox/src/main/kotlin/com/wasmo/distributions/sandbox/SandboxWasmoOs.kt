@@ -6,7 +6,7 @@ package com.wasmo.distributions.sandbox
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
-import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.Deployment
 import com.wasmo.ktor.WasmoService
 import com.wasmo.ktor.startWasmoService
 import com.wasmo.objectstore.BackblazeB2BucketAddress

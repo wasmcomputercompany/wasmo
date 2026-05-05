@@ -3,11 +3,11 @@ package com.wasmo.computers
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.db.installedapps.insertInstalledApp
 import com.wasmo.db.installedapps.selectInstalledAppsByComputerId
-import com.wasmo.deployment.Deployment
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerScope
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppStore

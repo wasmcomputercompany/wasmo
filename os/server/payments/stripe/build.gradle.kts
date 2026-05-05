@@ -26,7 +26,6 @@ kotlin {
         implementation(projects.os.logging)
         implementation(projects.os.server.accounts.api)
         implementation(projects.os.server.db)
-        implementation(projects.os.server.deployment)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.payments.api)
       }

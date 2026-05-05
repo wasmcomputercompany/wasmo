@@ -1,9 +1,9 @@
 package com.wasmo.testing.installedapp
 
-import com.wasmo.deployment.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.Deployment
 import com.wasmo.installedapps.InstalledAppService
 import com.wasmo.installedapps.InstalledAppStore
 import com.wasmo.testing.apps.PublishedApp

@@ -18,7 +18,7 @@ import com.wasmo.db.emails.DbLinkedEmailAddress
 import com.wasmo.db.emails.findLinkedEmailAddresses
 import com.wasmo.db.passkeys.DbPasskey
 import com.wasmo.db.passkeys.findPasskeysByAccountId
-import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

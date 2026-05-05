@@ -6,9 +6,9 @@ import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.OsHtml
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.deployment.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.framework.ResponseBody
+import com.wasmo.identifiers.Deployment
 
 interface ServerOsHtml : OsHtml {
   val deployment: Deployment

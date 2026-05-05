@@ -1,10 +1,10 @@
 package com.wasmo.passkeys
 
-import com.wasmo.accounts.Challenger
 import com.wasmo.accounts.CallScope
+import com.wasmo.accounts.Challenger
 import com.wasmo.api.PasskeyAuthentication
 import com.wasmo.api.PasskeyRegistration
-import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.Deployment
 import com.webauthn4j.WebAuthnAuthenticationManager
 import com.webauthn4j.WebAuthnRegistrationManager
 import com.webauthn4j.converter.AttestationObjectConverter

@@ -1,5 +1,6 @@
 package com.wasmo.ktor
 
+import com.wasmo.framework.ActionSource
 import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -12,14 +13,14 @@ import io.ktor.server.routing.routing
 @SingleIn(OsScope::class)
 class ActionRouter(
   private val application: Application,
-  private val httpActionBinderFactory: KtorHttpActionBinder.Factory,
-  private val httpActionSources: Set<HttpActionSource>,
+  private val actionBinderFactory: KtorActionBinder.Factory,
+  private val actionSources: Set<ActionSource>,
 ) {
   fun createRoutes() {
     application.install(CallLogging)
     application.routing {
-      context(httpActionBinderFactory.create(this)) {
-        for (source in httpActionSources.toList().sortedBy { it.order }) {
+      for (source in actionSources.toList().sortedBy { it.order }) {
+        context(actionBinderFactory.create(this)) {
           source.bindActions()
         }
       }

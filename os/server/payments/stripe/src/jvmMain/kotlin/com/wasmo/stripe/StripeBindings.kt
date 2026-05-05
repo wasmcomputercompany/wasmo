@@ -2,7 +2,7 @@ package com.wasmo.stripe
 
 import com.stripe.StripeClient
 import com.wasmo.common.catalog.Catalog
-import com.wasmo.deployment.Deployment
+import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
 import com.wasmo.payments.PaymentsService
 import dev.zacsweers.metro.BindingContainer

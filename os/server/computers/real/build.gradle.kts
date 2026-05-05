@@ -28,7 +28,6 @@ kotlin {
         implementation(projects.os.server.calls.api)
         implementation(projects.os.server.computers.api)
         implementation(projects.os.server.db)
-        implementation(projects.os.server.deployment)
         implementation(projects.os.server.downloader.real)
         implementation(projects.os.server.events.api)
         implementation(projects.os.server.identifiers)

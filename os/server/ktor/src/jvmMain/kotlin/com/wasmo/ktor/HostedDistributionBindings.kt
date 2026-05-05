@@ -6,7 +6,8 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerBindings
-import com.wasmo.deployment.Deployment
+import com.wasmo.framework.ActionSource
+import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
@@ -49,15 +50,27 @@ import wasmo.objectstore.ObjectStore
 abstract class HostedDistributionBindings {
   @Binds
   @IntoSet
-  abstract fun bindComputerHttpActionSource(config: ComputerHttpActionSource): HttpActionSource
+  abstract fun bindComputerActionSource(config: ComputerActionSource): ActionSource
 
   @Binds
   @IntoSet
-  abstract fun bindInstalledAppActionSource(config: InstalledAppActionSource): HttpActionSource
+  abstract fun bindInstalledAppActionSource(config: InstalledAppActionSource): ActionSource
 
   @Binds
   @IntoSet
-  abstract fun bindOsHttpActionSource(config: OsHttpActionSource): HttpActionSource
+  abstract fun bindPasskeysActionSource(config: PasskeysActionSource): ActionSource
+
+  @Binds
+  @IntoSet
+  abstract fun bindEmailsActionSource(config: EmailsActionSource): ActionSource
+
+  @Binds
+  @IntoSet
+  abstract fun bindStripeActionSource(config: StripeActionSource): ActionSource
+
+  @Binds
+  @IntoSet
+  abstract fun bindOsActionSource(config: OsActionSource): ActionSource
 
   companion object {
     @Provides

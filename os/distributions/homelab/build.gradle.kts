@@ -23,7 +23,7 @@ dependencies {
   implementation(projects.os.server.accounts.real)
   implementation(projects.os.server.computers.api)
   implementation(projects.os.server.computers.real)
-  implementation(projects.os.server.deployment)
+  implementation(projects.os.server.identifiers)
   implementation(projects.os.server.ktor)
   implementation(projects.os.server.objectstore.api)
   implementation(projects.os.server.payments.stripe)

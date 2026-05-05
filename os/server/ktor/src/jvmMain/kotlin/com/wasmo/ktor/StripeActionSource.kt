@@ -9,20 +9,20 @@ import dev.zacsweers.metro.SingleIn
 
 @Inject
 @SingleIn(OsScope::class)
-class InstalledAppActionSource(
+class StripeActionSource(
   private val callGraphStarter: CallGraphStarter,
   private val hostnamePatterns: HostnamePatterns,
 ) : ActionSource {
   override val order: Int
-    get() = 1
+    get() = 4
 
   context(binder: Binder)
   override fun bindActions() {
-    binder.host(hostnamePatterns.appRegex) {
-      routeAll {
-        httpAction { userAgent, _, request ->
+    binder.host(hostnamePatterns.osHostname) {
+      route("/after-checkout/{checkoutSessionId}") {
+        httpAction { userAgent, url, _ ->
           val callGraph = callGraphStarter.start(userAgent)
-          callGraph.callAppAction.call(request)
+          callGraph.afterCheckoutPage.get(url.path[1])
         }
       }
     }
