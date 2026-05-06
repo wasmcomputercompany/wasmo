@@ -75,7 +75,6 @@ internal interface HostedGraph {
       @Provides cookieSecret: CookieSecret,
       @Provides deployment: Deployment,
       @Provides sessionCookieSpec: SessionCookieSpec,
-      @Provides stripePublishableKey: StripePublishableKey,
       @Provides stripeCredentials: StripeCredentials,
       @Provides objectStoreAddress: ObjectStoreAddress,
       @Provides catalog: Catalog,

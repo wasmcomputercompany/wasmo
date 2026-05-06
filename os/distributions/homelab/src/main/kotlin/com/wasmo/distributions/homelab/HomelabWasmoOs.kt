@@ -60,7 +60,6 @@ fun main(args: Array<String>): Unit = runBlocking {
           publishableKey = StripePublishableKey(stripePublishableKey),
           secretKey = stripeSecretKey,
         ),
-        stripePublishableKey = StripePublishableKey(stripePublishableKey),
         catalog = DevelopmentCatalog,
         wasmoDb = wasmoDb,
         provisioningDb = provisioningDb,

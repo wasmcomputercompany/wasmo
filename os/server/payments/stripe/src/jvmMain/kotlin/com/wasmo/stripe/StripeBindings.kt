@@ -1,6 +1,7 @@
 package com.wasmo.stripe
 
 import com.stripe.StripeClient
+import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.framework.ActionRegistration
 import com.wasmo.identifiers.Deployment
@@ -32,6 +33,12 @@ abstract class StripeBindings {
         action = AfterCheckoutPage::class,
       ),
     )
+
+    @Provides
+    @SingleIn(OsScope::class)
+    fun provideStripePublishableKey(
+      stripeCredentials: StripeCredentials,
+    ): StripePublishableKey = stripeCredentials.publishableKey
 
     @Provides
     @SingleIn(OsScope::class)
