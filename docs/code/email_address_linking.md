@@ -3,6 +3,8 @@ Email Address Linking
 
 Linking an email address to an account is necessary and sufficient to sign up or sign in.
 
+An email address may be linked to at most one account at a time.
+
 
 Happy Path
 ----------

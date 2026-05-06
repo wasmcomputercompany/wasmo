@@ -1,8 +1,23 @@
-Accounts Assets
-===============
+Accounts and Authentication
+===========================
 
-Different distributions require different assets before they are permitted to create or operate
-computers.
+An `Account` is a unit of access.
+
+We persist accounts eagerly, possibly before the sign-up flow. Use a browser that can save a cookie
+to take any action that causes our service to store some data.
+
+This lets us link all of a client’s stuff together. For example, suppose you picked French as your
+language on Wasmo.com’s main landing page. If you later sign up with an email address, we know to
+use French when emailing you.
+
+The number of records in the `Accounts` table is not useful for tracking how many customers we have.
+
+
+Sign Up and Sign In
+-------------------
+
+Most of the useful actions in Wasmo require a Signed In account. An account is Signed In once they
+provide the requirements of the distribution.
 
 | Distribution | Required                                | Optional                                    |
 |--------------|-----------------------------------------|---------------------------------------------|
@@ -10,6 +25,13 @@ computers.
 | SDK          | `Username` (default is `admin`)         |                                             |
 | Hosted       | `VerifiedEmailAddress`, `AcceptedTerms` | `Passkey`, `Password`, `InstanceAdminGrant` |
 | Sandbox      | `VerifiedEmailAddress`, `AcceptedTerms` | `Passkey`, `Password`, `InstanceAdminGrant` |
+
+We use cookies to link a browser session with an account. Each account has zero or more `Cookies`
+that grant the holder access to the account.
+
+
+Account Assets
+--------------
 
 ### `Username`
 
@@ -56,12 +78,12 @@ with the services we host.
 Implementation
 --------------
 
-Required assets are fixed at build time via the distribution's `WasmoService.Config`.
+Homelab admins can choose to require Passwords for their instance. They are optional by default.
 
-Jesse's working on making it possible to do this via the DI graph, but that isn't ready yet.
+Jesse's working on making it possible to express what's required via the DI graph.
 
 Account migration between instance types is not supported.
 
-Exposing homelab to the Internet is not Wasmo’s responsibility. Can be done via home VPN.
+Exposing Homelab to the Internet is not Wasmo’s responsibility. Can be done via home VPN.
 
 [OWASP guidelines]:https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
