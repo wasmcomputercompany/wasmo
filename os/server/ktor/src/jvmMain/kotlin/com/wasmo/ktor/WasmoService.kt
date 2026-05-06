@@ -19,8 +19,6 @@ import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.createGraphFactory
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.netty.EngineMain
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import okio.ByteString
 import wasmox.sql.transaction
 
@@ -64,16 +62,8 @@ suspend fun startWasmoService(
   )
   val wasmoDb = osPostgresqlClient.asSqlDatabase()
 
-  // On plain JVM outside of UI toolkits, the main thread appears to not have
-  // a coroutine dispatcher that execution can return to.
-  //
-  // withContext(Dispatchers.IO) ensures that remaining execution can at least
-  // return to one of plentiful I/O threads; else, it'd continue on whatever
-  // thread it had migrated to (empirically, the Vert.x eventloop thread).
-  withContext(Dispatchers.IO) {
-    wasmoDb.transaction {
-      ensureSchemaVersion()
-    }
+  wasmoDb.transaction {
+    ensureSchemaVersion()
   }
 
   val wasmoServiceGraphFactory = createGraphFactory<WasmoServiceGraph.Factory>()

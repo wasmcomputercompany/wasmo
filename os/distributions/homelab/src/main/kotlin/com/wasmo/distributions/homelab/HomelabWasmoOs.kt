@@ -14,11 +14,12 @@ import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.stripe.StripeCredentials
+import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
 
-suspend fun main(args: Array<String>) {
+fun main(args: Array<String>): Unit = runBlocking {
   val stripePublishableKey = System.getenv("STRIPE_PUBLISHABLE_KEY")
     ?: error("required env STRIPE_PUBLISHABLE_KEY not set")
   val stripeSecretKey = System.getenv("STRIPE_SECRET_KEY")

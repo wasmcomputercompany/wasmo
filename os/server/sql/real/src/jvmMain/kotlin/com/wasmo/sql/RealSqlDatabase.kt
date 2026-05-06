@@ -85,7 +85,7 @@ internal class RealSqlConnection(
         else -> sqlClient.query(sql).execute()
       }
 
-      return future.asDeferred().await()
+      return future.awaitSuspending()
     } catch (e: PgException) {
       throw e.toSqlException()
     }

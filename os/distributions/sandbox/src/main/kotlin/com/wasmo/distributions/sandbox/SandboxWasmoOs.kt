@@ -14,10 +14,11 @@ import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.stripe.StripeCredentials
+import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.decodeHex
 
-suspend fun main(args: Array<String>) {
+fun main(args: Array<String>): Unit = runBlocking {
   val cookieSecret = System.getenv("COOKIE_SECRET")
     ?: error("required env COOKIE_SECRET not set")
 
