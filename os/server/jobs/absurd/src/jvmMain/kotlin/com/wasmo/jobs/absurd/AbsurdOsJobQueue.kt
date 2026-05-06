@@ -13,7 +13,6 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.uuid.ExperimentalUuidApi
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import wasmo.sql.SqlConnection
 import wasmox.sql.SqlTransaction
 
@@ -37,13 +36,6 @@ internal class AbsurdOsJobQueue<P : Any, R : Any> private constructor(
       params = job,
       sqlClient = (sqlTransaction.sqlConnection as OsSqlConnection).sqlClient,
     )
-
-    // TODO: in production, have continuous workers
-    sqlTransaction.afterCommit {
-      factory.scope.launch {
-        factory.absurdService.absurd.executeBatch("AbsurdOsJobQueue")
-      }
-    }
   }
 
   context(sqlTransaction: SqlTransaction)

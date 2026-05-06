@@ -7,6 +7,7 @@ import com.wasmo.common.catalog.Catalog
 import com.wasmo.db.ensureSchemaVersion
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
+import com.wasmo.jobs.JobProcessor
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
@@ -27,9 +28,11 @@ import wasmox.sql.transaction
 class WasmoService(
   private val server: EmbeddedServer<*, *>,
   private val actionRouter: ActionRouter,
+  private val jobProcessor: JobProcessor,
 ) {
   fun start() {
     actionRouter.createRoutes()
+    jobProcessor.start()
     // don't permanently block the calling thread
     server.start(wait = false)
   }
