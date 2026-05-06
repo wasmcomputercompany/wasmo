@@ -28,6 +28,10 @@ kotlin {
         implementation(projects.os.server.ktor.api)
         implementation(projects.platform.api)
         implementation(projects.support.issues)
+        runtimeOnly(libs.ktor.server.config.yaml)
+        runtimeOnly(libs.ktor.server.netty)
+        runtimeOnly(libs.logback.classic)
+        runtimeOnly(projects.os.client.app)
       }
     }
   }
