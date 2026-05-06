@@ -9,12 +9,11 @@ import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputersBindings
 import com.wasmo.emails.EmailBindings
 import com.wasmo.identifiers.Deployment
-import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.jobs.absurd.AbsurdBindings
 import com.wasmo.ktor.KtorBindings
-import com.wasmo.objectstore.ObjectStoreFactory
+import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
 import com.wasmo.objectstore.s3.S3ObjectStoreBindings
 import com.wasmo.passkeys.PasskeysBindings
@@ -29,7 +28,6 @@ import com.wasmo.website.WebsiteBindings
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
-import wasmo.objectstore.ObjectStore
 
 @BindingContainer(
   includes = [
@@ -42,6 +40,7 @@ import wasmo.objectstore.ObjectStore
     HostedDistributionBindings::class,
     InstalledAppBindings::class,
     KtorBindings::class,
+    ObjectStoreBindings::class,
     PasskeysBindings::class,
     PermitsBindings::class,
     PostmarkBindings::class,
@@ -85,12 +84,9 @@ abstract class HostedDistributionBindings {
       config.stripeCredentials
 
     @Provides
-    @ForOs
     @SingleIn(OsScope::class)
-    fun provideObjectStore(
-      config: WasmoService.Config,
-      objectStoreFactory: ObjectStoreFactory,
-    ): ObjectStore = objectStoreFactory.open(config.objectStoreAddress)
+    fun provideObjectStoreAddress(config: WasmoService.Config): ObjectStoreAddress =
+      config.objectStoreAddress
 
     @Provides
     @SingleIn(OsScope::class)
