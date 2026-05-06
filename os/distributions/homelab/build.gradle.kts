@@ -14,6 +14,7 @@ application {
 
 dependencies {
   add("jsResources", projects.os.client.appHomelab)
+  implementation(libs.kotlinx.coroutines.core)
   implementation(libs.okhttp)
   implementation(libs.okio)
   implementation(projects.apps.journal.wasmoApp)

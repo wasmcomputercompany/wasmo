@@ -21,12 +21,14 @@ class PostgresqlClient(
     try {
       return block(connection)
     } finally {
-      connection.close().asDeferred().await()
+      connection.close().awaitSuspending()
     }
   }
 
   suspend fun connect(): SqlClient =
-    pool.connection.asDeferred().await()
+    pool.connection.awaitSuspending(
+      onCancellation = { _, value, _ -> value.close() },
+    )
 
   override fun close() {
     pool.close()
