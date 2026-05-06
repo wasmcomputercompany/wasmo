@@ -19,6 +19,7 @@ plugins {
   alias(libs.plugins.ksp).apply(false)
   alias(libs.plugins.ktor).apply(false)
   alias(libs.plugins.maven.publish).apply(false)
+  alias(libs.plugins.sass).apply(false)
   alias(libs.plugins.sqldelight).apply(false)
 }
 

@@ -1,0 +1,9 @@
+// Pico lightweight version
+@use "pico" with (
+  $enable-semantic-container: true,
+  $enable-classes: false,
+  $modules: (
+    "components/modal": false,
+  ),
+  $theme-color: zinc,
+);

@@ -96,4 +96,5 @@ ksp = { id = "com.google.devtools.ksp", version = "2.2.21-2.0.4" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 maven-publish = { id = "com.vanniktech.maven.publish.base", version.ref = "maven-publish" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
+sass = { id = "io.freefair.sass-base", version = "9.5.0" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
