@@ -11,6 +11,7 @@ dependencies {
   add("compileOnly", kotlin("gradle-plugin"))
   add("compileOnly", kotlin("gradle-plugin-api"))
   implementation(libs.dokka)
+  implementation(libs.freefair.sass)
   implementation(libs.kotlin.gradle.plugin)
   implementation(libs.maven.publish)
   implementation(libs.okio)

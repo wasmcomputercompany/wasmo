@@ -4,6 +4,7 @@ burst = "2.11.0"
 clikt = "5.0.1"
 dokka = "2.2.0"
 compose = "1.10.0"
+freefair-sass = "9.5.0"
 graalvm = "25.0.0"
 gson = "2.13.2"
 jaxb = "4.0.0"
@@ -74,6 +75,7 @@ reactive-streams = { module = "org.reactivestreams:reactive-streams", version = 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter-jaxb3 = { module = "com.squareup.retrofit2:converter-jaxb3", version.ref = "retrofit" }
 retrofit-converter-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
+freefair-sass = { module = "io.freefair.sass-base:io.freefair.sass-base.gradle.plugin", version.ref = "freefair-sass" }
 sqldelight-async-extensions = { module = "app.cash.sqldelight:async-extensions", version.ref = "sqldelight" }
 sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
 stripe = { module = "com.stripe:stripe-java", version.ref = "stripe" }
@@ -96,5 +98,5 @@ ksp = { id = "com.google.devtools.ksp", version = "2.2.21-2.0.4" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 maven-publish = { id = "com.vanniktech.maven.publish.base", version.ref = "maven-publish" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
-sass = { id = "io.freefair.sass-base", version = "9.5.0" }
+sass = { id = "io.freefair.sass-base", version.ref = "freefair-sass" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

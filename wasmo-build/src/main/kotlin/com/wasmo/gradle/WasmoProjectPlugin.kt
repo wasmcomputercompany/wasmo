@@ -7,6 +7,7 @@ import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.MavenPublishBasePlugin
 import com.vanniktech.maven.publish.SourcesJar
+import io.freefair.gradle.plugins.sass.SassCompile
 import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
@@ -61,10 +62,12 @@ internal class RealWasmoBuildExtension(
 
       project.plugins.withType<MavenPublishBasePlugin> {
         project.extensions.configure<MavenPublishBaseExtension> {
-          configure(KotlinMultiplatform(
-            JavadocJar.Dokka("dokkaGenerateHtml"),
-            SourcesJar.Sources(),
-          ))
+          configure(
+            KotlinMultiplatform(
+              JavadocJar.Dokka("dokkaGenerateHtml"),
+              SourcesJar.Sources(),
+            ),
+          )
         }
       }
     }
@@ -143,6 +146,25 @@ internal class RealWasmoBuildExtension(
     project.plugins.withType<KotlinPluginWrapper> {
       sourceSets.named("main").configure {
         resources.srcDir(copyJsResources.map { project.layout.buildDirectory.dir("jsResources") })
+      }
+    }
+  }
+
+  override fun compileScss() {
+    project.plugins.apply(libs.plugins.sass.get().pluginId)
+
+    val cssResourcesDir = project.layout.buildDirectory.dir("sass")
+
+    val compileScss = project.tasks.register("compileScss", SassCompile::class.java) {
+      source(project.layout.projectDirectory.dir("src/main/scss"))
+      includePaths.from(project.rootProject.layout.projectDirectory.dir("submodules/pico/scss"))
+      destinationDir.set(cssResourcesDir)
+    }
+
+    val sourceSets = project.extensions.getByName("sourceSets") as SourceSetContainer
+    project.plugins.withType<KotlinMultiplatformPluginWrapper> {
+      sourceSets.named("jvmMain").configure {
+        resources.srcDir(compileScss)
       }
     }
   }

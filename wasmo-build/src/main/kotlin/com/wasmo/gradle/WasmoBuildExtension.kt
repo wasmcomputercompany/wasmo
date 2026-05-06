@@ -29,4 +29,10 @@ interface WasmoBuildExtension {
   fun consumeJsResources(path: String)
   fun applicationJs(name: String, artifactTaskName: String)
   fun createWasmoFileTask(slug: String): TaskProvider<WasmoFileTask>
+
+  /**
+   * Compile `.scss` (Sass) files in the `src/main/scss` directory and package them as resources in
+   * a JVM library.
+   */
+  fun compileScss()
 }
