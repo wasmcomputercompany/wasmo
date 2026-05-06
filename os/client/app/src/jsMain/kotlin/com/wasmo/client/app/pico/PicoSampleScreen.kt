@@ -44,11 +44,12 @@ fun PicoSampleScreen(
       Fieldset {
         val inputId = rememberNextId()
         Label {
+          Text("Email Address")
           Input(
             type = InputType.Email,
             attrs = {
               defaultValue(emailAddress)
-              placeholder("Email")
+              placeholder("name@example.com")
               attr("aria-label", "Email")
               attr("aria-describedby", inputId)
               autoComplete(AutoComplete.email)

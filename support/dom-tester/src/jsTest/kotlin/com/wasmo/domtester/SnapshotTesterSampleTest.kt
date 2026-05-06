@@ -75,7 +75,11 @@ internal class SnapshotTesterSampleTest {
           appendText("hello world")
         }
       }
-      snapshotTester.snapshot(body, Frame.Iphone14, "mismatch")
+      snapshotTester.snapshot(
+        element = body,
+        frame = Frame.Iphone14,
+        name = "mismatch",
+      )
     }
 
     assertFailsWith<SnapshotMismatchException> {
@@ -87,7 +91,11 @@ internal class SnapshotTesterSampleTest {
             appendText("hello world")
           }
         }
-        snapshotTester.snapshot(body, Frame.Iphone14, "mismatch")
+        snapshotTester.snapshot(
+          element = body,
+          frame = Frame.Iphone14,
+          name = "mismatch",
+        )
       }
     }
   }

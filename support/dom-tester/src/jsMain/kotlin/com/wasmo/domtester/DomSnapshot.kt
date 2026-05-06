@@ -37,9 +37,13 @@ data class DomSnapshot(
           },
         )
       },
-      document.createElement("template").run {
-        innerHTML = elementHtml
-        asDynamic().content.firstChild
+      document.createElement("body").apply {
+        append(
+          document.createElement("template").run {
+            innerHTML = elementHtml
+            asDynamic().content.firstChild
+          },
+        )
       },
     )
 

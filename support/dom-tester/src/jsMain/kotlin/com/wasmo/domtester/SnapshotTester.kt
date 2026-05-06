@@ -20,9 +20,8 @@ import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import kotlinx.browser.document
 import org.jetbrains.compose.web.dom.DOMScope
-import org.jetbrains.compose.web.renderComposable
+import org.jetbrains.compose.web.renderComposableInBody
 import org.w3c.dom.Element
-import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 import org.w3c.files.Blob
 
@@ -64,6 +63,8 @@ class SnapshotTester(
   suspend fun snapshot(
     element: HTMLElement,
     frame: Frame,
+    darkMode: DarkMode = DarkMode.Light,
+    backgroundColor: String? = null,
     name: String? = null,
     scrolling: Boolean = false,
   ) {
@@ -74,7 +75,13 @@ class SnapshotTester(
     val pathPrefix = pathPrefix(name)
     val htmlPath = "$pathPrefix.actual.html"
 
-    val domSnapshot = domSnapshotter.snapshot(element, frame, scrolling)
+    val domSnapshot = domSnapshotter.snapshot(
+      element = element,
+      frame = frame,
+      backgroundColor = backgroundColor,
+      darkMode = darkMode,
+      scrolling = scrolling,
+    )
     val images = domSnapshot.images
     val html = domSnapshot.htmlPage(
       title = testFunction.toString(),
@@ -122,27 +129,24 @@ class SnapshotTester(
 
   suspend fun snapshot(
     frame: Frame = Frame.Iphone14,
+    darkMode: DarkMode = DarkMode.Light,
+    backgroundColor: String? = null,
     name: String? = null,
     scrolling: Boolean = false,
     content: @Composable DOMScope<Element>.() -> Unit,
   ) {
-    val snapshotRoot = document.createElement("div") as HTMLDivElement
-    snapshotRoot.id = "snapshotRoot"
-    snapshotRoot.style.width = "100%"
-    snapshotRoot.style.height = "100%"
-    document.body!!.appendChild(snapshotRoot)
-
-    val composition = renderComposable("snapshotRoot", content)
+    val composition = renderComposableInBody(content)
     try {
       snapshot(
         element = document.body!!,
         frame = frame,
+        darkMode = darkMode,
+        backgroundColor = backgroundColor,
         name = name,
         scrolling = scrolling,
       )
     } finally {
       composition.dispose()
-      document.body!!.removeChild(snapshotRoot)
     }
   }
 

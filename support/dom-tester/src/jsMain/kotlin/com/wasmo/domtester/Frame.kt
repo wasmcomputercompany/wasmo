@@ -24,6 +24,9 @@ class Frame(
   val pixelRatio: Double = 1.0,
 ) {
   companion object {
+    /** https://www.ios-resolution.com/ */
     val Iphone14: Frame = Frame(width = 390, height = 844, pixelRatio = 3.0)
+    val Ipad11: Frame = Frame(width = 820, height = 1180, pixelRatio = 2.0)
+    val MacBookAir13: Frame = Frame(width = 1280, height = 832, pixelRatio = 2.0)
   }
 }

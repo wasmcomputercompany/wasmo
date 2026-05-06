@@ -148,7 +148,6 @@ internal class ImageDifferTest {
             width = width,
             height = height,
           ),
-          scrolling = false,
         )
       return snapshot.images.first()!!
     } finally {

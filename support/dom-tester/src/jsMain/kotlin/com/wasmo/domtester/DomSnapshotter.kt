@@ -27,12 +27,20 @@ class DomSnapshotter {
   suspend fun snapshot(
     element: HTMLElement,
     frame: Frame,
-    scrolling: Boolean,
+    darkMode: DarkMode = DarkMode.Light,
+    backgroundColor: String? = null,
+    scrolling: Boolean = false,
   ): DomSnapshot {
     val oldWidth = element.style.width
     val oldHeight = element.style.height
+    val oldDataTheme = element.getAttribute("data-theme")
+    val oldBackgroundColor = element.style.backgroundColor
     element.style.width = "${frame.width}px"
     element.style.height = "${frame.height}px"
+    if (backgroundColor != null) {
+      element.style.backgroundColor = backgroundColor
+    }
+    element.setAttribute("data-theme", darkMode.value)
     try {
       val boundingClientRect = element.getBoundingClientRect()
       val elementWidth = ceil(boundingClientRect.width).toInt()
@@ -82,6 +90,14 @@ class DomSnapshotter {
     } finally {
       element.style.width = oldWidth
       element.style.height = oldHeight
+      if (backgroundColor != null) {
+        element.style.backgroundColor = oldBackgroundColor
+      }
+      if (oldDataTheme != null) {
+        element.setAttribute("data-theme", oldDataTheme)
+      } else {
+        element.removeAttribute("data-theme")
+      }
     }
   }
 
