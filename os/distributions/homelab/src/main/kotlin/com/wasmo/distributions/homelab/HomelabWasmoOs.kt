@@ -3,6 +3,7 @@
 
 package com.wasmo.distributions.homelab
 
+import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
@@ -11,13 +12,17 @@ import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
 import com.wasmo.sql.PostgresqlAddress
+import com.wasmo.sql.ProvisioningDb
 import com.wasmo.stripe.StripeCredentials
+import com.wasmo.wiring.Distribution
 import com.wasmo.wiring.WasmoService
-import com.wasmo.wiring.startWasmoService
+import dev.zacsweers.metro.createGraphFactory
+import io.ktor.server.engine.EmbeddedServer
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
+import wasmo.sql.SqlDatabase
 
 fun main(args: Array<String>): Unit = runBlocking {
   val stripePublishableKey = System.getenv("STRIPE_PUBLISHABLE_KEY")
@@ -31,27 +36,47 @@ fun main(args: Array<String>): Unit = runBlocking {
     databaseName = "wasmo_development",
     ssl = false,
   )
-  val config = WasmoService.Config(
-    cookieSecret = "butters".encodeUtf8(),
-    postmarkCredentials = PostmarkCredentials(
-      baseUrl = PostmarkProductionBaseUrl,
-      serverToken = System.getenv("POSTMARK_SERVER_TOKEN") ?: "?",
-    ),
-    stripeCredentials = StripeCredentials(
-      publishableKey = StripePublishableKey(stripePublishableKey),
-      secretKey = stripeSecretKey,
-    ),
-    catalog = DevelopmentCatalog,
-    osPostgresqlAddress = sharedPostgresqlAddress,
-    provisioningPostgresqlAddress = sharedPostgresqlAddress,
-    deployment = Deployment(
-      baseUrl = "http://wasmo.localhost:8080/".toHttpUrl(),
-      sendFromEmailAddress = "noreply@wasmo.dev",
-    ),
-    objectStoreAddress = FileSystemObjectStoreAddress(
-      path = System.getProperty("user.home").toPath() / ".wasmo",
-    ),
-    sessionCookieSpec = SessionCookieSpec.Http,
-  )
-  startWasmoService(config, args)
+
+  val homelabDistribution = object : Distribution() {
+    override val osPostgresqlAddress: PostgresqlAddress
+      get() = sharedPostgresqlAddress
+    override val provisioningPostgresqlAddress: PostgresqlAddress
+      get() = sharedPostgresqlAddress
+
+    override fun createService(
+      server: EmbeddedServer<*, *>,
+      provisioningDb: ProvisioningDb,
+      wasmoDb: SqlDatabase,
+    ): WasmoService {
+      val homelabGraphFactory = createGraphFactory<HomelabGraph.Factory>()
+      val serviceGraph = homelabGraphFactory.create(
+        server = server,
+        cookieSecret = CookieSecret("butters".encodeUtf8()),
+        postmarkCredentials = PostmarkCredentials(
+          baseUrl = PostmarkProductionBaseUrl,
+          serverToken = System.getenv("POSTMARK_SERVER_TOKEN") ?: "?",
+        ),
+        stripeCredentials = StripeCredentials(
+          publishableKey = StripePublishableKey(stripePublishableKey),
+          secretKey = stripeSecretKey,
+        ),
+        stripePublishableKey = StripePublishableKey(stripePublishableKey),
+        catalog = DevelopmentCatalog,
+        wasmoDb = wasmoDb,
+        provisioningDb = provisioningDb,
+        postgresqlAddress = sharedPostgresqlAddress,
+        deployment = Deployment(
+          baseUrl = "http://wasmo.localhost:8080/".toHttpUrl(),
+          sendFromEmailAddress = "noreply@wasmo.dev",
+        ),
+        objectStoreAddress = FileSystemObjectStoreAddress(
+          path = System.getProperty("user.home").toPath() / ".wasmo",
+        ),
+        sessionCookieSpec = SessionCookieSpec.Http,
+      )
+      return serviceGraph.wasmoService
+    }
+  }
+
+  homelabDistribution.start(args)
 }
