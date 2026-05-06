@@ -7,13 +7,13 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.identifiers.Deployment
-import com.wasmo.ktor.WasmoService
-import com.wasmo.ktor.startWasmoService
 import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.stripe.StripeCredentials
+import com.wasmo.wiring.WasmoService
+import com.wasmo.wiring.startWasmoService
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.decodeHex

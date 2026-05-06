@@ -1,4 +1,4 @@
-package com.wasmo.ktor
+package com.wasmo.wiring
 
 import com.wasmo.calls.CallGraph
 import com.wasmo.computers.ComputerServiceGraph

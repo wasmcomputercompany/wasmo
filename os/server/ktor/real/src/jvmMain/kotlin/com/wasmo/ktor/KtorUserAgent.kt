@@ -6,7 +6,7 @@ import io.ktor.server.plugins.origin
 import io.ktor.server.request.header
 import io.ktor.server.routing.RoutingContext
 
-class KtorUserAgent(
+internal class KtorUserAgent(
   private val routingContext: RoutingContext,
 ) : UserAgent {
   override val userAgent: String?

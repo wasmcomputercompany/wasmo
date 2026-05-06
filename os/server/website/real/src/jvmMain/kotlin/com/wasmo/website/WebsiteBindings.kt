@@ -4,12 +4,16 @@ import com.wasmo.framework.ActionRegistration
 import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ElementsIntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 
 @BindingContainer
 abstract class WebsiteBindings {
+  @Binds
+  abstract fun bindServerOsHtmlFactory(real: RealServerOsHtml.Factory): ServerOsHtml.Factory
+
   companion object {
     @Provides
     @ElementsIntoSet

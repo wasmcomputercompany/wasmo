@@ -1,7 +1,6 @@
-package com.wasmo.ktor
+package com.wasmo.wiring
 
 import com.wasmo.api.routes.RouteCodec
-import com.wasmo.common.logging.Logger
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.loadDefaultAppCatalogFromResources
@@ -18,8 +17,6 @@ import com.wasmo.identifiers.hostnamePatterns
 import com.wasmo.journal.server.JournalWasmoApp
 import com.wasmo.wasm.AppLoader
 import com.wasmo.wasm.JvmAppLoader
-import com.wasmo.website.RealServerOsHtml
-import com.wasmo.website.ServerOsHtml
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.Provides
@@ -48,13 +45,7 @@ abstract class ServiceBindings {
   abstract fun bindRouteCodecFactory(real: RealRouteCodec.Factory): RouteCodec.Factory
 
   @Binds
-  abstract fun bindServerOsHtmlFactory(real: RealServerOsHtml.Factory): ServerOsHtml.Factory
-
-  @Binds
   abstract fun bindEventListener(real: LoggingEventListener): EventListener
-
-  @Binds
-  abstract fun bindLogger(real: KtorLogger): Logger
 
   @Binds
   abstract fun bindAppLoader(real: JvmAppLoader): AppLoader

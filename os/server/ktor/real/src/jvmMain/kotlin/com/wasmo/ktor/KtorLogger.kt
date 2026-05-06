@@ -10,7 +10,7 @@ import io.ktor.server.engine.EmbeddedServer
 
 @Inject
 @SingleIn(OsScope::class)
-class KtorLogger(
+internal class KtorLogger(
   server: EmbeddedServer<*, *>,
 ) : Logger {
   private val log = server.application.log

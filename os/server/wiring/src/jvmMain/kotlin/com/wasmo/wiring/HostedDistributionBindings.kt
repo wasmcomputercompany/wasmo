@@ -1,4 +1,4 @@
-package com.wasmo.ktor
+package com.wasmo.wiring
 
 import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
@@ -13,6 +13,7 @@ import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.jobs.absurd.AbsurdBindings
+import com.wasmo.ktor.KtorBindings
 import com.wasmo.objectstore.ObjectStoreFactory
 import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
 import com.wasmo.objectstore.s3.S3ObjectStoreBindings
@@ -40,6 +41,7 @@ import wasmo.objectstore.ObjectStore
     FileSystemObjectStoreBindings::class,
     HostedDistributionBindings::class,
     InstalledAppBindings::class,
+    KtorBindings::class,
     PasskeysBindings::class,
     PermitsBindings::class,
     PostmarkBindings::class,

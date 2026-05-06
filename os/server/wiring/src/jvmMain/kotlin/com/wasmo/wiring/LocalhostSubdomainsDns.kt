@@ -1,4 +1,4 @@
-package com.wasmo.ktor
+package com.wasmo.wiring
 
 import java.net.InetAddress
 import okhttp3.Dns

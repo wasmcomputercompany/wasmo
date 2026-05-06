@@ -52,18 +52,18 @@ import wasmo.http.Header
  */
 @Inject
 @SingleIn(OsScope::class)
-class ActionRouter(
+internal class RealActionRouter(
   private val application: Application,
   private val actionRegistrations: Set<ActionRegistration>,
   private val deployment: Deployment,
   private val clientAuthenticatorFactory: ClientAuthenticator.Factory,
   private val callGraphFactory: CallGraph.Factory,
   private val logger: Logger,
-) {
+) : ActionRouter {
   private val rootUrl: Url
     get() = deployment.baseUrl.toString().decodeUrl()
 
-  fun createRoutes() {
+  override fun createRoutes() {
     application.install(CallLogging)
     application.routing {
       // Register actions from most precise to least precise.

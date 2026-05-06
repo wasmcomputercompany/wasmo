@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalStdlibApi::class)
 
-package com.wasmo.ktor
+package com.wasmo.wiring
 
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.common.catalog.Catalog
@@ -8,6 +8,7 @@ import com.wasmo.db.ensureSchemaVersion
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
 import com.wasmo.jobs.JobProcessor
+import com.wasmo.ktor.ActionRouter
 import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
