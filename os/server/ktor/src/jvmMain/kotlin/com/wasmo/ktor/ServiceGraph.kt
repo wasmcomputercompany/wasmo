@@ -1,5 +1,6 @@
 package com.wasmo.ktor
 
+import com.wasmo.calls.CallGraph
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppServiceGraph
@@ -15,7 +16,7 @@ import wasmo.sql.SqlDatabase
     HostedDistributionBindings::class,
   ],
 )
-internal interface WasmoServiceGraph {
+internal interface ServiceGraph {
   val wasmoService: WasmoService
   val callGraphFactory: CallGraph.Factory
   val computerServiceGraphFactory: ComputerServiceGraph.Factory
@@ -28,6 +29,6 @@ internal interface WasmoServiceGraph {
       @Provides server: EmbeddedServer<*, *>,
       @Provides wasmoDb: SqlDatabase,
       @Provides provisioningDb: ProvisioningDb,
-    ): WasmoServiceGraph
+    ): ServiceGraph
   }
 }

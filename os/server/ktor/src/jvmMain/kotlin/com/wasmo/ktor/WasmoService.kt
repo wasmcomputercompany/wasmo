@@ -69,8 +69,8 @@ suspend fun startWasmoService(
     ensureSchemaVersion()
   }
 
-  val wasmoServiceGraphFactory = createGraphFactory<WasmoServiceGraph.Factory>()
-  val serviceGraph = wasmoServiceGraphFactory.create(
+  val serviceGraphFactory = createGraphFactory<ServiceGraph.Factory>()
+  val serviceGraph = serviceGraphFactory.create(
     config = config,
     server = server,
     wasmoDb = wasmoDb,

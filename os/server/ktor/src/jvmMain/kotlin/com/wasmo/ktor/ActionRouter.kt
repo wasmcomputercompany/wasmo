@@ -2,6 +2,7 @@ package com.wasmo.ktor
 
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.api.WasmoJson
+import com.wasmo.calls.CallGraph
 import com.wasmo.common.logging.Logger
 import com.wasmo.framework.ActionRegistration
 import com.wasmo.framework.NotFoundUserException

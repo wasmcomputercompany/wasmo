@@ -37,27 +37,27 @@ import wasmo.app.WasmoApp
 import wasmo.http.HttpService
 
 @BindingContainer
-interface ServiceBindings {
+abstract class ServiceBindings {
   @Binds
-  fun bindCallFactory(real: OkHttpClient): Call.Factory
+  abstract fun bindCallFactory(real: OkHttpClient): Call.Factory
 
   @Binds
-  fun bindHttpClient(real: OkHttpClientHttpService): HttpService
+  abstract fun bindHttpClient(real: OkHttpClientHttpService): HttpService
 
   @Binds
-  fun bindRouteCodecFactory(real: RealRouteCodec.Factory): RouteCodec.Factory
+  abstract fun bindRouteCodecFactory(real: RealRouteCodec.Factory): RouteCodec.Factory
 
   @Binds
-  fun bindServerOsHtmlFactory(real: RealServerOsHtml.Factory): ServerOsHtml.Factory
+  abstract fun bindServerOsHtmlFactory(real: RealServerOsHtml.Factory): ServerOsHtml.Factory
 
   @Binds
-  fun bindEventListener(real: LoggingEventListener): EventListener
+  abstract fun bindEventListener(real: LoggingEventListener): EventListener
 
   @Binds
-  fun bindLogger(real: KtorLogger): Logger
+  abstract fun bindLogger(real: KtorLogger): Logger
 
   @Binds
-  fun bindAppLoader(real: JvmAppLoader): AppLoader
+  abstract fun bindAppLoader(real: JvmAppLoader): AppLoader
 
   companion object {
 

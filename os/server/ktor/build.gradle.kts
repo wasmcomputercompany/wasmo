@@ -42,6 +42,7 @@ kotlin {
         implementation(projects.os.server.accounts.real)
         implementation(projects.os.server.calls.api)
         implementation(projects.os.server.calls.real)
+        implementation(projects.os.server.calls.wiring)
         implementation(projects.os.server.computers.api)
         implementation(projects.os.server.computers.real)
         implementation(projects.os.server.db)
