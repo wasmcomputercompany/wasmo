@@ -42,6 +42,11 @@ kotlin {
         implementation(projects.support.tokens)
       }
     }
+    val jvmMain by getting {
+      dependencies {
+        implementation(projects.os.client.style)
+      }
+    }
     val jsTest by getting {
       dependencies {
         implementation(libs.burst.coroutines)

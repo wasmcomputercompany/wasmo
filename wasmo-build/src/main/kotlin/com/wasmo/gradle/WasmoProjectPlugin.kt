@@ -156,7 +156,7 @@ internal class RealWasmoBuildExtension(
     val cssResourcesDir = project.layout.buildDirectory.dir("sass")
 
     val compileScss = project.tasks.register("compileScss", SassCompile::class.java) {
-      source(project.layout.projectDirectory.dir("src/main/scss"))
+      source(project.layout.projectDirectory.dir("src/jvmMain/scss"))
       includePaths.from(project.rootProject.layout.projectDirectory.dir("submodules/pico/scss"))
       destinationDir.set(cssResourcesDir)
     }
