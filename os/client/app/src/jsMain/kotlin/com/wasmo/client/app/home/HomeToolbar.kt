@@ -12,7 +12,7 @@ fun HomeToolbar(
 ) {
   Toolbar(
     attrs = {
-      classes("ScreenContentWidth")
+      classes("ContentWidth")
       style {
         marginBottom(32.px)
       }

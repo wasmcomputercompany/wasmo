@@ -66,6 +66,7 @@ class RealServerOsHtml(
       head {
         meta(charset = "utf-8")
         title("Wasmo")
+        meta(name = "color-scheme", content = "light dark")
         meta(
           name = "viewport",
           content = "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1",
@@ -99,6 +100,7 @@ class RealServerOsHtml(
         }
         link(rel = "icon", href = "/icon.svg", type = "image/svg+xml")
         link(rel = "apple-touch-icon", href = "/apple-touch-icon.png")
+        link(rel = "stylesheet", href = "/assets/pico-for-wasmo.css")
         link(rel = "stylesheet", href = "/assets/Wasmo.css")
 
         script(src = "/assets/wasmo.js") {}

@@ -16,19 +16,24 @@ class PicoTest {
     stylesheetsUrls = listOf(
       "https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap",
       "/assets/pico-for-wasmo.css",
-      "/assets/wasmo2.css",
+      "/assets/Wasmo.css",
     ),
   )
 
   @Test
   fun enterEmailAddress(
     darkMode: DarkMode,
-    frame: Frame = burstValues(Frame.Iphone14, Frame.Ipad11, Frame.MacBookAir13),
+    frame: Frame = burstValues(
+      Frame.Iphone14,
+      Frame.Iphone14Landscape,
+      Frame.Ipad11,
+      Frame.MacBookAir13,
+    ),
   ) = runTest {
     snapshotTester.snapshot(
       frame = frame,
       darkMode = darkMode,
-      backgroundColor = "var(--pico-background-color)",
+      background = "var(--pico-background-color)",
     ) {
       PicoSampleScreen(
         emailAddress = "",

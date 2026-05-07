@@ -64,7 +64,7 @@ class SnapshotTester(
     element: HTMLElement,
     frame: Frame,
     darkMode: DarkMode = DarkMode.Light,
-    backgroundColor: String? = null,
+    background: String? = null,
     name: String? = null,
     scrolling: Boolean = false,
   ) {
@@ -78,7 +78,7 @@ class SnapshotTester(
     val domSnapshot = domSnapshotter.snapshot(
       element = element,
       frame = frame,
-      backgroundColor = backgroundColor,
+      background = background,
       darkMode = darkMode,
       scrolling = scrolling,
     )
@@ -130,7 +130,7 @@ class SnapshotTester(
   suspend fun snapshot(
     frame: Frame = Frame.Iphone14,
     darkMode: DarkMode = DarkMode.Light,
-    backgroundColor: String? = null,
+    background: String? = null,
     name: String? = null,
     scrolling: Boolean = false,
     content: @Composable DOMScope<Element>.() -> Unit,
@@ -141,7 +141,7 @@ class SnapshotTester(
         element = document.body!!,
         frame = frame,
         darkMode = darkMode,
-        backgroundColor = backgroundColor,
+        background = background,
         name = name,
         scrolling = scrolling,
       )

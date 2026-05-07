@@ -59,7 +59,7 @@ fun HomeScreen(
       if (showNewComputer) {
         NewComputer(
           attrs = {
-            classes("ScreenContentWidth")
+            classes("ContentWidth")
             style {
               paddingBottom(48.px)
             }
@@ -72,7 +72,7 @@ fun HomeScreen(
       if (items.isEmpty() && !showNewComputer) {
         Teaser(
           attrs = {
-            classes("ScreenContentWidth")
+            classes("ContentWidth")
             homeScreenChildAttrs()
           },
         )

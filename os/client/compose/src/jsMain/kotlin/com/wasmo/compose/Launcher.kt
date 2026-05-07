@@ -49,7 +49,7 @@ fun LauncherIconList(
 ) {
   Div(
     attrs = {
-      classes("LauncherIconList", "ScreenContentWidth")
+      classes("LauncherIconList", "ContentWidth")
       attrs()
     },
   ) {
