@@ -18,6 +18,7 @@ import com.wasmo.wiring.Distribution
 import com.wasmo.wiring.WasmoService
 import dev.zacsweers.metro.createGraphFactory
 import io.ktor.server.engine.EmbeddedServer
+import kotlin.Unit
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8

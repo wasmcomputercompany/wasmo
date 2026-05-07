@@ -66,3 +66,6 @@ value class StripeCustomerId(val id: Long)
 @JvmInline
 value class UserId(val id: Long)
 
+@Serializable
+@JvmInline
+value class UsernameId(val id: Long)

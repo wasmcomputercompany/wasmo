@@ -19,6 +19,7 @@ import com.wasmo.identifiers.PermitId
 import com.wasmo.identifiers.SchemaVersionId
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.identifiers.UserId
+import com.wasmo.identifiers.UsernameId
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import wasmo.sql.SqlBinder
@@ -70,4 +71,5 @@ fun SqlRow.getPermitId(index: Int) = PermitId(getS64(index)!!)
 fun SqlRow.getSchemaVersionId(index: Int) = SchemaVersionId(getS64(index)!!)
 fun SqlRow.getStripeCustomerId(index: Int) = StripeCustomerId(getS64(index)!!)
 fun SqlRow.getUserId(index: Int) = UserId(getS64(index)!!)
+fun SqlRow.getUsernameId(index: Int) = UsernameId(getS64(index)!!)
 fun SqlRow.getWasmoFileAddress(index: Int) = getString(index)!!.toWasmoFileAddress()
