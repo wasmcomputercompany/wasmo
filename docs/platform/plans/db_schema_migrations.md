@@ -34,6 +34,22 @@ ON CONFLICT (id) DO NOTHING;
  - `WasmoService.startWasmoService()` calls `ensureSchemaVersion(CURRENT_SCHEMA_VERSION)` right after
    obtaining `wasmoDb` ([code](https://github.com/wasmcomputercompany/wasmo/blob/8c0da2da837a94fe5f7c66640eb51ca2f8dc5140/os/server/ktor/src/jvmMain/kotlin/com/wasmo/ktor/WasmoService.kt#L60)).
 
+### Absurd schema upgrades
+
+absurd is installed as part of the Wasmo DB as part of the automatic schema migrations.
+
+ - Wasmo schema DB version 2 includes absurd schema version 0.3.0 (like `absurdctl init --ref 0.3.0`)
+ - Wasmo schema DB version 3 includes an absurd queue named `default` (like `absurdctl create-queue default`)
+
+For future upgrades, we'll have to generate Wasmo DB schema migration SQL through a command like
+the below, but that requires our PRs to land in absurd, first.
+
+```bash
+export PGDATABASE="postgresql://postgres:password@localhost:5432/wasmo_development"
+TARGET_WASMO_DB_SCHEMA_VERSION=3
+absurdctl migrate --dump-sql > os/server/db/src/jvmMain/resources/migrations/v${TARGET_WASMO_DB_SCHEMA_VERSION}__absurd-$(absurdctl schema-version --target).sql
+```
+
 ### Future options
 
  - The duplication between migrations, `DbFoo` and `FooQueries.kt` is error prone (e.g. typos are only found at runtime). It'd be nice to have a Kotlin DSL or similar to type less and to find more errors at compile time.

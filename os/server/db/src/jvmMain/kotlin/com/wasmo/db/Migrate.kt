@@ -52,7 +52,7 @@ suspend fun ensureSchemaVersion(targetVersion: Long = CURRENT_SCHEMA_VERSION) {
 }
 
 private val MigrationNameRegex = Regex("""v(\d+)__.*\.sql""")
-const val CURRENT_SCHEMA_VERSION = 1L
+const val CURRENT_SCHEMA_VERSION = 3L
 
 private data class Migration(
   val version: Int,
