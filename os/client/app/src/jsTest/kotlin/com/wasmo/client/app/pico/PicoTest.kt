@@ -23,12 +23,17 @@ class PicoTest {
   @Test
   fun enterEmailAddress(
     darkMode: DarkMode,
-    frame: Frame = burstValues(Frame.Iphone14, Frame.Ipad11, Frame.MacBookAir13),
+    frame: Frame = burstValues(
+      Frame.Iphone14,
+      Frame.Iphone14Landscape,
+      Frame.Ipad11,
+      Frame.MacBookAir13,
+    ),
   ) = runTest {
     snapshotTester.snapshot(
       frame = frame,
       darkMode = darkMode,
-      backgroundColor = "var(--pico-background-color)",
+      background = "var(--pico-background-color)",
     ) {
       PicoSampleScreen(
         emailAddress = "",
@@ -37,6 +42,36 @@ class PicoTest {
         eventListener = {
         },
       )
+    }
+  }
+
+  @Test
+  fun launcher(
+    darkMode: DarkMode,
+    frame: Frame = burstValues(
+      Frame.Iphone14,
+      Frame.Iphone14Landscape,
+      Frame.Ipad11,
+      Frame.MacBookAir13,
+    ),
+  ) = runTest {
+    snapshotTester.snapshot(
+      frame = frame,
+      darkMode = darkMode,
+      background = "var(--pico-background-color)",
+    ) {
+      PicoLauncherIconList {
+        PicoLauncherIcon("Files", "/assets/launcher/sample-icon.svg")
+        PicoLauncherIcon("Library", "/assets/launcher/sample-icon.svg")
+        PicoLauncherIcon("Music", "/assets/launcher/sample-icon.svg")
+        PicoLauncherIcon("Photos", "/assets/launcher/sample-icon.svg")
+        PicoLauncherIcon("Pink Journal", "/assets/launcher/sample-icon.svg")
+        PicoLauncherIcon("Recipes", "/assets/launcher/sample-icon.svg")
+        PicoLauncherIcon("Smart Home", "/assets/launcher/sample-icon.svg")
+        PicoLauncherIcon("Snake", "/assets/launcher/sample-icon.svg")
+        PicoLauncherIcon("Writer", "/assets/launcher/sample-icon.svg")
+        PicoLauncherIcon("Zap", "/assets/launcher/sample-icon.svg")
+      }
     }
   }
 }

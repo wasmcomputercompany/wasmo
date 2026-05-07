@@ -18,14 +18,21 @@ package com.wasmo.domtester
 /**
  * Configure the canvas that we will snapshot our element on.
  */
-class Frame(
+data class Frame(
   val width: Int,
   val height: Int,
   val pixelRatio: Double = 1.0,
 ) {
+  val landscape: Frame
+    get() = copy(
+      width = maxOf(width, height),
+      height = minOf(width, height),
+    )
+
   companion object {
     /** https://www.ios-resolution.com/ */
     val Iphone14: Frame = Frame(width = 390, height = 844, pixelRatio = 3.0)
+    val Iphone14Landscape: Frame = Iphone14.landscape
     val Ipad11: Frame = Frame(width = 820, height = 1180, pixelRatio = 2.0)
     val MacBookAir13: Frame = Frame(width = 1280, height = 832, pixelRatio = 2.0)
   }

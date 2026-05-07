@@ -1,3 +1,163 @@
+/* Pico adjustments. */
+
 form button {
   width: 100%;
+}
+
+/* Launcher */
+
+.LauncherIconList {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  flex-wrap: wrap;
+  margin: 0 auto;
+}
+
+.LauncherIcon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  cursor: pointer;
+  overflow: clip;
+}
+
+.LauncherIconImage {
+  mask-image: url('/assets/launcher/mask.svg');
+  transition: all 200ms ease-in;
+}
+
+.LauncherIconLabel {
+  flex: 100 100 0;
+  box-sizing: border-box;
+  text-align: center;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  opacity: 0.8;
+  transition: all 200ms ease-in;
+}
+
+.LauncherIcon:hover .LauncherIconImage {
+  transform: scale(1.1, 1.1);
+}
+
+.LauncherIcon:hover .LauncherIconLabel {
+  opacity: 1.0;
+}
+
+/* Less than 'sm'. Target a viewport of 350px. */
+@media (max-width: 575px) {
+  .LauncherIconList {
+    width: 344px;
+  }
+
+  .LauncherIcon {
+    margin-top: 12px;
+    width: 86px;
+    height: 106px;
+  }
+
+  .LauncherIconImage {
+    mask-size: 64px 64px;
+    width: 64px;
+    height: 64px;
+  }
+
+  .LauncherIconLabel {
+    font-size: 12px;
+    padding: 4px 2px 0;
+  }
+
+  .LauncherIcon:hover .LauncherIconImage {
+    mask-size: 68px 68px;
+    mask-position: -2px -2px;
+  }
+}
+
+/* 'sm': viewport is 510px. */
+@media (min-width: 576px) {
+  .LauncherIconList {
+    width: 508px;
+  }
+
+  .LauncherIcon {
+    margin-top: 12px;
+    width: 127px;
+    height: 160px;
+  }
+
+  .LauncherIconImage {
+    mask-size: 104px 104px;
+    width: 104px;
+    height: 104px;
+  }
+
+  .LauncherIconLabel {
+    font-size: 16px;
+    padding: 4px 2px 0;
+  }
+
+  .LauncherIcon:hover .LauncherIconImage {
+    mask-size: 110px 110px;
+    mask-position: -3px -3px;
+  }
+}
+
+/* 'md': viewport is 700px. */
+@media (min-width: 768px) {
+  .LauncherIconList {
+    width: 700px;
+  }
+
+  .LauncherIcon {
+    margin-top: 12px;
+    width: 175px;
+    height: 191px;
+  }
+
+  .LauncherIconImage {
+    mask-size: 128px 128px;
+    width: 128px;
+    height: 128px;
+  }
+
+  .LauncherIconLabel {
+    font-size: 18px;
+    padding: 6px 15px 0;
+  }
+
+  .LauncherIcon:hover .LauncherIconImage {
+    mask-size: 136px 136px;
+    mask-position: -4px -4px;
+  }
+}
+
+/* 'lg': viewport is 950px. */
+@media (min-width: 1024px) {
+  .LauncherIconList {
+    width: 948px;
+  }
+
+  .LauncherIcon {
+    margin-top: 12px;
+    width: 237px;
+    height: 237px;
+  }
+
+  .LauncherIconImage {
+    mask-size: 160px 160px;
+    width: 160px;
+    height: 160px;
+  }
+
+  .LauncherIconLabel {
+    font-size: 20px;
+    padding: 8px 20px 0;
+  }
+
+  .LauncherIcon:hover .LauncherIconImage {
+    mask-size: 168px 168px;
+    mask-position: -4px -4px;
+  }
 }
