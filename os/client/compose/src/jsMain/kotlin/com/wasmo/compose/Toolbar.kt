@@ -35,7 +35,7 @@ fun Toolbar(
 ) {
   Div(
     attrs = {
-      classes("Toolbar")
+      classes("Toolbar", "ContentWidth")
       style {
         display(DisplayStyle.Flex)
         flexDirection(FlexDirection.Row)

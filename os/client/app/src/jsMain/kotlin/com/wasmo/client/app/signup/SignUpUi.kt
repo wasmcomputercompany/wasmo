@@ -32,6 +32,8 @@ class SignUpUi(
           emailAddress = state.emailAddress,
           emailAddressCaption = state.emailAddressCaption,
           canSubmit = state.canSubmitEmailAddress,
+          disabled = state.inFlightCalls > 0,
+          busy = state.inFlightCalls > 0,
         )
       } else {
         EnterChallengeCodeScreen(

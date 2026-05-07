@@ -22,6 +22,8 @@ class SignUpTest {
         emailAddress = "",
         emailAddressCaption = "We’ll email you a challenge code",
         canSubmit = true,
+        busy = false,
+        disabled = false,
         eventListener = {
         },
       )

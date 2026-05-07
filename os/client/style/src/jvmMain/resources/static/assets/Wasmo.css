@@ -6,6 +6,7 @@ html, body {
 
 :root {
   --pico-font-family-sans-serif: "Outfit", sans-serif;
+  --pico-spacing: 16px;
 }
 
 a {
@@ -25,37 +26,35 @@ a:hover {
 
 /* Pico adjustments. */
 
-form button {
+button {
   width: 100%;
 }
 
 /* Breakpoints. Must match the `design_and_style.md`. */
 
 .ContentWidth {
-  width: max(344px + var(--pico-block-spacing-horizontal) + var(--pico-block-spacing-horizontal), 100%);
+  width: max(376px, 100%);
   margin-left: auto;
   margin-right: auto;
-  padding-left: var(--pico-block-spacing-horizontal);
-  padding-right: var(--pico-block-spacing-horizontal);
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
-@media (min-width: 576px) {
+@media (min-width: 540px) {
   .ContentWidth {
-    width: 508px;
-    padding-left: 0;
-    padding-right: 0;
+    width: 540px;
   }
 }
 
 @media (min-width: 768px) {
   .ContentWidth {
-    width: 700px;
+    width: 732px;
   }
 }
 
 @media (min-width: 1024px) {
   .ContentWidth {
-    width: 948px;
+    width: 980px;
   }
 }
 
@@ -107,10 +106,10 @@ form button {
   opacity: 1.0;
 }
 
-/* 'xs'. Target a viewport of 344px. */
+/* 'xs'. Target a viewport of 344px (that's 376px - 32px of padding). */
 @media (max-width: 575px) {
   .LauncherIconList {
-    width: calc(344px + 2 * var(--pico-block-spacing-horizontal));
+    width: 376px;
   }
 
   .LauncherIcon {
@@ -131,8 +130,8 @@ form button {
   }
 
   .LauncherIcon:hover .LauncherIconImage {
-    mask-size: 68px 68px;
-    mask-position: -2px -2px;
+    mask-size: 72px 72px;
+    mask-position: -4px -4px;
   }
 }
 
@@ -156,8 +155,8 @@ form button {
   }
 
   .LauncherIcon:hover .LauncherIconImage {
-    mask-size: 110px 110px;
-    mask-position: -3px -3px;
+    mask-size: 114px 114px;
+    mask-position: -5px -5px;
   }
 }
 
@@ -181,8 +180,8 @@ form button {
   }
 
   .LauncherIcon:hover .LauncherIconImage {
-    mask-size: 136px 136px;
-    mask-position: -4px -4px;
+    mask-size: 140px 140px;
+    mask-position: -6px -6px;
   }
 }
 
@@ -206,8 +205,8 @@ form button {
   }
 
   .LauncherIcon:hover .LauncherIconImage {
-    mask-size: 168px 168px;
-    mask-position: -4px -4px;
+    mask-size: 176px 176px;
+    mask-position: -8px -8px;
   }
 }
 

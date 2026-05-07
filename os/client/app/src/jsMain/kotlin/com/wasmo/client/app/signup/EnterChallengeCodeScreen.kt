@@ -2,7 +2,6 @@ package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
 import com.wasmo.client.app.FormScreen
-import com.wasmo.client.app.LocalFormState
 import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.SmallText
 import com.wasmo.client.app.TextField
@@ -12,6 +11,7 @@ import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLDivElement
 
@@ -29,7 +29,9 @@ fun EnterChallengeCodeScreen(
       attrs()
     },
   ) {
-    SignUpToolbar()
+    H1 {
+      Text("Sign Up")
+    }
 
     SegmentedProgressBar(
       attrs = {
