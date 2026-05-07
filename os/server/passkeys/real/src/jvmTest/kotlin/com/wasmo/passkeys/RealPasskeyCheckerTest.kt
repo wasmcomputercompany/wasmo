@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.accounts.UnexpectedChallengeException
 import com.wasmo.identifiers.Deployment
+import com.wasmo.identifiers.DistributionShortCode
 import com.wasmo.testing.FakeChallenger
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.registrationRecord
@@ -18,6 +19,7 @@ class RealPasskeyCheckerTest {
   private val deployment = Deployment(
     baseUrl = "https://wasmo.com/".toHttpUrl(),
     sendFromEmailAddress = "noreply@wasmo.com",
+    distributionShortCode = DistributionShortCode("ft"),
   )
   private val origin: String
     get() = deployment.baseUrl.toString()

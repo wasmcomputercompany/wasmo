@@ -6,6 +6,7 @@ import com.wasmo.db.installedapps.selectInstalledAppDatabaseByInstalledAppDbSlug
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.DatabaseSlug
+import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.InstalledAppId
 import com.wasmo.identifiers.InstalledAppScope
 import com.wasmo.support.closetracker.trackAndClose
@@ -21,6 +22,7 @@ import wasmox.sql.withConnection
 @Inject
 @SingleIn(InstalledAppScope::class)
 class RealSqlDatabaseProvisioner(
+  private val deployment: Deployment,
   private val computerSlug: ComputerSlug,
   private val appSlug: AppSlug,
   private val appId: InstalledAppId,
@@ -32,8 +34,8 @@ class RealSqlDatabaseProvisioner(
     databaseSlug: DatabaseSlug,
   ): PostgresqlAddress {
     val databaseName = when {
-      databaseSlug.isEmpty() -> "app_${computerSlug}_${appSlug}"
-      else -> "app_${computerSlug}_${appSlug}_$databaseSlug"
+      databaseSlug.isEmpty() -> "${deployment.distributionShortCode}_app_${computerSlug}_${appSlug}"
+      else -> "${deployment.distributionShortCode}_app_${computerSlug}_${appSlug}_$databaseSlug"
     }
     val appUsername = "${databaseName}_user"
 

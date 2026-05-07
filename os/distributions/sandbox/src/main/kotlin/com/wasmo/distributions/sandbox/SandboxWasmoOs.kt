@@ -8,6 +8,7 @@ import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.identifiers.Deployment
+import com.wasmo.identifiers.DistributionShortCode
 import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
@@ -85,6 +86,7 @@ fun main(args: Array<String>): Unit = runBlocking {
         deployment = Deployment(
           baseUrl = "https://wasmo.dev/".toHttpUrl(),
           sendFromEmailAddress = "noreply@wasmo.dev",
+          distributionShortCode = DistributionShortCode("wd"),
         ),
         objectStoreAddress = BackblazeB2BucketAddress(
           regionId = b2RegionId,
