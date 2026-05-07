@@ -4,6 +4,35 @@ form button {
   width: 100%;
 }
 
+/* Must match the `design_and_style.md` Breakpoints. */
+.ContentWidth {
+  width: max(344px + var(--pico-block-spacing-horizontal) + var(--pico-block-spacing-horizontal), 100%);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--pico-block-spacing-horizontal);
+  padding-right: var(--pico-block-spacing-horizontal);
+}
+
+@media (min-width: 576px) {
+  .ContentWidth {
+    width: 508px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .ContentWidth {
+    width: 700px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ContentWidth {
+    width: 948px;
+  }
+}
+
 /* Launcher */
 
 .LauncherIconList {
@@ -15,6 +44,7 @@ form button {
 }
 
 .LauncherIcon {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,10 +76,10 @@ form button {
   opacity: 1.0;
 }
 
-/* Less than 'sm'. Target a viewport of 350px. */
+/* 'xs'. Target a viewport of 344px. */
 @media (max-width: 575px) {
   .LauncherIconList {
-    width: 344px;
+    width: calc(344px + 2 * var(--pico-block-spacing-horizontal));
   }
 
   .LauncherIcon {
@@ -75,12 +105,8 @@ form button {
   }
 }
 
-/* 'sm': viewport is 510px. */
+/* 'sm': viewport is 508px. */
 @media (min-width: 576px) {
-  .LauncherIconList {
-    width: 508px;
-  }
-
   .LauncherIcon {
     margin-top: 12px;
     width: 127px;
@@ -106,10 +132,6 @@ form button {
 
 /* 'md': viewport is 700px. */
 @media (min-width: 768px) {
-  .LauncherIconList {
-    width: 700px;
-  }
-
   .LauncherIcon {
     margin-top: 12px;
     width: 175px;
@@ -133,12 +155,8 @@ form button {
   }
 }
 
-/* 'lg': viewport is 950px. */
+/* 'lg': viewport is 948px. */
 @media (min-width: 1024px) {
-  .LauncherIconList {
-    width: 948px;
-  }
-
   .LauncherIcon {
     margin-top: 12px;
     width: 237px;

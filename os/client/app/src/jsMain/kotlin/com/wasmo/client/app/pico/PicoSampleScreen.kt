@@ -9,12 +9,12 @@ import org.jetbrains.compose.web.attributes.autoComplete
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.dom.Button
+import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Fieldset
 import org.jetbrains.compose.web.dom.Form
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.Label
-import org.jetbrains.compose.web.dom.Main
 import org.jetbrains.compose.web.dom.Small
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLElement
@@ -27,9 +27,10 @@ fun PicoSampleScreen(
   canSubmit: Boolean,
   eventListener: (SignUpEvent) -> Unit,
 ) {
-  Main(
+  Div(
     attrs = {
-      classes("container")
+      classes("ContentWidth")
+      attrs()
     },
   ) {
     H1 {

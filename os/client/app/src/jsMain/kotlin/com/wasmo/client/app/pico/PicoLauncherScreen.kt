@@ -15,7 +15,7 @@ fun PicoLauncherIconList(
 ) {
   Div(
     attrs = {
-      classes("LauncherIconList")
+      classes("ContentWidth", "LauncherIconList")
       attrs()
     },
   ) {

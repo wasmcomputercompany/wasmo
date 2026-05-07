@@ -1,22 +1,21 @@
 // Pico lightweight version
 @use "pico" with (
-  $enable-semantic-container: true,
   $enable-classes: false,
   $modules: (
     "components/modal": false,
   ),
   $theme-color: zinc,
   $breakpoints: (
-    // Our breakpoints are the same as Pico’s, but we cap out at large. Wasmo's viewport never
-    // exceeds 950px, and our font size never exceeds 19px.
+    // Must match the `design_and_style.md` Breakpoints.
     //
-    // (We still need to declare all the sizes because that's how the fallbacks are set up.)
+    // Even though lg, xl, and xxl are the same, we declare all of them because that's how Pico's
+    // fallbacks are set up.
 
     // Small (landscape phones)
     // Font size: 17px
     sm: (
         breakpoint: 576px,
-        viewport: 510px,
+        viewport: 508px,
         root-font-size: 106.25%,
       ),
 
@@ -32,21 +31,21 @@
     // Font size: 19px
     lg: (
         breakpoint: 1024px,
-        viewport: 950px,
+        viewport: 948px,
         root-font-size: 118.75%,
       ),
 
     // XL is the same as large.
     xl: (
         breakpoint: 1280px,
-        viewport: 950px,
+        viewport: 948px,
         root-font-size: 118.75%,
       ),
 
     // XXL is the same as large.
     xxl: (
         breakpoint: 1536px,
-        viewport: 950px,
+        viewport: 948px,
         root-font-size: 118.75%,
       )
   ),
