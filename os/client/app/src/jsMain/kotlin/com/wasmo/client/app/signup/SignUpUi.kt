@@ -42,6 +42,8 @@ class SignUpUi(
           challengeCode = state.challengeCode,
           challengeCodeCaption = state.challengeCodeCaption,
           canSubmit = state.canSubmitChallengeCode,
+          disabled = state.inFlightCalls > 0,
+          busy = state.inFlightCalls > 0,
         )
       }
     }
