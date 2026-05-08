@@ -13,13 +13,13 @@ import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.WasmoApi
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.client.app.Environment
-import com.wasmo.client.app.FormState
-import com.wasmo.client.app.LocalFormState
 import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import com.wasmo.common.logging.Logger
+import com.wasmo.compose.FormState
+import com.wasmo.compose.LocalFormState
 import com.wasmo.passkeys.PasskeyAuthenticator
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory

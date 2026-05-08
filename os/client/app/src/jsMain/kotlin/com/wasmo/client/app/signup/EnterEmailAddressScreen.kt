@@ -1,11 +1,11 @@
 package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
+import com.wasmo.compose.Button
 import com.wasmo.compose.Column
 import com.wasmo.compose.PageLayout
-import com.wasmo.compose.PicoButton
-import com.wasmo.compose.PicoTextField
 import com.wasmo.compose.SegmentedProgressBar
+import com.wasmo.compose.TextField
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.AutoComplete
 import org.jetbrains.compose.web.attributes.autoComplete
@@ -55,7 +55,7 @@ fun EnterEmailAddressScreen(
       }
 
       Fieldset {
-        PicoTextField(
+        TextField(
           label = "Email Address",
           ariaLabel = "Email",
           disabled = disabled,
@@ -69,7 +69,7 @@ fun EnterEmailAddressScreen(
           }
         }
 
-        PicoButton(
+        Button(
           busy = busy,
           disabled = !canSubmit || disabled,
           attrs = {

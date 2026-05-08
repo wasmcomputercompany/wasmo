@@ -1,4 +1,4 @@
-package com.wasmo.client.app
+package com.wasmo.compose
 
 import androidx.compose.runtime.compositionLocalOf
 

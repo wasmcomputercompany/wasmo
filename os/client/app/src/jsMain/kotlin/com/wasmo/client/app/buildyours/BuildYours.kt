@@ -6,10 +6,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.wasmo.client.app.Checkbox
+import com.wasmo.compose.Button
+import com.wasmo.compose.Checkbox
 import com.wasmo.compose.Column
 import com.wasmo.compose.PageLayout
-import com.wasmo.compose.PicoButton
 import com.wasmo.identifiers.ComputerSlug
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
@@ -45,7 +45,7 @@ fun BuildYoursScreen(
           Text("Give it a name:")
         }
 
-        com.wasmo.compose.WasmoNameField(
+        com.wasmo.compose.WasmoNameTextField(
           inputAttrs = {
             value(nameState)
             onInput { event ->
@@ -176,7 +176,7 @@ fun BuildYoursScreen(
       }
 
       Section {
-        PicoButton(
+        Button(
           attrs = {
             onClick {
               eventListener(BuildYoursScreenEvent.ClickCheckOut(ComputerSlug(nameState)))
@@ -188,7 +188,7 @@ fun BuildYoursScreen(
       }
 
       Section {
-        PicoButton(
+        Button(
           outline = true,
           attrs = {
             onClick {

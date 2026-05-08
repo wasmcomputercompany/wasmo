@@ -6,13 +6,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.wasmo.client.app.FormState
-import com.wasmo.client.app.LocalFormState
+import com.wasmo.compose.Button
 import com.wasmo.compose.Column
 import com.wasmo.compose.Dialog
 import com.wasmo.compose.DialogCloseHeader
-import com.wasmo.compose.PicoButton
-import com.wasmo.compose.PicoTextField
+import com.wasmo.compose.FormState
+import com.wasmo.compose.LocalFormState
+import com.wasmo.compose.TextField
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.dom.Footer
 import org.jetbrains.compose.web.dom.Text
@@ -45,7 +45,7 @@ fun InstallAppDialog(
         Column(
           attrs = dialogChildAttrs,
         ) {
-          PicoTextField(
+          TextField(
             label = "App URL",
             caption = "Paste the URL of the app to install.",
             inputAttrs = {
@@ -56,7 +56,7 @@ fun InstallAppDialog(
             },
           )
 
-          PicoTextField(
+          TextField(
             label = "App Name",
             inputAttrs = {
               value(appSlugState)
@@ -67,7 +67,7 @@ fun InstallAppDialog(
           )
 
           Footer {
-            PicoButton(
+            Button(
               attrs = {
                 onClick {
                   eventListener(

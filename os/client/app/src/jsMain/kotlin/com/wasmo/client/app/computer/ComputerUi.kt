@@ -8,12 +8,12 @@ import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.routes.HomeRoute
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.SignOutRoute
-import com.wasmo.client.app.FormState
 import com.wasmo.client.app.data.ComputerDataService
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import com.wasmo.common.logging.Logger
+import com.wasmo.compose.FormState
 import com.wasmo.framework.decodeUrl
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug

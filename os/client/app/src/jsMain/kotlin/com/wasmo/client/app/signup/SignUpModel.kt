@@ -1,6 +1,6 @@
 package com.wasmo.client.app.signup
 
-import com.wasmo.client.app.FormState
+import com.wasmo.compose.FormState
 
 data class SignUpModel(
   val inFlightCalls: Int = 0,

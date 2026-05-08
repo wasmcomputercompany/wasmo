@@ -1,23 +1,17 @@
 package com.wasmo.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.remember
-import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.builders.InputAttrsScope
 import org.jetbrains.compose.web.attributes.disabled
-import org.jetbrains.compose.web.dom.Button
-import org.jetbrains.compose.web.dom.ContentBuilder
 import org.jetbrains.compose.web.dom.Fieldset
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.Label
 import org.jetbrains.compose.web.dom.Small
 import org.jetbrains.compose.web.dom.Text
-import org.w3c.dom.HTMLButtonElement
 
 @Composable
-fun PicoTextField(
+fun TextField(
   label: String? = null,
   type: InputType<String> = InputType.Text,
   ariaLabel: String? = null,
@@ -56,7 +50,7 @@ fun PicoTextField(
 }
 
 @Composable
-fun WasmoNameField(
+fun WasmoNameTextField(
   label: String? = null,
   ariaLabel: String? = null,
   disabled: Boolean = false,
@@ -108,53 +102,4 @@ fun WasmoNameField(
       }
     }
   }
-}
-
-@Composable
-fun PicoButton(
-  attrs: AttrsScope<HTMLButtonElement>.() -> Unit = {},
-  outline: Boolean = false,
-  contrast: Boolean = false,
-  busy: Boolean = false,
-  disabled: Boolean = false,
-  content: ContentBuilder<HTMLButtonElement> = {},
-) {
-  Button(
-    attrs = {
-      if (outline) {
-        classes("outline")
-      }
-      if (contrast) {
-        classes("contrast")
-      }
-      if (busy) {
-        attr("aria-busy", "true")
-      }
-      if (disabled) {
-        disabled()
-      }
-      attrs()
-    },
-  ) {
-    content()
-  }
-}
-
-internal val LocalIdGenerator = compositionLocalOf { IdGenerator() }
-
-/**
- * Generate a unique HTML element ID like `id100`.
- */
-@Composable
-fun rememberNextId(): String {
-  val idGenerator = LocalIdGenerator.current
-  return remember {
-    idGenerator.nextId()
-  }
-}
-
-internal class IdGenerator {
-  private var nextId: Int = 1000
-
-  fun nextId() = "id${nextId++}"
 }

@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import app.cash.burst.InterceptTest
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledAppSnapshot
-import com.wasmo.client.app.FormState
+import com.wasmo.compose.FormState
 import com.wasmo.domtester.SnapshotTester
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug

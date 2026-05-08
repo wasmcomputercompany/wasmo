@@ -1,10 +1,10 @@
 package com.wasmo.client.app.invite
 
 import androidx.compose.runtime.Composable
-import com.wasmo.client.app.LargeWasmoLogo
+import com.wasmo.compose.Button
 import com.wasmo.compose.Column
+import com.wasmo.compose.LargeWasmoLogo
 import com.wasmo.compose.PageLayout
-import com.wasmo.compose.PicoButton
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.AlignSelf
 import org.jetbrains.compose.web.css.alignSelf
@@ -53,7 +53,7 @@ fun InviteScreen(
         P {
           Text("You've been invited to look around our wildly incomplete website. Please send feedback to jessewilson.99 on Signal.")
         }
-        PicoButton(
+        Button(
           busy = inviteState == InviteState.ServerBusy || inviteState == InviteState.ClientBusy,
           disabled = inviteState != InviteState.ReadyToAccept && inviteState != InviteState.ReadyToSignIn,
           attrs = {
