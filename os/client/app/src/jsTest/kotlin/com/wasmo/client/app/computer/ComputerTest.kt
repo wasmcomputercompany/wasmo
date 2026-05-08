@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import app.cash.burst.InterceptTest
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledAppSnapshot
-import com.wasmo.client.app.FormState
+import com.wasmo.compose.FormState
 import com.wasmo.domtester.SnapshotTester
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -19,6 +19,7 @@ class ComputerTest {
   val snapshotTester = SnapshotTester(
     stylesheetsUrls = listOf(
       "https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap",
+      "/assets/pico-for-wasmo.css",
       "/assets/Wasmo.css",
     ),
   )

@@ -1,17 +1,16 @@
 package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
-import com.wasmo.client.app.FormScreen
-import com.wasmo.client.app.LocalFormState
-import com.wasmo.client.app.PrimaryButton
-import com.wasmo.client.app.SmallText
-import com.wasmo.client.app.TextField
+import com.wasmo.compose.Button
+import com.wasmo.compose.Column
+import com.wasmo.compose.PageLayout
 import com.wasmo.compose.SegmentedProgressBar
+import com.wasmo.compose.TextField
 import org.jetbrains.compose.web.attributes.AttrsScope
-import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.marginBottom
-import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.dom.Fieldset
+import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLDivElement
 
@@ -21,55 +20,61 @@ fun EnterChallengeCodeScreen(
   eventListener: (SignUpEvent) -> Unit,
   challengeCode: String,
   challengeCodeCaption: String,
+  disabled: Boolean,
   canSubmit: Boolean,
+  busy: Boolean,
 ) {
-  FormScreen(
-    attrs = {
-      classes("AuthScreen")
-      attrs()
-    },
-  ) {
-    SignUpToolbar()
-
-    SegmentedProgressBar(
+  PageLayout(
+    attrs = attrs,
+  ) { contentAttrs ->
+    Column(
       attrs = {
-        style {
-          marginBottom(8.px)
-        }
+        classes("ContentWidth")
+        contentAttrs()
       },
-      stepsCompleted = 2,
-      stepCount = 2,
-      minGap = 16.px,
-      height = 16.px,
-    )
-
-    TextField(
-      label = "Challenge Code",
     ) {
-      defaultValue(challengeCode)
-      onInput { event ->
-        eventListener(SignUpEvent.EditChallengeCode(event.value))
+      H1 {
+        Text("Sign Up")
       }
-    }
-    SmallText {
-      Text(challengeCodeCaption)
-    }
 
-    PrimaryButton(
-      attrs = {
-        style {
-          marginTop(24.px)
-          marginBottom(24.px)
+      if (false) {
+        SegmentedProgressBar(
+          attrs = {
+            style {
+              marginBottom(8.px)
+            }
+          },
+          stepsCompleted = 2,
+          stepCount = 2,
+          minGap = 16.px,
+          height = 16.px,
+        )
+      }
+
+      Fieldset {
+        TextField(
+          label = "Challenge Code",
+          disabled = disabled,
+          caption = challengeCodeCaption,
+        ) {
+          defaultValue(challengeCode)
+          onInput { event ->
+            eventListener(SignUpEvent.EditChallengeCode(event.value))
+          }
         }
-        onClick {
-          eventListener(SignUpEvent.ClickSubmitCode)
+
+        Button(
+          busy = busy,
+          disabled = !canSubmit || disabled,
+          attrs = {
+            onClick {
+              eventListener(SignUpEvent.ClickSubmitCode)
+            }
+          },
+        ) {
+          Text("Sign Up")
         }
-        if (!canSubmit) {
-          disabled()
-        }
-      },
-    ) {
-      Text("Sign Up")
+      }
     }
   }
 }

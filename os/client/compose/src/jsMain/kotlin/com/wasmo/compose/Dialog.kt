@@ -3,76 +3,59 @@ package com.wasmo.compose
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.AlignItems
-import org.jetbrains.compose.web.css.DisplayStyle
-import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.JustifyContent
-import org.jetbrains.compose.web.css.alignItems
-import org.jetbrains.compose.web.css.display
-import org.jetbrains.compose.web.css.flexDirection
-import org.jetbrains.compose.web.css.justifyContent
+import org.jetbrains.compose.web.dom.Article
 import org.jetbrains.compose.web.dom.DOMScope
-import org.jetbrains.compose.web.dom.Div
-import org.w3c.dom.HTMLDivElement
+import org.jetbrains.compose.web.dom.Header
 import org.w3c.dom.HTMLElement
 
 @Composable
 fun Dialog(
-  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
+  attrs: AttrsScope<HTMLElement>.() -> Unit = {},
   visible: Boolean,
-  onDismiss: (() -> Unit)? = null,
-  content: @Composable DOMScope<HTMLDivElement>.(
+  content: @Composable DOMScope<*>.(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
   ) -> Unit,
 ) {
-  Div(
+  Column(
+    alignItems = AlignItems.Center,
+    justifyContent = JustifyContent.Center,
     attrs = {
       style {
-        display(DisplayStyle.Flex)
-        flexDirection(FlexDirection.Row)
-        alignItems(AlignItems.Center)
-        justifyContent(JustifyContent.Center)
         property("pointer-events", "none")
       }
       attrs()
     },
   ) {
-    Div(
+    Article(
       attrs = {
-        classes("Dialog")
-        classes(
-          when {
-            visible -> "DialogVisible"
-            else -> "DialogInvisible"
-          },
-        )
-        style {
-          display(DisplayStyle.Flex)
-          flexDirection(FlexDirection.Column)
-          alignItems(AlignItems.Stretch)
-          justifyContent(JustifyContent.Start)
+        if (visible) {
+          classes("Dialog", "DialogVisible")
+        } else {
+          classes("Dialog", "DialogInvisible")
         }
       },
     ) {
-      Toolbar(
-        attrs = {},
-        title = { toolbarChildAttrs ->
-          Div(attrs = toolbarChildAttrs)
-        },
-        right = { toolbarChildAttrs ->
-          if (onDismiss != null) {
-            ToolbarImageButton(
-              attrs = toolbarChildAttrs,
-              image40x64Path = "/assets/close40x64.svg",
-              altLabel = "Dismiss",
-              onClick = {
-                onDismiss()
-              },
-            )
-          }
-        },
-      )
-
       content {}
     }
+  }
+}
+
+@Composable
+fun DialogCloseHeader(
+  onDismiss: () -> Unit,
+) {
+  Header {
+    Toolbar(
+      right = {
+        ToolbarImageButton(
+          image40x64Path = "/assets/close40x64.svg",
+          altLabel = "Dismiss",
+          onClick = {
+            onDismiss()
+          },
+        )
+      },
+    )
   }
 }

@@ -1,36 +1,26 @@
 package com.wasmo.client.app.computerlist
 
 import androidx.compose.runtime.Composable
-import com.wasmo.client.app.Form
-import com.wasmo.client.app.PrimaryButton
 import com.wasmo.client.app.home.HomeEvent
+import com.wasmo.compose.Button
 import org.jetbrains.compose.web.attributes.AttrsScope
-import org.jetbrains.compose.web.css.JustifyContent
-import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.dom.Text
-import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun NewComputer(
-  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
+  attrs: AttrsScope<*>.() -> Unit = {},
   eventListener: (HomeEvent) -> Unit,
 ) {
-  Form(
+  Button(
+    outline = true,
+    contrast = true,
     attrs = {
-      style {
-        justifyContent(JustifyContent.Center)
+      onClick {
+        eventListener(HomeEvent.ClickNewComputer)
       }
       attrs()
     },
   ) {
-    PrimaryButton(
-      attrs = {
-        onClick {
-          eventListener(HomeEvent.ClickNewComputer)
-        }
-      },
-    ) {
-      Text("New Computer")
-    }
+    Text("New Computer")
   }
 }

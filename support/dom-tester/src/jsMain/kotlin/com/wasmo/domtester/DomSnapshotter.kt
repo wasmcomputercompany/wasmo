@@ -28,17 +28,17 @@ class DomSnapshotter {
     element: HTMLElement,
     frame: Frame,
     darkMode: DarkMode = DarkMode.Light,
-    backgroundColor: String? = null,
+    background: String? = null,
     scrolling: Boolean = false,
   ): DomSnapshot {
     val oldWidth = element.style.width
     val oldHeight = element.style.height
     val oldDataTheme = element.getAttribute("data-theme")
-    val oldBackgroundColor = element.style.backgroundColor
+    val oldBackground = element.style.background
     element.style.width = "${frame.width}px"
     element.style.height = "${frame.height}px"
-    if (backgroundColor != null) {
-      element.style.backgroundColor = backgroundColor
+    if (background != null) {
+      element.style.background = background
     }
     element.setAttribute("data-theme", darkMode.value)
     try {
@@ -90,8 +90,8 @@ class DomSnapshotter {
     } finally {
       element.style.width = oldWidth
       element.style.height = oldHeight
-      if (backgroundColor != null) {
-        element.style.backgroundColor = oldBackgroundColor
+      if (background != null) {
+        element.style.background = oldBackground
       }
       if (oldDataTheme != null) {
         element.setAttribute("data-theme", oldDataTheme)

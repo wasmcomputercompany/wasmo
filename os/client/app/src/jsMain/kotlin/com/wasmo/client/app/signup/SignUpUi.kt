@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.wasmo.client.app.LocalFormState
 import com.wasmo.client.framework.Presenter
 import com.wasmo.client.framework.Ui
+import com.wasmo.compose.LocalFormState
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -32,6 +32,8 @@ class SignUpUi(
           emailAddress = state.emailAddress,
           emailAddressCaption = state.emailAddressCaption,
           canSubmit = state.canSubmitEmailAddress,
+          disabled = state.inFlightCalls > 0,
+          busy = state.inFlightCalls > 0,
         )
       } else {
         EnterChallengeCodeScreen(
@@ -40,6 +42,8 @@ class SignUpUi(
           challengeCode = state.challengeCode,
           challengeCodeCaption = state.challengeCodeCaption,
           canSubmit = state.canSubmitChallengeCode,
+          disabled = state.inFlightCalls > 0,
+          busy = state.inFlightCalls > 0,
         )
       }
     }

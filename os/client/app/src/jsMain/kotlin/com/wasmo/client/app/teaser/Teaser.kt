@@ -1,15 +1,9 @@
 package com.wasmo.client.app.teaser
 
 import androidx.compose.runtime.Composable
+import com.wasmo.compose.Column
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.AlignItems
-import org.jetbrains.compose.web.css.DisplayStyle
-import org.jetbrains.compose.web.css.FlexDirection
-import org.jetbrains.compose.web.css.JustifyContent
-import org.jetbrains.compose.web.css.alignItems
-import org.jetbrains.compose.web.css.display
-import org.jetbrains.compose.web.css.flexDirection
-import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.margin
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.A
@@ -24,16 +18,9 @@ import org.w3c.dom.HTMLDivElement
 fun Teaser(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
 ) {
-  Div(
-    attrs = {
-      style {
-        display(DisplayStyle.Flex)
-        flexDirection(FlexDirection.Column)
-        alignItems(AlignItems.Center)
-        justifyContent(JustifyContent.Center)
-      }
-      attrs()
-    },
+  Column(
+    attrs = attrs,
+    alignItems = AlignItems.Center,
   ) {
     Img(
       src = "/assets/wasmo1000x300.svg",

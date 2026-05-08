@@ -47,7 +47,7 @@ fun Menu(
             else -> "MenuInvisible"
           },
         )
-
+        attr("data-theme", "dark")
         style {
           display(DisplayStyle.Flex)
           flexDirection(FlexDirection.Column)

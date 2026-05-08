@@ -1,0 +1,404 @@
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+:root {
+  --pico-font-family-sans-serif: "Outfit", sans-serif;
+  --pico-spacing: 16px;
+}
+
+button {
+  width: 100%;
+}
+
+/* Layouts. */
+
+.FillWidthHeight {
+  width: 100%;
+  height: 100%;
+}
+
+.Column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* PageLayout. */
+
+.PageLayout {
+}
+
+.PageLayoutScroller {
+  min-height: 100%;
+  padding: 16px 0;
+  overflow-y: scroll;
+}
+
+.PageLayoutHeader {
+  padding-bottom: 16px;
+}
+
+.PageLayoutContent {
+  flex: 100 100 0;
+  justify-content: center;
+}
+
+/* Breakpoints. Must match the `design_and_style.md`. */
+
+.ContentWidth {
+  width: max(376px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 540px) {
+  .ContentWidth {
+    width: 540px;
+  }
+}
+
+@media (min-width: 768px) {
+  .ContentWidth {
+    width: 732px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ContentWidth {
+    width: 980px;
+  }
+}
+
+/* Launcher */
+
+.LauncherScreen {
+  background: #1d72c2;
+  background: linear-gradient(135deg, rgba(29, 114, 194, 1) 0%, rgba(70, 112, 75, 1) 56%, rgba(35, 9, 74, 1) 100%);
+}
+
+.LauncherIconList {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  flex-wrap: wrap;
+  margin: 0 auto;
+}
+
+.LauncherIcon {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  cursor: pointer;
+  overflow: clip;
+}
+
+.LauncherIconImage {
+  mask-image: url('/assets/launcher/mask.svg');
+  transition: all 200ms ease-in;
+}
+
+.LauncherIconLabel {
+  flex: 100 100 0;
+  box-sizing: border-box;
+  text-align: center;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  opacity: 0.8;
+  transition: all 200ms ease-in;
+}
+
+.LauncherIcon:hover .LauncherIconImage {
+  transform: scale(1.1, 1.1);
+}
+
+.LauncherIcon:hover .LauncherIconLabel {
+  opacity: 1.0;
+}
+
+/* 'xs'. Target a viewport of 344px (that's 376px - 32px of padding). */
+@media (max-width: 575px) {
+  .LauncherIconList {
+    width: 376px;
+  }
+
+  .LauncherIcon {
+    margin-top: 12px;
+    width: 86px;
+    height: 106px;
+  }
+
+  .LauncherIconImage {
+    mask-size: 64px 64px;
+    width: 64px;
+    height: 64px;
+  }
+
+  .LauncherIconLabel {
+    font-size: 12px;
+    padding: 4px 2px 0;
+  }
+
+  .LauncherIcon:hover .LauncherIconImage {
+    mask-size: 72px 72px;
+    mask-position: -4px -4px;
+  }
+}
+
+/* 'sm': viewport is 508px. */
+@media (min-width: 576px) {
+  .LauncherIcon {
+    margin-top: 12px;
+    width: 127px;
+    height: 160px;
+  }
+
+  .LauncherIconImage {
+    mask-size: 104px 104px;
+    width: 104px;
+    height: 104px;
+  }
+
+  .LauncherIconLabel {
+    font-size: 16px;
+    padding: 4px 2px 0;
+  }
+
+  .LauncherIcon:hover .LauncherIconImage {
+    mask-size: 114px 114px;
+    mask-position: -5px -5px;
+  }
+}
+
+/* 'md': viewport is 700px. */
+@media (min-width: 768px) {
+  .LauncherIcon {
+    margin-top: 12px;
+    width: 175px;
+    height: 191px;
+  }
+
+  .LauncherIconImage {
+    mask-size: 128px 128px;
+    width: 128px;
+    height: 128px;
+  }
+
+  .LauncherIconLabel {
+    font-size: 18px;
+    padding: 6px 15px 0;
+  }
+
+  .LauncherIcon:hover .LauncherIconImage {
+    mask-size: 140px 140px;
+    mask-position: -6px -6px;
+  }
+}
+
+/* 'lg': viewport is 948px. */
+@media (min-width: 1024px) {
+  .LauncherIcon {
+    margin-top: 12px;
+    width: 237px;
+    height: 237px;
+  }
+
+  .LauncherIconImage {
+    mask-size: 160px 160px;
+    width: 160px;
+    height: 160px;
+  }
+
+  .LauncherIconLabel {
+    font-size: 20px;
+    padding: 8px 20px 0;
+  }
+
+  .LauncherIcon:hover .LauncherIconImage {
+    mask-size: 176px 176px;
+    mask-position: -8px -8px;
+  }
+}
+
+/* EnvironmentWarning */
+
+.EnvironmentWarning {
+  color: var(--pico-del-color);
+  background: var(--pico-card-background-color);
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Toolbar */
+
+.Toolbar {
+  height: 64px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.ToolbarTitle {
+  font-size: 24px;
+  opacity: 0.7;
+}
+
+.ToolbarImageButton {
+  background: var(--pico-color);
+  width: 40px;
+  height: 64px;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.ToolbarImageButton:hover {
+  opacity: 1;
+}
+
+.Toolbar > *:last-child {
+  margin-right: 24px;
+}
+
+.Toolbar > *:first-child {
+  margin-left: 24px;
+}
+
+/* Scrim */
+
+.Scrim {
+  transition: opacity 300ms ease-in;
+  backdrop-filter: blur(2px);
+  background: #00000088;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.ScrimVisible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ScrimInvisible {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Dialog */
+
+.Dialog {
+  transition: all 300ms ease-in;
+  width: min(100%, 420px);
+}
+
+.DialogVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1.0);
+}
+
+.DialogInvisible {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95);
+}
+
+.Dialog .Toolbar {
+  margin-bottom: 0;
+}
+
+.Dialog .Toolbar > *:last-child {
+  margin-right: 12px;
+}
+
+.Dialog .Toolbar > *:first-child {
+  margin-right: 12px;
+}
+
+/* Menu */
+
+.Menu {
+  background: var(--pico-card-background-color);
+  color: var(--pico-color);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+  width: 240px;
+  transition: all 300ms ease-in;
+}
+
+.MenuVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0%);
+}
+
+.MenuInvisible {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(30%);
+}
+
+.MenuItem {
+  height: 64px;
+  padding: 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.Menu .Toolbar {
+  margin-bottom: 0;
+}
+
+.Menu .Toolbar > *:last-child {
+  margin-right: 12px;
+}
+
+.Menu .Toolbar > *:first-child {
+  margin-left: 12px;
+}
+
+.Menu .ToolbarImageButton {
+  background: var(--pico-color);
+}
+
+/* HomeScreen */
+
+.HomeScreen {
+  background: #043c70;
+  background: linear-gradient(63deg, rgba(4, 60, 112, 1) 0%, rgba(189, 81, 189, 1) 56%, rgba(209, 63, 10, 1) 100%);
+}
+
+.HomeScreen a {
+  text-decoration: none;
+}
+
+.HomeScreen h1, .HomeScreen h2, .HomeScreen h3 {
+  font-weight: 400;
+  color: rgba(0 0 0 / 0.8);
+}
+
+.HomeScreen .SmartphoneFrame {
+  cursor: pointer;
+}
+
+.NameOverlay {
+  padding: 10px;
+  font-size: 60px;
+  color: rgba(255 255 255 / 0.9);
+  background: rgba(0 0 0 / 0.5);
+  transition: all 200ms ease-in;
+}
+
+.SmartphoneFrame:hover .NameOverlay {
+  color: rgba(255 255 255 / 1.0);
+  background: rgba(0 0 0 / 0.3);
+}

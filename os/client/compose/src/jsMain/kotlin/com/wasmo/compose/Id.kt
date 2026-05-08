@@ -1,4 +1,4 @@
-package com.wasmo.client.app.pico
+package com.wasmo.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
@@ -10,7 +10,7 @@ internal val LocalIdGenerator = compositionLocalOf { IdGenerator() }
  * Generate a unique HTML element ID like `id100`.
  */
 @Composable
-fun rememberNextId(): String {
+internal fun rememberNextId(): String {
   val idGenerator = LocalIdGenerator.current
   return remember {
     idGenerator.nextId()

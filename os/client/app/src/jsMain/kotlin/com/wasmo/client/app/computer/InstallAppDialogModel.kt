@@ -1,6 +1,6 @@
 package com.wasmo.client.app.computer
 
-import com.wasmo.client.app.FormState
+import com.wasmo.compose.FormState
 
 data class InstallAppDialogModel(
   val formState: FormState,

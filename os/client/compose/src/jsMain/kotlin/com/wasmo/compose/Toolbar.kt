@@ -12,8 +12,6 @@ import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flex
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.justifyContent
-import org.jetbrains.compose.web.css.marginLeft
-import org.jetbrains.compose.web.css.marginRight
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.DOMScope
 import org.jetbrains.compose.web.dom.Div
