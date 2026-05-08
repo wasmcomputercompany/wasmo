@@ -153,7 +153,7 @@ suspend fun selectComputerByAccountIdAndSlug(
       ComputerAccess ca,
       Computer c
     WHERE
-      c.id = ca.id AND
+      ca.computer_id = c.id AND
       ca.account_id = $1 AND
       c.slug = $2
     LIMIT 1
