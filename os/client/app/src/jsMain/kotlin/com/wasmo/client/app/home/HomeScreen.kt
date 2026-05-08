@@ -114,6 +114,7 @@ fun HomeScreen(
     PageLayout(
       attrs = {
         classes("HomeScreen")
+        attr("data-theme", "dark")
         zstackChildAttrs()
       },
       header = { headerAttrs ->
