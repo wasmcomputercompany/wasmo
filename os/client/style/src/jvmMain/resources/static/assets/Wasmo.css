@@ -402,7 +402,7 @@ button {
 }
 
 .ToolbarImageButton {
-  background: rgb(255 255 255);
+  background: var(--pico-color);
   width: 40px;
   height: 64px;
   opacity: 0.7;
@@ -445,10 +445,6 @@ button {
 /* Dialog */
 
 .Dialog {
-  margin: 16px;
-  background: rgb(36 36 36);
-  color: rgb(255 255 255);
-  border-radius: 24px;
   transition: all 300ms ease-in;
   width: min(100%, 420px);
 }
@@ -466,12 +462,15 @@ button {
 }
 
 .Dialog .Toolbar {
-  padding: 0 12px;
   margin-bottom: 0;
 }
 
-.Dialog .ToolbarImageButton {
-  background: rgb(255 255 255);
+.Dialog .Toolbar > *:last-child {
+  margin-right: 12px;
+}
+
+.Dialog .Toolbar > *:first-child {
+  margin-right: 12px;
 }
 
 /* Menu */

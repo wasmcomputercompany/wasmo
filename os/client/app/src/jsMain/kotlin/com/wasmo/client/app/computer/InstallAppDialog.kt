@@ -18,11 +18,11 @@ import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Text
-import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLElement
 
 @Composable
 fun InstallAppDialog(
-  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
+  attrs: AttrsScope<HTMLElement>.() -> Unit = {},
   model: InstallAppDialogModel?,
   eventListener: (InstallAppDialogEvent) -> Unit,
 ) {
