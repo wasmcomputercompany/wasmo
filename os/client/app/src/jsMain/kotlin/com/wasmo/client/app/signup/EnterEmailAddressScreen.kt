@@ -2,6 +2,7 @@ package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
 import com.wasmo.client.app.pico.PicoButton
+import com.wasmo.client.app.pico.PicoContent
 import com.wasmo.client.app.pico.PicoTextField
 import com.wasmo.compose.SegmentedProgressBar
 import org.jetbrains.compose.web.attributes.AttrsScope
@@ -10,7 +11,6 @@ import org.jetbrains.compose.web.attributes.autoComplete
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.px
-import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Fieldset
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.Text
@@ -26,11 +26,8 @@ fun EnterEmailAddressScreen(
   busy: Boolean,
   eventListener: (SignUpEvent) -> Unit,
 ) {
-  Div(
-    attrs = {
-      classes("ContentWidth")
-      attrs()
-    },
+  PicoContent(
+    attrs = attrs,
   ) {
     H1 {
       Text("Sign Up")

@@ -7,13 +7,56 @@ import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.builders.InputAttrsScope
 import org.jetbrains.compose.web.attributes.disabled
+import org.jetbrains.compose.web.css.AlignItems
+import org.jetbrains.compose.web.css.DisplayStyle
+import org.jetbrains.compose.web.css.FlexDirection
+import org.jetbrains.compose.web.css.JustifyContent
+import org.jetbrains.compose.web.css.alignItems
+import org.jetbrains.compose.web.css.display
+import org.jetbrains.compose.web.css.flexDirection
+import org.jetbrains.compose.web.css.justifyContent
+import org.jetbrains.compose.web.css.minHeight
+import org.jetbrains.compose.web.css.padding
+import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.css.vh
+import org.jetbrains.compose.web.dom.AttrBuilderContext
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.ContentBuilder
+import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.Label
 import org.jetbrains.compose.web.dom.Small
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLButtonElement
+import org.w3c.dom.HTMLDivElement
+
+@Composable
+fun PicoContent(
+  attrs: AttrBuilderContext<HTMLDivElement> = {},
+  content: ContentBuilder<HTMLDivElement>,
+) {
+  Div(
+    attrs = {
+      style {
+        display(DisplayStyle.Flex)
+        flexDirection(FlexDirection.Column)
+        alignItems(AlignItems.Stretch)
+        justifyContent(JustifyContent.Center)
+        minHeight(100.vh)
+        padding(16.px, 0.px, 16.px)
+      }
+      attrs()
+    },
+  ) {
+    Div(
+      attrs = {
+        classes("ContentWidth")
+      },
+    ) {
+      content()
+    }
+  }
+}
 
 @Composable
 fun PicoTextField(

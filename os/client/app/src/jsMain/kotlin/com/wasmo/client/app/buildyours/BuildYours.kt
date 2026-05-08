@@ -248,6 +248,7 @@ fun BuildYoursToolbar(
 ) {
   Toolbar(
     attrs = {
+      classes("ContentWidth")
       style {
         marginBottom(8.px)
       }
