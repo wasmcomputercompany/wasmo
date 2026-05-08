@@ -1,16 +1,17 @@
 package com.wasmo.client.app.invite
 
 import androidx.compose.runtime.Composable
-import com.wasmo.client.app.FormScreen
 import com.wasmo.client.app.FormWasmoLogo
-import com.wasmo.client.app.PrimaryButton
+import com.wasmo.compose.Column
+import com.wasmo.compose.PageLayout
+import com.wasmo.compose.PicoButton
 import org.jetbrains.compose.web.attributes.AttrsScope
-import org.jetbrains.compose.web.css.marginBottom
-import org.jetbrains.compose.web.css.marginTop
-import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.css.AlignSelf
+import org.jetbrains.compose.web.css.alignSelf
 import org.jetbrains.compose.web.css.textAlign
 import org.jetbrains.compose.web.dom.H2
 import org.jetbrains.compose.web.dom.P
+import org.jetbrains.compose.web.dom.Section
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLDivElement
 
@@ -20,49 +21,57 @@ fun InviteScreen(
   inviteState: InviteState,
   eventListener: (InviteEvent) -> Unit,
 ) {
-  FormScreen(
-    attrs = {
-      classes("InviteScreen")
-      attrs()
-    },
-  ) {
-    FormWasmoLogo()
-
-    H2(
+  PageLayout(
+    attrs = attrs,
+  ) { contentAttrs ->
+    Column(
       attrs = {
-        style {
-          textAlign("center")
-          marginTop(24.px)
-          marginBottom(36.px)
-        }
+        classes("ContentWidth")
+        contentAttrs()
       },
     ) {
-      Text("Your Cloud Computer")
-    }
-
-    P {
-      Text("You've been invited to look around our wildly incomplete website. Please send feedback to jessewilson.99 on Signal.")
-    }
-
-    PrimaryButton(
-      attrs = {
-        style {
-          marginTop(24.px)
-          marginBottom(24.px)
+      Section(
+        attrs = {
+          style {
+            alignSelf(AlignSelf.Center)
+          }
+        },
+      ) {
+        FormWasmoLogo()
+        H2(
+          attrs = {
+            style {
+              textAlign("center")
+            }
+          },
+        ) {
+          Text("Your Cloud Computer")
         }
-        onClick {
-          eventListener(
-            InviteEvent.ClickAccept,
-          )
+      }
+
+      Section {
+        P {
+          Text("You've been invited to look around our wildly incomplete website. Please send feedback to jessewilson.99 on Signal.")
         }
-      },
-    ) {
-      when (inviteState) {
-        InviteState.ReadyToAccept -> Text("Accept Invite")
-        InviteState.ReadyToSignIn -> Text("Sign In")
-        InviteState.ClientBusy -> Text("...")
-        InviteState.ServerBusy -> Text("...")
-        InviteState.Failed -> Text("Failed")
+        PicoButton(
+          busy = inviteState == InviteState.ServerBusy || inviteState == InviteState.ClientBusy,
+          disabled = inviteState != InviteState.ReadyToAccept && inviteState != InviteState.ReadyToSignIn,
+          attrs = {
+            onClick {
+              eventListener(
+                InviteEvent.ClickAccept,
+              )
+            }
+          },
+        ) {
+          when (inviteState) {
+            InviteState.ReadyToAccept -> Text("Accept Invite")
+            InviteState.ReadyToSignIn -> Text("Sign In")
+            InviteState.ClientBusy -> Text("...")
+            InviteState.ServerBusy -> Text("...")
+            InviteState.Failed -> Text("Failed")
+          }
+        }
       }
     }
   }

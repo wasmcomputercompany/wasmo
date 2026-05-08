@@ -17,7 +17,9 @@ class InviteTest {
 
   @Test
   fun initial() = runTest {
-    snapshotTester.snapshot {
+    snapshotTester.snapshot(
+      background = "var(--pico-background-color)",
+    ) {
       InviteScreen(
         inviteState = InviteState.ReadyToAccept,
       ) {

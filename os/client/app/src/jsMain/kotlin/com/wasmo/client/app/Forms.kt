@@ -11,10 +11,8 @@ import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.AlignSelf
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
-import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.alignSelf
-import org.jetbrains.compose.web.css.boxSizing
 import org.jetbrains.compose.web.css.columnGap
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flexDirection
@@ -22,11 +20,7 @@ import org.jetbrains.compose.web.css.gridColumn
 import org.jetbrains.compose.web.css.gridRow
 import org.jetbrains.compose.web.css.gridTemplateColumns
 import org.jetbrains.compose.web.css.height
-import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.margin
-import org.jetbrains.compose.web.css.overflowY
-import org.jetbrains.compose.web.css.paddingBottom
-import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Button
@@ -39,6 +33,7 @@ import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLImageElement
 import org.w3c.dom.HTMLParagraphElement
 
 enum class FormState {
@@ -47,40 +42,6 @@ enum class FormState {
 }
 
 val LocalFormState = compositionLocalOf { FormState.Ready }
-
-@Composable
-fun FormScreen(
-  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
-  content: @Composable () -> Unit,
-) {
-  Div(
-    attrs = {
-      style {
-        width(100.percent)
-        height(100.percent)
-        display(DisplayStyle.Flex)
-        flexDirection(FlexDirection.Column)
-        alignItems(AlignItems.Center)
-        justifyContent(JustifyContent.Start)
-        overflowY("scroll")
-        paddingBottom(48.px)
-      }
-      attrs()
-    },
-  ) {
-    Form(
-      attrs = {
-        style {
-          boxSizing("border-box")
-          property("margin", "auto 0")
-          property("width", "min(100%, 420px)")
-        }
-      },
-    ) {
-      content()
-    }
-  }
-}
 
 @Composable
 fun Form(
@@ -110,16 +71,19 @@ fun Form(
 }
 
 @Composable
-fun FormWasmoLogo() {
+fun FormWasmoLogo(
+  attrs: AttrsScope<HTMLImageElement>.() -> Unit = {},
+) {
   Img(
     src = "/assets/wasmo1000x300.svg",
     alt = "Wasmo",
     attrs = {
       style {
         alignSelf(AlignSelf.Center)
-        property("width", "350px")
-        property("height", "105px")
+        width(350.px)
+        height(105.px)
       }
+      attrs()
     },
   )
 }
