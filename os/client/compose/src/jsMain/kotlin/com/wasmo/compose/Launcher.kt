@@ -4,16 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.web.events.SyntheticMouseEvent
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.AlignItems
-import org.jetbrains.compose.web.css.DisplayStyle
-import org.jetbrains.compose.web.css.FlexDirection
-import org.jetbrains.compose.web.css.JustifyContent
-import org.jetbrains.compose.web.css.alignItems
-import org.jetbrains.compose.web.css.display
-import org.jetbrains.compose.web.css.flexDirection
-import org.jetbrains.compose.web.css.height
-import org.jetbrains.compose.web.css.justifyContent
-import org.jetbrains.compose.web.css.percent
-import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.Text
@@ -24,17 +14,11 @@ fun LauncherScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   content: @Composable () -> Unit,
 ) {
-  Div(
+  Column(
+    alignItems = AlignItems.Center,
     attrs = {
-      classes("LauncherScreen")
-      style {
-        width(100.percent)
-        height(100.percent)
-        display(DisplayStyle.Flex)
-        flexDirection(FlexDirection.Column)
-        alignItems(AlignItems.Center)
-        justifyContent(JustifyContent.Start)
-      }
+      classes("LauncherScreen", "FillWidthHeight")
+      forceDark()
       attrs()
     },
   ) {

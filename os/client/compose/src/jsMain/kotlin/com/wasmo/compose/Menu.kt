@@ -38,7 +38,8 @@ fun Menu(
       attrs()
     },
   ) {
-    Div(
+    Column(
+      alignItems = AlignItems.Stretch,
       attrs = {
         classes("Menu")
         classes(
@@ -47,13 +48,7 @@ fun Menu(
             else -> "MenuInvisible"
           },
         )
-        attr("data-theme", "dark")
-        style {
-          display(DisplayStyle.Flex)
-          flexDirection(FlexDirection.Column)
-          alignItems(AlignItems.Stretch)
-          justifyContent(JustifyContent.Start)
-        }
+        forceDark()
       },
     ) {
       Toolbar(

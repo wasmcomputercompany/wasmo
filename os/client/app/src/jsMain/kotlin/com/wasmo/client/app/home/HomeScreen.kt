@@ -8,6 +8,7 @@ import com.wasmo.client.app.teaser.Teaser
 import com.wasmo.compose.Column
 import com.wasmo.compose.OverlayContainer
 import com.wasmo.compose.PageLayout
+import com.wasmo.compose.forceDark
 import com.wasmo.identifiers.ComputerSlug
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.AlignSelf
@@ -114,7 +115,7 @@ fun HomeScreen(
     PageLayout(
       attrs = {
         classes("HomeScreen")
-        attr("data-theme", "dark")
+        forceDark()
         zstackChildAttrs()
       },
       header = { headerAttrs ->

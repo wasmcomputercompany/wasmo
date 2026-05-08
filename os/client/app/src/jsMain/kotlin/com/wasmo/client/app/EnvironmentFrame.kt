@@ -1,6 +1,7 @@
 package com.wasmo.client.app
 
 import androidx.compose.runtime.Composable
+import com.wasmo.compose.forceDark
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
@@ -39,7 +40,7 @@ fun EnvironmentFrame(
     Div(
       attrs = {
         classes("EnvironmentWarning")
-        attr("data-theme", "dark")
+        forceDark()
         style {
           width(100.percent)
         }
