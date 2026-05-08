@@ -4,19 +4,20 @@ import androidx.compose.runtime.Composable
 import com.wasmo.client.app.computerlist.ComputerList
 import com.wasmo.client.app.computerlist.Item
 import com.wasmo.client.app.computerlist.NewComputer
-import com.wasmo.compose.Column
-import com.wasmo.compose.PageLayout
 import com.wasmo.client.app.teaser.Teaser
+import com.wasmo.compose.Column
 import com.wasmo.compose.OverlayContainer
+import com.wasmo.compose.PageLayout
 import com.wasmo.identifiers.ComputerSlug
 import org.jetbrains.compose.web.attributes.AttrsScope
+import org.jetbrains.compose.web.css.AlignSelf
+import org.jetbrains.compose.web.css.alignSelf
 import org.jetbrains.compose.web.css.boxSizing
 import org.jetbrains.compose.web.css.height
-import org.jetbrains.compose.web.css.paddingBottom
 import org.jetbrains.compose.web.css.percent
-import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.DOMScope
+import org.jetbrains.compose.web.dom.Section
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 
@@ -34,30 +35,31 @@ fun HomeScreen(
     eventListener = eventListener,
     content = { homeScreenChildAttrs ->
       Column(
-        attrs = homeScreenChildAttrs,
+        attrs = {
+          style {
+            alignSelf(AlignSelf.Center)
+          }
+          homeScreenChildAttrs()
+        },
       ) {
         if (items.isNotEmpty()) {
-          ComputerList(
-            attrs = {
-              style {
-                paddingBottom(24.px)
-              }
-            },
-            items = items,
-            eventListener = eventListener,
-          )
+          Section {
+            ComputerList(
+              items = items,
+              eventListener = eventListener,
+            )
+          }
         }
 
         if (showNewComputer) {
-          NewComputer(
-            attrs = {
-              classes("ContentWidth")
-              style {
-                paddingBottom(48.px)
-              }
-            },
-            eventListener = eventListener,
-          )
+          Section {
+            NewComputer(
+              attrs = {
+                classes("ContentWidth")
+              },
+              eventListener = eventListener,
+            )
+          }
         }
 
         if (items.isEmpty() && !showNewComputer) {

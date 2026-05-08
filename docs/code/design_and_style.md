@@ -19,10 +19,16 @@ a `<div>` to apply this. Our width breakpoints are almost the same as Pico’s d
 | >= 768px     | 700px         |
 | >= 1024px    | 948px         |
 
-Sass
-----
+Custom Pico
+-----------
 
-We use the [Freefair Gradle Plugin] to compile `.scss` into `.css`.
+Our Pico settings are in our `pico-for-wasmo.scss` file. The inventory of available options is in
+Pico’s `scss/_settings.scss`.
+
+We use the [Freefair Gradle Plugin] to compile the Pico `.scss` into `.css`.
+
+
+
 
 [Freefair Gradle Plugin]: https://docs.freefair.io/gradle-plugins/current/reference/#_sass_tasks
 [Pico]: https://picocss.com/

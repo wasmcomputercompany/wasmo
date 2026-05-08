@@ -1,6 +1,6 @@
 // Pico lightweight version
 @use "pico" with (
-  $enable-classes: false,
+  $enable-classes: true,
   $modules: (
     "components/modal": false,
   ),

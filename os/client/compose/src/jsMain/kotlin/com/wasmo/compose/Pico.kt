@@ -55,12 +55,20 @@ fun PicoTextField(
 @Composable
 fun PicoButton(
   attrs: AttrsScope<HTMLButtonElement>.() -> Unit,
+  outline: Boolean = false,
+  contrast: Boolean = false,
   busy: Boolean = false,
   disabled: Boolean = false,
   content: ContentBuilder<HTMLButtonElement> = {},
 ) {
   Button(
     attrs = {
+      if (outline) {
+        classes("outline")
+      }
+      if (contrast) {
+        classes("contrast")
+      }
       if (busy) {
         attr("aria-busy", "true")
       }
