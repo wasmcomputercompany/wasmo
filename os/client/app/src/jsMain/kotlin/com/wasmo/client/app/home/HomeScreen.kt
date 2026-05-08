@@ -4,29 +4,19 @@ import androidx.compose.runtime.Composable
 import com.wasmo.client.app.computerlist.ComputerList
 import com.wasmo.client.app.computerlist.Item
 import com.wasmo.client.app.computerlist.NewComputer
+import com.wasmo.compose.Column
+import com.wasmo.compose.PageLayout
 import com.wasmo.client.app.teaser.Teaser
 import com.wasmo.compose.OverlayContainer
 import com.wasmo.identifiers.ComputerSlug
 import org.jetbrains.compose.web.attributes.AttrsScope
-import org.jetbrains.compose.web.css.AlignItems
-import org.jetbrains.compose.web.css.DisplayStyle
-import org.jetbrains.compose.web.css.FlexDirection
-import org.jetbrains.compose.web.css.JustifyContent
-import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.boxSizing
-import org.jetbrains.compose.web.css.display
-import org.jetbrains.compose.web.css.flex
-import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.height
-import org.jetbrains.compose.web.css.justifyContent
-import org.jetbrains.compose.web.css.minHeight
-import org.jetbrains.compose.web.css.overflowY
 import org.jetbrains.compose.web.css.paddingBottom
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.DOMScope
-import org.jetbrains.compose.web.dom.Div
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 
@@ -43,39 +33,40 @@ fun HomeScreen(
     menuModel = menuModel,
     eventListener = eventListener,
     content = { homeScreenChildAttrs ->
-      if (items.isNotEmpty()) {
-        ComputerList(
-          attrs = {
-            style {
-              paddingBottom(24.px)
-            }
-            homeScreenChildAttrs()
-          },
-          items = items,
-          eventListener = eventListener,
-        )
-      }
+      Column(
+        attrs = homeScreenChildAttrs,
+      ) {
+        if (items.isNotEmpty()) {
+          ComputerList(
+            attrs = {
+              style {
+                paddingBottom(24.px)
+              }
+            },
+            items = items,
+            eventListener = eventListener,
+          )
+        }
 
-      if (showNewComputer) {
-        NewComputer(
-          attrs = {
-            classes("ContentWidth")
-            style {
-              paddingBottom(48.px)
-            }
-            homeScreenChildAttrs()
-          },
-          eventListener = eventListener,
-        )
-      }
+        if (showNewComputer) {
+          NewComputer(
+            attrs = {
+              classes("ContentWidth")
+              style {
+                paddingBottom(48.px)
+              }
+            },
+            eventListener = eventListener,
+          )
+        }
 
-      if (items.isEmpty() && !showNewComputer) {
-        Teaser(
-          attrs = {
-            classes("ContentWidth")
-            homeScreenChildAttrs()
-          },
-        )
+        if (items.isEmpty() && !showNewComputer) {
+          Teaser(
+            attrs = {
+              classes("ContentWidth")
+            },
+          )
+        }
       }
     },
   )
@@ -118,40 +109,21 @@ fun HomeScreen(
       )
     },
   ) { zstackChildAttrs ->
-    Div(
+    PageLayout(
       attrs = {
         classes("HomeScreen")
-        style {
-          display(DisplayStyle.Flex)
-          flexDirection(FlexDirection.Column)
-          justifyContent(JustifyContent.Center)
-          alignItems(AlignItems.Stretch)
-        }
         zstackChildAttrs()
       },
-    ) {
-      Div(
-        attrs = {
-          style {
-            minHeight(100.percent)
-            display(DisplayStyle.Flex)
-            flexDirection(FlexDirection.Column)
-            alignItems(AlignItems.Center)
-            overflowY("scroll")
-          }
-        },
-      ) {
+      header = { headerAttrs ->
         HomeToolbar(
+          attrs = headerAttrs,
           eventListener = eventListener,
         )
-
-        content {
-          style {
-            flex(100, 100, 0.px)
-          }
-        }
-      }
-    }
+      },
+      content = { contentAttrs ->
+        content(contentAttrs)
+      },
+    )
   }
 }
 

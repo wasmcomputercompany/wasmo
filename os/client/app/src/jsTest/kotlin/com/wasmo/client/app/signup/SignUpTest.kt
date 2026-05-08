@@ -36,6 +36,9 @@ class SignUpTest {
       background = "var(--pico-background-color)",
     ) {
       EnterEmailAddressScreen(
+        attrs = {
+          classes("FillWidthHeight")
+        },
         emailAddress = "",
         emailAddressCaption = "We’ll email you a challenge code",
         canSubmit = true,
@@ -51,6 +54,9 @@ class SignUpTest {
   fun enterChallengeCode() = runTest {
     snapshotTester.snapshot {
       EnterChallengeCodeScreen(
+        attrs = {
+          classes("FillWidthHeight")
+        },
         challengeCode = "",
         challengeCodeCaption = "Enter the code sent to jesse@example.com",
         canSubmit = true,

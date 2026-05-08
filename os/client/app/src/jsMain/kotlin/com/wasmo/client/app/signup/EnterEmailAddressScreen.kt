@@ -1,9 +1,10 @@
 package com.wasmo.client.app.signup
 
 import androidx.compose.runtime.Composable
-import com.wasmo.client.app.pico.PicoButton
-import com.wasmo.client.app.pico.PicoContent
-import com.wasmo.client.app.pico.PicoTextField
+import com.wasmo.compose.Column
+import com.wasmo.compose.PageLayout
+import com.wasmo.compose.PicoButton
+import com.wasmo.compose.PicoTextField
 import com.wasmo.compose.SegmentedProgressBar
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.AutoComplete
@@ -26,52 +27,59 @@ fun EnterEmailAddressScreen(
   busy: Boolean,
   eventListener: (SignUpEvent) -> Unit,
 ) {
-  PicoContent(
+  PageLayout(
     attrs = attrs,
-  ) {
-    H1 {
-      Text("Sign Up")
-    }
-
-    if (false) {
-      SegmentedProgressBar(
-        attrs = {
-          style {
-            marginBottom(8.px)
-          }
-        },
-        stepsCompleted = 1,
-        stepCount = 2,
-        minGap = 16.px,
-        height = 16.px,
-      )
-    }
-
-    Fieldset {
-      PicoTextField(
-        label = "Email Address",
-        ariaLabel = "Email",
-        disabled = disabled,
-        caption = emailAddressCaption,
-      ) {
-        defaultValue(emailAddress)
-        placeholder("name@example.com")
-        autoComplete(AutoComplete.email)
-        onInput { event ->
-          eventListener(SignUpEvent.EditEmailAddress(event.value))
-        }
+  ) { contentAttrs ->
+    Column(
+      attrs = {
+        classes("ContentWidth")
+        contentAttrs()
+      }
+    ) {
+      H1 {
+        Text("Sign Up")
       }
 
-      PicoButton(
-        busy = busy,
-        disabled = !canSubmit || disabled,
-        attrs = {
-          onClick {
-            eventListener(SignUpEvent.ClickSendCode)
+      if (false) {
+        SegmentedProgressBar(
+          attrs = {
+            style {
+              marginBottom(8.px)
+            }
+          },
+          stepsCompleted = 1,
+          stepCount = 2,
+          minGap = 16.px,
+          height = 16.px,
+        )
+      }
+
+      Fieldset {
+        PicoTextField(
+          label = "Email Address",
+          ariaLabel = "Email",
+          disabled = disabled,
+          caption = emailAddressCaption,
+        ) {
+          defaultValue(emailAddress)
+          placeholder("name@example.com")
+          autoComplete(AutoComplete.email)
+          onInput { event ->
+            eventListener(SignUpEvent.EditEmailAddress(event.value))
           }
-        },
-      ) {
-        Text("Next")
+        }
+
+        PicoButton(
+          busy = busy,
+          disabled = !canSubmit || disabled,
+          attrs = {
+            onClick {
+              eventListener(SignUpEvent.ClickSendCode)
+            }
+          },
+        ) {
+          Text("Next")
+        }
       }
     }
   }

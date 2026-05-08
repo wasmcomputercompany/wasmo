@@ -5,9 +5,12 @@ import com.wasmo.compose.Toolbar
 import com.wasmo.compose.ToolbarImageButton
 import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.dom.AttrBuilderContext
+import org.w3c.dom.HTMLDivElement
 
 @Composable
 fun HomeToolbar(
+  attrs: AttrBuilderContext<HTMLDivElement> = {},
   eventListener: (HomeEvent) -> Unit,
 ) {
   Toolbar(
@@ -16,6 +19,7 @@ fun HomeToolbar(
       style {
         marginBottom(32.px)
       }
+      attrs()
     },
     right = { toolbarChildAttrs ->
       ToolbarImageButton(

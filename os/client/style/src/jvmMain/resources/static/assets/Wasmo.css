@@ -30,6 +30,38 @@ button {
   width: 100%;
 }
 
+/* Layouts. */
+
+.FillWidthHeight {
+  width: 100%;
+  height: 100%;
+}
+
+.Column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* PageLayout. */
+
+.PageLayout {
+}
+
+.PageLayoutScroller {
+  min-height: 100%;
+  padding: 16px 0;
+  overflow-y: scroll;
+}
+
+.PageLayoutHeader {
+  padding-bottom: 16px;
+}
+
+.PageLayoutContent {
+  flex: 100 100 0;
+  justify-content: center;
+}
+
 /* Breakpoints. Must match the `design_and_style.md`. */
 
 .ContentWidth {
