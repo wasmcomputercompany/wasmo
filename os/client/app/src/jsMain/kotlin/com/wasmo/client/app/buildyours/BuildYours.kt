@@ -10,13 +10,9 @@ import com.wasmo.client.app.Checkbox
 import com.wasmo.compose.Column
 import com.wasmo.compose.PageLayout
 import com.wasmo.compose.PicoButton
-import com.wasmo.compose.Toolbar
-import com.wasmo.compose.ToolbarTitle
 import com.wasmo.identifiers.ComputerSlug
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.css.marginBottom
-import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Br
 import org.jetbrains.compose.web.dom.H2
 import org.jetbrains.compose.web.dom.Li
@@ -36,11 +32,7 @@ fun BuildYoursScreen(
 
   PageLayout(
     attrs = attrs,
-    header = {
-      BuildYoursToolbar()
-    },
   ) { contentAttrs ->
-
     Column(
       attrs = {
         classes("ContentWidth")
@@ -209,28 +201,6 @@ fun BuildYoursScreen(
       }
     }
   }
-}
-
-@Composable
-fun BuildYoursToolbar(
-  attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
-) {
-  Toolbar(
-    attrs = {
-      classes("ContentWidth")
-      style {
-        marginBottom(8.px)
-      }
-      attrs()
-    },
-    title = { toolbarChildAttrs ->
-      ToolbarTitle(
-        attrs = toolbarChildAttrs,
-      ) {
-        Text("")
-      }
-    },
-  )
 }
 
 sealed interface BuildYoursScreenEvent {

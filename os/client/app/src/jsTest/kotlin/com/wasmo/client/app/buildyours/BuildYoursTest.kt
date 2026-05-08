@@ -20,6 +20,7 @@ class BuildYoursTest {
     // TOOD(jwilson): I broke scrolling snapshots when I introduced Pico.
     snapshotTester.snapshot(
       scrolling = false,
+      background = "var(--pico-background-color)",
     ) {
       BuildYoursScreen {
       }
