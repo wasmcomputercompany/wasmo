@@ -46,28 +46,3 @@ $ psql "host=localhost user=postgres" \
   -c "CREATE DATABASE journal_test WITH ENCODING = 'UTF8'"
 ```
 
-Run all migrations:
-
-```bash
-$ cd ../..
-$ export PGPASSWORD=password
-$ find ./os/server/db/src/jvmMain/resources/migrations \
-  -name '*.sql' \
-  | sort --version-sort \
-  | xargs -n 1 \
-  psql "host=localhost dbname=wasmo_development user=postgres" -a -f
-```
-
-Database Migrations
--------------------
-
-Run an individual migration:
-
-```bash
-$ cd ../..
-$ export PGPASSWORD=password
-$ psql "host=localhost dbname=wasmo_development user=postgres" -a -f \
-     ./os/server/db/src/jvmMain/resources/migrations/vXXX.sql
-```
-
-(Replace _XXX_ with the migration file.)

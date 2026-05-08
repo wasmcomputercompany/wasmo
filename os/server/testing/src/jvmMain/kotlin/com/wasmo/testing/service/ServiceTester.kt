@@ -15,7 +15,6 @@ import com.wasmo.sql.testing.clearSchema
 import com.wasmo.sql.testing.dropAppDatabases
 import com.wasmo.sql.testing.dropAppRoles
 import com.wasmo.support.absurd.dangerouslyClearAbsurdSchema
-import com.wasmo.support.absurd.initAbsurdSchema
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePasskey
@@ -116,7 +115,6 @@ class ServiceTester : CoroutineTestInterceptor {
         dropAppDatabases()
         dropAppRoles()
         dangerouslyClearAbsurdSchema()
-        initAbsurdSchema()
       }
 
       val wasmoDb = postgresqlClient.asSqlDatabase()
