@@ -93,7 +93,7 @@ class RealServerOsHtml(
         }
         link(
           rel = "stylesheet",
-          href = "https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap",
+          href = "https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap",
         )
         link(rel = "icon", href = "/favicon.ico") {
           attributes["sizes"] = "32x32"
