@@ -9,6 +9,7 @@ import org.jetbrains.compose.web.attributes.builders.InputAttrsScope
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.ContentBuilder
+import org.jetbrains.compose.web.dom.Fieldset
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.Label
 import org.jetbrains.compose.web.dom.Small
@@ -17,7 +18,7 @@ import org.w3c.dom.HTMLButtonElement
 
 @Composable
 fun PicoTextField(
-  label: String,
+  label: String? = null,
   type: InputType<String> = InputType.Text,
   ariaLabel: String? = null,
   disabled: Boolean = false,
@@ -26,7 +27,9 @@ fun PicoTextField(
 ) {
   val inputId = rememberNextId()
   Label {
-    Text(label)
+    if (label != null) {
+      Text(label)
+    }
     Input(
       type = type,
       attrs = {
@@ -53,8 +56,63 @@ fun PicoTextField(
 }
 
 @Composable
+fun WasmoNameField(
+  label: String? = null,
+  ariaLabel: String? = null,
+  disabled: Boolean = false,
+  caption: String? = null,
+  inputAttrs: InputAttrsScope<String>.() -> Unit,
+) {
+  val inputId = rememberNextId()
+  Label {
+    if (label != null) {
+      Text(label)
+    }
+    Fieldset(
+      attrs = {
+        attr("role", "group")
+      },
+    ) {
+      Input(
+        type = InputType.Text,
+        attrs = {
+          attr("aria-describedby", inputId)
+          if (ariaLabel != null) {
+            attr("aria-label", ariaLabel)
+          }
+          if (disabled) {
+            disabled()
+          }
+          inputAttrs()
+        },
+      )
+      Input(
+        type = InputType.Text,
+        attrs = {
+          attr("aria-describedby", inputId)
+          if (ariaLabel != null) {
+            attr("aria-label", ariaLabel)
+          }
+          disabled()
+          defaultValue(".wasmo.com")
+        },
+      )
+    }
+    if (caption != null) {
+      Small(
+        attrs = {
+          id(inputId)
+        },
+      ) {
+        Text(caption)
+      }
+    }
+  }
+}
+
+@Composable
 fun PicoButton(
-  attrs: AttrsScope<HTMLButtonElement>.() -> Unit,
+  attrs: AttrsScope<HTMLButtonElement>.() -> Unit = {},
   outline: Boolean = false,
   contrast: Boolean = false,
   busy: Boolean = false,

@@ -32,14 +32,13 @@ import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.ContentBuilder
 import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.H3
+import org.jetbrains.compose.web.dom.H4
 import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
-import org.w3c.dom.HTMLHeadingElement
 import org.w3c.dom.HTMLParagraphElement
 
 enum class FormState {
@@ -144,24 +143,6 @@ fun PrimaryButton(
 }
 
 @Composable
-fun SecondaryButton(
-  attrs: AttrsScope<HTMLButtonElement>.() -> Unit,
-  content: ContentBuilder<HTMLButtonElement>? = null,
-) {
-  val localFormState = LocalFormState.current
-  Button(
-    attrs = {
-      classes("Secondary")
-      if (localFormState == FormState.Busy) {
-        disabled()
-      }
-      attrs()
-    },
-    content = content,
-  )
-}
-
-@Composable
 fun TextField(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   label: String? = null,
@@ -205,18 +186,6 @@ fun TextField(
 }
 
 @Composable
-fun SectionTitle(
-  content: ContentBuilder<HTMLHeadingElement>?,
-) {
-  H3(
-    attrs = {
-      classes("SectionTitle")
-    },
-    content = content,
-  )
-}
-
-@Composable
 fun Checkbox(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   label: String,
@@ -244,16 +213,18 @@ fun Checkbox(
         style {
           gridColumn("1")
           gridRow("1")
+          alignSelf("first baseline")
         }
         inputAttrs()
       },
     )
-    H3(
+    H4(
       attrs = {
         classes("CheckboxLabel")
         style {
           gridColumn("2")
           gridRow("1")
+          alignSelf("first baseline")
         }
       },
     ) {
@@ -270,21 +241,6 @@ fun Checkbox(
     ) {
       content()
     }
-  }
-}
-
-@Composable
-fun FinePrint(
-  attrs: AttrsScope<HTMLParagraphElement>.() -> Unit = {},
-  content: ContentBuilder<HTMLParagraphElement>,
-) {
-  P(
-    attrs = {
-      classes("FinePrint")
-      attrs()
-    },
-  ) {
-    content()
   }
 }
 

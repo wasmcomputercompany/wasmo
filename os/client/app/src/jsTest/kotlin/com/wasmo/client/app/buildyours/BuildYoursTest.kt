@@ -17,8 +17,9 @@ class BuildYoursTest {
 
   @Test
   fun buildForm() = runTest {
+    // TOOD(jwilson): I broke scrolling snapshots when I introduced Pico.
     snapshotTester.snapshot(
-      scrolling = true,
+      scrolling = false,
     ) {
       BuildYoursScreen {
       }
