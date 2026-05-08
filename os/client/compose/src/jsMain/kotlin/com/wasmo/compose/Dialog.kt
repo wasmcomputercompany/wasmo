@@ -13,7 +13,6 @@ import org.w3c.dom.HTMLElement
 fun Dialog(
   attrs: AttrsScope<HTMLElement>.() -> Unit = {},
   visible: Boolean,
-  onDismiss: (() -> Unit)? = null,
   content: @Composable DOMScope<*>.(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
   ) -> Unit,
@@ -37,22 +36,26 @@ fun Dialog(
         }
       },
     ) {
-      if (onDismiss != null) {
-        Header {
-          Toolbar(
-            right = {
-              ToolbarImageButton(
-                image40x64Path = "/assets/close40x64.svg",
-                altLabel = "Dismiss",
-                onClick = {
-                  onDismiss()
-                },
-              )
-            },
-          )
-        }
-      }
       content {}
     }
+  }
+}
+
+@Composable
+fun DialogCloseHeader(
+  onDismiss: () -> Unit,
+) {
+  Header {
+    Toolbar(
+      right = {
+        ToolbarImageButton(
+          image40x64Path = "/assets/close40x64.svg",
+          altLabel = "Dismiss",
+          onClick = {
+            onDismiss()
+          },
+        )
+      },
+    )
   }
 }

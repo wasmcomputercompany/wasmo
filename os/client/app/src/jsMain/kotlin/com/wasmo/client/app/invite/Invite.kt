@@ -1,7 +1,7 @@
 package com.wasmo.client.app.invite
 
 import androidx.compose.runtime.Composable
-import com.wasmo.client.app.FormWasmoLogo
+import com.wasmo.client.app.LargeWasmoLogo
 import com.wasmo.compose.Column
 import com.wasmo.compose.PageLayout
 import com.wasmo.compose.PicoButton
@@ -37,7 +37,7 @@ fun InviteScreen(
           }
         },
       ) {
-        FormWasmoLogo()
+        LargeWasmoLogo()
         H2(
           attrs = {
             style {

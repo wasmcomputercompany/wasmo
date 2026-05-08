@@ -6,17 +6,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.wasmo.client.app.Form
 import com.wasmo.client.app.FormState
 import com.wasmo.client.app.LocalFormState
-import com.wasmo.client.app.PrimaryButton
-import com.wasmo.client.app.SmallText
-import com.wasmo.client.app.TextField
+import com.wasmo.compose.Column
 import com.wasmo.compose.Dialog
+import com.wasmo.compose.DialogCloseHeader
+import com.wasmo.compose.PicoButton
+import com.wasmo.compose.PicoTextField
 import org.jetbrains.compose.web.attributes.AttrsScope
-import org.jetbrains.compose.web.css.marginBottom
-import org.jetbrains.compose.web.css.marginTop
-import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.dom.Footer
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLElement
 
@@ -38,57 +36,51 @@ fun InstallAppDialog(
     Dialog(
       attrs = attrs,
       visible = model != null,
-      onDismiss = {
-        eventListener(InstallAppDialogEvent.ClickDismiss)
-      },
       content = { dialogChildAttrs ->
-        Form(
+        DialogCloseHeader(
+          onDismiss = {
+            eventListener(InstallAppDialogEvent.ClickDismiss)
+          },
+        )
+        Column(
           attrs = dialogChildAttrs,
         ) {
-          TextField(
+          PicoTextField(
             label = "App URL",
-          ) {
-            value(appUrlState)
-            onInput { event ->
-              appUrlState = event.value
-            }
-          }
-          SmallText(
-            attrs = {
-              style {
-                marginBottom(16.px)
+            caption = "Paste the URL of the app to install.",
+            inputAttrs = {
+              value(appUrlState)
+              onInput { event ->
+                appUrlState = event.value
               }
             },
-          ) {
-            Text("Paste the URL of the app to install.")
-          }
+          )
 
-          TextField(
+          PicoTextField(
             label = "App Name",
-          ) {
-            value(appSlugState)
-            onInput { event ->
-              appSlugState = event.value
-            }
-          }
-
-          PrimaryButton(
-            attrs = {
-              style {
-                marginTop(24.px)
-                marginBottom(24.px)
-              }
-              onClick {
-                eventListener(
-                  InstallAppDialogEvent.ClickInstall(
-                    appUrl = appUrlState,
-                    slug = appSlugState,
-                  ),
-                )
+            inputAttrs = {
+              value(appSlugState)
+              onInput { event ->
+                appSlugState = event.value
               }
             },
-          ) {
-            Text("Install")
+          )
+
+          Footer {
+            PicoButton(
+              attrs = {
+                onClick {
+                  eventListener(
+                    InstallAppDialogEvent.ClickInstall(
+                      appUrl = appUrlState,
+                      slug = appSlugState,
+                    ),
+                  )
+                }
+              },
+            ) {
+              Text("Install")
+            }
           }
         }
       },
