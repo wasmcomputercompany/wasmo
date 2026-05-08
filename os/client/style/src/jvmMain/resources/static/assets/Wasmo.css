@@ -229,6 +229,7 @@ button {
 
 .EnvironmentWarning {
   color: var(--pico-del-color);
+  background: var(--pico-card-background-color);
   text-align: center;
   vertical-align: middle;
 }
