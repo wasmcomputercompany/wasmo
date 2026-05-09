@@ -21,6 +21,7 @@ plugins {
   alias(libs.plugins.maven.publish).apply(false)
   alias(libs.plugins.sass).apply(false)
   alias(libs.plugins.sqldelight).apply(false)
+  alias(libs.plugins.dependencyGraph)
 }
 
 allprojects {
@@ -91,4 +92,8 @@ allprojects {
       }
     }
   }
+}
+
+moduleGraphConfig {
+    readmePath.set("docs/generated/dependency-graph.md")
 }

@@ -4,6 +4,7 @@ burst = "2.11.0"
 clikt = "5.0.1"
 dokka = "2.2.0"
 compose = "1.10.0"
+dependency-graph-plugin = "0.13.0"
 freefair-sass = "9.5.0"
 graalvm = "25.0.0"
 gson = "2.13.2"
@@ -90,6 +91,7 @@ burst = { id = "app.cash.burst", version.ref = "burst" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+dependencyGraph = { id = "dev.iurysouza.modulegraph", version.ref = "dependency-graph-plugin"}
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-noarg = { id = "org.jetbrains.kotlin.plugin.noarg", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
