@@ -4,11 +4,12 @@ import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.accounts.passkeys.AccountsPasskeysBindings
-import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.calls.CallGraph
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
+import com.wasmo.db.Migrator
+import com.wasmo.db.RealMigrator
 import com.wasmo.emails.EmailBindings
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
@@ -29,11 +30,14 @@ import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.website.WebsiteBindings
+import com.wasmo.wiring.DistributionGraph
 import com.wasmo.wiring.ObjectStoreBindings
 import com.wasmo.wiring.ServiceBindings
 import com.wasmo.wiring.WasmoService
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.ktor.server.engine.EmbeddedServer
 import wasmo.sql.SqlDatabase
 
@@ -64,6 +68,9 @@ internal interface SandboxGraph {
   val callGraphFactory: CallGraph.Factory
   val computerServiceGraphFactory: ComputerServiceGraph.Factory
   val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory
+
+  @Binds
+  fun bindMigrator(real: RealMigrator): Migrator
 
   @DependencyGraph.Factory
   interface Factory {

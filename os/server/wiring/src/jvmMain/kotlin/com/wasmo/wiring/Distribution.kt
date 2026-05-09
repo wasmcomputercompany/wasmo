@@ -1,6 +1,5 @@
 package com.wasmo.wiring
 
-import com.wasmo.db.ensureSchemaVersion
 import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.ProvisioningDb
@@ -8,7 +7,6 @@ import com.wasmo.sql.asSqlDatabase
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.netty.EngineMain
 import wasmo.sql.SqlDatabase
-import wasmox.sql.transaction
 
 /**
  * Each subclass is its own particular distribution of Wasmo OS.
@@ -34,11 +32,6 @@ abstract class Distribution {
         .asSqlDatabase(),
     )
     val wasmoDb = osPostgresqlClient.asSqlDatabase()
-
-    wasmoDb.transaction {
-      ensureSchemaVersion()
-    }
-
     val wasmoService = createService(
       server = server,
       provisioningDb = provisioningDb,
