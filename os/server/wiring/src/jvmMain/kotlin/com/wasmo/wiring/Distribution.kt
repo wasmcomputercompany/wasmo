@@ -28,7 +28,11 @@ abstract class Distribution {
     wasmoDb: SqlDatabase,
   ): DistributionGraph
 
-  suspend fun startWasmoService(args: Array<String>) {
+  interface WasmoServiceControl : AutoCloseable {
+    suspend fun start()
+  }
+
+  private suspend fun commonInit(args: Array<String>): WasmoServiceControl {
     val server = EngineMain.createServer(args)
 
     val postgresqlClientFactory = PostgresqlClient.Factory()
@@ -47,6 +51,28 @@ abstract class Distribution {
     wasmoDb.transaction {
       serviceGraph.migrator.ensureSchemaVersion()
     }
-    serviceGraph.wasmoService.start()
+    return object : WasmoServiceControl {
+      override suspend fun start() {
+        serviceGraph.wasmoService.start()
+      }
+
+      override fun close() {
+        wasmoDb.close()
+        provisioningDb.provisioningDb.close()
+        osPostgresqlClient.close()
+      }
+    }
+  }
+
+  suspend fun startWasmoService(args: Array<String>) {
+    val wasmoServiceStarter = commonInit(args)
+    // start, never close()
+    wasmoServiceStarter.start()
+  }
+
+  suspend fun prestartWasmoServiceAndExit(args: Array<String>) {
+    commonInit(args).use {
+      // nothing
+    } // close() without having started
   }
 }
