@@ -10,5 +10,5 @@ import kotlinx.coroutines.runBlocking
  */
 fun main(args: Array<String>): Unit = runBlocking {
   val homelabDistribution = HomelabDistribution()
-  homelabDistribution.start(args)
+  homelabDistribution.startWasmoService(args)
 }

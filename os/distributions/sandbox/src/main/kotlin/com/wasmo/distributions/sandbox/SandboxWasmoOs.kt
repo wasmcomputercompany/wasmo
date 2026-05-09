@@ -16,7 +16,6 @@ import com.wasmo.sql.ProvisioningDb
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.wiring.Distribution
 import com.wasmo.wiring.DistributionGraph
-import com.wasmo.wiring.WasmoService
 import dev.zacsweers.metro.createGraphFactory
 import io.ktor.server.engine.EmbeddedServer
 import kotlinx.coroutines.runBlocking
@@ -99,5 +98,5 @@ fun main(args: Array<String>): Unit = runBlocking {
     }
   }
 
-  sandboxDistribution.start(args)
+  sandboxDistribution.startWasmoService(args)
 }

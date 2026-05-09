@@ -28,7 +28,7 @@ abstract class Distribution {
     wasmoDb: SqlDatabase,
   ): DistributionGraph
 
-  suspend fun start(args: Array<String>) {
+  suspend fun startWasmoService(args: Array<String>) {
     val server = EngineMain.createServer(args)
 
     val postgresqlClientFactory = PostgresqlClient.Factory()
