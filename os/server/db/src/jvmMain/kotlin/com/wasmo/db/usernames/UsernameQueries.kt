@@ -7,6 +7,7 @@ import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.UsernameSlug
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
+import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
 import wasmox.sql.singleOrNull
 
@@ -36,6 +37,61 @@ suspend fun insertUsername(
   }
 }
 
+/**
+ * Deletes [replacedUsername] at [replacedAt] and inserts a new
+ * [replacementUsername] row for the same [accountId], created at [replacedAt].
+ *
+ * This method should be called in a transaction.
+ *
+ * @throws SqlException if [replacedUsername] is not found, doesn't belong to the given
+ *      account, or is already deleted.
+ */
+context(connection: SqlConnection)
+suspend fun replaceUsername(
+  replacedAt: Instant,
+  accountId: AccountId,
+  replacedUsername: UsernameSlug,
+  replacementUsername: UsernameSlug,
+): Long {
+  val rowsAffectedByDelete = deleteUsername(
+    deletedAt = replacedAt,
+    accountId = accountId,
+    username = replacedUsername,
+  )
+  if (rowsAffectedByDelete == 0L) {
+    throw SqlException("Failed to delete username $replacedUsername for accountId $accountId")
+  }
+  val rowsAffectedByInsert = insertUsername(
+    createdAt = replacedAt,
+    accountId = accountId,
+    usernameSlug = replacementUsername,
+  )
+  return rowsAffectedByInsert + rowsAffectedByDelete
+}
+
+/**
+ * Marks [username] for the given [accountId] as deleted at [deletedAt].
+ * A deleted username will no longer be found by [selectUsernameOrNull].
+ * Deletion is meant to be permanent, but we might some dayy want to offer
+ * un-deletion/reuse to the account originally owning the username.
+ */
+context(connection: SqlConnection)
+private suspend fun deleteUsername(
+  deletedAt: Instant,
+  accountId: AccountId,
+  username: UsernameSlug,
+): Long =
+  connection.execute(
+    """
+      UPDATE Username
+      SET deleted_at = $1
+      WHERE account_id = $2 AND username = $3 AND deleted_at IS NULL
+    """.trimIndent()
+  ) {
+    bindInstant(0, deletedAt)
+    bindAccountId(1, accountId)
+    bindString(2, username.value)
+  }
 
 context(connection: SqlConnection)
 suspend fun selectUsernameOrNull(
@@ -47,10 +103,11 @@ suspend fun selectUsernameOrNull(
       id,
       created_at,
       account_id,
-      username
+      username,
+      deleted_at
     FROM Username
-    WHERE account_id = $1
-    ORDER BY created_at
+    WHERE account_id = $1 AND deleted_at IS NULL
+    ORDER BY created_at ASC
     LIMIT $2
     """,
   ) {
@@ -68,4 +125,5 @@ private fun SqlRow.getUsername() = DbUsername(
   createdAt = getInstant(1)!!,
   accountId = getAccountId(2),
   usernameSlug = UsernameSlug(getString(3)!!),
+  deletedAt = getInstant(4)
 )

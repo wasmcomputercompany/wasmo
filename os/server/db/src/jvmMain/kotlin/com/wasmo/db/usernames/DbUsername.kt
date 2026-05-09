@@ -10,4 +10,5 @@ data class DbUsername(
   val createdAt: Instant,
   val accountId: AccountId,
   val usernameSlug: UsernameSlug,
+  val deletedAt: Instant?,
 )
