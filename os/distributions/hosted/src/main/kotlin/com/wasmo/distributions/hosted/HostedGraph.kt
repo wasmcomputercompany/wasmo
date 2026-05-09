@@ -30,6 +30,7 @@ import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.website.WebsiteBindings
+import com.wasmo.wiring.DistributionGraph
 import com.wasmo.wiring.ObjectStoreBindings
 import com.wasmo.wiring.ServiceBindings
 import com.wasmo.wiring.WasmoService
@@ -61,8 +62,7 @@ import wasmo.sql.SqlDatabase
     WebsiteBindings::class,
   ],
 )
-internal interface HostedGraph {
-  val wasmoService: WasmoService
+internal interface HostedGraph : DistributionGraph {
   val callGraphFactory: CallGraph.Factory
   val computerServiceGraphFactory: ComputerServiceGraph.Factory
   val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory

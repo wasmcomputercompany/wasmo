@@ -63,8 +63,7 @@ import wasmo.sql.SqlDatabase
     WebsiteBindings::class,
   ],
 )
-internal interface SandboxGraph {
-  val wasmoService: WasmoService
+internal interface SandboxGraph : DistributionGraph {
   val callGraphFactory: CallGraph.Factory
   val computerServiceGraphFactory: ComputerServiceGraph.Factory
   val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory

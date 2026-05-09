@@ -15,6 +15,7 @@ import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.wiring.Distribution
+import com.wasmo.wiring.DistributionGraph
 import com.wasmo.wiring.WasmoService
 import dev.zacsweers.metro.createGraphFactory
 import io.ktor.server.engine.EmbeddedServer
@@ -61,11 +62,11 @@ fun main(args: Array<String>): Unit = runBlocking {
     override val provisioningPostgresqlAddress: PostgresqlAddress
       get() = sharedPostgresqlAddress
 
-    override fun createService(
+    override fun createServiceGraph(
       server: EmbeddedServer<*, *>,
       provisioningDb: ProvisioningDb,
       wasmoDb: SqlDatabase,
-    ): WasmoService {
+    ): DistributionGraph {
       val hostedGraphFactory = createGraphFactory<HostedGraph.Factory>()
       val serviceGraph = hostedGraphFactory.create(
         server = server,
@@ -94,9 +95,7 @@ fun main(args: Array<String>): Unit = runBlocking {
         ),
         sessionCookieSpec = SessionCookieSpec.Https,
       )
-      return serviceGraph.wasmoService
+      return serviceGraph
     }
   }
-
-  hostedDistribution.start(args)
 }

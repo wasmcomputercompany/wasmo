@@ -18,14 +18,8 @@ class WasmoService(
   private val server: EmbeddedServer<*, *>,
   private val actionRouter: ActionRouter,
   private val jobProcessor: JobProcessor,
-  private val migrator: Migrator,
-  private val wasmoDb: SqlDatabase,
 ) {
   suspend fun start() {
-    // AbsurdOsJobProcessor from jobProcessor.start() depends on this already having run.
-    wasmoDb.transaction {
-      migrator.ensureSchemaVersion()
-    }
     actionRouter.createRoutes()
     jobProcessor.start()
 

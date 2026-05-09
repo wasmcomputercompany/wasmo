@@ -4,10 +4,8 @@ import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.accounts.passkeys.AccountsPasskeysBindings
-import com.wasmo.api.routes.RouteCodec
 import com.wasmo.calls.CallGraph
 import com.wasmo.common.catalog.Catalog
-import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
 import com.wasmo.db.Migrator
@@ -31,9 +29,9 @@ import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.website.WebsiteBindings
+import com.wasmo.wiring.DistributionGraph
 import com.wasmo.wiring.ObjectStoreBindings
 import com.wasmo.wiring.ServiceBindings
-import com.wasmo.wiring.WasmoService
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -62,8 +60,8 @@ import wasmo.sql.SqlDatabase
     WebsiteBindings::class,
   ],
 )
-internal interface HomelabGraph {
-  val wasmoService: WasmoService
+
+internal interface HomelabGraph : DistributionGraph {
   val callGraphFactory: CallGraph.Factory
   val computerServiceGraphFactory: ComputerServiceGraph.Factory
   val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory
