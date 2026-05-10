@@ -4,6 +4,8 @@ import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
+import com.wasmo.db.Migrator
+import com.wasmo.db.RealMigrator
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
@@ -24,6 +26,7 @@ import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.TestEventListener
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +63,7 @@ interface ServiceTesterGraph {
   val fakeHttpClient: FakeHttpService
   val fileSystem: FileSystem
   val permitService: PermitService
+  val migrator: Migrator
 
   @TestDirectory
   val testDirectory: Path
@@ -71,6 +75,9 @@ interface ServiceTesterGraph {
   val sampleApps: SampleApps
   val absurdService: AbsurdService
   val jobQueueFactory: OsJobQueue.Factory
+
+  @Binds
+  fun bindMigrator(real: RealMigrator): Migrator
 
   @DependencyGraph.Factory
   interface Factory {
