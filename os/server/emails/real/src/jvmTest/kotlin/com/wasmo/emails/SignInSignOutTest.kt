@@ -2,10 +2,9 @@ package com.wasmo.emails
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat
-import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotEmpty
-import assertk.assertions.isNotNull
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import com.wasmo.api.SignOutRequest
 import com.wasmo.api.SignOutResponse
 import com.wasmo.testing.service.ServiceTester
@@ -21,22 +20,16 @@ class SignInSignOutTest {
     val client = tester.newClient()
 
     val confirmResponse = client.linkAndConfirmEmailAddress("jesse@example.com")
-    assertThat(confirmResponse.body.account?.emailAddresses)
-      .isNotNull()
-      .isNotEmpty()
+    assertThat(confirmResponse.body.account?.isSignedIn)
 
     val accountSnapshotResponse1 = client.accountSnapshot()
-    assertThat(accountSnapshotResponse1.emailAddresses)
-      .isNotNull()
-      .isNotEmpty()
+    assertThat(accountSnapshotResponse1.isSignedIn)
 
     val signOutResponse = client.call().signOut(SignOutRequest)
     assertThat(signOutResponse.body).isEqualTo(SignOutResponse)
 
     val accountSnapshotResponse2 = client.accountSnapshot()
-    assertThat(accountSnapshotResponse2.emailAddresses)
-      .isNotNull()
-      .isEmpty()
+    assertThat(!accountSnapshotResponse2.isSignedIn)
   }
 
   @Test
@@ -44,23 +37,17 @@ class SignInSignOutTest {
     val client = tester.newClient()
 
     val confirmResponse = client.linkAndConfirmEmailAddress("jesse@example.com")
-    assertThat(confirmResponse.body.account?.emailAddresses)
-      .isNotNull()
-      .isNotEmpty()
+    assertThat(confirmResponse.body.account?.isSignedIn)
 
     val accountSnapshotResponse1 = client.accountSnapshot()
-    assertThat(accountSnapshotResponse1.emailAddresses)
-      .isNotNull()
-      .isNotEmpty()
+    assertThat(accountSnapshotResponse1.isSignedIn).isTrue()
 
     val signOutResponse = client.call().signOutPage()
     assertThat(signOutResponse.header("Location"))
       .isEqualTo("https://wasmo.com/")
 
     val accountSnapshotResponse2 = client.accountSnapshot()
-    assertThat(accountSnapshotResponse2.emailAddresses)
-      .isNotNull()
-      .isEmpty()
+    assertThat(accountSnapshotResponse2.isSignedIn).isFalse()
   }
 
   @Test
@@ -74,16 +61,12 @@ class SignInSignOutTest {
     client2.linkAndConfirmEmailAddress("jesse@example.com")
 
     val accountSnapshotResponse1 = client2.accountSnapshot()
-    assertThat(accountSnapshotResponse1.emailAddresses)
-      .isNotNull()
-      .isNotEmpty()
+    assertThat(accountSnapshotResponse1.isSignedIn).isTrue()
 
     val signOutResponse = client2.call().signOut(SignOutRequest)
     assertThat(signOutResponse.body).isEqualTo(SignOutResponse)
 
     val accountSnapshotResponse2 = client2.accountSnapshot()
-    assertThat(accountSnapshotResponse2.emailAddresses)
-      .isNotNull()
-      .isEmpty()
+    assertThat(accountSnapshotResponse2.isSignedIn).isFalse()
   }
 }
