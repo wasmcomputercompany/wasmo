@@ -9,13 +9,21 @@ import okio.ByteString
 @Serializable
 data class AccountSnapshot(
   val nextChallenge: @Serializable(Base64UrlSerializer::class) ByteString,
-  val passkeys: List<PasskeySnapshot>,
-  val emailAddresses: List<LinkedEmailAddressSnapshot>,
+  private val passkeys: List<PasskeySnapshot>,
+  private val emailAddresses: List<LinkedEmailAddressSnapshot>,
   val hasInvite: Boolean,
 ) {
+  // TODO: make signedInSnapshot a ctor argument (changes wire format), and support
+  // Username-based SignedInSnapshot server-side.
+  val signedInSnapshot: SignedInSnapshot? =
+    // TODO: We probably want "passkeys.isEmpty() &&", but that'll be a behavior change to before
+    if (emailAddresses.isEmpty()) {
+      null
+    } else {
+      EmailPasskeySignedInSnapshot(passkeys, emailAddresses)
+    }
   val isSignedIn: Boolean
-    // TODO: Do we also need "passkeys.isNotEmpty() ||" ?
-    get() = emailAddresses.isNotEmpty()
+    get() = signedInSnapshot != null
 }
 
 @Serializable

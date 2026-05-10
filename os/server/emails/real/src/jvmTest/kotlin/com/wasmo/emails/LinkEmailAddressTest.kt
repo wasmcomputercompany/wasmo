@@ -8,6 +8,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import com.wasmo.api.ConfirmEmailAddressResponse.Decision
+import com.wasmo.api.EmailPasskeySignedInSnapshot
 import com.wasmo.api.LinkedEmailAddressSnapshot
 import com.wasmo.testing.emails.differentCode
 import com.wasmo.testing.emails.extractChallengeCode
@@ -36,7 +37,7 @@ class LinkEmailAddressTest {
       challengeCode = email.extractChallengeCode(),
     )
     assertThat(confirmResponse.body.decision).isEqualTo(Decision.LinkedNew)
-    assertThat(confirmResponse.body.account?.emailAddresses)
+    assertThat((confirmResponse.body.account?.signedInSnapshot as? EmailPasskeySignedInSnapshot)?.emailAddresses)
       .isNotNull()
       .containsExactly(
         LinkedEmailAddressSnapshot(
@@ -54,7 +55,7 @@ class LinkEmailAddressTest {
     assertThat(confirmResponse1.body.decision).isEqualTo(Decision.LinkedNew)
     val confirmResponse2 = client.linkAndConfirmEmailAddress("jessewilson@example.com")
     assertThat(confirmResponse2.body.decision).isEqualTo(Decision.LinkedNew)
-    assertThat(confirmResponse2.body.account?.emailAddresses)
+    assertThat((confirmResponse2.body.account?.signedInSnapshot as? EmailPasskeySignedInSnapshot)?.emailAddresses)
       .isNotNull()
       .containsExactly(
         LinkedEmailAddressSnapshot(
@@ -88,7 +89,7 @@ class LinkEmailAddressTest {
       challengeCode = email.extractChallengeCode(),
     )
     assertThat(confirmResponse.body.decision).isEqualTo(Decision.LinkedExisting)
-    assertThat(confirmResponse.body.account?.emailAddresses)
+    assertThat((confirmResponse.body.account?.signedInSnapshot as? EmailPasskeySignedInSnapshot)?.emailAddresses)
       .isNotNull()
       .containsExactly(
         LinkedEmailAddressSnapshot(
