@@ -12,7 +12,11 @@ data class AccountSnapshot(
   val passkeys: List<PasskeySnapshot>,
   val emailAddresses: List<LinkedEmailAddressSnapshot>,
   val hasInvite: Boolean,
-)
+) {
+  val isSignedIn: Boolean
+    // TODO: Do we also need "passkeys.isNotEmpty() ||" ?
+    get() = emailAddresses.isNotEmpty()
+}
 
 @Serializable
 data object AccountSnapshotRequest
