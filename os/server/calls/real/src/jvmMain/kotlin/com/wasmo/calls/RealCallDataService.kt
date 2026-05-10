@@ -103,11 +103,14 @@ class RealCallDataService(
     override suspend fun load(): AccountSnapshot {
       val firstInvite = firstClaimedInvite.get()
 
+      val emailAddresses = linkedEmailAddresses.get()
       return AccountSnapshot(
         nextChallenge = client.challenger.create(),
         passkeys = passkeys.get(),
-        emailAddresses = linkedEmailAddresses.get(),
+        emailAddresses = emailAddresses,
         hasInvite = firstInvite != null,
+        // TODO: isSignedIn should also reflect other ways of being signed in.
+        isSignedIn = emailAddresses.isNotEmpty(),
       )
     }
   }

@@ -42,7 +42,7 @@ class HomeUi(
     val accountSnapshot by accountDataService.accountSnapshotFlow.collectAsState()
     val menuModel = HomeMenuModel(
       visible = menuVisible,
-      signedIn = accountSnapshot.emailAddresses.isNotEmpty(),
+      signedIn = accountSnapshot.isSignedIn,
     )
 
     HomeScreen(
@@ -55,7 +55,7 @@ class HomeUi(
           iframeSrc = routeCodec.encode(ComputerHomeRoute(it.slug)).toURL().href,
         )
       },
-      showNewComputer = environment.showSignUp && accountSnapshot.emailAddresses.isNotEmpty(),
+      showNewComputer = environment.showSignUp && accountSnapshot.isSignedIn,
     )
   }
 

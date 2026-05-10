@@ -12,6 +12,7 @@ data class AccountSnapshot(
   val passkeys: List<PasskeySnapshot>,
   val emailAddresses: List<LinkedEmailAddressSnapshot>,
   val hasInvite: Boolean,
+  val isSignedIn: Boolean,
 )
 
 @Serializable
