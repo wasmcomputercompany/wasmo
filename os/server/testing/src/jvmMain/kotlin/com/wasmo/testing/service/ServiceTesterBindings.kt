@@ -8,6 +8,7 @@ import com.wasmo.events.EventListener
 import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.MDN
 import com.wasmo.identifiers.Deployment
+import com.wasmo.identifiers.DistributionShortCode
 import com.wasmo.identifiers.ForOs
 import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.OsScope
@@ -66,6 +67,7 @@ abstract class ServiceTesterBindings {
     fun provideDeployment(): Deployment = Deployment(
       baseUrl = "https://wasmo.com/".toHttpUrl(),
       sendFromEmailAddress = "noreply@wasmo.com",
+      distributionShortCode = DistributionShortCode("ft"),
     )
 
     @Provides

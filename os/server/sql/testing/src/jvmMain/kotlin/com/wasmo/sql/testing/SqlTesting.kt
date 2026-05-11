@@ -24,7 +24,7 @@ suspend fun SqlClient.dropAppDatabases() {
     """
     SELECT datname
     FROM pg_database
-    WHERE datname like 'app_%'
+    WHERE datname like 'ft_app_%'
     """,
   )
   for (row in appDatabases) {
@@ -40,7 +40,7 @@ suspend fun SqlClient.dropAppRoles() {
     """
     SELECT rolname
     FROM pg_roles
-    WHERE rolname like 'app_%'
+    WHERE rolname like 'ft_app_%'
     """,
   )
   for (row in appRoles) {

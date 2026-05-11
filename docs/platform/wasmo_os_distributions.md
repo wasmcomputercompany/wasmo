@@ -56,3 +56,19 @@ fake these integrations.
 For example, local dev builds of Hosted Wasmo OS will use Stripe if API keys are present, and fall
 back to a persistent fake otherwise.
 
+Distribution Codes
+------------------
+
+Two character short name codes to refer to specific distribution codes. Used to specify databases among other things.
+
+| Distribution                 | Code |
+|------------------------------|------|
+| Homelab Wasmo OS - localhost | hl   |
+| Hosted Wasmo OS - wasmo.com  | wc   |
+| Sandbox Wasmo OS - wasmo.dev | wd   |
+| Wasmo SDK                    | sd   |
+| Wasmo Tests                  | ft   |
+
+
+
+
