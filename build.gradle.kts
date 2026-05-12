@@ -96,4 +96,5 @@ allprojects {
 
 moduleGraphConfig {
     readmePath.set("docs/generated/dependency-graph.md")
+    excludedModulesRegex = ":os:server:wiring|:os:server:testing|:os:distributions:homelab|:os:distributions:hosted|:os:distributions:sandbox"
 }

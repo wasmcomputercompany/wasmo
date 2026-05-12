@@ -48,8 +48,8 @@ graph LR
   end
   subgraph :os:server
     :os:server:identifiers["identifiers"]
-    :os:server:testing["testing"]
     :os:server:db["db"]
+    :os:server:testing["testing"]
     :os:server:wiring["wiring"]
     :os:server:okhttpclient["okhttpclient"]
     :os:server:wallpapers["wallpapers"]
@@ -121,7 +121,6 @@ graph LR
   subgraph :os:server:wasm
     :os:server:wasm:api["api"]
     :os:server:wasm:jvm["jvm"]
-    :os:server:wasm:real["real"]
   end
   subgraph :os:server:website
     :os:server:website:api["api"]
@@ -151,7 +150,6 @@ graph LR
   :os:server:passkeys:real --> :os:server:identifiers
   :os:server:passkeys:real --> :os:server:passkeys:api
   :os:server:passkeys:real --> :platform:testing
-  :os:server:passkeys:real --> :os:server:testing
   :os:server:db --> :identifiers
   :os:server:db --> :os:api
   :os:server:db --> :os:framework
@@ -162,7 +160,6 @@ graph LR
   :os:server:db --> :platform:packaging
   :os:server:db --> :support:tokens
   :os:server:db --> :wasmox:wasmox-sql
-  :os:server:db --> :os:server:testing
   :platform:testing --> :os:server:downloader:real
   :platform:testing --> :os:server:identifiers
   :platform:testing --> :os:server:objectstore:fs
@@ -327,7 +324,6 @@ graph LR
   :os:distributions:hosted --> :os:server:wasm:api
   :os:distributions:hosted --> :os:server:wasm:jvm
   :os:distributions:hosted --> :os:server:website:real
-  :os:distributions:hosted --> :os:server:wiring
   :os:distributions:hosted --> :platform:api
   :os:distributions:hosted --> :wasmox:wasmox-sql
   :os:distributions:hosted --> :os:client:app-hosted
@@ -396,13 +392,13 @@ graph LR
   :os:distributions:homelab --> :os:server:wasm:api
   :os:distributions:homelab --> :os:server:wasm:jvm
   :os:distributions:homelab --> :os:server:website:real
-  :os:distributions:homelab --> :os:server:wiring
   :os:distributions:homelab --> :platform:api
   :os:distributions:homelab --> :wasmox:wasmox-sql
   :os:distributions:homelab --> :os:client:app-homelab
   :os:server:sql:api --> :identifiers
   :os:server:sql:api --> :platform:api
   :os:server:sql:api --> :support:close-tracker
+  :wasmox:wasmox-sqldelight --> :platform:api
   :os:server:permits:real --> :os:server:db
   :os:server:permits:real --> :os:server:identifiers
   :os:server:permits:real --> :os:server:permits:api
@@ -410,8 +406,6 @@ graph LR
   :os:server:permits:real --> :platform:api
   :os:server:permits:real --> :wasmox:wasmox-sql
   :os:server:permits:real --> :platform:testing
-  :os:server:permits:real --> :os:server:testing
-  :wasmox:wasmox-sqldelight --> :platform:api
   :os:server:computers:real --> :identifiers
   :os:server:computers:real --> :os:api
   :os:server:computers:real --> :os:framework
@@ -431,7 +425,6 @@ graph LR
   :os:server:computers:real --> :platform:packaging
   :os:server:computers:real --> :support:issues
   :os:server:computers:real --> :wasmox:wasmox-sql
-  :os:server:computers:real --> :os:server:testing
   :os:server:computers:real --> :os:server:website:api
   :os:server:computers:real --> :os:server:website:real
   :os:server:computers:real --> :platform:testing
@@ -445,7 +438,6 @@ graph LR
   :os:server:wasm:jvm --> :os:server:wasm:api
   :os:server:wasm:jvm --> :platform:api
   :os:server:wasm:jvm --> :platform:packaging
-  :os:server:wasm:jvm --> :os:server:testing
   :os:server:emails:real --> :identifiers
   :os:server:emails:real --> :os:api
   :os:server:emails:real --> :os:framework
@@ -461,7 +453,6 @@ graph LR
   :os:server:emails:real --> :support:tokens
   :os:server:emails:real --> :wasmox:wasmox-sql
   :os:server:emails:real --> :platform:testing
-  :os:server:emails:real --> :os:server:testing
   :os:server:passkeys:api --> :os:api
   :apps:journal:admin-web-app --> :apps:journal:api
   :apps:journal:admin-web-app --> :support:router
@@ -504,7 +495,6 @@ graph LR
   :os:server:accounts:real --> :support:tokens
   :os:server:accounts:real --> :wasmox:wasmox-sql
   :os:server:accounts:real --> :platform:testing
-  :os:server:accounts:real --> :os:server:testing
   :os:server:events:logging --> :identifiers
   :os:server:events:logging --> :os:logging
   :os:server:events:logging --> :os:server:events:api
@@ -549,7 +539,6 @@ graph LR
   :os:distributions:sandbox --> :os:server:wasm:api
   :os:distributions:sandbox --> :os:server:wasm:jvm
   :os:distributions:sandbox --> :os:server:website:real
-  :os:distributions:sandbox --> :os:server:wiring
   :os:distributions:sandbox --> :platform:api
   :os:distributions:sandbox --> :wasmox:wasmox-sql
   :os:distributions:sandbox --> :os:client:app-sandbox
@@ -593,7 +582,6 @@ graph LR
   :os:server:payments:stripe --> :os:server:payments:api
   :os:server:payments:stripe --> :platform:api
   :os:server:payments:stripe --> :wasmox:wasmox-sql
-  :os:server:payments:stripe --> :os:server:testing
   :os:server:payments:stripe --> :platform:testing
   :os:server:sql:testing --> :os:server:sql:api
   :os:server:sql:testing --> :os:server:sql:real
@@ -630,7 +618,6 @@ graph LR
   :os:server:jobs:absurd --> :support:tokens
   :os:server:jobs:absurd --> :wasmox:wasmox-sql
   :os:server:jobs:absurd --> :platform:testing
-  :os:server:jobs:absurd --> :os:server:testing
   :os:server:installedapps:real --> :identifiers
   :os:server:installedapps:real --> :os:api
   :os:server:installedapps:real --> :os:framework
@@ -652,7 +639,6 @@ graph LR
   :os:server:installedapps:real --> :support:issues
   :os:server:installedapps:real --> :wasmox:wasmox-sql
   :os:server:installedapps:real --> :platform:testing
-  :os:server:installedapps:real --> :os:server:testing
   :os:server:installedapps:real --> :os:server:website:api
   :os:server:installedapps:real --> :os:server:website:real
   :os:client:app-homelab --> :os:client:app
@@ -667,7 +653,6 @@ graph LR
   :apps:journal:wasmo-app --> :platform:testing
   :apps:journal:wasmo-app --> :os:server:sql:api
   :apps:journal:wasmo-app --> :os:server:sql:real
-  :os:server:wasm:real --> :os:server:testing
   :os:client:passkeys:api --> :os:api
   :os:server:objectstore:fs --> :os:server:identifiers
   :os:server:objectstore:fs --> :os:server:objectstore:api
@@ -680,7 +665,6 @@ graph LR
   :os:server:sql:real --> :support:close-tracker
   :os:server:sql:real --> :wasmox:wasmox-sql
   :os:server:sql:real --> :os:server:sql:testing
-  :os:server:sql:real --> :os:server:testing
   :os:client:smartphoneframe --> :os:client:compose
   :os:client:smartphoneframe --> :support:dom-tester
   :os:server:accounts:api --> :os:api
