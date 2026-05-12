@@ -32,7 +32,7 @@ graph LR
     :os:client:framework["framework"]
     :os:client:identifiers["identifiers"]
     :os:client:smartphoneframe["smartphoneframe"]
-    :os:client:style["style"]
+    :os:client:style_["style_"]
     :os:client:app-sandbox["app-sandbox"]
     :os:client:app-hosted["app-hosted"]
     :os:client:app-homelab["app-homelab"]
@@ -195,7 +195,7 @@ graph LR
   :os:client:app --> :os:routes
   :os:client:app --> :support:tokens
   :os:client:app --> :support:dom-tester
-  :os:client:app --> :os:client:style
+  :os:client:app --> :os:client:style_
   :os:client:app-sandbox --> :os:client:app
   :os:cli --> :platform:packaging
   :os:cli --> :support:issues
