@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.attributes.builders.InputAttrsScope
-import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.alignSelf
 import org.jetbrains.compose.web.css.columnGap
@@ -31,7 +30,6 @@ fun Checkbox(
   inputAttrs: InputAttrsScope<Boolean>.() -> Unit,
   content: ContentBuilder<HTMLDivElement>,
 ) {
-  val localFormState = LocalFormState.current
   Div(
     attrs = {
       style {
@@ -45,9 +43,6 @@ fun Checkbox(
     Input(
       type = type,
       attrs = {
-        if (localFormState == FormState.Busy) {
-          disabled()
-        }
         style {
           gridColumn("1")
           gridRow("1")

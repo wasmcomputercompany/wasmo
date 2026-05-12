@@ -30,14 +30,12 @@ import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.website.WebsiteBindings
-import com.wasmo.wiring.DistributionGraph
 import com.wasmo.wiring.ObjectStoreBindings
 import com.wasmo.wiring.ServiceBindings
 import com.wasmo.wiring.WasmoService
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.SingleIn
 import io.ktor.server.engine.EmbeddedServer
 import wasmo.sql.SqlDatabase
 

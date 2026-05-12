@@ -13,7 +13,6 @@ import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import com.wasmo.common.logging.Logger
-import com.wasmo.compose.FormState
 import com.wasmo.framework.decodeUrl
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -103,7 +102,7 @@ class ComputerUi(
 
       ComputerMenuEvent.ClickInstallApp -> {
         menuModel = null
-        installAppDialogModel = InstallAppDialogModel(FormState.Ready)
+        installAppDialogModel = InstallAppDialogModel
       }
 
       ComputerMenuEvent.ClickSettings -> {
@@ -119,14 +118,14 @@ class ComputerUi(
       }
 
       is InstallAppDialogEvent.ClickInstall -> {
-        installAppDialogModel = InstallAppDialogModel(FormState.Busy)
+        installAppDialogModel = InstallAppDialogModel
         coroutineScope.launch {
           try {
             computerDataService.install(event.appUrl, AppSlug(event.slug))
             installAppDialogModel = null
           } catch (e: Exception) {
             logger.info("failed to install app", e)
-            installAppDialogModel = InstallAppDialogModel(FormState.Ready)
+            installAppDialogModel = InstallAppDialogModel
           }
         }
       }

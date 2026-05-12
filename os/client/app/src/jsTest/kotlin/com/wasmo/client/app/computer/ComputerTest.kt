@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import app.cash.burst.InterceptTest
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InstalledAppSnapshot
-import com.wasmo.compose.FormState
 import com.wasmo.domtester.SnapshotTester
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
@@ -39,7 +38,7 @@ class ComputerTest {
     }
 
     menuModel = null
-    installAppDialogModel = InstallAppDialogModel(formState = FormState.Ready)
+    installAppDialogModel = InstallAppDialogModel
     snapshotTester.snapshot(name = "installAppDialogVisible") {
       Subject()
     }

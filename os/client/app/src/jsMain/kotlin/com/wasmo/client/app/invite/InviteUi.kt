@@ -1,10 +1,8 @@
 package com.wasmo.client.app.invite
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.wasmo.api.AuthenticatePasskeyRequest
@@ -18,8 +16,6 @@ import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Ui
 import com.wasmo.common.logging.Logger
-import com.wasmo.compose.FormState
-import com.wasmo.compose.LocalFormState
 import com.wasmo.passkeys.PasskeyAuthenticator
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -55,16 +51,13 @@ class InviteUi(
   ) {
     val scope = rememberCoroutineScope()
 
-    var formState by remember { mutableStateOf(FormState.Ready) }
-    CompositionLocalProvider(LocalFormState provides formState) {
-      InviteScreen(
-        attrs = attrs,
-        inviteState = inviteState,
-      ) { event ->
-        when (event) {
-          InviteEvent.ClickAccept -> {
-            scope.acceptInvitation()
-          }
+    InviteScreen(
+      attrs = attrs,
+      inviteState = inviteState,
+    ) { event ->
+      when (event) {
+        InviteEvent.ClickAccept -> {
+          scope.acceptInvitation()
         }
       }
     }

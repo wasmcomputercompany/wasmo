@@ -1,10 +1,8 @@
 package com.wasmo.client.app.buildyours
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.routes.HomeRoute
@@ -13,8 +11,6 @@ import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.app.stripe.CheckoutScreen
 import com.wasmo.client.app.stripe.CheckoutSession
 import com.wasmo.client.framework.Ui
-import com.wasmo.compose.FormState
-import com.wasmo.compose.LocalFormState
 import com.wasmo.support.tokens.newToken
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -41,13 +37,10 @@ class BuildYoursUi(
       return
     }
 
-    var formState by remember { mutableStateOf(FormState.Ready) }
-    CompositionLocalProvider(LocalFormState provides formState) {
-      BuildYoursScreen(
-        attrs = attrs,
-        eventListener = ::onEvent,
-      )
-    }
+    BuildYoursScreen(
+      attrs = attrs,
+      eventListener = ::onEvent,
+    )
   }
 
   fun onEvent(it: BuildYoursScreenEvent) {

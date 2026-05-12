@@ -1,7 +1,6 @@
 package com.wasmo.client.app.computer
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -10,8 +9,6 @@ import com.wasmo.compose.Button
 import com.wasmo.compose.Column
 import com.wasmo.compose.Dialog
 import com.wasmo.compose.DialogCloseHeader
-import com.wasmo.compose.FormState
-import com.wasmo.compose.LocalFormState
 import com.wasmo.compose.TextField
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.dom.Footer
@@ -24,7 +21,6 @@ fun InstallAppDialog(
   model: InstallAppDialogModel?,
   eventListener: (InstallAppDialogEvent) -> Unit,
 ) {
-  val formState = model?.formState ?: FormState.Busy
   var appUrlState by remember {
     mutableStateOf("http://wasmo.localhost:8080/journal/journal.wasmo")
   }
@@ -32,60 +28,58 @@ fun InstallAppDialog(
     mutableStateOf("journal")
   }
 
-  CompositionLocalProvider(LocalFormState provides formState) {
-    Dialog(
-      attrs = attrs,
-      visible = model != null,
-      content = { dialogChildAttrs ->
-        DialogCloseHeader(
-          onDismiss = {
-            eventListener(InstallAppDialogEvent.ClickDismiss)
+  Dialog(
+    attrs = attrs,
+    visible = model != null,
+    content = { dialogChildAttrs ->
+      DialogCloseHeader(
+        onDismiss = {
+          eventListener(InstallAppDialogEvent.ClickDismiss)
+        },
+      )
+      Column(
+        attrs = dialogChildAttrs,
+      ) {
+        TextField(
+          label = "App URL",
+          caption = "Paste the URL of the app to install.",
+          inputAttrs = {
+            value(appUrlState)
+            onInput { event ->
+              appUrlState = event.value
+            }
           },
         )
-        Column(
-          attrs = dialogChildAttrs,
-        ) {
-          TextField(
-            label = "App URL",
-            caption = "Paste the URL of the app to install.",
-            inputAttrs = {
-              value(appUrlState)
-              onInput { event ->
-                appUrlState = event.value
-              }
-            },
-          )
 
-          TextField(
-            label = "App Name",
-            inputAttrs = {
-              value(appSlugState)
-              onInput { event ->
-                appSlugState = event.value
-              }
-            },
-          )
-
-          Footer {
-            Button(
-              attrs = {
-                onClick {
-                  eventListener(
-                    InstallAppDialogEvent.ClickInstall(
-                      appUrl = appUrlState,
-                      slug = appSlugState,
-                    ),
-                  )
-                }
-              },
-            ) {
-              Text("Install")
+        TextField(
+          label = "App Name",
+          inputAttrs = {
+            value(appSlugState)
+            onInput { event ->
+              appSlugState = event.value
             }
+          },
+        )
+
+        Footer {
+          Button(
+            attrs = {
+              onClick {
+                eventListener(
+                  InstallAppDialogEvent.ClickInstall(
+                    appUrl = appUrlState,
+                    slug = appSlugState,
+                  ),
+                )
+              }
+            },
+          ) {
+            Text("Install")
           }
         }
-      },
-    )
-  }
+      }
+    },
+  )
 }
 
 sealed interface InstallAppDialogEvent {
