@@ -4,10 +4,9 @@ import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.accounts.passkeys.AccountsPasskeysBindings
-import com.wasmo.api.routes.RouteCodec
+import com.wasmo.accounts.usernames.AccountsUsernamesBindings
 import com.wasmo.calls.CallGraph
 import com.wasmo.common.catalog.Catalog
-import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
 import com.wasmo.db.Migrator
@@ -46,6 +45,7 @@ import wasmo.sql.SqlDatabase
     AbsurdBindings::class,
     AccountsBindings::class,
     AccountsPasskeysBindings::class,
+    AccountsUsernamesBindings::class,
     ComputersBindings::class,
     EmailBindings::class,
     FileSystemObjectStoreBindings::class,
