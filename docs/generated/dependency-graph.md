@@ -12,19 +12,19 @@ graph LR
     :apps:samples["samples"]
   end
   subgraph :apps:journal
-    :apps:journal:wasmo-app["wasmo-app"]
     :apps:journal:admin-web-app["admin-web-app"]
     :apps:journal:api["api"]
+    :apps:journal:wasmo-app["wasmo-app"]
     :apps:journal:db["db"]
   end
   subgraph :os
     :os:api["api"]
     :os:framework["framework"]
-    :os:routes["routes"]
-    :os:catalog["catalog"]
     :os:logging["logging"]
+    :os:routes["routes"]
     :os:cli["cli"]
     :os:json["json"]
+    :os:catalog["catalog"]
   end
   subgraph :os:client
     :os:client:app["app"]
@@ -41,18 +41,11 @@ graph LR
     :os:client:passkeys:api["api"]
     :os:client:passkeys:real["real"]
   end
-  subgraph :os:distributions
-    :os:distributions:hosted["hosted"]
-    :os:distributions:homelab["homelab"]
-    :os:distributions:sandbox["sandbox"]
-  end
   subgraph :os:server
     :os:server:identifiers["identifiers"]
     :os:server:db["db"]
-    :os:server:testing["testing"]
-    :os:server:wiring["wiring"]
-    :os:server:okhttpclient["okhttpclient"]
     :os:server:wallpapers["wallpapers"]
+    :os:server:okhttpclient["okhttpclient"]
     :os:server:vault["vault"]
   end
   subgraph :os:server:accounts
@@ -89,13 +82,13 @@ graph LR
     :os:server:jobs:absurd["absurd"]
   end
   subgraph :os:server:ktor
-    :os:server:ktor:api["api"]
     :os:server:ktor:real["real"]
+    :os:server:ktor:api["api"]
   end
   subgraph :os:server:objectstore
     :os:server:objectstore:fs["fs"]
-    :os:server:objectstore:api["api"]
     :os:server:objectstore:s3["s3"]
+    :os:server:objectstore:api["api"]
   end
   subgraph :os:server:passkeys
     :os:server:passkeys:real["real"]
@@ -106,8 +99,8 @@ graph LR
     :os:server:payments:stripe["stripe"]
   end
   subgraph :os:server:permits
-    :os:server:permits:api["api"]
     :os:server:permits:real["real"]
+    :os:server:permits:api["api"]
   end
   subgraph :os:server:sendemail
     :os:server:sendemail:api["api"]
@@ -134,11 +127,11 @@ graph LR
   subgraph :support
     :support:tokens["tokens"]
     :support:issues["issues"]
-    :support:absurd["absurd"]
     :support:dom-tester["dom-tester"]
     :support:okio-html["okio-html"]
     :support:close-tracker["close-tracker"]
     :support:router["router"]
+    :support:absurd["absurd"]
   end
   subgraph :wasmox
     :wasmox:wasmox-sql["wasmox-sql"]
@@ -186,83 +179,6 @@ graph LR
   :os:server:wasm:api --> :platform:packaging
   :platform:packaging --> :identifiers
   :platform:packaging --> :support:issues
-  :os:server:testing --> :identifiers
-  :os:server:testing --> :os:api
-  :os:server:testing --> :os:framework
-  :os:server:testing --> :os:routes
-  :os:server:testing --> :os:server:accounts:api
-  :os:server:testing --> :os:server:accounts:real
-  :os:server:testing --> :os:server:calls:api
-  :os:server:testing --> :os:server:calls:real
-  :os:server:testing --> :os:server:computers:api
-  :os:server:testing --> :os:server:computers:real
-  :os:server:testing --> :os:server:db
-  :os:server:testing --> :os:server:emails:real
-  :os:server:testing --> :os:server:events:api
-  :os:server:testing --> :os:server:identifiers
-  :os:server:testing --> :os:server:installedapps:api
-  :os:server:testing --> :os:server:installedapps:real
-  :os:server:testing --> :os:server:jobs:absurd
-  :os:server:testing --> :os:server:jobs:api
-  :os:server:testing --> :os:server:objectstore:api
-  :os:server:testing --> :os:server:objectstore:fs
-  :os:server:testing --> :os:server:passkeys:api
-  :os:server:testing --> :os:server:passkeys:real
-  :os:server:testing --> :os:server:payments:api
-  :os:server:testing --> :os:server:payments:stripe
-  :os:server:testing --> :os:server:permits:api
-  :os:server:testing --> :os:server:permits:real
-  :os:server:testing --> :os:server:sendemail:api
-  :os:server:testing --> :os:server:sql:api
-  :os:server:testing --> :os:server:sql:real
-  :os:server:testing --> :os:server:sql:testing
-  :os:server:testing --> :os:server:wasm:api
-  :os:server:testing --> :os:server:wasm:jvm
-  :os:server:testing --> :os:server:website:api
-  :os:server:testing --> :os:server:website:real
-  :os:server:testing --> :platform:api
-  :os:server:testing --> :platform:packaging
-  :os:server:testing --> :platform:testing
-  :os:server:testing --> :support:absurd
-  :os:server:testing --> :support:tokens
-  :os:server:testing --> :wasmox:wasmox-sql
-  :os:server:wiring --> :apps:journal:wasmo-app
-  :os:server:wiring --> :identifiers
-  :os:server:wiring --> :os:api
-  :os:server:wiring --> :os:catalog
-  :os:server:wiring --> :os:framework
-  :os:server:wiring --> :os:routes
-  :os:server:wiring --> :os:server:accounts:api
-  :os:server:wiring --> :os:server:accounts:real
-  :os:server:wiring --> :os:server:calls:api
-  :os:server:wiring --> :os:server:calls:real
-  :os:server:wiring --> :os:server:calls:wiring
-  :os:server:wiring --> :os:server:computers:real
-  :os:server:wiring --> :os:server:db
-  :os:server:wiring --> :os:server:emails:real
-  :os:server:wiring --> :os:server:events:api
-  :os:server:wiring --> :os:server:events:logging
-  :os:server:wiring --> :os:server:identifiers
-  :os:server:wiring --> :os:server:installedapps:real
-  :os:server:wiring --> :os:server:jobs:absurd
-  :os:server:wiring --> :os:server:jobs:api
-  :os:server:wiring --> :os:server:ktor:api
-  :os:server:wiring --> :os:server:ktor:real
-  :os:server:wiring --> :os:server:objectstore:api
-  :os:server:wiring --> :os:server:objectstore:fs
-  :os:server:wiring --> :os:server:objectstore:s3
-  :os:server:wiring --> :os:server:okhttpclient
-  :os:server:wiring --> :os:server:passkeys:real
-  :os:server:wiring --> :os:server:payments:stripe
-  :os:server:wiring --> :os:server:permits:real
-  :os:server:wiring --> :os:server:sendemail:postmark
-  :os:server:wiring --> :os:server:sql:api
-  :os:server:wiring --> :os:server:sql:real
-  :os:server:wiring --> :os:server:wasm:api
-  :os:server:wiring --> :os:server:wasm:jvm
-  :os:server:wiring --> :os:server:website:real
-  :os:server:wiring --> :platform:api
-  :os:server:wiring --> :wasmox:wasmox-sql
   :os:server:payments:api --> :os:api
   :os:server:payments:api --> :identifiers
   :os:server:payments:api --> :platform:api
@@ -287,46 +203,6 @@ graph LR
   :os:server:website:api --> :os:framework
   :os:server:website:api --> :os:server:identifiers
   :os:server:website:api --> :platform:api
-  :os:distributions:hosted --> :apps:journal:wasmo-app
-  :os:distributions:hosted --> :apps:samples
-  :os:distributions:hosted --> :identifiers
-  :os:distributions:hosted --> :os:api
-  :os:distributions:hosted --> :os:catalog
-  :os:distributions:hosted --> :os:framework
-  :os:distributions:hosted --> :os:routes
-  :os:distributions:hosted --> :os:server:accounts:api
-  :os:distributions:hosted --> :os:server:accounts:real
-  :os:distributions:hosted --> :os:server:calls:api
-  :os:distributions:hosted --> :os:server:calls:real
-  :os:distributions:hosted --> :os:server:calls:wiring
-  :os:distributions:hosted --> :os:server:computers:api
-  :os:distributions:hosted --> :os:server:computers:real
-  :os:distributions:hosted --> :os:server:db
-  :os:distributions:hosted --> :os:server:emails:real
-  :os:distributions:hosted --> :os:server:events:api
-  :os:distributions:hosted --> :os:server:events:logging
-  :os:distributions:hosted --> :os:server:identifiers
-  :os:distributions:hosted --> :os:server:installedapps:real
-  :os:distributions:hosted --> :os:server:jobs:absurd
-  :os:distributions:hosted --> :os:server:jobs:api
-  :os:distributions:hosted --> :os:server:ktor:api
-  :os:distributions:hosted --> :os:server:ktor:real
-  :os:distributions:hosted --> :os:server:objectstore:api
-  :os:distributions:hosted --> :os:server:objectstore:fs
-  :os:distributions:hosted --> :os:server:objectstore:s3
-  :os:distributions:hosted --> :os:server:okhttpclient
-  :os:distributions:hosted --> :os:server:passkeys:real
-  :os:distributions:hosted --> :os:server:payments:stripe
-  :os:distributions:hosted --> :os:server:permits:real
-  :os:distributions:hosted --> :os:server:sendemail:postmark
-  :os:distributions:hosted --> :os:server:sql:api
-  :os:distributions:hosted --> :os:server:sql:real
-  :os:distributions:hosted --> :os:server:wasm:api
-  :os:distributions:hosted --> :os:server:wasm:jvm
-  :os:distributions:hosted --> :os:server:website:real
-  :os:distributions:hosted --> :platform:api
-  :os:distributions:hosted --> :wasmox:wasmox-sql
-  :os:distributions:hosted --> :os:client:app-hosted
   :os:server:ktor:real --> :os:api
   :os:server:ktor:real --> :os:framework
   :os:server:ktor:real --> :os:logging
@@ -355,46 +231,6 @@ graph LR
   :os:server:calls:real --> :wasmox:wasmox-sql
   :os:server:wallpapers --> :support:dom-tester
   :os:server:wallpapers --> :support:okio-html
-  :os:distributions:homelab --> :apps:journal:wasmo-app
-  :os:distributions:homelab --> :apps:samples
-  :os:distributions:homelab --> :identifiers
-  :os:distributions:homelab --> :os:api
-  :os:distributions:homelab --> :os:catalog
-  :os:distributions:homelab --> :os:framework
-  :os:distributions:homelab --> :os:routes
-  :os:distributions:homelab --> :os:server:accounts:api
-  :os:distributions:homelab --> :os:server:accounts:real
-  :os:distributions:homelab --> :os:server:calls:api
-  :os:distributions:homelab --> :os:server:calls:real
-  :os:distributions:homelab --> :os:server:calls:wiring
-  :os:distributions:homelab --> :os:server:computers:api
-  :os:distributions:homelab --> :os:server:computers:real
-  :os:distributions:homelab --> :os:server:db
-  :os:distributions:homelab --> :os:server:emails:real
-  :os:distributions:homelab --> :os:server:events:api
-  :os:distributions:homelab --> :os:server:events:logging
-  :os:distributions:homelab --> :os:server:identifiers
-  :os:distributions:homelab --> :os:server:installedapps:real
-  :os:distributions:homelab --> :os:server:jobs:absurd
-  :os:distributions:homelab --> :os:server:jobs:api
-  :os:distributions:homelab --> :os:server:ktor:api
-  :os:distributions:homelab --> :os:server:ktor:real
-  :os:distributions:homelab --> :os:server:objectstore:api
-  :os:distributions:homelab --> :os:server:objectstore:fs
-  :os:distributions:homelab --> :os:server:objectstore:s3
-  :os:distributions:homelab --> :os:server:okhttpclient
-  :os:distributions:homelab --> :os:server:passkeys:real
-  :os:distributions:homelab --> :os:server:payments:stripe
-  :os:distributions:homelab --> :os:server:permits:real
-  :os:distributions:homelab --> :os:server:sendemail:postmark
-  :os:distributions:homelab --> :os:server:sql:api
-  :os:distributions:homelab --> :os:server:sql:real
-  :os:distributions:homelab --> :os:server:wasm:api
-  :os:distributions:homelab --> :os:server:wasm:jvm
-  :os:distributions:homelab --> :os:server:website:real
-  :os:distributions:homelab --> :platform:api
-  :os:distributions:homelab --> :wasmox:wasmox-sql
-  :os:distributions:homelab --> :os:client:app-homelab
   :os:server:sql:api --> :identifiers
   :os:server:sql:api --> :platform:api
   :os:server:sql:api --> :support:close-tracker
@@ -502,46 +338,6 @@ graph LR
   :os:server:events:logging --> :os:server:installedapps:api
   :os:server:events:logging --> :support:issues
   :os:client:app-hosted --> :os:client:app
-  :os:distributions:sandbox --> :apps:journal:wasmo-app
-  :os:distributions:sandbox --> :apps:samples
-  :os:distributions:sandbox --> :identifiers
-  :os:distributions:sandbox --> :os:api
-  :os:distributions:sandbox --> :os:catalog
-  :os:distributions:sandbox --> :os:framework
-  :os:distributions:sandbox --> :os:routes
-  :os:distributions:sandbox --> :os:server:accounts:api
-  :os:distributions:sandbox --> :os:server:accounts:real
-  :os:distributions:sandbox --> :os:server:calls:api
-  :os:distributions:sandbox --> :os:server:calls:real
-  :os:distributions:sandbox --> :os:server:calls:wiring
-  :os:distributions:sandbox --> :os:server:computers:api
-  :os:distributions:sandbox --> :os:server:computers:real
-  :os:distributions:sandbox --> :os:server:db
-  :os:distributions:sandbox --> :os:server:emails:real
-  :os:distributions:sandbox --> :os:server:events:api
-  :os:distributions:sandbox --> :os:server:events:logging
-  :os:distributions:sandbox --> :os:server:identifiers
-  :os:distributions:sandbox --> :os:server:installedapps:real
-  :os:distributions:sandbox --> :os:server:jobs:absurd
-  :os:distributions:sandbox --> :os:server:jobs:api
-  :os:distributions:sandbox --> :os:server:ktor:api
-  :os:distributions:sandbox --> :os:server:ktor:real
-  :os:distributions:sandbox --> :os:server:objectstore:api
-  :os:distributions:sandbox --> :os:server:objectstore:fs
-  :os:distributions:sandbox --> :os:server:objectstore:s3
-  :os:distributions:sandbox --> :os:server:okhttpclient
-  :os:distributions:sandbox --> :os:server:passkeys:real
-  :os:distributions:sandbox --> :os:server:payments:stripe
-  :os:distributions:sandbox --> :os:server:permits:real
-  :os:distributions:sandbox --> :os:server:sendemail:postmark
-  :os:distributions:sandbox --> :os:server:sql:api
-  :os:distributions:sandbox --> :os:server:sql:real
-  :os:distributions:sandbox --> :os:server:wasm:api
-  :os:distributions:sandbox --> :os:server:wasm:jvm
-  :os:distributions:sandbox --> :os:server:website:real
-  :os:distributions:sandbox --> :platform:api
-  :os:distributions:sandbox --> :wasmox:wasmox-sql
-  :os:distributions:sandbox --> :os:client:app-sandbox
   :os:server:emails:attachments --> :os:server:sendemail:api
   :os:server:calls:api --> :os:api
   :os:server:calls:api --> :os:framework
