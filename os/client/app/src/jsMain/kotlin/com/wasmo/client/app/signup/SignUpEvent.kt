@@ -1,10 +1,12 @@
 package com.wasmo.client.app.signup
 
+import com.wasmo.identifiers.UsernameSlug
+
 
 sealed interface SignUpEvent {
-  object ClickSendCode : SignUpEvent
+  data object ClickSendCode : SignUpEvent
 
-  object ClickSubmitCode : SignUpEvent
+  data object ClickSubmitCode : SignUpEvent
 
   data class EditEmailAddress(
     val emailAddress: String,
@@ -13,5 +15,16 @@ sealed interface SignUpEvent {
   data class EditChallengeCode(
     val challengeCode: String,
   ) : SignUpEvent
-}
 
+  data class ClickUsername(
+    val usernameSlug: UsernameSlug,
+  ) : SignUpEvent
+
+  data class EditUsername(
+    val username: String,
+  ) : SignUpEvent
+
+  data object ClickSignUpWithUsername : SignUpEvent
+
+  data object ClickNewAccount : SignUpEvent
+}

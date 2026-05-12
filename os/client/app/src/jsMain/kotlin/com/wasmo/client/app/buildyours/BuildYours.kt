@@ -10,11 +10,14 @@ import com.wasmo.compose.Button
 import com.wasmo.compose.Checkbox
 import com.wasmo.compose.Column
 import com.wasmo.compose.PageLayout
+import com.wasmo.compose.TextField
 import com.wasmo.identifiers.ComputerSlug
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.dom.Br
 import org.jetbrains.compose.web.dom.H2
+import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.Li
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Section
@@ -45,14 +48,23 @@ fun BuildYoursScreen(
           Text("Give it a name:")
         }
 
-        com.wasmo.compose.WasmoNameTextField(
+        TextField(
+          caption = "$nameState.wasmo.com is available.",
+          groupedInputs = {
+            Input(
+              type = InputType.Text,
+              attrs = {
+                disabled()
+                defaultValue(".wasmo.com")
+              },
+            )
+          },
           inputAttrs = {
             value(nameState)
             onInput { event ->
               nameState = event.value
             }
           },
-          caption = "$nameState.wasmo.com is available.",
         )
 
         P {
