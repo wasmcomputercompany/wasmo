@@ -6,6 +6,8 @@ import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Presenter
+import com.wasmo.identifiers.UsernameSlug
+import com.wasmo.identifiers.UsernameSlugRegex
 import com.wasmo.support.tokens.toChallengeCodeOrNull
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -23,8 +25,9 @@ class SignUpPresenter(
 ) : Presenter<SignUpModel, SignUpEvent> {
   private val mutableModel = MutableStateFlow(
     SignUpModel(
-      emailAddressCaption = "We’ll email you a challenge code",
-      challengeCodeCaption = "",
+      enterEmailAddress = EnterEmailAddressModel(
+        emailAddressHelperText = "We’ll email you a challenge code",
+      ),
     ),
   )
 
@@ -36,22 +39,27 @@ class SignUpPresenter(
       is SignUpEvent.EditEmailAddress -> {
         mutableModel.update {
           it.copy(
-            emailAddress = event.emailAddress,
-            canSubmitEmailAddress = event.emailAddress.isNotEmpty(),
+            enterEmailAddress = it.enterEmailAddress?.copy(
+              emailAddress = event.emailAddress,
+              canSubmit = event.emailAddress.isNotEmpty(),
+            ),
           )
         }
       }
 
       is SignUpEvent.ClickSendCode -> {
         callServer { state ->
+          val emailAddress = state.enterEmailAddress!!.emailAddress
           val challengeToken = accountDataService.linkEmailAddress(
-            unverifiedEmailAddress = state.emailAddress,
+            unverifiedEmailAddress = emailAddress,
           )
           mutableModel.update {
             it.copy(
-              challengeCodeEmailAddress = state.emailAddress,
-              challengeCodeCaption = "Enter the code sent to ${state.emailAddress}",
-              challengeToken = challengeToken,
+              enterChallengeCode = EnterChallengeCodeModel(
+                challengeCodeEmailAddress = emailAddress,
+                challengeCodeHelperText = "Enter the code sent to $emailAddress",
+                challengeToken = challengeToken,
+              ),
             )
           }
         }
@@ -59,24 +67,24 @@ class SignUpPresenter(
 
       is SignUpEvent.EditChallengeCode -> {
         mutableModel.update {
+          val enterChallengeCode = it.enterChallengeCode ?: return // Race.
           it.copy(
-            canSubmitChallengeCode = event.challengeCode.toChallengeCodeOrNull() != null,
-            challengeCode = event.challengeCode,
+            enterChallengeCode = enterChallengeCode.copy(
+              challengeCode = event.challengeCode,
+              canSubmit = event.challengeCode.toChallengeCodeOrNull() != null,
+            ),
           )
         }
       }
 
       SignUpEvent.ClickSubmitCode -> {
         callServer { state ->
-          val challengeToken = state.challengeToken
-            ?: return@callServer // Race?
-          val challengeCodeEmailAddress = state.challengeCodeEmailAddress
-            ?: return@callServer // Race?
+          val challengeCodeModel = state.enterChallengeCode ?: return@callServer // Race.
 
           val response = accountDataService.confirmEmailAddress(
-            unverifiedEmailAddress = challengeCodeEmailAddress,
-            challengeToken = challengeToken,
-            challengeCode = state.challengeCode,
+            unverifiedEmailAddress = challengeCodeModel.challengeCodeEmailAddress,
+            challengeToken = challengeCodeModel.challengeToken,
+            challengeCode = challengeCodeModel.challengeCode,
           )
 
           when (response.decision) {
@@ -92,8 +100,10 @@ class SignUpPresenter(
             Decision.BadRequest -> {
               mutableModel.update {
                 it.copy(
-                  canSubmitChallengeCode = true,
-                  challengeCodeCaption = "Something broke.",
+                  enterChallengeCode = challengeCodeModel.copy(
+                    canSubmit = true,
+                    challengeCodeHelperText = "Something broke.",
+                  ),
                 )
               }
             }
@@ -101,8 +111,10 @@ class SignUpPresenter(
             Decision.WrongChallengeCode -> {
               mutableModel.update {
                 it.copy(
-                  canSubmitChallengeCode = true,
-                  challengeCodeCaption = "That ain't it. Try again.",
+                  enterChallengeCode = challengeCodeModel.copy(
+                    canSubmit = true,
+                    challengeCodeHelperText = "That ain't it. Try again.",
+                  ),
                 )
               }
             }
@@ -110,12 +122,49 @@ class SignUpPresenter(
             Decision.TooManyAttempts -> {
               mutableModel.update {
                 it.copy(
-                  canSubmitChallengeCode = true,
-                  challengeCodeCaption = "That ain't it. Give up!",
+                  enterChallengeCode = challengeCodeModel.copy(
+                    canSubmit = true,
+                    challengeCodeHelperText = "That ain't it. Give up!",
+                  ),
                 )
               }
             }
           }
+        }
+      }
+
+      is SignUpEvent.EditUsername -> {
+        mutableModel.update {
+          val usernameModel = it.newAccountWithUsername ?: return // Race.
+          it.copy(
+            newAccountWithUsername = usernameModel.copy(
+              username = event.username,
+              canSubmit = UsernameSlugRegex.matches(event.username),
+            ),
+          )
+        }
+      }
+
+      SignUpEvent.ClickSignUpWithUsername -> {
+        callServer { state ->
+          val usernameModel = state.newAccountWithUsername ?: return@callServer // Race.
+          accountDataService.createUsername(UsernameSlug(usernameModel.username))
+          router.goTo(HomeRoute, TransitionDirection.PUSH)
+        }
+      }
+
+      is SignUpEvent.ClickUsername -> {
+        callServer {
+          accountDataService.linkUsername(event.usernameSlug)
+          router.goTo(HomeRoute, TransitionDirection.PUSH)
+        }
+      }
+
+      SignUpEvent.ClickNewAccount -> {
+        mutableModel.update { state ->
+          state.copy(
+            newAccountWithUsername = NewAccountWithUsernameModel()
+          )
         }
       }
     }

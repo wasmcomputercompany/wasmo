@@ -24,4 +24,12 @@ interface WasmoApi {
   suspend fun createComputerSpec(
     request: CreateComputerSpecRequest,
   ): CreateComputerSpecResponse
+
+  suspend fun createUsername(
+    request: CreateUsernameRequest,
+  ): CreateUsernameResponse
+
+  suspend fun linkUsername(
+    request: LinkUsernameRequest,
+  ): LinkUsernameResponse
 }

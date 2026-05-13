@@ -22,27 +22,62 @@ class SignUpUi(
   ) {
     val state by presenter.model.collectAsState()
 
-    if (state.challengeCodeEmailAddress == null) {
-      EnterEmailAddressScreen(
-        attrs = attrs,
-        eventListener = presenter::onEvent,
-        emailAddress = state.emailAddress,
-        emailAddressCaption = state.emailAddressCaption,
-        canSubmit = state.canSubmitEmailAddress,
-        disabled = state.inFlightCalls > 0,
-        busy = state.inFlightCalls > 0,
-      )
-    } else {
+    val enterChallengeCodeModel = state.enterChallengeCode
+    if (enterChallengeCodeModel != null) {
       EnterChallengeCodeScreen(
         attrs = attrs,
         eventListener = presenter::onEvent,
-        challengeCode = state.challengeCode,
-        challengeCodeCaption = state.challengeCodeCaption,
-        canSubmit = state.canSubmitChallengeCode,
+        challengeCode = enterChallengeCodeModel.challengeCode,
+        challengeCodeHelperText = enterChallengeCodeModel.challengeCodeHelperText,
+        canSubmit = enterChallengeCodeModel.canSubmit,
         disabled = state.inFlightCalls > 0,
         busy = state.inFlightCalls > 0,
       )
+      return
     }
+
+    val enterEmailAddressModel = state.enterEmailAddress
+    if (enterEmailAddressModel != null) {
+      EnterEmailAddressScreen(
+        attrs = attrs,
+        eventListener = presenter::onEvent,
+        emailAddress = enterEmailAddressModel.emailAddress,
+        emailAddressHelperText = enterEmailAddressModel.emailAddressHelperText,
+        canSubmit = enterEmailAddressModel.canSubmit,
+        disabled = state.inFlightCalls > 0,
+        busy = state.inFlightCalls > 0,
+      )
+      return
+    }
+
+    val newAccountWithUsernameModel = state.newAccountWithUsername
+    if (newAccountWithUsernameModel != null) {
+      NewAccountWithUsernameScreen(
+        attrs = attrs,
+        eventListener = presenter::onEvent,
+        username = newAccountWithUsernameModel.username,
+        usernameHelperText = newAccountWithUsernameModel.usernameHelperText,
+        canSubmit = newAccountWithUsernameModel.canSubmit,
+        disabled = state.inFlightCalls > 0,
+        busy = state.inFlightCalls > 0,
+      )
+      return
+    }
+
+    val selectUsernameToSignInModel = state.selectUsernameToSignIn
+    if (selectUsernameToSignInModel != null) {
+      SelectUsernameToSignInScreen(
+        attrs = attrs,
+        eventListener = presenter::onEvent,
+        options = selectUsernameToSignInModel.usernameOptions,
+        canCreateUsername = selectUsernameToSignInModel.canCreateUsername,
+        canSubmit = selectUsernameToSignInModel.canSubmit,
+        busy = state.inFlightCalls > 0,
+      )
+      return
+    }
+
+    error("no screen?")
   }
 
   @AssistedFactory

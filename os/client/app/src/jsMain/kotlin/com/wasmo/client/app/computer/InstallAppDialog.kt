@@ -42,7 +42,7 @@ fun InstallAppDialog(
       ) {
         TextField(
           label = "App URL",
-          caption = "Paste the URL of the app to install.",
+          helperText = "Paste the URL of the app to install.",
           inputAttrs = {
             value(appUrlState)
             onInput { event ->

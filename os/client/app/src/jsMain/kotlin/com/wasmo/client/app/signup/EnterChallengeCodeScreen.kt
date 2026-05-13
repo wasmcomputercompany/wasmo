@@ -19,7 +19,7 @@ fun EnterChallengeCodeScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (SignUpEvent) -> Unit,
   challengeCode: String,
-  challengeCodeCaption: String,
+  challengeCodeHelperText: String,
   disabled: Boolean,
   canSubmit: Boolean,
   busy: Boolean,
@@ -55,7 +55,7 @@ fun EnterChallengeCodeScreen(
         TextField(
           label = "Challenge Code",
           disabled = disabled,
-          caption = challengeCodeCaption,
+          helperText = challengeCodeHelperText,
         ) {
           defaultValue(challengeCode)
           onInput { event ->

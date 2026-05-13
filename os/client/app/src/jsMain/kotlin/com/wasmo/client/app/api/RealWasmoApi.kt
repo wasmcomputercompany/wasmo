@@ -6,10 +6,14 @@ import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.CreateComputerSpecResponse
+import com.wasmo.api.CreateUsernameRequest
+import com.wasmo.api.CreateUsernameResponse
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.InstallAppResponse
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkEmailAddressResponse
+import com.wasmo.api.LinkUsernameRequest
+import com.wasmo.api.LinkUsernameResponse
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.api.WasmoApi
@@ -59,6 +63,18 @@ class RealWasmoApi : WasmoApi {
     request: CreateComputerSpecRequest,
   ): CreateComputerSpecResponse {
     return call("/create-computer-spec", request)
+  }
+
+  override suspend fun createUsername(
+    request: CreateUsernameRequest,
+  ): CreateUsernameResponse {
+    return call("/create-username", request)
+  }
+
+  override suspend fun linkUsername(
+    request: LinkUsernameRequest,
+  ): LinkUsernameResponse {
+    return call("/link-username", request)
   }
 
   suspend inline fun <reified S, reified R> call(

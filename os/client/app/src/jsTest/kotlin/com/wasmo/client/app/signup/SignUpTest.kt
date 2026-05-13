@@ -6,6 +6,7 @@ import app.cash.burst.burstValues
 import com.wasmo.domtester.DarkMode
 import com.wasmo.domtester.Frame
 import com.wasmo.domtester.SnapshotTester
+import com.wasmo.identifiers.UsernameSlug
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
@@ -40,10 +41,58 @@ class SignUpTest {
           classes("FillWidthHeight")
         },
         emailAddress = "",
-        emailAddressCaption = "We’ll email you a challenge code",
+        emailAddressHelperText = "We’ll email you a challenge code",
         canSubmit = true,
         busy = false,
         disabled = false,
+        eventListener = {
+        },
+      )
+    }
+  }
+
+  @Test
+  fun selectUsernameToSignIn(
+    darkMode: DarkMode,
+  ) = runTest {
+    snapshotTester.snapshot(
+      darkMode = darkMode,
+      background = "var(--pico-background-color)",
+    ) {
+      SelectUsernameToSignInScreen(
+        attrs = {
+          classes("FillWidthHeight")
+        },
+        options = listOf(
+          UsernameSlug("admin"),
+          UsernameSlug("jesse"),
+        ),
+        canSubmit = true,
+        busy = false,
+        canCreateUsername = true,
+        eventListener = {
+        },
+      )
+    }
+  }
+
+  @Test
+  fun newAccountWithUsername(
+    darkMode: DarkMode,
+  ) = runTest {
+    snapshotTester.snapshot(
+      darkMode = darkMode,
+      background = "var(--pico-background-color)",
+    ) {
+      NewAccountWithUsernameScreen(
+        attrs = {
+          classes("FillWidthHeight")
+        },
+        username = "",
+        usernameHelperText = "",
+        disabled = false,
+        canSubmit = true,
+        busy = false,
         eventListener = {
         },
       )
@@ -58,7 +107,7 @@ class SignUpTest {
           classes("FillWidthHeight")
         },
         challengeCode = "",
-        challengeCodeCaption = "Enter the code sent to jesse@example.com",
+        challengeCodeHelperText = "Enter the code sent to jesse@example.com",
         canSubmit = true,
         busy = false,
         disabled = false,
