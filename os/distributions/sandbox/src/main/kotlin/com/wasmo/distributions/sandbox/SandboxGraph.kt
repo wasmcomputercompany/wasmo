@@ -4,6 +4,7 @@ import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.accounts.passkeys.AccountsPasskeysBindings
+import com.wasmo.accounts.usernames.AccountsUsernamesBindings
 import com.wasmo.calls.CallGraph
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerServiceGraph
@@ -45,6 +46,7 @@ import wasmo.sql.SqlDatabase
     AbsurdBindings::class,
     AccountsBindings::class,
     AccountsPasskeysBindings::class,
+    AccountsUsernamesBindings::class,
     ComputersBindings::class,
     EmailBindings::class,
     FileSystemObjectStoreBindings::class,
