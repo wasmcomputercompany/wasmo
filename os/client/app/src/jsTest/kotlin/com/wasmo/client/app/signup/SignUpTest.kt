@@ -41,7 +41,7 @@ class SignUpTest {
           classes("FillWidthHeight")
         },
         emailAddress = "",
-        emailAddressCaption = "We’ll email you a challenge code",
+        emailAddressHelperText = "We’ll email you a challenge code",
         canSubmit = true,
         busy = false,
         disabled = false,
@@ -89,7 +89,7 @@ class SignUpTest {
           classes("FillWidthHeight")
         },
         username = "",
-        usernameCaption = "",
+        usernameHelperText = "",
         disabled = false,
         canSubmit = true,
         busy = false,
@@ -107,7 +107,7 @@ class SignUpTest {
           classes("FillWidthHeight")
         },
         challengeCode = "",
-        challengeCodeCaption = "Enter the code sent to jesse@example.com",
+        challengeCodeHelperText = "Enter the code sent to jesse@example.com",
         canSubmit = true,
         busy = false,
         disabled = false,

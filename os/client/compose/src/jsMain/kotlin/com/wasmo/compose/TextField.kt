@@ -15,7 +15,7 @@ fun TextField(
   label: String? = null,
   ariaLabel: String? = null,
   disabled: Boolean = false,
-  caption: String? = null,
+  helperText: String? = null,
   groupedInputs: (@Composable DOMScope<HTMLFieldSetElement>.() -> Unit)? = null,
   inputAttrs: InputAttrsScope<String>.() -> Unit,
 ) {
@@ -49,13 +49,13 @@ fun TextField(
       )
     }
 
-    if (caption != null) {
+    if (helperText != null) {
       Small(
         attrs = {
           id(inputId)
         },
       ) {
-        Text(caption)
+        Text(helperText)
       }
     }
   }

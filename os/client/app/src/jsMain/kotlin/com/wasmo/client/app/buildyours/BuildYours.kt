@@ -49,7 +49,7 @@ fun BuildYoursScreen(
         }
 
         TextField(
-          caption = "$nameState.wasmo.com is available.",
+          helperText = "$nameState.wasmo.com is available.",
           groupedInputs = {
             Input(
               type = InputType.Text,

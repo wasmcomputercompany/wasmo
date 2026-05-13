@@ -21,7 +21,7 @@ import org.w3c.dom.HTMLElement
 fun EnterEmailAddressScreen(
   attrs: AttrsScope<HTMLElement>.() -> Unit = {},
   emailAddress: String,
-  emailAddressCaption: String,
+  emailAddressHelperText: String,
   disabled: Boolean,
   canSubmit: Boolean,
   busy: Boolean,
@@ -59,7 +59,7 @@ fun EnterEmailAddressScreen(
           label = "Email Address",
           ariaLabel = "Email",
           disabled = disabled,
-          caption = emailAddressCaption,
+          helperText = emailAddressHelperText,
         ) {
           defaultValue(emailAddress)
           placeholder("name@example.com")

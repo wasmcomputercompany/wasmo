@@ -10,6 +10,7 @@ import com.wasmo.api.LinkUsernameRequest
 import com.wasmo.api.LinkUsernameResponse
 import com.wasmo.api.WasmoApi
 import com.wasmo.client.identifiers.ClientAppScope
+import com.wasmo.identifiers.UsernameSlug
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,11 +35,11 @@ interface AccountDataService {
   ): ConfirmEmailAddressResponse
 
   suspend fun createUsername(
-    username: String,
+    username: UsernameSlug,
   ): CreateUsernameResponse
 
   suspend fun linkUsername(
-    username: String,
+    username: UsernameSlug,
   ): LinkUsernameResponse
 }
 
@@ -80,7 +81,7 @@ class RealAccountDataService(
   )
 
   override suspend fun createUsername(
-    username: String,
+    username: UsernameSlug,
   ) = wasmoApi.createUsername(
     CreateUsernameRequest(
       username = username,
@@ -88,7 +89,7 @@ class RealAccountDataService(
   )
 
   override suspend fun linkUsername(
-    username: String,
+    username: UsernameSlug,
   ) = wasmoApi.linkUsername(
     LinkUsernameRequest(
       username = username,

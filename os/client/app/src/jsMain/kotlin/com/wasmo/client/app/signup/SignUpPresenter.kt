@@ -6,6 +6,7 @@ import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Presenter
+import com.wasmo.identifiers.UsernameSlug
 import com.wasmo.identifiers.UsernameSlugRegex
 import com.wasmo.support.tokens.toChallengeCodeOrNull
 import dev.zacsweers.metro.AssistedFactory
@@ -24,8 +25,8 @@ class SignUpPresenter(
 ) : Presenter<SignUpModel, SignUpEvent> {
   private val mutableModel = MutableStateFlow(
     SignUpModel(
-      enterEmailAddressModel = EnterEmailAddressModel(
-        emailAddressCaption = "We’ll email you a challenge code",
+      enterEmailAddress = EnterEmailAddressModel(
+        emailAddressHelperText = "We’ll email you a challenge code",
       ),
     ),
   )
@@ -38,7 +39,7 @@ class SignUpPresenter(
       is SignUpEvent.EditEmailAddress -> {
         mutableModel.update {
           it.copy(
-            enterEmailAddressModel = it.enterEmailAddressModel?.copy(
+            enterEmailAddress = it.enterEmailAddress?.copy(
               emailAddress = event.emailAddress,
               canSubmit = event.emailAddress.isNotEmpty(),
             ),
@@ -48,7 +49,7 @@ class SignUpPresenter(
 
       is SignUpEvent.ClickSendCode -> {
         callServer { state ->
-          val emailAddress = state.enterEmailAddressModel!!.emailAddress
+          val emailAddress = state.enterEmailAddress!!.emailAddress
           val challengeToken = accountDataService.linkEmailAddress(
             unverifiedEmailAddress = emailAddress,
           )
@@ -56,7 +57,7 @@ class SignUpPresenter(
             it.copy(
               enterChallengeCode = EnterChallengeCodeModel(
                 challengeCodeEmailAddress = emailAddress,
-                challengeCodeCaption = "Enter the code sent to $emailAddress",
+                challengeCodeHelperText = "Enter the code sent to $emailAddress",
                 challengeToken = challengeToken,
               ),
             )
@@ -101,7 +102,7 @@ class SignUpPresenter(
                 it.copy(
                   enterChallengeCode = challengeCodeModel.copy(
                     canSubmit = true,
-                    challengeCodeCaption = "Something broke.",
+                    challengeCodeHelperText = "Something broke.",
                   ),
                 )
               }
@@ -112,7 +113,7 @@ class SignUpPresenter(
                 it.copy(
                   enterChallengeCode = challengeCodeModel.copy(
                     canSubmit = true,
-                    challengeCodeCaption = "That ain't it. Try again.",
+                    challengeCodeHelperText = "That ain't it. Try again.",
                   ),
                 )
               }
@@ -123,7 +124,7 @@ class SignUpPresenter(
                 it.copy(
                   enterChallengeCode = challengeCodeModel.copy(
                     canSubmit = true,
-                    challengeCodeCaption = "That ain't it. Give up!",
+                    challengeCodeHelperText = "That ain't it. Give up!",
                   ),
                 )
               }
@@ -147,14 +148,14 @@ class SignUpPresenter(
       SignUpEvent.ClickSignUpWithUsername -> {
         callServer { state ->
           val usernameModel = state.newAccountWithUsername ?: return@callServer // Race.
-          accountDataService.createUsername(usernameModel.username)
+          accountDataService.createUsername(UsernameSlug(usernameModel.username))
           router.goTo(HomeRoute, TransitionDirection.PUSH)
         }
       }
 
       is SignUpEvent.ClickUsername -> {
         callServer {
-          accountDataService.linkUsername(event.usernameSlug.value)
+          accountDataService.linkUsername(event.usernameSlug)
           router.goTo(HomeRoute, TransitionDirection.PUSH)
         }
       }

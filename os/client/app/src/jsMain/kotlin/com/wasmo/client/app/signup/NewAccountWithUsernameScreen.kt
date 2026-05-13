@@ -15,7 +15,7 @@ fun NewAccountWithUsernameScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (SignUpEvent) -> Unit,
   username: String,
-  usernameCaption: String,
+  usernameHelperText: String,
   disabled: Boolean,
   canSubmit: Boolean,
   busy: Boolean,
@@ -35,7 +35,7 @@ fun NewAccountWithUsernameScreen(
 
       TextField(
         label = "Username",
-        caption = usernameCaption,
+        helperText = usernameHelperText,
         disabled = disabled,
         inputAttrs = {
           defaultValue(username)

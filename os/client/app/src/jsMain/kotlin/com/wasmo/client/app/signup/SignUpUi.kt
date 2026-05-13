@@ -28,7 +28,7 @@ class SignUpUi(
         attrs = attrs,
         eventListener = presenter::onEvent,
         challengeCode = enterChallengeCodeModel.challengeCode,
-        challengeCodeCaption = enterChallengeCodeModel.challengeCodeCaption,
+        challengeCodeHelperText = enterChallengeCodeModel.challengeCodeHelperText,
         canSubmit = enterChallengeCodeModel.canSubmit,
         disabled = state.inFlightCalls > 0,
         busy = state.inFlightCalls > 0,
@@ -36,13 +36,13 @@ class SignUpUi(
       return
     }
 
-    val enterEmailAddressModel = state.enterEmailAddressModel
+    val enterEmailAddressModel = state.enterEmailAddress
     if (enterEmailAddressModel != null) {
       EnterEmailAddressScreen(
         attrs = attrs,
         eventListener = presenter::onEvent,
         emailAddress = enterEmailAddressModel.emailAddress,
-        emailAddressCaption = enterEmailAddressModel.emailAddressCaption,
+        emailAddressHelperText = enterEmailAddressModel.emailAddressHelperText,
         canSubmit = enterEmailAddressModel.canSubmit,
         disabled = state.inFlightCalls > 0,
         busy = state.inFlightCalls > 0,
@@ -56,7 +56,7 @@ class SignUpUi(
         attrs = attrs,
         eventListener = presenter::onEvent,
         username = newAccountWithUsernameModel.username,
-        usernameCaption = newAccountWithUsernameModel.usernameCaption,
+        usernameHelperText = newAccountWithUsernameModel.usernameHelperText,
         canSubmit = newAccountWithUsernameModel.canSubmit,
         disabled = state.inFlightCalls > 0,
         busy = state.inFlightCalls > 0,
@@ -64,7 +64,7 @@ class SignUpUi(
       return
     }
 
-    val selectUsernameToSignInModel = state.selectUsernameToSign
+    val selectUsernameToSignInModel = state.selectUsernameToSignIn
     if (selectUsernameToSignInModel != null) {
       SelectUsernameToSignInScreen(
         attrs = attrs,
