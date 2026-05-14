@@ -5,10 +5,12 @@ import com.wasmo.accounts.Client
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.SignInSnapshot
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.HomeRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.RoutingContext
+import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.calls.CallDataService
 import com.wasmo.computers.ComputerService
 import com.wasmo.computers.ComputerStore
@@ -42,6 +44,7 @@ class OsPage(
     var inviteTicket: InviteTicket? = null
     var computerService: ComputerService? = null
     var computerListSnapshot: ComputerListSnapshot? = null
+    var signInSnapshot: SignInSnapshot? = null
 
     wasmoDb.transaction {
       accountSnapshot = callDataService.accountSnapshot()
@@ -63,6 +66,12 @@ class OsPage(
             ?: throw NotFoundUserException()
         }
 
+        is SignUpRoute -> {
+          // TODO: Add SignInRoute, add signInSnapshot only there
+          // TODO: Make SignInSnapshot responsible for all sign-in options, not only username.
+          signInSnapshot = callDataService.signInSnapshot().takeIf { it.usernameOptions.isNotEmpty() }
+        }
+
         else -> {
         }
       }
@@ -74,6 +83,7 @@ class OsPage(
       inviteTicket = inviteTicket,
       computerSnapshot = computerService?.snapshot(),
       computerListSnapshot = computerListSnapshot,
+      signInSnapshot = signInSnapshot,
     )
   }
 

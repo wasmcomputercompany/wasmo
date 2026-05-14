@@ -4,6 +4,7 @@ import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.SignInSnapshot
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.stripe.StripePublishableKey
@@ -35,6 +36,7 @@ class RealServerOsHtml(
   @Assisted override val inviteTicket: InviteTicket?,
   @Assisted override val computerSnapshot: ComputerSnapshot?,
   @Assisted override val computerListSnapshot: ComputerListSnapshot?,
+  @Assisted override val signInSnapshot: SignInSnapshot?,
 ) : ServerOsHtml, ResponseBody {
   val pageData: MapPageData
     get() = MapPageData.Builder(WasmoJson)
@@ -50,6 +52,9 @@ class RealServerOsHtml(
         }
         if (computerListSnapshot != null) {
           put("computer_list_snapshot", computerListSnapshot)
+        }
+        if (signInSnapshot != null) {
+          put("sign_in_snapshot", signInSnapshot)
         }
       }
       .build()
@@ -127,6 +132,7 @@ class RealServerOsHtml(
       inviteTicket: InviteTicket?,
       computerSnapshot: ComputerSnapshot?,
       computerListSnapshot: ComputerListSnapshot?,
+      signInSnapshot: SignInSnapshot?,
     ): RealServerOsHtml
   }
 }
