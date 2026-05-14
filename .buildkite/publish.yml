@@ -3,7 +3,7 @@ steps:
     command: "gradle publishAndReleaseToMavenCentral"
     plugins:
       - docker#v5.9.0:
-          image: "gradle:9.5.0-jdk21-alpine"
+          image: "wasmo/ci:latest"
           environment:
             - "ORG_GRADLE_PROJECT_mavenCentralUsername"
             - "ORG_GRADLE_PROJECT_mavenCentralPassword"
