@@ -39,6 +39,7 @@ import wasmo.http.FakeHttpService
 import wasmo.objectstore.FakeObjectStore
 import wasmo.sql.SqlDatabase
 import wasmo.time.FakeClock
+import wasmox.sql.transaction
 import wasmox.sql.withConnection
 
 /**
@@ -160,7 +161,7 @@ class ServiceTester : CoroutineTestInterceptor {
             fileSystem = fileSystem,
             testDirectory = testDirectory,
           )
-          wasmoDb.withConnection {
+          wasmoDb.transaction {
             graph.migrator.ensureSchemaVersion()
           }
           graph.absurdService.createQueue()

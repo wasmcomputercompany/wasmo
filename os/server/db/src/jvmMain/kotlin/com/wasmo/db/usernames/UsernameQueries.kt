@@ -9,6 +9,7 @@ import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
+import wasmox.sql.SqlTransaction
 import wasmox.sql.singleOrNull
 
 context(connection: SqlConnection)
@@ -41,12 +42,10 @@ suspend fun insertUsername(
  * Deletes [replacedUsername] at [replacedAt] and inserts a new
  * [replacementUsername] row for the same [accountId], created at [replacedAt].
  *
- * This method should be called in a transaction.
- *
  * @throws SqlException if [replacedUsername] is not found, doesn't belong to the given
  *      account, or is already deleted.
  */
-context(connection: SqlConnection)
+context(sqlTransaction: SqlTransaction)
 suspend fun replaceUsername(
   replacedAt: Instant,
   accountId: AccountId,

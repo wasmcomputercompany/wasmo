@@ -10,6 +10,7 @@ import okio.Path
 import okio.Path.Companion.toPath
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlException
+import wasmox.sql.SqlTransaction
 
 interface Migrator {
 
@@ -18,14 +19,14 @@ interface Migrator {
    *
    * @param targetSchema the schema version to upgrade to, or null to upgrade to the latest version.
    */
-  context(sqlConnection: SqlConnection)
+  context(sqlTransaction: SqlTransaction)
   suspend fun ensureSchemaVersion(targetSchema: NamedSchema? = null)
 }
 
 @Inject
 @SingleIn(OsScope::class)
 open class RealMigrator(
-  private val customPostUpgradeSteps: Map<Long, suspend context(SqlConnection) () -> Unit> = emptyMap(),
+  private val customPostUpgradeSteps: Map<Long, suspend context(SqlTransaction) () -> Unit> = emptyMap(),
 ) : Migrator {
 
   /**
@@ -37,7 +38,7 @@ open class RealMigrator(
    *
    * Migration files must be named like `v1__Account.sql`. They're applied in number order.
    */
-  context(sqlConnection: SqlConnection)
+  context(sqlTransaction: SqlTransaction)
   private suspend fun migrate(
     oldVersion: Long,
     newVersion: Long,
@@ -55,13 +56,13 @@ open class RealMigrator(
         val migrationSql = FileSystem.RESOURCES.read(migration.path) {
           readUtf8()
         }
-        sqlConnection.execute(migrationSql)
-        customPostUpgradeSteps[migration.version]?.invoke(sqlConnection)
+        sqlTransaction.sqlConnection.execute(migrationSql)
+        customPostUpgradeSteps[migration.version]?.invoke(sqlTransaction)
       }
     }
   }
 
-  context(sqlConnection: SqlConnection)
+  context(sqlTransaction: SqlTransaction)
   override suspend fun ensureSchemaVersion(
     targetSchema: NamedSchema?,
   ) {
