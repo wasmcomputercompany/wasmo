@@ -100,8 +100,13 @@ class SignUpTest {
   }
 
   @Test
-  fun enterChallengeCode() = runTest {
-    snapshotTester.snapshot {
+  fun enterChallengeCode(
+    darkMode: DarkMode,
+  ) = runTest {
+    snapshotTester.snapshot(
+      darkMode = darkMode,
+      background = "var(--pico-background-color)",
+    ) {
       EnterChallengeCodeScreen(
         attrs = {
           classes("FillWidthHeight")
