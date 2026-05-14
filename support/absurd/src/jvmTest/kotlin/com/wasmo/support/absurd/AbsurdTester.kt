@@ -54,12 +54,15 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
 
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    val connectOptions = PgConnectOptions()
-      .setHost("localhost")
-      .setDatabase("absurd_test")
-      .setUser("postgres")
-      .setPassword("password")
-      .setSslMode(SslMode.DISABLE)
+    val adminConnectOptions = connectOptions("postgres")
+    val connectOptions = connectOptions("absurd_test")
+
+    // Create the absurd_test DB (if it doesn't exist already).
+    PostgresqlClient(adminConnectOptions).use { client ->
+      client.withConnection {
+        createDatabaseIfAbsent(connectOptions.database)
+      }
+    }
 
     val postgresql = PostgresqlClient(connectOptions)
     postgresql.withConnection {
@@ -82,6 +85,18 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
     } finally {
       run = null
     }
+  }
+
+  private fun connectOptions(database: String): PgConnectOptions {
+    val postgresqlHostname = System.getenv("POSTGRESQL_HOSTNAME")
+      ?: "localhost"
+
+    return PgConnectOptions()
+      .setHost(postgresqlHostname)
+      .setDatabase(database)
+      .setUser("postgres")
+      .setPassword("password")
+      .setSslMode(SslMode.DISABLE)
   }
 
   private class Run(

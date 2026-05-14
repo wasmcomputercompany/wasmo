@@ -1,3 +1,5 @@
+rootProject.name = "wasmo-build"
+
 dependencyResolutionManagement {
   versionCatalogs {
     create("libs") {

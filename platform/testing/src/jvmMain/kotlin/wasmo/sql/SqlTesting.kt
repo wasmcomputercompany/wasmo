@@ -4,6 +4,7 @@ import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.asSqlDatabase
 import com.wasmo.sql.execute
+import io.vertx.pgclient.PgException
 import io.vertx.sqlclient.SqlClient
 
 class FakeSqlService(
@@ -19,12 +20,26 @@ class FakeSqlService(
     val existing = sqlDatabase
     if (existing != null) return existing
 
-    val postgresqlAddress = PostgresqlAddress(
-      databaseName = databaseName,
+    val adminPostgresqlAddress = PostgresqlAddress(
+      databaseName = "postgres",
       user = "postgres",
       password = "password",
-      hostname = "localhost",
+      hostname = System.getenv("POSTGRESQL_HOSTNAME") ?: "localhost",
       ssl = false,
+    )
+
+    PostgresqlClient.Factory().connect(adminPostgresqlAddress).use { client ->
+      try {
+        client.withConnection {
+          execute("CREATE DATABASE $databaseName WITH ENCODING = 'UTF8'")
+        }
+      } catch (_: PgException) {
+        // Already exists?
+      }
+    }
+
+    val postgresqlAddress = adminPostgresqlAddress.copy(
+      databaseName = databaseName,
     )
 
     val client = PostgresqlClient.Factory()

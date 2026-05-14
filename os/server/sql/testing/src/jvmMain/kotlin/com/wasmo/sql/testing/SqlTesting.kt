@@ -1,16 +1,35 @@
 package com.wasmo.sql.testing
 
 import com.wasmo.sql.PostgresqlAddress
+import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.execute
+import io.vertx.pgclient.PgException
 import io.vertx.sqlclient.SqlClient
 
-val TestDatabaseAddress = PostgresqlAddress(
-  databaseName = "wasmo_test",
+val POSTGRESQL_HOSTNAME = System.getenv("POSTGRESQL_HOSTNAME")
+  ?: "localhost"
+
+val AdminPostgresqlAddress = PostgresqlAddress(
+  databaseName = "postgres",
   user = "postgres",
   password = "password",
-  hostname = "localhost",
+  hostname = POSTGRESQL_HOSTNAME,
   ssl = false,
 )
+
+val TestPostgresqlAddress = AdminPostgresqlAddress.copy(
+  databaseName = "wasmo_test",
+)
+
+suspend fun PostgresqlClient.createDatabaseIfAbsent(address: PostgresqlAddress) {
+  try {
+    withConnection {
+      execute("CREATE DATABASE ${address.databaseName} WITH ENCODING = 'UTF8'")
+    }
+  } catch (_: PgException) {
+    // Assume this database exists.
+  }
+}
 
 suspend fun SqlClient.clearSchema() {
   execute("DROP SCHEMA IF EXISTS public CASCADE")

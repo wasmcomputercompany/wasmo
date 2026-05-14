@@ -1,8 +1,17 @@
 package com.wasmo.support.absurd
 
+import io.vertx.pgclient.PgException
 import io.vertx.sqlclient.SqlClient
 import okio.FileSystem
 import okio.Path.Companion.toPath
+
+suspend fun SqlClient.createDatabaseIfAbsent(databaseName: String) {
+  try {
+    execute("CREATE DATABASE $databaseName WITH ENCODING = 'UTF8'")
+  } catch (_: PgException) {
+    // Already exists?
+  }
+}
 
 /** This extremely destructive operation drops all absurd data. It may be useful for tests. */
 suspend fun SqlClient.dangerouslyClearAbsurdSchema() {
