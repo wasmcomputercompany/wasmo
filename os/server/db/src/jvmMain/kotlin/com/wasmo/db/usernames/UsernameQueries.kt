@@ -93,7 +93,7 @@ private suspend fun deleteUsername(
   }
 
 context(connection: SqlConnection)
-suspend fun selectUsernameOrNull(
+suspend fun findUsernameOrNull(
   accountId: AccountId,
 ): DbUsername? {
   val rowIterator = connection.executeQuery(

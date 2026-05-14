@@ -1,6 +1,7 @@
 package com.wasmo.api
 
 import com.wasmo.identifiers.UsernameSlug
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -18,3 +19,9 @@ data class LinkUsernameRequest(
 
 @Serializable
 data object LinkUsernameResponse
+
+@Serializable
+data class LinkedUsernameSnapshot(
+  val linkedAt: Instant,
+  val username: UsernameSlug,
+)
