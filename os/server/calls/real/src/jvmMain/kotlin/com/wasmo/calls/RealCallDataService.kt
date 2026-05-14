@@ -7,6 +7,7 @@ import com.wasmo.api.ComputerListItem
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.InviteTicket
 import com.wasmo.api.LinkedEmailAddressSnapshot
+import com.wasmo.api.LinkedUsernameSnapshot
 import com.wasmo.api.PasskeySnapshot
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
@@ -18,6 +19,8 @@ import com.wasmo.db.emails.DbLinkedEmailAddress
 import com.wasmo.db.emails.findLinkedEmailAddresses
 import com.wasmo.db.passkeys.DbPasskey
 import com.wasmo.db.passkeys.findPasskeysByAccountId
+import com.wasmo.db.usernames.DbUsername
+import com.wasmo.db.usernames.findUsernameOrNull
 import com.wasmo.identifiers.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
 import dev.zacsweers.metro.Inject
@@ -74,6 +77,22 @@ class RealCallDataService(
     )
   }
 
+  private val linkedUsername = object : DbLazy<LinkedUsernameSnapshot?>() {
+    context(sqlTransaction: SqlTransaction)
+    override suspend fun load(): LinkedUsernameSnapshot? {
+      val accountId = client.getAccountIdOrNull()
+      return when {
+        accountId != null -> findUsernameOrNull(accountId)?.toSnapshot()
+        else -> null
+      }
+    }
+
+    private fun DbUsername.toSnapshot() = LinkedUsernameSnapshot(
+      linkedAt = createdAt,
+      username = usernameSlug,
+    )
+  }
+
   private val firstClaimedInvite = object : DbLazy<DbInvite?>() {
     context(sqlTransaction: SqlTransaction)
     override suspend fun load(): DbInvite? {
@@ -108,9 +127,9 @@ class RealCallDataService(
         nextChallenge = client.challenger.create(),
         passkeys = passkeys.get(),
         emailAddresses = emailAddresses,
+        username = linkedUsername.get(),
         hasInvite = firstInvite != null,
-        // TODO: isSignedIn should also reflect other ways of being signed in.
-        isSignedIn = emailAddresses.isNotEmpty(),
+        isSignedIn = emailAddresses.isNotEmpty() || linkedUsername.get() != null,
       )
     }
   }

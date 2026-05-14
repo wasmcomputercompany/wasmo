@@ -1,5 +1,6 @@
 package com.wasmo.api
 
+import com.wasmo.identifiers.UsernameSlug
 import kotlinx.serialization.Serializable
 import okio.ByteString
 
@@ -11,6 +12,7 @@ data class AccountSnapshot(
   val nextChallenge: @Serializable(Base64UrlSerializer::class) ByteString,
   val passkeys: List<PasskeySnapshot>,
   val emailAddresses: List<LinkedEmailAddressSnapshot>,
+  val username: LinkedUsernameSnapshot?,
   val hasInvite: Boolean,
   val isSignedIn: Boolean,
 )
