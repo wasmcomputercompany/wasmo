@@ -123,6 +123,6 @@ private fun SqlRow.getUsername() = DbUsername(
   id = getUsernameId(0),
   createdAt = getInstant(1)!!,
   accountId = getAccountId(2),
-  usernameSlug = UsernameSlug(getString(3)!!),
+  username = UsernameSlug(getString(3)!!),
   deletedAt = getInstant(4)
 )

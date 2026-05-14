@@ -89,7 +89,7 @@ class RealCallDataService(
 
     private fun DbUsername.toSnapshot() = LinkedUsernameSnapshot(
       linkedAt = createdAt,
-      username = usernameSlug,
+      username = username,
     )
   }
 
