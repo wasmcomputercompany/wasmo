@@ -3,6 +3,7 @@ package com.wasmo.client.app
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
+import com.wasmo.api.SignInSnapshot
 import com.wasmo.api.WasmoApi
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
@@ -75,6 +76,11 @@ interface WasmoWebAppGraph {
   @SingleIn(ClientAppScope::class)
   fun provideComputerListSnapshot(pageData: PageData): ComputerListSnapshot? =
     pageData.get<ComputerListSnapshot>("computer_list_snapshot")
+
+  @Provides
+  @SingleIn(ClientAppScope::class)
+  fun provideSignInSnapshot(pageData: PageData): SignInSnapshot? =
+    pageData.get<SignInSnapshot>("sign_in_snapshot")
 
   @Provides
   @SingleIn(ClientAppScope::class)

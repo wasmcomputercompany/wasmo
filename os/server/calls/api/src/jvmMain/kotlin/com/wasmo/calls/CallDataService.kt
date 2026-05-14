@@ -3,6 +3,7 @@ package com.wasmo.calls
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.SignInSnapshot
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
 import wasmox.sql.SqlTransaction
@@ -22,6 +23,9 @@ interface CallDataService {
 
   context(sqlTransaction: SqlTransaction)
   suspend fun computerListSnapshot(): ComputerListSnapshot
+
+  context(sqlTransaction: SqlTransaction)
+  suspend fun signInSnapshot(): SignInSnapshot
 
   context(sqlTransaction: SqlTransaction)
   suspend fun inviteTicketOrNull(code: String): InviteTicket?

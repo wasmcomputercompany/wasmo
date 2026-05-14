@@ -1,6 +1,7 @@
 package com.wasmo.client.app.signup
 
 import com.wasmo.api.ConfirmEmailAddressResponse.Decision
+import com.wasmo.api.SignInSnapshot
 import com.wasmo.api.routes.HomeRoute
 import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.app.routing.Router
@@ -22,13 +23,25 @@ class SignUpPresenter(
   private val scope: CoroutineScope,
   private val router: Router,
   private val accountDataService: AccountDataService,
+  signInSnapshot: SignInSnapshot?,
 ) : Presenter<SignUpModel, SignUpEvent> {
   private val mutableModel = MutableStateFlow(
-    SignUpModel(
-      enterEmailAddress = EnterEmailAddressModel(
-        emailAddressHelperText = "We’ll email you a challenge code",
-      ),
-    ),
+    // TODO: Make SignInSnapshot responsible for all sign-in options, not only username.
+    if (signInSnapshot == null) {
+      SignUpModel(
+        enterEmailAddress = EnterEmailAddressModel(
+          emailAddressHelperText = "We’ll email you a challenge code",
+        )
+      )
+    } else {
+      SignUpModel(
+        selectUsernameToSignIn = SelectUsernameToSignInModel(
+          usernameOptions = signInSnapshot.usernameOptions,
+          canCreateUsername = signInSnapshot.canCreateUsername,
+          canSubmit = true,
+        ),
+      )
+    }
   )
 
   override val model: StateFlow<SignUpModel>

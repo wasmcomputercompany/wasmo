@@ -4,6 +4,7 @@ import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.SignInSnapshot
 import com.wasmo.api.OsHtml
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.framework.Response
@@ -21,6 +22,7 @@ interface ServerOsHtml : OsHtml {
       inviteTicket: InviteTicket? = null,
       computerSnapshot: ComputerSnapshot? = null,
       computerListSnapshot: ComputerListSnapshot? = null,
+      signInSnapshot: SignInSnapshot? = null,
     ): ServerOsHtml
   }
 }

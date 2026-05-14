@@ -10,4 +10,5 @@ interface OsHtml {
   val inviteTicket: InviteTicket?
   val computerSnapshot: ComputerSnapshot?
   val computerListSnapshot: ComputerListSnapshot?
+  val signInSnapshot: SignInSnapshot?
 }

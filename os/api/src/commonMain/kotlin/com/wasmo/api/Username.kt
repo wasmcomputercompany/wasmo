@@ -25,3 +25,9 @@ data class LinkedUsernameSnapshot(
   val linkedAt: Instant,
   val username: UsernameSlug,
 )
+
+@Serializable
+data class SignInSnapshot(
+  val usernameOptions: List<UsernameSlug> = listOf(),
+  val canCreateUsername: Boolean = false,
+)

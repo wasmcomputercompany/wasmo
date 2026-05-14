@@ -6,6 +6,7 @@ import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListItem
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.SignInSnapshot
 import com.wasmo.api.LinkedEmailAddressSnapshot
 import com.wasmo.api.LinkedUsernameSnapshot
 import com.wasmo.api.PasskeySnapshot
@@ -20,6 +21,7 @@ import com.wasmo.db.emails.findLinkedEmailAddresses
 import com.wasmo.db.passkeys.DbPasskey
 import com.wasmo.db.passkeys.findPasskeysByAccountId
 import com.wasmo.db.usernames.DbUsername
+import com.wasmo.db.usernames.findUsernamesThatCanSignIn
 import com.wasmo.db.usernames.findUsernameOrNull
 import com.wasmo.identifiers.Deployment
 import com.wasmo.passkeys.AuthenticatorDatabase
@@ -153,6 +155,15 @@ class RealCallDataService(
     }
   }
 
+  private val signInSnapshot = object : DbLazy<SignInSnapshot>() {
+    context(sqlTransaction: SqlTransaction)
+    override suspend fun load(): SignInSnapshot =
+      SignInSnapshot(
+        usernameOptions = findUsernamesThatCanSignIn().map { it.username },
+        canCreateUsername = true,
+      )
+  }
+
   context(sqlTransaction: SqlTransaction)
   override fun onInvalidate() {
     passkeys.invalidate()
@@ -173,6 +184,9 @@ class RealCallDataService(
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun computerListSnapshot() = computerListSnapshot.get()
+
+  context(sqlTransaction: SqlTransaction)
+  override suspend fun signInSnapshot() = signInSnapshot.get()
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun inviteTicketOrNull(code: String): InviteTicket? {

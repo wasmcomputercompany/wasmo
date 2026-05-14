@@ -10,6 +10,7 @@ import wasmo.sql.SqlConnection
 import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
 import wasmox.sql.SqlTransaction
+import wasmox.sql.list
 import wasmox.sql.singleOrNull
 
 context(connection: SqlConnection)
@@ -114,6 +115,31 @@ suspend fun findUsernameOrNull(
     bindS64(1, 1)
   }
   return rowIterator.singleOrNull {
+    getUsername()
+  }
+}
+
+context(connection: SqlConnection)
+suspend fun findUsernamesThatCanSignIn(
+  limit: Long = Long.MAX_VALUE,
+): List<DbUsername> {
+  val rowIterator = connection.executeQuery(
+    """
+    SELECT
+      id,
+      created_at,
+      account_id,
+      username,
+      deleted_at
+    FROM Username
+    WHERE deleted_at IS NULL
+    ORDER BY username ASC
+    LIMIT $1
+    """,
+  ) {
+    bindS64(0, limit)
+  }
+  return rowIterator.list {
     getUsername()
   }
 }
