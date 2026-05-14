@@ -49,6 +49,11 @@ abstract class WebsiteBindings {
 
       pageRegistration(
         host = hostnamePatterns.osHostname,
+        path = "/sign-in",
+      ),
+
+      pageRegistration(
+        host = hostnamePatterns.osHostname,
         path = "/sign-up",
       ),
 

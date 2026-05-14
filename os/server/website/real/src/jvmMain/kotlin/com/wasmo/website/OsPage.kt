@@ -10,6 +10,7 @@ import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.HomeRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.RoutingContext
+import com.wasmo.api.routes.SignInRoute
 import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.calls.CallDataService
 import com.wasmo.computers.ComputerService
@@ -50,8 +51,14 @@ class OsPage(
       accountSnapshot = callDataService.accountSnapshot()
       routingContext = callDataService.routingContext()
       val routeCodec = callDataService.routeCodec()
+      val route = routeCodec.decode(url)
 
-      when (val route = routeCodec.decode(url)) {
+      // Home can also handle sign-in as a Single-Page Application, so it needs signInSnapshot.
+      if (route is HomeRoute || route is SignInRoute) {
+        // TODO: Make SignInSnapshot responsible for all sign-in options, not only username.
+        signInSnapshot = callDataService.signInSnapshot().takeIf { it.usernameOptions.isNotEmpty() }
+      }
+      when (route) {
         is ComputerHomeRoute -> {
           computerService = computerStore.getOrNull(client, route.slug)
             ?: throw UnauthorizedUserException()
@@ -64,12 +71,6 @@ class OsPage(
         is InviteRoute -> {
           inviteTicket = callDataService.inviteTicketOrNull(route.code)
             ?: throw NotFoundUserException()
-        }
-
-        is SignUpRoute -> {
-          // TODO: Add SignInRoute, add signInSnapshot only there
-          // TODO: Make SignInSnapshot responsible for all sign-in options, not only username.
-          signInSnapshot = callDataService.signInSnapshot().takeIf { it.usernameOptions.isNotEmpty() }
         }
 
         else -> {

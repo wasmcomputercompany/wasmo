@@ -23,6 +23,8 @@ data class InviteRoute(
 
 data object AdminRoute : Route
 
+data object SignInRoute: Route
+
 data object SignOutRoute : Route
 
 data object SignUpRoute : Route

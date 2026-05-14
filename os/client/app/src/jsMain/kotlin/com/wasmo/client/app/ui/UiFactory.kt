@@ -10,6 +10,7 @@ import com.wasmo.api.routes.HomeRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.NotFoundRoute
 import com.wasmo.api.routes.Route
+import com.wasmo.api.routes.SignInRoute
 import com.wasmo.api.routes.SignOutRoute
 import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.client.app.buildyours.BuildYoursUi
@@ -54,6 +55,7 @@ class UiFactory(
 
       HomeRoute -> homeUiFactory.create()
 
+      SignInRoute,
       SignUpRoute -> {
         val presenter = signUpPresenterFactory.create()
         signUpUiFactory.create(presenter)

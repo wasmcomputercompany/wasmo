@@ -9,6 +9,7 @@ import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.routes.BuildYoursRoute
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.RouteCodec
+import com.wasmo.api.routes.SignInRoute
 import com.wasmo.api.routes.SignOutRoute
 import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.client.app.Environment
@@ -75,7 +76,7 @@ class HomeUi(
 
       HomeEvent.ClickSignIn -> {
         menuVisible = false
-        router.goTo(SignUpRoute, TransitionDirection.PUSH)
+        router.goTo(SignInRoute, TransitionDirection.PUSH)
       }
 
       HomeEvent.ClickSignUp -> {
