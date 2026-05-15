@@ -39,7 +39,6 @@ import wasmo.objectstore.FakeObjectStore
 import wasmo.sql.SqlDatabase
 import wasmo.time.FakeClock
 import wasmox.sql.transaction
-import wasmox.sql.withConnection
 
 /**
  * Use this with Burst and [app.cash.burst.InterceptTest].
@@ -166,7 +165,11 @@ class ServiceTester : CoroutineTestInterceptor {
           }
           graph.absurdService.createQueue()
 
-          testFunction()
+          try {
+            testFunction()
+          } finally {
+            graph.absurdService.close()
+          }
         }
       }
     }

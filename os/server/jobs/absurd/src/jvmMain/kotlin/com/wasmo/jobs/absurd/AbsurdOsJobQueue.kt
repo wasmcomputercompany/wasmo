@@ -11,6 +11,8 @@ import com.wasmo.jobs.OsJobQueue
 import com.wasmo.sql.OsSqlConnection
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import io.vertx.core.VertxException
+import java.util.concurrent.RejectedExecutionException
 import kotlin.uuid.ExperimentalUuidApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -41,7 +43,13 @@ internal class AbsurdOsJobQueue<P : Any, R : Any> private constructor(
     // TODO: this is only necessary for tests!
     sqlTransaction.afterCommit {
       factory.scope.launch {
-        factory.absurdService.absurd.executeBatch("AbsurdOsJobQueue")
+        try {
+          factory.absurdService.absurd.executeBatch("AbsurdOsJobQueue")
+        } catch (_: VertxException) {
+          // Pool closed?
+        } catch (_: RejectedExecutionException) {
+          // Pool closed?
+        }
       }
     }
   }

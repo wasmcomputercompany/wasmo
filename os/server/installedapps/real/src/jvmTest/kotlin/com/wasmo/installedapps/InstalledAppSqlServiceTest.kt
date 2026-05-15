@@ -6,7 +6,6 @@ import assertk.assertions.isEqualTo
 import com.wasmo.testing.apps.MusicApp
 import com.wasmo.testing.apps.SnakeApp
 import com.wasmo.testing.service.ServiceTester
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import wasmo.sql.SqlDatabase
