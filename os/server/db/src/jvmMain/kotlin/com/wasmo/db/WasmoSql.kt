@@ -20,6 +20,7 @@ import com.wasmo.identifiers.SchemaVersionId
 import com.wasmo.identifiers.StripeCustomerId
 import com.wasmo.identifiers.UserId
 import com.wasmo.identifiers.UsernameId
+import com.wasmo.identifiers.UsernameSlug
 import com.wasmo.identifiers.WasmoFileAddress
 import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
 import wasmo.sql.SqlBinder
@@ -40,6 +41,7 @@ fun SqlBinder.bindDatabaseSlug(index: Int, value: DatabaseSlug?) = bindString(in
 fun SqlBinder.bindInviteId(index: Int, value: InviteId?) = bindS64(index, value?.id)
 fun SqlBinder.bindPasskeyId(index: Int, value: PasskeyId?) = bindS64(index, value?.id)
 fun SqlBinder.bindStripeCustomerId(index: Int, value: StripeCustomerId?) = bindS64(index, value?.id)
+fun SqlBinder.bindUsername(index: Int, value: UsernameSlug?) = bindString(index, value?.value)
 fun SqlBinder.bindUserId(index: Int, value: UserId?) = bindS64(index, value?.id)
 fun SqlBinder.bindWasmoFileAddress(index: Int, value: WasmoFileAddress?) = bindString(index, value?.toString())
 

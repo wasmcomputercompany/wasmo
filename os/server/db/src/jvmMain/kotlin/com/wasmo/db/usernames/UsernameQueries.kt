@@ -1,6 +1,7 @@
 package com.wasmo.db.usernames
 
 import com.wasmo.db.bindAccountId
+import com.wasmo.db.bindUsername
 import com.wasmo.db.getAccountId
 import com.wasmo.db.getUsernameId
 import com.wasmo.identifiers.AccountId
@@ -113,6 +114,30 @@ suspend fun findUsernameOrNull(
   ) {
     bindAccountId(0, accountId)
     bindS64(1, 1)
+  }
+  return rowIterator.singleOrNull {
+    getUsername()
+  }
+}
+
+context(connection: SqlConnection)
+suspend fun selectLinkedUsernameOrNull(
+  username: UsernameSlug,
+): DbUsername? {
+  val rowIterator = connection.executeQuery(
+    """
+    SELECT
+      id,
+      created_at,
+      account_id,
+      username,
+      deleted_at
+    FROM Username
+    WHERE username = $1 AND deleted_at IS NULL
+    LIMIT 1
+    """,
+  ) {
+    bindUsername(0, username)
   }
   return rowIterator.singleOrNull {
     getUsername()

@@ -30,6 +30,7 @@ import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
+import com.wasmo.usernames.UsernameBindings
 import com.wasmo.website.WebsiteBindings
 import com.wasmo.wiring.ObjectStoreBindings
 import com.wasmo.wiring.ServiceBindings
@@ -59,6 +60,7 @@ import wasmo.sql.SqlDatabase
     ServiceBindings::class,
     SqlServiceBindings::class,
     StripeBindings::class,
+    UsernameBindings::class,
     WebsiteBindings::class,
   ],
 )

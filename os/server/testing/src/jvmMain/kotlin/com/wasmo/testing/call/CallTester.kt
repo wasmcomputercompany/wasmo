@@ -12,8 +12,10 @@ import com.wasmo.api.AuthenticatePasskeyRequest
 import com.wasmo.api.ConfirmEmailAddressRequest
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.CreateInviteRequest
+import com.wasmo.api.CreateUsernameRequest
 import com.wasmo.api.InstallAppRequest
 import com.wasmo.api.LinkEmailAddressRequest
+import com.wasmo.api.LinkUsernameRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.SignOutRequest
 import com.wasmo.api.routes.Route
@@ -27,11 +29,14 @@ import com.wasmo.framework.Request
 import com.wasmo.framework.Url
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.Deployment
+import com.wasmo.identifiers.UsernameSlug
 import com.wasmo.installedapps.CallAppAction
 import com.wasmo.stripe.AfterCheckoutPage
 import com.wasmo.support.tokens.ChallengeCode
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.framework.snapshot
+import com.wasmo.usernames.CreateUsernameRpc
+import com.wasmo.usernames.LinkUsernameRpc
 import com.wasmo.website.OsPage
 import com.wasmo.website.ServerOsHtml
 import dev.zacsweers.metro.Inject
@@ -54,8 +59,10 @@ class CallTester(
   private val confirmEmailAddressRpcProvider: Provider<ConfirmEmailAddressRpc>,
   private val createComputerSpecRpcProvider: Provider<CreateComputerSpecRpc>,
   private val createInviteRpcProvider: Provider<CreateInviteRpc>,
+  private val createUsernanmeRpcProvider: Provider<CreateUsernameRpc>,
   private val installAppRpcProvider: Provider<InstallAppRpc>,
   private val linkEmailAddressRpcProvider: Provider<LinkEmailAddressRpc>,
+  private val linkUsernameRpcProvider: Provider<LinkUsernameRpc>,
   private val osPageProvider: Provider<OsPage>,
   private val registerPasskeyRpcProvider: Provider<RegisterPasskeyRpc>,
   private val signOutRpcProvider: Provider<SignOutRpc>,
@@ -110,6 +117,12 @@ class CallTester(
       body = body,
     ),
   )
+
+  suspend fun createUsername(request: CreateUsernameRequest) =
+    createUsernanmeRpcProvider().handle(request)
+
+  suspend fun linkUsername(request: LinkUsernameRequest) =
+    linkUsernameRpcProvider().handle(request)
 
   suspend fun confirmEmailAddress(request: ConfirmEmailAddressRequest) =
     confirmEmailAddressRpcProvider().confirm(request)

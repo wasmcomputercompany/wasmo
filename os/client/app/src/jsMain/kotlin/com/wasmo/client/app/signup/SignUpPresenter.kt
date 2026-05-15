@@ -2,6 +2,7 @@ package com.wasmo.client.app.signup
 
 import com.wasmo.api.ConfirmEmailAddressResponse.Decision
 import com.wasmo.api.SignInSnapshot
+import com.wasmo.api.UsernameDecision
 import com.wasmo.api.routes.HomeRoute
 import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.app.routing.Router
@@ -161,15 +162,35 @@ class SignUpPresenter(
       SignUpEvent.ClickSignUpWithUsername -> {
         callServer { state ->
           val usernameModel = state.newAccountWithUsername ?: return@callServer // Race.
-          accountDataService.createUsername(UsernameSlug(usernameModel.username))
-          router.goTo(HomeRoute, TransitionDirection.PUSH)
+          val response = accountDataService.createUsername(UsernameSlug(usernameModel.username))
+          when (response.decision) {
+            UsernameDecision.Success -> {
+              response.account?.let { accountSnapshot ->
+                accountDataService.receiveAccountSnapshot(accountSnapshot)
+              }
+              router.goTo(HomeRoute, TransitionDirection.PUSH)
+            }
+            else -> {
+              // TODO: Update UI to show an error message
+            }
+          }
         }
       }
 
       is SignUpEvent.ClickUsername -> {
         callServer {
-          accountDataService.linkUsername(event.usernameSlug)
-          router.goTo(HomeRoute, TransitionDirection.PUSH)
+          val response = accountDataService.linkUsername(event.usernameSlug)
+          when (response.decision) {
+            UsernameDecision.Success -> {
+              response.account?.let { accountSnapshot ->
+                accountDataService.receiveAccountSnapshot(accountSnapshot)
+              }
+              router.goTo(HomeRoute, TransitionDirection.PUSH)
+            }
+            else -> {
+              // TODO: Update UI to show an error message
+            }
+          }
         }
       }
 
