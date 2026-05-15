@@ -15,7 +15,7 @@ steps:
           username: wasmo
           isolate-config: false
     secrets:
-      - ORG_GRADLE_PROJECT_mavenCentralUsername=SONATYPE_CENTRAL_USERNAME
-      - ORG_GRADLE_PROJECT_mavenCentralPassword=SONATYPE_CENTRAL_PASSWORD
-      - ORG_GRADLE_PROJECT_signingInMemoryKey=GPG_SECRET_KEY
-      - DOCKER_LOGIN_PASSWORD
+      ORG_GRADLE_PROJECT_mavenCentralUsername: SONATYPE_CENTRAL_USERNAME
+      ORG_GRADLE_PROJECT_mavenCentralPassword: SONATYPE_CENTRAL_PASSWORD
+      ORG_GRADLE_PROJECT_signingInMemoryKey: GPG_SECRET_KEY
+      DOCKER_LOGIN_PASSWORD: DOCKER_LOGIN_PASSWORD
