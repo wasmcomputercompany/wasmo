@@ -6,12 +6,16 @@ import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.CreateComputerSpecRequest
+import com.wasmo.api.CreateUsernameRequest
+import com.wasmo.api.CreateUsernameResponse
 import com.wasmo.api.LinkEmailAddressRequest
+import com.wasmo.api.LinkUsernameRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
 import com.wasmo.identifiers.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.UsernameSlug
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakePasskey
 import com.wasmo.testing.FakePaymentsService
@@ -41,6 +45,7 @@ class ClientTester(
   @Assisted private val sessionCookie: SessionCookie,
 ) {
   private var nextComputerSlug: Int = 100
+  private var nextUsernameSlug: Int = 100
 
   fun call(): CallTester {
     val client = clientAuthenticator.get()
@@ -106,6 +111,28 @@ class ClientTester(
       challengeCode = email.extractChallengeCode(),
     )
   }
+
+  fun createNewUsername() = UsernameSlug("user${nextUsernameSlug++}")
+
+  suspend fun createUsername(
+    username: UsernameSlug = createNewUsername(),
+  ) : Response<CreateUsernameResponse>
+  {
+      val createResponse = call().createUsername(
+        CreateUsernameRequest(
+          username = username,
+        ),
+      )
+      return createResponse
+  }
+
+  suspend fun linkUsername(
+    username: UsernameSlug,
+  ) = call().linkUsername(
+    LinkUsernameRequest(
+      username = username,
+    ),
+  )
 
   suspend fun accountSnapshot(): AccountSnapshot {
     val response = call().accountSnapshot(request = AccountSnapshotRequest)

@@ -59,6 +59,7 @@ kotlin {
         implementation(projects.os.server.sql.api)
         implementation(projects.os.server.sql.real)
         implementation(projects.os.server.sql.testing)
+        implementation(projects.os.server.usernames.real)
         implementation(projects.os.server.wasm.api)
         implementation(projects.os.server.wasm.jvm)
         implementation(projects.os.server.website.api)

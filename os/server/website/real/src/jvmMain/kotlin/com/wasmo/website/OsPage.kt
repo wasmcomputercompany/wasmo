@@ -54,6 +54,7 @@ class OsPage(
       val route = routeCodec.decode(url)
 
       // Home can also handle sign-in as a Single-Page Application, so it needs signInSnapshot.
+      // TODO: Let SignUpRoute handle sign-in options regardless of whether a username exists.
       if (route is HomeRoute || route is SignInRoute) {
         // TODO: Make SignInSnapshot responsible for all sign-in options, not only username.
         signInSnapshot = callDataService.signInSnapshot().takeIf { it.usernameOptions.isNotEmpty() }
