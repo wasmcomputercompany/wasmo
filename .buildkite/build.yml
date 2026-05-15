@@ -9,13 +9,13 @@ steps:
           config: .buildkite/docker-compose.yml
           environment:
             - "BUILDKITE_ANALYTICS_TOKEN"
+            - "BUILDKITE_BRANCH"
             - "BUILDKITE_BUILD_ID"
             - "BUILDKITE_BUILD_NUMBER"
-            - "BUILDKITE_JOB_ID"
-            - "BUILDKITE_BRANCH"
-            - "BUILDKITE_COMMIT"
-            - "BUILDKITE_MESSAGE"
             - "BUILDKITE_BUILD_URL"
+            - "BUILDKITE_COMMIT"
+            - "BUILDKITE_JOB_ID"
+            - "BUILDKITE_MESSAGE"
       - docker-login#v3.0.0:
           username: wasmo
           isolate-config: false
