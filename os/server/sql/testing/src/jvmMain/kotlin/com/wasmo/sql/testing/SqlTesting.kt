@@ -19,23 +19,35 @@ val AdminPostgresqlAddress = PostgresqlAddress(
 
 val TestPostgresqlAddress = AdminPostgresqlAddress.copy(
   databaseName = "wasmo_test",
+  user = "wasmo_test",
 )
 
-suspend fun PostgresqlClient.createDatabaseIfAbsent(address: PostgresqlAddress) {
-  try {
-    withConnection {
-      execute("CREATE DATABASE ${address.databaseName} WITH ENCODING = 'UTF8'")
+/** Creates the test database (if it doesn't exist), and clears it. */
+suspend fun PostgresqlClient.Factory.prepareTestDatabase(
+  superuser: PostgresqlAddress,
+  test: PostgresqlAddress,
+) {
+  // Create the test database if it doesn't exist already. This authenticates as superuser.
+  connect(superuser).use { postgresqlClient ->
+    try {
+      postgresqlClient.withConnection {
+        execute("CREATE DATABASE ${test.databaseName} WITH ENCODING = 'UTF8'")
+        execute("CREATE USER ${test.user} WITH PASSWORD '${test.password}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT")
+        execute("GRANT ALL PRIVILEGES ON DATABASE ${test.databaseName} TO ${test.user}")
+      }
+    } catch (_: PgException) {
+      // Assume this database exists.
     }
-  } catch (_: PgException) {
-    // Assume this database exists.
   }
-}
 
-suspend fun SqlClient.clearSchema() {
-  execute("DROP SCHEMA IF EXISTS public CASCADE")
-  execute("CREATE SCHEMA public")
-  execute("GRANT ALL ON SCHEMA public TO postgres")
-  execute("GRANT ALL ON SCHEMA public TO public")
+  // Drop the database. This authenticates as superuser to the newly-created database.
+  connect(superuser.copy(databaseName = test.databaseName)).use { postgresqlClient ->
+    postgresqlClient.withConnection {
+      execute("DROP SCHEMA IF EXISTS public CASCADE")
+      execute("CREATE SCHEMA public")
+      execute("GRANT ALL ON SCHEMA public TO ${test.user}")
+    }
+  }
 }
 
 suspend fun SqlClient.dropAppDatabases() {

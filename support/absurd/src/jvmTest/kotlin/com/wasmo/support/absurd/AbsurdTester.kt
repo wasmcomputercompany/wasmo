@@ -58,11 +58,7 @@ class AbsurdTester : CoroutineTestInterceptor, Log {
     val connectOptions = connectOptions("absurd_test")
 
     // Create the absurd_test DB (if it doesn't exist already).
-    PostgresqlClient(adminConnectOptions).use { client ->
-      client.withConnection {
-        createDatabaseIfAbsent(connectOptions.database)
-      }
-    }
+    prepareTestDatabase(adminConnectOptions, connectOptions)
 
     val postgresql = PostgresqlClient(connectOptions)
     postgresql.withConnection {

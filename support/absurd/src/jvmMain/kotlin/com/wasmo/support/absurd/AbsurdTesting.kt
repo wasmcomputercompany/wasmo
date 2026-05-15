@@ -1,15 +1,39 @@
 package com.wasmo.support.absurd
 
+import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.PgException
 import io.vertx.sqlclient.SqlClient
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
-suspend fun SqlClient.createDatabaseIfAbsent(databaseName: String) {
-  try {
-    execute("CREATE DATABASE $databaseName WITH ENCODING = 'UTF8'")
-  } catch (_: PgException) {
-    // Already exists?
+
+/** Creates the test database (if it doesn't exist), and clears it. */
+suspend fun prepareTestDatabase(
+  superuser: PgConnectOptions,
+  test: PgConnectOptions,
+) {
+  // Create the test database if it doesn't exist already. This authenticates as superuser.
+  PostgresqlClient(superuser).use { client ->
+    try {
+      client.withConnection {
+        execute("CREATE DATABASE ${test.database} WITH ENCODING = 'UTF8'")
+        execute("CREATE USER ${test.user} WITH PASSWORD '${test.password}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT")
+        execute("GRANT ALL PRIVILEGES ON DATABASE ${test.database} TO ${test.user}")
+      }
+    } catch (_: PgException) {
+      // Assume this database exists.
+    }
+  }
+
+  // Drop the test database's schema. This authenticates as superuser to the newly-created database.
+  val userDatabaseAsSuperuser = PgConnectOptions(superuser)
+  userDatabaseAsSuperuser.database = test.database
+  PostgresqlClient(userDatabaseAsSuperuser).use { client ->
+    client.withConnection {
+      execute("DROP SCHEMA IF EXISTS public CASCADE")
+      execute("CREATE SCHEMA public")
+      execute("GRANT ALL ON SCHEMA public TO ${test.user}")
+    }
   }
 }
 

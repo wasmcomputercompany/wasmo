@@ -11,10 +11,9 @@ import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.asSqlDatabase
 import com.wasmo.sql.testing.AdminPostgresqlAddress
 import com.wasmo.sql.testing.TestPostgresqlAddress
-import com.wasmo.sql.testing.clearSchema
-import com.wasmo.sql.testing.createDatabaseIfAbsent
 import com.wasmo.sql.testing.dropAppDatabases
 import com.wasmo.sql.testing.dropAppRoles
+import com.wasmo.sql.testing.prepareTestDatabase
 import com.wasmo.support.absurd.dangerouslyClearAbsurdSchema
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
@@ -110,31 +109,32 @@ class ServiceTester : CoroutineTestInterceptor {
     fileSystem.createDirectories(testDirectory)
 
     val postgresqlClientFactory = PostgresqlClient.Factory()
-    postgresqlClientFactory.connect(AdminPostgresqlAddress).use { postgresqlClient ->
-      postgresqlClient.createDatabaseIfAbsent(TestPostgresqlAddress)
-    }
+    postgresqlClientFactory.prepareTestDatabase(AdminPostgresqlAddress, TestPostgresqlAddress)
 
-    postgresqlClientFactory.connect(TestPostgresqlAddress).use { postgresqlClient ->
-      postgresqlClient.withConnection {
-        clearSchema()
+    postgresqlClientFactory.connect(AdminPostgresqlAddress).use { provisioningDbClient ->
+      provisioningDbClient.withConnection {
         dropAppDatabases()
         dropAppRoles()
-        dangerouslyClearAbsurdSchema()
       }
+      postgresqlClientFactory.connect(TestPostgresqlAddress).use { wasmoDbClient ->
+        wasmoDbClient.withConnection {
+          dangerouslyClearAbsurdSchema()
+        }
 
-      val wasmoDb = postgresqlClient.asSqlDatabase()
-      val provisioningDb = ProvisioningDb(
-        address = TestPostgresqlAddress,
-        provisioningDb = wasmoDb,
-      )
+        val wasmoDb = wasmoDbClient.asSqlDatabase()
+        val provisioningDb = ProvisioningDb(
+          address = AdminPostgresqlAddress,
+          provisioningDb = provisioningDbClient.asSqlDatabase(),
+        )
 
-      intercept(
-        wasmoDb = wasmoDb,
-        provisioningDb = provisioningDb,
-        fileSystem = fileSystem,
-        testDirectory = testDirectory,
-        testFunction = testFunction,
-      )
+        intercept(
+          wasmoDb = wasmoDb,
+          provisioningDb = provisioningDb,
+          fileSystem = fileSystem,
+          testDirectory = testDirectory,
+          testFunction = testFunction,
+        )
+      }
     }
   }
 

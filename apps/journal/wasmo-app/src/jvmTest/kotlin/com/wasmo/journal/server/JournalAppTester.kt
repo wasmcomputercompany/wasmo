@@ -24,7 +24,6 @@ class JournalAppTester : CoroutineTestInterceptor {
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     FakeSqlService(
       databaseName = "journal_test",
-      clearSchema = true,
     ).use { sqlService ->
       val platform = FakePlatform(
         sqlService = sqlService,
