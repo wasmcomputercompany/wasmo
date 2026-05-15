@@ -10,18 +10,15 @@ import com.wasmo.jobs.JobCompletedEvent
 import com.wasmo.jobs.JobRegistration
 import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.StepHandle
-import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.support.absurd.Absurd
 import com.wasmo.support.absurd.CancellationPolicy as AbsurdCancellationPolicy
-import com.wasmo.support.absurd.PostgresqlClient
 import com.wasmo.support.absurd.StepHandle as AbsurdStepHandle
 import com.wasmo.support.absurd.TaskHandler as AbsurdJobHandler
 import com.wasmo.support.absurd.TaskName as AbsurdJobName
 import com.wasmo.support.absurd.TaskRegistration as AbsurdJobRegistration
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import io.vertx.pgclient.PgConnectOptions
-import io.vertx.pgclient.SslMode
+import java.io.Closeable
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -31,29 +28,16 @@ import kotlinx.serialization.KSerializer
 
 @Inject
 @SingleIn(OsScope::class)
-class AbsurdService(
+class AbsurdService internal constructor(
   private val clock: Clock,
-  private val postgresqlAddress: PostgresqlAddress,
+  private val absurdPostgresqlService: AbsurdPostgresqlService,
   private val registrations: Set<JobRegistration<*, *>>,
   private val eventListener: EventListener,
-) {
-  private val postgresqlClient = PostgresqlClient(
-    PgConnectOptions()
-      .setHost(postgresqlAddress.hostname)
-      .setDatabase(postgresqlAddress.databaseName)
-      .setUser(postgresqlAddress.user)
-      .setPassword(postgresqlAddress.password)
-      .setSslMode(
-        when {
-          postgresqlAddress.ssl -> SslMode.VERIFY_FULL
-          else -> SslMode.DISABLE
-        },
-      ),
-  )
+) : Closeable {
 
   val absurd: Absurd = Absurd(
     clock = clock,
-    postgresql = postgresqlClient,
+    postgresql = absurdPostgresqlService.client,
     registrations = registrations.map {
       it.toAbsurd(eventListener)
     },
@@ -65,10 +49,14 @@ class AbsurdService(
 
   operator fun plus(registration: JobRegistration<*, *>) = AbsurdService(
     clock = clock,
-    postgresqlAddress = postgresqlAddress,
+    absurdPostgresqlService = absurdPostgresqlService,
     registrations = registrations + registration,
     eventListener = eventListener,
   )
+
+  override fun close() {
+    absurdPostgresqlService.close()
+  }
 }
 
 internal fun <P : Any, R : Any> JobRegistration<P, R>.toAbsurd(

@@ -2,6 +2,7 @@
 
 package com.wasmo.support.absurd
 
+import io.vertx.core.Completable
 import io.vertx.core.Future
 import io.vertx.core.json.Json.CODEC
 import io.vertx.pgclient.PgBuilder
@@ -12,14 +13,15 @@ import io.vertx.sqlclient.SqlClient
 import io.vertx.sqlclient.Tuple
 import io.vertx.sqlclient.data.NullValue
 import java.time.ZoneOffset
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resumeWithException
 import kotlin.time.Instant
 import kotlin.time.toJavaInstant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.future.asDeferred
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -40,14 +42,16 @@ class PostgresqlClient(
     .build()
 
   /** Returns a new connection that the caller must close when they're done with it. */
-  suspend fun connect(): SqlClient = pool.connection.asDeferred().await()
+  suspend fun connect(): SqlClient = pool.connection.awaitSuspending(
+    onCancellation = { _, value, _ -> value.close() },
+  )
 
   suspend inline fun <T> withConnection(block: suspend SqlClient.() -> T): T {
     val connection = connect()
     try {
       return block(connection)
     } finally {
-      connection.close().asDeferred().await()
+      connection.close().awaitSuspending()
     }
   }
 
@@ -59,11 +63,26 @@ class PostgresqlClient(
 suspend inline fun SqlClient.execute(
   sql: String,
 ): RowSet<Row> {
-  return query(sql).execute().asDeferred().await()
+  return query(sql).execute().awaitSuspending()
 }
 
-fun <T> Future<T>.asDeferred(): Deferred<T> =
-  toCompletionStage().asDeferred()
+
+/** @param onCancellation to release the result value if it holds any resources. */
+suspend fun <T> Future<T>.awaitSuspending(
+  onCancellation: ((cause: Throwable, value: T, context: CoroutineContext) -> Unit)? = null,
+): T {
+  val future = this
+  return suspendCancellableCoroutine { continuation ->
+    future.onComplete(
+      Completable<T> { result, failure ->
+        when {
+          failure == null -> continuation.resume(result, onCancellation)
+          else -> continuation.resumeWithException(failure)
+        }
+      },
+    )
+  }
+}
 
 internal fun Tuple.addJson(value: JsonElement?): Tuple {
   return addValue(
@@ -86,7 +105,7 @@ internal suspend inline fun SqlClient.execute(
   sql: String,
   tuple: Tuple,
 ): Long {
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  val result = preparedQuery(sql).execute(tuple).awaitSuspending()
   return result.rowCount().toLong()
 }
 
@@ -95,7 +114,7 @@ internal suspend inline fun <R : Any> SqlClient.executeQuery(
   tuple: Tuple,
   noinline rowMapper: Row.() -> R,
 ): List<R> {
-  val result = preparedQuery(sql).execute(tuple).asDeferred().await()
+  val result = preparedQuery(sql).execute(tuple).awaitSuspending()
   return result.map(rowMapper)
 }
 
