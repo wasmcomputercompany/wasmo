@@ -24,14 +24,6 @@ Set up the PostgreSQL CLI:
 $ brew install libpq
 ```
 
-Drop the local database:
-
-```bash
-$ export PGPASSWORD=password
-$ psql "host=localhost user=postgres" \
-  -c "DROP DATABASE wasmo_development"
-```
-
 Create local databases:
 
 ```bash
@@ -45,3 +37,15 @@ $ psql "host=localhost user=postgres" \
 $ psql "host=localhost user=postgres" \
   -c "ALTER DATABASE wasmo_development OWNER TO wasmo_development"
 ```
+
+💀Factory Reset
+----------------
+
+To delete everything and start from scratch:
+
+```bash
+$ docker container stop wasmo-postgres-db
+$ docker container delete wasmo-postgres-db
+```
+
+You’ll need to follow the steps above to bring it back online.
