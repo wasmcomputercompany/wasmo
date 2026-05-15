@@ -19,7 +19,6 @@ import com.wasmo.wiring.Distribution
 import com.wasmo.wiring.WasmoService
 import dev.zacsweers.metro.createGraphFactory
 import io.ktor.server.engine.EmbeddedServer
-import kotlin.Unit
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
@@ -31,19 +30,25 @@ fun main(args: Array<String>): Unit = runBlocking {
     ?: error("required env STRIPE_PUBLISHABLE_KEY not set")
   val stripeSecretKey = System.getenv("STRIPE_SECRET_KEY")
     ?: error("required env STRIPE_SECRET_KEY not set")
-  val sharedPostgresqlAddress = PostgresqlAddress(
-    user = "postgres",
-    password = "password",
-    hostname = "localhost",
-    databaseName = "wasmo_development",
-    ssl = false,
-  )
 
   val homelabDistribution = object : Distribution() {
-    override val osPostgresqlAddress: PostgresqlAddress
-      get() = sharedPostgresqlAddress
-    override val provisioningPostgresqlAddress: PostgresqlAddress
-      get() = sharedPostgresqlAddress
+    /** The wasmo_development user cannot create databases. */
+    override val osPostgresqlAddress = PostgresqlAddress(
+      user = "wasmo_development",
+      password = "password",
+      hostname = "localhost",
+      databaseName = "wasmo_development",
+      ssl = false,
+    )
+
+    /** The postgres user can create databases. */
+    override val provisioningPostgresqlAddress = PostgresqlAddress(
+      user = "postgres",
+      password = "password",
+      hostname = "localhost",
+      databaseName = "postgres",
+      ssl = false,
+    )
 
     override fun createService(
       server: EmbeddedServer<*, *>,
@@ -65,7 +70,7 @@ fun main(args: Array<String>): Unit = runBlocking {
         catalog = DevelopmentCatalog,
         wasmoDb = wasmoDb,
         provisioningDb = provisioningDb,
-        postgresqlAddress = sharedPostgresqlAddress,
+        postgresqlAddress = osPostgresqlAddress,
         deployment = Deployment(
           baseUrl = "http://wasmo.localhost:8080/".toHttpUrl(),
           sendFromEmailAddress = "noreply@wasmo.dev",
