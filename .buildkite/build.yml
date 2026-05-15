@@ -24,3 +24,4 @@ steps:
           format: "junit"
     secrets:
       - DOCKER_LOGIN_PASSWORD
+      - BUILDKITE_ANALYTICS_TOKEN=WASMO_BUILDKITE_ANALYTICS_TOKEN
