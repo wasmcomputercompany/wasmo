@@ -7,6 +7,15 @@ steps:
       - docker-compose#v5.11.0:
           run: ci-build
           config: .buildkite/docker-compose.yml
+          environment:
+            - "BUILDKITE_ANALYTICS_TOKEN"
+            - "BUILDKITE_BUILD_ID"
+            - "BUILDKITE_BUILD_NUMBER"
+            - "BUILDKITE_JOB_ID"
+            - "BUILDKITE_BRANCH"
+            - "BUILDKITE_COMMIT"
+            - "BUILDKITE_MESSAGE"
+            - "BUILDKITE_BUILD_URL"
       - docker-login#v3.0.0:
           username: wasmo
           isolate-config: false
