@@ -45,7 +45,7 @@ To delete everything and start from scratch:
 
 ```bash
 $ docker container stop wasmo-postgres-db
-$ docker container delete wasmo-postgres-db
+$ docker container rm wasmo-postgres-db
 ```
 
 You’ll need to follow the steps above to bring it back online.
