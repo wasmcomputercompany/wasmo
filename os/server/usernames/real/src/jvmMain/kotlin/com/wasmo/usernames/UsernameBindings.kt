@@ -10,10 +10,6 @@ import dev.zacsweers.metro.SingleIn
 
 @BindingContainer
 abstract class UsernameBindings {
-
-  @Binds
-  abstract fun bindUsernameLinker(real: RealUsernameLinker): UsernameLinker
-
   companion object {
     @Provides
     @ElementsIntoSet
