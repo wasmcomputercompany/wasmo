@@ -6,6 +6,7 @@ internal abstract class DbLazy<T> {
   var loaded = false
   var cached: T? = null
 
+  @Suppress("UNCHECKED_CAST") // Checked dynamically.
   context(sqlTransaction: SqlTransaction)
   suspend fun get(): T {
     if (loaded) return cached as T

@@ -101,6 +101,7 @@ internal class RealActionRouter(
     }
   }
 
+  @Suppress("UNCHECKED_CAST") // Checked dynamically.
   private fun <S, R> Route.registerRpc(actionRegistration: ActionRegistration.Rpc<S, R>) {
     handleInternal(actionRegistration) { userAgent, wasmoUrl, call ->
       val request = actionRegistration.requestAdapter.decode(call.request)

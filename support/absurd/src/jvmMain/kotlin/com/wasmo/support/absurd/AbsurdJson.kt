@@ -1,6 +1,7 @@
 package com.wasmo.support.absurd
 
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.nullable
@@ -18,6 +19,7 @@ internal class CancellationPolicySerializer : KSerializer<CancellationPolicy> {
 
   override val descriptor = SerialDescriptor("absurd.CancellationPolicy", delegate.descriptor)
 
+  @OptIn(ExperimentalSerializationApi::class) // encoder.encodeNull() is experimental.
   override fun serialize(encoder: Encoder, value: CancellationPolicy) {
     if (value.maxDuration == null && value.maxDelay == null) {
       encoder.encodeNull()

@@ -2,7 +2,7 @@ steps:
   - label: ":gradle: Publish"
     commands:
       - "cat .buildkite/gradle.properties >> gradle.properties"
-      - "gradle --no-daemon publishAndReleaseToMavenCentral"
+      - "gradle publishAndReleaseToMavenCentral"
     plugins:
       - docker-compose#v5.11.0:
           run: ci-build
