@@ -3,20 +3,32 @@ package com.wasmo.identifiers
 import kotlin.jvm.JvmInline
 import kotlinx.serialization.Serializable
 
-@JvmInline
+/**
+ * A valid username. All characters allowable in a username are URL safe.
+ */
 @Serializable
+@JvmInline
 value class UsernameSlug(val value: String) {
+
   init {
-    require(value.matches(UsernameSlugRegex)) {
+    require(isUsernameValid(value)) {
       "invalid username: $value"
     }
   }
 
-  companion object {
-    fun of(unnormalizedValue: String) = UsernameSlug(unnormalizedValue.lowercase())
-  }
-
+  // DB required normalizedValue to be UNIQUE among usernames
+  val normalizedValue: String
+    get() = value.replace(Regex("[._-]"), "").lowercase()
 }
 
-/** Between 1 and 15 lowercase (for case insensitivity) letters or digits, and the first is not a digit. */
-val UsernameSlugRegex = Regex("[a-z][a-z0-9]{0,14}")
+/**
+ * 3-20 characters that are alphanumeric or limited punctuation `[._-]`. No punctuation in first or
+ * last position, and not more than one in a row. No digits [0-9] in the first position.
+ */
+private val UsernameSlugRegex = Regex("^[a-zA-Z][a-zA-Z0-9._-]+[a-zA-Z0-9]$")
+
+fun isUsernameValid(usernameString: String): Boolean =
+  // Check the length first rather than get DoSed matching the regex against a very long String
+  usernameString.length in 3..20
+    && UsernameSlugRegex.matches(usernameString)
+    && Regex("[._-]{2}") !in usernameString

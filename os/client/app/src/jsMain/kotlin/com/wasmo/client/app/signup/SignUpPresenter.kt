@@ -10,7 +10,7 @@ import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.framework.Presenter
 import com.wasmo.identifiers.UsernameSlug
-import com.wasmo.identifiers.UsernameSlugRegex
+import com.wasmo.identifiers.isUsernameValid
 import com.wasmo.support.tokens.toChallengeCodeOrNull
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -154,7 +154,7 @@ class SignUpPresenter(
           it.copy(
             newAccountWithUsername = usernameModel.copy(
               username = event.username,
-              canSubmit = UsernameSlugRegex.matches(event.username),
+              canSubmit = isUsernameValid(event.username),
             ),
           )
         }

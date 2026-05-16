@@ -25,18 +25,21 @@ suspend fun insertUsername(
     INSERT INTO Username(
       created_at,
       account_id,
-      username
+      username,
+      normalized_value
     )
     VALUES (
       $1,
       $2,
-      $3
+      $3,
+      $4
     )
     """,
   ) {
     bindInstant(0, createdAt)
     bindAccountId(1, accountId)
     bindString(2, usernameSlug.value)
+    bindString(3, usernameSlug.normalizedValue)
   }
 }
 
@@ -104,6 +107,7 @@ suspend fun findUsernameOrNull(
       created_at,
       account_id,
       username,
+      normalized_value,
       deleted_at
     FROM Username
     WHERE account_id = $1 AND deleted_at IS NULL
@@ -136,6 +140,7 @@ suspend fun selectLinkedUsernameOrNullAllowDeleted(
       created_at,
       account_id,
       username,
+      normalized_value,
       deleted_at
     FROM Username
     WHERE username = $1
@@ -160,6 +165,7 @@ suspend fun findUsernamesThatCanSignIn(
       created_at,
       account_id,
       username,
+      normalized_value,
       deleted_at
     FROM Username
     WHERE deleted_at IS NULL
@@ -174,11 +180,21 @@ suspend fun findUsernamesThatCanSignIn(
   }
 }
 
-
-private fun SqlRow.getUsername() = DbUsername(
-  id = getUsernameId(0),
-  createdAt = getInstant(1)!!,
-  accountId = getAccountId(2),
-  username = UsernameSlug(getString(3)!!),
-  deletedAt = getInstant(4)
-)
+private fun SqlRow.getUsername(): DbUsername =
+  DbUsername(
+    id = getUsernameId(0),
+    createdAt = getInstant(1)!!,
+    accountId = getAccountId(2),
+    username = UsernameSlug(getString(3)!!),
+    deletedAt = getInstant(5)
+  ).also {
+    val normalizedValue = getString(4)
+    check(normalizedValue == it.username.normalizedValue) {
+      // This indicates a programming error on the Wasmo side.
+      // It means that our normalization algorithm has changed and that we ought to create a DB
+      // migration step that updates the normalized_values of the usernames in the DB
+      // (perhapsy by copying them to a new table and deleting the old one).
+      "DB persistent state is inconsistent: Username '${it.username.value}' " +
+        "normalizes to '${it.username.normalizedValue}', but DB has '$normalizedValue'"
+    }
+  }
