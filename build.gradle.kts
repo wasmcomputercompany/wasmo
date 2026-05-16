@@ -6,6 +6,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 
 plugins {
   id("wasmo-build").apply(false)
@@ -41,6 +43,8 @@ allprojects {
         optIn.add("kotlin.js.ExperimentalJsExport")
         optIn.add("kotlin.time.ExperimentalTime")
         freeCompilerArgs.add("-Xcontext-parameters")
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+        freeCompilerArgs.add("-Xannotation-default-target=param-property") // KT-73255
       }
     }
 
@@ -88,6 +92,19 @@ allprojects {
           connection = "scm:git:git://github.com/wasmcomputercompany/wasmo.git"
           developerConnection = "scm:git:ssh://git@github.com/wasmcomputercompany/wasmo.git"
         }
+      }
+    }
+  }
+
+  // Don't download Node in CI, it's available in our Docker image.
+  if (project.findProperty("wasmo.build.environment") == "ci") {
+    project.plugins.withType<NodeJsPlugin> {
+      project.the<NodeJsEnvSpec>().apply {
+        command.set("/usr/local/bin/node")
+        download = false
+
+        // Consistent with wasmo-build/ci/Dockerfile
+        version = "26.1.0"
       }
     }
   }

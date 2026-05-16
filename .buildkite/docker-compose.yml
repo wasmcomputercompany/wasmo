@@ -1,0 +1,32 @@
+services:
+  postgresql:
+    image: postgres:18.1
+    environment:
+      POSTGRES_PASSWORD: password
+
+  ci-build:
+    image: wasmo/ci:latest
+    working_dir: /workdir
+    volumes:
+      - ..:/workdir
+      - home-gradle:/home/gradle/.gradle
+      - workdir-gradle:/workdir/.gradle
+    depends_on:
+      - postgresql
+    environment:
+      - BUILDKITE_ANALYTICS_TOKEN
+      - BUILDKITE_BRANCH
+      - BUILDKITE_BUILD_ID
+      - BUILDKITE_BUILD_NUMBER
+      - BUILDKITE_BUILD_URL
+      - BUILDKITE_COMMIT
+      - BUILDKITE_JOB_ID
+      - BUILDKITE_MESSAGE
+      - ORG_GRADLE_PROJECT_mavenCentralPassword
+      - ORG_GRADLE_PROJECT_mavenCentralUsername
+      - ORG_GRADLE_PROJECT_signingInMemoryKey
+      - POSTGRESQL_HOSTNAME=postgresql
+
+volumes:
+  home-gradle:
+  workdir-gradle:

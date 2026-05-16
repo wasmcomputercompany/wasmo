@@ -1,6 +1,27 @@
 steps:
   - label: ":gradle: Build"
-    command: "gradle platform:api:jvmTest"
+    commands:
+      - "cat .buildkite/gradle.properties >> gradle.properties"
+      - "gradle jvmTest"
     plugins:
-      - docker#v5.9.0:
-          image: "wasmo/ci:latest"
+      - docker-compose#v5.11.0:
+          run: ci-build
+          config: .buildkite/docker-compose.yml
+          environment:
+            - "BUILDKITE_ANALYTICS_TOKEN"
+            - "BUILDKITE_BRANCH"
+            - "BUILDKITE_BUILD_ID"
+            - "BUILDKITE_BUILD_NUMBER"
+            - "BUILDKITE_BUILD_URL"
+            - "BUILDKITE_COMMIT"
+            - "BUILDKITE_JOB_ID"
+            - "BUILDKITE_MESSAGE"
+      - docker-login#v3.0.0:
+          username: wasmo
+          isolate-config: false
+      - test-collector#v1.0.0:
+          files: "*/test-results/*.xml"
+          format: "junit"
+    secrets:
+      BUILDKITE_ANALYTICS_TOKEN: WASMO_BUILDKITE_ANALYTICS_TOKEN
+      DOCKER_LOGIN_PASSWORD: DOCKER_LOGIN_PASSWORD
