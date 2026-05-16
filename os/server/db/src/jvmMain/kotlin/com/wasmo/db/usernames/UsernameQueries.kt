@@ -123,6 +123,7 @@ suspend fun findUsernameOrNull(
 context(connection: SqlConnection)
 suspend fun selectLinkedUsernameOrNull(
   username: UsernameSlug,
+  allowDeleted: Boolean = false,
 ): DbUsername? {
   val rowIterator = connection.executeQuery(
     """
@@ -133,11 +134,12 @@ suspend fun selectLinkedUsernameOrNull(
       username,
       deleted_at
     FROM Username
-    WHERE username = $1 AND deleted_at IS NULL
+    WHERE username = $1 AND ($2 OR deleted_at IS NULL)
     LIMIT 1
     """,
   ) {
     bindUsername(0, username)
+    bindBool(1, allowDeleted)
   }
   return rowIterator.singleOrNull {
     getUsername()
