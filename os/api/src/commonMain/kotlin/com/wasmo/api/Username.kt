@@ -29,7 +29,18 @@ data class LinkUsernameResponse(
 enum class UsernameDecision {
   /** The caller's cookie was attached to the (new or existing) username specified in the request. */
   Success,
-  /** Bad request, e.g. an invalid username was provided or a username is already linked. */
+
+  /**
+   * The chosen username exists but has been deleted and cannot be reused.
+   */
+  UsernameDeleted,
+  /**
+   * The client asked to link a new username but it already exists (and wasn't
+   * deleted), or to link an existing username but it doesn't exist (not even in
+   * deleted form).
+   */
+  UsernameExistenceIncompatibleWithRequest,
+  /** The client sent a bad request indicative of a programming bug. */
   BadRequest,
 }
 

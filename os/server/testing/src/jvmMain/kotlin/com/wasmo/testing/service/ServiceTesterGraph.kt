@@ -26,6 +26,7 @@ import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.TestEventListener
+import com.wasmo.usernames.UsernameBindings
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -48,6 +49,7 @@ import wasmo.time.FakeClock
     PermitsBindings::class,
     SqlServiceBindings::class,
     ServiceTesterBindings::class,
+    UsernameBindings::class,
   ],
 )
 interface ServiceTesterGraph {
