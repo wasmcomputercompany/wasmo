@@ -58,18 +58,19 @@ internal class RealDomTesterExtension(
       "copyDomTesterResources",
       Copy::class.java,
     ) {
+      project.tasks.findByName("jvmMainClasses")?.let { jvmMainClasses ->
+        this@register.dependsOn(jvmMainClasses)
+      }
       duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-      val jvmMain = project.kotlinExtension.sourceSets.findByName("jvmMain")
-      if (jvmMain != null) {
-        from(jvmMain.resources) {
+      project.kotlinExtension.sourceSets.matching { it.name == "jvmMain" }.all {
+        from(resources) {
           include("static/assets/**/*")
         }
       }
 
-      val jvmMainRuntimeClasspath = project.configurations.findByName("jvmMainRuntimeClasspath")
-      if (jvmMainRuntimeClasspath != null) {
-        for (jarFile in jvmMainRuntimeClasspath.files) {
+      project.configurations.matching { it.name == "jvmMainRuntimeClasspath" }.all {
+        for (jarFile in files) {
           from(project.zipTree(jarFile)) {
             include("static/assets/**/*")
           }
