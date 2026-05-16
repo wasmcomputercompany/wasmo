@@ -11,9 +11,20 @@ data class CreateUsernameRequest(
 
 @Serializable
 data class CreateUsernameResponse(
-  val decision: UsernameDecision,
+  val decision: CreateUsernameDecision,
   val account: AccountSnapshot?
 )
+
+enum class CreateUsernameDecision {
+  /** The new username specified in the request has been created and the caller has been logged in. */
+  Success,
+
+  /** The chosen username already exists (deleted, cannot be reused). */
+  UsernameDeleted,
+
+  /** The chosen username already exists (not deleted). */
+  UsernameTaken,
+}
 
 @Serializable
 data class LinkUsernameRequest(
@@ -22,26 +33,19 @@ data class LinkUsernameRequest(
 
 @Serializable
 data class LinkUsernameResponse(
-  val decision: UsernameDecision,
+  val decision: LinkUsernameDecision,
   val account: AccountSnapshot?,
 )
 
-enum class UsernameDecision {
-  /** The caller's cookie was attached to the (new or existing) username specified in the request. */
+enum class LinkUsernameDecision {
+  /** The caller's cookie was attached to the existing username specified in the request. */
   Success,
 
-  /**
-   * The chosen username exists but has been deleted and cannot be reused.
-   */
+  /** The chosen username exists but has been deleted and cannot be reused. */
   UsernameDeleted,
-  /**
-   * The client asked to link a new username but it already exists (and wasn't
-   * deleted), or to link an existing username but it doesn't exist (not even in
-   * deleted form).
-   */
-  UsernameExistenceIncompatibleWithRequest,
-  /** The client sent a bad request indicative of a programming bug. */
-  BadRequest,
+
+  /** The chosen username does not exist, not even in deleted form. */
+  UsernameNotFound,
 }
 
 @Serializable

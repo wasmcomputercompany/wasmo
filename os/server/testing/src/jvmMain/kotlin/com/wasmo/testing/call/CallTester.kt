@@ -119,10 +119,10 @@ class CallTester(
   )
 
   suspend fun createUsername(request: CreateUsernameRequest) =
-    createUsernanmeRpcProvider().handle(request)
+    createUsernanmeRpcProvider().handle(request.username)
 
   suspend fun linkUsername(request: LinkUsernameRequest) =
-    linkUsernameRpcProvider().handle(request)
+    linkUsernameRpcProvider().handle(request.username)
 
   suspend fun confirmEmailAddress(request: ConfirmEmailAddressRequest) =
     confirmEmailAddressRpcProvider().confirm(request)
