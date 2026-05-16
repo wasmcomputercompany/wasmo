@@ -6,7 +6,6 @@ import com.stripe.service.SubscriptionService
 import com.stripe.service.checkout.SessionService
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.identifiers.Deployment
-import com.wasmo.identifiers.OsScope
 import com.wasmo.payments.Address
 import com.wasmo.payments.CheckoutSession
 import com.wasmo.payments.CheckoutStatus
@@ -15,12 +14,8 @@ import com.wasmo.payments.CreateCheckoutSessionResponse
 import com.wasmo.payments.Customer
 import com.wasmo.payments.PaymentsService
 import com.wasmo.payments.Subscription
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
 import kotlin.time.Instant
 
-@Inject
-@SingleIn(OsScope::class)
 internal class StripePaymentsService(
   private val deployment: Deployment,
   private val sessionService: SessionService,

@@ -8,7 +8,7 @@ import okio.FileSystem
 /**
  * Shell out to `wat2wasm`.
  */
-class WatCompiler() {
+class WatCompiler {
   private val fileSystem = FileSystem.SYSTEM
 
   fun compile(wat: String): ByteString {

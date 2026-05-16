@@ -10,6 +10,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.browser.document
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -159,6 +160,7 @@ class JournalDataService(
     }
   }
 
+  @OptIn(FlowPreview::class) // Flow.debounce is experimental.
   inner class EntryDataService internal constructor(
     val token: String,
     val initialValue: EntrySnapshot? = null,

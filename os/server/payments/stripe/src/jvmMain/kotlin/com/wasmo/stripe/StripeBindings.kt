@@ -9,16 +9,12 @@ import com.wasmo.identifiers.HostnamePatterns
 import com.wasmo.identifiers.OsScope
 import com.wasmo.payments.PaymentsService
 import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ElementsIntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 
 @BindingContainer
 abstract class StripeBindings {
-  @Binds
-  internal abstract fun bindPaymentsService(real: StripePaymentsService): PaymentsService
-
   companion object {
     @Provides
     @ElementsIntoSet
@@ -52,11 +48,11 @@ abstract class StripeBindings {
 
     @Provides
     @SingleIn(OsScope::class)
-    internal fun provideStripePaymentsService(
+    internal fun providePaymentsService(
       deployment: Deployment,
       catalog: Catalog,
       stripeClient: StripeClient,
-    ): StripePaymentsService = StripePaymentsService(
+    ): PaymentsService = StripePaymentsService(
       deployment = deployment,
       sessionService = stripeClient.v1().checkout().sessions(),
       subscriptionService = stripeClient.v1().subscriptions(),
