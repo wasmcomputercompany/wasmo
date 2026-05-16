@@ -18,7 +18,9 @@ import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.DOMScope
+import org.jetbrains.compose.web.dom.Footer
 import org.jetbrains.compose.web.dom.Section
+import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 
@@ -29,6 +31,7 @@ fun HomeScreen(
   items: List<Item>,
   showNewComputer: Boolean,
   eventListener: (HomeEvent) -> Unit,
+  footerText: String?,
 ) {
   HomeScreen(
     attrs = attrs,
@@ -69,6 +72,15 @@ fun HomeScreen(
               classes("ContentWidth")
             },
           )
+        }
+        if (footerText != null) {
+          Footer(
+            attrs = {
+              classes("Homescreen", "Footer")
+            }
+          ) {
+            Text(footerText)
+          }
         }
       }
     },

@@ -131,7 +131,8 @@ class RealCallDataService(
         emailAddresses = emailAddresses,
         username = linkedUsername.get(),
         hasInvite = firstInvite != null,
-        isSignedIn = emailAddresses.isNotEmpty() || linkedUsername.get() != null,
+        signedInAccountName = linkedUsername.get()?.username?.value
+          ?: emailAddresses.firstOrNull()?.emailAddress
       )
     }
   }
