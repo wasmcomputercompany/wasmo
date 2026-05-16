@@ -1,7 +1,10 @@
 Git LFS
 =======
 
-Golden file testing require [Git Large File Storage (LFS)][git-lfs].
+We use [Git Large File Storage (LFS)][git-lfs] for a few things:
+
+* Golden file testing (dom-tester)
+* Wallpapers
 
 Set it up like so:
 
