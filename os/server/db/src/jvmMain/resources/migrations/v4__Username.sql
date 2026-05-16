@@ -3,12 +3,13 @@ CREATE TABLE Username (
   -- Subject to clock limitations (e.g. may not be strictly increasing).
   created_at TIMESTAMPTZ NOT NULL,
   account_id BIGINT NOT NULL,
-  username VARCHAR(255) UNIQUE NOT NULL,
+  username VARCHAR(255) NOT NULL,
+  -- normalized value is what needs to be unique because it's used for equals / hashCode purposes
+  normalized_value VARCHAR(255) UNIQUE NOT NULL,
   -- When this username was deleted. Modifying code should ensure that if this has been replaced
   -- with another username, then that username's created_at timestamp will match this and its
   -- account_id will match ours.
   deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
-CREATE UNIQUE INDEX UsernameUsername ON Username(username);
 CREATE UNIQUE INDEX UsernameAccountIdNotDeleted ON Username(account_id) WHERE deleted_at IS NULL;
