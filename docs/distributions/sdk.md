@@ -1,7 +1,7 @@
-Dev Mode
-========
+Wasmo SDK
+=========
 
-Wasmo OS can run in dev mode. It adds features to help develop new apps.
+The Wasmo SDK is for interactive application development, and includes features to support this.
 
 
 Install from the File System
@@ -14,13 +14,13 @@ apps can also be installed from the file system, like `/Users/jesse/Development/
 Updates without version changes
 -------------------------------
 
-The OS will update apps even if the manifest’s version field is unchanged.
+The SDK will update apps even if the manifest’s version field is unchanged.
 
 
 Polling for Updates
 -------------------
 
-The OS will poll for app updates. If the app is installed from the file system, it'll watch the file
+The SDK will poll for app updates. If the app is installed from the file system, it'll watch the file
 system and install updates automatically.
 
 
@@ -32,4 +32,4 @@ This requires an opt-in in the [manifest](wasmo_files.md).
 Served HTML will be rewritten to add a hot reloading hook. This will trigger automatic page
 refreshes when the app is updated.
 
-Wasmo OS will not inject code unless this setting is enabled and the OS is executing in dev mode.
+The SDK will not inject code unless this setting is enabled.

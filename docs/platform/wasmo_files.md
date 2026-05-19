@@ -16,7 +16,7 @@ recipes.wasmo/
          '- recipes.css
 ```
 
-In [dev mode](./dev_mode.md), Wasmo OS can run applications directly from a directory on the local
+In [dev mode](sdk.md), Wasmo OS can run applications directly from a directory on the local
 file system. This way when you change the manifest, the `.wasm` file, or a resource, that change is
 reflected immediately in the running application.
 
@@ -153,7 +153,7 @@ hot_reload = true
 True to automatically reload the app when its code or resources change. This is implemented by
 dangerously rewriting the application's HTML to add a reload trigger.
 
-See [the dev mode guide](./dev_mode.md) for details.
+See [the dev mode guide](sdk.md) for details.
 
 
 `www-public/` files
