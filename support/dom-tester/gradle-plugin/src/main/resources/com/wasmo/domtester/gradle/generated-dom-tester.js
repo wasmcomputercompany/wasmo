@@ -95,7 +95,10 @@ function configureBrowser(config) {
   config.customLaunchers = config.customLaunchers || {};
   config.customLaunchers['DomTesterChrome'] = {
     base: 'ChromeHeadless',
-    flags: ['--screen-info={3200x3200 label=1st devicePixelRatio=2}'],
+    flags: [
+      '--screen-info={3200x3200 label=1st devicePixelRatio=2}',
+      '--use-gl="swiftshader"'
+    ],
     displayName: 'DomTesterChrome'
   };
   config.browsers = ['DomTesterChrome'];
