@@ -6,6 +6,7 @@ import com.wasmo.api.UsernameDecision
 import com.wasmo.calls.CallDataService
 import com.wasmo.db.usernames.insertUsername
 import com.wasmo.db.usernames.selectLinkedUsernameOrNull
+import com.wasmo.db.usernames.selectLinkedUsernameOrNullAllowDeleted
 import com.wasmo.identifiers.UsernameSlug
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -48,7 +49,7 @@ class RealUsernameLinker(
     try {
       val now = clock.now()
       val accountId = client.getOrCreateAccountId()
-      val existingUsername = selectLinkedUsernameOrNull(username = username, allowDeleted = true)
+      val existingUsername = selectLinkedUsernameOrNullAllowDeleted(username = username)
       if (existingUsername?.deletedAt != null) {
         return UsernameDecision.UsernameDeleted // username exists but was deleted
       }

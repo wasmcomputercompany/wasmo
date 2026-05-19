@@ -72,7 +72,6 @@ suspend fun replaceUsername(
 
 /**
  * Marks [username] for the given [accountId] as deleted at [deletedAt].
- * A deleted username will no longer be found by [selectUsernameOrNull].
  * Deletion is meant to be permanent, but we might some dayy want to offer
  * un-deletion/reuse to the account originally owning the username.
  */
@@ -123,7 +122,12 @@ suspend fun findUsernameOrNull(
 context(connection: SqlConnection)
 suspend fun selectLinkedUsernameOrNull(
   username: UsernameSlug,
-  allowDeleted: Boolean = false,
+): DbUsername? =
+  selectLinkedUsernameOrNullAllowDeleted(username)?.takeIf { it.deletedAt == null }
+
+context(connection: SqlConnection)
+suspend fun selectLinkedUsernameOrNullAllowDeleted(
+  username: UsernameSlug,
 ): DbUsername? {
   val rowIterator = connection.executeQuery(
     """
@@ -134,12 +138,11 @@ suspend fun selectLinkedUsernameOrNull(
       username,
       deleted_at
     FROM Username
-    WHERE username = $1 AND ($2 OR deleted_at IS NULL)
+    WHERE username = $1
     LIMIT 1
     """,
   ) {
     bindUsername(0, username)
-    bindBool(1, allowDeleted)
   }
   return rowIterator.singleOrNull {
     getUsername()
