@@ -386,6 +386,11 @@ button {
   color: rgba(0 0 0 / 0.8);
 }
 
+.HomeScreen .Footer {
+  color: rgba(255 255 255 / 0.5);
+  font-size: 16px;
+}
+
 .HomeScreen .SmartphoneFrame {
   cursor: pointer;
 }

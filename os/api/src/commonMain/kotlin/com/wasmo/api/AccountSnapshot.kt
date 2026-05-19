@@ -14,8 +14,12 @@ data class AccountSnapshot(
   val emailAddresses: List<LinkedEmailAddressSnapshot>,
   val username: LinkedUsernameSnapshot?,
   val hasInvite: Boolean,
-  val isSignedIn: Boolean,
-)
+  /** Suitable for identifying the signed-in account in the UI, or null if not signed-in. */
+  val signedInAccountName: String?,
+) {
+  val isSignedIn: Boolean
+    get() = signedInAccountName != null
+}
 
 @Serializable
 data object AccountSnapshotRequest

@@ -57,6 +57,7 @@ class HomeUi(
         )
       },
       showNewComputer = environment.showSignUp && accountSnapshot.isSignedIn,
+      footerText = accountSnapshot.signedInAccountName,
     )
   }
 
