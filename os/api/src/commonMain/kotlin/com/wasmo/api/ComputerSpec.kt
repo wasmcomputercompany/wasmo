@@ -1,6 +1,7 @@
 package com.wasmo.api
 
 import com.wasmo.identifiers.ComputerSlug
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,6 +11,12 @@ data class CreateComputerSpecRequest(
 )
 
 @Serializable
-data class CreateComputerSpecResponse(
-  val checkoutSessionClientSecret: String,
-)
+sealed class CreateComputerSpecResponse {
+  @Serializable
+  @SerialName("PaymentRequired")
+  data class PaymentRequired(val checkoutSessionClientSecret: String) : CreateComputerSpecResponse()
+
+  @Serializable
+  @SerialName("Success")
+  data object Success : CreateComputerSpecResponse()
+}

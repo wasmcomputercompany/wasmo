@@ -10,6 +10,7 @@ import com.wasmo.common.catalog.Catalog
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
+import com.wasmo.computers.free.FreeComputersBindings
 import com.wasmo.db.Migrator
 import com.wasmo.emails.EmailBindings
 import com.wasmo.identifiers.Deployment
@@ -48,6 +49,7 @@ import wasmo.sql.SqlDatabase
     AccountsBindings::class,
     AccountsPasskeysBindings::class,
     ComputersBindings::class,
+    FreeComputersBindings::class,
     EmailBindings::class,
     FileSystemObjectStoreBindings::class,
     InstalledAppBindings::class,

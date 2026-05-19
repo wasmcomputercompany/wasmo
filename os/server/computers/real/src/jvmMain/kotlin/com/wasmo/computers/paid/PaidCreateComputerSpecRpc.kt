@@ -1,9 +1,10 @@
-package com.wasmo.computers
+package com.wasmo.computers.paid
 
 import com.wasmo.accounts.CallScope
 import com.wasmo.accounts.Client
 import com.wasmo.api.CreateComputerSpecRequest
 import com.wasmo.api.CreateComputerSpecResponse
+import com.wasmo.computers.ComputerSpecStore
 import com.wasmo.framework.Response
 import com.wasmo.framework.RpcAction
 import com.wasmo.framework.Url
@@ -17,17 +18,17 @@ import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@ClassKey(CreateComputerSpecRpc::class)
+@ClassKey(PaidCreateComputerSpecRpc::class)
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
-class CreateComputerSpecRpc(
+class PaidCreateComputerSpecRpc(
   private val paymentsService: PaymentsService,
   private val client: Client,
   private val wasmoDb: SqlDatabase,
   private val computerSpecStore: ComputerSpecStore,
-) : RpcAction<CreateComputerSpecRequest, CreateComputerSpecResponse> {
+) : RpcAction<CreateComputerSpecRequest, CreateComputerSpecResponse.PaymentRequired> {
   suspend fun create(
     request: CreateComputerSpecRequest,
-  ): Response<CreateComputerSpecResponse> {
+  ): Response<CreateComputerSpecResponse.PaymentRequired> {
     wasmoDb.transaction {
       computerSpecStore.insertIfAbsent(
         accountId = client.getOrCreateAccountId(),
@@ -41,7 +42,7 @@ class CreateComputerSpecRpc(
     )
 
     return Response(
-      body = CreateComputerSpecResponse(
+      body = CreateComputerSpecResponse.PaymentRequired(
         checkoutSessionClientSecret = checkoutSession.clientSecret,
       ),
     )
