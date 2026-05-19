@@ -1,8 +1,9 @@
 package com.wasmo.client.app.signup
 
 import com.wasmo.api.ConfirmEmailAddressResponse.Decision
+import com.wasmo.api.CreateUsernameDecision
+import com.wasmo.api.LinkUsernameDecision
 import com.wasmo.api.SignInSnapshot
-import com.wasmo.api.UsernameDecision
 import com.wasmo.api.routes.HomeRoute
 import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.app.routing.Router
@@ -164,7 +165,7 @@ class SignUpPresenter(
           val usernameModel = state.newAccountWithUsername ?: return@callServer // Race.
           val response = accountDataService.createUsername(UsernameSlug(usernameModel.username))
           when (response.decision) {
-            UsernameDecision.Success -> {
+            CreateUsernameDecision.Success -> {
               response.account?.let { accountSnapshot ->
                 accountDataService.receiveAccountSnapshot(accountSnapshot)
               }
@@ -181,7 +182,7 @@ class SignUpPresenter(
         callServer {
           val response = accountDataService.linkUsername(event.usernameSlug)
           when (response.decision) {
-            UsernameDecision.Success -> {
+            LinkUsernameDecision.Success -> {
               response.account?.let { accountSnapshot ->
                 accountDataService.receiveAccountSnapshot(accountSnapshot)
               }
