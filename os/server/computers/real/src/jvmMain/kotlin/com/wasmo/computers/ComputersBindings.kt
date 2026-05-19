@@ -9,7 +9,6 @@ import com.wasmo.jobs.JobRegistration
 import com.wasmo.jobs.OsJobQueue
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
-import dev.zacsweers.metro.ElementsIntoSet
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -24,23 +23,16 @@ abstract class ComputersBindings {
     private val InstallAppJobName = JobName<InstallAppJob, Unit>("InstallAppJob")
 
     @Provides
-    @ElementsIntoSet
+    @IntoSet
     @SingleIn(OsScope::class)
     fun provideActionRegistrations(
       hostnamePatterns: HostnamePatterns,
-    ): List<ActionRegistration> = listOf(
-      ActionRegistration.Rpc(
-        host = hostnamePatterns.osHostname,
-        path = "/create-computer-spec",
-        action = CreateComputerSpecRpc::class,
-      ),
-
+    ): ActionRegistration =
       ActionRegistration.Rpc(
         host = hostnamePatterns.computerRegex,
         path = "/install-app",
         action = InstallAppRpc::class,
-      ),
-    )
+      )
 
     @Provides
     @SingleIn(OsScope::class)

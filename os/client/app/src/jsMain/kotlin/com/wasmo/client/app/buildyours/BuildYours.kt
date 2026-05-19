@@ -161,6 +161,7 @@ fun BuildYoursScreen(
         }
       }
 
+      // TODO: Make options and their pricing (including free) configurable by the server.
       Section {
         H2 {
           Text("Start with this:")
@@ -191,11 +192,11 @@ fun BuildYoursScreen(
         Button(
           attrs = {
             onClick {
-              eventListener(BuildYoursScreenEvent.ClickCheckOut(ComputerSlug(nameState)))
+              eventListener(BuildYoursScreenEvent.ClickCreateComputer(ComputerSlug(nameState)))
             }
           },
         ) {
-          Text("Check Out")
+          Text("Create Computer")
         }
       }
 
@@ -216,7 +217,7 @@ fun BuildYoursScreen(
 }
 
 sealed interface BuildYoursScreenEvent {
-  data class ClickCheckOut(
+  data class ClickCreateComputer(
     val slug: ComputerSlug,
   ) : BuildYoursScreenEvent
 

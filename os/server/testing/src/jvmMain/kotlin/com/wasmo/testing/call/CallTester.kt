@@ -21,15 +21,14 @@ import com.wasmo.api.SignOutRequest
 import com.wasmo.api.routes.Route
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.computers.CreateComputerSpecRpc
 import com.wasmo.computers.InstallAppRpc
+import com.wasmo.computers.paid.PaidCreateComputerSpecRpc
 import com.wasmo.emails.ConfirmEmailAddressRpc
 import com.wasmo.emails.LinkEmailAddressRpc
 import com.wasmo.framework.Request
 import com.wasmo.framework.Url
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.Deployment
-import com.wasmo.identifiers.UsernameSlug
 import com.wasmo.installedapps.CallAppAction
 import com.wasmo.stripe.AfterCheckoutPage
 import com.wasmo.support.tokens.ChallengeCode
@@ -57,7 +56,7 @@ class CallTester(
   private val authenticatePasskeyRpcProvider: Provider<AuthenticatePasskeyRpc>,
   private val callAppActionProvider: Provider<CallAppAction>,
   private val confirmEmailAddressRpcProvider: Provider<ConfirmEmailAddressRpc>,
-  private val createComputerSpecRpcProvider: Provider<CreateComputerSpecRpc>,
+  private val createComputerSpecRpcProvider: Provider<PaidCreateComputerSpecRpc>,
   private val createInviteRpcProvider: Provider<CreateInviteRpc>,
   private val createUsernanmeRpcProvider: Provider<CreateUsernameRpc>,
   private val installAppRpcProvider: Provider<InstallAppRpc>,

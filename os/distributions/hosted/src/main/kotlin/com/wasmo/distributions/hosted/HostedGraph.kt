@@ -8,6 +8,7 @@ import com.wasmo.calls.CallGraph
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
+import com.wasmo.computers.paid.PaidComputersBindings
 import com.wasmo.db.Migrator
 import com.wasmo.db.RealMigrator
 import com.wasmo.emails.EmailBindings
@@ -47,6 +48,7 @@ import wasmo.sql.SqlDatabase
     AccountsBindings::class,
     AccountsPasskeysBindings::class,
     ComputersBindings::class,
+    PaidComputersBindings::class,
     EmailBindings::class,
     ExternalPostgresqlOperatorBindings::class,
     FileSystemObjectStoreBindings::class,
