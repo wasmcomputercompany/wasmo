@@ -12,7 +12,7 @@ Modeling Subscriptions
 A computer has these size parameters:
 
  - **ComputeCapacity**: how much CPU, RAM and network the computer is permitted to use. These are
-   all ephemeral and use a [leaky bucket] model for rate limiting.
+   all ephemeral and use a [leaky bucket](https://en.wikipedia.org/wiki/Leaky_bucket) model for rate limiting.
 
  - **StorageCapacity**: how much data the computer may store. This is not ephemeral.
 
