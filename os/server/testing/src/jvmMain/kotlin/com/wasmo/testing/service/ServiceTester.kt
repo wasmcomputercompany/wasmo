@@ -6,6 +6,7 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.permits.PermitService
+import com.wasmo.sql.OsDatabaseInitializer
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.asSqlDatabase
@@ -13,7 +14,6 @@ import com.wasmo.sql.testing.AdminPostgresqlAddress
 import com.wasmo.sql.testing.TestPostgresqlAddress
 import com.wasmo.sql.testing.dropAppDatabases
 import com.wasmo.sql.testing.dropAppRoles
-import com.wasmo.sql.testing.prepareTestDatabase
 import com.wasmo.support.absurd.dangerouslyClearAbsurdSchema
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
@@ -109,7 +109,13 @@ class ServiceTester : CoroutineTestInterceptor {
     fileSystem.createDirectories(testDirectory)
 
     val postgresqlClientFactory = PostgresqlClient.Factory()
-    postgresqlClientFactory.prepareTestDatabase(AdminPostgresqlAddress, TestPostgresqlAddress)
+    val initializer = OsDatabaseInitializer(
+      clientFactory = postgresqlClientFactory,
+      superuser = AdminPostgresqlAddress,
+      address = TestPostgresqlAddress,
+    )
+    initializer.initialize()
+    initializer.dangerouslyClearSchema()
 
     postgresqlClientFactory.connect(AdminPostgresqlAddress).use { provisioningDbClient ->
       provisioningDbClient.withConnection {

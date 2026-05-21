@@ -22,6 +22,7 @@ import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
 import com.wasmo.objectstore.s3.S3ObjectStoreBindings
 import com.wasmo.passkeys.PasskeysBindings
 import com.wasmo.permits.PermitsBindings
+import com.wasmo.postgresqloperator.ExternalPostgresqlOperatorBindings
 import com.wasmo.sendemail.postmark.PostmarkBindings
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
@@ -47,6 +48,7 @@ import wasmo.sql.SqlDatabase
     AccountsPasskeysBindings::class,
     ComputersBindings::class,
     EmailBindings::class,
+    ExternalPostgresqlOperatorBindings::class,
     FileSystemObjectStoreBindings::class,
     InstalledAppBindings::class,
     KtorBindings::class,

@@ -80,8 +80,9 @@ class HomeTest {
     val menuModel by menuModelFlow.collectAsState()
     HomeScreen(
       menuModel = menuModel,
-      showNewComputer = showNewComputer,
       items = items,
+      showNewComputer = showNewComputer,
+      footerText = "bullwinkle",
       eventListener = {},
     )
   }
