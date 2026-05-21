@@ -97,15 +97,15 @@ allprojects {
   }
 
   // Don't download Node in CI, it's available in our Docker image.
-  if (project.findProperty("wasmo.build.environment") == "ci") {
-    project.plugins.withType<NodeJsPlugin> {
-      project.the<NodeJsEnvSpec>().apply {
-        command.set("/usr/local/bin/node")
+  project.plugins.withType<NodeJsPlugin> {
+    project.the<NodeJsEnvSpec>().apply {
+      if (project.findProperty("wasmo.build.environment") == "ci") {
         download = false
-
-        // Consistent with wasmo-build/ci/Dockerfile
-        version = "26.1.0"
+        command.set("/usr/local/bin/node")
       }
+
+      // Consistent with wasmo-build/ci/Dockerfile
+      version = "26.1.0"
     }
   }
 }
