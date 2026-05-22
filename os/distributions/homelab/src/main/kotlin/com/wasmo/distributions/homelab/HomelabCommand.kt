@@ -74,7 +74,7 @@ class HomelabCommand : CliktCommand() {
           catalog = DevelopmentCatalog,
           wasmoDb = wasmoDb,
           provisioningDb = provisioningDb,
-          postgresqlAddress = postgresqlConfig.os,
+          postgresqlConfig = postgresqlConfig,
           deployment = Deployment(
             baseUrl = "http://wasmo.localhost:8080/".toHttpUrl(),
             sendFromEmailAddress = "noreply@wasmo.dev",

@@ -26,6 +26,7 @@ class RealSqlDatabaseProvisioner(
   private val computerSlug: ComputerSlug,
   private val appSlug: AppSlug,
   private val appId: InstalledAppId,
+  private val postgresqlConfig: WasmoPostgresqlConfig,
   private val provisioningDb: ProvisioningDb,
   private val osDb: SqlDatabase,
   private val clock: Clock,
@@ -52,12 +53,10 @@ class RealSqlDatabaseProvisioner(
 
     // TODO: Clean up secrets and settings before invoking
     val appPassword = decryptAppPassword(installedAppDatabase)
-    return PostgresqlAddress(
-      hostname = provisioningDb.address.hostname,
-      ssl = provisioningDb.address.ssl,
+    return postgresqlConfig.appDatabase(
       user = appUsername,
-      databaseName = databaseName,
       password = appPassword,
+      databaseName = databaseName,
     )
   }
 
@@ -80,9 +79,8 @@ class RealSqlDatabaseProvisioner(
     // Log into the database as the provisioning owner to set up the app user permissions.
     trackAndClose { closeTracker ->
       val appDb = closeTracker.track { closeListener ->
-        val appDatabaseAddress = provisioningDb.address.copy(databaseName = databaseName)
         val client = PostgresqlClient.Factory()
-          .connect(appDatabaseAddress)
+          .connect(postgresqlConfig.adminToAppDatabase(databaseName))
         RealSqlDatabase(
           client = client,
           closeListener = closeListener,

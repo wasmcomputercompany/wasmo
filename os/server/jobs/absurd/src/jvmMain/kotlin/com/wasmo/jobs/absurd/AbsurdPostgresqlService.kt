@@ -1,7 +1,7 @@
 package com.wasmo.jobs.absurd
 
 import com.wasmo.identifiers.OsScope
-import com.wasmo.sql.PostgresqlAddress
+import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.support.absurd.PostgresqlClient
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -15,17 +15,17 @@ import java.io.Closeable
 @Inject
 @SingleIn(OsScope::class)
 internal class AbsurdPostgresqlService(
-  val address: PostgresqlAddress,
+  val postgresqlConfig: WasmoPostgresqlConfig,
 ) : Closeable {
   val client = PostgresqlClient(
     PgConnectOptions()
-      .setHost(address.hostname)
-      .setDatabase(address.databaseName)
-      .setUser(address.user)
-      .setPassword(address.password)
+      .setHost(postgresqlConfig.hostname)
+      .setDatabase(postgresqlConfig.osDatabaseName)
+      .setUser(postgresqlConfig.osUser)
+      .setPassword(postgresqlConfig.osPassword)
       .setSslMode(
         when {
-          address.ssl -> SslMode.VERIFY_FULL
+          postgresqlConfig.ssl -> SslMode.VERIFY_FULL
           else -> SslMode.DISABLE
         },
       ),

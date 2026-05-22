@@ -10,7 +10,7 @@ import com.wasmo.sql.OsDatabaseInitializer
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.asSqlDatabase
-import com.wasmo.sql.testing.TestPostgresqlAddress
+import com.wasmo.sql.testing.TestPostgresqlConfig
 import com.wasmo.sql.testing.dropAppDatabases
 import com.wasmo.sql.testing.dropAppRoles
 import com.wasmo.support.absurd.dangerouslyClearAbsurdSchema
@@ -110,24 +110,23 @@ class ServiceTester : CoroutineTestInterceptor {
     val clientFactory = PostgresqlClient.Factory()
     val initializer = OsDatabaseInitializer(
       clientFactory = clientFactory,
-      address = TestPostgresqlAddress,
+      address = TestPostgresqlConfig,
     )
     initializer.initialize()
     initializer.dangerouslyClearSchema()
 
-    clientFactory.connect(TestPostgresqlAddress.admin).use { provisioningDbClient ->
+    clientFactory.connect(TestPostgresqlConfig.admin).use { provisioningDbClient ->
       provisioningDbClient.withConnection {
         dropAppDatabases()
         dropAppRoles()
       }
-      clientFactory.connect(TestPostgresqlAddress.os).use { wasmoDbClient ->
+      clientFactory.connect(TestPostgresqlConfig.os).use { wasmoDbClient ->
         wasmoDbClient.withConnection {
           dangerouslyClearAbsurdSchema()
         }
 
         val wasmoDb = wasmoDbClient.asSqlDatabase()
         val provisioningDb = ProvisioningDb(
-          address = TestPostgresqlAddress.admin,
           provisioningDb = provisioningDbClient.asSqlDatabase(),
         )
 
@@ -158,7 +157,7 @@ class ServiceTester : CoroutineTestInterceptor {
         coroutineScope {
           graph = serviceTesterGraphFactory.create(
             wasmoDb = wasmoDb,
-            postgresqlAddress = TestPostgresqlAddress.os,
+            postgresqlConfig = TestPostgresqlConfig,
             provisioningDb = provisioningDb,
             coroutineScope = this,
             fileSystem = fileSystem,

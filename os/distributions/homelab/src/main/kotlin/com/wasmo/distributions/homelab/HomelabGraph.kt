@@ -25,9 +25,9 @@ import com.wasmo.postgresqloperator.ExecPostgresqlOperatorBindings
 import com.wasmo.postgresqloperator.LocalPostgresql
 import com.wasmo.sendemail.postmark.PostmarkBindings
 import com.wasmo.sendemail.postmark.PostmarkCredentials
-import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.SqlServiceBindings
+import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.usernames.UsernameBindings
@@ -87,7 +87,7 @@ internal interface HomelabGraph {
       @Provides stripeCredentials: StripeCredentials,
       @Provides objectStoreAddress: ObjectStoreAddress,
       @Provides catalog: Catalog,
-      @Provides postgresqlAddress: PostgresqlAddress,
+      @Provides postgresqlConfig: WasmoPostgresqlConfig,
       @Provides localPostgresql: LocalPostgresql,
     ): HomelabGraph
   }

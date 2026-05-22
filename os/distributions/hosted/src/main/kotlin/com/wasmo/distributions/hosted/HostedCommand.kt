@@ -80,7 +80,7 @@ class HostedCommand : CliktCommand() {
           catalog = DevelopmentCatalog,
           wasmoDb = wasmoDb,
           provisioningDb = provisioningDb,
-          postgresqlAddress = postgresqlConfig.os,
+          postgresqlConfig = postgresqlConfig,
           deployment = Deployment(
             baseUrl = "https://wasmo.com/".toHttpUrl(),
             sendFromEmailAddress = "noreply@wasmo.com",

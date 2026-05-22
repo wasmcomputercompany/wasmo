@@ -25,9 +25,9 @@ import com.wasmo.permits.PermitsBindings
 import com.wasmo.postgresqloperator.ExternalPostgresqlOperatorBindings
 import com.wasmo.sendemail.postmark.PostmarkBindings
 import com.wasmo.sendemail.postmark.PostmarkCredentials
-import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.SqlServiceBindings
+import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.stripe.StripeBindings
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.website.WebsiteBindings
@@ -85,7 +85,7 @@ internal interface SandboxGraph {
       @Provides stripeCredentials: StripeCredentials,
       @Provides objectStoreAddress: ObjectStoreAddress,
       @Provides catalog: Catalog,
-      @Provides postgresqlAddress: PostgresqlAddress,
+      @Provides postgresqlConfig: WasmoPostgresqlConfig,
     ): SandboxGraph
   }
 }

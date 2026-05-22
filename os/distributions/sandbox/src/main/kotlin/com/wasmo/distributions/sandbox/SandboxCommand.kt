@@ -80,7 +80,7 @@ class SandboxCommand : CliktCommand() {
           catalog = DevelopmentCatalog,
           wasmoDb = wasmoDb,
           provisioningDb = provisioningDb,
-          postgresqlAddress = postgresqlConfig.os,
+          postgresqlConfig = postgresqlConfig,
           deployment = Deployment(
             baseUrl = "https://wasmo.dev/".toHttpUrl(),
             sendFromEmailAddress = "noreply@wasmo.dev",

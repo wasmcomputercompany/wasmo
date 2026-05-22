@@ -19,11 +19,11 @@ class PostgresqlTester : CoroutineTestInterceptor {
     val postgresqlClientFactory = PostgresqlClient.Factory()
     val initializer = OsDatabaseInitializer(
       clientFactory = postgresqlClientFactory,
-      address = TestPostgresqlAddress,
+      address = TestPostgresqlConfig,
     )
     initializer.initialize()
     initializer.dangerouslyClearSchema()
-    postgresqlClientFactory.connect(TestPostgresqlAddress.os).use { client ->
+    postgresqlClientFactory.connect(TestPostgresqlConfig.os).use { client ->
       run = Run(
         client = client,
         sqlDatabase = client.asSqlDatabase(),

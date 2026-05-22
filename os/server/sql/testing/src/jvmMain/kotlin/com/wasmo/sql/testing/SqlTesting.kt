@@ -7,7 +7,7 @@ import io.vertx.sqlclient.SqlClient
 val POSTGRESQL_HOSTNAME = System.getenv("POSTGRESQL_HOSTNAME")
   ?: "localhost"
 
-val TestPostgresqlAddress = WasmoPostgresqlConfig(
+val TestPostgresqlConfig = WasmoPostgresqlConfig(
   hostname = POSTGRESQL_HOSTNAME,
   ssl = false,
   adminUser = "postgres",

@@ -33,4 +33,22 @@ data class WasmoPostgresqlConfig(
   /** Authenticates as admin to the OS database. */
   val adminToOsDatabase: PostgresqlAddress
     get() = admin.copy(databaseName = osDatabaseName)
+
+  fun appDatabase(
+    user: String,
+    password: String,
+    databaseName: String,
+  ) = PostgresqlAddress(
+    hostname = hostname,
+    ssl = ssl,
+    user = user,
+    password = password,
+    databaseName = databaseName,
+  )
+
+  fun adminToAppDatabase(
+    databaseName: String,
+  ) = admin.copy(
+    databaseName = databaseName,
+  )
 }

@@ -28,7 +28,6 @@ abstract class Distribution {
     val postgresqlClientFactory = PostgresqlClient.Factory()
     val osPostgresqlClient = postgresqlClientFactory.connect(postgresqlConfig.os)
     val provisioningDb = ProvisioningDb(
-      address = postgresqlConfig.admin,
       provisioningDb = postgresqlClientFactory.connect(postgresqlConfig.admin)
         .asSqlDatabase(),
     )

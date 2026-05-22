@@ -16,9 +16,9 @@ import com.wasmo.jobs.absurd.AbsurdService
 import com.wasmo.passkeys.PasskeysBindings
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.PermitsBindings
-import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.SqlServiceBindings
+import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.TestDirectory
@@ -85,7 +85,7 @@ interface ServiceTesterGraph {
   interface Factory {
     fun create(
       @Provides wasmoDb: SqlDatabase,
-      @Provides postgresqlAddress: PostgresqlAddress,
+      @Provides postgresqlConfig: WasmoPostgresqlConfig,
       @Provides provisioningDb: ProvisioningDb,
       @Provides coroutineScope: CoroutineScope,
       @Provides fileSystem: FileSystem,
