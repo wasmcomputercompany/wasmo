@@ -4,10 +4,8 @@ import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.accounts.passkeys.AccountsPasskeysBindings
-import com.wasmo.api.routes.RouteCodec
 import com.wasmo.calls.CallGraph
 import com.wasmo.common.catalog.Catalog
-import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
 import com.wasmo.db.Migrator
@@ -23,6 +21,8 @@ import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
 import com.wasmo.objectstore.s3.S3ObjectStoreBindings
 import com.wasmo.passkeys.PasskeysBindings
 import com.wasmo.permits.PermitsBindings
+import com.wasmo.postgresqloperator.ExecPostgresqlOperatorBindings
+import com.wasmo.postgresqloperator.LocalPostgresql
 import com.wasmo.sendemail.postmark.PostmarkBindings
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sql.PostgresqlAddress
@@ -49,6 +49,7 @@ import wasmo.sql.SqlDatabase
     AccountsPasskeysBindings::class,
     ComputersBindings::class,
     EmailBindings::class,
+    ExecPostgresqlOperatorBindings::class,
     FileSystemObjectStoreBindings::class,
     InstalledAppBindings::class,
     KtorBindings::class,
@@ -87,6 +88,7 @@ internal interface HomelabGraph {
       @Provides objectStoreAddress: ObjectStoreAddress,
       @Provides catalog: Catalog,
       @Provides postgresqlAddress: PostgresqlAddress,
+      @Provides localPostgresql: LocalPostgresql,
     ): HomelabGraph
   }
 }

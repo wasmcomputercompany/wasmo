@@ -6,6 +6,7 @@ import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.asSqlDatabase
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.netty.EngineMain
+import kotlinx.coroutines.CoroutineScope
 import wasmo.sql.SqlDatabase
 
 /**
@@ -21,8 +22,9 @@ abstract class Distribution {
     wasmoDb: SqlDatabase,
   ): WasmoService
 
-  suspend fun start(args: Array<String>) {
-    val server = EngineMain.createServer(args)
+  context(scope: CoroutineScope)
+  suspend fun start() {
+    val server = EngineMain.createServer(arrayOf())
 
     val postgresqlClientFactory = PostgresqlClient.Factory()
     val osPostgresqlClient = postgresqlClientFactory.connect(osPostgresqlAddress)

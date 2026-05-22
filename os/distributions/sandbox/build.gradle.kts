@@ -10,11 +10,13 @@ wasmoBuild {
 }
 
 application {
-  mainClass = "com.wasmo.distributions.sandbox.SandboxWasmoOs"
+  mainClass = "com.wasmo.distributions.sandbox.SandboxMain"
 }
 
 dependencies {
   add("jsResources", projects.os.client.appSandbox)
+  implementation(libs.clikt)
+  implementation(libs.clikt.core)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.ktor.server.core)
   implementation(libs.ktor.server.netty)
@@ -51,6 +53,7 @@ dependencies {
   implementation(projects.os.server.passkeys.real)
   implementation(projects.os.server.payments.stripe)
   implementation(projects.os.server.permits.real)
+  implementation(projects.os.server.postgresqloperator.external)
   implementation(projects.os.server.sendemail.postmark)
   implementation(projects.os.server.sql.api)
   implementation(projects.os.server.sql.real)

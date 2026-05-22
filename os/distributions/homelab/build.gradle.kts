@@ -1,7 +1,8 @@
 plugins {
+  id("org.gradle.application")
   alias(libs.plugins.kotlin.jvm)
-  alias(libs.plugins.ktor)
   alias(libs.plugins.metro)
+  alias(libs.plugins.jib)
   id("wasmo-build")
 }
 
@@ -10,11 +11,41 @@ wasmoBuild {
 }
 
 application {
-  mainClass = "com.wasmo.distributions.homelab.HomelabWasmoOs"
+  mainClass = "com.wasmo.distributions.homelab.HomelabMain"
+  applicationDefaultJvmArgs = listOf(
+    "-server",
+    "-Djava.awt.headless=true",
+    "-Xms512m",
+    "-Xmx512m",
+  )
+}
+
+jib {
+  from {
+    image = "docker://wasmo/homelab-foundation"
+  }
+  to {
+    image = "wasmo/homelab"
+    tags = setOf("latest")
+  }
+  container {
+    ports = listOf("8080")
+    mainClass = application.mainClass.get()
+    jvmFlags = application.applicationDefaultJvmArgs.toList()
+
+    // TODO(jwilson): these secrets aren't used. Stop requiring them.
+    environment = mapOf(
+      "STRIPE_PUBLISHABLE_KEY" to ("pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"),
+      "STRIPE_SECRET_KEY" to ("sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"),
+      "POSTMARK_SERVER_TOKEN" to ("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
+    )
+  }
 }
 
 dependencies {
   add("jsResources", projects.os.client.appHomelab)
+  implementation(libs.clikt)
+  implementation(libs.clikt.core)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.ktor.server.core)
   implementation(libs.ktor.server.netty)
@@ -51,6 +82,9 @@ dependencies {
   implementation(projects.os.server.passkeys.real)
   implementation(projects.os.server.payments.stripe)
   implementation(projects.os.server.permits.real)
+  implementation(projects.os.server.postgresqloperator.api)
+  implementation(projects.os.server.postgresqloperator.exec)
+  implementation(projects.os.server.postgresqloperator.external)
   implementation(projects.os.server.sendemail.postmark)
   implementation(projects.os.server.sql.api)
   implementation(projects.os.server.sql.real)
@@ -61,10 +95,4 @@ dependencies {
   implementation(projects.os.server.wiring)
   implementation(projects.platform.api)
   implementation(projects.wasmox.wasmoxSql)
-}
-
-ktor {
-  docker {
-    jreVersion.set(JavaVersion.VERSION_24)
-  }
 }

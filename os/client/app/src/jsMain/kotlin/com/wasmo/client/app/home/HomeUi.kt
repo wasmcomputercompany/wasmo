@@ -49,7 +49,6 @@ class HomeUi(
     HomeScreen(
       attrs = attrs,
       menuModel = menuModel,
-      eventListener = ::onHomeEvent,
       items = computerListSnapshot.items.map {
         Item(
           slug = it.slug,
@@ -58,6 +57,7 @@ class HomeUi(
       },
       showNewComputer = environment.showSignUp && accountSnapshot.isSignedIn,
       footerText = accountSnapshot.signedInAccountName,
+      eventListener = ::onHomeEvent,
     )
   }
 

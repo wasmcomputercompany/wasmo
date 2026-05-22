@@ -30,8 +30,8 @@ fun HomeScreen(
   menuModel: HomeMenuModel,
   items: List<Item>,
   showNewComputer: Boolean,
-  eventListener: (HomeEvent) -> Unit,
   footerText: String?,
+  eventListener: (HomeEvent) -> Unit,
 ) {
   HomeScreen(
     attrs = attrs,
