@@ -1,9 +1,9 @@
 package com.wasmo.stripe
 
 import com.wasmo.computers.ComputerStore
-import com.wasmo.db.computers.findComputerAllocationByStripeSubscriptionId
-import com.wasmo.db.computers.insertComputerAllocation
-import com.wasmo.db.computers.truncateComputerAllocation
+import com.wasmo.db.computers.findStripeComputerAllocationBySubscriptionId
+import com.wasmo.db.computers.insertStripeComputerAllocation
+import com.wasmo.db.computers.truncateStripeComputerAllocation
 import com.wasmo.db.payments.stripe.findStripeCustomerByStripeCustomerId
 import com.wasmo.db.payments.stripe.insertStripeCustomer
 import com.wasmo.db.payments.stripe.updateStripeCustomer
@@ -68,7 +68,7 @@ class SubscriptionUpdater(
         )
       }
 
-      val latestAllocation = findComputerAllocationByStripeSubscriptionId(
+      val latestAllocation = findStripeComputerAllocationBySubscriptionId(
         stripe_subscription_id = subscriptionId,
         limit = 1L,
       )
@@ -79,7 +79,7 @@ class SubscriptionUpdater(
 
       if (latestAllocation == null) {
         // Create an allocation if we don't have one.
-        insertComputerAllocation(
+        insertStripeComputerAllocation(
           created_at = now,
           version = 1,
           stripe_customer_id = customerId,
@@ -90,13 +90,13 @@ class SubscriptionUpdater(
         )
       } else if (latestAllocation.activeEnd != currentAllocation.activeEnd) {
         // If we have an allocation that's different, truncate it and create a replacement.
-        truncateComputerAllocation(
+        truncateStripeComputerAllocation(
           new_version = latestAllocation.version + 1,
           active_end = now,
           expected_version = latestAllocation.version,
           id = latestAllocation.id,
         )
-        insertComputerAllocation(
+        insertStripeComputerAllocation(
           created_at = now,
           version = 1,
           stripe_customer_id = customerId,

@@ -7,6 +7,7 @@ import kotlin.time.Instant
 
 data class DbComputerAllocation(
   val id: ComputerAllocationId,
+  val type: ComputerAllocationType,
   val createdAt: Instant,
   val version: Int,
   val stripeCustomerId: StripeCustomerId,
