@@ -14,8 +14,8 @@ import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.postgresqloperator.LocalPostgresql
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
-import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
+import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.wiring.Distribution
 import com.wasmo.wiring.WasmoService
@@ -38,22 +38,15 @@ class HomelabCommand : CliktCommand() {
 
   override fun run() = runBlocking {
     val distribution = object : Distribution() {
-      /** The wasmo_development user cannot create databases. */
-      override val osPostgresqlAddress = PostgresqlAddress(
-        user = "wasmo_development",
-        password = "password",
+      override val postgresqlConfig = WasmoPostgresqlConfig(
         hostname = "localhost",
-        databaseName = "wasmo_development",
         ssl = false,
-      )
-
-      /** The postgres user can create databases. */
-      override val provisioningPostgresqlAddress = PostgresqlAddress(
-        user = "postgres",
-        password = "password",
-        hostname = "localhost",
-        databaseName = "postgres",
-        ssl = false,
+        adminUser = "postgres",
+        adminPassword = "password",
+        adminDatabaseName = "postgres",
+        osUser = "wasmo_development",
+        osPassword = "password",
+        osDatabaseName = "wasmo_development",
       )
 
       override fun createService(
@@ -81,7 +74,7 @@ class HomelabCommand : CliktCommand() {
           catalog = DevelopmentCatalog,
           wasmoDb = wasmoDb,
           provisioningDb = provisioningDb,
-          postgresqlAddress = osPostgresqlAddress,
+          postgresqlAddress = postgresqlConfig.os,
           deployment = Deployment(
             baseUrl = "http://wasmo.localhost:8080/".toHttpUrl(),
             sendFromEmailAddress = "noreply@wasmo.dev",

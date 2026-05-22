@@ -10,8 +10,8 @@ import com.wasmo.identifiers.DistributionShortCode
 import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
-import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.ProvisioningDb
+import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.stripe.StripeCredentials
 import com.wasmo.wiring.Distribution
 import com.wasmo.wiring.WasmoService
@@ -48,19 +48,17 @@ class HostedCommand : CliktCommand() {
     val postgresDatabasePassword = System.getenv("PGPASSWORD")
       ?: error("required env PGPASSWORD not set")
 
-    val sharedPostgresqlAddress = PostgresqlAddress(
-      user = "pscale_api_eu3kxhe4lp41.7q408njs9kb7",
-      password = postgresDatabasePassword,
-      hostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
-      databaseName = "wasmo_com",
-      ssl = false,
-    )
-
     val distribution = object : Distribution() {
-      override val osPostgresqlAddress: PostgresqlAddress
-        get() = sharedPostgresqlAddress
-      override val provisioningPostgresqlAddress: PostgresqlAddress
-        get() = sharedPostgresqlAddress
+      override val postgresqlConfig = WasmoPostgresqlConfig(
+        hostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
+        ssl = false,
+        adminUser = "pscale_api_eu3kxhe4lp41.7q408njs9kb7",
+        adminPassword = postgresDatabasePassword,
+        adminDatabaseName = "postgres",
+        osUser = "pscale_api_eu3kxhe4lp41.7q408njs9kb7",
+        osPassword = postgresDatabasePassword,
+        osDatabaseName = "wasmo_com",
+      )
 
       override fun createService(
         server: EmbeddedServer<*, *>,
@@ -82,7 +80,7 @@ class HostedCommand : CliktCommand() {
           catalog = DevelopmentCatalog,
           wasmoDb = wasmoDb,
           provisioningDb = provisioningDb,
-          postgresqlAddress = sharedPostgresqlAddress,
+          postgresqlAddress = postgresqlConfig.os,
           deployment = Deployment(
             baseUrl = "https://wasmo.com/".toHttpUrl(),
             sendFromEmailAddress = "noreply@wasmo.com",

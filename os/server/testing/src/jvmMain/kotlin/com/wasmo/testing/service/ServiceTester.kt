@@ -10,7 +10,6 @@ import com.wasmo.sql.OsDatabaseInitializer
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.asSqlDatabase
-import com.wasmo.sql.testing.AdminPostgresqlAddress
 import com.wasmo.sql.testing.TestPostgresqlAddress
 import com.wasmo.sql.testing.dropAppDatabases
 import com.wasmo.sql.testing.dropAppRoles
@@ -108,28 +107,27 @@ class ServiceTester : CoroutineTestInterceptor {
     val testDirectory = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / testFunction.toString() / newToken()
     fileSystem.createDirectories(testDirectory)
 
-    val postgresqlClientFactory = PostgresqlClient.Factory()
+    val clientFactory = PostgresqlClient.Factory()
     val initializer = OsDatabaseInitializer(
-      clientFactory = postgresqlClientFactory,
-      superuser = AdminPostgresqlAddress,
+      clientFactory = clientFactory,
       address = TestPostgresqlAddress,
     )
     initializer.initialize()
     initializer.dangerouslyClearSchema()
 
-    postgresqlClientFactory.connect(AdminPostgresqlAddress).use { provisioningDbClient ->
+    clientFactory.connect(TestPostgresqlAddress.admin).use { provisioningDbClient ->
       provisioningDbClient.withConnection {
         dropAppDatabases()
         dropAppRoles()
       }
-      postgresqlClientFactory.connect(TestPostgresqlAddress).use { wasmoDbClient ->
+      clientFactory.connect(TestPostgresqlAddress.os).use { wasmoDbClient ->
         wasmoDbClient.withConnection {
           dangerouslyClearAbsurdSchema()
         }
 
         val wasmoDb = wasmoDbClient.asSqlDatabase()
         val provisioningDb = ProvisioningDb(
-          address = AdminPostgresqlAddress,
+          address = TestPostgresqlAddress.admin,
           provisioningDb = provisioningDbClient.asSqlDatabase(),
         )
 
@@ -160,7 +158,7 @@ class ServiceTester : CoroutineTestInterceptor {
         coroutineScope {
           graph = serviceTesterGraphFactory.create(
             wasmoDb = wasmoDb,
-            postgresqlAddress = TestPostgresqlAddress,
+            postgresqlAddress = TestPostgresqlAddress.os,
             provisioningDb = provisioningDb,
             coroutineScope = this,
             fileSystem = fileSystem,

@@ -1,7 +1,7 @@
 package wasmo.sql
 
-import com.wasmo.sql.PostgresqlAddress
 import com.wasmo.sql.PostgresqlClient
+import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.sql.asSqlDatabase
 import com.wasmo.sql.execute
 import io.vertx.pgclient.PgException
@@ -18,24 +18,22 @@ class FakeSqlService(
     val existing = sqlDatabase
     if (existing != null) return existing
 
-    val adminPostgresqlAddress = PostgresqlAddress(
-      databaseName = "postgres",
-      user = "postgres",
-      password = "password",
+    val provisioningAddress = WasmoPostgresqlConfig(
       hostname = System.getenv("POSTGRESQL_HOSTNAME") ?: "localhost",
       ssl = false,
-    )
-
-    val postgresqlAddress = adminPostgresqlAddress.copy(
-      databaseName = databaseName,
-      user = databaseName,
+      adminUser = "postgres",
+      adminPassword = "password",
+      adminDatabaseName = "postgres",
+      osUser = databaseName,
+      osPassword = "password",
+      osDatabaseName = databaseName,
     )
 
     val postgresqlClientFactory = PostgresqlClient.Factory()
-    postgresqlClientFactory.prepareTestDatabase(adminPostgresqlAddress, postgresqlAddress)
+    postgresqlClientFactory.prepareTestDatabase(provisioningAddress)
 
     val client = postgresqlClientFactory
-      .connect(postgresqlAddress)
+      .connect(provisioningAddress.os)
 
     val result = client.asSqlDatabase()
     sqlDatabase = result
@@ -49,28 +47,27 @@ class FakeSqlService(
 
 /** Creates the test database (if it doesn't exist), and clears it. */
 suspend fun PostgresqlClient.Factory.prepareTestDatabase(
-  superuser: PostgresqlAddress,
-  test: PostgresqlAddress,
+  address: WasmoPostgresqlConfig,
 ) {
   // Create the test database if it doesn't exist already. This authenticates as superuser.
-  connect(superuser).use { postgresqlClient ->
+  connect(address.admin).use { client ->
     try {
-      postgresqlClient.withConnection {
-        execute("CREATE DATABASE ${test.databaseName} WITH ENCODING = 'UTF8'")
-        execute("CREATE USER ${test.user} WITH PASSWORD '${test.password}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT")
-        execute("GRANT ALL PRIVILEGES ON DATABASE ${test.databaseName} TO ${test.user}")
+      client.withConnection {
+        execute("CREATE DATABASE ${address.osDatabaseName} WITH ENCODING = 'UTF8'")
+        execute("CREATE USER ${address.osUser} WITH PASSWORD '${address.osPassword}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT")
+        execute("GRANT ALL PRIVILEGES ON DATABASE ${address.osDatabaseName} TO ${address.osUser}")
       }
     } catch (_: PgException) {
       // Assume this database exists.
     }
   }
 
-  // Drop the database. This authenticates as superuser to the newly-created database.
-  connect(superuser.copy(databaseName = test.databaseName)).use { postgresqlClient ->
+  // Drop the database.
+  connect(address.adminToOsDatabase).use { postgresqlClient ->
     postgresqlClient.withConnection {
       execute("DROP SCHEMA IF EXISTS public CASCADE")
       execute("CREATE SCHEMA public")
-      execute("GRANT ALL ON SCHEMA public TO ${test.user}")
+      execute("GRANT ALL ON SCHEMA public TO ${address.osUser}")
     }
   }
 }

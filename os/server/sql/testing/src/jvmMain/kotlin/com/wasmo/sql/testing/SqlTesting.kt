@@ -1,23 +1,21 @@
 package com.wasmo.sql.testing
 
-import com.wasmo.sql.PostgresqlAddress
+import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.sql.execute
 import io.vertx.sqlclient.SqlClient
 
 val POSTGRESQL_HOSTNAME = System.getenv("POSTGRESQL_HOSTNAME")
   ?: "localhost"
 
-val AdminPostgresqlAddress = PostgresqlAddress(
-  databaseName = "postgres",
-  user = "postgres",
-  password = "password",
+val TestPostgresqlAddress = WasmoPostgresqlConfig(
   hostname = POSTGRESQL_HOSTNAME,
   ssl = false,
-)
-
-val TestPostgresqlAddress = AdminPostgresqlAddress.copy(
-  databaseName = "wasmo_test",
-  user = "wasmo_test",
+  adminUser = "postgres",
+  adminPassword = "password",
+  adminDatabaseName = "postgres",
+  osUser = "wasmo_test",
+  osPassword = "password",
+  osDatabaseName = "wasmo_test",
 )
 
 suspend fun SqlClient.dropAppDatabases() {
