@@ -12,7 +12,7 @@ value class ComputerAccessId(val id: Long)
 
 @Serializable
 @JvmInline
-value class ComputerAllocationId(val id: Long)
+value class SubscriptionPeriodId(val id: Long)
 
 @Serializable
 @JvmInline

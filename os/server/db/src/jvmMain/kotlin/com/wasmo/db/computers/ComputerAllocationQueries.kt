@@ -1,12 +1,12 @@
 package com.wasmo.db.computers
 
-import com.wasmo.db.bindComputerAllocationId
+import com.wasmo.db.bindSubscriptionPeriodId
 import com.wasmo.db.bindComputerId
 import com.wasmo.db.bindStripeCustomerId
-import com.wasmo.db.getComputerAllocationId
+import com.wasmo.db.getSubscriptionPeriodId
 import com.wasmo.db.getComputerId
 import com.wasmo.db.getStripeCustomerId
-import com.wasmo.identifiers.ComputerAllocationId
+import com.wasmo.identifiers.SubscriptionPeriodId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.StripeCustomerId
 import kotlin.time.Instant
@@ -14,22 +14,22 @@ import wasmo.sql.SqlConnection
 import wasmox.sql.singleOrNull
 
 context(connection: SqlConnection)
-suspend fun findComputerAllocationByStripeSubscriptionId(
+suspend fun findSubscriptionPeriodByStripeSubscriptionId(
   stripe_subscription_id: String,
   limit: Long,
-): DbComputerAllocation? {
+): DbSubscriptionPeriod? {
   val rowIterator = connection.executeQuery(
     """
     SELECT
-      ComputerAllocation.id,
-      ComputerAllocation.created_at,
-      ComputerAllocation.version,
-      ComputerAllocation.stripe_customer_id,
-      ComputerAllocation.stripe_subscription_id,
-      ComputerAllocation.computer_id,
-      ComputerAllocation.active_start,
-      ComputerAllocation.active_end
-    FROM ComputerAllocation
+      id,
+      created_at,
+      version,
+      stripe_customer_id,
+      stripe_subscription_id,
+      computer_id,
+      active_start,
+      active_end
+    FROM SubscriptionPeriod
     WHERE stripe_subscription_id = $1
     ORDER BY active_start DESC
     LIMIT $2
@@ -40,8 +40,8 @@ suspend fun findComputerAllocationByStripeSubscriptionId(
   }
 
   return rowIterator.singleOrNull {
-    DbComputerAllocation(
-      getComputerAllocationId(0),
+    DbSubscriptionPeriod(
+      getSubscriptionPeriodId(0),
       getInstant(1)!!,
       getS32(2)!!,
       getStripeCustomerId(3),
@@ -54,7 +54,7 @@ suspend fun findComputerAllocationByStripeSubscriptionId(
 }
 
 context(connection: SqlConnection)
-suspend fun insertComputerAllocation(
+suspend fun insertSubscriptionPeriod(
   created_at: Instant,
   version: Int,
   stripe_customer_id: StripeCustomerId,
@@ -65,7 +65,7 @@ suspend fun insertComputerAllocation(
 ): Long {
   return connection.execute(
     """
-    INSERT INTO ComputerAllocation(
+    INSERT INTO SubscriptionPeriod(
       created_at,
       version,
       stripe_customer_id,
@@ -96,15 +96,15 @@ suspend fun insertComputerAllocation(
 }
 
 context(connection: SqlConnection)
-suspend fun truncateComputerAllocation(
+suspend fun truncateSubscriptionPeriod(
   new_version: Int,
   active_end: Instant,
   expected_version: Int,
-  id: ComputerAllocationId,
+  id: SubscriptionPeriodId,
 ): Long {
   return connection.execute(
     """
-    UPDATE ComputerAllocation
+    UPDATE SubscriptionPeriod
     SET
       version = $1,
       active_end = $2
@@ -116,6 +116,6 @@ suspend fun truncateComputerAllocation(
     bindS32(0, new_version)
     bindInstant(1, active_end)
     bindS32(2, expected_version)
-    bindComputerAllocationId(3, id)
+    bindSubscriptionPeriodId(3, id)
   }
 }

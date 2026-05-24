@@ -29,7 +29,7 @@ spec’s creator.
 
 We may later add mechanisms to share a computer with authenticated friends and family.
 
-A computer is paid for if there's an active `ComputerAllocation`. This links a paid time period
+A computer is paid for if there's an active `SubscriptionPeriod`. This links a paid time period
 to a computer.
 
 A computer has a URL like `jesse12.wasmo.com` or `mikepaw3.wasmo.dev`. Accounts with access to this
