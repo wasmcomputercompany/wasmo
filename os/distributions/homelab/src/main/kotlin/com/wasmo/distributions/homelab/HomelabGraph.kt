@@ -9,7 +9,6 @@ import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
 import com.wasmo.computers.free.FreeComputersBindings
-import com.wasmo.db.Migrator
 import com.wasmo.emails.EmailBindings
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
@@ -36,7 +35,6 @@ import com.wasmo.website.WebsiteBindings
 import com.wasmo.wiring.ObjectStoreBindings
 import com.wasmo.wiring.ServiceBindings
 import com.wasmo.wiring.WasmoService
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import io.ktor.server.engine.EmbeddedServer
@@ -53,6 +51,7 @@ import wasmo.sql.SqlDatabase
     EmailBindings::class,
     ExecPostgresqlOperatorBindings::class,
     FileSystemObjectStoreBindings::class,
+    HomelabMigratorBindings::class,
     InstalledAppBindings::class,
     KtorBindings::class,
     ObjectStoreBindings::class,
@@ -72,9 +71,6 @@ internal interface HomelabGraph {
   val callGraphFactory: CallGraph.Factory
   val computerServiceGraphFactory: ComputerServiceGraph.Factory
   val installedAppServiceGraphFactory: InstalledAppServiceGraph.Factory
-
-  @Binds
-  fun bindMigrator(real: RealHomelabMigrator): Migrator
 
   @DependencyGraph.Factory
   interface Factory {

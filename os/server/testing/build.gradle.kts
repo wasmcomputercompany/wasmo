@@ -32,6 +32,7 @@ kotlin {
         implementation(projects.identifiers)
         implementation(projects.os.api)
         implementation(projects.os.framework)
+        implementation(projects.os.logging)
         implementation(projects.os.routes)
         implementation(projects.os.server.accounts.api)
         implementation(projects.os.server.accounts.real)
@@ -68,6 +69,7 @@ kotlin {
         implementation(projects.platform.packaging)
         implementation(projects.platform.testing)
         implementation(projects.support.absurd)
+        implementation(projects.support.issues)
         implementation(projects.support.tokens)
         implementation(projects.wasmox.wasmoxSql)
       }

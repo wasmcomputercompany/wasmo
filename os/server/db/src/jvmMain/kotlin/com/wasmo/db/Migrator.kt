@@ -1,14 +1,19 @@
 package com.wasmo.db
 
+import com.wasmo.common.logging.Logger
+import com.wasmo.db.schemaversion.DbSchemaVersion
 import com.wasmo.db.schemaversion.getOrCreateSchemaVersion
 import com.wasmo.db.schemaversion.setSchemaVersion
 import com.wasmo.identifiers.OsScope
-import dev.zacsweers.metro.Inject
+import com.wasmo.sql.WasmoPostgresqlConfig
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import dev.zacsweers.metro.SingleIn
+import okio.ByteString
+import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
-import okio.Path
 import okio.Path.Companion.toPath
-import wasmo.sql.SqlConnection
 import wasmo.sql.SqlException
 import wasmox.sql.SqlTransaction
 
@@ -23,11 +28,37 @@ interface Migrator {
   suspend fun ensureSchemaVersion(targetSchema: NamedSchema? = null)
 }
 
-@Inject
+@AssistedInject
 @SingleIn(OsScope::class)
 open class RealMigrator(
-  private val customPostUpgradeSteps: Map<Long, suspend context(SqlTransaction) () -> Unit> = emptyMap(),
+  @Assisted private val customPostUpgradeSteps: Map<Long, suspend context(SqlTransaction) () -> Unit> = emptyMap(),
+  private val address: WasmoPostgresqlConfig,
+  private val logger: Logger,
 ) : Migrator {
+  @AssistedFactory
+  fun interface Factory {
+    fun create(customPostUpgradeSteps: Map<Long, suspend context(SqlTransaction) () -> Unit>): RealMigrator
+  }
+
+  private suspend fun readMigrationSql(): Map<Long, List<Migration>> {
+    // okio FileSystem.list() sorts results, ensures deterministic order for hash and execution.
+    val migrationPaths = FileSystem.RESOURCES.list("/migrations".toPath())
+
+    val migrations = migrationPaths.map { path ->
+      val match = MigrationNameRegex.matchEntire(path.name)
+        ?: error("unexpected migrations path: $path")
+      val migrationSql = FileSystem.RESOURCES.read(path) {
+        readUtf8()
+      }
+      Migration(match.groupValues[1].toLong(), migrationSql)
+    }.groupBy { it.version }
+    return migrations
+  }
+
+  private fun migrationHashUpToVersion(
+    migrations: Map<Long, List<Migration>>,
+    version: Long,
+  ): ByteString = migrations.filterKeys { v -> v <= version }.toString().encodeUtf8().sha256()
 
   /**
    * Applies migrations from resources.
@@ -40,39 +71,64 @@ open class RealMigrator(
    */
   context(sqlTransaction: SqlTransaction)
   private suspend fun migrate(
+    migrations: Map<Long, List<Migration>>,
     oldVersion: Long,
     newVersion: Long,
   ) {
-    val migrationPaths = FileSystem.RESOURCES.list("/migrations".toPath())
-
-    val migrations = migrationPaths.map { path ->
-      val match = MigrationNameRegex.matchEntire(path.name)
-        ?: error("unexpected migrations path: $path")
-      Migration(match.groupValues[1].toLong(), path)
-    }.groupBy { it.version }
-
     for (version in (oldVersion + 1)..newVersion) {
       for (migration in migrations[version] ?: emptyList()) {
-        val migrationSql = FileSystem.RESOURCES.read(migration.path) {
-          readUtf8()
-        }
-        sqlTransaction.sqlConnection.execute(migrationSql)
+        sqlTransaction.execute(migration.sql)
         customPostUpgradeSteps[migration.version]?.invoke(sqlTransaction)
       }
     }
   }
+
 
   context(sqlTransaction: SqlTransaction)
   override suspend fun ensureSchemaVersion(
     targetSchema: NamedSchema?,
   ) {
     val targetVersion = (targetSchema ?: CURRENT_SCHEMA_VERSION).version
-    val oldVersion: Long = getOrCreateSchemaVersion().version
+    require(targetVersion >= 0) {
+      "Invalid targetVersion: $targetVersion"
+    }
+    val migrations = readMigrationSql()
+    val versionZeroMigrationHash = migrationHashUpToVersion(emptyMap(), 0)
+    var oldDbVersion: DbSchemaVersion = getOrCreateSchemaVersion(versionZeroMigrationHash)
+    var oldVersion = oldDbVersion.version
+    val expectedMigrationHash = migrationHashUpToVersion(migrations, oldVersion)
+    val shouldWipeDb = expectedMigrationHash != oldDbVersion.migrationHash
+    if (shouldWipeDb) {
+      logger.info("DB schema redefinition detected at version $oldVersion, resetting to version 0")
+      for (sql in listOf(
+        // same commands as in OsDatabaseInitializer.dangerouslyClearSchema()
+        "DROP SCHEMA IF EXISTS public CASCADE",
+        "CREATE SCHEMA public",
+        "GRANT ALL ON SCHEMA public TO ${address.osUser}",
+
+        // same commands as in AbsurdTesting.dangerouslyClearAbsurdSchema
+        "DROP SCHEMA IF EXISTS absurd CASCADE",
+        "CREATE SCHEMA absurd",
+        "GRANT ALL ON SCHEMA absurd TO postgres",
+        "GRANT ALL ON SCHEMA absurd TO public"
+      )) {
+        sqlTransaction.execute(sql)
+      }
+
+      oldDbVersion = getOrCreateSchemaVersion(versionZeroMigrationHash)
+      oldVersion = oldDbVersion.version
+      check(oldVersion == 0L) {
+        "Unexpected DB schema version after DB wipe: $oldVersion"
+      }
+    }
+
     if (oldVersion > targetVersion) {
-      throw SqlException("DB schema downgrade not supported: $oldVersion -> $targetVersion")
+      throw IllegalStateException("DB schema downgrade not supported: $oldVersion -> $targetVersion")
     } else if (oldVersion < targetVersion) {
-      migrate(oldVersion, targetVersion)
-      setSchemaVersion(version = targetVersion)
+      logger.info("DB schema migration: version $oldVersion -> $targetVersion")
+      val targetMigrationHash = migrationHashUpToVersion(migrations, targetVersion)
+      migrate(migrations, oldVersion, targetVersion)
+      setSchemaVersion(version = targetVersion, migrationHash = targetMigrationHash)
     }
   }
 }
@@ -80,7 +136,7 @@ open class RealMigrator(
 private val MigrationNameRegex = Regex("""v(\d+)__.*\.sql""")
 private data class Migration(
   val version: Long,
-  val path: Path,
+  val sql: String,
 )
 
 private val CURRENT_SCHEMA_VERSION = NamedSchema.entries.maxBy { it.version }
