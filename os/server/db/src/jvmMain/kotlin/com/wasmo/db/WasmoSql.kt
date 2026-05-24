@@ -3,7 +3,7 @@ package com.wasmo.db
 import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerAccessId
-import com.wasmo.identifiers.ComputerAllocationId
+import com.wasmo.identifiers.SubscriptionPeriodId
 import com.wasmo.identifiers.ComputerId
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.ComputerSpecId
@@ -29,7 +29,6 @@ import wasmo.sql.SqlRow
 fun SqlBinder.bindAccountId(index: Int, value: AccountId?) = bindS64(index, value?.id)
 fun SqlBinder.bindAppSlug(index: Int, value: AppSlug?) = bindString(index, value?.value)
 fun SqlBinder.bindComputerAccessId(index: Int, value: ComputerAccessId?) = bindS64(index, value?.id)
-fun SqlBinder.bindComputerAllocationId(index: Int, value: ComputerAllocationId?) = bindS64(index, value?.id)
 fun SqlBinder.bindComputerId(index: Int, value: ComputerId?) = bindS64(index, value?.id)
 fun SqlBinder.bindComputerSlug(index: Int, value: ComputerSlug?) = bindString(index, value?.value)
 fun SqlBinder.bindComputerSpecId(index: Int, value: ComputerSpecId?) = bindS64(index, value?.id)
@@ -41,6 +40,7 @@ fun SqlBinder.bindDatabaseSlug(index: Int, value: DatabaseSlug?) = bindString(in
 fun SqlBinder.bindInviteId(index: Int, value: InviteId?) = bindS64(index, value?.id)
 fun SqlBinder.bindPasskeyId(index: Int, value: PasskeyId?) = bindS64(index, value?.id)
 fun SqlBinder.bindStripeCustomerId(index: Int, value: StripeCustomerId?) = bindS64(index, value?.id)
+fun SqlBinder.bindSubscriptionPeriodId(index: Int, value: SubscriptionPeriodId?) = bindS64(index, value?.id)
 fun SqlBinder.bindUsername(index: Int, value: UsernameSlug?) = bindString(index, value?.value)
 fun SqlBinder.bindUserId(index: Int, value: UserId?) = bindS64(index, value?.id)
 fun SqlBinder.bindWasmoFileAddress(index: Int, value: WasmoFileAddress?) = bindString(index, value?.toString())
@@ -50,8 +50,8 @@ fun SqlRow.getAccountIdOrNull(index: Int) = getS64(index)?.let { AccountId(it) }
 fun SqlRow.getAppSlug(index: Int) = AppSlug(getString(index)!!)
 fun SqlRow.getComputerAccessId(index: Int) = ComputerAccessId(getS64(index)!!)
 fun SqlRow.getComputerAccessIdOrNull(index: Int) = getS64(index)?.let { ComputerAccessId(it) }
-fun SqlRow.getComputerAllocationId(index: Int) = ComputerAllocationId(getS64(index)!!)
-fun SqlRow.getComputerAllocationIdOrNull(index: Int) = getS64(index)?.let { ComputerAllocationId(it) }
+fun SqlRow.getSubscriptionPeriodId(index: Int) = SubscriptionPeriodId(getS64(index)!!)
+fun SqlRow.getSubscriptionPeriodIdOrNull(index: Int) = getS64(index)?.let { SubscriptionPeriodId(it) }
 fun SqlRow.getComputerId(index: Int) = ComputerId(getS64(index)!!)
 fun SqlRow.getComputerIdOrNull(index: Int) = getS64(index)?.let { ComputerId(it) }
 fun SqlRow.getComputerSlug(index: Int) = ComputerSlug(getString(index)!!)

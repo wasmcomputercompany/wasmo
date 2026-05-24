@@ -1,15 +1,15 @@
 package com.wasmo.stripe
 
 import com.wasmo.computers.ComputerStore
-import com.wasmo.db.computers.findComputerAllocationByStripeSubscriptionId
-import com.wasmo.db.computers.insertComputerAllocation
-import com.wasmo.db.computers.truncateComputerAllocation
+import com.wasmo.db.computers.findSubscriptionPeriodByStripeSubscriptionId
+import com.wasmo.db.computers.insertSubscriptionPeriod
+import com.wasmo.db.computers.truncateSubscriptionPeriod
 import com.wasmo.db.payments.stripe.findStripeCustomerByStripeCustomerId
 import com.wasmo.db.payments.stripe.insertStripeCustomer
 import com.wasmo.db.payments.stripe.updateStripeCustomer
 import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.StripeCustomerId
-import com.wasmo.payments.ComputerAllocationSnapshot
+import com.wasmo.payments.SubscriptionPeriodSnapshot
 import com.wasmo.payments.PaymentsService
 import com.wasmo.payments.SubscriptionSnapshot
 import dev.zacsweers.metro.Inject
@@ -34,7 +34,7 @@ class SubscriptionUpdater(
     val now = clock.now()
     val subscription = paymentsService.getSubscription(subscriptionId)
 
-    val currentAllocation = ComputerAllocationSnapshot(
+    val currentSubscriptionPeriod = SubscriptionPeriodSnapshot(
       activeStart = subscription.currentPeriodStart,
       activeEnd = subscription.currentPeriodEnd,
     )
@@ -68,7 +68,7 @@ class SubscriptionUpdater(
         )
       }
 
-      val latestAllocation = findComputerAllocationByStripeSubscriptionId(
+      val latestSubscriptionPeriod = findSubscriptionPeriodByStripeSubscriptionId(
         stripe_subscription_id = subscriptionId,
         limit = 1L,
       )
@@ -77,39 +77,39 @@ class SubscriptionUpdater(
         computerSpecToken = subscription.computerSpecToken,
       )
 
-      if (latestAllocation == null) {
-        // Create an allocation if we don't have one.
-        insertComputerAllocation(
+      if (latestSubscriptionPeriod == null) {
+        // Create a SubscriptionPeriod if we don't have one.
+        insertSubscriptionPeriod(
           created_at = now,
           version = 1,
           stripe_customer_id = customerId,
           stripe_subscription_id = subscriptionId,
           computer_id = computer.id,
-          active_start = currentAllocation.activeStart,
-          active_end = currentAllocation.activeEnd,
+          active_start = currentSubscriptionPeriod.activeStart,
+          active_end = currentSubscriptionPeriod.activeEnd,
         )
-      } else if (latestAllocation.activeEnd != currentAllocation.activeEnd) {
-        // If we have an allocation that's different, truncate it and create a replacement.
-        truncateComputerAllocation(
-          new_version = latestAllocation.version + 1,
+      } else if (latestSubscriptionPeriod.activeEnd != currentSubscriptionPeriod.activeEnd) {
+        // If we have a SubscriptionPeriod that's different, truncate it and create a replacement.
+        truncateSubscriptionPeriod(
+          new_version = latestSubscriptionPeriod.version + 1,
           active_end = now,
-          expected_version = latestAllocation.version,
-          id = latestAllocation.id,
+          expected_version = latestSubscriptionPeriod.version,
+          id = latestSubscriptionPeriod.id,
         )
-        insertComputerAllocation(
+        insertSubscriptionPeriod(
           created_at = now,
           version = 1,
           stripe_customer_id = customerId,
           stripe_subscription_id = subscriptionId,
           computer_id = computer.id,
           active_start = now,
-          active_end = currentAllocation.activeEnd,
+          active_end = currentSubscriptionPeriod.activeEnd,
         )
       }
 
       SubscriptionSnapshot(
         slug = computer.slug,
-        currentAllocation = currentAllocation,
+        currentSubscriptionPeriod = currentSubscriptionPeriod,
       )
     }
   }

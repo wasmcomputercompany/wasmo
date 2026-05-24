@@ -5,10 +5,10 @@ import kotlin.time.Instant
 
 data class SubscriptionSnapshot(
   val slug: ComputerSlug,
-  val currentAllocation: ComputerAllocationSnapshot,
+  val currentSubscriptionPeriod: SubscriptionPeriodSnapshot,
 )
 
-data class ComputerAllocationSnapshot(
+data class SubscriptionPeriodSnapshot(
   val activeStart: Instant,
   val activeEnd: Instant,
 )

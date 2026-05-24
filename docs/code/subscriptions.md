@@ -23,14 +23,15 @@ enum class ComputeCapacity {
 ```
 
 We’ll create the `Computer` record in the database associated to an `AccountId`. Just because we
-have a `Computer` does not mean that this computer has resources allocated to it.
+have a `Computer` does not mean that this computer has paid capacity allocated to it. We'll track
+capacity allocation in the `ComputerSpec` table.
 
-We’ll have a `ComputerAllocation` table that tracks the resources allocated to a computer for a
-given date range.
+We’ll have a `SubscriptionPeriod` table that tracks a paid subscription for a computer's Capacity
+for a given date range. Free computers exist for Homelab and will not require a subscription.
 
 ```kotlin
-data class ComputerAllocation(
-  val id: ComputerAllocation,
+data class SubscriptionPeriod(
+  val id: SubscriptionPeriodId,
   val computerId: ComputerId,
   val stripeSubscriptionId: String,
   val computeCapacity: ComputeCapacity,
@@ -41,13 +42,15 @@ data class ComputerAllocation(
 )
 ```
 
-If a `ComputerAllocation` exists, it is a positive assertion that resources are available to a
-customer.
+`SubscriptionPeriod` tracks _paid_ capacity for paid computers, but the _allocated_ capacity is
+tracked in `ComputerSpec`. A computer can run if it is:
+ - (a) free, **or**
+ - (b) there is an active (subject to grace period) paid SubscriptionPeriod whose paid capacity is >= the allocated capacity.
 
-We will create or update our `ComputerAllocation` objects when we receive a webhook from Stripe.
+We will create or update our `SubscriptionPeriod` objects when we receive a webhook from Stripe.
 
 If a card is charged back we will immediately truncate the `until` date on the active
-`ComputerAllocation`, if any. The `paidDuration` models how much of the time in `from..until` was
+`SubscriptionPeriod`, if any. The `paidDuration` models how much of the time in `from..until` was
 paid for, in the case that a payment was retroactively revoked.
 
 
@@ -69,12 +72,12 @@ We’ll send emails at these events:
  - 57 days after payment lapses, ‘Your Wasmo will be deleted in 3 days’
 
 
-Computers without Allocations
------------------------------
+Computers without Subscription
+------------------------------
 
-When loading a computer without a current `ComputerAllocation`, we'll do the math to determine if
-it's in the grace period or not.
-
+When loading a computer without a current `SubscriptionPeriod`, we'll determine whether it requires
+payment (`paymentMethod="stripe" as opposed to paymentMethod="noneRequired"`) and, if so, do the
+math to determine if it's in the grace period.
 
 [Stripe's Prebuilt Payment Form]: https://checkout.stripe.dev/checkout
 [Quickstart]: https://docs.stripe.com/checkout/embedded/quickstart?lang=java
