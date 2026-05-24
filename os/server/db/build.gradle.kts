@@ -22,6 +22,7 @@ kotlin {
         implementation(projects.identifiers)
         implementation(projects.os.api)
         implementation(projects.os.framework)
+        implementation(projects.os.logging)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.passkeys.api)
         implementation(projects.os.server.sql.api)

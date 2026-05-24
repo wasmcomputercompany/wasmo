@@ -2,14 +2,16 @@ package com.wasmo.testing.service
 
 import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.ClientAuthenticator
+import com.wasmo.common.logging.Logger
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
+import com.wasmo.db.DefaultMigratorBindings
 import com.wasmo.db.Migrator
-import com.wasmo.db.RealMigrator
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
+import com.wasmo.issues.Issue
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.jobs.absurd.AbsurdBindings
 import com.wasmo.jobs.absurd.AbsurdService
@@ -27,7 +29,6 @@ import com.wasmo.testing.call.CallTesterGraph
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.TestEventListener
 import com.wasmo.usernames.UsernameBindings
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import kotlinx.coroutines.CoroutineScope
@@ -44,6 +45,7 @@ import wasmo.time.FakeClock
     AbsurdBindings::class,
     AccountsBindings::class,
     ComputersBindings::class,
+    DefaultMigratorBindings::class,
     InstalledAppBindings::class,
     PasskeysBindings::class,
     PermitsBindings::class,
@@ -78,8 +80,11 @@ interface ServiceTesterGraph {
   val absurdService: AbsurdService
   val jobQueueFactory: OsJobQueue.Factory
 
-  @Binds
-  fun bindMigrator(real: RealMigrator): Migrator
+  @Provides
+  fun provideLogger(): Logger = object : Logger {
+    override fun info(message: String, issues: List<Issue>) {}
+    override fun info(message: String, throwable: Throwable?) {}
+  }
 
   @DependencyGraph.Factory
   interface Factory {
