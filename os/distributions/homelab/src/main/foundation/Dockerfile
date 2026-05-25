@@ -8,7 +8,7 @@
 # See https://github.com/docker-library/postgres/tree/master/18/alpine3.23
 
 
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:25-alpine-3.23
 
 ARG PG_MAJOR=18
 RUN \
