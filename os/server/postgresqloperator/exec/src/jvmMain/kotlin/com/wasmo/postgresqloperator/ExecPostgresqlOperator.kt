@@ -10,6 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import okio.FileSystem
 import okio.IOException
 import okio.Path.Companion.toPath
@@ -29,7 +31,13 @@ internal class ExecPostgresqlOperator(
   context(scope: CoroutineScope)
   override suspend fun await() {
     if (localPostgresql is LocalPostgresql.Exec) {
-      execPostgresql()
+      // For the suspend function's coroutineContext.
+      withContext(Dispatchers.IO) {
+        // For the `scope` context parameter.
+        context(scope + Dispatchers.IO) {
+          execPostgresql()
+        }
+      }
     }
   }
 
@@ -116,7 +124,7 @@ internal class ExecPostgresqlOperator(
 
   context(scope: CoroutineScope)
   private fun collectStreams(name: String, process: Process) {
-    scope.launch(Dispatchers.IO) {
+    scope.launch {
       nameThread("$name.stdout") {
         val source = process.inputStream.source().buffer()
         while (true) {
@@ -126,7 +134,7 @@ internal class ExecPostgresqlOperator(
       }
     }
 
-    scope.launch(Dispatchers.IO) {
+    scope.launch {
       nameThread("$name.stderr") {
         val source = process.errorStream.source().buffer()
         while (true) {

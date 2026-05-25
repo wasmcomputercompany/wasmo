@@ -3,7 +3,7 @@ package com.wasmo.computers
 import com.wasmo.computers.AppCatalog.Entry
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.identifiers.WasmoFileAddress.Companion.toWasmoFileAddress
+import okhttp3.HttpUrl
 
 class AppCatalog(
   val entries: List<Entry>,
@@ -13,12 +13,15 @@ class AppCatalog(
     val slug: AppSlug,
   ) {
     companion object {
-      operator fun invoke(slug: AppSlug) = resourceAppAsCatalogEntry(slug)
+      operator fun invoke(
+        baseUrl: HttpUrl,
+        slug: AppSlug,
+      ) = resourceAppAsCatalogEntry(baseUrl, slug)
     }
   }
 }
 
-fun loadDefaultAppCatalogFromResources(): AppCatalog {
+fun loadDefaultAppCatalogFromResources(baseUrl: HttpUrl): AppCatalog {
   val apps = listOf(
     AppSlug("files"),
     AppSlug("library"),
@@ -31,14 +34,16 @@ fun loadDefaultAppCatalogFromResources(): AppCatalog {
     AppSlug("zap"),
   )
   return AppCatalog(
-    entries = apps.map { resourceAppAsCatalogEntry(it) },
+    entries = apps.map { resourceAppAsCatalogEntry(baseUrl, it) },
   )
 }
 
-fun resourceAppAsCatalogEntry(slug: AppSlug): Entry {
+fun resourceAppAsCatalogEntry(
+  baseUrl: HttpUrl,
+  slug: AppSlug,
+): Entry {
   return Entry(
-    wasmoFileAddress = "http://wasmo.localhost:8080/$slug/$slug.wasmo"
-      .toWasmoFileAddress(),
+    wasmoFileAddress = WasmoFileAddress.Http(baseUrl.resolve("/$slug/$slug.wasmo")!!),
     slug = slug,
   )
 }

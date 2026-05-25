@@ -20,6 +20,7 @@ internal class AbsurdPostgresqlService(
   val client = PostgresqlClient(
     PgConnectOptions()
       .setHost(postgresqlConfig.hostname)
+      .setPort(postgresqlConfig.port)
       .setDatabase(postgresqlConfig.osDatabaseName)
       .setUser(postgresqlConfig.osUser)
       .setPassword(postgresqlConfig.osPassword)

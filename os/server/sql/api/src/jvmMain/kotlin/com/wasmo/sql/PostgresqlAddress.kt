@@ -8,6 +8,12 @@ data class PostgresqlAddress(
   val password: String,
   val databaseName: String,
 ) {
-  /** Note that this omits the password. */
-  override fun toString() = "$user@$hostname/$databaseName"
+  /** This is for debugging only. Note that this omits the password. */
+  override fun toString() = buildString {
+    append("$user@$hostname")
+    if (port != 5432) {
+      append(":$port")
+    }
+    append("/$databaseName")
+  }
 }
