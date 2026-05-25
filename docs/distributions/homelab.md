@@ -46,7 +46,7 @@ Build Homelab upon it:
 
 ```bash
 $ cd ../..
-$ ./gradlew os:distributions:homelab:jibDockerBuild
+$ ./gradlew os:distributions:homelab:jibDockerBuild -Pdocker.platforms=local
 ```
 
 Run

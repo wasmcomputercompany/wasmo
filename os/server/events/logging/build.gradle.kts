@@ -18,6 +18,7 @@ kotlin {
         implementation(projects.os.server.events.api)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.installedapps.api)
+        implementation(projects.os.server.postgresqloperator.api)
         implementation(projects.support.issues)
       }
     }

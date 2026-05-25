@@ -1,6 +1,5 @@
 package com.wasmo.postgresqloperator
 
-import com.wasmo.common.logging.Logger
 import com.wasmo.identifiers.OsScope
 import com.wasmo.sql.OsDatabaseInitializer
 import dev.zacsweers.metro.Inject
@@ -24,9 +23,10 @@ import okio.source
 @Inject
 @SingleIn(OsScope::class)
 internal class ExecPostgresqlOperator(
-  private val logger: Logger,
   private val localPostgresql: LocalPostgresql,
   private val initializer: OsDatabaseInitializer,
+  private val commandOutputProcessorFactory: CommandOutputProcessor.Factory,
+  private val postgresqlStderrProcessor: PostgresqlStderrProcessor,
 ) : PostgresqlOperator {
   context(scope: CoroutineScope)
   override suspend fun await() {
@@ -64,7 +64,6 @@ internal class ExecPostgresqlOperator(
 
   private suspend fun gosuInitdb() {
     coroutineScope {
-      logger.info("calling initdb...")
       val process = ProcessBuilder()
         .command(
           "/usr/bin/gosu",
@@ -81,7 +80,8 @@ internal class ExecPostgresqlOperator(
         process.destroy()
       }
 
-      collectStreams("initdb", process)
+      collectStream("initdb", Stream.Stdout, process)
+      collectStream("initdb", Stream.Stderr, process)
 
       val exitCode = nameThread("initdb.join") {
         process.waitFor()
@@ -90,8 +90,6 @@ internal class ExecPostgresqlOperator(
       check(exitCode == 0 || coroutineContext.job.isCancelled) {
         "initdb failed: $exitCode"
       }
-
-      logger.info("initdb success")
     }
   }
 
@@ -110,7 +108,8 @@ internal class ExecPostgresqlOperator(
         process.destroy()
       }
 
-      collectStreams("postgresql", process)
+      collectStream("postgresql", Stream.Stdout, process)
+      collectPostgresqlStderr(process)
 
       val exitCode = nameThread("postgresql.join") {
         process.waitFor()
@@ -123,24 +122,24 @@ internal class ExecPostgresqlOperator(
   }
 
   context(scope: CoroutineScope)
-  private fun collectStreams(name: String, process: Process) {
+  private fun collectStream(name: String, stream: Stream, process: Process) {
     scope.launch {
-      nameThread("$name.stdout") {
-        val source = process.inputStream.source().buffer()
-        while (true) {
-          val line = source.readUtf8Line() ?: break
-          logger.info("postgresql: $line")
+      nameThread("$name.$stream") {
+        val inputStream = when (stream) {
+          Stream.Stdout -> process.inputStream
+          Stream.Stderr -> process.errorStream
         }
+        commandOutputProcessorFactory.create(name, stream)
+          .processAll(inputStream.source().buffer())
       }
     }
+  }
 
+  context(scope: CoroutineScope)
+  private fun collectPostgresqlStderr(process: Process) {
     scope.launch {
-      nameThread("$name.stderr") {
-        val source = process.errorStream.source().buffer()
-        while (true) {
-          val line = source.readUtf8Line() ?: break
-          logger.info("postgresql: $line")
-        }
+      nameThread("postgresql.Stderr") {
+        postgresqlStderrProcessor.processAll(process.errorStream.source().buffer())
       }
     }
   }

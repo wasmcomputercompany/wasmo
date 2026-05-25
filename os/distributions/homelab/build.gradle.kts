@@ -23,15 +23,22 @@ application {
 
 jib {
   from {
-    image = "wasmo/homelab-foundation"
-    platforms {
-      platform {
-        architecture = "amd64"
-        os = "linux"
-      }
-      platform {
-        architecture = "arm64"
-        os = "linux"
+    // We've got a choice:
+    //  * local-platform-only binaries for development (faster)
+    //  * multi-platform binaries for publishing (slow)
+    if (rootProject.findProperty("docker.platforms") == "local") {
+      image = "docker://wasmo/homelab-foundation"
+    } else {
+      image = "wasmo/homelab-foundation"
+      platforms {
+        platform {
+          architecture = "amd64"
+          os = "linux"
+        }
+        platform {
+          architecture = "arm64"
+          os = "linux"
+        }
       }
     }
   }

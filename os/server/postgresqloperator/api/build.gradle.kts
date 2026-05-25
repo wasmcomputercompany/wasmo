@@ -14,6 +14,7 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
+        implementation(projects.os.server.identifiers)
       }
     }
   }

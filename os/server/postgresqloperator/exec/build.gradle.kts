@@ -15,9 +15,16 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
         implementation(projects.os.logging)
+        implementation(projects.os.server.events.api)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.postgresqloperator.api)
         implementation(projects.os.server.sql.api)
+      }
+    }
+    val jvmTest by getting {
+      dependencies {
+        implementation(libs.kotlinx.coroutines.test)
+        implementation(projects.os.server.testing)
       }
     }
   }
