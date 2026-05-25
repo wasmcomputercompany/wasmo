@@ -29,13 +29,13 @@ Create local databases:
 ```bash
 $ export PGPASSWORD=password
 $ psql "host=localhost user=postgres" \
-  -c "CREATE USER wasmo_development WITH PASSWORD 'password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT"
+  -c "CREATE USER wasmo_homelab WITH PASSWORD 'password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT"
 $ psql "host=localhost user=postgres" \
-  -c "CREATE DATABASE wasmo_development WITH ENCODING = 'UTF8'"
+  -c "CREATE DATABASE wasmo_homelab WITH ENCODING = 'UTF8'"
 $ psql "host=localhost user=postgres" \
-  -c "GRANT ALL PRIVILEGES ON DATABASE wasmo_development TO wasmo_development"
+  -c "GRANT ALL PRIVILEGES ON DATABASE wasmo_homelab TO wasmo_homelab"
 $ psql "host=localhost user=postgres" \
-  -c "ALTER DATABASE wasmo_development OWNER TO wasmo_development"
+  -c "ALTER DATABASE wasmo_homelab OWNER TO wasmo_homelab"
 ```
 
 💀Factory Reset

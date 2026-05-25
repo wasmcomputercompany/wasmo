@@ -2,7 +2,8 @@ package com.wasmo.sql
 
 data class PostgresqlAddress(
   val hostname: String,
-  val ssl: Boolean,
+  val port: Int = 5432,
+  val ssl: Boolean = false,
   val user: String,
   val password: String,
   val databaseName: String,

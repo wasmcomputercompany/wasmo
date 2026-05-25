@@ -73,9 +73,12 @@ internal class ExecPostgresqlOperator(
         process.destroy()
       }
 
-      collectStreams(process)
+      collectStreams("initdb", process)
 
-      val exitCode = process.waitFor()
+      val exitCode = nameThread("initdb.join") {
+        process.waitFor()
+      }
+
       check(exitCode == 0 || coroutineContext.job.isCancelled) {
         "initdb failed: $exitCode"
       }
@@ -86,7 +89,6 @@ internal class ExecPostgresqlOperator(
 
   private suspend fun gosuPostgres() {
     coroutineScope {
-      logger.info("starting postgresql...")
       val process = ProcessBuilder()
         .command(
           "/usr/bin/gosu",
@@ -100,10 +102,11 @@ internal class ExecPostgresqlOperator(
         process.destroy()
       }
 
-      logger.info("postgresql started...")
-      collectStreams(process)
+      collectStreams("postgresql", process)
 
-      val exitCode = process.waitFor()
+      val exitCode = nameThread("postgresql.join") {
+        process.waitFor()
+      }
 
       check(coroutineContext.job.isCancelled) {
         "postgresql exited unexpectedly, $exitCode"
@@ -112,20 +115,24 @@ internal class ExecPostgresqlOperator(
   }
 
   context(scope: CoroutineScope)
-  private fun collectStreams(process: Process) {
+  private fun collectStreams(name: String, process: Process) {
     scope.launch(Dispatchers.IO) {
-      val source = process.inputStream.source().buffer()
-      while (true) {
-        val line = source.readUtf8Line() ?: break
-        logger.info("postgresql: $line")
+      nameThread("$name.stdout") {
+        val source = process.inputStream.source().buffer()
+        while (true) {
+          val line = source.readUtf8Line() ?: break
+          logger.info("postgresql: $line")
+        }
       }
     }
 
     scope.launch(Dispatchers.IO) {
-      val source = process.errorStream.source().buffer()
-      while (true) {
-        val line = source.readUtf8Line() ?: break
-        logger.info("postgresql: $line")
+      nameThread("$name.stderr") {
+        val source = process.errorStream.source().buffer()
+        while (true) {
+          val line = source.readUtf8Line() ?: break
+          logger.info("postgresql: $line")
+        }
       }
     }
   }

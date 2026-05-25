@@ -10,6 +10,7 @@ import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.DistributionShortCode
+import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.postgresqloperator.LocalPostgresql
 import com.wasmo.sendemail.postmark.PostmarkCredentials
@@ -30,24 +31,42 @@ import wasmo.sql.SqlDatabase
 
 class HomelabCommand : CliktCommand() {
   val container: Boolean by option("--container")
-    .flag("--no-container", default = false)
+    .flag("--no-container", default = true)
   val stripePublishableKey: String by option()
     .defaultLazy { System.getenv("STRIPE_PUBLISHABLE_KEY") }
   val stripeSecretKey: String by option()
     .defaultLazy { System.getenv("STRIPE_SECRET_KEY") }
 
   override fun run() = runBlocking {
-    val distribution = object : Distribution() {
-      override val postgresqlConfig = WasmoPostgresqlConfig(
-        hostname = "localhost",
-        ssl = false,
-        adminUser = "postgres",
-        adminPassword = "password",
-        adminDatabaseName = "postgres",
-        osUser = "wasmo_development",
-        osPassword = "password",
-        osDatabaseName = "wasmo_development",
+    var baseUrl = "http://wasmo.localhost:8080/".toHttpUrl()
+
+    var postgresqlConfig = WasmoPostgresqlConfig(
+      hostname = "localhost",
+      adminUser = "postgres",
+      adminPassword = "password",
+      adminDatabaseName = "postgres",
+      osUser = "wasmo_homelab",
+      osPassword = "password",
+      osDatabaseName = "wasmo_homelab",
+    )
+
+    var ktorConfig = WasmoKtorConfig()
+
+    if (container) {
+      baseUrl = baseUrl.newBuilder()
+        .port(54400)
+        .build()
+      postgresqlConfig = postgresqlConfig.copy(
+        port = 54401,
       )
+      ktorConfig = ktorConfig.copy(
+        port = 54400
+      )
+    }
+
+    val distribution = object : Distribution() {
+      override val postgresqlConfig = postgresqlConfig
+      override val ktorConfig = ktorConfig
 
       override fun createService(
         server: EmbeddedServer<*, *>,
@@ -76,7 +95,7 @@ class HomelabCommand : CliktCommand() {
           provisioningDb = provisioningDb,
           postgresqlConfig = postgresqlConfig,
           deployment = Deployment(
-            baseUrl = "http://wasmo.localhost:8080/".toHttpUrl(),
+            baseUrl = baseUrl,
             sendFromEmailAddress = "noreply@wasmo.dev",
             distributionShortCode = DistributionShortCode("hl"),
           ),

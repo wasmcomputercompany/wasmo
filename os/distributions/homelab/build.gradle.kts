@@ -17,6 +17,7 @@ application {
     "-Djava.awt.headless=true",
     "-Xms512m",
     "-Xmx512m",
+    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:54402",
   )
 }
 
@@ -29,7 +30,6 @@ jib {
     tags = setOf("latest")
   }
   container {
-    ports = listOf("8080")
     mainClass = application.mainClass.get()
     jvmFlags = application.applicationDefaultJvmArgs.toList()
 

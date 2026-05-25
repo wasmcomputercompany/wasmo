@@ -2,7 +2,8 @@ package com.wasmo.sql
 
 data class WasmoPostgresqlConfig(
   val hostname: String,
-  val ssl: Boolean,
+  val port: Int = 5432,
+  val ssl: Boolean = false,
   val adminUser: String,
   val adminPassword: String,
   val adminDatabaseName: String,
@@ -14,6 +15,7 @@ data class WasmoPostgresqlConfig(
   val admin: PostgresqlAddress
     get() = PostgresqlAddress(
       hostname = hostname,
+      port = port,
       ssl = ssl,
       user = adminUser,
       password = adminPassword,
@@ -24,6 +26,7 @@ data class WasmoPostgresqlConfig(
   val os: PostgresqlAddress
     get() = PostgresqlAddress(
       hostname = hostname,
+      port = port,
       ssl = ssl,
       user = osUser,
       password = osPassword,
@@ -40,6 +43,7 @@ data class WasmoPostgresqlConfig(
     databaseName: String,
   ) = PostgresqlAddress(
     hostname = hostname,
+    port = port,
     ssl = ssl,
     user = user,
     password = password,
