@@ -59,7 +59,8 @@ back to a persistent fake otherwise.
 Distribution Codes
 ------------------
 
-Two character short name codes to refer to specific distribution codes. Used to specify databases among other things.
+Two character short name codes to refer to specific distribution codes. Used to specify databases
+among other things.
 
 | Distribution                 | Code |
 |------------------------------|------|
@@ -69,6 +70,14 @@ Two character short name codes to refer to specific distribution codes. Used to 
 | Wasmo SDK                    | sd   |
 | Wasmo Tests                  | ft   |
 
+Ports
+-----
 
+By default, Homelab ports begin with `54400`.
 
+| Service            | Homelab | Hosted | Sandbox |
+|:-------------------|:--------|:-------|:--------|
+| Homelab HTTP       | 54400   | 8080   | 8080    |
+| Postgresql         | 54401   | 5432   | 5432    |
+| Embedded JVM Debug | 54402   |        |         |
 

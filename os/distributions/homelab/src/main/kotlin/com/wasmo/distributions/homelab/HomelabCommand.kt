@@ -10,6 +10,7 @@ import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.DistributionShortCode
+import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.postgresqloperator.LocalPostgresql
 import com.wasmo.sendemail.postmark.PostmarkCredentials
@@ -30,7 +31,7 @@ import wasmo.sql.SqlDatabase
 
 class HomelabCommand : CliktCommand() {
   val container: Boolean by option("--container")
-    .flag("--no-container", default = false)
+    .flag("--no-container", default = true)
   val stripePublishableKey: String by option()
     .defaultLazy { System.getenv("STRIPE_PUBLISHABLE_KEY") }
   val stripeSecretKey: String by option()
@@ -40,13 +41,17 @@ class HomelabCommand : CliktCommand() {
     val distribution = object : Distribution() {
       override val postgresqlConfig = WasmoPostgresqlConfig(
         hostname = "localhost",
-        ssl = false,
+        port = 54401,
         adminUser = "postgres",
         adminPassword = "password",
         adminDatabaseName = "postgres",
         osUser = "wasmo_development",
         osPassword = "password",
         osDatabaseName = "wasmo_development",
+      )
+
+      override val ktorConfig = WasmoKtorConfig(
+        port = 54400,
       )
 
       override fun createService(

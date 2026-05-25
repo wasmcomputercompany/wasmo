@@ -25,4 +25,3 @@ RUN \
 COPY ./homelab-foundation /homelab-foundation
 
 STOPSIGNAL SIGINT
-EXPOSE 5432

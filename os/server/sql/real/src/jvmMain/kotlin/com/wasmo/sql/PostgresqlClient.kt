@@ -1,5 +1,8 @@
 package com.wasmo.sql
 
+import com.wasmo.identifiers.OsScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.vertx.pgclient.PgBuilder
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.SslMode
@@ -14,6 +17,7 @@ import okio.Closeable
  *   connection when necessary.
  */
 class PostgresqlClient(
+  private val address: PostgresqlAddress,
   private val pool: Pool,
 ) : Closeable {
   suspend fun <T> withConnection(block: suspend SqlClient.() -> T): T {
@@ -34,6 +38,10 @@ class PostgresqlClient(
     pool.close()
   }
 
+  override fun toString() = "PostgresqlClient($address)"
+
+  @Inject
+  @SingleIn(OsScope::class)
   class Factory {
     fun connect(
       address: PostgresqlAddress,
@@ -55,7 +63,7 @@ class PostgresqlClient(
         .connectingTo(connectOptions)
         .build()
 
-      return PostgresqlClient(pool)
+      return PostgresqlClient(address, pool)
     }
   }
 }

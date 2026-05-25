@@ -54,12 +54,27 @@ Run
 $ export WASMO_DATA=$HOME/.wasmo/homelab
 $ mkdir -p $WASMO_DATA
 $ docker run \
-  --publish 5432:5432 \
-  --publish 8080:8080 \
+  --publish 54400:54400 \
   --mount type=bind,src=$WASMO_DATA,dst=/wasmo \
-  wasmo/homelab \
-  --container
+  wasmo/homelab
 ```
+
+Debug
+-----
+
+This is the same as above, but it dangerously exposes the JVM debugger and Postgresql ports:
+
+```bash
+$ export WASMO_DATA=$HOME/.wasmo/homelab
+$ mkdir -p $WASMO_DATA
+$ docker run \
+  --publish 54400:54400 \
+  --publish 54401:54401 \
+  --publish 54402:54402 \
+  --mount type=bind,src=$WASMO_DATA,dst=/wasmo \
+  wasmo/homelab
+```
+
 
 Implementation
 --------------
