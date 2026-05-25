@@ -1,5 +1,8 @@
 package com.wasmo.sql
 
+import com.wasmo.identifiers.OsScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.vertx.pgclient.PgBuilder
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.SslMode
@@ -34,6 +37,8 @@ class PostgresqlClient(
     pool.close()
   }
 
+  @Inject
+  @SingleIn(OsScope::class)
   class Factory {
     fun connect(
       address: PostgresqlAddress,
