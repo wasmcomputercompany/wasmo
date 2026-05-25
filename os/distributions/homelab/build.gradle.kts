@@ -23,7 +23,17 @@ application {
 
 jib {
   from {
-    image = "docker://wasmo/homelab-foundation"
+    image = "wasmo/homelab-foundation"
+    platforms {
+      platform {
+        architecture = "amd64"
+        os = "linux"
+      }
+      platform {
+        architecture = "arm64"
+        os = "linux"
+      }
+    }
   }
   to {
     image = "wasmo/homelab"

@@ -3,6 +3,8 @@ Homelab
 
 This is our distribution for running Wasmo on your own hardware.
 
+We build for `linux/amd64` and `linux/arm64`.
+
 Volumes
 -------
 
@@ -31,13 +33,13 @@ Here's some interesting file paths within the container:
 Build
 -----
 
-Build the foundation image.
+Build the foundation image for the host's architecture.
 
 ```bash
 $ cd ../..
-$ export DOCKER_DEFAULT_PLATFORM=linux/amd64
-$ cd os/distributions/homelab/src/main/foundation
-$ docker build -t wasmo/homelab-foundation .
+$ docker buildx build \
+  -t wasmo/homelab-foundation \
+  os/distributions/homelab/src/main/foundation
 ```
 
 Build Homelab upon it:
@@ -75,6 +77,19 @@ $ docker run \
   wasmo/homelab
 ```
 
+Publish to Docker Hub
+---------------------
+
+We can't use Docker Desktop for [multi-platform Docker builds]. Instead, we publish each build step
+to Docker Hub.
+
+```bash
+$ cd ../..
+$ docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t wasmo/homelab-foundation os/distributions/homelab/src/main/foundation
+$ ./gradlew os:distributions:homelab:jib
+```
 
 Implementation
 --------------
@@ -87,3 +102,5 @@ We use [gosu] to execute our Postgresql server as the `postgres` user in the con
 [Jib]: https://github.com/GoogleContainerTools/jib/
 
 [gosu]: https://github.com/tianon/gosu/
+
+[multi-platform Docker builds]: https://docs.docker.com/build/building/multi-platform/
