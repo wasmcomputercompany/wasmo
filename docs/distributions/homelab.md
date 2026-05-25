@@ -6,7 +6,7 @@ This is our distribution for running Wasmo on your own hardware.
 Volumes
 -------
 
-Typically you'll mount `~/Library/Wasmo` on the host to `/wasmo` in the container.
+Typically you'll mount `~/.wasmo` on the host to `/wasmo` in the container.
 
 Here's some interesting file paths within the container:
 
@@ -81,7 +81,7 @@ Implementation
 
 We use [Jib] to build Docker images.
 
-We use [gosu] to execute our Postgresql server as the postgres user in the container.
+We use [gosu] to execute our Postgresql server as the `postgres` user in the container.
 
 
 [Jib]: https://github.com/GoogleContainerTools/jib/

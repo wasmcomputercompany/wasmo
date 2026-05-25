@@ -12,6 +12,7 @@ import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.DistributionShortCode
 import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
+import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.postgresqloperator.LocalPostgresql
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
@@ -52,6 +53,8 @@ class HomelabCommand : CliktCommand() {
 
     var ktorConfig = WasmoKtorConfig()
 
+    val objectStoreAddress: ObjectStoreAddress
+
     if (container) {
       baseUrl = baseUrl.newBuilder()
         .port(54400)
@@ -61,6 +64,13 @@ class HomelabCommand : CliktCommand() {
       )
       ktorConfig = ktorConfig.copy(
         port = 54400
+      )
+      objectStoreAddress = FileSystemObjectStoreAddress(
+        path = "/wasmo/objectstore".toPath(),
+      )
+    } else {
+      objectStoreAddress = FileSystemObjectStoreAddress(
+        path = System.getProperty("user.home").toPath() / ".wasmo",
       )
     }
 
@@ -99,9 +109,7 @@ class HomelabCommand : CliktCommand() {
             sendFromEmailAddress = "noreply@wasmo.dev",
             distributionShortCode = DistributionShortCode("hl"),
           ),
-          objectStoreAddress = FileSystemObjectStoreAddress(
-            path = System.getProperty("user.home").toPath() / ".wasmo",
-          ),
+          objectStoreAddress = objectStoreAddress,
           sessionCookieSpec = SessionCookieSpec.Http,
           localPostgresql = localPostgresql,
         )
