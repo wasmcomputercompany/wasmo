@@ -104,8 +104,6 @@ allprojects {
         download = false
         command.set("/usr/local/bin/node")
       }
-
-      // Consistent with wasmo-build/ci/Dockerfile
       version = "26.1.0"
     }
   }

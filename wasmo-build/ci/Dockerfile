@@ -11,7 +11,7 @@
 # https://github.com/nodejs/docker-node/blob/main/LICENSE
 # See https://github.com/nodejs/docker-node/blob/main/26/alpine3.23/Dockerfile
 
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:25-alpine-3.23
 
 RUN set -o errexit -o nounset \
     && echo "Installing utilities with apk" \
@@ -40,7 +40,6 @@ RUN set -o errexit -o nounset \
     && which wat2wasm
 
 # Install Gradle.
-# Version must match 'gradle/wrapper/gradle-wrapper.properties'
 ENV GRADLE_VERSION=9.5.1
 ARG GRADLE_DOWNLOAD_SHA256=bafc141b619ad6350fd975fc903156dd5c151998cc8b058e8c1044ab5f7b031f
 ENV GRADLE_HOME=/opt/gradle
@@ -83,7 +82,6 @@ RUN set -o errexit -o nounset \
 USER root
 
 # Install Node.
-# Version must match 'build.gradle.kts'
 ENV NODE_VERSION=26.1.0
 RUN --mount=type=cache,target=/downloads,rw \
     set -o errexit -o nounset \

@@ -29,6 +29,9 @@ $ docker build -t wasmo/ci .
 $ docker push wasmo/ci
 ```
 
+After pushing an image, update the SHA256 in [docker-compose.yml](../../.buildkite/docker-compose.yml)
+so future builds will use this new image.
+
 
 Local Execution
 ---------------
