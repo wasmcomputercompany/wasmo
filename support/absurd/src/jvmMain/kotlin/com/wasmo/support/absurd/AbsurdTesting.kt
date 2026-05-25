@@ -19,6 +19,7 @@ suspend fun prepareTestDatabase(
         execute("CREATE DATABASE ${test.database} WITH ENCODING = 'UTF8'")
         execute("CREATE USER ${test.user} WITH PASSWORD '${test.password}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT")
         execute("GRANT ALL PRIVILEGES ON DATABASE ${test.database} TO ${test.user}")
+        execute("ALTER DATABASE ${test.database} OWNER TO ${test.user}")
       }
     } catch (_: PgException) {
       // Assume this database exists.

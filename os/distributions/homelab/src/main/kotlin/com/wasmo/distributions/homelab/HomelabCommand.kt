@@ -55,7 +55,7 @@ class HomelabCommand : CliktCommand() {
         wasmoDb: SqlDatabase,
       ): WasmoService {
         val localPostgresql = when (container) {
-          true -> LocalPostgresql.Exec()
+          true -> LocalPostgresql.Exec
           else -> LocalPostgresql.None
         }
 

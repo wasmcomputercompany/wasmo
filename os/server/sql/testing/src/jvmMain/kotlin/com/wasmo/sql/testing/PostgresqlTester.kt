@@ -2,8 +2,8 @@ package com.wasmo.sql.testing
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
-import com.wasmo.sql.OsDatabaseInitializer
 import com.wasmo.sql.PostgresqlClient
+import com.wasmo.sql.RealOsDatabaseInitializer
 import com.wasmo.sql.asSqlDatabase
 import wasmo.sql.SqlDatabase
 
@@ -17,9 +17,9 @@ class PostgresqlTester : CoroutineTestInterceptor {
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     val postgresqlClientFactory = PostgresqlClient.Factory()
-    val initializer = OsDatabaseInitializer(
+    val initializer = RealOsDatabaseInitializer(
       clientFactory = postgresqlClientFactory,
-      address = TestPostgresqlConfig,
+      config = TestPostgresqlConfig,
     )
     initializer.initialize()
     initializer.dangerouslyClearSchema()

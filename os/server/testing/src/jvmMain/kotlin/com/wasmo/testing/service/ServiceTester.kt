@@ -6,9 +6,9 @@ import com.wasmo.accounts.ClientAuthenticator
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.permits.PermitService
-import com.wasmo.sql.OsDatabaseInitializer
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.ProvisioningDb
+import com.wasmo.sql.RealOsDatabaseInitializer
 import com.wasmo.sql.asSqlDatabase
 import com.wasmo.sql.testing.TestPostgresqlConfig
 import com.wasmo.sql.testing.dropAppDatabases
@@ -108,9 +108,9 @@ class ServiceTester : CoroutineTestInterceptor {
     fileSystem.createDirectories(testDirectory)
 
     val clientFactory = PostgresqlClient.Factory()
-    val initializer = OsDatabaseInitializer(
+    val initializer = RealOsDatabaseInitializer(
       clientFactory = clientFactory,
-      address = TestPostgresqlConfig,
+      config = TestPostgresqlConfig,
     )
     initializer.initialize()
     initializer.dangerouslyClearSchema()
