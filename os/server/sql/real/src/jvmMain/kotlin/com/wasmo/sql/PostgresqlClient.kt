@@ -7,14 +7,14 @@ import io.vertx.pgclient.PgBuilder
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.SslMode
 import io.vertx.sqlclient.Pool
+import io.vertx.sqlclient.PoolOptions
 import io.vertx.sqlclient.SqlClient
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import okio.Closeable
 
 /**
  * Manages connections to the Postgresql server.
- *
- * TODO: impose a limit on how many connections may be open at once, and make callers wait for a
- *   connection when necessary.
  */
 class PostgresqlClient(
   private val address: PostgresqlAddress,
@@ -46,21 +46,35 @@ class PostgresqlClient(
     fun connect(
       address: PostgresqlAddress,
     ): PostgresqlClient {
-      val connectOptions = PgConnectOptions()
-        .setHost(address.hostname)
-        .setDatabase(address.databaseName)
-        .setUser(address.user)
-        .setPassword(address.password)
-        .setSslMode(
-          when {
-            address.ssl -> SslMode.VERIFY_FULL
-            else -> SslMode.DISABLE
-          },
-        )
+      val connectOptions = PgConnectOptions().apply {
+        host = address.hostname
+        port = address.port
+        database = address.databaseName
+        user = address.user
+        password = address.password
+        sslMode = when {
+          address.ssl -> SslMode.VERIFY_FULL
+          else -> SslMode.DISABLE
+        }
+        reconnectAttempts = 5
+        reconnectInterval = 500.milliseconds.inWholeMilliseconds
+        addProperty("application_name", "wasmo")
+      }
 
-      val pool = PgBuilder
-        .pool()
-        .connectingTo(connectOptions)
+      val pool = PgBuilder.pool()
+        .apply {
+          connectingTo(connectOptions)
+          with(
+            PoolOptions()
+              .apply {
+                maxSize = 64
+                maxWaitQueueSize = 64
+                idleTimeout = 30.seconds.inWholeMilliseconds.toInt()
+                connectionTimeout = 1.seconds.inWholeMilliseconds.toInt()
+                maxLifetime = 60.seconds.inWholeMilliseconds.toInt()
+              },
+          )
+        }
         .build()
 
       return PostgresqlClient(address, pool)

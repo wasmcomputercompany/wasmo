@@ -74,7 +74,8 @@ abstract class ServiceBindings {
 
     @Provides
     @SingleIn(OsScope::class)
-    fun provideAppCatalog(): AppCatalog = loadDefaultAppCatalogFromResources()
+    fun provideAppCatalog(deployment: Deployment): AppCatalog =
+      loadDefaultAppCatalogFromResources(deployment.baseUrl)
 
     @Provides
     @SingleIn(OsScope::class)
