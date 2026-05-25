@@ -25,10 +25,10 @@ class PaidCreateComputerSpecRpc(
   private val client: Client,
   private val wasmoDb: SqlDatabase,
   private val computerSpecStore: ComputerSpecStore,
-) : RpcAction<CreateComputerSpecRequest, CreateComputerSpecResponse.PaymentRequired> {
+) : RpcAction<CreateComputerSpecRequest, CreateComputerSpecResponse> {
   suspend fun create(
     request: CreateComputerSpecRequest,
-  ): Response<CreateComputerSpecResponse.PaymentRequired> {
+  ): Response<CreateComputerSpecResponse> {
     wasmoDb.transaction {
       computerSpecStore.insertIfAbsent(
         accountId = client.getOrCreateAccountId(),

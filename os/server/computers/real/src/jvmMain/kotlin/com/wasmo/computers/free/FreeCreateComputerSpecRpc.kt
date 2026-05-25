@@ -13,7 +13,6 @@ import dev.zacsweers.metro.ClassKey
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.binding
-import kotlin.time.Clock
 import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
@@ -25,18 +24,17 @@ class FreeCreateComputerSpecRpc(
   private val wasmoDb: SqlDatabase,
   private val computerSpecStore: ComputerSpecStore,
   private val computerStore: ComputerStore,
-  private val clock: Clock,
-) : RpcAction<CreateComputerSpecRequest, CreateComputerSpecResponse.Success> {
+) : RpcAction<CreateComputerSpecRequest, CreateComputerSpecResponse> {
   suspend fun create(
     request: CreateComputerSpecRequest,
-  ): Response<CreateComputerSpecResponse.Success> {
+  ): Response<CreateComputerSpecResponse> {
     wasmoDb.transaction {
       computerSpecStore.insertIfAbsent(
         accountId = client.getOrCreateAccountId(),
         slug = request.slug,
         computerSpecToken = request.computerSpecToken,
       )
-      val computer = computerStore.initializeFromSpec(request.computerSpecToken)
+      computerStore.initializeFromSpec(request.computerSpecToken)
     }
     return Response(
       body = CreateComputerSpecResponse.Success,
@@ -47,5 +45,4 @@ class FreeCreateComputerSpecRpc(
     request: CreateComputerSpecRequest,
     url: Url,
   ) = create(request)
-
 }
