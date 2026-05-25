@@ -7,6 +7,9 @@ import wasmo.sql.SqlService
 @BindingContainer
 abstract class SqlServiceBindings {
   @Binds
+  abstract fun bindOsDatabaseInitializer(real: RealOsDatabaseInitializer): OsDatabaseInitializer
+
+  @Binds
   abstract fun bindSqlDatabaseProvisioner(real: RealSqlDatabaseProvisioner): SqlDatabaseProvisioner
 
   @Binds

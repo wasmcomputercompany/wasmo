@@ -42,7 +42,10 @@ internal class RealSqlDatabase(
 
   override suspend fun newConnection(): SqlConnection {
     return closeTracker.track { closeListener ->
-      RealSqlConnection(client.connect(), closeListener)
+      RealSqlConnection(
+        sqlClient = client.connect(),
+        closeListener = closeListener,
+      )
     }
   }
 

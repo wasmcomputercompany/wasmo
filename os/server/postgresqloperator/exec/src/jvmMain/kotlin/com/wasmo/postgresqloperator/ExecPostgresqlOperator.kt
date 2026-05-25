@@ -2,12 +2,13 @@ package com.wasmo.postgresqloperator
 
 import com.wasmo.common.logging.Logger
 import com.wasmo.identifiers.OsScope
+import com.wasmo.sql.OsDatabaseInitializer
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import okio.FileSystem
 import okio.IOException
@@ -23,19 +24,17 @@ import okio.source
 internal class ExecPostgresqlOperator(
   private val logger: Logger,
   private val localPostgresql: LocalPostgresql,
+  private val initializer: OsDatabaseInitializer,
 ) : PostgresqlOperator {
-  private var processState = AtomicReference<ProcessState>(ProcessState.NotStarted)
-  private val homelabFoundationPath = "/homelab-foundation".toPath()
-
   context(scope: CoroutineScope)
   override suspend fun await() {
     if (localPostgresql is LocalPostgresql.Exec) {
-      execPostgresql(localPostgresql)
+      execPostgresql()
     }
   }
 
   context(scope: CoroutineScope)
-  private fun execPostgresql(exec: LocalPostgresql.Exec) {
+  private suspend fun execPostgresql() {
     val empty = try {
       FileSystem.SYSTEM.list("/wasmo/postgresql/18".toPath()).isEmpty()
     } catch (_: IOException) {
@@ -46,65 +45,68 @@ internal class ExecPostgresqlOperator(
       gosuInitdb()
     }
 
-    gosuPostgres(exec)
-  }
-
-  context(scope: CoroutineScope)
-  private fun gosuInitdb() {
-    logger.info("calling initdb...")
-    val process = ProcessBuilder()
-      .command(
-        "/usr/bin/gosu",
-        "postgres",
-        "/usr/libexec/postgresql18/initdb",
-        "--auth=trust",
-        "--pgdata=/wasmo/postgresql/18",
-        "--locale-provider=icu",
-        "--locale=en_US",
-      )
-      .start()
-
-    scope.coroutineContext[Job]!!.invokeOnCompletion {
-      process.destroy()
-    }
-
-    collectStreams(process)
-
-    val exitCode = process.waitFor()
-    check(exitCode == 0) {
-      "initdb failed: $exitCode"
-    }
-
-    logger.info("initdb success")
-  }
-
-  context(scope: CoroutineScope)
-  private fun gosuPostgres(exec: LocalPostgresql.Exec) {
-    logger.info("starting postgresql...")
-    val process = ProcessBuilder()
-      .command(
-        "/usr/bin/gosu",
-        "postgres",
-        exec.postgres.toString(),
-        "--config_file=${homelabFoundationPath / "postgresql.conf"}",
-      )
-      .start()
-
-    scope.coroutineContext[Job]!!.invokeOnCompletion {
-      process.destroy()
-    }
-
-    processState.set(ProcessState.Running(process))
-
-    logger.info("postgresql started...")
-    collectStreams(process)
-
     scope.launch {
+      gosuPostgres()
+    }
+
+    if (empty) {
+      initializer.initialize()
+    }
+  }
+
+  private suspend fun gosuInitdb() {
+    coroutineScope {
+      logger.info("calling initdb...")
+      val process = ProcessBuilder()
+        .command(
+          "/usr/bin/gosu",
+          "postgres",
+          "/usr/libexec/postgresql18/initdb",
+          "--auth=trust",
+          "--pgdata=/wasmo/postgresql/18",
+          "--locale-provider=icu",
+          "--locale=en_US",
+        )
+        .start()
+
+      coroutineContext.job.invokeOnCompletion {
+        process.destroy()
+      }
+
+      collectStreams(process)
+
+      val exitCode = process.waitFor()
+      check(exitCode == 0 || coroutineContext.job.isCancelled) {
+        "initdb failed: $exitCode"
+      }
+
+      logger.info("initdb success")
+    }
+  }
+
+  private suspend fun gosuPostgres() {
+    coroutineScope {
+      logger.info("starting postgresql...")
+      val process = ProcessBuilder()
+        .command(
+          "/usr/bin/gosu",
+          "postgres",
+          "/usr/libexec/postgresql18/postgres",
+          "--config_file=/homelab-foundation/postgresql.conf",
+        )
+        .start()
+
+      coroutineContext.job.invokeOnCompletion {
+        process.destroy()
+      }
+
+      logger.info("postgresql started...")
+      collectStreams(process)
+
       val exitCode = process.waitFor()
 
-      val previous = processState.getAndSet(ProcessState.Stopped)
-      if (previous !is ProcessState.Stopping) {
-        error("postgresql exited unexpectedly, $exitCode")
+      check(coroutineContext.job.isCancelled) {
+        "postgresql exited unexpectedly, $exitCode"
       }
     }
   }
@@ -126,12 +128,5 @@ internal class ExecPostgresqlOperator(
         logger.info("postgresql: $line")
       }
     }
-  }
-
-  private sealed interface ProcessState {
-    object NotStarted : ProcessState
-    class Running(val process: Process) : ProcessState
-    object Stopping : ProcessState
-    object Stopped : ProcessState
   }
 }

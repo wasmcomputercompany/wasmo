@@ -17,6 +17,7 @@ kotlin {
         implementation(projects.os.logging)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.postgresqloperator.api)
+        implementation(projects.os.server.sql.api)
       }
     }
   }
