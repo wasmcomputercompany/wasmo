@@ -38,21 +38,35 @@ class HomelabCommand : CliktCommand() {
     .defaultLazy { System.getenv("STRIPE_SECRET_KEY") }
 
   override fun run() = runBlocking {
-    val distribution = object : Distribution() {
-      override val postgresqlConfig = WasmoPostgresqlConfig(
-        hostname = "localhost",
-        port = 54401,
-        adminUser = "postgres",
-        adminPassword = "password",
-        adminDatabaseName = "postgres",
-        osUser = "wasmo_development",
-        osPassword = "password",
-        osDatabaseName = "wasmo_development",
-      )
+    var baseUrl = "http://wasmo.localhost:8080/".toHttpUrl()
 
-      override val ktorConfig = WasmoKtorConfig(
-        port = 54400,
+    var postgresqlConfig = WasmoPostgresqlConfig(
+      hostname = "localhost",
+      adminUser = "postgres",
+      adminPassword = "password",
+      adminDatabaseName = "postgres",
+      osUser = "wasmo_homelab",
+      osPassword = "password",
+      osDatabaseName = "wasmo_homelab",
+    )
+
+    var ktorConfig = WasmoKtorConfig()
+
+    if (container) {
+      baseUrl = baseUrl.newBuilder()
+        .port(54400)
+        .build()
+      postgresqlConfig = postgresqlConfig.copy(
+        port = 54401,
       )
+      ktorConfig = ktorConfig.copy(
+        port = 54400
+      )
+    }
+
+    val distribution = object : Distribution() {
+      override val postgresqlConfig = postgresqlConfig
+      override val ktorConfig = ktorConfig
 
       override fun createService(
         server: EmbeddedServer<*, *>,
@@ -81,7 +95,7 @@ class HomelabCommand : CliktCommand() {
           provisioningDb = provisioningDb,
           postgresqlConfig = postgresqlConfig,
           deployment = Deployment(
-            baseUrl = "http://wasmo.localhost:8080/".toHttpUrl(),
+            baseUrl = baseUrl,
             sendFromEmailAddress = "noreply@wasmo.dev",
             distributionShortCode = DistributionShortCode("hl"),
           ),

@@ -30,7 +30,6 @@ jib {
     tags = setOf("latest")
   }
   container {
-    ports = listOf("8080")
     mainClass = application.mainClass.get()
     jvmFlags = application.applicationDefaultJvmArgs.toList()
 

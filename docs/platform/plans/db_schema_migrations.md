@@ -45,7 +45,7 @@ For future upgrades, we'll have to generate Wasmo DB schema migration SQL throug
 the below, but that requires our PRs to land in absurd, first.
 
 ```bash
-export PGDATABASE="postgresql://postgres:password@localhost:5432/wasmo_development"
+export PGDATABASE="postgresql://postgres:password@localhost:5432/wasmo_homelab"
 TARGET_WASMO_DB_SCHEMA_VERSION=3
 absurdctl migrate --dump-sql > os/server/db/src/jvmMain/resources/migrations/v${TARGET_WASMO_DB_SCHEMA_VERSION}__absurd-$(absurdctl schema-version --target).sql
 ```
