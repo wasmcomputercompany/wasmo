@@ -6,7 +6,7 @@ data class SignUpModel(
   val inFlightCalls: Int = 0,
   val enterChallengeCode: EnterChallengeCodeModel? = null,
   val enterEmailAddress: EnterEmailAddressModel? = null,
-  val newAccountWithUsername: NewAccountWithUsernameModel? = null,
+  val newOrExistingAccountWithUsername: NewOrExistingAccountWithUsernameModel? = null,
   val selectUsernameToSignIn: SelectUsernameToSignInModel? = null,
 )
 
@@ -17,11 +17,15 @@ data class SelectUsernameToSignInModel(
   val canSubmit: Boolean = false,
 )
 
-/** Enter a new username to sign-up and simultaneously sign-in with that username. */
-data class NewAccountWithUsernameModel(
+/** Enter a new username to sign-up and simultaneously sign-in with that username, or sign-in as an existing username. */
+data class NewOrExistingAccountWithUsernameModel(
   val username: String = "",
   val usernameHelperText: String = "",
   val canSubmit: Boolean = false,
+  // An existing username to sign-in as. For example, if user "Jesse.123" already exists
+  // and the user has typed username="jesse123", then rather than sign-up as "jesse123",
+  // we offer them to sign-in as "Jesse.123".
+  val existingUsernameToSignInAs: UsernameSlug? = null,
 )
 
 /** Enter an email address. You'll be emailed a challenge code to confirm. */
