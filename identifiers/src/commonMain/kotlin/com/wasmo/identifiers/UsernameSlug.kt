@@ -18,7 +18,11 @@ value class UsernameSlug(val value: String) {
 
   // DB required normalizedValue to be UNIQUE among usernames
   val normalizedValue: String
-    get() = value.replace(Regex("[._-]"), "").lowercase()
+    get() = normalize(value)
+
+  companion object {
+    fun normalize(value: String): String = value.replace(Regex("[._-]"), "").lowercase()
+  }
 }
 
 /**

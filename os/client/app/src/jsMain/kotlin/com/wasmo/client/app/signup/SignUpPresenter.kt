@@ -27,6 +27,9 @@ class SignUpPresenter(
   private val accountDataService: AccountDataService,
   signInSnapshot: SignInSnapshot?,
 ) : Presenter<SignUpModel, SignUpEvent> {
+  private val existingUsernames = signInSnapshot?.usernameOptions ?: listOf()
+  private val normalizedToExistingUsername = existingUsernames.associateBy { it.normalizedValue }
+
   private val mutableModel = MutableStateFlow(
     // TODO: Make SignInSnapshot responsible for all sign-in options, not only username.
     if (signInSnapshot == null) {
@@ -150,11 +153,17 @@ class SignUpPresenter(
 
       is SignUpEvent.EditUsername -> {
         mutableModel.update {
-          val usernameModel = it.newAccountWithUsername ?: return // Race.
+          val usernameModel = it.newOrExistingAccountWithUsername ?: return // Race.
+          val usernameString = event.username
+          val isValid = isUsernameValid(usernameString)
+          val signInUsername: UsernameSlug? = if (isValid) normalizedToExistingUsername[UsernameSlug.normalize(usernameString)] else null
+          val isSignIn = signInUsername != null
           it.copy(
-            newAccountWithUsername = usernameModel.copy(
+            newOrExistingAccountWithUsername = usernameModel.copy(
               username = event.username,
-              canSubmit = isUsernameValid(event.username),
+              canSubmit = isValid,
+              existingUsernameToSignInAs = signInUsername,
+              usernameHelperText = if (isSignIn) "${signInUsername.value} exists" else ""
             ),
           )
         }
@@ -162,7 +171,7 @@ class SignUpPresenter(
 
       SignUpEvent.ClickSignUpWithUsername -> {
         callServer { state ->
-          val usernameModel = state.newAccountWithUsername ?: return@callServer // Race.
+          val usernameModel = state.newOrExistingAccountWithUsername ?: return@callServer // Race.
           val response = accountDataService.createUsername(UsernameSlug(usernameModel.username))
           when (response.decision) {
             CreateUsernameDecision.Success -> {
@@ -198,7 +207,7 @@ class SignUpPresenter(
       SignUpEvent.ClickNewAccount -> {
         mutableModel.update { state ->
           state.copy(
-            newAccountWithUsername = NewAccountWithUsernameModel()
+            newOrExistingAccountWithUsername = NewOrExistingAccountWithUsernameModel()
           )
         }
       }

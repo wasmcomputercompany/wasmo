@@ -84,7 +84,7 @@ class SignUpTest {
       darkMode = darkMode,
       background = "var(--pico-background-color)",
     ) {
-      NewAccountWithUsernameScreen(
+      NewOrExistingAccountWithUsernameScreen(
         attrs = {
           classes("FillWidthHeight")
         },

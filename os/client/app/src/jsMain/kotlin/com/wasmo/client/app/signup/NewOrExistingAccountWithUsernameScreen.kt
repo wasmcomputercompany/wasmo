@@ -5,13 +5,14 @@ import com.wasmo.compose.Button
 import com.wasmo.compose.Column
 import com.wasmo.compose.PageLayout
 import com.wasmo.compose.TextField
+import com.wasmo.identifiers.UsernameSlug
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLDivElement
 
 @Composable
-fun NewAccountWithUsernameScreen(
+fun NewOrExistingAccountWithUsernameScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
   eventListener: (SignUpEvent) -> Unit,
   username: String,
@@ -19,6 +20,7 @@ fun NewAccountWithUsernameScreen(
   disabled: Boolean,
   canSubmit: Boolean,
   busy: Boolean,
+  existingUsernameToSignInAs: UsernameSlug? = null,
 ) {
   PageLayout(
     attrs = attrs,
@@ -50,11 +52,16 @@ fun NewAccountWithUsernameScreen(
         disabled = !canSubmit || disabled,
         attrs = {
           onClick {
-            eventListener(SignUpEvent.ClickSignUpWithUsername)
+            val event = if (existingUsernameToSignInAs == null) {
+              SignUpEvent.ClickSignUpWithUsername
+            } else {
+              SignUpEvent.ClickUsername(existingUsernameToSignInAs)
+            }
+            eventListener(event)
           }
         },
       ) {
-        Text("Sign Up")
+        Text(if (existingUsernameToSignInAs == null) "Sign Up" else "Sign In as ${existingUsernameToSignInAs.value}" )
       }
     }
   }

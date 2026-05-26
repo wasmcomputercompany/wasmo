@@ -50,14 +50,15 @@ class SignUpUi(
       return
     }
 
-    val newAccountWithUsernameModel = state.newAccountWithUsername
-    if (newAccountWithUsernameModel != null) {
-      NewAccountWithUsernameScreen(
+    val newOrExistingAccountWithUsernameModel = state.newOrExistingAccountWithUsername
+    if (newOrExistingAccountWithUsernameModel != null) {
+      NewOrExistingAccountWithUsernameScreen(
         attrs = attrs,
         eventListener = presenter::onEvent,
-        username = newAccountWithUsernameModel.username,
-        usernameHelperText = newAccountWithUsernameModel.usernameHelperText,
-        canSubmit = newAccountWithUsernameModel.canSubmit,
+        username = newOrExistingAccountWithUsernameModel.username,
+        usernameHelperText = newOrExistingAccountWithUsernameModel.usernameHelperText,
+        existingUsernameToSignInAs = newOrExistingAccountWithUsernameModel.existingUsernameToSignInAs,
+        canSubmit = newOrExistingAccountWithUsernameModel.canSubmit,
         disabled = state.inFlightCalls > 0,
         busy = state.inFlightCalls > 0,
       )
