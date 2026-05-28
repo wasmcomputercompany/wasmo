@@ -15,6 +15,7 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(libs.burst.coroutines)
+        implementation(libs.chicory.wabt)
         implementation(libs.commons.dbcp2)
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.coroutines.reactive)
