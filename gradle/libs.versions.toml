@@ -1,7 +1,7 @@
 [versions]
 assertk = "0.28.1"
 burst = "2.11.0"
-chicory = "1.7.0"
+chicory = "1.7.5"
 clikt = "5.0.1"
 compose = "1.10.0"
 dokka = "2.2.0"

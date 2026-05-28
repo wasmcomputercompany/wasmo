@@ -7,10 +7,9 @@ import com.dylibso.chicory.wabt.Wat2Wasm
 import com.dylibso.chicory.wasm.Parser
 import kotlin.test.Test
 
-
-class WasmRunnerTest {
+class RunWatTest {
   @Test
-  fun test() {
+  fun `run wat`() {
     val wasmBytes = Wat2Wasm.parse(
       """
       (module
