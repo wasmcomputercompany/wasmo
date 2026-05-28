@@ -6,15 +6,16 @@ import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.AccountSnapshotRequest
 import com.wasmo.api.ConfirmEmailAddressResponse
 import com.wasmo.api.CreateComputerSpecRequest
+import com.wasmo.api.CreateComputerSpecResponse
 import com.wasmo.api.CreateUsernameRequest
 import com.wasmo.api.CreateUsernameResponse
 import com.wasmo.api.LinkEmailAddressRequest
 import com.wasmo.api.LinkUsernameRequest
 import com.wasmo.api.RegisterPasskeyRequest
 import com.wasmo.api.RegisterPasskeyResponse
-import com.wasmo.identifiers.Deployment
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.ComputerSlug
+import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.UsernameSlug
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakePasskey
@@ -80,8 +81,9 @@ class ClientTester(
     )
 
     // Pay for it.
+    val body = createComputerSpecResponse.body as CreateComputerSpecResponse.PaymentRequired
     val checkoutSessionId = paymentsService.completePayment(
-      createComputerSpecResponse.body.checkoutSessionClientSecret,
+      body.checkoutSessionClientSecret,
     )
 
     // Sync payment state.
