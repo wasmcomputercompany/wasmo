@@ -7,6 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.wasmo.api.ComputerListItem
 import com.wasmo.api.CreateComputerSpecRequest
+import com.wasmo.api.CreateComputerSpecResponse
 import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.HomeRoute
@@ -31,8 +32,9 @@ class CreateComputerSpecRpcTest {
         slug = computerSlug,
       ),
     )
+    val body = createComputerResponse.body as CreateComputerSpecResponse.PaymentRequired
     val checkoutSessionId = client.paymentsService.completePayment(
-      createComputerResponse.body.checkoutSessionClientSecret,
+      body.checkoutSessionClientSecret,
     )
     val afterCheckoutResponse = client.call().afterCheckout(checkoutSessionId)
 
