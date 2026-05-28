@@ -21,11 +21,6 @@ RUN set -o errexit -o nounset \
       tar \
       xz \
       \
-    && echo "Installing unstable utilities with apk" \
-    && apk add --no-cache \
-       --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
-      wabt \
-      \
     && echo "Testing utilities" \
     && which awk \
     && which curl \
@@ -36,8 +31,7 @@ RUN set -o errexit -o nounset \
     && which sed \
     && which tar \
     && which tr \
-    && which unzip \
-    && which wat2wasm
+    && which unzip
 
 # Install Gradle.
 ENV GRADLE_VERSION=9.5.1

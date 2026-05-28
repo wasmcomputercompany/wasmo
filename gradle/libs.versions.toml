@@ -1,11 +1,11 @@
 [versions]
 assertk = "0.28.1"
 burst = "2.11.0"
+chicory = "1.7.0"
 clikt = "5.0.1"
 compose = "1.10.0"
 dokka = "2.2.0"
 freefair-sass = "9.5.0"
-graalvm = "25.0.0"
 gson = "2.13.2"
 jaxb = "4.0.0"
 jib = "3.5.3"
@@ -31,6 +31,8 @@ webauthn4j = "0.30.2.RELEASE"
 [libraries]
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
 burst-coroutines = { module = "app.cash.burst:burst-coroutines", version.ref = "burst" }
+chicory-runtime = { module = "com.dylibso.chicory:runtime", version.ref = "chicory" }
+chicory-wabt = { module = "com.dylibso.chicory:wabt", version.ref = "chicory" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 clikt-core = { module = "com.github.ajalt.clikt:clikt-core", version.ref = "clikt" }
 commons-dbcp2 = { module = "org.apache.commons:commons-dbcp2", version = "2.13.0" }
@@ -38,8 +40,6 @@ compose-html = { module = "org.jetbrains.compose.html:html-core", version.ref = 
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
 dokka = { module = "org.jetbrains.dokka:org.jetbrains.dokka.gradle.plugin", version.ref = "dokka" }
 freefair-sass = { module = "io.freefair.sass-base:io.freefair.sass-base.gradle.plugin", version.ref = "freefair-sass" }
-graalvm-polyglot = { module = "org.graalvm.polyglot:polyglot", version.ref = "graalvm" }
-graalvm-wasm = { module = "org.graalvm.polyglot:wasm", version.ref = "graalvm" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 jaxb-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxb" }
 jaxb-implementation = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "jaxb" }

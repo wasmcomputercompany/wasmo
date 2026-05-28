@@ -38,7 +38,7 @@ Build the foundation image for the host's architecture.
 ```bash
 $ cd ../..
 $ docker buildx build \
-  -t wasmo/homelab-foundation \
+  --tag wasmo/homelab-foundation \
   os/distributions/homelab/src/main/foundation
 ```
 
@@ -87,7 +87,8 @@ to Docker Hub.
 $ cd ../..
 $ docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t wasmo/homelab-foundation os/distributions/homelab/src/main/foundation
+  --tag wasmo/homelab-foundation \
+  os/distributions/homelab/src/main/foundation
 $ ./gradlew os:distributions:homelab:jib
 ```
 
