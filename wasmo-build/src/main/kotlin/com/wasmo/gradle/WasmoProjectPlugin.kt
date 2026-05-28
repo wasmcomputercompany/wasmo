@@ -112,6 +112,7 @@ internal class RealWasmoBuildExtension(
         if (wasm) {
           wasmWasi {
             nodejs()
+            binaries.executable()
           }
         }
       }

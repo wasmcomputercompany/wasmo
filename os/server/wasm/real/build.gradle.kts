@@ -4,7 +4,7 @@ plugins {
 }
 
 wasmoBuild {
-  libraryJvm()
+  libraryJvmWasm()
 }
 
 kotlin {
@@ -23,4 +23,10 @@ kotlin {
       }
     }
   }
+}
+
+// Required by RunKotlinWasmTest.
+val compileDevelopmentExecutableKotlinWasmWasi = tasks.named("compileDevelopmentExecutableKotlinWasmWasi")
+tasks.named("jvmTest") {
+  dependsOn(compileDevelopmentExecutableKotlinWasmWasi)
 }
