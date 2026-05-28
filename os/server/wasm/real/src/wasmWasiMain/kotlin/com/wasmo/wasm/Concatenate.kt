@@ -1,0 +1,18 @@
+@file:OptIn(UnsafeWasmMemoryApi::class, ComponentModelInternalApi::class)
+
+package com.wasmo.wasm
+
+import kotlin.wasm.unsafe.ComponentModelInternalApi
+import kotlin.wasm.unsafe.UnsafeWasmMemoryApi
+import kotlin.wasm.unsafe.withScopedMemoryAllocator
+
+@WasmExport("concatenate")
+fun concatenate(aId: Int, bId: Int): Int {
+  return withScopedMemoryAllocator { allocator ->
+    val bridge = GuestBridge(allocator)
+    val a = bridge.get(aId)
+    val b = bridge.get(bId)
+    val concat = a + b
+    bridge.put(concat)
+  }
+}

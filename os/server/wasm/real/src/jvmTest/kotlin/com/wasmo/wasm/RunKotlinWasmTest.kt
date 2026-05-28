@@ -1,7 +1,7 @@
 package com.wasmo.wasm
 
 import assertk.assertThat
-import assertk.assertions.containsExactly
+import assertk.assertions.isEqualTo
 import com.dylibso.chicory.runtime.HostFunction
 import com.dylibso.chicory.runtime.Store
 import com.dylibso.chicory.runtime.WasmFunctionHandle
@@ -26,24 +26,29 @@ class RunKotlinWasmTest {
     val wasmModule = Parser.parse(wasmBytes)
 
     val store = Store()
-
-    // KT-82105: Kotlin/Wasm binaries always import random_get.
-    satisfyImports(wasmModule, store)
+    val bridge = HostBridge()
+    satisfyImports(wasmModule, store, bridge)
 
     val instance = store.instantiate("addTwo", wasmModule)
-    val addTwo = instance.export("addTwo")
-    val result = addTwo.apply(40, 2)
-    assertThat(result).containsExactly(42L)
+
+    val bId = bridge.put("World!")
+    val aId = bridge.put("Hello, ")
+
+    val concatenate = instance.export("concatenate")
+    val result = concatenate.apply(aId.toLong(), bId.toLong())
+
+    assertThat(bridge.get(result[0].toInt())).isEqualTo("Hello, World!")
   }
 
   /** Provide the imports required to run our Kotlin/Wasm program. */
-  private fun satisfyImports(wasmModule: WasmModule, store: Store) {
+  private fun satisfyImports(wasmModule: WasmModule, store: Store, hostBridge: HostBridge) {
     val imports = wasmModule.importSection().stream().toList()
     val randomGetImport = imports.single {
       it.module() == "wasi_snapshot_preview1" && it.name() == "random_get"
     }
     check(randomGetImport != null)
 
+    // KT-82105: Kotlin/Wasm binaries always import random_get.
     store.addFunction(
       HostFunction(
         "wasi_snapshot_preview1",
@@ -57,5 +62,6 @@ class RunKotlinWasmTest {
         },
       ),
     )
+    hostBridge.addFunctions(store)
   }
 }
