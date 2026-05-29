@@ -16,7 +16,7 @@ import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@ClassKey(SignOutPage::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class)
 class SignOutPage(
   private val callDataService: CallDataService,

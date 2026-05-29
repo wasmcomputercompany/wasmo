@@ -23,7 +23,7 @@ import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@ClassKey(RegisterPasskeyRpc::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class RegisterPasskeyRpc(
   private val clock: Clock,

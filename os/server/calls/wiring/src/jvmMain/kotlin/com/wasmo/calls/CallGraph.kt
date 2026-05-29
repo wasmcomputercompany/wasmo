@@ -9,7 +9,6 @@ import com.wasmo.passkeys.PasskeyChecker
 import com.wasmo.passkeys.RealPasskeyChecker
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.GraphExtension
-import dev.zacsweers.metro.Provider
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import kotlin.reflect.KClass
@@ -18,8 +17,8 @@ import kotlin.reflect.KClass
   scope = CallScope::class,
 )
 interface CallGraph {
-  val rpcActions: Map<KClass<*>, Provider<RpcAction<*, *>>>
-  val httpActions: Map<KClass<*>, Provider<HttpAction>>
+  val rpcActions: Map<KClass<*>, () -> RpcAction<*, *>>
+  val httpActions: Map<KClass<*>, () -> HttpAction>
 
   @Provides
   @SingleIn(CallScope::class)

@@ -14,7 +14,7 @@ import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@ClassKey(AccountSnapshotRpc::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class AccountSnapshotRpc(
   private val callDataService: CallDataService,

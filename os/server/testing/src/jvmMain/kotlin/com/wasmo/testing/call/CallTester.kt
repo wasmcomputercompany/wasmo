@@ -39,7 +39,6 @@ import com.wasmo.usernames.LinkUsernameRpc
 import com.wasmo.website.OsPage
 import com.wasmo.website.ServerOsHtml
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.Provider
 import okhttp3.HttpUrl
 import okio.ByteString
 import wasmo.http.Header
@@ -51,21 +50,21 @@ import wasmo.http.Header
 class CallTester(
   private val deployment: Deployment,
   private val challenger: Challenger,
-  private val accountSnapshotRpcProvider: Provider<AccountSnapshotRpc>,
-  private val afterCheckoutPageProvider: Provider<AfterCheckoutPage>,
-  private val authenticatePasskeyRpcProvider: Provider<AuthenticatePasskeyRpc>,
-  private val callAppActionProvider: Provider<CallAppAction>,
-  private val confirmEmailAddressRpcProvider: Provider<ConfirmEmailAddressRpc>,
-  private val createComputerSpecRpcProvider: Provider<PaidCreateComputerSpecRpc>,
-  private val createInviteRpcProvider: Provider<CreateInviteRpc>,
-  private val createUsernanmeRpcProvider: Provider<CreateUsernameRpc>,
-  private val installAppRpcProvider: Provider<InstallAppRpc>,
-  private val linkEmailAddressRpcProvider: Provider<LinkEmailAddressRpc>,
-  private val linkUsernameRpcProvider: Provider<LinkUsernameRpc>,
-  private val osPageProvider: Provider<OsPage>,
-  private val registerPasskeyRpcProvider: Provider<RegisterPasskeyRpc>,
-  private val signOutRpcProvider: Provider<SignOutRpc>,
-  private val signOutPageProvider: Provider<SignOutPage>,
+  private val accountSnapshotRpcProvider: () -> AccountSnapshotRpc,
+  private val afterCheckoutPageProvider: () -> AfterCheckoutPage,
+  private val authenticatePasskeyRpcProvider: () -> AuthenticatePasskeyRpc,
+  private val callAppActionProvider: () -> CallAppAction,
+  private val confirmEmailAddressRpcProvider: () -> ConfirmEmailAddressRpc,
+  private val createComputerSpecRpcProvider: () -> PaidCreateComputerSpecRpc,
+  private val createInviteRpcProvider: () -> CreateInviteRpc,
+  private val createUsernameRpcProvider: () -> CreateUsernameRpc,
+  private val installAppRpcProvider: () -> InstallAppRpc,
+  private val linkEmailAddressRpcProvider: () -> LinkEmailAddressRpc,
+  private val linkUsernameRpcProvider: () -> LinkUsernameRpc,
+  private val osPageProvider: () -> OsPage,
+  private val registerPasskeyRpcProvider: () -> RegisterPasskeyRpc,
+  private val signOutRpcProvider: () -> SignOutRpc,
+  private val signOutPageProvider: () -> SignOutPage,
   private val routeCodecFactory: RouteCodec.Factory,
 ) {
   fun routingContext() = RoutingContext(
@@ -118,7 +117,7 @@ class CallTester(
   )
 
   suspend fun createUsername(request: CreateUsernameRequest) =
-    createUsernanmeRpcProvider().handle(request.username)
+    createUsernameRpcProvider().handle(request.username)
 
   suspend fun linkUsername(request: LinkUsernameRequest) =
     linkUsernameRpcProvider().handle(request.username)

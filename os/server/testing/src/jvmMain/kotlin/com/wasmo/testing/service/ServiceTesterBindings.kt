@@ -72,10 +72,6 @@ abstract class ServiceTesterBindings {
 
     @Provides
     @SingleIn(OsScope::class)
-    fun provideClock(): FakeClock = FakeClock()
-
-    @Provides
-    @SingleIn(OsScope::class)
     fun provideOkHttpClient(): OkHttpClient = OkHttpClient()
 
     @Provides

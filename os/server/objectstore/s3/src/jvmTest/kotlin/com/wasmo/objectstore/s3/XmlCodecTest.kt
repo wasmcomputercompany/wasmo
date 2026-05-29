@@ -6,6 +6,7 @@ import kotlin.test.Test
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Converter
+import retrofit2.Retrofit
 import retrofit2.converter.jaxb3.JaxbConverterFactory
 
 class XmlCodecTest {
@@ -17,7 +18,7 @@ class XmlCodecTest {
     val converter = converterFactory.responseBodyConverter(
       ListBucketResult::class.java,
       arrayOf(),
-      null,
+      null as Retrofit?,
     ) as Converter<ResponseBody, ListBucketResult>
 
     val xml =

@@ -1,4 +1,8 @@
-@file:OptIn(UnsafeWasmMemoryApi::class, ComponentModelInternalApi::class)
+@file:OptIn(
+  ComponentModelInternalApi::class,
+  ExperimentalWasmInterop::class,
+  UnsafeWasmMemoryApi::class,
+)
 
 package com.wasmo.wasm
 

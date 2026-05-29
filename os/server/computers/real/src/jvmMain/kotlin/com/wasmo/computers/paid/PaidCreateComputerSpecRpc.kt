@@ -18,7 +18,7 @@ import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@ClassKey(PaidCreateComputerSpecRpc::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class PaidCreateComputerSpecRpc(
   private val paymentsService: PaymentsService,

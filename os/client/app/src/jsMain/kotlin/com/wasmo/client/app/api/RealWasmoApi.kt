@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package com.wasmo.client.app.api
 
 import com.wasmo.api.AuthenticatePasskeyRequest
@@ -23,6 +25,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.browser.window
 import kotlinx.coroutines.await
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromDynamic
 import kotlinx.serialization.serializer
 

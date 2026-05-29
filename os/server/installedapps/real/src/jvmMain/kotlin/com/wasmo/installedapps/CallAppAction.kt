@@ -21,7 +21,7 @@ import wasmox.sql.transaction
  * Figure the right [InstalledAppHttpService] to call, and call it as the right caller.
  */
 @Inject
-@ClassKey(CallAppAction::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class)
 class CallAppAction(
   private val callDataService: CallDataService,

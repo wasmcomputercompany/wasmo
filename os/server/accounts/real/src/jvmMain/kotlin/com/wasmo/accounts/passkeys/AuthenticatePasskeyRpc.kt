@@ -20,7 +20,7 @@ import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@ClassKey(AuthenticatePasskeyRpc::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class AuthenticatePasskeyRpc(
   private val client: Client,

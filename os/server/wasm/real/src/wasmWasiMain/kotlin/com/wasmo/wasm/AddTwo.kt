@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmInterop::class)
+
 package com.wasmo.wasm
 
 @WasmExport("addTwo")

@@ -17,7 +17,7 @@ import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
 
 @Inject
-@ClassKey(FallbackHttpAction::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class)
 class FallbackHttpAction(
   deployment: Deployment,
