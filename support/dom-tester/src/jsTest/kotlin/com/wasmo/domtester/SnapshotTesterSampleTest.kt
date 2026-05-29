@@ -107,6 +107,8 @@ internal class SnapshotTesterSampleTest {
         packageName = "com.wasmo.domtester",
         className = "SnapshotTesterSampleTest",
         functionName = functionName,
+        classAnnotations = listOf(),
+        functionAnnotations = listOf(),
       ) {
         override suspend fun invoke() {
           body()

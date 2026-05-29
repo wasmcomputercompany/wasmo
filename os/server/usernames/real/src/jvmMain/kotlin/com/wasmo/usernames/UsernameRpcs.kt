@@ -26,7 +26,7 @@ import wasmox.sql.SqlTransaction
 import wasmox.sql.transaction
 
 @Inject
-@ClassKey(LinkUsernameRpc::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class LinkUsernameRpc(
   private val client: Client,
@@ -67,7 +67,7 @@ class LinkUsernameRpc(
 }
 
 @Inject
-@ClassKey(CreateUsernameRpc::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class CreateUsernameRpc(
   private val client: Client,

@@ -31,7 +31,7 @@ val ChallengeAttemptRateLimit = RateLimit(
 )
 
 @Inject
-@ClassKey(ConfirmEmailAddressRpc::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class ConfirmEmailAddressRpc(
   private val clock: Clock,

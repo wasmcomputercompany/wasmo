@@ -13,7 +13,7 @@ import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@ClassKey(SignOutRpc::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class SignOutRpc(
   private val client: Client,

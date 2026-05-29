@@ -19,7 +19,7 @@ import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@ClassKey(InstallAppRpc::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class InstallAppRpc(
   private val client: Client,

@@ -48,7 +48,7 @@ class DomSnapshotter {
 
       suspend fun captureImage(): Blob? {
         return html2canvas(
-          element = element as HTMLElement,
+          element = element,
           options = Options().apply {
             this.backgroundColor = null
             this.width = elementWidth

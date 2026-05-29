@@ -26,7 +26,7 @@ import wasmox.sql.transaction
  * or to [ComputerHomeRoute] if payment succeeded.
  */
 @Inject
-@ClassKey(AfterCheckoutPage::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class)
 class AfterCheckoutPage(
   private val callDataService: CallDataService,

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package com.wasmo.passkeys
 
 import com.wasmo.api.PasskeyAuthentication
@@ -9,6 +11,7 @@ import dev.zacsweers.metro.SingleIn
 import kotlin.js.Promise
 import kotlinx.coroutines.await
 import kotlinx.js.JsPlainObject
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromDynamic
 import okio.ByteString
 
@@ -35,7 +38,7 @@ class RealPasskeyAuthenticator : PasskeyAuthenticator {
 }
 
 @JsModule("@passwordless-id/webauthn")
-private external object Webauthn {
+internal external object Webauthn {
   object client {
     /**
      * https://webauthn.passwordless.id/registration/
@@ -50,12 +53,12 @@ private external object Webauthn {
 }
 
 @JsPlainObject
-private external interface RegisterArgs {
+internal external interface RegisterArgs {
   val user: String
   val challenge: String
 }
 
 @JsPlainObject
-private external interface AuthenticateArgs {
+internal external interface AuthenticateArgs {
   val challenge: String
 }

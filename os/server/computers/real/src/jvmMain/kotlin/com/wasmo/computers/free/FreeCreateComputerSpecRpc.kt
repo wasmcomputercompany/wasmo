@@ -17,7 +17,7 @@ import wasmo.sql.SqlDatabase
 import wasmox.sql.transaction
 
 @Inject
-@ClassKey(FreeCreateComputerSpecRpc::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class, binding = binding<RpcAction<*, *>>())
 class FreeCreateComputerSpecRpc(
   private val client: Client,

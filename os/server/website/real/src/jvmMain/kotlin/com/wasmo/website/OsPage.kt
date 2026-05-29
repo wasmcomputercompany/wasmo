@@ -11,7 +11,6 @@ import com.wasmo.api.routes.HomeRoute
 import com.wasmo.api.routes.InviteRoute
 import com.wasmo.api.routes.RoutingContext
 import com.wasmo.api.routes.SignInRoute
-import com.wasmo.api.routes.SignUpRoute
 import com.wasmo.calls.CallDataService
 import com.wasmo.computers.ComputerService
 import com.wasmo.computers.ComputerStore
@@ -30,7 +29,7 @@ import wasmox.sql.transaction
  * We serve the same page to most routes, with different embedded page data.
  */
 @Inject
-@ClassKey(OsPage::class)
+@ClassKey
 @ContributesIntoMap(CallScope::class)
 class OsPage(
   private val computerStore: ComputerStore,

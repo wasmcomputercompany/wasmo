@@ -1,8 +1,11 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.wasmo.testing
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler
 
 /**
