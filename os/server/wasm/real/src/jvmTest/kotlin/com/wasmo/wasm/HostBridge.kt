@@ -133,7 +133,7 @@ class HostBridge(
     val size = buffer.size.toInt()
     val errno = wasi.write(fd, buffer)
     memory.writeI32(returnPointer, size)
-    return errno
+    return errno.ordinal
   }
 }
 
