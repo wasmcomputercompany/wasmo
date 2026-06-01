@@ -1,15 +1,11 @@
 package com.wasmo.support.wit
 
-import okio.Buffer
-import okio.BufferedSource
-
-class WitReader(
-  private val source: BufferedSource,
+class WitReader private constructor(
+  private val source: WitStructureReader,
 ) {
-  constructor(string: String) : this(Buffer().writeUtf8(string))
+  constructor(string: String) : this(WitStructureReader(string))
 
-  fun read() : WitFile {
+  fun read(): WitFile {
     error("TODO")
   }
 }
-
