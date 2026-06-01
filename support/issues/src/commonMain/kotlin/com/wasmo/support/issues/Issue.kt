@@ -1,4 +1,4 @@
-package com.wasmo.issues
+package com.wasmo.support.issues
 
 enum class Severity {
   /** Fail the operation. */

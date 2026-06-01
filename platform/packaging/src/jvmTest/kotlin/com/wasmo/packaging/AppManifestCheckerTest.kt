@@ -3,8 +3,8 @@ package com.wasmo.packaging
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.containsExactly
-import com.wasmo.issues.Issue
-import com.wasmo.issues.IssueCollector
+import com.wasmo.support.issues.Issue
+import com.wasmo.support.issues.IssueCollector
 import kotlin.test.Test
 
 class AppManifestCheckerTest {

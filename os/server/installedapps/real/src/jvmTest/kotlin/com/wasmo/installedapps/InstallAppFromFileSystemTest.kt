@@ -10,9 +10,9 @@ import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.framework.NotFoundUserException
 import com.wasmo.framework.Response
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.issues.Issue
-import com.wasmo.issues.Severity
 import com.wasmo.packaging.ExternalResource
+import com.wasmo.support.issues.Issue
+import com.wasmo.support.issues.Severity
 import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester

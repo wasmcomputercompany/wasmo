@@ -1,6 +1,6 @@
 package com.wasmo.common.logging
 
-import com.wasmo.issues.Issue
+import com.wasmo.support.issues.Issue
 
 object ConsoleLogger : Logger {
   override fun info(message: String, issues: List<Issue>) =

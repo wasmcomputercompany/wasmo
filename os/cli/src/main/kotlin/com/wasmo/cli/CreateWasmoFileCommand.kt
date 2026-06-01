@@ -4,8 +4,8 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
 import com.github.ajalt.clikt.parameters.types.path
-import com.wasmo.issues.IssueCollector
 import com.wasmo.packaging.CreateWasmoFile
+import com.wasmo.support.issues.IssueCollector
 import java.nio.file.Path
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath

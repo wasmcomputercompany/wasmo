@@ -5,13 +5,13 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.issues.Issue
-import com.wasmo.issues.IssueCollector
-import com.wasmo.issues.Severity
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.ExternalResource
 import com.wasmo.packaging.TargetSdk1
 import com.wasmo.packaging.WasmoToml
+import com.wasmo.support.issues.Issue
+import com.wasmo.support.issues.IssueCollector
+import com.wasmo.support.issues.Severity
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.encodeToString

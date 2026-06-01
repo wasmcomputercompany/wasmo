@@ -1,6 +1,6 @@
 package com.wasmo.common.logging
 
-import com.wasmo.issues.Issue
+import com.wasmo.support.issues.Issue
 
 interface Logger {
   fun info(message: String, issues: List<Issue>)

@@ -1,8 +1,7 @@
 package com.wasmo.packaging
 
-import com.wasmo.issues.IssueCollector
-import com.wasmo.issues.Severity
-import java.io.FileNotFoundException
+import com.wasmo.support.issues.IssueCollector
+import com.wasmo.support.issues.Severity
 import java.io.IOException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream

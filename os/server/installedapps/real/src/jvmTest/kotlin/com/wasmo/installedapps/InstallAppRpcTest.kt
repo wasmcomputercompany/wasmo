@@ -8,7 +8,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.wasmo.api.InstalledAppSnapshot
 import com.wasmo.framework.Response
-import com.wasmo.issues.Issue
+import com.wasmo.support.issues.Issue
 import com.wasmo.testing.framework.ResponseBodySnapshot
 import com.wasmo.testing.service.ServiceTester
 import kotlin.test.Test

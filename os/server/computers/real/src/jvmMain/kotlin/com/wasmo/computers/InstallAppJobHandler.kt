@@ -9,8 +9,8 @@ import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstallAppEvent
 import com.wasmo.installedapps.InstallAppJob
 import com.wasmo.installedapps.InstalledAppStore
-import com.wasmo.issues.IssueCollector
 import com.wasmo.jobs.OsJobHandler
+import com.wasmo.support.issues.IssueCollector
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlin.time.Clock

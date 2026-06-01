@@ -4,9 +4,9 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import com.wasmo.issues.Issue
-import com.wasmo.issues.IssueCollector
-import com.wasmo.issues.Severity
+import com.wasmo.support.issues.Issue
+import com.wasmo.support.issues.IssueCollector
+import com.wasmo.support.issues.Severity
 import kotlin.test.Test
 import kotlinx.serialization.encodeToString
 import okio.Path.Companion.toPath

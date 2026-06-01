@@ -6,11 +6,11 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.issues.Issue
-import com.wasmo.issues.IssueCollector
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.TargetSdk1
 import com.wasmo.packaging.WasmoToml
+import com.wasmo.support.issues.Issue
+import com.wasmo.support.issues.IssueCollector
 import com.wasmo.testing.buildZip
 import kotlin.random.Random
 import kotlin.test.Test

@@ -2,8 +2,8 @@ package com.wasmo.computers
 
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.issues.IssueCollector
 import com.wasmo.packaging.AppManifest
+import com.wasmo.support.issues.IssueCollector
 
 interface ResourceInstaller {
   context(issueCollector: IssueCollector)

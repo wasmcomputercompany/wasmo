@@ -1,14 +1,14 @@
 package com.wasmo.computers
 
 import com.wasmo.identifiers.WasmoFileAddress
-import com.wasmo.issues.IssueCollector
-import com.wasmo.issues.Severity
-import com.wasmo.issues.issueCheck
 import com.wasmo.packaging.AppManifest
 import com.wasmo.packaging.AppManifestChecker
 import com.wasmo.packaging.ExternalResource
 import com.wasmo.packaging.IncludePattern
 import com.wasmo.packaging.WasmoToml
+import com.wasmo.support.issues.IssueCollector
+import com.wasmo.support.issues.Severity
+import com.wasmo.support.issues.issueCheck
 import dev.eav.tomlkt.decodeFromString
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory

@@ -1,7 +1,7 @@
 package com.wasmo.packaging
 
-import com.wasmo.issues.IssueCollector
-import com.wasmo.issues.issueCheck
+import com.wasmo.support.issues.IssueCollector
+import com.wasmo.support.issues.issueCheck
 
 /**
  * Validates a manifest against our spec.

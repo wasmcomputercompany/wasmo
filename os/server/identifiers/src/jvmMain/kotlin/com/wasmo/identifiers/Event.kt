@@ -1,6 +1,6 @@
 package com.wasmo.identifiers
 
-import com.wasmo.issues.Issue
+import com.wasmo.support.issues.Issue
 
 interface Event {
   val computerSlug: ComputerSlug?

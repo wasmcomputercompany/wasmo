@@ -11,7 +11,6 @@ import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
-import com.wasmo.issues.Issue
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.jobs.absurd.AbsurdBindings
 import com.wasmo.jobs.absurd.AbsurdService
@@ -21,6 +20,7 @@ import com.wasmo.permits.PermitsBindings
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.sql.WasmoPostgresqlConfig
+import com.wasmo.support.issues.Issue
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakeSendEmailService
 import com.wasmo.testing.TestDirectory

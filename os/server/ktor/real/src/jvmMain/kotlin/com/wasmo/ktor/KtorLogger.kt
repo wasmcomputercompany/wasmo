@@ -2,7 +2,7 @@ package com.wasmo.ktor
 
 import com.wasmo.common.logging.Logger
 import com.wasmo.identifiers.OsScope
-import com.wasmo.issues.Issue
+import com.wasmo.support.issues.Issue
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import io.ktor.server.application.log

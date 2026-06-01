@@ -3,7 +3,7 @@ package com.wasmo.installedapps
 import com.wasmo.identifiers.AppSlug
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.Event
-import com.wasmo.issues.Issue
+import com.wasmo.support.issues.Issue
 
 data class InstallAppEvent(
   override val computerSlug: ComputerSlug,
