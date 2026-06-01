@@ -2,66 +2,46 @@ package com.wasmo.wasm
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.dylibso.chicory.runtime.HostFunction
-import com.dylibso.chicory.runtime.Store
-import com.dylibso.chicory.runtime.WasmFunctionHandle
-import com.dylibso.chicory.wasm.Parser
-import com.dylibso.chicory.wasm.WasmModule
-import com.dylibso.chicory.wasm.types.FunctionType
-import com.dylibso.chicory.wasm.types.ValType
+import assertk.assertions.isNullOrEmpty
 import kotlin.test.Test
-import okio.FileSystem
+import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 
 class RunKotlinWasmTest {
-  val wasmPath =
-    "build/compileSync/wasmWasi/main/developmentExecutable/kotlin/wasmo-os-server-wasm-real.wasm".toPath()
+  private val tester = WasmTester.Factory().createFromWasm(
+    "build/compileSync/wasmWasi/main/developmentExecutable/kotlin/wasmo-os-server-wasm-real.wasm".toPath(),
+  )
 
   @Test
-  fun `run kotlin wasm`() {
-    val wasmBytes = FileSystem.SYSTEM.read(wasmPath) {
-      readByteArray()
-    }
+  fun `call concatenate`() = runTest {
+    val bId = tester.bridge.put("World!")
+    val aId = tester.bridge.put("Hello, ")
 
-    val wasmModule = Parser.parse(wasmBytes)
-
-    val store = Store()
-    val bridge = HostBridge()
-    satisfyImports(wasmModule, store, bridge)
-
-    val instance = store.instantiate("addTwo", wasmModule)
-
-    val bId = bridge.put("World!")
-    val aId = bridge.put("Hello, ")
-
-    val concatenate = instance.export("concatenate")
+    val concatenate = tester.instance.export("concatenate")
     val result = concatenate.apply(aId.toLong(), bId.toLong())
 
-    assertThat(bridge.get(result[0].toInt())).isEqualTo("Hello, World!")
+    assertThat(tester.bridge.get(result[0].toInt())).isEqualTo("Hello, World!")
   }
 
-  /** Provide the imports required to run our Kotlin/Wasm program. */
-  private fun satisfyImports(wasmModule: WasmModule, store: Store, hostBridge: HostBridge) {
-    val imports = wasmModule.importSection().stream().toList()
-    val randomGetImport = imports.single {
-      it.module() == "wasi_snapshot_preview1" && it.name() == "random_get"
-    }
-    check(randomGetImport != null)
+  @Test
+  fun `call printGreeting`() = runTest {
+    val nameId = tester.bridge.put("Jesse")
 
-    // KT-82105: Kotlin/Wasm binaries always import random_get.
-    store.addFunction(
-      HostFunction(
-        "wasi_snapshot_preview1",
-        "random_get",
-        FunctionType.of(
-          listOf(ValType.I32, ValType.I32),
-          listOf(ValType.I32),
-        ),
-        WasmFunctionHandle { instance, args ->
-          error("unexpected call")
-        },
-      ),
-    )
-    hostBridge.addFunctions(store)
+    val concatenate = tester.instance.export("printGreeting")
+    val result = concatenate.apply(nameId.toLong())
+    assertThat(result).isNullOrEmpty()
+
+    assertThat(tester.wasi.stdout.readUtf8()).isEqualTo("Hello, Jesse\n")
+  }
+
+  @Test
+  fun `call printError`() = runTest {
+    val nameId = tester.bridge.put("Jesse")
+
+    val concatenate = tester.instance.export("printError")
+    val result = concatenate.apply(nameId.toLong())
+    assertThat(result).isNullOrEmpty()
+
+    assertThat(tester.wasi.stderr.readUtf8()).isEqualTo("Exception: boom, Jesse!\n\n")
   }
 }
