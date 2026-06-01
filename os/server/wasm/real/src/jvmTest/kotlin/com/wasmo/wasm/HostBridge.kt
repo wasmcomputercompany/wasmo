@@ -6,11 +6,53 @@ import com.dylibso.chicory.runtime.Store
 import com.dylibso.chicory.runtime.WasmFunctionHandle
 import com.dylibso.chicory.wasm.types.FunctionType
 import com.dylibso.chicory.wasm.types.ValType
+import okio.Buffer
 
-class HostBridge {
+class HostBridge(
+  private val wasi: Wasi,
+) {
   private val values = mutableListOf<String>()
 
-  fun addFunctions(store: Store) {
+  /**
+   * https://github.com/WebAssembly/WASI/blob/wasi-0.1/preview1/docs.md
+   */
+  fun addWasiSnapshotPreview1Functions(store: Store) {
+    store.addFunction(
+      HostFunction(
+        "wasi_snapshot_preview1",
+        "random_get",
+        FunctionType.of(
+          listOf(ValType.I32, ValType.I32),
+          listOf(ValType.I32),
+        ),
+        WasmFunctionHandle { instance, args ->
+          error("unexpected call")
+        },
+      ),
+    )
+    store.addFunction(
+      HostFunction(
+        "wasi_snapshot_preview1",
+        "fd_write",
+        FunctionType.of(
+          listOf(ValType.I32, ValType.I32, ValType.I32, ValType.I32),
+          listOf(ValType.I32),
+        ),
+        WasmFunctionHandle { instance, args ->
+          val result = fdWrite(
+            instance = instance,
+            fd = args[0].toInt(),
+            iovs = args[1].toInt(),
+            iovsSize = args[2].toInt(),
+            returnPointer = args[3].toInt(),
+          )
+          longArrayOf(result.toLong())
+        },
+      ),
+    )
+  }
+
+  fun addDataTransferFunctions(store: Store) {
     store.addFunction(
       HostFunction(
         "bridge",
@@ -66,6 +108,32 @@ class HostBridge {
     memory.write(stringPointer, s)
     memory.writeI32(address, stringPointer)
     memory.writeI32(address + 4, s.size)
+  }
+
+  private fun fdWrite(
+    instance: Instance,
+    fd: Int,
+    iovs: Int,
+    iovsSize: Int,
+    returnPointer: Int,
+  ): Int {
+    val memory = instance.memory()
+    val buffer = Buffer()
+
+    var iovsAddress = iovs
+    for (i in 0 until iovsSize) {
+      val sliceAddress = memory.readInt(iovsAddress)
+      iovsAddress += 4
+      val sliceSize = memory.readInt(iovsAddress)
+      iovsAddress += 4
+
+      buffer.write(memory.readBytes(sliceAddress, sliceSize))
+    }
+
+    val size = buffer.size.toInt()
+    val errno = wasi.write(fd, buffer)
+    memory.writeI32(returnPointer, size)
+    return errno
   }
 }
 
