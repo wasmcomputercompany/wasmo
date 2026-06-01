@@ -116,6 +116,7 @@ include(":support:issues")
 include(":support:okio-html")
 include(":support:router")
 include(":support:tokens")
+include(":support:wit")
 include(":wasmox:wasmox-sql")
 include(":wasmox:wasmox-sqldelight")
 
