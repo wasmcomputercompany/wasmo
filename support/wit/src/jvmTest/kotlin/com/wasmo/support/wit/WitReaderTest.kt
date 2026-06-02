@@ -7,6 +7,20 @@ import kotlin.test.Test
 
 class WitReaderTest {
   @Test
+  fun packageOnly() {
+    val wit = """
+      |package wasi:clocks@0.2.9;
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        packageName = PackageName("wasi", "clocks", "0.2.9"),
+        declarations = listOf(),
+      ),
+    )
+  }
+
+  @Test
   @Ignore("not implemented")
   fun happyPath() {
     val wit = """

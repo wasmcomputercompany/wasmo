@@ -11,15 +11,30 @@ value class Identifier(
 )
 
 data class PackageName(
-  val namespace: Identifier,
-  val name: Identifier,
+  val namespaces: List<Identifier>,
+  val names: List<Identifier>,
   val version: SemVer? = null,
 ) {
+  init {
+    check(namespaces.isNotEmpty() && names.isNotEmpty())
+  }
+
+  override fun toString() = buildString {
+    for (name in namespaces) {
+      append(name)
+      append(':')
+    }
+    for ((index, name) in names.withIndex()) {
+      if (index > 0) append('/')
+      append(name)
+    }
+  }
+
   companion object {
-    operator fun invoke(namespace: String, name: String, version: String) = PackageName(
-      namespace = Identifier(namespace),
-      name = Identifier(name),
-      version = SemVer(version),
+    operator fun invoke(namespace: String, name: String, version: String? = null) = PackageName(
+      namespaces = listOf(Identifier(namespace)),
+      names = listOf(Identifier(name)),
+      version = version?.let { SemVer(it) },
     )
   }
 }
