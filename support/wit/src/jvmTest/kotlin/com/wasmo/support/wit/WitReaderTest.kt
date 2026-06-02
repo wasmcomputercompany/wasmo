@@ -48,8 +48,7 @@ class WitReaderTest {
       |interface foo {}
       """.trimMargin()
     val gate = WitReader(wit).readGateOrNull()
-    assertThat(gate).isEqualTo(Gate(unstable = "fancier-foo"),
-    )
+    assertThat(gate).isEqualTo(Gate(unstable = "fancier-foo"))
   }
 
   @Test
@@ -91,6 +90,88 @@ class WitReaderTest {
   @Test
   fun `readGate absent`() {
     assertThat(WitReader("interface foo {}").readGateOrNull()).isNull()
+  }
+
+  @Test
+  fun `readInterface success`() {
+    val wit = """
+      |interface foo {}
+      """.trimMargin()
+    assertThat(WitReader(wit).read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("foo"),
+            declarations = listOf(),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `readInterface with documentation and gates`() {
+    val wit = """
+      |/// this is the foo interface
+      |@deprecated(version = 0.2.2)
+      |/**it is a good interface*/
+      |interface foo {}
+      """.trimMargin()
+    assertThat(WitReader(wit).read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            documentation = Documentation(
+              """
+              | this is the foo interface
+              |it is a good interface
+              """.trimMargin(),
+            ),
+            gate = Gate(deprecated = "0.2.2"),
+            location = Location(4, 1),
+            name = TypeName("foo"),
+            declarations = listOf(),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `readInterface with functions`() {
+    val wit = """
+      |interface foo {
+      |  print: func(message: string, repeat: u32);
+      |  async-print: async func();
+      |}
+      """.trimMargin()
+    assertThat(WitReader(wit).read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("foo"),
+            declarations = listOf(
+              Function(
+                location = Location(2, 3),
+                name = Identifier("print"),
+                parameters = listOf(
+                  Parameter(Location(2, 15), "message", "string"),
+                  Parameter(Location(2, 32), "repeat", "u32"),
+                ),
+              ),
+              Function(
+                location = Location(3, 3),
+                name = Identifier("async-print"),
+                async = true,
+                parameters = listOf(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
   }
 
   @Test
