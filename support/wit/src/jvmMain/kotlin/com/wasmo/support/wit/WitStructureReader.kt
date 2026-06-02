@@ -18,10 +18,13 @@ internal class WitStructureReader(
   val location: Location
     get() = Location(line + 1, pos - lineStart + 1)
 
-  fun takeDocumentation(): String? {
+  val exhausted: Boolean
+    get() = pos == chars.size
+
+  fun takeDocumentation(): Documentation? {
     return when {
       documentation != null -> {
-        documentation.toString()
+        Documentation(documentation.toString())
           .also { documentation = null }
       }
 
@@ -37,8 +40,77 @@ internal class WitStructureReader(
     documentation.appendRange(chars, startIndex, endIndex)
   }
 
+  fun readIdentifier(): Identifier =
+    Identifier(readToken("word", Char::isWordCharacter))
+
+  fun readSemVer(): SemVer =
+    SemVer(readToken("semver", Char::isSemverCharacter))
+
+  fun readToken(name: String, match: (Char) -> Boolean): String {
+    checkWit(match(peek())) {
+      "expected a $name character"
+    }
+
+    val end = chars.indexOfNextNonMatch(pos + 1, match)
+    val result = String(chars, pos, end - pos)
+    pos = end
+    return result
+  }
+
+  private fun peek(): Char = when {
+    exhausted -> '\u0000'
+    else -> chars[pos]
+  }
+
+  fun readLiteral(literal: Char) {
+    checkWit(!exhausted) {
+      "expected $literal but was EOF"
+    }
+    checkWit(chars[pos] == literal) {
+      "expected $literal but was '${chars[pos]}'"
+    }
+    pos++
+  }
+
+  fun readPackageName(): PackageName {
+    val start = pos
+    val namespaces = mutableListOf<Identifier>()
+    val names = mutableListOf<Identifier>()
+
+    while (true) {
+      val identifier = readIdentifier()
+      if (peek() == ':') {
+        pos++ // Consume ':'.
+        namespaces += identifier
+      } else {
+        names += identifier
+        if (peek() != '/') break
+        pos++ // Consume '/'.
+      }
+    }
+
+    val version = when {
+      peek() == '@' -> {
+        pos++ // Consume '@'.
+        readSemVer()
+      }
+
+      else -> null
+    }
+
+    checkWit(namespaces.isNotEmpty()) {
+      "expected package name to contain a ':': ${String(chars, start, pos - start)}"
+    }
+
+    return PackageName(
+      namespaces = namespaces,
+      names = names,
+      version = version,
+    )
+  }
+
   fun skipWhitespace() {
-    while (pos < chars.size) {
+    while (!exhausted) {
       val c = chars[pos]
       when (c) {
         ' ', '\t', '\r' -> {
@@ -57,7 +129,7 @@ internal class WitStructureReader(
           val afterSlash = chars[pos + 1]
           when (afterSlash) {
             '/' -> {
-              val commentEnd = chars.indexOf(pos, "\n")
+              val commentEnd = chars.indexOf("\n", pos)
               // If the comment starts with '///', it is documentation.
               if (pos + 2 < chars.size && chars[pos + 2] == '/') {
                 appendDocumentation(pos + 3, commentEnd)
@@ -73,7 +145,7 @@ internal class WitStructureReader(
             }
 
             '*' -> {
-              val commentEnd = chars.indexOf(pos + 2, "*/")
+              val commentEnd = chars.indexOf("*/", pos + 2)
               checkWit(commentEnd != -1) { "unterminated comment" }
 
               // If the comment starts with '/**', it is documentation.
@@ -98,16 +170,20 @@ internal class WitStructureReader(
   }
 
   internal inline fun checkWit(value: Boolean, message: () -> String) {
-    contract {
-      returns() implies value
-    }
-    if (!value) {
-      throw WitException(location, message())
-    }
+    checkWit(location, value, message)
   }
 }
 
-internal fun CharArray.indexOf(fromIndex: Int, substring: String): Int {
+internal inline fun checkWit(location: Location, value: Boolean, message: () -> String) {
+  contract {
+    returns() implies value
+  }
+  if (!value) {
+    throw WitException(location, message())
+  }
+}
+
+internal fun CharArray.indexOf(substring: String, fromIndex: Int): Int {
   require(substring.isNotEmpty())
   search@
   for (i in fromIndex..size - substring.length) {
@@ -118,3 +194,33 @@ internal fun CharArray.indexOf(fromIndex: Int, substring: String): Int {
   }
   return -1
 }
+
+internal fun CharArray.indexOfNextNonMatch(
+  fromIndex: Int,
+  match: (Char) -> Boolean,
+): Int {
+  for (i in fromIndex until size) {
+    if (match(this[i])) continue
+    else return i
+  }
+  return size
+}
+
+internal val Char.isWordCharacter: Boolean
+  get() = when (this) {
+    in 'a'..'z' -> true
+    in 'A'..'Z' -> true
+    in '0'..'9' -> true
+    '-' -> true
+    else -> false
+  }
+
+/** https://semver.org/spec/v2.0.0.html */
+internal val Char.isSemverCharacter: Boolean
+  get() = when (this) {
+    in 'a'..'z' -> true
+    in 'A'..'Z' -> true
+    in '0'..'9' -> true
+    '-', '+', '.' -> true
+    else -> false
+  }
