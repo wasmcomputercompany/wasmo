@@ -496,4 +496,65 @@ class WitReaderTest {
       ),
     )
   }
+
+  @Test
+  fun `variant documentation and gates`() {
+    val wit = """
+      |interface db {
+      |  /// whats included
+      |  @since(version = 1.0)
+      |  variant filter {
+      |    /// all the things
+      |    @since(version = 2.0)
+      |    all,
+      |    /// zilch
+      |    @since(version = 3.0)
+      |    none,
+      |    /// one
+      |    @since(version = 4.0)
+      |    some(list<string>),
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("db"),
+            declarations = listOf(
+              Variant(
+                documentation = Documentation(" whats included"),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                name = TypeName("filter"),
+                cases = listOf(
+                  Case(
+                    documentation = Documentation(" all the things"),
+                    gate = Gate(since = "2.0"),
+                    location = Location(7, 5),
+                    name = Identifier("all"),
+                  ),
+                  Case(
+                    documentation = Documentation(" zilch"),
+                    gate = Gate(since = "3.0"),
+                    location = Location(10, 5),
+                    name = Identifier("none"),
+                  ),
+                  Case(
+                    documentation = Documentation(" one"),
+                    gate = Gate(since = "4.0"),
+                    location = Location(13, 5),
+                    name = Identifier("some"),
+                    typeName = TypeName.List(TypeName("string"))
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
 }
