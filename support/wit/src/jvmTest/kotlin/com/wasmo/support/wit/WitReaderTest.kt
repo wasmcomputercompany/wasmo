@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -186,8 +185,7 @@ class WitReaderTest {
   }
 
   @Test
-  @Ignore("not implemented")
-  fun happyPath() {
+  fun `read sample interface`() {
     val wit = """
       |package wasi:clocks@0.2.9;
       |
@@ -234,10 +232,263 @@ class WitReaderTest {
                 returnType = TypeName("datetime"),
               ),
               Function(
-                location = Location(9, 3),
+                location = Location(11, 3),
                 name = Identifier("resolution"),
                 parameters = listOf(),
                 returnType = TypeName("datetime"),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `interface documentation and gates`() {
+    val wit = """
+      |/// tick tock
+      |/// wall clock
+      |@since(version = 1.0)
+      |interface wall-clock {
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            documentation = Documentation(
+              """
+              | tick tock
+              | wall clock
+              """.trimMargin(),
+            ),
+            gate = Gate(since = "1.0"),
+            location = Location(4, 1),
+            name = TypeName("wall-clock"),
+            declarations = listOf(),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `record documentation and gates`() {
+    val wit = """
+      |interface wall-clock {
+      |  /// spacetime
+      |  @since(version = 2.0)
+      |  record datetime {
+      |    /// just a second
+      |    @since(version = 3.0)
+      |    seconds: u64,
+      |    /// tick
+      |    @since(version = 4.0)
+      |    nanoseconds: u32,
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("wall-clock"),
+            declarations = listOf(
+              Record(
+                documentation = Documentation(" spacetime"),
+                gate = Gate(since = "2.0"),
+                location = Location(4, 3),
+                name = TypeName("datetime"),
+                fields = listOf(
+                  Field(
+                    documentation = Documentation(" just a second"),
+                    gate = Gate(since = "3.0"),
+                    location = Location(7, 5),
+                    name = Identifier("seconds"),
+                    typeName = Types.u64,
+                  ),
+                  Field(
+                    documentation = Documentation(" tick"),
+                    gate = Gate(since = "4.0"),
+                    location = Location(10, 5),
+                    name = Identifier("nanoseconds"),
+                    typeName = Types.u32,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `function documentation and gates`() {
+    val wit = """
+      |interface wall-clock {
+      |  /// sample the clock
+      |  @since(version = 5.0)
+      |  now: func() -> datetime;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("wall-clock"),
+            declarations = listOf(
+              Function(
+                documentation = Documentation(" sample the clock"),
+                gate = Gate(since = "5.0"),
+                location = Location(4, 3),
+                name = Identifier("now"),
+                parameters = listOf(),
+                returnType = TypeName("datetime"),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `resource documentation and gates`() {
+    val wit = """
+      |interface db {
+      |  /// big boi
+      |  @since(version = 1.0)
+      |  resource blob {
+      |    /// makes a new one
+      |    @since(version = 2.0)
+      |    constructor(init: list<u8>);
+      |
+      |    /// puts some bytes
+      |    @since(version = 3.0)
+      |    write: func(bytes: list<u8>);
+      |
+      |    /// gets some bytes
+      |    @since(version = 4.0)
+      |    read: func(n: u32) -> list<u8>;
+      |
+      |    /// smashes some blobs together
+      |    @since(version = 5.0)
+      |    merge: static func(lhs: borrow<blob>, rhs: borrow<blob>) -> blob;
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("db"),
+            declarations = listOf(
+              Resource(
+                documentation = Documentation(" big boi"),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                name = TypeName("blob"),
+                declarations = listOf(
+                  Function(
+                    documentation = Documentation(" makes a new one"),
+                    gate = Gate(since = "2.0"),
+                    location = Location(7, 5),
+                    constructor = true,
+                    name = Identifier("constructor"),
+                    parameters = listOf(
+                      Parameter(
+                        location = Location(7, 17),
+                        name = Identifier("init"),
+                        typeName = TypeName.List(TypeName("u8")),
+                      ),
+                    ),
+                    returnType = null,
+                  ),
+                  Function(
+                    documentation = Documentation(" puts some bytes"),
+                    gate = Gate(since = "3.0"),
+                    location = Location(11, 5),
+                    name = Identifier("write"),
+                    parameters = listOf(
+                      Parameter(
+                        location = Location(11, 17),
+                        name = Identifier("bytes"),
+                        typeName = TypeName.List(TypeName("u8")),
+                      ),
+                    ),
+                    returnType = null,
+                  ),
+                  Function(
+                    documentation = Documentation(" gets some bytes"),
+                    gate = Gate(since = "4.0"),
+                    location = Location(15, 5),
+                    name = Identifier("read"),
+                    parameters = listOf(
+                      Parameter(
+                        location = Location(15, 16),
+                        name = Identifier("n"),
+                        typeName = TypeName("u32"),
+                      ),
+                    ),
+                    returnType = TypeName.List(TypeName("u8")),
+                  ),
+                  Function(
+                    documentation = Documentation(" smashes some blobs together"),
+                    gate = Gate(since = "5.0"),
+                    location = Location(19, 5),
+                    static = true,
+                    name = Identifier("merge"),
+                    parameters = listOf(
+                      Parameter(
+                        location = Location(19, 24),
+                        name = Identifier("lhs"),
+                        typeName = TypeName.Borrow(TypeName("blob")),
+                      ),
+                      Parameter(
+                        location = Location(19, 43),
+                        name = Identifier("rhs"),
+                        typeName = TypeName.Borrow(TypeName("blob")),
+                      ),
+                    ),
+                    returnType = TypeName("blob"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `empty resource`() {
+    val wit = """
+      |interface db {
+      |  resource blob;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("db"),
+            declarations = listOf(
+              Resource(
+                location = Location(2, 3),
+                name = TypeName("blob"),
+                declarations = listOf(),
               ),
             ),
           ),

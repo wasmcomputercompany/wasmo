@@ -107,8 +107,140 @@ class WitReader private constructor(
     val location = source.location
 
     when (val identifier = source.readIdentifier()) {
+      Keywords.record -> return readRecord(documentation, gate, location)
+      Keywords.resource -> return readResource(documentation, gate, location)
       else -> return readFunction(documentation, gate, location, identifier)
     }
+  }
+
+  /**
+   * ```ebnf
+   * record-item ::= 'record' id '{' record-fields '}'
+   *
+   * record-fields ::= record-field
+   *                 | record-field ',' record-fields?
+   *
+   * record-field ::= id ':' ty
+   * ```
+   */
+  private fun readRecord(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Record {
+    source.skipWhitespace()
+    val name = source.readIdentifier()
+
+    val fields = mutableListOf<Field>()
+
+    source.skipWhitespace()
+    source.readLiteral('{')
+
+    while (true) {
+      source.skipWhitespace()
+
+      // Trailing comma on previous field!
+      if (fields.isNotEmpty() && source.tryReadLiteral('}')) break
+
+      val fieldGate = readGateOrNull()
+      val fieldDocumentation = source.takeDocumentation()
+      val fieldLocation = source.location
+      val fieldName = source.readIdentifier()
+
+      source.skipWhitespace()
+      source.readLiteral(':')
+
+      source.skipWhitespace()
+      val fieldType = source.readTypeName()
+
+      fields += Field(
+        documentation = fieldDocumentation,
+        gate = fieldGate,
+        location = fieldLocation,
+        name = fieldName,
+        typeName = fieldType,
+      )
+
+      source.skipWhitespace()
+      if (source.tryReadLiteral(',')) continue
+
+      source.readLiteral('}')
+      break
+    }
+
+    return Record(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      name = TypeName(name),
+      fields = fields,
+    )
+  }
+
+  /**
+   * ```ebnf
+   * resource-item ::= 'resource' id ';'
+   *                 | 'resource' id '{' resource-method* '}'
+   * resource-method ::= func-item
+   *                   | id ':' 'static' func-type ';'
+   *                   | 'constructor' param-list ';'
+   * ```
+   */
+  private fun readResource(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Resource {
+    source.skipWhitespace()
+    val name = TypeName(source.readIdentifier())
+    val declarations = mutableListOf<Function>()
+
+    source.skipWhitespace()
+    if (source.tryReadLiteral('{')) {
+      while (true) {
+        source.skipWhitespace()
+        if (source.tryReadLiteral('}')) break
+
+        val functionGate = readGateOrNull()
+        val functionDocumentation = source.takeDocumentation()
+        val functionLocation = source.location
+
+        when (val identifier = source.readIdentifier()) {
+          Keywords.constructor -> {
+            val parameters = readParameterList()
+            source.skipWhitespace()
+            source.readLiteral(';')
+            declarations += Function(
+              documentation = functionDocumentation,
+              gate = functionGate,
+              location = functionLocation,
+              constructor = true,
+              name = identifier,
+              parameters = parameters,
+            )
+          }
+
+          else -> {
+            declarations += readFunction(
+              documentation = functionDocumentation,
+              gate = functionGate,
+              location = functionLocation,
+              identifier = identifier,
+            )
+          }
+        }
+      }
+    } else {
+      source.readLiteral(';')
+    }
+
+    return Resource(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      name = name,
+      declarations = declarations,
+    )
   }
 
   /**
@@ -117,15 +249,8 @@ class WitReader private constructor(
    *
    * func-type ::= 'async'? 'func' param-list result-list
    *
-   * param-list ::= '(' named-type-list ')'
-   *
    * result-list ::= ϵ
    *               | '->' ty
-   *
-   * named-type-list ::= ϵ
-   *                   | named-type ( ',' named-type )*
-   *
-   * named-type ::= id ':' ty
    * ```
    */
   private fun readFunction(
@@ -138,25 +263,61 @@ class WitReader private constructor(
     source.readLiteral(':')
 
     var async = false
+    var static = false
 
-    source.skipWhitespace()
-    var modifier = source.readIdentifier()
     while (true) {
-      if (modifier == Keywords.async) {
-        async = true
-        source.skipWhitespace()
-        modifier = source.readIdentifier()
-      } else if (modifier == Keywords.func) {
-        break
-      } else {
-        errorWit(location, "unexpected identifier: $modifier")
+      source.skipWhitespace()
+      when (val modifier = source.readIdentifier()) {
+        Keywords.async -> async = true
+        Keywords.static -> static = true
+        Keywords.func -> break
+        else -> errorWit(location, "unexpected identifier: $modifier")
       }
     }
 
-    val parameters = mutableListOf<Parameter>()
+    val parameters = readParameterList()
+
     source.skipWhitespace()
+    val returnType = when {
+      source.tryReadLiteral("->") -> {
+        source.skipWhitespace()
+        source.readTypeName()
+          .also { source.skipWhitespace() }
+      }
+
+      else -> null
+    }
+
+    source.skipWhitespace()
+    source.readLiteral(';')
+
+    return Function(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      async = async,
+      static = static,
+      constructor = false,
+      name = identifier,
+      parameters = parameters,
+      returnType = returnType,
+    )
+  }
+
+  /**
+   * ```ebnf
+   * param-list ::= '(' named-type-list ')'
+   *
+   * named-type-list ::= ϵ
+   *                   | named-type ( ',' named-type )*
+   *
+   * named-type ::= id ':' ty
+   * ```
+   */
+  private fun readParameterList(): List<Parameter> {
     source.readLiteral('(')
 
+    val result = mutableListOf<Parameter>()
     var first = true
     while (true) {
       source.skipWhitespace()
@@ -178,37 +339,14 @@ class WitReader private constructor(
       source.skipWhitespace()
       val parameterType = source.readTypeName()
 
-      parameters += Parameter(
+      result += Parameter(
         location = location,
         name = parameterName,
         typeName = parameterType,
       )
     }
 
-    source.skipWhitespace()
-    val returnType = when {
-      source.tryReadLiteral("->") -> {
-        source.skipWhitespace()
-        source.readTypeName()
-          .also { source.skipWhitespace() }
-      }
-
-      else -> null
-    }
-
-    source.readLiteral(';')
-
-    return Function(
-      documentation = documentation,
-      gate = gate,
-      location = location,
-      async = async,
-      static = false,
-      constructor = false,
-      name = identifier,
-      parameters = parameters,
-      returnType = returnType,
-    )
+    return result
   }
 
   /**
@@ -282,6 +420,7 @@ object Keywords {
   val `package` = Identifier("package")
   val async = Identifier("async")
   val borrow = Identifier("borrow")
+  val constructor = Identifier("constructor")
   val deprecated = Identifier("deprecated")
   val feature = Identifier("feature")
   val func = Identifier("func")
@@ -289,8 +428,11 @@ object Keywords {
   val list = Identifier("list")
   val map = Identifier("map")
   val option = Identifier("option")
+  val record = Identifier("record")
+  val resource = Identifier("resource")
   val result = Identifier("result")
   val since = Identifier("since")
+  val static = Identifier("static")
   val stream = Identifier("stream")
   val tuple = Identifier("tuple")
   val unstable = Identifier("unstable")
