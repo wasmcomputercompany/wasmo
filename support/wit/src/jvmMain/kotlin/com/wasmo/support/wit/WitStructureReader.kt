@@ -69,6 +69,12 @@ internal class WitStructureReader(
     else -> chars[pos]
   }
 
+  fun tryReadLiteral(literal: Char): Boolean {
+    if (exhausted || chars[pos] != literal) return false
+    pos++
+    return true
+  }
+
   fun readLiteral(literal: Char) {
     checkWit(!exhausted) {
       "expected $literal but was EOF"

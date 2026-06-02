@@ -127,6 +127,7 @@ data class Function(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
+  val async: Boolean = false,
   val static: Boolean = false,
   val constructor: Boolean = false,
   val name: Identifier,
@@ -159,12 +160,18 @@ data class Case(
 ) : Declaration
 
 data class Parameter(
-  override val documentation: Documentation? = null,
-  override val gate: Gate? = null,
-  override val location: Location,
+  val location: Location,
   val name: Identifier,
   val typeName: TypeName? = null,
-) : Declaration
+) {
+  companion object {
+    operator fun invoke(location: Location, name: String, typeName: String) = Parameter(
+      location = location,
+      name = Identifier(name),
+      typeName = TypeName(typeName),
+    )
+  }
+}
 
 data class Flags(
   override val documentation: Documentation? = null,
