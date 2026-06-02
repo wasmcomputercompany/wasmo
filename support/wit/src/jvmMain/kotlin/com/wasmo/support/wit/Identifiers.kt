@@ -8,7 +8,9 @@ data class QualifiedIdentifier(
 @JvmInline
 value class Identifier(
   val name: String,
-)
+) {
+  override fun toString() = name
+}
 
 data class PackageName(
   val namespaces: List<Identifier>,
@@ -42,7 +44,9 @@ data class PackageName(
 @JvmInline
 value class SemVer(
   val version: String,
-)
+) {
+  override fun toString() = version
+}
 
 data class TypeName(
   val name: Identifier,

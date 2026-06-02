@@ -57,6 +57,13 @@ internal class WitStructureReader(
     return result
   }
 
+  fun readAnnotationOrNull(): Identifier? {
+    if (peek() != '@') return null
+    pos++ // Consume '@'.
+
+    return readIdentifier()
+  }
+
   private fun peek(): Char = when {
     exhausted -> '\u0000'
     else -> chars[pos]
@@ -72,22 +79,31 @@ internal class WitStructureReader(
     pos++
   }
 
+  /**
+   * ```ebnf
+   * package-decl        ::= 'package' ( id ':' )+ id ( '/' id )* ('@' valid-semver)?
+   * ```
+   */
   fun readPackageName(): PackageName {
-    val start = pos
+    val location = location
     val namespaces = mutableListOf<Identifier>()
     val names = mutableListOf<Identifier>()
 
-    while (true) {
-      val identifier = readIdentifier()
-      if (peek() == ':') {
-        pos++ // Consume ':'.
-        namespaces += identifier
-      } else {
-        names += identifier
-        if (peek() != '/') break
-        pos++ // Consume '/'.
-      }
+    var identifier = readIdentifier()
+    while (peek() == ':') {
+      pos++ // Consume ':'.
+      namespaces += identifier
+      identifier = readIdentifier()
     }
+    checkWit(location, namespaces.isNotEmpty()) {
+      "expected package name to contain a ':'"
+    }
+    while (peek() == '/') {
+      pos++ // Consume '/'.
+      names += identifier
+      identifier = readIdentifier()
+    }
+    names += identifier
 
     val version = when {
       peek() == '@' -> {
@@ -96,10 +112,6 @@ internal class WitStructureReader(
       }
 
       else -> null
-    }
-
-    checkWit(namespaces.isNotEmpty()) {
-      "expected package name to contain a ':': ${String(chars, start, pos - start)}"
     }
 
     return PackageName(
@@ -181,6 +193,10 @@ internal inline fun checkWit(location: Location, value: Boolean, message: () -> 
   if (!value) {
     throw WitException(location, message())
   }
+}
+
+internal fun errorWit(location: Location, message: String): Nothing {
+  throw WitException(location, message)
 }
 
 internal fun CharArray.indexOf(substring: String, fromIndex: Int): Int {
