@@ -85,6 +85,19 @@ class WitStructureReaderTest {
   }
 
   @Test
+  fun `dangling end of line documentation comment`() {
+    val reader = WitStructureReader(
+      """
+      |
+      |///abc
+      """.trimMargin(),
+    )
+    reader.skipWhitespace()
+    assertThat(reader.takeDocumentation()).isNull()
+    assertThat(reader.location).isEqualTo(Location(2, 7))
+  }
+
+  @Test
   fun `document ends with end of line comment`() {
     val reader = WitStructureReader(
       """

@@ -130,13 +130,13 @@ internal class WitStructureReader(
           when (afterSlash) {
             '/' -> {
               val commentEnd = chars.indexOf("\n", pos)
-              // If the comment starts with '///', it is documentation.
-              if (pos + 2 < chars.size && chars[pos + 2] == '/') {
-                appendDocumentation(pos + 3, commentEnd)
-              }
               if (commentEnd == -1) {
                 pos = chars.size
                 return
+              }
+              // If the comment starts with '///', it is documentation.
+              if (pos + 2 < chars.size && chars[pos + 2] == '/') {
+                appendDocumentation(pos + 3, commentEnd)
               }
               pos = commentEnd + 1
               line++
