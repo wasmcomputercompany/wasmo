@@ -3,11 +3,69 @@ package com.wasmo.support.wit
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class WitStructureReaderTest {
+
+  @Test
+  fun `tryReadLiteral char success`() {
+    val reader = WitStructureReader("a")
+    assertThat(reader.tryReadLiteral('a')).isTrue()
+    assertThat(reader.location).isEqualTo(Location(1, 2))
+  }
+
+  @Test
+  fun `tryReadLiteral char wrong value`() {
+    val reader = WitStructureReader("a")
+    assertThat(reader.tryReadLiteral('b')).isFalse()
+    assertThat(reader.location).isEqualTo(Location(1, 1))
+  }
+
+  @Test
+  fun `tryReadLiteral char eof`() {
+    val reader = WitStructureReader("")
+    assertThat(reader.tryReadLiteral('a')).isFalse()
+    assertThat(reader.location).isEqualTo(Location(1, 1))
+  }
+
+  @Test
+  fun `tryReadLiteral string success`() {
+    val reader = WitStructureReader("a")
+    assertThat(reader.tryReadLiteral("a")).isTrue()
+    assertThat(reader.location).isEqualTo(Location(1, 2))
+  }
+
+  @Test
+  fun `tryReadLiteral string multiple characters success`() {
+    val reader = WitStructureReader("abcd")
+    assertThat(reader.tryReadLiteral("abc")).isTrue()
+    assertThat(reader.location).isEqualTo(Location(1, 4))
+  }
+
+  @Test
+  fun `tryReadLiteral string multiple characters wrong value`() {
+    val reader = WitStructureReader("abcd")
+    assertThat(reader.tryReadLiteral("abd")).isFalse()
+    assertThat(reader.location).isEqualTo(Location(1, 1))
+  }
+
+  @Test
+  fun `tryReadLiteral string wrong value`() {
+    val reader = WitStructureReader("a")
+    assertThat(reader.tryReadLiteral("b")).isFalse()
+    assertThat(reader.location).isEqualTo(Location(1, 1))
+  }
+
+  @Test
+  fun `tryReadLiteral string eof`() {
+    val reader = WitStructureReader("")
+    assertThat(reader.tryReadLiteral("a")).isFalse()
+    assertThat(reader.location).isEqualTo(Location(1, 1))
+  }
 
   @Test
   fun `charArray indexOf`() {
@@ -351,4 +409,122 @@ class WitStructureReaderTest {
     }
     assertThat(e).hasMessage("expected a semver character")
   }
+
+  @Test
+  fun `readTypeName success`() {
+    assertThat("u32".parseTypeName())
+      .isEqualTo(TypeName("u32"))
+    assertThat("string".parseTypeName())
+      .isEqualTo(TypeName("string"))
+    assertThat("tuple<u32>".parseTypeName())
+      .isEqualTo(TypeName.Tuple(listOf(TypeName("u32"))))
+    assertThat("tuple<u32, s8>".parseTypeName())
+      .isEqualTo(TypeName.Tuple(listOf(TypeName("u32"), TypeName("s8"))))
+    assertThat("tuple<u32, s8, string>".parseTypeName())
+      .isEqualTo(TypeName.Tuple(listOf(TypeName("u32"), TypeName("s8"), TypeName("string"))))
+    assertThat("list<string>".parseTypeName())
+      .isEqualTo(TypeName.List(TypeName("string")))
+    assertThat("list<string, 32>".parseTypeName())
+      .isEqualTo(TypeName.List(TypeName("string"), 32U))
+    assertThat("option<string>".parseTypeName())
+      .isEqualTo(TypeName.Option(TypeName("string")))
+    assertThat("result<string>".parseTypeName())
+      .isEqualTo(TypeName.Result(TypeName("string")))
+    assertThat("result<string, s32>".parseTypeName())
+      .isEqualTo(TypeName.Result(TypeName("string"), TypeName("s32")))
+    assertThat("result<_, string>".parseTypeName())
+      .isEqualTo(TypeName.Result(null, TypeName("string")))
+    assertThat("result".parseTypeName())
+      .isEqualTo(TypeName.Result())
+    assertThat("map<u32, s64>".parseTypeName())
+      .isEqualTo(TypeName.Map(TypeName("u32"), TypeName("s64")))
+    assertThat("map<u32, list<string>>".parseTypeName())
+      .isEqualTo(TypeName.Map(TypeName("u32"), TypeName.List(TypeName("string"))))
+    assertThat("future".parseTypeName())
+      .isEqualTo(TypeName.Future())
+    assertThat("future<string>".parseTypeName())
+      .isEqualTo(TypeName.Future(TypeName("string")))
+    assertThat("borrow<string>".parseTypeName())
+      .isEqualTo(TypeName.Borrow(TypeName("string")))
+    assertThat("stream".parseTypeName())
+      .isEqualTo(TypeName.Stream())
+    assertThat("stream<string>".parseTypeName())
+      .isEqualTo(TypeName.Stream(TypeName("string")))
+    assertThat("foo".parseTypeName())
+      .isEqualTo(TypeName("foo"))
+  }
+
+  @Test
+  fun `readTypeName dangling type parameters`() {
+    assertFailsWith<WitException> {
+      "tuple<".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "tuple<string".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "tuple<string,".parseTypeName()
+    }
+  }
+
+  @Test
+  fun `readTypeName invalid type parameters`() {
+    assertFailsWith<WitException> {
+      "tuple".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "tuple<>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "list".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "list<>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "list<string, string, string>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "option".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "option<>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "option<string, string>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "result<_, _>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "map<string>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "map<string, string, string>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "future<>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "future<string, string>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "stream<>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "stream<string, string>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "borrow".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "borrow<>".parseTypeName()
+    }
+    assertFailsWith<WitException> {
+      "borrow<string, string>".parseTypeName()
+    }
+  }
+
+  private fun String.parseTypeName(): TypeName =
+    WitStructureReader(this).readTypeName()
 }

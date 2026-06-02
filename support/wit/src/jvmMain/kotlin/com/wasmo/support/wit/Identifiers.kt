@@ -47,18 +47,3 @@ value class SemVer(
 ) {
   override fun toString() = version
 }
-
-data class TypeName(
-  val name: Identifier,
-  val parameters: List<Identifier> = listOf(),
-) {
-  companion object {
-    operator fun invoke(
-      name: String,
-      parameters: List<Identifier> = listOf(),
-    ) = TypeName(
-      Identifier(name),
-      parameters,
-    )
-  }
-}
