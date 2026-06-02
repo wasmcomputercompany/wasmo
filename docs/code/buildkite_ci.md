@@ -52,7 +52,7 @@ $ cd ../..
 $ docker-compose \
   -f .buildkite/docker-compose.yml \
   run ci-build \
-  gradle :jvmTest
+  gradle :jvmTest -Pwasmo.build.environment=ci
 ```
 
 Consider keeping a separate clone of the Wasmo repo for doing Linux x64 builds. Our Gradle plugins
