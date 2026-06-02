@@ -109,6 +109,7 @@ class WitReader private constructor(
     when (val identifier = source.readIdentifier()) {
       Keywords.record -> return readRecord(documentation, gate, location)
       Keywords.resource -> return readResource(documentation, gate, location)
+      Keywords.variant -> return readVariant(documentation, gate, location)
       else -> return readFunction(documentation, gate, location, identifier)
     }
   }
@@ -136,12 +137,8 @@ class WitReader private constructor(
     source.skipWhitespace()
     source.readLiteral('{')
 
+    source.skipWhitespace()
     while (true) {
-      source.skipWhitespace()
-
-      // Trailing comma on previous field!
-      if (fields.isNotEmpty() && source.tryReadLiteral('}')) break
-
       val fieldGate = readGateOrNull()
       val fieldDocumentation = source.takeDocumentation()
       val fieldLocation = source.location
@@ -162,7 +159,11 @@ class WitReader private constructor(
       )
 
       source.skipWhitespace()
-      if (source.tryReadLiteral(',')) continue
+      if (source.tryReadLiteral(',')) {
+        source.skipWhitespace()
+        if (source.tryReadLiteral('}')) break // Trailing comma.
+        continue
+      }
 
       source.readLiteral('}')
       break
@@ -174,6 +175,78 @@ class WitReader private constructor(
       location = location,
       name = TypeName(name),
       fields = fields,
+    )
+  }
+
+  /**
+   * ```ebnf
+   * variant-items ::= 'variant' id '{' variant-cases '}'
+   *
+   * variant-cases ::= variant-case
+   *                 | variant-case ',' variant-cases?
+   *
+   * variant-case ::= id
+   *                | id '(' ty ')'
+   * ```
+   */
+  private fun readVariant(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Variant {
+    source.skipWhitespace()
+    val name = source.readIdentifier()
+
+    val cases = mutableListOf<Case>()
+
+    source.skipWhitespace()
+    source.readLiteral('{')
+
+    source.skipWhitespace()
+    while (true) {
+      val caseGate = readGateOrNull()
+      val caseDocumentation = source.takeDocumentation()
+      val caseLocation = source.location
+      val caseName = source.readIdentifier()
+
+      source.skipWhitespace()
+      val typeName = when {
+        source.tryReadLiteral('(') -> {
+          source.readTypeName()
+            .also {
+              source.skipWhitespace()
+              source.readLiteral(')')
+            }
+
+        }
+        else -> null
+      }
+
+      cases += Case(
+        documentation = caseDocumentation,
+        gate = caseGate,
+        location = caseLocation,
+        name = caseName,
+        typeName = typeName,
+      )
+
+      source.skipWhitespace()
+      if (source.tryReadLiteral(',')) {
+        source.skipWhitespace()
+        if (source.tryReadLiteral('}')) break // Trailing comma.
+        continue
+      }
+
+      source.readLiteral('}')
+      break
+    }
+
+    return Variant(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      name = TypeName(name),
+      cases = cases,
     )
   }
 
@@ -436,5 +509,6 @@ object Keywords {
   val stream = Identifier("stream")
   val tuple = Identifier("tuple")
   val unstable = Identifier("unstable")
+  val variant = Identifier("variant")
   val version = Identifier("version")
 }
