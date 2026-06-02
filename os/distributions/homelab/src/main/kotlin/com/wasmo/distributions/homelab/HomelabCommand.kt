@@ -34,9 +34,15 @@ class HomelabCommand : CliktCommand() {
   val container: Boolean by option("--container")
     .flag("--no-container", default = true)
   val stripePublishableKey: String by option()
-    .defaultLazy { System.getenv("STRIPE_PUBLISHABLE_KEY") }
+    .defaultLazy {
+      System.getenv("STRIPE_PUBLISHABLE_KEY")
+        ?: "pk_UNKNOWN"
+    }
   val stripeSecretKey: String by option()
-    .defaultLazy { System.getenv("STRIPE_SECRET_KEY") }
+    .defaultLazy {
+      System.getenv("STRIPE_SECRET_KEY")
+        ?: "sk_UNKNOWN"
+    }
 
   override fun run() = runBlocking {
     var baseUrl = "http://wasmo.localhost:8080/".toHttpUrl()
