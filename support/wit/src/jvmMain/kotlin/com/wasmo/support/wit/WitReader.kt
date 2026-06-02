@@ -176,16 +176,26 @@ class WitReader private constructor(
       source.readLiteral(':')
 
       source.skipWhitespace()
-      val parameterType = source.readIdentifier() // TODO: Should be a type
+      val parameterType = source.readTypeName()
 
       parameters += Parameter(
         location = location,
         name = parameterName,
-        typeName = TypeName(parameterType),
+        typeName = parameterType,
       )
     }
 
     source.skipWhitespace()
+    val returnType = when {
+      source.tryReadLiteral("->") -> {
+        source.skipWhitespace()
+        source.readTypeName()
+          .also { source.skipWhitespace() }
+      }
+
+      else -> null
+    }
+
     source.readLiteral(';')
 
     return Function(
@@ -197,7 +207,7 @@ class WitReader private constructor(
       constructor = false,
       name = identifier,
       parameters = parameters,
-      returnType = null,
+      returnType = returnType,
     )
   }
 
@@ -271,10 +281,18 @@ object Keywords {
   val `interface` = Identifier("interface")
   val `package` = Identifier("package")
   val async = Identifier("async")
+  val borrow = Identifier("borrow")
   val deprecated = Identifier("deprecated")
   val feature = Identifier("feature")
   val func = Identifier("func")
+  val future = Identifier("future")
+  val list = Identifier("list")
+  val map = Identifier("map")
+  val option = Identifier("option")
+  val result = Identifier("result")
   val since = Identifier("since")
+  val stream = Identifier("stream")
+  val tuple = Identifier("tuple")
   val unstable = Identifier("unstable")
   val version = Identifier("version")
 }

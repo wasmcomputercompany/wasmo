@@ -46,6 +46,14 @@ internal class WitStructureReader(
   fun readSemVer(): SemVer =
     SemVer(readToken("semver", Char::isSemverCharacter))
 
+  fun readUint(): UInt {
+    val string = readToken("semver", Char::isDigit)
+    checkWit(string == "0" || !string.startsWith('0')) {
+      "integer identifiers must not start with '0'"
+    }
+    return string.toUInt()
+  }
+
   fun readToken(name: String, match: (Char) -> Boolean): String {
     checkWit(match(peek())) {
       "expected a $name character"
@@ -75,6 +83,15 @@ internal class WitStructureReader(
     return true
   }
 
+  fun tryReadLiteral(literal: String): Boolean {
+    if (pos + literal.length > chars.size) return false
+    for ((j, c) in literal.withIndex()) {
+      if (chars[pos + j] != c) return false
+    }
+    pos += literal.length
+    return true
+  }
+
   fun readLiteral(literal: Char) {
     checkWit(!exhausted) {
       "expected $literal but was EOF"
@@ -83,6 +100,131 @@ internal class WitStructureReader(
       "expected $literal but was '${chars[pos]}'"
     }
     pos++
+  }
+
+  /**
+   * ```ebnf
+   * ty ::= 'u8' | 'u16' | 'u32' | 'u64'
+   *      | 's8' | 's16' | 's32' | 's64'
+   *      | 'f32' | 'f64'
+   *      | 'char'
+   *      | 'bool'
+   *      | 'string'
+   *      | tuple
+   *      | list
+   *      | option
+   *      | result
+   *      | map
+   *      | handle
+   *      | future
+   *      | stream
+   *      | id
+   *
+   * tuple ::= 'tuple' '<' tuple-list '>'
+   * tuple-list ::= ty
+   *              | ty ',' tuple-list?
+   *
+   * list ::= 'list' '<' ty '>'
+   *        | 'list' '<' ty ',' uint '>'
+   *
+   * uint ::= [1-9][0-9]*
+   *
+   * option ::= 'option' '<' ty '>'
+   *
+   * result ::= 'result' '<' ty ',' ty '>'
+   *          | 'result' '<' '_' ',' ty '>'
+   *          | 'result' '<' ty '>'
+   *          | 'result'
+   *
+   * map ::= 'map' '<' kt ',' ty '>'
+   * kt ::= 'u8' | 'u16' | 'u32' | 'u64'
+   *      | 's8' | 's16' | 's32' | 's64'
+   *      | 'char' | 'bool' | 'string'
+   *
+   * future ::= 'future' '<' ty '>'
+   *          | 'future'
+   *
+   * stream ::= 'stream' '<' ty '>'
+   *          | 'stream'
+   * ```
+   */
+  fun readTypeName(): TypeName {
+    return when (val identifier = readIdentifier()) {
+      Keywords.tuple -> TypeName.Tuple(readTypeList("tuple", min = 1, max = Int.MAX_VALUE))
+      Keywords.list -> {
+        readLiteral('<')
+        skipWhitespace()
+        val type = readTypeName()
+        skipWhitespace()
+        val size = when {
+          tryReadLiteral(',') -> {
+            skipWhitespace()
+            readUint()
+          }
+
+          else -> null
+        }
+        skipWhitespace()
+        readLiteral('>')
+        TypeName.List(type, size)
+      }
+
+      Keywords.option -> TypeName.Option(readTypeList("option", min = 1, max = 1).single())
+      Keywords.result -> {
+        if (tryReadLiteral('<')) {
+          skipWhitespace()
+          val ok = when {
+            tryReadLiteral('_') -> null
+            else -> readTypeName()
+          }
+          skipWhitespace()
+          val err = when {
+            tryReadLiteral(',') -> {
+              skipWhitespace()
+              readTypeName()
+            }
+            else -> null
+          }
+          skipWhitespace()
+          readLiteral('>')
+          TypeName.Result(ok, err)
+        } else {
+          TypeName.Result()
+        }
+      }
+
+      Keywords.map -> {
+        val (key, value) = readTypeList("map", min = 2, max = 2)
+        TypeName.Map(key, value)
+      }
+
+      Keywords.borrow -> TypeName.Borrow(readTypeList("borrow", min = 1, max = 1).single())
+      Keywords.future -> TypeName.Future(readTypeList("future", min = 0, max = 1).singleOrNull())
+      Keywords.stream -> TypeName.Stream(readTypeList("stream", min = 0, max = 1).singleOrNull())
+      else -> TypeName.Simple(identifier)
+    }
+  }
+
+  private fun readTypeList(
+    name: String,
+    min: Int,
+    max: Int,
+  ): List<TypeName> {
+    require(min in 0..max)
+    val result = mutableListOf<TypeName>()
+    if (tryReadLiteral('<')) {
+      skipWhitespace()
+      result += readTypeName()
+      while (true) {
+        skipWhitespace()
+        if (!tryReadLiteral(',')) break
+        skipWhitespace()
+        result += readTypeName()
+      }
+      readLiteral('>')
+    }
+    checkWit(result.size in min..max) { "unexpected type parameters for $name" }
+    return result
   }
 
   /**
@@ -244,5 +386,11 @@ internal val Char.isSemverCharacter: Boolean
     in 'A'..'Z' -> true
     in '0'..'9' -> true
     '-', '+', '.' -> true
+    else -> false
+  }
+
+internal val Char.isDigit: Boolean
+  get() = when (this) {
+    in '0'..'9' -> true
     else -> false
   }

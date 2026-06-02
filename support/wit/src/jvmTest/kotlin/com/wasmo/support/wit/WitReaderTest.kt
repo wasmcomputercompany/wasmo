@@ -142,7 +142,7 @@ class WitReaderTest {
   fun `readInterface with functions`() {
     val wit = """
       |interface foo {
-      |  print: func(message: string, repeat: u32);
+      |  print: func(message: string, repeat: option<u32>) -> result<_, errno>;
       |  async-print: async func();
       |}
       """.trimMargin()
@@ -157,8 +157,19 @@ class WitReaderTest {
                 location = Location(2, 3),
                 name = Identifier("print"),
                 parameters = listOf(
-                  Parameter(Location(2, 15), "message", "string"),
-                  Parameter(Location(2, 32), "repeat", "u32"),
+                  Parameter(
+                    Location(2, 15),
+                    "message",
+                    "string",
+                  ),
+                  Parameter(
+                    Location(2, 32),
+                    Identifier("repeat"),
+                    TypeName.Option(TypeName("u32")),
+                  ),
+                ),
+                returnType = TypeName.Result(
+                  err = TypeName("errno"),
                 ),
               ),
               Function(
