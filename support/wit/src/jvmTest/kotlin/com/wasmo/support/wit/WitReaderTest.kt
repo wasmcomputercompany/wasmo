@@ -1,9 +1,12 @@
 package com.wasmo.support.wit
 
 import assertk.assertThat
+import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class WitReaderTest {
   @Test
@@ -18,6 +21,76 @@ class WitReaderTest {
         declarations = listOf(),
       ),
     )
+  }
+
+  @Test
+  fun `readGate success`() {
+    val wit = """
+      |@since(version = 0.2.0)
+      |@deprecated(version = 0.2.2)
+      |@unstable(feature = fancier-foo)
+      |interface foo {}
+      """.trimMargin()
+    val gate = WitReader(wit).readGateOrNull()
+    assertThat(gate).isEqualTo(
+      Gate(
+        unstable = "fancier-foo",
+        since = "0.2.0",
+        deprecated = "0.2.2",
+      ),
+    )
+  }
+
+  @Test
+  fun `readGate unstable only`() {
+    val wit = """
+      |@unstable(feature = fancier-foo)
+      |interface foo {}
+      """.trimMargin()
+    val gate = WitReader(wit).readGateOrNull()
+    assertThat(gate).isEqualTo(Gate(unstable = "fancier-foo"),
+    )
+  }
+
+  @Test
+  fun `readGate since only`() {
+    val wit = """
+      |@since(version = 0.2.0)
+      |interface foo {}
+      """.trimMargin()
+    val gate = WitReader(wit).readGateOrNull()
+    assertThat(gate).isEqualTo(Gate(since = "0.2.0"))
+  }
+
+  @Test
+  fun `readGate deprecated only`() {
+    val wit = """
+      |@deprecated(version = 0.2.2)
+      |interface foo {}
+      """.trimMargin()
+    val gate = WitReader(wit).readGateOrNull()
+    assertThat(gate).isEqualTo(Gate(deprecated = "0.2.2"))
+  }
+
+  @Test
+  fun `readGate unexpected field`() {
+    val e = assertFailsWith<WitException> {
+      WitReader("@unstable(version = 0.2.2)").readGateOrNull()
+    }
+    assertThat(e).hasMessage("unexpected field: unstable.version")
+  }
+
+  @Test
+  fun `readGate repeated gate item`() {
+    val e = assertFailsWith<WitException> {
+      WitReader("@since(version = 0.2.0) @since(version = 0.2.0)").readGateOrNull()
+    }
+    assertThat(e).hasMessage("unexpected field: since.version")
+  }
+
+  @Test
+  fun `readGate absent`() {
+    assertThat(WitReader("interface foo {}").readGateOrNull()).isNull()
   }
 
   @Test

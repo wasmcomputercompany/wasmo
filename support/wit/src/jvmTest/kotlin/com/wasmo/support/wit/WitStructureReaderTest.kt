@@ -310,11 +310,22 @@ class WitStructureReaderTest {
   }
 
   @Test
+  fun `readPackageName multiple namespaces and multiple names`() {
+    val reader = WitStructureReader("abc:def:ghi:jkl/mno/pqr")
+    assertThat(reader.readPackageName()).isEqualTo(
+      PackageName(
+        namespaces = listOf(Identifier("abc"), Identifier("def"), Identifier("ghi")),
+        names = listOf(Identifier("jkl"), Identifier("mno"), Identifier("pqr")),
+      ),
+    )
+  }
+
+  @Test
   fun `readPackageName missing namespace`() {
     val e = assertFailsWith<WitException> {
       WitStructureReader("local").readPackageName()
     }
-    assertThat(e).hasMessage("expected package name to contain a ':': local")
+    assertThat(e).hasMessage("expected package name to contain a ':'")
   }
 
   @Test

@@ -2,7 +2,7 @@ package com.wasmo.support.wit
 
 sealed interface Declaration {
   val documentation: Documentation?
-  val annotations: Annotations?
+  val gate: Gate?
   val location: Location
 }
 
@@ -11,11 +11,33 @@ value class Documentation(
   val content: String,
 )
 
-data class Annotations(
+/**
+ * Gates are like annotations syntactically.
+ *
+ * ```wit
+ * @since(version = 0.2.0)
+ * @deprecated(version = 0.2.2)
+ * @unstable(feature = fancier-foo)
+ * interface foo {}
+ * ```
+ */
+data class Gate(
+  val unstable: Identifier? = null,
   val since: SemVer? = null,
   val deprecated: SemVer? = null,
-  val unstable: Identifier? = null,
-)
+) {
+  companion object {
+    operator fun invoke(
+      unstable: String? = null,
+      since: String? = null,
+      deprecated: String? = null,
+    ) = Gate(
+      unstable = unstable?.let { Identifier(it) },
+      since = since?.let { SemVer(it) },
+      deprecated = deprecated?.let { SemVer(it) },
+    )
+  }
+}
 
 data class Location(
   val line: Int,
@@ -42,7 +64,7 @@ data class WitFile(
  */
 data class Package(
   override val documentation: Documentation?,
-  override val annotations: Annotations?,
+  override val gate: Gate?,
   override val location: Location,
   val packageName: PackageName? = null,
   val declarations: List<Declaration>,
@@ -63,7 +85,7 @@ data class Package(
  */
 data class Interface(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: TypeName,
   val declarations: List<Declaration>,
@@ -71,7 +93,7 @@ data class Interface(
 
 data class World(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: TypeName,
   val declarations: List<Declaration>,
@@ -79,7 +101,7 @@ data class World(
 
 data class Resource(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: TypeName,
   val declarations: List<Declaration>,
@@ -87,7 +109,7 @@ data class Resource(
 
 data class Record(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: TypeName,
   val fields: List<Field>,
@@ -95,7 +117,7 @@ data class Record(
 
 data class Field(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: Identifier,
   val typeName: TypeName,
@@ -103,7 +125,7 @@ data class Field(
 
 data class Function(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val static: Boolean = false,
   val constructor: Boolean = false,
@@ -114,7 +136,7 @@ data class Function(
 
 data class Variant(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: TypeName,
   val cases: List<Case>,
@@ -122,7 +144,7 @@ data class Variant(
 
 data class Enum(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: TypeName,
   val cases: List<Case>,
@@ -130,7 +152,7 @@ data class Enum(
 
 data class Case(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: Identifier,
   val typeName: TypeName? = null,
@@ -138,7 +160,7 @@ data class Case(
 
 data class Parameter(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: Identifier,
   val typeName: TypeName? = null,
@@ -146,7 +168,7 @@ data class Parameter(
 
 data class Flags(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: TypeName,
   val flags: List<Flag>,
@@ -154,14 +176,14 @@ data class Flags(
 
 data class Flag(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: Identifier,
 ) : Declaration
 
 data class TypeAlias(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val name: TypeName,
   val target: TypeName,
@@ -179,7 +201,7 @@ data class TypeAlias(
  */
 data class Use(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val references: List<Reference>,
 ) : Declaration {
@@ -191,14 +213,14 @@ data class Use(
 
 data class Import(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val value: Either<QualifiedIdentifier, Declaration>,
 ) : Declaration
 
 data class Export(
   override val documentation: Documentation? = null,
-  override val annotations: Annotations? = null,
+  override val gate: Gate? = null,
   override val location: Location,
   val value: Either<QualifiedIdentifier, Declaration>,
 ) : Declaration
