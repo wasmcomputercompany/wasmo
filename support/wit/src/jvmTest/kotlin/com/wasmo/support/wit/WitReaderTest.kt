@@ -104,11 +104,27 @@ class WitReaderTest {
   }
 
   @Test
-  fun `readGate repeated gate item`() {
+  fun `readGate repeated unstable`() {
     val e = assertFailsWith<WitException> {
-      WitReader("@since(version = 0.2.0) @since(version = 0.2.0)").readGateOrNull()
+      WitReader("@unstable(feature = fancier-foo) @unstable(feature = faster-foo)").readGateOrNull()
+    }
+    assertThat(e.issue).isEqualTo("unexpected field: unstable.feature")
+  }
+
+  @Test
+  fun `readGate repeated since`() {
+    val e = assertFailsWith<WitException> {
+      WitReader("@since(version = 0.2.0) @since(version = 0.3.0)").readGateOrNull()
     }
     assertThat(e.issue).isEqualTo("unexpected field: since.version")
+  }
+
+  @Test
+  fun `readGate repeated deprecated`() {
+    val e = assertFailsWith<WitException> {
+      WitReader("@deprecated(version = 0.2.0) @deprecated(version = 0.3.0)").readGateOrNull()
+    }
+    assertThat(e.issue).isEqualTo("unexpected field: deprecated.version")
   }
 
   @Test
@@ -858,7 +874,7 @@ class WitReaderTest {
             documentation = Documentation(" a printer-scanner-fax thingy"),
             gate = Gate(since = "1.0"),
             location = Location(3, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(),
           ),
         ),
@@ -884,7 +900,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Import(
                 documentation = Documentation(" The component needs an `error-reporter`"),
@@ -924,7 +940,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Import(
                 documentation = Documentation(" This store is aliased as 'primary'"),
@@ -961,7 +977,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Export(
                 documentation = Documentation(" This store is aliased as 'secondary'"),
@@ -1002,7 +1018,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Import(
                 location = Location(4, 3),
@@ -1054,7 +1070,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Export(
                 location = Location(4, 3),
@@ -1102,7 +1118,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Import(
                 location = Location(4, 3),
@@ -1142,7 +1158,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Export(
                 location = Location(4, 3),
@@ -1180,7 +1196,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Import(
                 location = Location(2, 3),
@@ -1209,7 +1225,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Export(
                 location = Location(2, 3),
@@ -1240,7 +1256,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Include(
                 documentation = Documentation(" This include is pretty basic."),
@@ -1269,7 +1285,7 @@ class WitReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = TypeName("multi-function-device"),
+            name = Identifier("multi-function-device"),
             declarations = listOf(
               Include(
                 location = Location(2, 3),
@@ -1398,6 +1414,329 @@ class WitReaderTest {
                   packageNames = listOf(Identifier("http")),
                   name = Identifier("types"),
                   version = SemVer("1.0.0"),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `world in nested package`() {
+    val wit = """
+      |package local:a {
+      |  /// a printer-scanner-fax thingy
+      |  @since(version = 1.0)
+      |  world multi-function-device {
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Package(
+            location = Location(1, 1),
+            name = PackageName("local", "a"),
+            declarations = listOf(
+              World(
+                documentation = Documentation(" a printer-scanner-fax thingy"),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                name = Identifier("multi-function-device"),
+                declarations = listOf(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `record in world`() {
+    val wit = """
+      |world multi-function-device {
+      |  record datetime {
+      |    seconds: u64,
+      |    nanoseconds: u32,
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = Identifier("multi-function-device"),
+            declarations = listOf(
+              Record(
+                location = Location(2, 3),
+                name = TypeName("datetime"),
+                fields = listOf(
+                  Field(
+                    location = Location(3, 5),
+                    name = Identifier("seconds"),
+                    type = TypeName("u64"),
+                  ),
+                  Field(
+                    location = Location(4, 5),
+                    name = Identifier("nanoseconds"),
+                    type = TypeName("u32"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `enum in world`() {
+    val wit = """
+      |world multi-function-device {
+      |  enum color {
+      |    red,
+      |    blue,
+      |    green,
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = Identifier("multi-function-device"),
+            declarations = listOf(
+              Enum(
+                location = Location(2, 3),
+                name = TypeName("color"),
+                cases = listOf(
+                  Case(
+                    location = Location(3, 5),
+                    name = Identifier("red"),
+                  ),
+                  Case(
+                    location = Location(4, 5),
+                    name = Identifier("blue"),
+                  ),
+                  Case(
+                    location = Location(5, 5),
+                    name = Identifier("green"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `flags in world`() {
+    val wit = """
+      |world multi-function-device {
+      |  flags properties {
+      |    lego,
+      |    marvel-superhero,
+      |    supervillain,
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = Identifier("multi-function-device"),
+            declarations = listOf(
+              Flags(
+                location = Location(2, 3),
+                name = TypeName("properties"),
+                flags = listOf(
+                  Flag(
+                    location = Location(3, 5),
+                    name = Identifier("lego"),
+                  ),
+                  Flag(
+                    location = Location(4, 5),
+                    name = Identifier("marvel-superhero"),
+                  ),
+                  Flag(
+                    location = Location(5, 5),
+                    name = Identifier("supervillain"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `resource in world`() {
+    val wit = """
+      |world multi-function-device {
+      |  resource blob {
+      |    constructor(init: list<u8>);
+      |    write: func(bytes: list<u8>);
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = Identifier("multi-function-device"),
+            declarations = listOf(
+              Resource(
+                location = Location(2, 3),
+                name = TypeName("blob"),
+                declarations = listOf(
+                  Function(
+                    location = Location(3, 5),
+                    constructor = true,
+                    name = Identifier("constructor"),
+                    parameters = listOf(
+                      Parameter(
+                        location = Location(3, 17),
+                        name = Identifier("init"),
+                        type = TypeName.List(TypeName("u8")),
+                      ),
+                    ),
+                    returnType = null,
+                  ),
+                  Function(
+                    location = Location(4, 5),
+                    name = Identifier("write"),
+                    parameters = listOf(
+                      Parameter(
+                        location = Location(4, 17),
+                        name = Identifier("bytes"),
+                        type = TypeName.List(TypeName("u8")),
+                      ),
+                    ),
+                    returnType = null,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `type alias in world`() {
+    val wit = """
+      |world multi-function-device {
+      |  type my-awesome-u32 = u32;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = Identifier("multi-function-device"),
+            declarations = listOf(
+              TypeAlias(
+                location = Location(2, 3),
+                name = TypeName("my-awesome-u32"),
+                target = TypeName("u32"),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `use in world`() {
+    val wit = """
+      |world multi-function-device {
+      |  use an-interface.{a, list, of, names};
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = Identifier("multi-function-device"),
+            declarations = listOf(
+              Use(
+                location = Location(2, 3),
+                path = UsePath(
+                  name = Identifier("an-interface"),
+                ),
+                items = listOf(
+                  Use.Item(name = Identifier("a")),
+                  Use.Item(name = Identifier("list")),
+                  Use.Item(name = Identifier("of")),
+                  Use.Item(name = Identifier("names")),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `variant in world`() {
+    val wit = """
+      |world multi-function-device {
+      |  variant filter {
+      |    all,
+      |    none,
+      |    some(list<string>),
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = Identifier("multi-function-device"),
+            declarations = listOf(
+              Variant(
+                location = Location(2, 3),
+                name = TypeName("filter"),
+                cases = listOf(
+                  Case(
+                    location = Location(3, 5),
+                    name = Identifier("all"),
+                  ),
+                  Case(
+                    location = Location(4, 5),
+                    name = Identifier("none"),
+                  ),
+                  Case(
+                    location = Location(5, 5),
+                    name = Identifier("some"),
+                    type = TypeName.List(TypeName("string")),
+                  ),
                 ),
               ),
             ),

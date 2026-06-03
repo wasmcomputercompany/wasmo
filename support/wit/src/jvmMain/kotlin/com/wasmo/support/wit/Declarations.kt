@@ -23,9 +23,9 @@ value class Documentation(
  * Gates are like annotations syntactically.
  *
  * ```wit
+ * @unstable(feature = fancier-foo)
  * @since(version = 0.2.0)
  * @deprecated(version = 0.2.2)
- * @unstable(feature = fancier-foo)
  * interface foo {}
  * ```
  */
@@ -34,6 +34,30 @@ data class Gate(
   val since: SemVer? = null,
   val deprecated: SemVer? = null,
 ) {
+  init {
+    require(unstable != null || since != null || deprecated != null)
+  }
+
+  override fun toString() = buildString {
+    if (unstable != null) {
+      append("@unstable(feature = ")
+      append(unstable)
+      append(")")
+    }
+    if (since != null) {
+      if (isNotEmpty()) append(" ")
+      append("@since(version = ")
+      append(since)
+      append(")")
+    }
+    if (deprecated != null) {
+      if (isNotEmpty()) append(" ")
+      append("@deprecated(version = ")
+      append(deprecated)
+      append(")")
+    }
+  }
+
   companion object {
     operator fun invoke(
       unstable: String? = null,
@@ -50,7 +74,9 @@ data class Gate(
 data class Location(
   val line: Int,
   val column: Int,
-)
+) {
+  override fun toString() = "$line:$column"
+}
 
 /**
  * Declarations may be [Use], [Interface], [World].
@@ -103,7 +129,7 @@ data class World(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val name: TypeName,
+  val name: Identifier,
   val declarations: List<Declaration>,
 ) : Declaration
 

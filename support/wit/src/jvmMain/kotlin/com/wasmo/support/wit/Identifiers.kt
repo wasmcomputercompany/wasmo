@@ -5,7 +5,23 @@ data class UsePath(
   val packageNames: List<Identifier> = listOf(),
   val name: Identifier,
   val version: SemVer? = null,
-)
+) {
+  override fun toString() = buildString {
+    for (namespace in namespaces) {
+      append(namespace)
+      append(':')
+    }
+    for (packageName in packageNames) {
+      append(packageName)
+      append('/')
+    }
+    append(name)
+    if (version != null) {
+      append('@')
+      append(version)
+    }
+  }
+}
 
 @JvmInline
 value class Identifier(
