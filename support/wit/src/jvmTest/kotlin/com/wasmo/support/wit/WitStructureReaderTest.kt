@@ -241,7 +241,7 @@ class WitStructureReaderTest {
       reader.skipWhitespace()
     }
     assertThat(e.location).isEqualTo(Location(2, 1))
-    assertThat(e.message).isEqualTo("unterminated comment")
+    assertThat(e.issue).isEqualTo("unterminated comment")
   }
 
   @Test
@@ -346,7 +346,7 @@ class WitStructureReaderTest {
     val e = assertFailsWith<WitException> {
       "..".parseSemVer()
     }
-    assertThat(e).hasMessage("expected a semver character")
+    assertThat(e.issue).isEqualTo("expected a semver character")
   }
 
   @Test
@@ -381,7 +381,7 @@ class WitStructureReaderTest {
     val e = assertFailsWith<WitException> {
       "local".parsePackageName()
     }
-    assertThat(e).hasMessage("expected package name to contain a ':'")
+    assertThat(e.issue).isEqualTo("expected package name to contain a ':'")
   }
 
   @Test
@@ -389,7 +389,7 @@ class WitStructureReaderTest {
     val e = assertFailsWith<WitException> {
       "a:".parsePackageName()
     }
-    assertThat(e).hasMessage("expected a word character")
+    assertThat(e.issue).isEqualTo("expected a word character")
   }
 
   @Test
@@ -397,7 +397,7 @@ class WitStructureReaderTest {
     val e = assertFailsWith<WitException> {
       ":".parsePackageName()
     }
-    assertThat(e).hasMessage("expected a word character")
+    assertThat(e.issue).isEqualTo("expected a word character")
   }
 
   @Test
@@ -405,7 +405,7 @@ class WitStructureReaderTest {
     val e = assertFailsWith<WitException> {
       "a:b@ ".parsePackageName()
     }
-    assertThat(e).hasMessage("expected a semver character")
+    assertThat(e.issue).isEqualTo("expected a semver character")
   }
 
   @Test
@@ -459,7 +459,7 @@ class WitStructureReaderTest {
     val e = assertFailsWith<WitException> {
       "namespace:interface-name".parseUsePath()
     }
-    assertThat(e).hasMessage("must have a namespace and a package name, or neither")
+    assertThat(e.issue).isEqualTo("must have a namespace and a package name, or neither")
   }
 
   @Test
@@ -467,7 +467,7 @@ class WitStructureReaderTest {
     val e = assertFailsWith<WitException> {
       "package-name/interface-name".parseUsePath()
     }
-    assertThat(e).hasMessage("must have a namespace and a package name, or neither")
+    assertThat(e.issue).isEqualTo("must have a namespace and a package name, or neither")
   }
 
   @Test

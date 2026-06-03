@@ -21,6 +21,43 @@ internal class WitStructureReader(
   val exhausted: Boolean
     get() = pos == chars.size
 
+  /**
+   * Attempt each element of [options] until one returns normally. If an options throws a
+   * [WitException], it is skipped. If no options return a value, the first option's exception is
+   * rethrown.
+   *
+   * This function is weird because it does speculative execution of parsing. It's likely to lead
+   * to extremely badly-performing code if used recursively, so don't do that.
+   */
+  fun <T> select(
+    vararg options: () -> T,
+  ): T {
+    require(options.isNotEmpty())
+
+    val oldDocumentation = documentation?.let { StringBuilder(it) }
+    val oldPos = pos
+    val oldLine = line
+    val oldLineStart = lineStart
+
+    var failure: WitException? = null
+
+    for (option in options) {
+      documentation = oldDocumentation?.let { StringBuilder(it) }
+      pos = oldPos
+      line = oldLine
+      lineStart = oldLineStart
+
+      try {
+        return option()
+      } catch (e: WitException) {
+        if (failure == null) failure = e
+        else failure.addSuppressed(e)
+      }
+    }
+
+    throw failure!!
+  }
+
   fun takeDocumentation(): Documentation? {
     return when {
       documentation != null -> {
@@ -106,13 +143,21 @@ internal class WitStructureReader(
   }
 
   fun readLiteral(literal: Char) {
-    checkWit(!exhausted) {
-      "expected $literal but was EOF"
+    checkWit(tryReadLiteral(literal)) {
+      when {
+        exhausted -> "expected $literal but was EOF"
+        else -> "expected $literal but was '${chars[pos]}'"
+      }
     }
-    checkWit(chars[pos] == literal) {
-      "expected $literal but was '${chars[pos]}'"
+  }
+
+  fun readLiteral(literal: String) {
+    checkWit(tryReadLiteral(literal)) {
+      when {
+        exhausted -> "expected $literal but was EOF"
+        else -> "expected $literal but was '${chars[pos]}'"
+      }
     }
-    pos++
   }
 
   /**
@@ -196,6 +241,7 @@ internal class WitStructureReader(
               skipWhitespace()
               readTypeName()
             }
+
             else -> null
           }
           skipWhitespace()

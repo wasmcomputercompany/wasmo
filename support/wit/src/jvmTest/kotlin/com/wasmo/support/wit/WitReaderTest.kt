@@ -1,7 +1,6 @@
 package com.wasmo.support.wit
 
 import assertk.assertThat
-import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import kotlin.test.Test
@@ -75,7 +74,7 @@ class WitReaderTest {
     val e = assertFailsWith<WitException> {
       WitReader("@unstable(version = 0.2.2)").readGateOrNull()
     }
-    assertThat(e).hasMessage("unexpected field: unstable.version")
+    assertThat(e.issue).isEqualTo("unexpected field: unstable.version")
   }
 
   @Test
@@ -83,7 +82,7 @@ class WitReaderTest {
     val e = assertFailsWith<WitException> {
       WitReader("@since(version = 0.2.0) @since(version = 0.2.0)").readGateOrNull()
     }
-    assertThat(e).hasMessage("unexpected field: since.version")
+    assertThat(e.issue).isEqualTo("unexpected field: since.version")
   }
 
   @Test
@@ -216,12 +215,12 @@ class WitReaderTest {
                   Field(
                     location = Location(5, 5),
                     name = Identifier("seconds"),
-                    typeName = Types.u64,
+                    type = Types.u64,
                   ),
                   Field(
                     location = Location(6, 5),
                     name = Identifier("nanoseconds"),
-                    typeName = Types.u32,
+                    type = Types.u32,
                   ),
                 ),
               ),
@@ -309,14 +308,14 @@ class WitReaderTest {
                     gate = Gate(since = "3.0"),
                     location = Location(7, 5),
                     name = Identifier("seconds"),
-                    typeName = Types.u64,
+                    type = Types.u64,
                   ),
                   Field(
                     documentation = Documentation(" tick"),
                     gate = Gate(since = "4.0"),
                     location = Location(10, 5),
                     name = Identifier("nanoseconds"),
-                    typeName = Types.u32,
+                    type = Types.u32,
                   ),
                 ),
               ),
@@ -408,7 +407,7 @@ class WitReaderTest {
                       Parameter(
                         location = Location(7, 17),
                         name = Identifier("init"),
-                        typeName = TypeName.List(TypeName("u8")),
+                        type = TypeName.List(TypeName("u8")),
                       ),
                     ),
                     returnType = null,
@@ -422,7 +421,7 @@ class WitReaderTest {
                       Parameter(
                         location = Location(11, 17),
                         name = Identifier("bytes"),
-                        typeName = TypeName.List(TypeName("u8")),
+                        type = TypeName.List(TypeName("u8")),
                       ),
                     ),
                     returnType = null,
@@ -436,7 +435,7 @@ class WitReaderTest {
                       Parameter(
                         location = Location(15, 16),
                         name = Identifier("n"),
-                        typeName = TypeName("u32"),
+                        type = TypeName("u32"),
                       ),
                     ),
                     returnType = TypeName.List(TypeName("u8")),
@@ -451,12 +450,12 @@ class WitReaderTest {
                       Parameter(
                         location = Location(19, 24),
                         name = Identifier("lhs"),
-                        typeName = TypeName.Borrow(TypeName("blob")),
+                        type = TypeName.Borrow(TypeName("blob")),
                       ),
                       Parameter(
                         location = Location(19, 43),
                         name = Identifier("rhs"),
-                        typeName = TypeName.Borrow(TypeName("blob")),
+                        type = TypeName.Borrow(TypeName("blob")),
                       ),
                     ),
                     returnType = TypeName("blob"),
@@ -547,7 +546,7 @@ class WitReaderTest {
                     gate = Gate(since = "4.0"),
                     location = Location(13, 5),
                     name = Identifier("some"),
-                    typeName = TypeName.List(TypeName("string")),
+                    type = TypeName.List(TypeName("string")),
                   ),
                 ),
               ),
@@ -772,6 +771,389 @@ class WitReaderTest {
                 items = listOf(
                   Use.Item(name = Identifier("more")),
                   Use.Item(name = Identifier("names"), alias = Identifier("foo")),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `world documentation and gates`() {
+    val wit = """
+      |/// a printer-scanner-fax thingy
+      |@since(version = 1.0)
+      |world multi-function-device {
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            documentation = Documentation(" a printer-scanner-fax thingy"),
+            gate = Gate(since = "1.0"),
+            location = Location(3, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `import export use path documentation and gates`() {
+    val wit = """
+      |world multi-function-device {
+      |  /// The component needs an `error-reporter`
+      |  @since(version = 1.0)
+      |  import error-reporter;
+      |  /// This also exports an `error-creator`
+      |  @since(version = 2.0)
+      |  export error-creator;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Import(
+                documentation = Documentation(" The component needs an `error-reporter`"),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                value = ExternalUsePath(
+                  usePath = UsePath(name = Identifier("error-reporter")),
+                ),
+              ),
+              Export(
+                documentation = Documentation(" This also exports an `error-creator`"),
+                gate = Gate(since = "2.0"),
+                location = Location(7, 3),
+                value = ExternalUsePath(
+                  usePath = UsePath(name = Identifier("error-creator")),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `import plain named use path documentation and gates`() {
+    val wit = """
+      |world multi-function-device {
+      |  /// This store is aliased as 'primary'
+      |  @since(version = 1.0)
+      |  import primary: wasi:keyvalue/store;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Import(
+                documentation = Documentation(" This store is aliased as 'primary'"),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                value = ExternalUsePath(
+                  plainName = Identifier("primary"),
+                  usePath = UsePath(
+                    namespaces = listOf(Identifier("wasi")),
+                    packageNames = listOf(Identifier("keyvalue")),
+                    name = Identifier("store"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `export plain named use path documentation and gates`() {
+    val wit = """
+      |world multi-function-device {
+      |  /// This store is aliased as 'secondary'
+      |  @since(version = 2.0)
+      |  export secondary: wasi:keyvalue/store;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Export(
+                documentation = Documentation(" This store is aliased as 'secondary'"),
+                gate = Gate(since = "2.0"),
+                location = Location(4, 3),
+                value = ExternalUsePath(
+                  plainName = Identifier("secondary"),
+                  usePath = UsePath(
+                    namespaces = listOf(Identifier("wasi")),
+                    packageNames = listOf(Identifier("keyvalue")),
+                    name = Identifier("store"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `import inline interface documentation and gates`() {
+    val wit = """
+      |world multi-function-device {
+      |  /// This interface is inline
+      |  @since(version = 1.0)
+      |  import host: interface {
+      |    /// This function is in an inline interface
+      |    @since(version = 2.0)
+      |    log: func(param: string);
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Import(
+                location = Location(4, 3),
+                value = Interface(
+                  documentation = Documentation(" This interface is inline"),
+                  gate = Gate(since = "1.0"),
+                  location = Location(4, 3),
+                  name = TypeName("host"),
+                  declarations = listOf(
+                    Function(
+                      documentation = Documentation(" This function is in an inline interface"),
+                      gate = Gate(since = "2.0"),
+                      location = Location(7, 5),
+                      name = Identifier("log"),
+                      parameters = listOf(
+                        Parameter(
+                          location = Location(7, 15),
+                          name = Identifier("param"),
+                          type = TypeName("string"),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `export inline interface documentation and gates`() {
+    val wit = """
+      |world multi-function-device {
+      |  /// We can export an inline interface
+      |  @since(version = 3.0)
+      |  export guest: interface {
+      |    /// A function in an inline interface
+      |    @since(version = 4.0)
+      |    scan: func(document: string);
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Export(
+                location = Location(4, 3),
+                value = Interface(
+                  documentation = Documentation(" We can export an inline interface"),
+                  gate = Gate(since = "3.0"),
+                  location = Location(4, 3),
+                  name = TypeName("guest"),
+                  declarations = listOf(
+                    Function(
+                      documentation = Documentation(" A function in an inline interface"),
+                      gate = Gate(since = "4.0"),
+                      location = Location(7, 5),
+                      name = Identifier("scan"),
+                      parameters = listOf(
+                        Parameter(
+                          location = Location(7, 16),
+                          name = Identifier("document"),
+                          type = TypeName("string"),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `import inline function documentation and gates`() {
+    val wit = """
+      |world multi-function-device {
+      |  /// This function is inline
+      |  @since(version = 4.0)
+      |  import log: func(param: string);
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Import(
+                location = Location(4, 3),
+                value = Function(
+                  documentation = Documentation(" This function is inline"),
+                  gate = Gate(since = "4.0"),
+                  location = Location(4, 3),
+                  name = Identifier("log"),
+                  parameters = listOf(
+                    Parameter(
+                      location = Location(4, 20),
+                      name = Identifier("param"),
+                      type = TypeName("string"),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `export inline function documentation and gates`() {
+    val wit = """
+      |world multi-function-device {
+      |  /// This exported function is inline
+      |  @since(version = 1.0)
+      |  export scan: func(document: string);
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Export(
+                location = Location(4, 3),
+                value = Function(
+                  documentation = Documentation(" This exported function is inline"),
+                  gate = Gate(since = "1.0"),
+                  location = Location(4, 3),
+                  name = Identifier("scan"),
+                  parameters = listOf(
+                    Parameter(
+                      location = Location(4, 21),
+                      name = Identifier("document"),
+                      type = TypeName("string"),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `import plain named simple use path`() {
+    val wit = """
+      |world multi-function-device {
+      |  import two: store;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Import(
+                location = Location(2, 3),
+                value = ExternalUsePath(
+                  plainName = Identifier("two"),
+                  usePath = UsePath(name = Identifier("store")),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `export plain named simple use path`() {
+    val wit = """
+      |world multi-function-device {
+      |  export two: store;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Export(
+                location = Location(2, 3),
+                value = ExternalUsePath(
+                  plainName = Identifier("two"),
+                  usePath = UsePath(name = Identifier("store")),
                 ),
               ),
             ),

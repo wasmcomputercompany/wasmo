@@ -2,5 +2,5 @@ package com.wasmo.support.wit
 
 class WitException(
   val location: Location,
-  message: String,
-) : IllegalStateException(message)
+  val issue: String,
+) : IllegalStateException("$issue at $location")
