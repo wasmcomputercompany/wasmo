@@ -6,6 +6,14 @@ sealed interface Declaration {
   val location: Location
 }
 
+/** External types are the subjects of imports and exports. */
+sealed interface ExternalType
+
+data class ExternalUsePath(
+  val plainName: Identifier? = null,
+  val usePath: UsePath,
+) : ExternalType
+
 @JvmInline
 value class Documentation(
   val content: String,
@@ -89,7 +97,7 @@ data class Interface(
   override val location: Location,
   val name: TypeName,
   val declarations: List<Declaration>,
-) : Declaration
+) : Declaration, ExternalType
 
 data class World(
   override val documentation: Documentation? = null,
@@ -120,7 +128,7 @@ data class Field(
   override val gate: Gate? = null,
   override val location: Location,
   val name: Identifier,
-  val typeName: TypeName,
+  val type: TypeName,
 ) : Declaration
 
 data class Function(
@@ -133,7 +141,7 @@ data class Function(
   val name: Identifier,
   val parameters: List<Parameter>,
   val returnType: TypeName? = null,
-) : Declaration
+) : Declaration, ExternalType
 
 data class Variant(
   override val documentation: Documentation? = null,
@@ -156,19 +164,19 @@ data class Case(
   override val gate: Gate? = null,
   override val location: Location,
   val name: Identifier,
-  val typeName: TypeName? = null,
+  val type: TypeName? = null,
 ) : Declaration
 
 data class Parameter(
   val location: Location,
   val name: Identifier,
-  val typeName: TypeName? = null,
+  val type: TypeName? = null,
 ) {
   companion object {
     operator fun invoke(location: Location, name: String, typeName: String) = Parameter(
       location = location,
       name = Identifier(name),
-      typeName = TypeName(typeName),
+      type = TypeName(typeName),
     )
   }
 }
@@ -223,12 +231,12 @@ data class Import(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val value: Either<UsePath, Declaration>,
+  val value: ExternalType,
 ) : Declaration
 
 data class Export(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val value: Either<UsePath, Declaration>,
+  val value: ExternalType,
 ) : Declaration

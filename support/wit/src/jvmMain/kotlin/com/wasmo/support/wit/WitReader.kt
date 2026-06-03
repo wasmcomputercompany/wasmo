@@ -68,17 +68,7 @@ class WitReader private constructor(
     source.skipWhitespace()
     val name = source.readIdentifier()
 
-    source.skipWhitespace()
-    source.readLiteral('{')
-
-    val declarations = mutableListOf<Declaration>()
-
-    while (true) {
-      source.skipWhitespace()
-      if (source.tryReadLiteral('}')) break
-
-      declarations += readInterfaceItem()
-    }
+    val declarations = readInterfaceItems()
 
     return Interface(
       documentation = documentation,
@@ -87,6 +77,20 @@ class WitReader private constructor(
       name = TypeName(name),
       declarations = declarations,
     )
+  }
+
+  private fun readInterfaceItems(): List<Declaration> {
+    source.skipWhitespace()
+    source.readLiteral('{')
+
+    val result = mutableListOf<Declaration>()
+    while (true) {
+      source.skipWhitespace()
+      if (source.tryReadLiteral('}')) break
+
+      result += readInterfaceItem()
+    }
+    return result
   }
 
   /**
@@ -118,7 +122,7 @@ class WitReader private constructor(
       Keywords.variant -> readVariant(documentation, gate, location)
       Keywords.type -> readTypeAlias(documentation, gate, location)
       Keywords.use -> readUse(documentation, gate, location)
-      else -> readFunction(documentation, gate, location, identifier)
+      else -> readFuncItem(documentation, gate, location, identifier)
     }
   }
 
@@ -163,7 +167,7 @@ class WitReader private constructor(
         gate = fieldGate,
         location = fieldLocation,
         name = fieldName,
-        typeName = fieldType,
+        type = fieldType,
       )
 
       source.skipWhitespace()
@@ -236,7 +240,7 @@ class WitReader private constructor(
         gate = caseGate,
         location = caseLocation,
         name = caseName,
-        typeName = typeName,
+        type = typeName,
       )
 
       source.skipWhitespace()
@@ -303,7 +307,7 @@ class WitReader private constructor(
           }
 
           else -> {
-            declarations += readFunction(
+            declarations += readFuncItem(
               documentation = functionDocumentation,
               gate = functionGate,
               location = functionLocation,
@@ -534,14 +538,9 @@ class WitReader private constructor(
   /**
    * ```ebnf
    * func-item ::= id ':' func-type ';'
-   *
-   * func-type ::= 'async'? 'func' param-list result-list
-   *
-   * result-list ::= ϵ
-   *               | '->' ty
    * ```
    */
-  private fun readFunction(
+  private fun readFuncItem(
     documentation: Documentation?,
     gate: Gate?,
     location: Location,
@@ -549,7 +548,23 @@ class WitReader private constructor(
   ): Function {
     source.skipWhitespace()
     source.readLiteral(':')
+    return readFuncType(documentation, gate, location, identifier)
+  }
 
+  /**
+   * ```ebnf
+   * func-type ::= 'async'? 'func' param-list result-list
+   *
+   * result-list ::= ϵ
+   *               | '->' ty
+   * ```
+   */
+  private fun readFuncType(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+    identifier: Identifier,
+  ): Function {
     var async = false
     var static = false
 
@@ -630,7 +645,7 @@ class WitReader private constructor(
       result += Parameter(
         location = location,
         name = parameterName,
-        typeName = parameterType,
+        type = parameterType,
       )
     }
 
@@ -680,9 +695,6 @@ class WitReader private constructor(
    *                    | use-item
    *                    | typedef-item
    *                    | include-item
-   *
-   * export-item ::= 'export' id ':' extern-type
-   *               | 'export' use-path ';'
    * ```
    */
   internal fun readWorldItem(): Declaration {
@@ -692,6 +704,7 @@ class WitReader private constructor(
 
     return when (val identifier = source.readIdentifier()) {
       Keywords.enum -> readEnum(documentation, gate, location)
+      Keywords.export -> readExport(documentation, gate, location)
       Keywords.flags -> readFlags(documentation, gate, location)
       Keywords.import -> readImport(documentation, gate, location)
       Keywords.record -> readRecord(documentation, gate, location)
@@ -707,10 +720,6 @@ class WitReader private constructor(
    * ```ebnf
    * import-item ::= 'import' id ':' extern-type
    *               | 'import' use-path ';'
-   *
-   * extern-type ::= func-type ';'
-   *               | 'interface' '{' interface-items* '}'
-   *               | use-path ';'
    * ```
    */
   private fun readImport(
@@ -718,21 +727,135 @@ class WitReader private constructor(
     gate: Gate?,
     location: Location,
   ): Import {
-    source.skipWhitespace()
-    val usePath = source.readUsePath()
+    return source.select(
+      {
+        source.skipWhitespace()
+        val identifier = source.readIdentifier()
+        source.skipWhitespace()
+        source.readLiteral(':')
+        val value = readExternalType(documentation, gate, location, identifier)
+        when {
+          // Omit documentation on the import if it's been applied to the imported value.
+          value is Declaration -> {
+            Import(
+              location = location,
+              value = value,
+            )
+          }
+          else -> {
+            Import(
+              documentation = documentation,
+              gate = gate,
+              location = location,
+              value = value,
+            )
+          }
+        }
+      },
+      {
+        source.skipWhitespace()
+        val usePath = source.readUsePath()
+        source.skipWhitespace()
+        source.readLiteral(';')
+        Import(
+          documentation = documentation,
+          gate = gate,
+          location = location,
+          value = ExternalUsePath(usePath = usePath),
+        )
+      },
+    )
+  }
 
-    source.skipWhitespace()
-    if (usePath.isNameOnly && source.tryReadLiteral(':')) {
-      TODO("extern-type")
-    } else {
-      source.readLiteral(';')
-    }
+  /**
+   * ```ebnf
+   * export-item ::= 'export' id ':' extern-type
+   *               | 'export' use-path ';'
+   * ```
+   */
+  private fun readExport(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Export {
+    return source.select(
+      {
+        source.skipWhitespace()
+        val identifier = source.readIdentifier()
+        source.skipWhitespace()
+        source.readLiteral(':')
+        val value = readExternalType(documentation, gate, location, identifier)
+        when {
+          // Omit documentation on the import if it's been applied to the exported value.
+          value is Declaration -> {
+            Export(
+              location = location,
+              value = value,
+            )
+          }
+          else -> {
+            Export(
+              documentation = documentation,
+              gate = gate,
+              location = location,
+              value = value,
+            )
+          }
+        }
+      },
+      {
+        source.skipWhitespace()
+        val usePath = source.readUsePath()
+        source.skipWhitespace()
+        source.readLiteral(';')
+        Export(
+          documentation = documentation,
+          gate = gate,
+          location = location,
+          value = ExternalUsePath(usePath = usePath),
+        )
+      },
+    )
+  }
 
-    return Import(
-      documentation = documentation,
-      gate = gate,
-      location = location,
-      value = Either.A(usePath),
+  /**
+   * ```ebnf
+   * extern-type ::= func-type ';'
+   *               | 'interface' '{' interface-items* '}'
+   *               | use-path ';'
+   * ```
+   */
+  private fun readExternalType(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+    identifier: Identifier,
+  ): ExternalType {
+    return source.select(
+      {
+        readFuncType(documentation, gate, location, identifier)
+      },
+      {
+        source.skipWhitespace()
+        source.readLiteral("interface")
+        val declarations = readInterfaceItems()
+        Interface(
+          documentation = documentation,
+          gate = gate,
+          location = location,
+          name = TypeName(identifier),
+          declarations = declarations,
+        )
+      },
+      {
+        source.skipWhitespace()
+        val usePath = source.readUsePath()
+        source.readLiteral(';')
+        ExternalUsePath(
+          plainName = identifier,
+          usePath = usePath,
+        )
+      },
     )
   }
 
@@ -810,6 +933,7 @@ object Keywords {
   val constructor = Identifier("constructor")
   val deprecated = Identifier("deprecated")
   val enum = Identifier("enum")
+  val export = Identifier("export")
   val feature = Identifier("feature")
   val flags = Identifier("flags")
   val func = Identifier("func")
