@@ -553,6 +553,9 @@ class WitReader private constructor(
       )
     }
 
+    source.skipWhitespace()
+    source.readLiteral(';')
+
     return Use(
       documentation = documentation,
       gate = gate,
@@ -645,21 +648,7 @@ class WitReader private constructor(
    * ```
    */
   private fun readParameterList(): List<Parameter> {
-    source.readLiteral('(')
-
-    val result = mutableListOf<Parameter>()
-    var first = true
-    while (true) {
-      source.skipWhitespace()
-      if (source.tryReadLiteral(')')) break
-
-      if (first) {
-        first = false
-      } else {
-        source.readLiteral(',')
-      }
-
-      source.skipWhitespace()
+    return source.readCommaSeparatedList(minSize = 0, '(', ')') {
       val location = source.location
       val parameterName = source.readIdentifier()
 
@@ -669,14 +658,12 @@ class WitReader private constructor(
       source.skipWhitespace()
       val parameterType = source.readTypeName()
 
-      result += Parameter(
+      Parameter(
         location = location,
         name = parameterName,
         type = parameterType,
       )
     }
-
-    return result
   }
 
   /**
