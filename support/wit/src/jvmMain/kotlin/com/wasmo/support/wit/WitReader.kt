@@ -40,6 +40,10 @@ class WitReader private constructor(
           declarations += readInterface(documentation, gate, location)
         }
 
+        Keywords.world -> {
+          declarations += readWorld(documentation, gate, location)
+        }
+
         else -> errorWit(location, "unexpected identifier: $identifier")
       }
     }
@@ -635,6 +639,105 @@ class WitReader private constructor(
 
   /**
    * ```ebnf
+   * world-item ::= gate 'world' id '{' world-items* '}'
+   * ```
+   */
+  internal fun readWorld(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): World {
+    source.skipWhitespace()
+    val name = source.readIdentifier()
+
+    source.skipWhitespace()
+    source.readLiteral('{')
+
+    val declarations = mutableListOf<Declaration>()
+
+    while (true) {
+      source.skipWhitespace()
+      if (source.tryReadLiteral('}')) break
+
+      declarations += readWorldItem()
+    }
+
+    return World(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      name = TypeName(name),
+      declarations = declarations,
+    )
+  }
+
+  /**
+   * ```ebnf
+   * world-items ::= gate world-definition
+   *
+   * world-definition ::= export-item
+   *                    | import-item
+   *                    | use-item
+   *                    | typedef-item
+   *                    | include-item
+   *
+   * export-item ::= 'export' id ':' extern-type
+   *               | 'export' use-path ';'
+   * ```
+   */
+  internal fun readWorldItem(): Declaration {
+    val gate = readGateOrNull()
+    val documentation = source.takeDocumentation()
+    val location = source.location
+
+    return when (val identifier = source.readIdentifier()) {
+      Keywords.enum -> readEnum(documentation, gate, location)
+      Keywords.flags -> readFlags(documentation, gate, location)
+      Keywords.import -> readImport(documentation, gate, location)
+      Keywords.record -> readRecord(documentation, gate, location)
+      Keywords.resource -> readResource(documentation, gate, location)
+      Keywords.type -> readTypeAlias(documentation, gate, location)
+      Keywords.use -> readUse(documentation, gate, location)
+      Keywords.variant -> readVariant(documentation, gate, location)
+      else -> errorWit(location, "unexpected identifier: $identifier")
+    }
+  }
+
+  /**
+   * ```ebnf
+   * import-item ::= 'import' id ':' extern-type
+   *               | 'import' use-path ';'
+   *
+   * extern-type ::= func-type ';'
+   *               | 'interface' '{' interface-items* '}'
+   *               | use-path ';'
+   * ```
+   */
+  private fun readImport(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Import {
+    source.skipWhitespace()
+    val usePath = source.readUsePath()
+
+    source.skipWhitespace()
+    if (usePath.isNameOnly && source.tryReadLiteral(':')) {
+      TODO("extern-type")
+    } else {
+      source.readLiteral(';')
+    }
+
+    return Import(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      value = Either.A(usePath),
+    )
+  }
+
+  /**
+   * ```ebnf
    * gate ::= gate-item*
    * gate-item ::= unstable-gate
    *             | since-gate
@@ -711,6 +814,7 @@ object Keywords {
   val flags = Identifier("flags")
   val func = Identifier("func")
   val future = Identifier("future")
+  val import = Identifier("import")
   val list = Identifier("list")
   val map = Identifier("map")
   val option = Identifier("option")
@@ -726,4 +830,5 @@ object Keywords {
   val use = Identifier("use")
   val variant = Identifier("variant")
   val version = Identifier("version")
+  val world = Identifier("world")
 }

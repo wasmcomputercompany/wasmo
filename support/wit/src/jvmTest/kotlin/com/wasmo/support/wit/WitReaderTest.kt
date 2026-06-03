@@ -780,4 +780,58 @@ class WitReaderTest {
       ),
     )
   }
+
+  @Test
+  fun `world documentation and gates`() {
+    val wit = """
+      |/// a printer-scanner-fax thingy
+      |@since(version = 1.0)
+      |world multi-function-device {
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            documentation = Documentation(" a printer-scanner-fax thingy"),
+            gate = Gate(since = "1.0"),
+            location = Location(3, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `import documentation and gates`() {
+    val wit = """
+      |world multi-function-device {
+      |  /// The component needs an `error-reporter`
+      |  @since(version = 1.0)
+      |  import error-reporter;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Import(
+                documentation = Documentation(" The component needs an `error-reporter`"),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                value = Either.A(UsePath(name = Identifier("error-reporter"))),
+              )
+            ),
+          ),
+        ),
+      ),
+    )
+  }
 }
