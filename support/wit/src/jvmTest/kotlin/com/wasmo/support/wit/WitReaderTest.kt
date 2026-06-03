@@ -22,6 +22,32 @@ class WitReaderTest {
   }
 
   @Test
+  fun `multiple packages`() {
+    val wit = """
+      |package wasi:clocks@0.2.9;
+      |package wasi:clocks;
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    val e = assertFailsWith<WitException> {
+      witReader.read()
+    }
+    assertThat(e.issue).isEqualTo("unexpected package identifier")
+  }
+
+  @Test
+  fun `package after another declaration`() {
+    val wit = """
+      |interface foo {}
+      |package wasi:clocks;
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    val e = assertFailsWith<WitException> {
+      witReader.read()
+    }
+    assertThat(e.issue).isEqualTo("unexpected package identifier")
+  }
+
+  @Test
   fun `readGate success`() {
     val wit = """
       |@since(version = 0.2.0)
@@ -829,7 +855,7 @@ class WitReaderTest {
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
                 value = ExternalUsePath(
-                  usePath = UsePath(name = Identifier("error-reporter")),
+                  path = UsePath(name = Identifier("error-reporter")),
                 ),
               ),
               Export(
@@ -837,7 +863,7 @@ class WitReaderTest {
                 gate = Gate(since = "2.0"),
                 location = Location(7, 3),
                 value = ExternalUsePath(
-                  usePath = UsePath(name = Identifier("error-creator")),
+                  path = UsePath(name = Identifier("error-creator")),
                 ),
               ),
             ),
@@ -870,7 +896,7 @@ class WitReaderTest {
                 location = Location(4, 3),
                 value = ExternalUsePath(
                   plainName = Identifier("primary"),
-                  usePath = UsePath(
+                  path = UsePath(
                     namespaces = listOf(Identifier("wasi")),
                     packageNames = listOf(Identifier("keyvalue")),
                     name = Identifier("store"),
@@ -907,7 +933,7 @@ class WitReaderTest {
                 location = Location(4, 3),
                 value = ExternalUsePath(
                   plainName = Identifier("secondary"),
-                  usePath = UsePath(
+                  path = UsePath(
                     namespaces = listOf(Identifier("wasi")),
                     packageNames = listOf(Identifier("keyvalue")),
                     name = Identifier("store"),
@@ -1124,7 +1150,7 @@ class WitReaderTest {
                 location = Location(2, 3),
                 value = ExternalUsePath(
                   plainName = Identifier("two"),
-                  usePath = UsePath(name = Identifier("store")),
+                  path = UsePath(name = Identifier("store")),
                 ),
               ),
             ),
@@ -1153,7 +1179,189 @@ class WitReaderTest {
                 location = Location(2, 3),
                 value = ExternalUsePath(
                   plainName = Identifier("two"),
-                  usePath = UsePath(name = Identifier("store")),
+                  path = UsePath(name = Identifier("store")),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `world include documentation and gates`() {
+    val wit = """
+      |world multi-function-device {
+      |  /// This include is pretty basic.
+      |  @since(version = 1.0)
+      |  include my-world-2;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Include(
+                documentation = Documentation(" This include is pretty basic."),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                path = UsePath(name = Identifier("my-world-2")),
+                items = listOf(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `world include with items`() {
+    val wit = """
+      |world multi-function-device {
+      |  include wasi:io/my-world-1 with { a as a1, b as b1 };
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Include(
+                location = Location(2, 3),
+                path = UsePath(
+                  namespaces = listOf(Identifier("wasi")),
+                  packageNames = listOf(Identifier("io")),
+                  name = Identifier("my-world-1"),
+                ),
+                items = listOf(
+                  Include.Item(
+                    name = Identifier("a"),
+                    alias = Identifier("a1"),
+                  ),
+                  Include.Item(
+                    name = Identifier("b"),
+                    alias = Identifier("b1"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `inline package documentation and gates`() {
+    val wit = """
+      |/// This package is pasted from somewhere else.
+      |@since(version = 1.0)
+      |package local:a {
+      |  /// This interface is included in a package.
+      |  @since(version = 2.0)
+      |  interface foo {}
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Package(
+            documentation = Documentation(" This package is pasted from somewhere else."),
+            gate = Gate(since = "1.0"),
+            location = Location(3, 1),
+            name = PackageName("local", "a"),
+            declarations = listOf(
+              Interface(
+                documentation = Documentation(" This interface is included in a package."),
+                gate = Gate(since = "2.0"),
+                location = Location(6, 3),
+                name = TypeName("foo"),
+                declarations = listOf(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `top level use documentation and gates`() {
+    val wit = """
+      |/// Use the Wasi HTTP types.
+      |@since(version = 1.0)
+      |use wasi:http/types@1.0.0;
+      |/// Use the Wasi HTTP handler also.
+      |@since(version = 2.0)
+      |use wasi:http/handler as http-handler;
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          TopLevelUse(
+            documentation = Documentation(" Use the Wasi HTTP types."),
+            gate = Gate(since = "1.0"),
+            location = Location(3, 1),
+            path = UsePath(
+              namespaces = listOf(Identifier("wasi")),
+              packageNames = listOf(Identifier("http")),
+              name = Identifier("types"),
+              version = SemVer("1.0.0"),
+            ),
+          ),
+          TopLevelUse(
+            documentation = Documentation(" Use the Wasi HTTP handler also."),
+            gate = Gate(since = "2.0"),
+            location = Location(6, 1),
+            path = UsePath(
+              namespaces = listOf(Identifier("wasi")),
+              packageNames = listOf(Identifier("http")),
+              name = Identifier("handler"),
+            ),
+            alias = Identifier("http-handler"),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `top level use in nested package`() {
+    val wit = """
+      |package local:a {
+      |  /// Use the Wasi HTTP types.
+      |  @since(version = 1.0)
+      |  use wasi:http/types@1.0.0;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Package(
+            location = Location(1, 1),
+            name = PackageName("local", "a"),
+            declarations = listOf(
+              TopLevelUse(
+                documentation = Documentation(" Use the Wasi HTTP types."),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                path = UsePath(
+                  namespaces = listOf(Identifier("wasi")),
+                  packageNames = listOf(Identifier("http")),
+                  name = Identifier("types"),
+                  version = SemVer("1.0.0"),
                 ),
               ),
             ),

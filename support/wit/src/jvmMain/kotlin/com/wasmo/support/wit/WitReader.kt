@@ -17,8 +17,7 @@ class WitReader private constructor(
   fun read(): WitFile {
     val declarations = mutableListOf<Declaration>()
 
-    var packageDocumentation: Documentation? = null
-    var packageName: PackageName? = null
+    var packageIdentifier: Package? = null
 
     while (true) {
       source.skipWhitespace()
@@ -29,15 +28,28 @@ class WitReader private constructor(
       val location = source.location
 
       when (val identifier = source.readIdentifier()) {
-        Keywords.`package` if (packageName == null) -> {
-          source.skipWhitespace()
-          packageDocumentation = documentation
-          packageName = source.readPackageName()
-          source.readLiteral(';')
+        Keywords.`package` -> {
+          val (value, kind) = readPackage(documentation, gate, location)
+          when (kind) {
+            PackageKind.Identifier -> {
+              checkWit(location, packageIdentifier == null && declarations.isEmpty()) {
+                "unexpected package identifier"
+              }
+              packageIdentifier = value
+            }
+
+            PackageKind.Nested -> {
+              declarations += value
+            }
+          }
         }
 
         Keywords.`interface` -> {
           declarations += readInterface(documentation, gate, location)
+        }
+
+        Keywords.use -> {
+          declarations += readTopLevelUse(documentation, gate, location)
         }
 
         Keywords.world -> {
@@ -49,10 +61,72 @@ class WitReader private constructor(
     }
 
     return WitFile(
-      packageDocumentation = packageDocumentation,
-      packageName = packageName,
+      packageDocumentation = packageIdentifier?.documentation,
+      packageName = packageIdentifier?.name,
       declarations = declarations,
     )
+  }
+
+  /**
+   * Reads either a package identifier or a nested package.
+   *
+   * ```ebnf
+   * nested-package-definition ::= package-decl '{' package-items* '}'
+   * package-items ::= toplevel-use-item | interface-item | world-item
+   * ```
+   */
+  private fun readPackage(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Pair<Package, PackageKind> {
+    source.skipWhitespace()
+    val name = source.readPackageName()
+    val declarations = mutableListOf<Declaration>()
+
+    source.skipWhitespace()
+    val packageKind = when {
+      source.tryReadLiteral('{') -> {
+        while (true) {
+          source.skipWhitespace()
+          if (source.tryReadLiteral('}')) break
+
+          val nestedGate = readGateOrNull()
+          val nestedDocumentation = source.takeDocumentation()
+          val nestedLocation = source.location
+
+          declarations += when (val identifier = source.readIdentifier()) {
+            Keywords.`interface` -> readInterface(nestedDocumentation, nestedGate, nestedLocation)
+            Keywords.use -> readTopLevelUse(nestedDocumentation, nestedGate, nestedLocation)
+            Keywords.world -> readWorld(nestedDocumentation, nestedGate, nestedLocation)
+            else -> errorWit(nestedLocation, "unexpected identifier: $identifier")
+          }
+        }
+
+        PackageKind.Nested
+      }
+
+      else -> {
+        source.readLiteral(';')
+        PackageKind.Identifier
+      }
+    }
+
+    return Package(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      name = name,
+      declarations = declarations,
+    ) to packageKind
+  }
+
+  private enum class PackageKind {
+    /** The package of the top of a .wit document. This must not have '{' curly braces '}'. */
+    Identifier,
+
+    /** A nested package. This must have '{' curly braces '}'. */
+    Nested
   }
 
   /**
@@ -67,9 +141,7 @@ class WitReader private constructor(
   ): Interface {
     source.skipWhitespace()
     val name = source.readIdentifier()
-
     val declarations = readInterfaceItems()
-
     return Interface(
       documentation = documentation,
       gate = gate,
@@ -144,13 +216,7 @@ class WitReader private constructor(
     source.skipWhitespace()
     val name = source.readIdentifier()
 
-    val fields = mutableListOf<Field>()
-
-    source.skipWhitespace()
-    source.readLiteral('{')
-
-    source.skipWhitespace()
-    while (true) {
+    val fields = source.readCommaSeparatedList {
       val fieldGate = readGateOrNull()
       val fieldDocumentation = source.takeDocumentation()
       val fieldLocation = source.location
@@ -162,23 +228,13 @@ class WitReader private constructor(
       source.skipWhitespace()
       val fieldType = source.readTypeName()
 
-      fields += Field(
+      Field(
         documentation = fieldDocumentation,
         gate = fieldGate,
         location = fieldLocation,
         name = fieldName,
         type = fieldType,
       )
-
-      source.skipWhitespace()
-      if (source.tryReadLiteral(',')) {
-        source.skipWhitespace()
-        if (source.tryReadLiteral('}')) break // Trailing comma.
-        continue
-      }
-
-      source.readLiteral('}')
-      break
     }
 
     return Record(
@@ -209,13 +265,7 @@ class WitReader private constructor(
     source.skipWhitespace()
     val name = source.readIdentifier()
 
-    val cases = mutableListOf<Case>()
-
-    source.skipWhitespace()
-    source.readLiteral('{')
-
-    source.skipWhitespace()
-    while (true) {
+    val cases = source.readCommaSeparatedList {
       val caseGate = readGateOrNull()
       val caseDocumentation = source.takeDocumentation()
       val caseLocation = source.location
@@ -235,23 +285,13 @@ class WitReader private constructor(
         else -> null
       }
 
-      cases += Case(
+      Case(
         documentation = caseDocumentation,
         gate = caseGate,
         location = caseLocation,
         name = caseName,
         type = typeName,
       )
-
-      source.skipWhitespace()
-      if (source.tryReadLiteral(',')) {
-        source.skipWhitespace()
-        if (source.tryReadLiteral('}')) break // Trailing comma.
-        continue
-      }
-
-      source.readLiteral('}')
-      break
     }
 
     return Variant(
@@ -345,34 +385,18 @@ class WitReader private constructor(
     source.skipWhitespace()
     val name = source.readIdentifier()
 
-    val flags = mutableListOf<Flag>()
-
-    source.skipWhitespace()
-    source.readLiteral('{')
-
-    source.skipWhitespace()
-    while (true) {
+    val flags = source.readCommaSeparatedList {
       val flagGate = readGateOrNull()
       val flagDocumentation = source.takeDocumentation()
       val flagLocation = source.location
       val flagName = source.readIdentifier()
 
-      flags += Flag(
+      Flag(
         documentation = flagDocumentation,
         gate = flagGate,
         location = flagLocation,
         name = flagName,
       )
-
-      source.skipWhitespace()
-      if (source.tryReadLiteral(',')) {
-        source.skipWhitespace()
-        if (source.tryReadLiteral('}')) break // Trailing comma.
-        continue
-      }
-
-      source.readLiteral('}')
-      break
     }
 
     return Flags(
@@ -400,34 +424,18 @@ class WitReader private constructor(
     source.skipWhitespace()
     val name = source.readIdentifier()
 
-    val cases = mutableListOf<Case>()
-
-    source.skipWhitespace()
-    source.readLiteral('{')
-
-    source.skipWhitespace()
-    while (true) {
+    val cases = source.readCommaSeparatedList {
       val caseGate = readGateOrNull()
       val caseDocumentation = source.takeDocumentation()
       val caseLocation = source.location
       val caseName = source.readIdentifier()
 
-      cases += Case(
+      Case(
         documentation = caseDocumentation,
         gate = caseGate,
         location = caseLocation,
         name = caseName,
       )
-
-      source.skipWhitespace()
-      if (source.tryReadLiteral(',')) {
-        source.skipWhitespace()
-        if (source.tryReadLiteral('}')) break // Trailing comma.
-        continue
-      }
-
-      source.readLiteral('}')
-      break
     }
 
     return Enum(
@@ -472,6 +480,40 @@ class WitReader private constructor(
 
   /**
    * ```ebnf
+   * toplevel-use-item ::= 'use' use-path ('as' id)? ';'
+   * ```
+   */
+  private fun readTopLevelUse(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): TopLevelUse {
+    source.skipWhitespace()
+    val path = source.readUsePath()
+
+    source.skipWhitespace()
+    val alias = when {
+      source.tryReadLiteral("as") -> {
+        source.skipWhitespace()
+        source.readIdentifier()
+      }
+      else -> null
+    }
+
+    source.skipWhitespace()
+    source.readLiteral(';')
+
+    return TopLevelUse(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      path = path,
+      alias = alias,
+    )
+  }
+
+  /**
+   * ```ebnf
    * use-item ::= 'use' use-path '.' '{' use-names-list '}' ';'
    *
    * use-names-list ::= use-names-item
@@ -491,13 +533,8 @@ class WitReader private constructor(
 
     source.skipWhitespace()
     source.readLiteral('.')
-    source.skipWhitespace()
-    source.readLiteral('{')
 
-    val items = mutableListOf<Use.Item>()
-
-    source.skipWhitespace()
-    while (true) {
+    val items = source.readCommaSeparatedList {
       val itemName = source.readIdentifier()
 
       source.skipWhitespace()
@@ -510,20 +547,10 @@ class WitReader private constructor(
         else -> null
       }
 
-      items += Use.Item(
+      Use.Item(
         name = itemName,
         alias = alias,
       )
-
-      source.skipWhitespace()
-      if (source.tryReadLiteral(',')) {
-        source.skipWhitespace()
-        if (source.tryReadLiteral('}')) break // Trailing comma.
-        continue
-      }
-
-      source.readLiteral('}')
-      break
     }
 
     return Use(
@@ -707,6 +734,7 @@ class WitReader private constructor(
       Keywords.export -> readExport(documentation, gate, location)
       Keywords.flags -> readFlags(documentation, gate, location)
       Keywords.import -> readImport(documentation, gate, location)
+      Keywords.include -> readInclude(documentation, gate, location)
       Keywords.record -> readRecord(documentation, gate, location)
       Keywords.resource -> readResource(documentation, gate, location)
       Keywords.type -> readTypeAlias(documentation, gate, location)
@@ -742,6 +770,7 @@ class WitReader private constructor(
               value = value,
             )
           }
+
           else -> {
             Import(
               documentation = documentation,
@@ -761,7 +790,7 @@ class WitReader private constructor(
           documentation = documentation,
           gate = gate,
           location = location,
-          value = ExternalUsePath(usePath = usePath),
+          value = ExternalUsePath(path = usePath),
         )
       },
     )
@@ -793,6 +822,7 @@ class WitReader private constructor(
               value = value,
             )
           }
+
           else -> {
             Export(
               documentation = documentation,
@@ -812,7 +842,7 @@ class WitReader private constructor(
           documentation = documentation,
           gate = gate,
           location = location,
-          value = ExternalUsePath(usePath = usePath),
+          value = ExternalUsePath(path = usePath),
         )
       },
     )
@@ -853,9 +883,63 @@ class WitReader private constructor(
         source.readLiteral(';')
         ExternalUsePath(
           plainName = identifier,
-          usePath = usePath,
+          path = usePath,
         )
       },
+    )
+  }
+
+  /**
+   * ```ebnf
+   * include-item ::= 'include' use-path ';'
+   *                | 'include' use-path 'with' '{' include-names-list '}'
+   *
+   * include-names-list ::= include-names-item
+   *                      | include-names-list ',' include-names-item
+   *
+   * include-names-item ::= id 'as' id
+   * ```
+   */
+  private fun readInclude(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Include {
+    source.skipWhitespace()
+    val usePath = source.readUsePath()
+
+    source.skipWhitespace()
+    val items = when {
+      source.tryReadLiteral("with") -> {
+        source.readCommaSeparatedList {
+          source.skipWhitespace()
+          val name = source.readIdentifier()
+
+          source.skipWhitespace()
+          source.readLiteral("as")
+
+          source.skipWhitespace()
+          val alias = source.readIdentifier()
+
+          Include.Item(
+            name = name,
+            alias = alias,
+          )
+        }
+      }
+
+      else -> listOf()
+    }
+
+    source.skipWhitespace()
+    source.readLiteral(';')
+
+    return Include(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      path = usePath,
+      items = items,
     )
   }
 
@@ -939,6 +1023,7 @@ object Keywords {
   val func = Identifier("func")
   val future = Identifier("future")
   val import = Identifier("import")
+  val include = Identifier("include")
   val list = Identifier("list")
   val map = Identifier("map")
   val option = Identifier("option")

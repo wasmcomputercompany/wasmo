@@ -432,6 +432,33 @@ internal class WitStructureReader(
     }
   }
 
+  /**
+   * Reads a list of 1 or more items, wrapped in '{' curly braces '}' and separated by commas.
+   * Trailing commas are okay.
+   */
+  fun <T> readCommaSeparatedList(readItem: () -> T): List<T> {
+    val result = mutableListOf<T>()
+
+    skipWhitespace()
+    readLiteral('{')
+    skipWhitespace()
+    while (true) {
+      result += readItem()
+
+      skipWhitespace()
+      if (tryReadLiteral(',')) {
+        skipWhitespace()
+        if (tryReadLiteral('}')) break // Trailing comma.
+        continue
+      }
+
+      readLiteral('}')
+      break
+    }
+
+    return result
+  }
+
   internal inline fun checkWit(value: Boolean, message: () -> String) {
     checkWit(location, value, message)
   }
