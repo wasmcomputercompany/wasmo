@@ -829,7 +829,7 @@ class WitReaderTest {
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
                 value = ExternalUsePath(
-                  usePath = UsePath(name = Identifier("error-reporter")),
+                  path = UsePath(name = Identifier("error-reporter")),
                 ),
               ),
               Export(
@@ -837,7 +837,7 @@ class WitReaderTest {
                 gate = Gate(since = "2.0"),
                 location = Location(7, 3),
                 value = ExternalUsePath(
-                  usePath = UsePath(name = Identifier("error-creator")),
+                  path = UsePath(name = Identifier("error-creator")),
                 ),
               ),
             ),
@@ -870,7 +870,7 @@ class WitReaderTest {
                 location = Location(4, 3),
                 value = ExternalUsePath(
                   plainName = Identifier("primary"),
-                  usePath = UsePath(
+                  path = UsePath(
                     namespaces = listOf(Identifier("wasi")),
                     packageNames = listOf(Identifier("keyvalue")),
                     name = Identifier("store"),
@@ -907,7 +907,7 @@ class WitReaderTest {
                 location = Location(4, 3),
                 value = ExternalUsePath(
                   plainName = Identifier("secondary"),
-                  usePath = UsePath(
+                  path = UsePath(
                     namespaces = listOf(Identifier("wasi")),
                     packageNames = listOf(Identifier("keyvalue")),
                     name = Identifier("store"),
@@ -1124,7 +1124,7 @@ class WitReaderTest {
                 location = Location(2, 3),
                 value = ExternalUsePath(
                   plainName = Identifier("two"),
-                  usePath = UsePath(name = Identifier("store")),
+                  path = UsePath(name = Identifier("store")),
                 ),
               ),
             ),
@@ -1153,7 +1153,78 @@ class WitReaderTest {
                 location = Location(2, 3),
                 value = ExternalUsePath(
                   plainName = Identifier("two"),
-                  usePath = UsePath(name = Identifier("store")),
+                  path = UsePath(name = Identifier("store")),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `world include documentation and gates`() {
+    val wit = """
+      |world multi-function-device {
+      |  /// This include is pretty basic.
+      |  @since(version = 1.0)
+      |  include my-world-2;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Include(
+                documentation = Documentation(" This include is pretty basic."),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                path = UsePath(name = Identifier("my-world-2")),
+                items = listOf(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `world include with items`() {
+    val wit = """
+      |world multi-function-device {
+      |  include wasi:io/my-world-1 with { a as a1, b as b1 };
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          World(
+            location = Location(1, 1),
+            name = TypeName("multi-function-device"),
+            declarations = listOf(
+              Include(
+                location = Location(2, 3),
+                path = UsePath(
+                  namespaces = listOf(Identifier("wasi")),
+                  packageNames = listOf(Identifier("io")),
+                  name = Identifier("my-world-1"),
+                ),
+                items = listOf(
+                  Include.Item(
+                    name = Identifier("a"),
+                    alias = Identifier("a1"),
+                  ),
+                  Include.Item(
+                    name = Identifier("b"),
+                    alias = Identifier("b1"),
+                  ),
                 ),
               ),
             ),

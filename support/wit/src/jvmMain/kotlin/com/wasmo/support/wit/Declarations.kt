@@ -11,7 +11,7 @@ sealed interface ExternalType
 
 data class ExternalUsePath(
   val plainName: Identifier? = null,
-  val usePath: UsePath,
+  val path: UsePath,
 ) : ExternalType
 
 @JvmInline
@@ -240,3 +240,16 @@ data class Export(
   override val location: Location,
   val value: ExternalType,
 ) : Declaration
+
+data class Include(
+  override val documentation: Documentation? = null,
+  override val gate: Gate? = null,
+  override val location: Location,
+  val path: UsePath,
+  val items: List<Item>,
+) : Declaration {
+  data class Item(
+    val name: Identifier,
+    val alias: Identifier,
+  )
+}
