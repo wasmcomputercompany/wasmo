@@ -1,7 +1,6 @@
 package com.wasmo.support.wit
 
 import assertk.assertThat
-import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
@@ -293,35 +292,44 @@ class WitStructureReaderTest {
 
   @Test
   fun `readIdentifier success`() {
-    val reader = WitStructureReader(
-      """
-      |a abc def-ghi-xyz DEF-GHI-XYZ abc1234-ABC1234
-      """.trimMargin(),
-    )
-    assertThat(reader.readIdentifier()).isEqualTo(Identifier("a"))
-    reader.skipWhitespace()
-    assertThat(reader.readIdentifier()).isEqualTo(Identifier("abc"))
-    reader.skipWhitespace()
-    assertThat(reader.readIdentifier()).isEqualTo(Identifier("def-ghi-xyz"))
-    reader.skipWhitespace()
-    assertThat(reader.readIdentifier()).isEqualTo(Identifier("DEF-GHI-XYZ"))
-    reader.skipWhitespace()
-    assertThat(reader.readIdentifier()).isEqualTo(Identifier("abc1234-ABC1234"))
+    assertThat("a".parseIdentifier()).isEqualTo(Identifier("a"))
+    assertThat("a ".parseIdentifier()).isEqualTo(Identifier("a"))
+    assertThat("a,".parseIdentifier()).isEqualTo(Identifier("a"))
+    assertThat("a)".parseIdentifier()).isEqualTo(Identifier("a"))
+    assertThat("a}".parseIdentifier()).isEqualTo(Identifier("a"))
+    assertThat("a:".parseIdentifier()).isEqualTo(Identifier("a"))
+    assertThat("abc".parseIdentifier()).isEqualTo(Identifier("abc"))
+    assertThat("abc ".parseIdentifier()).isEqualTo(Identifier("abc"))
+    assertThat("def-ghi-xyz ".parseIdentifier()).isEqualTo(Identifier("def-ghi-xyz"))
+    assertThat("DEF-GHI-XYZ ".parseIdentifier()).isEqualTo(Identifier("DEF-GHI-XYZ"))
+    assertThat("abc1234-ABC1234 ".parseIdentifier()).isEqualTo(Identifier("abc1234-ABC1234"))
+    assertThat("%a".parseIdentifier()).isEqualTo(Identifier("%a"))
+    assertThat("%abc".parseIdentifier()).isEqualTo(Identifier("%abc"))
+    assertThat("%abc%d".parseIdentifier()).isEqualTo(Identifier("%abc"))
   }
 
   @Test
   fun `readIdentifier crash`() {
     assertFailsWith<WitException> {
-      WitStructureReader(" ").readIdentifier()
+      " ".parseIdentifier()
     }
     assertFailsWith<WitException> {
-      WitStructureReader("_").readIdentifier()
+      "_".parseIdentifier()
     }
     assertFailsWith<WitException> {
-      WitStructureReader("()").readIdentifier()
+      "()".parseIdentifier()
     }
     assertFailsWith<WitException> {
-      WitStructureReader("").readIdentifier()
+      "".parseIdentifier()
+    }
+    assertFailsWith<WitException> {
+      "%%".parseIdentifier()
+    }
+    assertFailsWith<WitException> {
+      "%".parseIdentifier()
+    }
+    assertFailsWith<WitException> {
+      "% ".parseIdentifier()
     }
   }
 
@@ -389,7 +397,7 @@ class WitStructureReaderTest {
     val e = assertFailsWith<WitException> {
       "a:".parsePackageName()
     }
-    assertThat(e.issue).isEqualTo("expected a word character")
+    assertThat(e.issue).isEqualTo("expected an identifier")
   }
 
   @Test
@@ -397,7 +405,7 @@ class WitStructureReaderTest {
     val e = assertFailsWith<WitException> {
       ":".parsePackageName()
     }
-    assertThat(e.issue).isEqualTo("expected a word character")
+    assertThat(e.issue).isEqualTo("expected an identifier")
   }
 
   @Test
@@ -584,6 +592,9 @@ class WitStructureReaderTest {
       "borrow<string, string>".parseTypeName()
     }
   }
+
+  private fun String.parseIdentifier(): Identifier =
+    WitStructureReader(this).readIdentifier()
 
   private fun String.parsePackageName(): PackageName =
     WitStructureReader(this).readPackageName()

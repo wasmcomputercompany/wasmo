@@ -385,6 +385,42 @@ class WitReaderTest {
   }
 
   @Test
+  fun `function parameters trailing commas`() {
+    val wit = """
+      |interface monotonic-clock {
+      |  subscribe-instant: func(
+      |    when: instant,
+      |  ) -> pollable;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("monotonic-clock"),
+            declarations = listOf(
+              Function(
+                location = Location(2, 3),
+                name = Identifier("subscribe-instant"),
+                parameters = listOf(
+                  Parameter(
+                    location = Location(3, 5),
+                    name = "when",
+                    type = "instant",
+                  ),
+                ),
+                returnType = TypeName("pollable"),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
   fun `resource documentation and gates`() {
     val wit = """
       |interface db {
@@ -756,10 +792,10 @@ class WitReaderTest {
       |interface db {
       |  /// Four values.
       |  @since(version = 1.0)
-      |  use an-interface.{a, list, of, names}
+      |  use an-interface.{a, list, of, names};
       |  /// One aliased value.
       |  @since(version = 2.0)
-      |  use my:dependency/the-interface@3.0.{more, names as foo}
+      |  use my:dependency/the-interface@3.0.{more, names as foo};
       |}
       """.trimMargin()
     val witReader = WitReader(wit)

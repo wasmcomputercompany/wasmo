@@ -5,10 +5,7 @@ data class UsePath(
   val packageNames: List<Identifier> = listOf(),
   val name: Identifier,
   val version: SemVer? = null,
-) {
-  val isNameOnly: Boolean
-    get() = namespaces.isEmpty() && packageNames.isEmpty() && version == null
-}
+)
 
 @JvmInline
 value class Identifier(

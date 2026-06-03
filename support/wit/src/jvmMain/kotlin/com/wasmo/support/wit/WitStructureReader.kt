@@ -77,8 +77,26 @@ internal class WitStructureReader(
     documentation.appendRange(chars, startIndex, endIndex)
   }
 
-  fun readIdentifier(): Identifier =
-    Identifier(readToken("word", Char::isWordCharacter))
+  fun readIdentifier(): Identifier {
+    checkWit(!exhausted) {
+      "expected an identifier"
+    }
+
+    val wordStart = when (chars[pos]) {
+      '%' -> pos + 1
+      else -> pos
+    }
+
+    val end = chars.indexOfNextNonMatch(wordStart, Char::isWordCharacter)
+    checkWit(wordStart < end) {
+      "expected an identifier"
+    }
+
+    val result = String(chars, pos, end - pos)
+    pos = end
+
+    return Identifier(result)
+  }
 
   fun readSemVer(): SemVer {
     var end = chars.indexOfNextNonMatch(pos, Char::isSemverCharacter)
@@ -433,27 +451,30 @@ internal class WitStructureReader(
   }
 
   /**
-   * Reads a list of 1 or more items, wrapped in '{' curly braces '}' and separated by commas.
-   * Trailing commas are okay.
+   * Reads a list of [minSize] or more items, wrapped in braces and separated by commas. Trailing
+   * commas are okay.
    */
-  fun <T> readCommaSeparatedList(readItem: () -> T): List<T> {
+  fun <T> readCommaSeparatedList(
+    minSize: Int = 1,
+    open: Char = '{',
+    close: Char = '}',
+    readItem: () -> T
+  ): List<T> {
     val result = mutableListOf<T>()
 
     skipWhitespace()
-    readLiteral('{')
+    readLiteral(open)
     skipWhitespace()
-    while (true) {
+    while (result.size < minSize || !tryReadLiteral(close)) {
       result += readItem()
 
       skipWhitespace()
-      if (tryReadLiteral(',')) {
-        skipWhitespace()
-        if (tryReadLiteral('}')) break // Trailing comma.
-        continue
+      if (!tryReadLiteral(',')) {
+        readLiteral(close)
+        break
       }
 
-      readLiteral('}')
-      break
+      skipWhitespace()
     }
 
     return result
