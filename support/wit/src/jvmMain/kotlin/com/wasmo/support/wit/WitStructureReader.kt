@@ -43,8 +43,21 @@ internal class WitStructureReader(
   fun readIdentifier(): Identifier =
     Identifier(readToken("word", Char::isWordCharacter))
 
-  fun readSemVer(): SemVer =
-    SemVer(readToken("semver", Char::isSemverCharacter))
+  fun readSemVer(): SemVer {
+    var end = chars.indexOfNextNonMatch(pos, Char::isSemverCharacter)
+
+    // Backtrack trailing '.' characters, if any.
+    for (i in end - 1 downTo pos) {
+      if (chars[i] != '.') break
+      end--
+    }
+    checkWit(pos < end) {
+      "expected a semver character"
+    }
+    val result = String(chars, pos, end - pos)
+    pos = end
+    return SemVer(result)
+  }
 
   fun readUint(): UInt {
     val string = readToken("semver", Char::isDigit)
@@ -265,6 +278,50 @@ internal class WitStructureReader(
     return PackageName(
       namespaces = namespaces,
       names = names,
+      version = version,
+    )
+  }
+
+  /**
+   * ```ebnf
+   * use-path ::= id
+   *            | id ':' id '/' id ('@' valid-semver)?
+   *            | ( id ':' )+ id ( '/' id )+ ('@' valid-semver)?
+   * ```
+   */
+  fun readUsePath(): UsePath {
+    val namespaces = mutableListOf<Identifier>()
+    val packageNames = mutableListOf<Identifier>()
+
+    var identifier = readIdentifier()
+    while (peek() == ':') {
+      pos++ // Consume ':'.
+      namespaces += identifier
+      identifier = readIdentifier()
+    }
+    while (peek() == '/') {
+      pos++ // Consume '/'.
+      packageNames += identifier
+      identifier = readIdentifier()
+    }
+
+    checkWit(location, namespaces.isEmpty() == packageNames.isEmpty()) {
+      "must have a namespace and a package name, or neither"
+    }
+
+    val version = when {
+      namespaces.isNotEmpty() && peek() == '@' -> {
+        pos++ // Consume '@'.
+        readSemVer()
+      }
+
+      else -> null
+    }
+
+    return UsePath(
+      namespaces = namespaces,
+      packageNames = packageNames,
+      name = identifier,
       version = version,
     )
   }

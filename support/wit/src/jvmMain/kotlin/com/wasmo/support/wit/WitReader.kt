@@ -106,11 +106,15 @@ class WitReader private constructor(
     val documentation = source.takeDocumentation()
     val location = source.location
 
-    when (val identifier = source.readIdentifier()) {
-      Keywords.record -> return readRecord(documentation, gate, location)
-      Keywords.resource -> return readResource(documentation, gate, location)
-      Keywords.variant -> return readVariant(documentation, gate, location)
-      else -> return readFunction(documentation, gate, location, identifier)
+    return when (val identifier = source.readIdentifier()) {
+      Keywords.enum -> readEnum(documentation, gate, location)
+      Keywords.flags -> readFlags(documentation, gate, location)
+      Keywords.record -> readRecord(documentation, gate, location)
+      Keywords.resource -> readResource(documentation, gate, location)
+      Keywords.variant -> readVariant(documentation, gate, location)
+      Keywords.type -> readTypeAlias(documentation, gate, location)
+      Keywords.use -> readUse(documentation, gate, location)
+      else -> readFunction(documentation, gate, location, identifier)
     }
   }
 
@@ -219,6 +223,7 @@ class WitReader private constructor(
             }
 
         }
+
         else -> null
       }
 
@@ -313,6 +318,212 @@ class WitReader private constructor(
       location = location,
       name = name,
       declarations = declarations,
+    )
+  }
+
+  /**
+   * ```ebnf
+   * flags-items ::= 'flags' id '{' flags-fields '}'
+   *
+   * flags-fields ::= id
+   *                | id ',' flags-fields?
+   * ```
+   */
+  private fun readFlags(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Flags {
+    source.skipWhitespace()
+    val name = source.readIdentifier()
+
+    val flags = mutableListOf<Flag>()
+
+    source.skipWhitespace()
+    source.readLiteral('{')
+
+    source.skipWhitespace()
+    while (true) {
+      val flagGate = readGateOrNull()
+      val flagDocumentation = source.takeDocumentation()
+      val flagLocation = source.location
+      val flagName = source.readIdentifier()
+
+      flags += Flag(
+        documentation = flagDocumentation,
+        gate = flagGate,
+        location = flagLocation,
+        name = flagName,
+      )
+
+      source.skipWhitespace()
+      if (source.tryReadLiteral(',')) {
+        source.skipWhitespace()
+        if (source.tryReadLiteral('}')) break // Trailing comma.
+        continue
+      }
+
+      source.readLiteral('}')
+      break
+    }
+
+    return Flags(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      name = TypeName(name),
+      flags = flags,
+    )
+  }
+
+  /**
+   * ```ebnf
+   * enum-items ::= 'enum' id '{' enum-cases '}'
+   *
+   * enum-cases ::= id
+   *              | id ',' enum-cases?
+   * ```
+   */
+  private fun readEnum(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Enum {
+    source.skipWhitespace()
+    val name = source.readIdentifier()
+
+    val cases = mutableListOf<Case>()
+
+    source.skipWhitespace()
+    source.readLiteral('{')
+
+    source.skipWhitespace()
+    while (true) {
+      val caseGate = readGateOrNull()
+      val caseDocumentation = source.takeDocumentation()
+      val caseLocation = source.location
+      val caseName = source.readIdentifier()
+
+      cases += Case(
+        documentation = caseDocumentation,
+        gate = caseGate,
+        location = caseLocation,
+        name = caseName,
+      )
+
+      source.skipWhitespace()
+      if (source.tryReadLiteral(',')) {
+        source.skipWhitespace()
+        if (source.tryReadLiteral('}')) break // Trailing comma.
+        continue
+      }
+
+      source.readLiteral('}')
+      break
+    }
+
+    return Enum(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      name = TypeName(name),
+      cases = cases,
+    )
+  }
+
+  /**
+   * ```ebnf
+   * type-item ::= 'type' id '=' ty ';'
+   * ```
+   */
+  private fun readTypeAlias(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): TypeAlias {
+    source.skipWhitespace()
+    val name = source.readIdentifier()
+
+    source.skipWhitespace()
+    source.readLiteral('=')
+
+    source.skipWhitespace()
+    val type = source.readTypeName()
+
+    source.skipWhitespace()
+    source.readLiteral(';')
+
+    return TypeAlias(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      name = TypeName(name),
+      target = type,
+    )
+  }
+
+  /**
+   * ```ebnf
+   * use-item ::= 'use' use-path '.' '{' use-names-list '}' ';'
+   *
+   * use-names-list ::= use-names-item
+   *                  | use-names-item ',' use-names-list?
+   *
+   * use-names-item ::= id
+   *                  | id 'as' id
+   * ```
+   */
+  private fun readUse(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Use {
+    source.skipWhitespace()
+    val usePath = source.readUsePath()
+
+    source.skipWhitespace()
+    source.readLiteral('.')
+    source.skipWhitespace()
+    source.readLiteral('{')
+
+    val items = mutableListOf<Use.Item>()
+
+    source.skipWhitespace()
+    while (true) {
+      val itemName = source.readIdentifier()
+
+      source.skipWhitespace()
+      val alias = when {
+        source.tryReadLiteral("as") -> {
+          source.skipWhitespace()
+          source.readIdentifier()
+        }
+
+        else -> null
+      }
+
+      items += Use.Item(
+        name = itemName,
+        alias = alias,
+      )
+
+      source.skipWhitespace()
+      if (source.tryReadLiteral(',')) {
+        source.skipWhitespace()
+        if (source.tryReadLiteral('}')) break // Trailing comma.
+        continue
+      }
+
+      source.readLiteral('}')
+      break
+    }
+
+    return Use(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      path = usePath,
+      items = items,
     )
   }
 
@@ -495,7 +706,9 @@ object Keywords {
   val borrow = Identifier("borrow")
   val constructor = Identifier("constructor")
   val deprecated = Identifier("deprecated")
+  val enum = Identifier("enum")
   val feature = Identifier("feature")
+  val flags = Identifier("flags")
   val func = Identifier("func")
   val future = Identifier("future")
   val list = Identifier("list")
@@ -508,7 +721,9 @@ object Keywords {
   val static = Identifier("static")
   val stream = Identifier("stream")
   val tuple = Identifier("tuple")
+  val type = Identifier("type")
   val unstable = Identifier("unstable")
+  val use = Identifier("use")
   val variant = Identifier("variant")
   val version = Identifier("version")
 }

@@ -547,8 +547,231 @@ class WitReaderTest {
                     gate = Gate(since = "4.0"),
                     location = Location(13, 5),
                     name = Identifier("some"),
-                    typeName = TypeName.List(TypeName("string"))
+                    typeName = TypeName.List(TypeName("string")),
                   ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `flags documentation and gates`() {
+    val wit = """
+      |interface db {
+      |  /// comic character
+      |  @since(version = 1.0)
+      |  flags properties {
+      |    /// plastic
+      |    @since(version = 2.0)
+      |    lego,
+      |    /// avenger
+      |    @since(version = 3.0)
+      |    marvel-superhero,
+      |    /// naughty
+      |    @since(version = 4.0)
+      |    supervillain,
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("db"),
+            declarations = listOf(
+              Flags(
+                documentation = Documentation(" comic character"),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                name = TypeName("properties"),
+                flags = listOf(
+                  Flag(
+                    documentation = Documentation(" plastic"),
+                    gate = Gate(since = "2.0"),
+                    location = Location(7, 5),
+                    name = Identifier("lego"),
+                  ),
+                  Flag(
+                    documentation = Documentation(" avenger"),
+                    gate = Gate(since = "3.0"),
+                    location = Location(10, 5),
+                    name = Identifier("marvel-superhero"),
+                  ),
+                  Flag(
+                    documentation = Documentation(" naughty"),
+                    gate = Gate(since = "4.0"),
+                    location = Location(13, 5),
+                    name = Identifier("supervillain"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `enum documentation and gates`() {
+    val wit = """
+      |interface db {
+      |  /// Roy G.
+      |  @since(version = 1.0)
+      |  enum color {
+      |    /// #ff0000
+      |    @since(version = 2.0)
+      |    red,
+      |    /// #0000ff
+      |    @since(version = 3.0)
+      |    blue,
+      |    /// #00ff00
+      |    @since(version = 4.0)
+      |    green,
+      |  }
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("db"),
+            declarations = listOf(
+              Enum(
+                documentation = Documentation(" Roy G."),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                name = TypeName("color"),
+                cases = listOf(
+                  Case(
+                    documentation = Documentation(" #ff0000"),
+                    gate = Gate(since = "2.0"),
+                    location = Location(7, 5),
+                    name = Identifier("red"),
+                  ),
+                  Case(
+                    documentation = Documentation(" #0000ff"),
+                    gate = Gate(since = "3.0"),
+                    location = Location(10, 5),
+                    name = Identifier("blue"),
+                  ),
+                  Case(
+                    documentation = Documentation(" #00ff00"),
+                    gate = Gate(since = "4.0"),
+                    location = Location(13, 5),
+                    name = Identifier("green"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `type alias documentation and gates`() {
+    val wit = """
+      |interface db {
+      |  /// So Awesome.
+      |  @since(version = 1.0)
+      |  type my-awesome-u32 = u32;
+      |  /// So Complicated.
+      |  @since(version = 2.0)
+      |  type my-complicated-tuple = tuple<u32, s32, string>;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("db"),
+            declarations = listOf(
+              TypeAlias(
+                documentation = Documentation(" So Awesome."),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                name = TypeName("my-awesome-u32"),
+                target = TypeName("u32"),
+              ),
+              TypeAlias(
+                documentation = Documentation(" So Complicated."),
+                gate = Gate(since = "2.0"),
+                location = Location(7, 3),
+                name = TypeName("my-complicated-tuple"),
+                target = TypeName.Tuple(
+                  listOf(
+                    TypeName("u32"),
+                    TypeName("s32"),
+                    TypeName("string"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `use documentation and gates`() {
+    val wit = """
+      |interface db {
+      |  /// Four values.
+      |  @since(version = 1.0)
+      |  use an-interface.{a, list, of, names}
+      |  /// One aliased value.
+      |  @since(version = 2.0)
+      |  use my:dependency/the-interface@3.0.{more, names as foo}
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Interface(
+            location = Location(1, 1),
+            name = TypeName("db"),
+            declarations = listOf(
+              Use(
+                documentation = Documentation(" Four values."),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                path = UsePath(
+                  name = Identifier("an-interface"),
+                ),
+                items = listOf(
+                  Use.Item(name = Identifier("a")),
+                  Use.Item(name = Identifier("list")),
+                  Use.Item(name = Identifier("of")),
+                  Use.Item(name = Identifier("names")),
+                ),
+              ),
+              Use(
+                documentation = Documentation(" One aliased value."),
+                gate = Gate(since = "2.0"),
+                location = Location(7, 3),
+                path = UsePath(
+                  namespaces = listOf(Identifier("my")),
+                  packageNames = listOf(Identifier("dependency")),
+                  name = Identifier("the-interface"),
+                  version = SemVer("3.0"),
+                ),
+                items = listOf(
+                  Use.Item(name = Identifier("more")),
+                  Use.Item(name = Identifier("names"), alias = Identifier("foo")),
                 ),
               ),
             ),

@@ -210,11 +210,12 @@ data class Use(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val references: List<Reference>,
+  val path: UsePath,
+  val items: List<Item>,
 ) : Declaration {
-  data class Reference(
-    val identifier: QualifiedIdentifier,
-    val `as`: Identifier? = null,
+  data class Item(
+    val name: Identifier,
+    val alias: Identifier? = null,
   )
 }
 
@@ -222,12 +223,12 @@ data class Import(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val value: Either<QualifiedIdentifier, Declaration>,
+  val value: Either<UsePath, Declaration>,
 ) : Declaration
 
 data class Export(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val value: Either<QualifiedIdentifier, Declaration>,
+  val value: Either<UsePath, Declaration>,
 ) : Declaration
