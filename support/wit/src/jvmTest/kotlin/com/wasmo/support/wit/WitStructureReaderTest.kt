@@ -327,38 +327,37 @@ class WitStructureReaderTest {
 
   @Test
   fun `readSemver success`() {
-    val reader = WitStructureReader(
-      """
-      |1 1.0 1.2.3 1.0.0-alpha 1.0.0-alpha+001
-      """.trimMargin(),
-    )
-    assertThat(reader.readSemVer()).isEqualTo(SemVer("1"))
-    reader.skipWhitespace()
-    assertThat(reader.readSemVer()).isEqualTo(SemVer("1.0"))
-    reader.skipWhitespace()
-    assertThat(reader.readSemVer()).isEqualTo(SemVer("1.2.3"))
-    reader.skipWhitespace()
-    assertThat(reader.readSemVer()).isEqualTo(SemVer("1.0.0-alpha"))
-    reader.skipWhitespace()
-    assertThat(reader.readSemVer()).isEqualTo(SemVer("1.0.0-alpha+001"))
+    assertThat("1".parseSemVer()).isEqualTo(SemVer("1"))
+    assertThat("1.0".parseSemVer()).isEqualTo(SemVer("1.0"))
+    assertThat("1.2.3".parseSemVer()).isEqualTo(SemVer("1.2.3"))
+    assertThat("1.0.0-alpha".parseSemVer()).isEqualTo(SemVer("1.0.0-alpha"))
+    assertThat("1.0.0-alpha+001".parseSemVer()).isEqualTo(SemVer("1.0.0-alpha+001"))
+  }
+
+  @Test
+  fun `readSemver omits trailing dots`() {
+    val reader = WitStructureReader("1.2.")
+    assertThat(reader.readSemVer()).isEqualTo(SemVer("1.2"))
+    assertThat(reader.location).isEqualTo(Location(1, 4))
+  }
+
+  @Test
+  fun `readSemver only dots`() {
+    val e = assertFailsWith<WitException> {
+      "..".parseSemVer()
+    }
+    assertThat(e).hasMessage("expected a semver character")
   }
 
   @Test
   fun `readPackageName success`() {
-    val reader = WitStructureReader(
-      """
-      |local:demo
-      |examples:fgates-deprecation@0.2.0
-      """.trimMargin(),
-    )
-    assertThat(reader.readPackageName()).isEqualTo(
+    assertThat("local:demo".parsePackageName()).isEqualTo(
       PackageName(
         namespace = "local",
         name = "demo",
       ),
     )
-    reader.skipWhitespace()
-    assertThat(reader.readPackageName()).isEqualTo(
+    assertThat("examples:fgates-deprecation@0.2.0".parsePackageName()).isEqualTo(
       PackageName(
         namespace = "examples",
         name = "fgates-deprecation",
@@ -369,8 +368,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `readPackageName multiple namespaces and multiple names`() {
-    val reader = WitStructureReader("abc:def:ghi:jkl/mno/pqr")
-    assertThat(reader.readPackageName()).isEqualTo(
+    assertThat("abc:def:ghi:jkl/mno/pqr".parsePackageName()).isEqualTo(
       PackageName(
         namespaces = listOf(Identifier("abc"), Identifier("def"), Identifier("ghi")),
         names = listOf(Identifier("jkl"), Identifier("mno"), Identifier("pqr")),
@@ -381,7 +379,7 @@ class WitStructureReaderTest {
   @Test
   fun `readPackageName missing namespace`() {
     val e = assertFailsWith<WitException> {
-      WitStructureReader("local").readPackageName()
+      "local".parsePackageName()
     }
     assertThat(e).hasMessage("expected package name to contain a ':'")
   }
@@ -389,7 +387,7 @@ class WitStructureReaderTest {
   @Test
   fun `readPackageName empty namespace`() {
     val e = assertFailsWith<WitException> {
-      WitStructureReader("a:").readPackageName()
+      "a:".parsePackageName()
     }
     assertThat(e).hasMessage("expected a word character")
   }
@@ -397,7 +395,7 @@ class WitStructureReaderTest {
   @Test
   fun `readPackageName empty name`() {
     val e = assertFailsWith<WitException> {
-      WitStructureReader(":").readPackageName()
+      ":".parsePackageName()
     }
     assertThat(e).hasMessage("expected a word character")
   }
@@ -405,9 +403,71 @@ class WitStructureReaderTest {
   @Test
   fun `readPackageName empty version`() {
     val e = assertFailsWith<WitException> {
-      WitStructureReader("a:b@ ").readPackageName()
+      "a:b@ ".parsePackageName()
     }
     assertThat(e).hasMessage("expected a semver character")
+  }
+
+  @Test
+  fun `readUsePath success`() {
+    assertThat("my-interface".parseUsePath()).isEqualTo(
+      UsePath(name = Identifier("my-interface")),
+    )
+    assertThat("namespace:package-name/my-interface".parseUsePath()).isEqualTo(
+      UsePath(
+        namespaces = listOf(Identifier("namespace")),
+        packageNames = listOf(Identifier("package-name")),
+        name = Identifier("my-interface"),
+      ),
+    )
+    assertThat("namespace:package-name/my-interface@1.2.3".parseUsePath()).isEqualTo(
+      UsePath(
+        namespaces = listOf(Identifier("namespace")),
+        packageNames = listOf(Identifier("package-name")),
+        name = Identifier("my-interface"),
+        version = SemVer("1.2.3"),
+      ),
+    )
+    assertThat("abc:def:ghi/jkl/my-interface".parseUsePath()).isEqualTo(
+      UsePath(
+        namespaces = listOf(Identifier("abc"), Identifier("def")),
+        packageNames = listOf(Identifier("ghi"), Identifier("jkl")),
+        name = Identifier("my-interface"),
+      ),
+    )
+    assertThat("abc:def:ghi/jkl/my-interface@1.2.3".parseUsePath()).isEqualTo(
+      UsePath(
+        namespaces = listOf(Identifier("abc"), Identifier("def")),
+        packageNames = listOf(Identifier("ghi"), Identifier("jkl")),
+        name = Identifier("my-interface"),
+        version = SemVer("1.2.3"),
+      ),
+    )
+  }
+
+  @Test
+  fun `readUsePath semver`() {
+    val reader = WitStructureReader("my-interface@1.2.3")
+    assertThat(reader.readUsePath()).isEqualTo(
+      UsePath(name = Identifier("my-interface")),
+    )
+    assertThat(reader.location).isEqualTo(Location(1, 13)) // At the '@' symbol.
+  }
+
+  @Test
+  fun `readUsePath namespace without package name`() {
+    val e = assertFailsWith<WitException> {
+      "namespace:interface-name".parseUsePath()
+    }
+    assertThat(e).hasMessage("must have a namespace and a package name, or neither")
+  }
+
+  @Test
+  fun `readUsePath package name without namespace`() {
+    val e = assertFailsWith<WitException> {
+      "package-name/interface-name".parseUsePath()
+    }
+    assertThat(e).hasMessage("must have a namespace and a package name, or neither")
   }
 
   @Test
@@ -525,6 +585,15 @@ class WitStructureReaderTest {
     }
   }
 
+  private fun String.parsePackageName(): PackageName =
+    WitStructureReader(this).readPackageName()
+
   private fun String.parseTypeName(): TypeName =
     WitStructureReader(this).readTypeName()
+
+  private fun String.parseUsePath(): UsePath =
+    WitStructureReader(this).readUsePath()
+
+  private fun String.parseSemVer(): SemVer =
+    WitStructureReader(this).readSemVer()
 }

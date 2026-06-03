@@ -1,8 +1,10 @@
 package com.wasmo.support.wit
 
-data class QualifiedIdentifier(
-  val packageName: PackageName? = null,
-  val identifier: Identifier,
+data class UsePath(
+  val namespaces: List<Identifier> = listOf(),
+  val packageNames: List<Identifier> = listOf(),
+  val name: Identifier,
+  val version: SemVer? = null,
 )
 
 @JvmInline
