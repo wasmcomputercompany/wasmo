@@ -1,6 +1,7 @@
 package com.wasmo.client.app.buildyours
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,6 +10,7 @@ import com.wasmo.api.CreateComputerSpecResponse
 import com.wasmo.api.WasmoApi
 import com.wasmo.api.routes.ComputerHomeRoute
 import com.wasmo.api.routes.HomeRoute
+import com.wasmo.client.app.data.AccountDataService
 import com.wasmo.client.app.routing.Router
 import com.wasmo.client.app.routing.TransitionDirection
 import com.wasmo.client.app.stripe.CheckoutScreen
@@ -28,6 +30,7 @@ class BuildYoursUi(
   private val checkoutSessionFactory: CheckoutSession.Factory,
   private val router: Router,
   private val wasmoApi: WasmoApi,
+  private val accountDataService: AccountDataService,
 ) : Ui {
   private val computerSpecToken = newToken()
   private var checkoutSessionState by mutableStateOf<CheckoutSession?>(null)
@@ -37,6 +40,7 @@ class BuildYoursUi(
     attrs: AttrsScope<HTMLElement>.() -> Unit,
   ) {
     val checkoutSession = checkoutSessionState
+    val accountSnapshot by accountDataService.accountSnapshotFlow.collectAsState()
     if (checkoutSession != null) {
       CheckoutScreen(checkoutSession)
       return
@@ -44,6 +48,7 @@ class BuildYoursUi(
 
     BuildYoursScreen(
       attrs = attrs,
+      signedInAccountName = accountSnapshot.signedInAccountName,
       eventListener = ::onEvent,
     )
   }
