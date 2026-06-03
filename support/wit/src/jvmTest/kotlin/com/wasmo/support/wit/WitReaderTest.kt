@@ -22,6 +22,32 @@ class WitReaderTest {
   }
 
   @Test
+  fun `multiple packages`() {
+    val wit = """
+      |package wasi:clocks@0.2.9;
+      |package wasi:clocks;
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    val e = assertFailsWith<WitException> {
+      witReader.read()
+    }
+    assertThat(e.issue).isEqualTo("unexpected package identifier")
+  }
+
+  @Test
+  fun `package after another declaration`() {
+    val wit = """
+      |interface foo {}
+      |package wasi:clocks;
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    val e = assertFailsWith<WitException> {
+      witReader.read()
+    }
+    assertThat(e.issue).isEqualTo("unexpected package identifier")
+  }
+
+  @Test
   fun `readGate success`() {
     val wit = """
       |@since(version = 0.2.0)
@@ -1225,6 +1251,117 @@ class WitReaderTest {
                     name = Identifier("b"),
                     alias = Identifier("b1"),
                   ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `inline package documentation and gates`() {
+    val wit = """
+      |/// This package is pasted from somewhere else.
+      |@since(version = 1.0)
+      |package local:a {
+      |  /// This interface is included in a package.
+      |  @since(version = 2.0)
+      |  interface foo {}
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Package(
+            documentation = Documentation(" This package is pasted from somewhere else."),
+            gate = Gate(since = "1.0"),
+            location = Location(3, 1),
+            name = PackageName("local", "a"),
+            declarations = listOf(
+              Interface(
+                documentation = Documentation(" This interface is included in a package."),
+                gate = Gate(since = "2.0"),
+                location = Location(6, 3),
+                name = TypeName("foo"),
+                declarations = listOf(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `top level use documentation and gates`() {
+    val wit = """
+      |/// Use the Wasi HTTP types.
+      |@since(version = 1.0)
+      |use wasi:http/types@1.0.0;
+      |/// Use the Wasi HTTP handler also.
+      |@since(version = 2.0)
+      |use wasi:http/handler as http-handler;
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          TopLevelUse(
+            documentation = Documentation(" Use the Wasi HTTP types."),
+            gate = Gate(since = "1.0"),
+            location = Location(3, 1),
+            path = UsePath(
+              namespaces = listOf(Identifier("wasi")),
+              packageNames = listOf(Identifier("http")),
+              name = Identifier("types"),
+              version = SemVer("1.0.0"),
+            ),
+          ),
+          TopLevelUse(
+            documentation = Documentation(" Use the Wasi HTTP handler also."),
+            gate = Gate(since = "2.0"),
+            location = Location(6, 1),
+            path = UsePath(
+              namespaces = listOf(Identifier("wasi")),
+              packageNames = listOf(Identifier("http")),
+              name = Identifier("handler"),
+            ),
+            alias = Identifier("http-handler"),
+          ),
+        ),
+      ),
+    )
+  }
+
+  @Test
+  fun `top level use in nested package`() {
+    val wit = """
+      |package local:a {
+      |  /// Use the Wasi HTTP types.
+      |  @since(version = 1.0)
+      |  use wasi:http/types@1.0.0;
+      |}
+      """.trimMargin()
+    val witReader = WitReader(wit)
+    assertThat(witReader.read()).isEqualTo(
+      WitFile(
+        declarations = listOf(
+          Package(
+            location = Location(1, 1),
+            name = PackageName("local", "a"),
+            declarations = listOf(
+              TopLevelUse(
+                documentation = Documentation(" Use the Wasi HTTP types."),
+                gate = Gate(since = "1.0"),
+                location = Location(4, 3),
+                path = UsePath(
+                  namespaces = listOf(Identifier("wasi")),
+                  packageNames = listOf(Identifier("http")),
+                  name = Identifier("types"),
+                  version = SemVer("1.0.0"),
                 ),
               ),
             ),

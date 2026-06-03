@@ -17,8 +17,7 @@ class WitReader private constructor(
   fun read(): WitFile {
     val declarations = mutableListOf<Declaration>()
 
-    var packageDocumentation: Documentation? = null
-    var packageName: PackageName? = null
+    var packageIdentifier: Package? = null
 
     while (true) {
       source.skipWhitespace()
@@ -29,15 +28,28 @@ class WitReader private constructor(
       val location = source.location
 
       when (val identifier = source.readIdentifier()) {
-        Keywords.`package` if (packageName == null) -> {
-          source.skipWhitespace()
-          packageDocumentation = documentation
-          packageName = source.readPackageName()
-          source.readLiteral(';')
+        Keywords.`package` -> {
+          val (value, kind) = readPackage(documentation, gate, location)
+          when (kind) {
+            PackageKind.Identifier -> {
+              checkWit(location, packageIdentifier == null && declarations.isEmpty()) {
+                "unexpected package identifier"
+              }
+              packageIdentifier = value
+            }
+
+            PackageKind.Nested -> {
+              declarations += value
+            }
+          }
         }
 
         Keywords.`interface` -> {
           declarations += readInterface(documentation, gate, location)
+        }
+
+        Keywords.use -> {
+          declarations += readTopLevelUse(documentation, gate, location)
         }
 
         Keywords.world -> {
@@ -49,10 +61,72 @@ class WitReader private constructor(
     }
 
     return WitFile(
-      packageDocumentation = packageDocumentation,
-      packageName = packageName,
+      packageDocumentation = packageIdentifier?.documentation,
+      packageName = packageIdentifier?.name,
       declarations = declarations,
     )
+  }
+
+  /**
+   * Reads either a package identifier or a nested package.
+   *
+   * ```ebnf
+   * nested-package-definition ::= package-decl '{' package-items* '}'
+   * package-items ::= toplevel-use-item | interface-item | world-item
+   * ```
+   */
+  private fun readPackage(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): Pair<Package, PackageKind> {
+    source.skipWhitespace()
+    val name = source.readPackageName()
+    val declarations = mutableListOf<Declaration>()
+
+    source.skipWhitespace()
+    val packageKind = when {
+      source.tryReadLiteral('{') -> {
+        while (true) {
+          source.skipWhitespace()
+          if (source.tryReadLiteral('}')) break
+
+          val nestedGate = readGateOrNull()
+          val nestedDocumentation = source.takeDocumentation()
+          val nestedLocation = source.location
+
+          declarations += when (val identifier = source.readIdentifier()) {
+            Keywords.`interface` -> readInterface(nestedDocumentation, nestedGate, nestedLocation)
+            Keywords.use -> readTopLevelUse(nestedDocumentation, nestedGate, nestedLocation)
+            Keywords.world -> readWorld(nestedDocumentation, nestedGate, nestedLocation)
+            else -> errorWit(nestedLocation, "unexpected identifier: $identifier")
+          }
+        }
+
+        PackageKind.Nested
+      }
+
+      else -> {
+        source.readLiteral(';')
+        PackageKind.Identifier
+      }
+    }
+
+    return Package(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      name = name,
+      declarations = declarations,
+    ) to packageKind
+  }
+
+  private enum class PackageKind {
+    /** The package of the top of a .wit document. This must not have '{' curly braces '}'. */
+    Identifier,
+
+    /** A nested package. This must have '{' curly braces '}'. */
+    Nested
   }
 
   /**
@@ -67,9 +141,7 @@ class WitReader private constructor(
   ): Interface {
     source.skipWhitespace()
     val name = source.readIdentifier()
-
     val declarations = readInterfaceItems()
-
     return Interface(
       documentation = documentation,
       gate = gate,
@@ -403,6 +475,40 @@ class WitReader private constructor(
       location = location,
       name = TypeName(name),
       target = type,
+    )
+  }
+
+  /**
+   * ```ebnf
+   * toplevel-use-item ::= 'use' use-path ('as' id)? ';'
+   * ```
+   */
+  private fun readTopLevelUse(
+    documentation: Documentation?,
+    gate: Gate?,
+    location: Location,
+  ): TopLevelUse {
+    source.skipWhitespace()
+    val path = source.readUsePath()
+
+    source.skipWhitespace()
+    val alias = when {
+      source.tryReadLiteral("as") -> {
+        source.skipWhitespace()
+        source.readIdentifier()
+      }
+      else -> null
+    }
+
+    source.skipWhitespace()
+    source.readLiteral(';')
+
+    return TopLevelUse(
+      documentation = documentation,
+      gate = gate,
+      location = location,
+      path = path,
+      alias = alias,
     )
   }
 

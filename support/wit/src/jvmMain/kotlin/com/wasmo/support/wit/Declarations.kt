@@ -71,10 +71,10 @@ data class WitFile(
  * ```
  */
 data class Package(
-  override val documentation: Documentation?,
-  override val gate: Gate?,
+  override val documentation: Documentation? = null,
+  override val gate: Gate? = null,
   override val location: Location,
-  val packageName: PackageName? = null,
+  val name: PackageName? = null,
   val declarations: List<Declaration>,
 ) : Declaration
 
@@ -202,6 +202,14 @@ data class TypeAlias(
   override val location: Location,
   val name: TypeName,
   val target: TypeName,
+) : Declaration
+
+data class TopLevelUse(
+  override val documentation: Documentation? = null,
+  override val gate: Gate? = null,
+  override val location: Location,
+  val path: UsePath,
+  val alias: Identifier? = null,
 ) : Declaration
 
 /**
