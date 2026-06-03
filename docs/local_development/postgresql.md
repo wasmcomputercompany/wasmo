@@ -22,9 +22,17 @@ Set up the PostgreSQL CLI:
 
 ```bash
 $ brew install libpq
+$ echo 'export PATH="/usr/local/opt/libpq/bin:$PATH"' >> ~/.zshrc
+$ source ~/.zshrc
 ```
 
-Create local databases:
+Create the `postgres` superuser:
+
+```bash
+$ createuser -h localhost -s postgres
+```
+
+And create your local databases:
 
 ```bash
 $ export PGPASSWORD=password
