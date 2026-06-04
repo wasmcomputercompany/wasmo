@@ -145,7 +145,7 @@ data class Record(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val name: TypeName,
+  val name: Identifier,
   val fields: List<Field>,
 ) : Declaration
 

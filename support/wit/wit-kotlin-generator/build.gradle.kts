@@ -11,7 +11,9 @@ kotlin {
   sourceSets {
     jvmMain {
       dependencies {
+        implementation(libs.kotlinpoet)
         implementation(libs.okio)
+        implementation(projects.support.wit.witCore)
       }
     }
   }
