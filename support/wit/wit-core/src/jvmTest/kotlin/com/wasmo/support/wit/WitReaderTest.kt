@@ -826,9 +826,7 @@ class WitReaderTest {
                 documentation = Documentation(" Four values."),
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                path = UsePath(
-                  name = Identifier("an-interface"),
-                ),
+                path = UsePath(name = Identifier("an-interface")),
                 items = listOf(
                   Use.Item(name = Identifier("a")),
                   Use.Item(name = Identifier("list")),
@@ -1684,9 +1682,7 @@ class WitReaderTest {
             declarations = listOf(
               Use(
                 location = Location(2, 3),
-                path = UsePath(
-                  name = Identifier("an-interface"),
-                ),
+                path = UsePath(name = Identifier("an-interface")),
                 items = listOf(
                   Use.Item(name = Identifier("a")),
                   Use.Item(name = Identifier("list")),

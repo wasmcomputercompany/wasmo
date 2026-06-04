@@ -8,9 +8,7 @@ class UsePathTest {
   @Test
   fun `UsePath toString`() {
     assertThat(
-      UsePath(
-        name = Identifier("the-interface"),
-      ).toString()
+      UsePath(name = Identifier("the-interface")).toString()
     ).isEqualTo("the-interface")
 
     assertThat(

@@ -23,6 +23,7 @@ import com.wasmo.support.wit.Interface
 import com.wasmo.support.wit.Package
 import com.wasmo.support.wit.Record
 import com.wasmo.support.wit.Resource
+import com.wasmo.support.wit.SymbolResolver
 import com.wasmo.support.wit.TopLevelUse
 import com.wasmo.support.wit.TypeAlias
 import com.wasmo.support.wit.Use
@@ -34,14 +35,17 @@ class WitKotlinGenerator(
   private val witFiles: List<WitFile>,
   private val kotlinPackageName: String,
 ) {
-  private val typeResolver = TypeResolver(witFiles, kotlinPackageName)
+  private val typeMapper = TypeMapper(
+    SymbolResolver(witFiles),
+    kotlinPackageName,
+  )
 
   fun generate(): FileSpec {
     val builder = FileSpec.builder(kotlinPackageName, "Generated")
     for (witFile in witFiles) {
       addDeclarations(
         builder = builder,
-        typeResolver = typeResolver.refine(witFile.packageName),
+        typeResolver = typeMapper.refine(witFile.packageName),
         children = witFile.declarations,
       )
     }
@@ -72,7 +76,7 @@ class WitKotlinGenerator(
 
   private fun addDeclarations(
     builder: Any,
-    typeResolver: PackageTypeResolver,
+    typeResolver: PackageTypeMapper,
     children: List<Declaration>,
   ) {
     for (declaration in children) {
@@ -82,7 +86,7 @@ class WitKotlinGenerator(
   }
 
   private fun generate(
-    scope: PackageTypeResolver,
+    scope: PackageTypeMapper,
     declaration: Declaration,
   ): Any? {
     return when (declaration) {
@@ -108,7 +112,7 @@ class WitKotlinGenerator(
   }
 
   private fun generateInterface(
-    scope: PackageTypeResolver,
+    scope: PackageTypeMapper,
     `interface`: Interface,
   ): TypeSpec {
     val interfaceScope = scope.refine(interfaceName = `interface`.name)
@@ -123,7 +127,7 @@ class WitKotlinGenerator(
   }
 
   private fun generateRecord(
-    scope: PackageTypeResolver,
+    scope: PackageTypeMapper,
     record: Record,
   ): TypeSpec {
     val classBuilder = TypeSpec.classBuilder(record.name.name)
@@ -136,7 +140,7 @@ class WitKotlinGenerator(
     val constructorBuilder = FunSpec.constructorBuilder()
 
     for (field in record.fields) {
-      val type = scope.resolveTypeName(field.type)
+      val type = scope.map(field.type)
       val name = field.name.name
       val parameter = ParameterSpec.builder(name, type)
         .build()
@@ -158,7 +162,7 @@ class WitKotlinGenerator(
   }
 
   private fun generateFunction(
-    scope: PackageTypeResolver,
+    scope: PackageTypeMapper,
     declaration: Function,
   ): FunSpec {
     val builder = FunSpec.builder(declaration.name.name)
@@ -166,7 +170,7 @@ class WitKotlinGenerator(
 
     val returnType = declaration.returnType
     if (returnType != null) {
-      builder.returns(scope.resolveTypeName(returnType))
+      builder.returns(scope.map(returnType))
     }
 
     setDeclaration(

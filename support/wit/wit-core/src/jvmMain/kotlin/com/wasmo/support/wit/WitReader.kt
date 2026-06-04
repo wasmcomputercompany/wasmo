@@ -526,7 +526,7 @@ class WitReader private constructor(
     location: Location,
   ): Use {
     source.skipWhitespace()
-    val usePath = source.readUsePath()
+    val path = source.readUsePath()
 
     source.skipWhitespace()
     source.readLiteral('.')
@@ -557,7 +557,7 @@ class WitReader private constructor(
       documentation = documentation,
       gate = gate,
       location = location,
-      path = usePath,
+      path = path,
       items = items,
     )
   }
@@ -767,14 +767,14 @@ class WitReader private constructor(
       },
       {
         source.skipWhitespace()
-        val usePath = source.readUsePath()
+        val path = source.readUsePath()
         source.skipWhitespace()
         source.readLiteral(';')
         Import(
           documentation = documentation,
           gate = gate,
           location = location,
-          value = ExternalUsePath(path = usePath),
+          value = ExternalUsePath(path = path),
         )
       },
     )
@@ -819,14 +819,14 @@ class WitReader private constructor(
       },
       {
         source.skipWhitespace()
-        val usePath = source.readUsePath()
+        val path = source.readUsePath()
         source.skipWhitespace()
         source.readLiteral(';')
         Export(
           documentation = documentation,
           gate = gate,
           location = location,
-          value = ExternalUsePath(path = usePath),
+          value = ExternalUsePath(path = path),
         )
       },
     )
@@ -863,11 +863,11 @@ class WitReader private constructor(
       },
       {
         source.skipWhitespace()
-        val usePath = source.readUsePath()
+        val path = source.readUsePath()
         source.readLiteral(';')
         ExternalUsePath(
           plainName = identifier,
-          path = usePath,
+          path = path,
         )
       },
     )
@@ -890,7 +890,7 @@ class WitReader private constructor(
     location: Location,
   ): Include {
     source.skipWhitespace()
-    val usePath = source.readUsePath()
+    val path = source.readUsePath()
 
     source.skipWhitespace()
     val items = when {
@@ -922,7 +922,7 @@ class WitReader private constructor(
       documentation = documentation,
       gate = gate,
       location = location,
-      path = usePath,
+      path = path,
       items = items,
     )
   }

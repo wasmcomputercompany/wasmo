@@ -6,14 +6,15 @@ import assertk.assertions.isEqualTo
 import com.squareup.kotlinpoet.ClassName
 import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.PackageName
+import com.wasmo.support.wit.SymbolResolver
 import com.wasmo.support.wit.TypeName
 import com.wasmo.support.wit.WitReader
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class TypeResolverTest {
+class TypeMapperTest {
   @Test
-  fun `resolve names`() {
+  fun `map types`() {
     val witFile = WitReader(
       """
       |package wasi:clocks;
@@ -26,21 +27,22 @@ class TypeResolverTest {
       """.trimMargin(),
     ).read()
 
-    val root = TypeResolver(
-      witFiles = listOf(witFile),
+    val symbolResolver = SymbolResolver(listOf(witFile))
+    val root = TypeMapper(
+      symbolResolver = symbolResolver,
       kotlinPackageName = "com.clocks",
     )
 
     val packageTypeResolver = root.refine(PackageName("wasi", "clocks"))
     val interfaceTypeResolver = packageTypeResolver.refine(Identifier("wall-clock"))
 
-    assertThat(interfaceTypeResolver.resolveTypeName(TypeName("datetime")))
+    assertThat(interfaceTypeResolver.map(TypeName("datetime")))
       .isEqualTo(ClassName("com.clocks", "wall-clock", "datetime"))
 
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        interfaceTypeResolver.resolveTypeName(TypeName("instant"))
+        interfaceTypeResolver.map(TypeName("instant"))
       },
-    ).hasMessage("unable to resolve instant in wasi:clocks.wall-clock")
+    ).hasMessage("unable to resolve instant in wasi:clocks/wall-clock")
   }
 }

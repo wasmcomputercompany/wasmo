@@ -5,47 +5,45 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeName as KotlinTypeName
 import com.wasmo.support.wit.Identifier
-import com.wasmo.support.wit.Interface
 import com.wasmo.support.wit.PackageName
-import com.wasmo.support.wit.TypeDeclaration
+import com.wasmo.support.wit.SymbolResolver
 import com.wasmo.support.wit.TypeName
 import com.wasmo.support.wit.Types
-import com.wasmo.support.wit.WitFile
 
 /**
  * Map WIT types to Kotlin types.
  */
-sealed interface TypeResolver {
-  fun resolveTypeName(typeName: TypeName): KotlinTypeName
+sealed interface TypeMapper {
+  fun map(typeName: TypeName): KotlinTypeName
 }
 
-interface RootTypeResolver : TypeResolver {
-  fun refine(packageName: PackageName?): PackageTypeResolver
+interface RootTypeMapper : TypeMapper {
+  fun refine(packageName: PackageName?): PackageTypeMapper
 }
 
-interface PackageTypeResolver : TypeResolver {
+interface PackageTypeMapper : TypeMapper {
   val packageName: PackageName?
-  fun refine(interfaceName: Identifier): InterfaceTypeResolver
+  fun refine(interfaceName: Identifier): InterfaceTypeMapper
 }
 
-interface InterfaceTypeResolver : PackageTypeResolver {
+interface InterfaceTypeMapper : PackageTypeMapper {
   val interfaceName: Identifier
   val className: ClassName
 }
 
-fun TypeResolver(
-  witFiles: List<WitFile>,
+fun TypeMapper(
+  symbolResolver: SymbolResolver,
   kotlinPackageName: String,
-): RootTypeResolver = RealRootTypeResolver(
-  witFiles = witFiles,
+): RootTypeMapper = RealRootTypeMapper(
+  symbolResolver = symbolResolver,
   kotlinPackageName = kotlinPackageName,
 )
 
-internal class RealRootTypeResolver(
-  private val witFiles: List<WitFile>,
+internal class RealRootTypeMapper(
+  private val symbolResolver: SymbolResolver,
   private val kotlinPackageName: String,
-) : RootTypeResolver {
-  override fun resolveTypeName(typeName: TypeName): KotlinTypeName =
+) : RootTypeMapper {
+  override fun map(typeName: TypeName): KotlinTypeName =
     resolveTypeNameOrNull(typeName)
       ?: error("unable to resolve $typeName")
 
@@ -53,23 +51,9 @@ internal class RealRootTypeResolver(
     typeName: TypeName.Simple,
     packageName: PackageName? = null,
     interfaceName: Identifier? = null,
-  ): KotlinTypeName? {
-    for (witFile in witFiles) {
-      if (witFile.packageName != packageName) continue
-
-      for (`interface` in witFile.declarations) {
-        if (`interface` !is Interface || `interface`.name != interfaceName) continue
-
-        for (type in `interface`.declarations) {
-          if (type !is TypeDeclaration) continue
-          if (type.name == typeName.name) {
-            return className(witFile.packageName, interfaceName, type.name)
-          }
-        }
-      }
-    }
-
-    return null
+  ): ClassName {
+    val typePath = symbolResolver.resolveType(typeName, packageName, interfaceName)
+    return className(typePath.packageName, typePath.interfaceName, typePath.typeName)
   }
 
   private fun resolveTypeNameOrNull(
@@ -81,31 +65,31 @@ internal class RealRootTypeResolver(
     if (specialCase != null) return specialCase
 
     return when (typeName) {
-      is TypeName.Borrow -> ClassNames.Borrow.parameterizedBy(resolveTypeName(typeName.type))
+      is TypeName.Borrow -> ClassNames.Borrow.parameterizedBy(map(typeName.type))
       is TypeName.Future -> ClassNames.Deferred.parameterizedBy(
-        typeName.type?.let { resolveTypeName(it) } ?: STAR,
+        typeName.type?.let { map(it) } ?: STAR,
       )
 
-      is TypeName.List -> ClassNames.List.parameterizedBy(resolveTypeName(typeName.type))
+      is TypeName.List -> ClassNames.List.parameterizedBy(map(typeName.type))
       is TypeName.Map -> ClassNames.Map.parameterizedBy(
-        resolveTypeName(typeName.key),
-        resolveTypeName(typeName.value),
+        map(typeName.key),
+        map(typeName.value),
       )
 
-      is TypeName.Option -> resolveTypeName(typeName.type).copy(nullable = true)
+      is TypeName.Option -> map(typeName.type).copy(nullable = true)
       is TypeName.Result -> ClassNames.Pair.parameterizedBy(
-        typeName.ok?.let { resolveTypeName(it) } ?: STAR,
-        typeName.err?.let { resolveTypeName(it) } ?: STAR,
+        typeName.ok?.let { map(it) } ?: STAR,
+        typeName.err?.let { map(it) } ?: STAR,
       )
 
       is TypeName.Simple -> resolveSimpleTypeNameOrNull(typeName, packageName, interfaceName)
 
       is TypeName.Stream -> ClassNames.Stream.parameterizedBy(
-        typeName.type?.let { resolveTypeName(it) } ?: STAR,
+        typeName.type?.let { map(it) } ?: STAR,
       )
 
       is TypeName.Tuple -> {
-        val typeArguments = typeName.types.map { resolveTypeName(it) }
+        val typeArguments = typeName.types.map { map(it) }
         when (typeArguments.size) {
           2 -> ClassNames.Pair.parameterizedBy(typeArguments)
           3 -> ClassNames.Triple.parameterizedBy(typeArguments)
@@ -116,15 +100,15 @@ internal class RealRootTypeResolver(
     }
   }
 
-  override fun refine(packageName: PackageName?) = RealPackageTypeResolver(packageName)
+  override fun refine(packageName: PackageName?) = RealPackageTypeMapper(packageName)
 
-  inner class RealPackageTypeResolver internal constructor(
+  inner class RealPackageTypeMapper internal constructor(
     override val packageName: PackageName?,
-  ) : PackageTypeResolver {
+  ) : PackageTypeMapper {
     override fun refine(interfaceName: Identifier) =
-      RealInterfaceTypeResolver(packageName, interfaceName)
+      RealInterfaceTypeMapper(packageName, interfaceName)
 
-    override fun resolveTypeName(typeName: TypeName): KotlinTypeName {
+    override fun map(typeName: TypeName): KotlinTypeName {
       return resolveTypeNameOrNull(typeName, packageName)
         ?: throw IllegalArgumentException(
           buildString {
@@ -137,17 +121,17 @@ internal class RealRootTypeResolver(
     }
   }
 
-  inner class RealInterfaceTypeResolver internal constructor(
+  inner class RealInterfaceTypeMapper internal constructor(
     override val packageName: PackageName?,
     override val interfaceName: Identifier,
-  ) : InterfaceTypeResolver {
+  ) : InterfaceTypeMapper {
     override val className: ClassName
       get() = className(packageName, interfaceName)
 
     override fun refine(interfaceName: Identifier) =
-      RealInterfaceTypeResolver(packageName, interfaceName)
+      RealInterfaceTypeMapper(packageName, interfaceName)
 
-    override fun resolveTypeName(typeName: TypeName): KotlinTypeName {
+    override fun map(typeName: TypeName): KotlinTypeName {
       return resolveTypeNameOrNull(typeName, packageName, interfaceName)
         ?: throw IllegalArgumentException(
           buildString {

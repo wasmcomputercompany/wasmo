@@ -1,0 +1,46 @@
+package com.wasmo.support.wit
+
+import assertk.assertThat
+import assertk.assertions.hasMessage
+import assertk.assertions.isEqualTo
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
+
+class SymbolResolverTest {
+  @Test
+  fun `resolve local symbols`() {
+    val witFile = WitReader(
+      """
+      |package wasi:clocks;
+      |
+      |interface wall-clock {
+      |    record datetime {
+      |        seconds: u64,
+      |    }
+      |}
+      """.trimMargin(),
+    ).read()
+
+    val root = SymbolResolver(
+      witFiles = listOf(witFile),
+    )
+
+    assertThat(
+      root.resolveType(
+        inPackageName = PackageName("wasi", "clocks"),
+        inInterfaceName = Identifier("wall-clock"),
+        typeName = TypeName("datetime"),
+      ),
+    ).isEqualTo(TypePath("wasi", "clocks", "wall-clock", "datetime"))
+
+    assertThat(
+      assertFailsWith<IllegalArgumentException> {
+        root.resolveType(
+          inPackageName = PackageName("wasi", "clocks"),
+          inInterfaceName = Identifier("wall-clock"),
+          typeName = TypeName("instant"),
+        )
+      },
+    ).hasMessage("unable to resolve instant in wasi:clocks/wall-clock")
+  }
+}

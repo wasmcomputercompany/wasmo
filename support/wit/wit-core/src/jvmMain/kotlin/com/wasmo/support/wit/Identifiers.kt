@@ -1,24 +1,48 @@
 package com.wasmo.support.wit
 
+/**
+ * This is a package name plus an interface name, or just an interface name. The encoded form always
+ * puts the version at the end of the entire string.
+ */
 data class UsePath(
-  val namespaces: List<Identifier> = listOf(),
-  val packageNames: List<Identifier> = listOf(),
+  val packageName: PackageName?,
   val name: Identifier,
-  val version: SemVer? = null,
 ) {
-  override fun toString() = buildString {
-    for (namespace in namespaces) {
-      append(namespace)
-      append(':')
+  companion object {
+    operator fun invoke(
+      namespaces: List<Identifier>,
+      packageNames: List<Identifier>,
+      name: Identifier,
+      version: SemVer? = null,
+    ): UsePath {
+      return UsePath(
+        PackageName(
+          namespaces = namespaces,
+          names = packageNames,
+          version = version,
+        ),
+        name,
+      )
     }
-    for (packageName in packageNames) {
-      append(packageName)
-      append('/')
+
+    operator fun invoke(name: Identifier) = UsePath(null, name)
+  }
+
+  override fun toString() = buildString {
+    if (packageName != null) {
+      for (namespace in packageName.namespaces) {
+        append(namespace)
+        append(':')
+      }
+      for (packageName in packageName.names) {
+        append(packageName)
+        append('/')
+      }
     }
     append(name)
-    if (version != null) {
+    if (packageName?.version != null) {
       append('@')
-      append(version)
+      append(packageName.version)
     }
   }
 }
