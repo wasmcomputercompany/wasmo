@@ -9,7 +9,7 @@ import okio.Path.Companion.toPath
 
 class ReadAllWasiFilesTest {
   private val fileSystem = FileSystem.SYSTEM
-  private val wasiProposals = "../../submodules/WASI/proposals".toPath()
+  private val wasiProposals = "../../../submodules/WASI/proposals".toPath()
 
   @Test
   fun test() {

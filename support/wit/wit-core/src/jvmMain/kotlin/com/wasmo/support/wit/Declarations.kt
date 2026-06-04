@@ -121,7 +121,7 @@ data class Interface(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val name: TypeName,
+  val name: Identifier,
   val declarations: List<Declaration>,
 ) : Declaration, ExternalType
 

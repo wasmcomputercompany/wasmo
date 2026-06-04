@@ -142,7 +142,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("foo"),
+            name = Identifier("foo"),
             declarations = listOf(),
           ),
         ),
@@ -170,7 +170,7 @@ class WitReaderTest {
             ),
             gate = Gate(deprecated = "0.2.2"),
             location = Location(4, 1),
-            name = TypeName("foo"),
+            name = Identifier("foo"),
             declarations = listOf(),
           ),
         ),
@@ -191,7 +191,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("foo"),
+            name = Identifier("foo"),
             declarations = listOf(
               Function(
                 location = Location(2, 3),
@@ -205,7 +205,7 @@ class WitReaderTest {
                   Parameter(
                     Location(2, 32),
                     Identifier("repeat"),
-                    TypeName.Option(TypeName("u32")),
+                    TypeName.Option(Types.u32),
                   ),
                 ),
                 returnType = TypeName.Result(
@@ -248,7 +248,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(3, 1),
-            name = TypeName("wall-clock"),
+            name = Identifier("wall-clock"),
             declarations = listOf(
               Record(
                 location = Location(4, 3),
@@ -307,7 +307,7 @@ class WitReaderTest {
             ),
             gate = Gate(since = "1.0"),
             location = Location(4, 1),
-            name = TypeName("wall-clock"),
+            name = Identifier("wall-clock"),
             declarations = listOf(),
           ),
         ),
@@ -337,7 +337,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("wall-clock"),
+            name = Identifier("wall-clock"),
             declarations = listOf(
               Record(
                 documentation = Documentation(" spacetime"),
@@ -383,7 +383,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("wall-clock"),
+            name = Identifier("wall-clock"),
             declarations = listOf(
               Function(
                 documentation = Documentation(" sample the clock"),
@@ -415,7 +415,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("monotonic-clock"),
+            name = Identifier("monotonic-clock"),
             declarations = listOf(
               Function(
                 location = Location(2, 3),
@@ -467,7 +467,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("db"),
+            name = Identifier("db"),
             declarations = listOf(
               Resource(
                 documentation = Documentation(" big boi"),
@@ -485,7 +485,7 @@ class WitReaderTest {
                       Parameter(
                         location = Location(7, 17),
                         name = Identifier("init"),
-                        type = TypeName.List(TypeName("u8")),
+                        type = TypeName.List(Types.u8),
                       ),
                     ),
                     returnType = null,
@@ -499,7 +499,7 @@ class WitReaderTest {
                       Parameter(
                         location = Location(11, 17),
                         name = Identifier("bytes"),
-                        type = TypeName.List(TypeName("u8")),
+                        type = TypeName.List(Types.u8),
                       ),
                     ),
                     returnType = null,
@@ -513,10 +513,10 @@ class WitReaderTest {
                       Parameter(
                         location = Location(15, 16),
                         name = Identifier("n"),
-                        type = TypeName("u32"),
+                        type = Types.u32,
                       ),
                     ),
-                    returnType = TypeName.List(TypeName("u8")),
+                    returnType = TypeName.List(Types.u8),
                   ),
                   Function(
                     documentation = Documentation(" smashes some blobs together"),
@@ -560,7 +560,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("db"),
+            name = Identifier("db"),
             declarations = listOf(
               Resource(
                 location = Location(2, 3),
@@ -599,7 +599,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("db"),
+            name = Identifier("db"),
             declarations = listOf(
               Variant(
                 documentation = Documentation(" whats included"),
@@ -624,7 +624,7 @@ class WitReaderTest {
                     gate = Gate(since = "4.0"),
                     location = Location(13, 5),
                     name = Identifier("some"),
-                    type = TypeName.List(TypeName("string")),
+                    type = TypeName.List(Types.string),
                   ),
                 ),
               ),
@@ -660,7 +660,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("db"),
+            name = Identifier("db"),
             declarations = listOf(
               Flags(
                 documentation = Documentation(" comic character"),
@@ -720,7 +720,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("db"),
+            name = Identifier("db"),
             declarations = listOf(
               Enum(
                 documentation = Documentation(" Roy G."),
@@ -773,14 +773,14 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("db"),
+            name = Identifier("db"),
             declarations = listOf(
               TypeAlias(
                 documentation = Documentation(" So Awesome."),
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
                 name = TypeName("my-awesome-u32"),
-                target = TypeName("u32"),
+                target = Types.u32,
               ),
               TypeAlias(
                 documentation = Documentation(" So Complicated."),
@@ -789,9 +789,9 @@ class WitReaderTest {
                 name = TypeName("my-complicated-tuple"),
                 target = TypeName.Tuple(
                   listOf(
-                    TypeName("u32"),
-                    TypeName("s32"),
-                    TypeName("string"),
+                    Types.u32,
+                    Types.s32,
+                    Types.string,
                   ),
                 ),
               ),
@@ -820,7 +820,7 @@ class WitReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = TypeName("db"),
+            name = Identifier("db"),
             declarations = listOf(
               Use(
                 documentation = Documentation(" Four values."),
@@ -1026,7 +1026,7 @@ class WitReaderTest {
                   documentation = Documentation(" This interface is inline"),
                   gate = Gate(since = "1.0"),
                   location = Location(4, 3),
-                  name = TypeName("host"),
+                  name = Identifier("host"),
                   declarations = listOf(
                     Function(
                       documentation = Documentation(" This function is in an inline interface"),
@@ -1037,7 +1037,7 @@ class WitReaderTest {
                         Parameter(
                           location = Location(7, 15),
                           name = Identifier("param"),
-                          type = TypeName("string"),
+                          type = Types.string,
                         ),
                       ),
                     ),
@@ -1078,7 +1078,7 @@ class WitReaderTest {
                   documentation = Documentation(" We can export an inline interface"),
                   gate = Gate(since = "3.0"),
                   location = Location(4, 3),
-                  name = TypeName("guest"),
+                  name = Identifier("guest"),
                   declarations = listOf(
                     Function(
                       documentation = Documentation(" A function in an inline interface"),
@@ -1089,7 +1089,7 @@ class WitReaderTest {
                         Parameter(
                           location = Location(7, 16),
                           name = Identifier("document"),
-                          type = TypeName("string"),
+                          type = Types.string,
                         ),
                       ),
                     ),
@@ -1131,7 +1131,7 @@ class WitReaderTest {
                     Parameter(
                       location = Location(4, 20),
                       name = Identifier("param"),
-                      type = TypeName("string"),
+                      type = Types.string,
                     ),
                   ),
                 ),
@@ -1171,7 +1171,7 @@ class WitReaderTest {
                     Parameter(
                       location = Location(4, 21),
                       name = Identifier("document"),
-                      type = TypeName("string"),
+                      type = Types.string,
                     ),
                   ),
                 ),
@@ -1337,7 +1337,7 @@ class WitReaderTest {
                 documentation = Documentation(" This interface is included in a package."),
                 gate = Gate(since = "2.0"),
                 location = Location(6, 3),
-                name = TypeName("foo"),
+                name = Identifier("foo"),
                 declarations = listOf(),
               ),
             ),
@@ -1480,12 +1480,12 @@ class WitReaderTest {
                   Field(
                     location = Location(3, 5),
                     name = Identifier("seconds"),
-                    type = TypeName("u64"),
+                    type = Types.u64,
                   ),
                   Field(
                     location = Location(4, 5),
                     name = Identifier("nanoseconds"),
-                    type = TypeName("u32"),
+                    type = Types.u32,
                   ),
                 ),
               ),
@@ -1614,7 +1614,7 @@ class WitReaderTest {
                       Parameter(
                         location = Location(3, 17),
                         name = Identifier("init"),
-                        type = TypeName.List(TypeName("u8")),
+                        type = TypeName.List(Types.u8),
                       ),
                     ),
                     returnType = null,
@@ -1626,7 +1626,7 @@ class WitReaderTest {
                       Parameter(
                         location = Location(4, 17),
                         name = Identifier("bytes"),
-                        type = TypeName.List(TypeName("u8")),
+                        type = TypeName.List(Types.u8),
                       ),
                     ),
                     returnType = null,
@@ -1658,7 +1658,7 @@ class WitReaderTest {
               TypeAlias(
                 location = Location(2, 3),
                 name = TypeName("my-awesome-u32"),
-                target = TypeName("u32"),
+                target = Types.u32,
               ),
             ),
           ),
@@ -1735,7 +1735,7 @@ class WitReaderTest {
                   Case(
                     location = Location(5, 5),
                     name = Identifier("some"),
-                    type = TypeName.List(TypeName("string")),
+                    type = TypeName.List(Types.string),
                   ),
                 ),
               ),
