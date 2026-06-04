@@ -36,12 +36,12 @@ class TypeMapperTest {
     val packageTypeResolver = root.refine(PackageName("wasi", "clocks"))
     val interfaceTypeResolver = packageTypeResolver.refine(Identifier("wall-clock"))
 
-    assertThat(interfaceTypeResolver.map(TypeName("datetime")))
+    assertThat(interfaceTypeResolver.map(TypeName.Declared("datetime")))
       .isEqualTo(ClassName("com.clocks", "wall-clock", "datetime"))
 
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        interfaceTypeResolver.map(TypeName("instant"))
+        interfaceTypeResolver.map(TypeName.Declared("instant"))
       },
     ).hasMessage("unable to resolve instant in wasi:clocks/wall-clock")
   }

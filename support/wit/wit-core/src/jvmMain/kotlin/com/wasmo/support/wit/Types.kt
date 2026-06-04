@@ -1,26 +1,29 @@
 package com.wasmo.support.wit
 
-object Types {
-  val bool = TypeName("bool")
-  val s8 = TypeName("s8")
-  val s16 = TypeName("s16")
-  val s32 = TypeName("s32")
-  val s64 = TypeName("s64")
-  val u8 = TypeName("u8")
-  val u16 = TypeName("u16")
-  val u32 = TypeName("u32")
-  val u64 = TypeName("u64")
-  val f32 = TypeName("f32")
-  val f64 = TypeName("f64")
-  val char = TypeName("char")
-  val string = TypeName("string")
-}
-
 sealed class TypeName {
-  data class Simple(
+  object Bool : TypeName()
+  object S8 : TypeName()
+  object S16 : TypeName()
+  object S32 : TypeName()
+  object S64 : TypeName()
+  object U8 : TypeName()
+  object U16 : TypeName()
+  object U32 : TypeName()
+  object U64 : TypeName()
+  object F32 : TypeName()
+  object F64 : TypeName()
+  object Char : TypeName()
+  object String : TypeName()
+
+  /** Identifies a [TypeDeclaration]. */
+  data class Declared(
     val name: Identifier,
   ) : TypeName() {
     override fun toString() = name.toString()
+
+    companion object {
+      operator fun invoke(name: kotlin.String) = Declared(Identifier(name))
+    }
   }
 
   data class Tuple(
@@ -57,9 +60,4 @@ sealed class TypeName {
   data class Stream(
     val type: TypeName? = null,
   ) : TypeName()
-
-  companion object {
-    operator fun invoke(name: String) = Simple(Identifier(name))
-    operator fun invoke(name: Identifier) = Simple(name)
-  }
 }

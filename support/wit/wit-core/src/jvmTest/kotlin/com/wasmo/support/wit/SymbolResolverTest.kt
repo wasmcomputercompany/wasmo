@@ -29,7 +29,7 @@ class SymbolResolverTest {
       root.resolveType(
         inPackageName = PackageName("wasi", "clocks"),
         inInterfaceName = Identifier("wall-clock"),
-        typeName = TypeName("datetime"),
+        typeName = TypeName.Declared("datetime"),
       ),
     ).isEqualTo(TypePath("wasi", "clocks", "wall-clock", "datetime"))
 
@@ -38,7 +38,7 @@ class SymbolResolverTest {
         root.resolveType(
           inPackageName = PackageName("wasi", "clocks"),
           inInterfaceName = Identifier("wall-clock"),
-          typeName = TypeName("instant"),
+          typeName = TypeName.Declared("instant"),
         )
       },
     ).hasMessage("unable to resolve instant in wasi:clocks/wall-clock")

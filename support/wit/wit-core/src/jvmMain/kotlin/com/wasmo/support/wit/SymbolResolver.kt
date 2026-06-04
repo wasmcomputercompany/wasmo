@@ -10,7 +10,7 @@ class SymbolResolver(
   private val witFiles: List<WitFile>,
 ) {
   fun resolveType(
-    typeName: TypeName.Simple,
+    typeName: TypeName.Declared,
     inPackageName: PackageName? = null,
     inInterfaceName: Identifier? = null,
   ): TypePath {
@@ -27,7 +27,7 @@ class SymbolResolver(
   }
 
   fun resolveTypeOrNull(
-    typeName: TypeName.Simple,
+    typeName: TypeName.Declared,
     inPackageName: PackageName? = null,
     inInterfaceName: Identifier? = null,
   ): TypePath? {

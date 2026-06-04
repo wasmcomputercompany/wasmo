@@ -195,10 +195,10 @@ data class Parameter(
   val type: TypeName? = null,
 ) {
   companion object {
-    operator fun invoke(location: Location, name: String, type: String) = Parameter(
+    operator fun invoke(location: Location, name: String, type: TypeName) = Parameter(
       location = location,
       name = Identifier(name),
-      type = TypeName(type),
+      type = type,
     )
   }
 }
