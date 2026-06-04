@@ -29,9 +29,10 @@ import org.w3c.dom.HTMLDivElement
 @Composable
 fun BuildYoursScreen(
   attrs: AttrsScope<HTMLDivElement>.() -> Unit = {},
+  signedInAccountName: String?,
   eventListener: (BuildYoursScreenEvent) -> Unit,
 ) {
-  var nameState by remember { mutableStateOf("jesse99") }
+  var nameState by remember { mutableStateOf(signedInAccountName + "99") }
 
   PageLayout(
     attrs = attrs,
