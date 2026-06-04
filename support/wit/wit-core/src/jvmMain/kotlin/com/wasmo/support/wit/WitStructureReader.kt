@@ -369,7 +369,11 @@ internal class WitStructureReader(
       identifier = readIdentifier()
     }
 
-    checkWit(location, namespaces.isEmpty() == packageNames.isEmpty()) {
+    if (namespaces.isEmpty() && packageNames.isEmpty()) {
+      return UsePath(name = identifier)
+    }
+
+    checkWit(location, namespaces.isNotEmpty() && packageNames.isNotEmpty()) {
       "must have a namespace and a package name, or neither"
     }
 
@@ -458,7 +462,7 @@ internal class WitStructureReader(
     minSize: Int = 1,
     open: Char = '{',
     close: Char = '}',
-    readItem: () -> T
+    readItem: () -> T,
   ): List<T> {
     val result = mutableListOf<T>()
 
