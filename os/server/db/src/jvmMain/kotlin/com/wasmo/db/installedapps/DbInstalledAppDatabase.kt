@@ -12,5 +12,4 @@ data class DbInstalledAppDatabase(
   val slug: DatabaseSlug,
   val createdAt: Instant,
   val version: Long,
-  val credential: ByteString,
 )

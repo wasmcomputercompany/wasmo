@@ -1,5 +1,6 @@
 package wasmo.sql
 
+import com.wasmo.identifiers.Secret
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.RealOsDatabaseInitializer
 import com.wasmo.sql.WasmoPostgresqlConfig
@@ -21,10 +22,10 @@ class FakeSqlService(
       hostname = System.getenv("POSTGRESQL_HOSTNAME") ?: "localhost",
       ssl = false,
       adminUser = "postgres",
-      adminPassword = "password",
+      adminPassword = Secret("password"),
       adminDatabaseName = "postgres",
       osUser = databaseName,
-      osPassword = "password",
+      osPassword = Secret("password"),
       osDatabaseName = databaseName,
     )
 

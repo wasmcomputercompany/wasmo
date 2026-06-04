@@ -21,7 +21,6 @@ suspend fun insertInstalledAppDatabase(
   slug: DatabaseSlug,
   createdAt: Instant,
   version: Long,
-  credential: ByteString,
 ): InstalledAppDatabaseId {
   val rowIterator = connection.executeQuery(
     """
@@ -29,15 +28,13 @@ suspend fun insertInstalledAppDatabase(
       installed_app_id,
       slug,
       created_at,
-      version,
-      credential
+      version
     )
     VALUES (
       $1,
       $2,
       $3,
-      $4,
-      $5
+      $4
     ) RETURNING id
     """,
   ) {
@@ -45,7 +42,6 @@ suspend fun insertInstalledAppDatabase(
     bindDatabaseSlug(1, slug)
     bindInstant(2, createdAt)
     bindS64(3, version)
-    bindBytes(4, credential)
   }
   return rowIterator.single {
     getInstalledAppDatabaseId(0)
@@ -64,8 +60,7 @@ suspend fun selectInstalledAppDatabaseByInstalledAppDbSlug(
       installed_app_id,
       slug,
       created_at,
-      version,
-      credential
+      version
     FROM InstalledAppDatabase
     WHERE
       installed_app_id = $1 AND
@@ -87,6 +82,5 @@ private fun SqlRow.getInstalledAppDatabase() = DbInstalledAppDatabase(
   slug = getDatabaseSlug(2),
   createdAt = getInstant(3)!!,
   version = getS64(4)!!,
-  credential = getBytes(5)!!
 )
 

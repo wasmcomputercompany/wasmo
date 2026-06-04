@@ -1,16 +1,17 @@
 package com.wasmo.sql
 
+import com.wasmo.identifiers.Secret
 import wasmo.sql.SqlConnection
 
 context(connection: SqlConnection)
 internal suspend fun createBareAppUser(
   appUsername: String,
-  appUserPassword: String,
+  appUserPassword: Secret,
 ) {
   connection.execute(
     """
     CREATE USER $appUsername
-    WITH PASSWORD '$appUserPassword'
+    WITH PASSWORD '${appUserPassword.rawUnredactedSecret}'
     NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT
     """,
   )

@@ -18,6 +18,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.okio)
         implementation(libs.vertx.postgresql)
+        implementation(projects.identifiers)
         implementation(projects.os.server.sql.api)
         implementation(projects.os.server.sql.real)
         implementation(projects.platform.api)

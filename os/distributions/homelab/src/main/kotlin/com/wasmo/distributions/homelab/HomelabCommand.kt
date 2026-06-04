@@ -10,6 +10,7 @@ import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.DistributionShortCode
+import com.wasmo.identifiers.Secret
 import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreAddress
@@ -50,10 +51,10 @@ class HomelabCommand : CliktCommand() {
     var postgresqlConfig = WasmoPostgresqlConfig(
       hostname = "localhost",
       adminUser = "postgres",
-      adminPassword = "password",
+      adminPassword = Secret("password"),
       adminDatabaseName = "postgres",
       osUser = "wasmo_homelab",
-      osPassword = "password",
+      osPassword = Secret("password"),
       osDatabaseName = "wasmo_homelab",
     )
 

@@ -7,6 +7,7 @@ import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.DistributionShortCode
+import com.wasmo.identifiers.Secret
 import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
@@ -54,10 +55,10 @@ class SandboxCommand : CliktCommand() {
         hostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
         ssl = false,
         adminUser = "pscale_api_uh85t8q0waqt.hkqtmgf3pdzi",
-        adminPassword = postgresDatabasePassword,
+        adminPassword = Secret(postgresDatabasePassword),
         adminDatabaseName = "postgres",
         osUser = "pscale_api_uh85t8q0waqt.hkqtmgf3pdzi",
-        osPassword = postgresDatabasePassword,
+        osPassword = Secret(postgresDatabasePassword),
         osDatabaseName = "wasmo_dev",
       )
 

@@ -51,7 +51,7 @@ class PostgresqlClient(
         port = address.port
         database = address.databaseName
         user = address.user
-        password = address.password
+        password = address.password.rawUnredactedSecret
         sslMode = when {
           address.ssl -> SslMode.VERIFY_FULL
           else -> SslMode.DISABLE

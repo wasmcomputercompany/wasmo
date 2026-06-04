@@ -16,7 +16,7 @@ class RealOsDatabaseInitializer(
       try {
         client.withConnection {
           execute("CREATE DATABASE ${config.osDatabaseName} WITH ENCODING = 'UTF8'")
-          execute("CREATE USER ${config.osUser} WITH PASSWORD '${config.osPassword}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT")
+          execute("CREATE USER ${config.osUser} WITH PASSWORD '${config.osPassword.rawUnredactedSecret}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT")
           execute("GRANT ALL PRIVILEGES ON DATABASE ${config.osDatabaseName} TO ${config.osUser}")
           execute("ALTER DATABASE ${config.osDatabaseName} OWNER TO ${config.osUser}")
         }

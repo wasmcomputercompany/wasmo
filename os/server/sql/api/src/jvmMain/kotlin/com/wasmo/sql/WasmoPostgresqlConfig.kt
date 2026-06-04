@@ -1,14 +1,16 @@
 package com.wasmo.sql
 
+import com.wasmo.identifiers.Secret
+
 data class WasmoPostgresqlConfig(
   val hostname: String,
   val port: Int = 5432,
   val ssl: Boolean = false,
   val adminUser: String,
-  val adminPassword: String,
+  val adminPassword: Secret,
   val adminDatabaseName: String,
   val osUser: String,
-  val osPassword: String,
+  val osPassword: Secret,
   val osDatabaseName: String,
 ) {
   /** Connect to the database to provision application databases. */
@@ -39,7 +41,7 @@ data class WasmoPostgresqlConfig(
 
   fun appDatabase(
     user: String,
-    password: String,
+    password: Secret,
     databaseName: String,
   ) = PostgresqlAddress(
     hostname = hostname,

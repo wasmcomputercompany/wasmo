@@ -3,8 +3,7 @@ CREATE TABLE InstalledAppDatabase (
   installed_app_id BIGINT NOT NULL,
   slug VARCHAR(255) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL,
-  version BIGINT NOT NULL,
-  credential BYTEA NOT NULL
+  version BIGINT NOT NULL
 );
 
 CREATE UNIQUE INDEX InstalledAppDatabaseInstalledAppIdSlug ON InstalledAppDatabase (
