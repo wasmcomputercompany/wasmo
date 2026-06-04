@@ -22,7 +22,9 @@ class BuildYoursTest {
       scrolling = false,
       background = "var(--pico-background-color)",
     ) {
-      BuildYoursScreen {
+      BuildYoursScreen(
+        signedInAccountName = "jesse"
+      ) {
       }
     }
   }
