@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalContracts::class)
-
 package com.wasmo.support.wit
 
 import com.wasmo.support.wit.Keywords.deprecated
@@ -7,7 +5,6 @@ import com.wasmo.support.wit.Keywords.feature
 import com.wasmo.support.wit.Keywords.since
 import com.wasmo.support.wit.Keywords.unstable
 import com.wasmo.support.wit.Keywords.version
-import kotlin.contracts.ExperimentalContracts
 
 class WitReader private constructor(
   private val source: WitStructureReader,
@@ -146,7 +143,7 @@ class WitReader private constructor(
       documentation = documentation,
       gate = gate,
       location = location,
-      name = TypeName(name),
+      name = name,
       declarations = declarations,
     )
   }
@@ -860,7 +857,7 @@ class WitReader private constructor(
           documentation = documentation,
           gate = gate,
           location = location,
-          name = TypeName(identifier),
+          name = identifier,
           declarations = declarations,
         )
       },
@@ -996,7 +993,7 @@ class WitReader private constructor(
   }
 }
 
-object Keywords {
+internal object Keywords {
   val `interface` = Identifier("interface")
   val `package` = Identifier("package")
   val async = Identifier("async")
