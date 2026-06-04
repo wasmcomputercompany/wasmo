@@ -6,13 +6,9 @@ sealed interface Declaration {
   val location: Location
 }
 
-/** External types are the subjects of imports and exports. */
-sealed interface ExternalType
-
-data class ExternalUsePath(
-  val plainName: Identifier? = null,
-  val path: UsePath,
-) : ExternalType
+sealed interface TypeDeclaration : Declaration {
+  val name: Identifier
+}
 
 @JvmInline
 value class Documentation(
@@ -137,17 +133,17 @@ data class Resource(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val name: TypeName,
+  override val name: Identifier,
   val declarations: List<Declaration>,
-) : Declaration
+) : TypeDeclaration
 
 data class Record(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val name: Identifier,
+  override val name: Identifier,
   val fields: List<Field>,
-) : Declaration
+) : TypeDeclaration
 
 data class Field(
   override val documentation: Documentation? = null,
@@ -173,17 +169,17 @@ data class Variant(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val name: TypeName,
+  override val name: Identifier,
   val cases: List<Case>,
-) : Declaration
+) : TypeDeclaration
 
 data class Enum(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val name: TypeName,
+  override val name: Identifier,
   val cases: List<Case>,
-) : Declaration
+) : TypeDeclaration
 
 data class Case(
   override val documentation: Documentation? = null,
@@ -211,9 +207,9 @@ data class Flags(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val name: TypeName,
+  override val name: Identifier,
   val flags: List<Flag>,
-) : Declaration
+) : TypeDeclaration
 
 data class Flag(
   override val documentation: Documentation? = null,
@@ -226,9 +222,9 @@ data class TypeAlias(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val location: Location,
-  val name: TypeName,
+  override val name: Identifier,
   val target: TypeName,
-) : Declaration
+) : TypeDeclaration
 
 data class TopLevelUse(
   override val documentation: Documentation? = null,
@@ -274,6 +270,14 @@ data class Export(
   override val location: Location,
   val value: ExternalType,
 ) : Declaration
+
+/** External types are the subjects of imports and exports. */
+sealed interface ExternalType
+
+data class ExternalUsePath(
+  val plainName: Identifier? = null,
+  val path: UsePath,
+) : ExternalType
 
 data class Include(
   override val documentation: Documentation? = null,

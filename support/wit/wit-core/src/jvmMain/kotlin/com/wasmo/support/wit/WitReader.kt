@@ -295,7 +295,7 @@ class WitReader private constructor(
       documentation = documentation,
       gate = gate,
       location = location,
-      name = TypeName(name),
+      name = name,
       cases = cases,
     )
   }
@@ -315,7 +315,7 @@ class WitReader private constructor(
     location: Location,
   ): Resource {
     source.skipWhitespace()
-    val name = TypeName(source.readIdentifier())
+    val name = source.readIdentifier()
     val declarations = mutableListOf<Function>()
 
     source.skipWhitespace()
@@ -400,7 +400,7 @@ class WitReader private constructor(
       documentation = documentation,
       gate = gate,
       location = location,
-      name = TypeName(name),
+      name = name,
       flags = flags,
     )
   }
@@ -439,7 +439,7 @@ class WitReader private constructor(
       documentation = documentation,
       gate = gate,
       location = location,
-      name = TypeName(name),
+      name = name,
       cases = cases,
     )
   }
@@ -470,7 +470,7 @@ class WitReader private constructor(
       documentation = documentation,
       gate = gate,
       location = location,
-      name = TypeName(name),
+      name = name,
       target = type,
     )
   }

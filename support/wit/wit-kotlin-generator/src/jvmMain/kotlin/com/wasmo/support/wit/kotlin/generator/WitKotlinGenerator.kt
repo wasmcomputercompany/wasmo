@@ -31,18 +31,20 @@ import com.wasmo.support.wit.WitFile
 import com.wasmo.support.wit.World
 
 class WitKotlinGenerator(
+  private val witFiles: List<WitFile>,
   private val kotlinPackageName: String,
-  private val witFile: WitFile,
 ) {
-  private val typeResolver = TypeResolver(kotlinPackageName, witFile)
+  private val typeResolver = TypeResolver(witFiles, kotlinPackageName)
 
   fun generate(): FileSpec {
     val builder = FileSpec.builder(kotlinPackageName, "Generated")
-    addDeclarations(
-      builder = builder,
-      childrenScope = typeResolver.Scope(packageName = witFile.packageName),
-      children = witFile.declarations,
-    )
+    for (witFile in witFiles) {
+      addDeclarations(
+        builder = builder,
+        typeResolver = typeResolver.refine(witFile.packageName),
+        children = witFile.declarations,
+      )
+    }
     return builder.build()
   }
 
@@ -70,17 +72,17 @@ class WitKotlinGenerator(
 
   private fun addDeclarations(
     builder: Any,
-    childrenScope: TypeResolver.Scope,
+    typeResolver: PackageTypeResolver,
     children: List<Declaration>,
   ) {
     for (declaration in children) {
-      val spec = generate(childrenScope, declaration) ?: continue
+      val spec = generate(typeResolver, declaration) ?: continue
       add(builder, spec)
     }
   }
 
   private fun generate(
-    scope: TypeResolver.Scope,
+    scope: PackageTypeResolver,
     declaration: Declaration,
   ): Any? {
     return when (declaration) {
@@ -93,9 +95,9 @@ class WitKotlinGenerator(
       is Function -> generateFunction(scope, declaration)
       is Import -> null
       is Include -> null
-      is Interface -> generate(scope, declaration)
+      is Interface -> generateInterface(scope, declaration)
       is Package -> null
-      is Record -> generate(scope, declaration)
+      is Record -> generateRecord(scope, declaration)
       is Resource -> null
       is TopLevelUse -> null
       is TypeAlias -> null
@@ -105,23 +107,23 @@ class WitKotlinGenerator(
     }
   }
 
-  private fun generate(
-    scope: TypeResolver.Scope,
+  private fun generateInterface(
+    scope: PackageTypeResolver,
     `interface`: Interface,
   ): TypeSpec {
-    val interfaceScope = scope.copy(interfaceName = `interface`.name)
-    val builder = TypeSpec.interfaceBuilder(interfaceScope.typeName.simpleName)
+    val interfaceScope = scope.refine(interfaceName = `interface`.name)
+    val builder = TypeSpec.interfaceBuilder(interfaceScope.className.simpleName)
     setDeclaration(builder, `interface`)
     addDeclarations(
       builder = builder,
-      childrenScope = interfaceScope,
+      typeResolver = interfaceScope,
       children = `interface`.declarations,
     )
     return builder.build()
   }
 
-  private fun generate(
-    scope: TypeResolver.Scope,
+  private fun generateRecord(
+    scope: PackageTypeResolver,
     record: Record,
   ): TypeSpec {
     val classBuilder = TypeSpec.classBuilder(record.name.name)
@@ -156,7 +158,7 @@ class WitKotlinGenerator(
   }
 
   private fun generateFunction(
-    scope: TypeResolver.Scope,
+    scope: PackageTypeResolver,
     declaration: Function,
   ): FunSpec {
     val builder = FunSpec.builder(declaration.name.name)
