@@ -473,7 +473,7 @@ class WitReaderTest {
                 documentation = Documentation(" big boi"),
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = TypeName("blob"),
+                name = Identifier("blob"),
                 declarations = listOf(
                   Function(
                     documentation = Documentation(" makes a new one"),
@@ -564,7 +564,7 @@ class WitReaderTest {
             declarations = listOf(
               Resource(
                 location = Location(2, 3),
-                name = TypeName("blob"),
+                name = Identifier("blob"),
                 declarations = listOf(),
               ),
             ),
@@ -605,7 +605,7 @@ class WitReaderTest {
                 documentation = Documentation(" whats included"),
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = TypeName("filter"),
+                name = Identifier("filter"),
                 cases = listOf(
                   Case(
                     documentation = Documentation(" all the things"),
@@ -666,7 +666,7 @@ class WitReaderTest {
                 documentation = Documentation(" comic character"),
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = TypeName("properties"),
+                name = Identifier("properties"),
                 flags = listOf(
                   Flag(
                     documentation = Documentation(" plastic"),
@@ -726,7 +726,7 @@ class WitReaderTest {
                 documentation = Documentation(" Roy G."),
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = TypeName("color"),
+                name = Identifier("color"),
                 cases = listOf(
                   Case(
                     documentation = Documentation(" #ff0000"),
@@ -779,14 +779,14 @@ class WitReaderTest {
                 documentation = Documentation(" So Awesome."),
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = TypeName("my-awesome-u32"),
+                name = Identifier("my-awesome-u32"),
                 target = Types.u32,
               ),
               TypeAlias(
                 documentation = Documentation(" So Complicated."),
                 gate = Gate(since = "2.0"),
                 location = Location(7, 3),
-                name = TypeName("my-complicated-tuple"),
+                name = Identifier("my-complicated-tuple"),
                 target = TypeName.Tuple(
                   listOf(
                     Types.u32,
@@ -1517,7 +1517,7 @@ class WitReaderTest {
             declarations = listOf(
               Enum(
                 location = Location(2, 3),
-                name = TypeName("color"),
+                name = Identifier("color"),
                 cases = listOf(
                   Case(
                     location = Location(3, 5),
@@ -1561,7 +1561,7 @@ class WitReaderTest {
             declarations = listOf(
               Flags(
                 location = Location(2, 3),
-                name = TypeName("properties"),
+                name = Identifier("properties"),
                 flags = listOf(
                   Flag(
                     location = Location(3, 5),
@@ -1604,7 +1604,7 @@ class WitReaderTest {
             declarations = listOf(
               Resource(
                 location = Location(2, 3),
-                name = TypeName("blob"),
+                name = Identifier("blob"),
                 declarations = listOf(
                   Function(
                     location = Location(3, 5),
@@ -1657,7 +1657,7 @@ class WitReaderTest {
             declarations = listOf(
               TypeAlias(
                 location = Location(2, 3),
-                name = TypeName("my-awesome-u32"),
+                name = Identifier("my-awesome-u32"),
                 target = Types.u32,
               ),
             ),
@@ -1722,7 +1722,7 @@ class WitReaderTest {
             declarations = listOf(
               Variant(
                 location = Location(2, 3),
-                name = TypeName("filter"),
+                name = Identifier("filter"),
                 cases = listOf(
                   Case(
                     location = Location(3, 5),

@@ -28,15 +28,14 @@ class WitKotlinGeneratorTest {
     ).read()
 
     val fileSpec = WitKotlinGenerator(
+      witFiles = listOf(witFile),
       kotlinPackageName = "com.example",
-      witFile = witFile,
     ).generate()
 
     assertThat(fileSpec.toString()).isEqualTo(
       """
       |package com.example
       |
-      |import kotlin.String
       |import kotlin.UInt
       |import kotlin.ULong
       |
@@ -47,7 +46,7 @@ class WitKotlinGeneratorTest {
       |  /**
       |   * Read the current value of the clock.
       |   */
-      |  public fun now(): String
+      |  public fun now(): datetime
       |
       |  /**
       |   * A time and date in seconds plus nanoseconds.
