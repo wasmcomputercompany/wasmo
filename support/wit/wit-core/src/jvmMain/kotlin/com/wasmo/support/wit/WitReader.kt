@@ -238,7 +238,7 @@ class WitReader private constructor(
       documentation = documentation,
       gate = gate,
       location = location,
-      name = TypeName(name),
+      name = name,
       fields = fields,
     )
   }
