@@ -278,7 +278,20 @@ internal class WitStructureReader(
       Keywords.borrow -> TypeName.Borrow(readTypeList("borrow", min = 1, max = 1).single())
       Keywords.future -> TypeName.Future(readTypeList("future", min = 0, max = 1).singleOrNull())
       Keywords.stream -> TypeName.Stream(readTypeList("stream", min = 0, max = 1).singleOrNull())
-      else -> TypeName.Simple(identifier)
+      Keywords.bool -> TypeName.Bool
+      Keywords.s8 -> TypeName.S8
+      Keywords.s16 -> TypeName.S16
+      Keywords.s32 -> TypeName.S32
+      Keywords.s64 -> TypeName.S64
+      Keywords.u8 -> TypeName.U8
+      Keywords.u16 -> TypeName.U16
+      Keywords.u32 -> TypeName.U32
+      Keywords.u64 -> TypeName.U64
+      Keywords.f32 -> TypeName.F32
+      Keywords.f64 -> TypeName.F64
+      Keywords.char -> TypeName.Char
+      Keywords.string -> TypeName.String
+      else -> TypeName.Declared(identifier)
     }
   }
 

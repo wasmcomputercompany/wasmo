@@ -8,7 +8,6 @@ import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.SymbolResolver
 import com.wasmo.support.wit.TypeName
-import com.wasmo.support.wit.Types
 
 /**
  * Map WIT types to Kotlin types.
@@ -48,7 +47,7 @@ internal class RealRootTypeMapper(
       ?: error("unable to resolve $typeName")
 
   private fun resolveSimpleTypeNameOrNull(
-    typeName: TypeName.Simple,
+    typeName: TypeName.Declared,
     packageName: PackageName? = null,
     interfaceName: Identifier? = null,
   ): ClassName {
@@ -65,6 +64,20 @@ internal class RealRootTypeMapper(
     if (specialCase != null) return specialCase
 
     return when (typeName) {
+      TypeName.Bool -> ClassNames.Boolean
+      TypeName.S8 -> ClassNames.Byte
+      TypeName.S16 -> ClassNames.Short
+      TypeName.S32 -> ClassNames.Int
+      TypeName.S64 -> ClassNames.Long
+      TypeName.U8 -> ClassNames.UByte
+      TypeName.U16 -> ClassNames.UShort
+      TypeName.U32 -> ClassNames.UInt
+      TypeName.U64 -> ClassNames.ULong
+      TypeName.F32 -> ClassNames.Float
+      TypeName.F64 -> ClassNames.Double
+      TypeName.Char -> ClassNames.Int
+      TypeName.String -> ClassNames.String
+
       is TypeName.Borrow -> ClassNames.Borrow.parameterizedBy(map(typeName.type))
       is TypeName.Future -> ClassNames.Deferred.parameterizedBy(
         typeName.type?.let { map(it) } ?: STAR,
@@ -82,7 +95,7 @@ internal class RealRootTypeMapper(
         typeName.err?.let { map(it) } ?: STAR,
       )
 
-      is TypeName.Simple -> resolveSimpleTypeNameOrNull(typeName, packageName, interfaceName)
+      is TypeName.Declared -> resolveSimpleTypeNameOrNull(typeName, packageName, interfaceName)
 
       is TypeName.Stream -> ClassNames.Stream.parameterizedBy(
         typeName.type?.let { map(it) } ?: STAR,
@@ -159,38 +172,37 @@ internal class RealRootTypeMapper(
 }
 
 private object ClassNames {
+  val Boolean = ClassName("kotlin", "Boolean")
   val Borrow = ClassName("com.wasmo.support.wit.kotlin", "Borrow")
+  val Byte = ClassName("kotlin", "Byte")
   val Deferred = ClassName("kotlinx.coroutines", "Deferred")
+  val Double = ClassName("kotlin", "Double")
+  val Float = ClassName("kotlin", "Float")
+  val Int = ClassName("kotlin", "Int")
   val List = ClassName("kotlin.collections", "List")
+  val Long = ClassName("kotlin", "Long")
   val Map = ClassName("kotlin.collections", "Map")
   val Pair = ClassName("kotlin", "Pair")
-  val Triple = ClassName("kotlin", "Triple")
   val Quad = ClassName("com.wasmo.support.wit.kotlin", "Quad")
+  val Short = ClassName("kotlin", "Short")
   val Stream = ClassName("com.wasmo.support.wit.kotlin", "Stream")
+  val String = ClassName("kotlin", "String")
+  val Triple = ClassName("kotlin", "Triple")
+  val UByte = ClassName("kotlin", "UByte")
+  val UInt = ClassName("kotlin", "UInt")
+  val ULong = ClassName("kotlin", "ULong")
+  val UShort = ClassName("kotlin", "UShort")
 
   val WasmToKotlin = mapOf(
-    Types.bool to ClassName("kotlin", "Boolean"),
-    Types.s8 to ClassName("kotlin", "Byte"),
-    Types.s16 to ClassName("kotlin", "Short"),
-    Types.s32 to ClassName("kotlin", "Int"),
-    Types.s64 to ClassName("kotlin", "Long"),
-    Types.u8 to ClassName("kotlin", "UByte"),
-    Types.u16 to ClassName("kotlin", "UShort"),
-    Types.u32 to ClassName("kotlin", "UInt"),
-    Types.u64 to ClassName("kotlin", "ULong"),
-    Types.f32 to ClassName("kotlin", "Float"),
-    Types.f64 to ClassName("kotlin", "Double"),
-    Types.char to ClassName("kotlin", "Int"),
-    Types.string to ClassName("kotlin", "String"),
-    TypeName.List(Types.s8) to ClassName("kotlin", "ByteArray"),
-    TypeName.List(Types.s16) to ClassName("kotlin", "ShortArray"),
-    TypeName.List(Types.s32) to ClassName("kotlin", "IntArray"),
-    TypeName.List(Types.s64) to ClassName("kotlin", "LongAray"),
-    TypeName.List(Types.u8) to ClassName("kotlin", "UByteArray"),
-    TypeName.List(Types.u16) to ClassName("kotlin", "UShortArray"),
-    TypeName.List(Types.u32) to ClassName("kotlin", "UIntArray"),
-    TypeName.List(Types.u64) to ClassName("kotlin", "ULongAray"),
-    TypeName.List(Types.f32) to ClassName("kotlin", "FloatArray"),
-    TypeName.List(Types.f64) to ClassName("kotlin", "DoubleArray"),
+    TypeName.List(TypeName.S8) to ClassName("kotlin", "ByteArray"),
+    TypeName.List(TypeName.S16) to ClassName("kotlin", "ShortArray"),
+    TypeName.List(TypeName.S32) to ClassName("kotlin", "IntArray"),
+    TypeName.List(TypeName.S64) to ClassName("kotlin", "LongAray"),
+    TypeName.List(TypeName.U8) to ClassName("kotlin", "UByteArray"),
+    TypeName.List(TypeName.U16) to ClassName("kotlin", "UShortArray"),
+    TypeName.List(TypeName.U32) to ClassName("kotlin", "UIntArray"),
+    TypeName.List(TypeName.U64) to ClassName("kotlin", "ULongAray"),
+    TypeName.List(TypeName.F32) to ClassName("kotlin", "FloatArray"),
+    TypeName.List(TypeName.F64) to ClassName("kotlin", "DoubleArray"),
   )
 }
