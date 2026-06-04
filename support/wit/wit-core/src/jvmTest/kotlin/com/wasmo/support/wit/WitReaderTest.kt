@@ -252,7 +252,7 @@ class WitReaderTest {
             declarations = listOf(
               Record(
                 location = Location(4, 3),
-                name = TypeName("datetime"),
+                name = Identifier("datetime"),
                 fields = listOf(
                   Field(
                     location = Location(5, 5),
@@ -343,7 +343,7 @@ class WitReaderTest {
                 documentation = Documentation(" spacetime"),
                 gate = Gate(since = "2.0"),
                 location = Location(4, 3),
-                name = TypeName("datetime"),
+                name = Identifier("datetime"),
                 fields = listOf(
                   Field(
                     documentation = Documentation(" just a second"),
@@ -1475,7 +1475,7 @@ class WitReaderTest {
             declarations = listOf(
               Record(
                 location = Location(2, 3),
-                name = TypeName("datetime"),
+                name = Identifier("datetime"),
                 fields = listOf(
                   Field(
                     location = Location(3, 5),

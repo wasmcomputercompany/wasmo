@@ -118,6 +118,7 @@ include(":support:router")
 include(":support:tokens")
 include(":support:wit:wit-core")
 include(":support:wit:wit-kotlin")
+include(":support:wit:wit-kotlin-generator")
 include(":wasmox:wasmox-sql")
 include(":wasmox:wasmox-sqldelight")
 
