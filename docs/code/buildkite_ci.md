@@ -39,8 +39,7 @@ Local Execution
 Rebuild the container if necessary.
 
 ```bash
-$ cd ../..
-$ cd wasmo-build/ci
+$ cd ../../wasmo-build/ci
 $ docker build -t wasmo/ci .
 $ docker push wasmo/ci
 ```
@@ -52,7 +51,7 @@ $ cd ../..
 $ docker-compose \
   -f .buildkite/docker-compose.yml \
   run ci-build \
-  gradle :jvmTest -Pwasmo.build.environment=ci
+  gradle jvmTest jsTest -Pwasmo.build.environment=ci
 ```
 
 Consider keeping a separate clone of the Wasmo repo for doing Linux x64 builds. Our Gradle plugins

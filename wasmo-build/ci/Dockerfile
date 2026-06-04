@@ -1,5 +1,11 @@
 # Wasmo CI
 #
+# It's got:
+#   - OpenJDK
+#   - Gradle
+#   - NodeJS (for jsNodeTest)
+#   - Chromium (for jsBrowserTest)
+#
 # This file includes code from Gradle's Dockerfile
 # Copyright 2025 Gradle Inc.
 # https://www.apache.org/licenses/LICENSE-2.0
@@ -21,8 +27,21 @@ RUN set -o errexit -o nounset \
       tar \
       xz \
       \
+    && echo "Installing Chromium with apk" \
+    && apk add --no-cache \
+      chromium \
+      dbus \
+      dbus-x11 \
+      nss \
+      ca-certificates \
+      freetype \
+      freetype-dev \
+      harfbuzz \
+      ttf-freefont \
+      \
     && echo "Testing utilities" \
     && which awk \
+    && which chromium \
     && which curl \
     && which cut \
     && which grep \
@@ -32,6 +51,12 @@ RUN set -o errexit -o nounset \
     && which tar \
     && which tr \
     && which unzip
+
+COPY ./wasmo-ci /wasmo-ci
+RUN chmod o+rwx /wasmo-ci/bin/*
+
+# Help Karma find Chromium for Kotlin/JS tests.
+ENV CHROME_BIN="/wasmo-ci/bin/chromium"
 
 # Install Gradle.
 ENV GRADLE_VERSION=9.5.1
@@ -110,4 +135,12 @@ RUN --mount=type=cache,target=/downloads,rw \
     && npm --version \
     && rm -rf /tmp/*
 
+RUN mkdir -p /run/dbus \
+    && chown gradle:gradle /run/dbus
+
+USER gradle
+
+ENV DBUS_SESSION_BUS_ADDRESS autolaunch:
+
+ENTRYPOINT ["/wasmo-ci/bin/entrypoint"]
 CMD ["gradle"]
