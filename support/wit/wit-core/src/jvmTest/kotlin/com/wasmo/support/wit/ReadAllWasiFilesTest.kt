@@ -2,7 +2,6 @@ package com.wasmo.support.wit
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.fail
 import okio.FileSystem
@@ -22,9 +21,8 @@ class ReadAllWasiFilesTest {
         readUtf8()
       }
 
-      val witReader = WitReader(witContent)
       try {
-        witReader.read()
+        witContent.toWitFile()
       } catch (e: WitException) {
         fail("decoding $path failed at ${e.location}: ${e.issue}")
       }
@@ -40,7 +38,6 @@ class ReadAllWasiFilesTest {
   }
 
   @Test
-  @Ignore("many SymbolResolver features aren't implemented yet")
   fun `resolve all types`() {
     val directories = mutableListOf(
       wasiProposals / "cli/wit",
@@ -57,7 +54,7 @@ class ReadAllWasiFilesTest {
       .filter { it.name.endsWith(".wit") }
       .associateWith {
         fileSystem.read(it) {
-          WitReader(readUtf8()).read()
+          readUtf8().toWitFile()
         }
       }
 
@@ -71,9 +68,10 @@ class ReadAllWasiFilesTest {
             inPackageName = ref.packageName,
             inInterfaceName = ref.interfaceName,
           )
-          println("resolved ${ref.typeName} from $path at ${ref.location}")
         } catch (e: IllegalArgumentException) {
-          println("failed to resolve ${ref.typeName} from $path at ${ref.location}: $e")
+          throw IllegalArgumentException(
+            "failed to resolve ${ref.typeName} from $path at ${ref.location}", e
+          )
         }
       }
     }

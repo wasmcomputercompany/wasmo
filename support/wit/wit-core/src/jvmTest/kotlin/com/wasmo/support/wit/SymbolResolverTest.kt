@@ -9,8 +9,7 @@ import kotlin.test.assertFailsWith
 class SymbolResolverTest {
   @Test
   fun `resolve local symbols`() {
-    val witFile = WitReader(
-      """
+    val witFile = """
       |package wasi:clocks;
       |
       |interface wall-clock {
@@ -18,8 +17,7 @@ class SymbolResolverTest {
       |        seconds: u64,
       |    }
       |}
-      """.trimMargin(),
-    ).read()
+      """.trimMargin().toWitFile()
 
     val root = SymbolResolver(
       witFiles = listOf(witFile),

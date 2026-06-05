@@ -2,14 +2,13 @@ package com.wasmo.support.wit.kotlin.generator
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.support.wit.WitReader
+import com.wasmo.support.wit.toWitFile
 import kotlin.test.Test
 
 class WitKotlinGeneratorTest {
   @Test
   fun happyPath() {
-    val witFile = WitReader(
-      """
+    val witFile = """
       |/// gets the epoch time
       |@since(version = 0.2.0)
       |interface wall-clock {
@@ -24,8 +23,7 @@ class WitKotlinGeneratorTest {
       |    @since(version = 0.2.0)
       |    now: func() -> datetime;
       |}
-      """.trimMargin(),
-    ).read()
+      """.trimMargin().toWitFile()
 
     val fileSpec = WitKotlinGenerator(
       witFiles = listOf(witFile),

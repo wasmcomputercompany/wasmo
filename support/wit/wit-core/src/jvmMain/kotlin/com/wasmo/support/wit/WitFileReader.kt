@@ -6,7 +6,9 @@ import com.wasmo.support.wit.Keywords.since
 import com.wasmo.support.wit.Keywords.unstable
 import com.wasmo.support.wit.Keywords.version
 
-class WitReader private constructor(
+fun String.toWitFile(): WitFile = WitFileReader(this).read()
+
+internal class WitFileReader(
   private val source: WitStructureReader,
 ) {
   constructor(string: String) : this(WitStructureReader(string))
