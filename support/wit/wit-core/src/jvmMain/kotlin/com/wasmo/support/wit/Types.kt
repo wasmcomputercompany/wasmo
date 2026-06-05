@@ -1,19 +1,19 @@
 package com.wasmo.support.wit
 
 sealed class TypeName {
-  object Bool : TypeName()
-  object S8 : TypeName()
-  object S16 : TypeName()
-  object S32 : TypeName()
-  object S64 : TypeName()
-  object U8 : TypeName()
-  object U16 : TypeName()
-  object U32 : TypeName()
-  object U64 : TypeName()
-  object F32 : TypeName()
-  object F64 : TypeName()
-  object Char : TypeName()
-  object String : TypeName()
+  data object Bool : TypeName()
+  data object S8 : TypeName()
+  data object S16 : TypeName()
+  data object S32 : TypeName()
+  data object S64 : TypeName()
+  data object U8 : TypeName()
+  data object U16 : TypeName()
+  data object U32 : TypeName()
+  data object U64 : TypeName()
+  data object F32 : TypeName()
+  data object F64 : TypeName()
+  data object Char : TypeName()
+  data object String : TypeName()
 
   /** Identifies a [TypeDeclaration]. */
   data class Declared(

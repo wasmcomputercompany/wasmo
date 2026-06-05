@@ -546,7 +546,7 @@ class WitReader private constructor(
       }
 
       Use.Item(
-        name = itemName,
+        type = TypeName.Declared(itemName),
         alias = alias,
       )
     }
@@ -898,7 +898,7 @@ class WitReader private constructor(
       source.tryReadLiteral("with") -> {
         source.readCommaSeparatedList {
           source.skipWhitespace()
-          val name = source.readIdentifier()
+          val name = TypeName.Declared(source.readIdentifier())
 
           source.skipWhitespace()
           source.readLiteral("as")
@@ -907,7 +907,7 @@ class WitReader private constructor(
           val alias = source.readIdentifier()
 
           Include.Item(
-            name = name,
+            type = name,
             alias = alias,
           )
         }

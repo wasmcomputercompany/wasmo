@@ -2,6 +2,7 @@ package com.wasmo.support.wit
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.fail
 import okio.FileSystem
@@ -12,7 +13,7 @@ class ReadAllWasiFilesTest {
   private val wasiProposals = "../../../submodules/WASI/proposals".toPath()
 
   @Test
-  fun test() {
+  fun `parse all files`() {
     var witFileCount = 0
     for (path in fileSystem.listRecursively(wasiProposals)) {
       if (!path.name.endsWith(".wit")) continue
@@ -36,5 +37,45 @@ class ReadAllWasiFilesTest {
     //
     // But don't change it to 0, that means our paths are out of date.
     assertThat(witFileCount).isEqualTo(57)
+  }
+
+  @Test
+  @Ignore("many SymbolResolver features aren't implemented yet")
+  fun `resolve all types`() {
+    val directories = mutableListOf(
+      wasiProposals / "cli/wit",
+      wasiProposals / "clocks/wit",
+      wasiProposals / "filesystem/wit",
+      wasiProposals / "http/wit",
+      wasiProposals / "io/wit",
+      wasiProposals / "random/wit",
+      wasiProposals / "sockets/wit",
+    )
+
+    val witFiles = directories
+      .flatMap { fileSystem.listRecursively(it) }
+      .filter { it.name.endsWith(".wit") }
+      .associateWith {
+        fileSystem.read(it) {
+          WitReader(readUtf8()).read()
+        }
+      }
+
+    val resolver = SymbolResolver(witFiles.values.toList())
+    for ((path, witFile) in witFiles) {
+      for (ref in witFile.typeReferences()) {
+        val declaredType = ref.typeName as? TypeName.Declared ?: continue
+        try {
+          resolver.resolveType(
+            typeName = declaredType,
+            inPackageName = ref.packageName,
+            inInterfaceName = ref.interfaceName,
+          )
+          println("resolved ${ref.typeName} from $path at ${ref.location}")
+        } catch (e: IllegalArgumentException) {
+          println("failed to resolve ${ref.typeName} from $path at ${ref.location}: $e")
+        }
+      }
+    }
   }
 }

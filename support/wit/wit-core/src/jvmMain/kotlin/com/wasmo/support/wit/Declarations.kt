@@ -252,7 +252,7 @@ data class Use(
   val items: List<Item>,
 ) : Declaration {
   data class Item(
-    val name: Identifier,
+    val type: TypeName.Declared,
     val alias: Identifier? = null,
   )
 }
@@ -279,6 +279,14 @@ data class ExternalUsePath(
   val path: UsePath,
 ) : ExternalType
 
+/**
+ * Examples:
+ *
+ * ```wit
+ * include wasi:io/my-world-1 with { a as a1, b as b1 };
+ * include my-world-2;
+ * ```
+ */
 data class Include(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
@@ -287,7 +295,7 @@ data class Include(
   val items: List<Item>,
 ) : Declaration {
   data class Item(
-    val name: Identifier,
+    val type: TypeName.Declared,
     val alias: Identifier,
   )
 }
