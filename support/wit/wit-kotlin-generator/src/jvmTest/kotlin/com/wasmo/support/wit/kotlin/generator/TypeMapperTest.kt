@@ -8,9 +8,11 @@ import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.SymbolResolver
 import com.wasmo.support.wit.TypeName
+import com.wasmo.support.wit.WitPackage
 import com.wasmo.support.wit.toWitFile
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import okio.Path.Companion.toPath
 
 class TypeMapperTest {
   @Test
@@ -25,21 +27,27 @@ class TypeMapperTest {
       |}
       """.trimMargin().toWitFile()
 
-    val symbolResolver = SymbolResolver(listOf(witFile))
-    val root = TypeMapper(
+    val symbolResolver = SymbolResolver(
+      packages = listOf(
+        WitPackage(
+          packageName = PackageName("wasi", "clocks"),
+          files = mapOf("clock.wit".toPath() to witFile)
+        )
+      ),
+    )
+    val typeMapper = TypeMapper(
       symbolResolver = symbolResolver,
-      kotlinPackageName = "com.clocks",
     )
 
-    val packageTypeResolver = root.refine(PackageName("wasi", "clocks"))
-    val interfaceTypeResolver = packageTypeResolver.refine(Identifier("wall-clock"))
+    val packageTypeMapper = typeMapper.refine(PackageName("wasi", "clocks"))
+    val interfaceTypeMapper = packageTypeMapper.refine(Identifier("wall-clock"))
 
-    assertThat(interfaceTypeResolver.map(TypeName.Declared("datetime")))
-      .isEqualTo(ClassName("com.clocks", "wall-clock", "datetime"))
+    assertThat(interfaceTypeMapper.map(TypeName.Declared("datetime")))
+      .isEqualTo(ClassName("wit", "wall-clock", "datetime"))
 
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        interfaceTypeResolver.map(TypeName.Declared("instant"))
+        interfaceTypeMapper.map(TypeName.Declared("instant"))
       },
     ).hasMessage("unable to resolve instant in wasi:clocks/wall-clock")
   }

@@ -1,18 +1,23 @@
 package com.wasmo.support.wit
 
+import okio.Path
+
 /**
- * Returns all type references in this file.
+ * Returns all type references in this package.
  *
  * Use this to reject broken references independent of code generation. This will find broken
  * references that aren't necessary to generate source code. In particular, unused [Use]
  * declarations don't otherwise impact source code.
  */
-fun WitFile.typeReferences(): Sequence<TypeReference> = sequence {
-  for (declaration in declarations) {
-    TypeReferenceScanner(
-      packageName = packageName,
-      subject = declaration,
-    ).scan()
+fun WitPackage.typeReferences(): Sequence<TypeReference> = sequence {
+  for ((path, witFile) in files) {
+    for (declaration in witFile.declarations) {
+      TypeReferenceScanner(
+        path = path,
+        packageName = packageName,
+        subject = declaration,
+      ).scan()
+    }
   }
 }
 
@@ -24,6 +29,7 @@ fun WitFile.typeReferences(): Sequence<TypeReference> = sequence {
  * type.
  */
 data class TypeReference(
+  val path: Path,
   val location: Location,
   val packageName: PackageName?,
   val interfaceName: Identifier?,
@@ -32,6 +38,7 @@ data class TypeReference(
 
 /** Does a depth-first traversal of [subject], looking for [TypeName] instances. */
 private class TypeReferenceScanner(
+  private val path: Path,
   private val packageName: PackageName?,
   private val interfaceName: Identifier? = null,
   private val subject: Declaration,
@@ -86,6 +93,7 @@ private class TypeReferenceScanner(
     packageName: PackageName? = this.packageName,
     interfaceName: Identifier? = this.interfaceName,
   ) = TypeReferenceScanner(
+    path = path,
     subject = subject,
     packageName = packageName,
     interfaceName = interfaceName,
@@ -109,7 +117,7 @@ private class TypeReferenceScanner(
   context(sequence: SequenceScope<TypeReference>)
   private suspend fun yield(type: TypeName?) {
     if (type != null) {
-      sequence.yield(TypeReference(subject.location, packageName, interfaceName, type))
+      sequence.yield(TypeReference(path, subject.location, packageName, interfaceName, type))
     }
   }
 }

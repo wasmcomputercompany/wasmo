@@ -5,6 +5,7 @@ import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import okio.Path.Companion.toPath
 
 class SymbolResolverTest {
   @Test
@@ -19,12 +20,17 @@ class SymbolResolverTest {
       |}
       """.trimMargin().toWitFile()
 
-    val root = SymbolResolver(
-      witFiles = listOf(witFile),
+    val resolver = SymbolResolver(
+      packages = listOf(
+        WitPackage(
+          packageName = PackageName("wasi", "clocks"),
+          files = mapOf("clock.wit".toPath() to witFile)
+        )
+      ),
     )
 
     assertThat(
-      root.resolveType(
+      resolver.resolveType(
         inPackageName = PackageName("wasi", "clocks"),
         inInterfaceName = Identifier("wall-clock"),
         typeName = TypeName.Declared("datetime"),
@@ -33,7 +39,7 @@ class SymbolResolverTest {
 
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        root.resolveType(
+        resolver.resolveType(
           inPackageName = PackageName("wasi", "clocks"),
           inInterfaceName = Identifier("wall-clock"),
           typeName = TypeName.Declared("instant"),

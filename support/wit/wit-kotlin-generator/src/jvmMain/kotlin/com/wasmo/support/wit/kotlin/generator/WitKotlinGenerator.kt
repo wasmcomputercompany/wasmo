@@ -28,26 +28,26 @@ import com.wasmo.support.wit.TopLevelUse
 import com.wasmo.support.wit.TypeAlias
 import com.wasmo.support.wit.Use
 import com.wasmo.support.wit.Variant
-import com.wasmo.support.wit.WitFile
+import com.wasmo.support.wit.WitPackage
 import com.wasmo.support.wit.World
 
 class WitKotlinGenerator(
-  private val witFiles: List<WitFile>,
-  private val kotlinPackageName: String,
+  private val witPackages: List<WitPackage>,
 ) {
   private val typeMapper = TypeMapper(
-    SymbolResolver(witFiles),
-    kotlinPackageName,
+    SymbolResolver(witPackages),
   )
 
   fun generate(): FileSpec {
-    val builder = FileSpec.builder(kotlinPackageName, "Generated")
-    for (witFile in witFiles) {
-      addDeclarations(
-        builder = builder,
-        typeResolver = typeMapper.refine(witFile.packageName),
-        children = witFile.declarations,
-      )
+    val builder = FileSpec.builder("wit", "Generated")
+    for (witPackage in witPackages) {
+      for (witFile in witPackage.files.values) {
+        addDeclarations(
+          builder = builder,
+          typeResolver = typeMapper.refine(witPackage.packageName),
+          children = witFile.declarations,
+        )
+      }
     }
     return builder.build()
   }

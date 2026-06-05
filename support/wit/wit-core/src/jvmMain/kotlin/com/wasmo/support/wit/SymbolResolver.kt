@@ -7,7 +7,7 @@ package com.wasmo.support.wit
  *  * [Use]
  */
 class SymbolResolver(
-  private val witFiles: List<WitFile>,
+  private val packages: List<WitPackage>,
 ) {
   fun resolveType(
     typeName: TypeName.Declared,
@@ -31,16 +31,17 @@ class SymbolResolver(
     inPackageName: PackageName? = null,
     inInterfaceName: Identifier? = null,
   ): TypePath? {
-    for (witFile in witFiles) {
-      if (witFile.packageName != inPackageName) continue
+    for (witPackage in packages) {
+      if (witPackage.packageName != inPackageName) continue
+      for (witFile in witPackage.files.values) {
+        for (`interface` in witFile.declarations) {
+          if (`interface` !is Interface || `interface`.name != inInterfaceName) continue
 
-      for (`interface` in witFile.declarations) {
-        if (`interface` !is Interface || `interface`.name != inInterfaceName) continue
-
-        for (type in `interface`.declarations) {
-          if (type !is TypeDeclaration) continue
-          if (type.name == typeName.name) {
-            return TypePath(witFile.packageName, inInterfaceName, type.name)
+          for (type in `interface`.declarations) {
+            if (type !is TypeDeclaration) continue
+            if (type.name == typeName.name) {
+              return TypePath(witPackage.packageName, inInterfaceName, type.name)
+            }
           }
         }
       }

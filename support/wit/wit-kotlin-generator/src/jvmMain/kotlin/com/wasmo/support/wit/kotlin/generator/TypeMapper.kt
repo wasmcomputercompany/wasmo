@@ -32,15 +32,15 @@ interface InterfaceTypeMapper : PackageTypeMapper {
 
 fun TypeMapper(
   symbolResolver: SymbolResolver,
-  kotlinPackageName: String,
+  kotlinPackagePrefix: String = "wit",
 ): RootTypeMapper = RealRootTypeMapper(
   symbolResolver = symbolResolver,
-  kotlinPackageName = kotlinPackageName,
+  kotlinPackagePrefix = kotlinPackagePrefix,
 )
 
 internal class RealRootTypeMapper(
   private val symbolResolver: SymbolResolver,
-  private val kotlinPackageName: String,
+  private val kotlinPackagePrefix: String,
 ) : RootTypeMapper {
   override fun map(typeName: TypeName): KotlinTypeName =
     resolveTypeNameOrNull(typeName)
@@ -162,7 +162,7 @@ internal class RealRootTypeMapper(
   private fun className(
     packageName: PackageName?,
     interfaceName: Identifier,
-  ) = ClassName(kotlinPackageName, interfaceName.name)
+  ) = ClassName(kotlinPackagePrefix, interfaceName.name)
 
   private fun className(
     packageName: PackageName?,
