@@ -39,14 +39,67 @@ fun TypeMapper(
 )
 
 internal class RealRootTypeMapper(
-  private val symbolResolver: SymbolResolver,
-  private val kotlinPackagePrefix: String,
-) : RootTypeMapper {
+  override val symbolResolver: SymbolResolver,
+  override val kotlinPackagePrefix: String,
+) : AbstractTypeMapper(), RootTypeMapper
+
+internal class RealPackageTypeMapper(
+  override val symbolResolver: SymbolResolver,
+  override val kotlinPackagePrefix: String,
+  override val packageName: PackageName?,
+) : AbstractTypeMapper(), PackageTypeMapper {
+  override fun refine(interfaceName: Identifier) =
+    RealInterfaceTypeMapper(symbolResolver, kotlinPackagePrefix, packageName, interfaceName)
+
+  override fun map(typeName: TypeName): KotlinTypeName {
+    return resolveTypeNameOrNull(typeName, packageName)
+      ?: throw IllegalArgumentException(
+        buildString {
+          append("unable to resolve $typeName")
+          if (packageName != null) {
+            append(" in $packageName")
+          }
+        },
+      )
+  }
+}
+
+internal class RealInterfaceTypeMapper(
+  override val symbolResolver: SymbolResolver,
+  override val kotlinPackagePrefix: String,
+  override val packageName: PackageName?,
+  override val interfaceName: Identifier,
+) : AbstractTypeMapper(), InterfaceTypeMapper {
+  override val className: ClassName
+    get() = className(kotlinPackagePrefix, packageName, interfaceName)
+
+  override fun refine(interfaceName: Identifier) =
+    RealInterfaceTypeMapper(symbolResolver, kotlinPackagePrefix, packageName, interfaceName)
+
+  override fun map(typeName: TypeName): KotlinTypeName {
+    return resolveTypeNameOrNull(typeName, packageName, interfaceName)
+      ?: throw IllegalArgumentException(
+        buildString {
+          append("unable to resolve $typeName")
+          if (packageName != null) {
+            append(" in $packageName.$interfaceName")
+          } else {
+            append(" in $interfaceName")
+          }
+        },
+      )
+  }
+}
+
+abstract class AbstractTypeMapper : TypeMapper {
+  abstract val symbolResolver: SymbolResolver
+  abstract val kotlinPackagePrefix: String
+
   override fun map(typeName: TypeName): KotlinTypeName =
     resolveTypeNameOrNull(typeName)
       ?: error("unable to resolve $typeName")
 
-  private fun resolveSimpleTypeNameOrNull(
+  protected fun resolveSimpleTypeNameOrNull(
     typeName: TypeName.Declared,
     packageName: PackageName? = null,
     interfaceName: Identifier? = null,
@@ -60,7 +113,7 @@ internal class RealRootTypeMapper(
     )
   }
 
-  private fun resolveTypeNameOrNull(
+  protected fun resolveTypeNameOrNull(
     typeName: TypeName,
     packageName: PackageName? = null,
     interfaceName: Identifier? = null,
@@ -118,51 +171,8 @@ internal class RealRootTypeMapper(
     }
   }
 
-  override fun refine(packageName: PackageName?) = RealPackageTypeMapper(packageName)
-
-  inner class RealPackageTypeMapper internal constructor(
-    override val packageName: PackageName?,
-  ) : PackageTypeMapper {
-    override fun refine(interfaceName: Identifier) =
-      RealInterfaceTypeMapper(packageName, interfaceName)
-
-    override fun map(typeName: TypeName): KotlinTypeName {
-      return resolveTypeNameOrNull(typeName, packageName)
-        ?: throw IllegalArgumentException(
-          buildString {
-            append("unable to resolve $typeName")
-            if (packageName != null) {
-              append(" in $packageName")
-            }
-          },
-        )
-    }
-  }
-
-  inner class RealInterfaceTypeMapper internal constructor(
-    override val packageName: PackageName?,
-    override val interfaceName: Identifier,
-  ) : InterfaceTypeMapper {
-    override val className: ClassName
-      get() = className(kotlinPackagePrefix, packageName, interfaceName)
-
-    override fun refine(interfaceName: Identifier) =
-      RealInterfaceTypeMapper(packageName, interfaceName)
-
-    override fun map(typeName: TypeName): KotlinTypeName {
-      return resolveTypeNameOrNull(typeName, packageName, interfaceName)
-        ?: throw IllegalArgumentException(
-          buildString {
-            append("unable to resolve $typeName")
-            if (packageName != null) {
-              append(" in $packageName.$interfaceName")
-            } else {
-              append(" in $interfaceName")
-            }
-          },
-        )
-    }
-  }
+  fun refine(packageName: PackageName?): PackageTypeMapper =
+    RealPackageTypeMapper(symbolResolver, kotlinPackagePrefix, packageName)
 }
 
 private object ClassNames {

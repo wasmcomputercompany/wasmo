@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.SymbolResolver
@@ -44,7 +45,13 @@ class TypeMapperTest {
     val interfaceTypeMapper = packageTypeMapper.refine(Identifier("wall-clock"))
 
     assertThat(interfaceTypeMapper.map(TypeName.Declared("datetime")))
-      .isEqualTo(ClassName("wit", "wall-clock", "datetime"))
+      .isEqualTo(ClassName("wit.wasi.clocks", "WallClock", "Datetime"))
+
+    assertThat(interfaceTypeMapper.map(TypeName.List(TypeName.Declared("datetime"))))
+      .isEqualTo(
+        ClassName("kotlin.collections", "List")
+          .parameterizedBy(ClassName("wit.wasi.clocks", "WallClock", "Datetime")),
+      )
 
     assertThat(
       assertFailsWith<IllegalArgumentException> {

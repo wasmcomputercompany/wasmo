@@ -95,7 +95,7 @@ class WitKotlinGenerator(
     declaration: Declaration,
   ): Any? {
     return when (declaration) {
-      is Case -> null
+      is Case -> error("unexpected call")
       is Enum -> null
       is Export -> null
       is Field -> error("unexpected call")
@@ -107,11 +107,11 @@ class WitKotlinGenerator(
       is Interface -> generateInterface(scope, declaration)
       is Package -> null
       is Record -> generateRecord(scope, declaration)
-      is Resource -> null
+      is Resource -> generateResource(scope, declaration)
       is TopLevelUse -> null
       is TypeAlias -> null
       is Use -> null
-      is Variant -> null
+      is Variant -> generateVariant(scope, declaration)
       is World -> null
     }
   }
@@ -166,21 +166,58 @@ class WitKotlinGenerator(
     return classBuilder.build()
   }
 
+  private fun generateResource(
+    scope: PackageTypeMapper,
+    record: Resource,
+  ): TypeSpec {
+    val classBuilder = TypeSpec.interfaceBuilder(record.name.name.toCamelCase(upperCamel = true))
+    setDeclaration(
+      builder = classBuilder,
+      declaration = record,
+    )
+    addDeclarations(
+      builder = classBuilder,
+      typeResolver = scope,
+      children = record.functions,
+    )
+    return classBuilder.build()
+  }
+
+  private fun generateVariant(
+    scope: PackageTypeMapper,
+    record: Variant,
+  ): TypeSpec {
+    val classBuilder = TypeSpec.interfaceBuilder(record.name.name.toCamelCase(upperCamel = true))
+    setDeclaration(
+      builder = classBuilder,
+      declaration = record,
+    )
+    for (case in record.cases) {
+      val caseBuilder = TypeSpec.objectBuilder(case.name.name.toCamelCase(upperCamel = true))
+      setDeclaration(
+        builder = caseBuilder,
+        declaration = case,
+      )
+      classBuilder.addType(caseBuilder.build())
+    }
+    return classBuilder.build()
+  }
+
   private fun generateFunction(
     scope: PackageTypeMapper,
-    declaration: Function,
+    function: Function,
   ): FunSpec {
-    val builder = FunSpec.builder(declaration.name.name)
+    val builder = FunSpec.builder(function.name.name)
       .addModifiers(KModifier.ABSTRACT)
 
-    val returnType = declaration.returnType
+    val returnType = function.returnType
     if (returnType != null) {
       builder.returns(scope.map(returnType))
     }
 
     setDeclaration(
       builder = builder,
-      declaration = declaration,
+      declaration = function,
     )
 
     return builder.build()

@@ -364,7 +364,7 @@ internal class WitFileReader(
       gate = gate,
       location = location,
       name = name,
-      declarations = declarations,
+      functions = declarations,
     )
   }
 

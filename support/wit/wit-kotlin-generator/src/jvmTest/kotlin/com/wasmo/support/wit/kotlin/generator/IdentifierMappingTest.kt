@@ -25,7 +25,7 @@ class IdentifierMappingTest {
     assertThat(PackageName("wasi", "clocks").toKotlin("wit"))
       .isEqualTo("wit.wasi.clocks")
     assertThat(PackageName("wasi", "clocks", "0.2.12").toKotlin("wit"))
-      .isEqualTo("wit.wasi.clocks.v0.2.12")
+      .isEqualTo("wit.wasi.clocks.v0_2_12")
   }
 
   @Test

@@ -464,7 +464,7 @@ class WitFileReaderTest {
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
                 name = Identifier("blob"),
-                declarations = listOf(
+                functions = listOf(
                   Function(
                     documentation = Documentation(" makes a new one"),
                     gate = Gate(since = "2.0"),
@@ -554,7 +554,7 @@ class WitFileReaderTest {
               Resource(
                 location = Location(2, 3),
                 name = Identifier("blob"),
-                declarations = listOf(),
+                functions = listOf(),
               ),
             ),
           ),
@@ -1567,7 +1567,7 @@ class WitFileReaderTest {
               Resource(
                 location = Location(2, 3),
                 name = Identifier("blob"),
-                declarations = listOf(
+                functions = listOf(
                   Function(
                     location = Location(3, 5),
                     constructor = true,
