@@ -32,7 +32,7 @@ interface InterfaceTypeMapper : PackageTypeMapper {
 
 fun TypeMapper(
   symbolResolver: SymbolResolver,
-  kotlinPackagePrefix: String = "wit",
+  kotlinPackagePrefix: String,
 ): RootTypeMapper = RealRootTypeMapper(
   symbolResolver = symbolResolver,
   kotlinPackagePrefix = kotlinPackagePrefix,
@@ -52,7 +52,12 @@ internal class RealRootTypeMapper(
     interfaceName: Identifier? = null,
   ): ClassName {
     val typePath = symbolResolver.resolveType(typeName, packageName, interfaceName)
-    return className(typePath.packageName, typePath.interfaceName, typePath.typeName)
+    return className(
+      kotlinPackagePrefix,
+      typePath.packageName,
+      typePath.interfaceName,
+      typePath.typeName,
+    )
   }
 
   private fun resolveTypeNameOrNull(
@@ -139,7 +144,7 @@ internal class RealRootTypeMapper(
     override val interfaceName: Identifier,
   ) : InterfaceTypeMapper {
     override val className: ClassName
-      get() = className(packageName, interfaceName)
+      get() = className(kotlinPackagePrefix, packageName, interfaceName)
 
     override fun refine(interfaceName: Identifier) =
       RealInterfaceTypeMapper(packageName, interfaceName)
@@ -158,17 +163,6 @@ internal class RealRootTypeMapper(
         )
     }
   }
-
-  private fun className(
-    packageName: PackageName?,
-    interfaceName: Identifier,
-  ) = ClassName(kotlinPackagePrefix, interfaceName.name)
-
-  private fun className(
-    packageName: PackageName?,
-    interfaceName: Identifier,
-    typeName: Identifier,
-  ) = className(packageName, interfaceName).nestedClass(typeName.name)
 }
 
 private object ClassNames {

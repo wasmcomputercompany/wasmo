@@ -31,12 +31,13 @@ class TypeMapperTest {
       packages = listOf(
         WitPackage(
           packageName = PackageName("wasi", "clocks"),
-          files = mapOf("clock.wit".toPath() to witFile)
-        )
+          files = mapOf("clock.wit".toPath() to witFile),
+        ),
       ),
     )
     val typeMapper = TypeMapper(
       symbolResolver = symbolResolver,
+      kotlinPackagePrefix = "wit",
     )
 
     val packageTypeMapper = typeMapper.refine(PackageName("wasi", "clocks"))

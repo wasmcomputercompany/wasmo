@@ -2,7 +2,6 @@ package com.wasmo.support.wit
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.fail
 import okio.FileSystem
@@ -39,7 +38,6 @@ class ReadAllWasiFilesTest {
   }
 
   @Test
-  @Ignore("many SymbolResolver features aren't implemented yet")
   fun `resolve all types`() {
     val directories = mutableListOf(
       wasiProposals / "cli/wit",

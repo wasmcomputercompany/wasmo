@@ -33,21 +33,26 @@ import com.wasmo.support.wit.World
 
 class WitKotlinGenerator(
   private val witPackages: List<WitPackage>,
+  private val kotlinPackagePrefix: String = "wit",
 ) {
   private val typeMapper = TypeMapper(
-    SymbolResolver(witPackages),
+    symbolResolver = SymbolResolver(witPackages),
+    kotlinPackagePrefix = kotlinPackagePrefix,
   )
 
-  fun generate(): FileSpec {
-    val builder = FileSpec.builder("wit", "Generated")
-    for (witPackage in witPackages) {
-      for (witFile in witPackage.files.values) {
-        addDeclarations(
-          builder = builder,
-          typeResolver = typeMapper.refine(witPackage.packageName),
-          children = witFile.declarations,
-        )
-      }
+  fun generate(): List<FileSpec> = witPackages.map { generate(it) }
+
+  private fun generate(witPackage: WitPackage): FileSpec {
+    val builder = FileSpec.builder(
+      witPackage.packageName?.toKotlin(kotlinPackagePrefix) ?: kotlinPackagePrefix,
+      "Wit",
+    )
+    for (witFile in witPackage.files.values) {
+      addDeclarations(
+        builder = builder,
+        typeResolver = typeMapper.refine(witPackage.packageName),
+        children = witFile.declarations,
+      )
     }
     return builder.build()
   }
@@ -130,7 +135,7 @@ class WitKotlinGenerator(
     scope: PackageTypeMapper,
     record: Record,
   ): TypeSpec {
-    val classBuilder = TypeSpec.classBuilder(record.name.name)
+    val classBuilder = TypeSpec.classBuilder(record.name.name.toCamelCase(upperCamel = true))
       .addModifiers(KModifier.DATA)
     setDeclaration(
       builder = classBuilder,

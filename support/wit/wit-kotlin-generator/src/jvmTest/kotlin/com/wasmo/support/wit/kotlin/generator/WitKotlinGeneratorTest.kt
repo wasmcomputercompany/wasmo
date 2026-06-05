@@ -2,6 +2,7 @@ package com.wasmo.support.wit.kotlin.generator
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.WitPackage
 import com.wasmo.support.wit.toWitFile
 import kotlin.test.Test
@@ -11,6 +12,8 @@ class WitKotlinGeneratorTest {
   @Test
   fun happyPath() {
     val witFile = """
+      |package wasi:clocks@0.2.12;
+      |
       |/// gets the epoch time
       |@since(version = 0.2.0)
       |interface wall-clock {
@@ -28,15 +31,18 @@ class WitKotlinGeneratorTest {
       """.trimMargin().toWitFile()
 
     val witPackages = listOf(
-      WitPackage(files = mapOf("clock.wit".toPath() to witFile)),
+      WitPackage(
+        packageName = PackageName("wasi", "clocks", "0.2.12"),
+        files = mapOf("clock.wit".toPath() to witFile)
+      ),
     )
-    val fileSpec = WitKotlinGenerator(
+    val fileSpecs = WitKotlinGenerator(
       witPackages = witPackages,
     ).generate()
 
-    assertThat(fileSpec.toString()).isEqualTo(
+    assertThat(fileSpecs.single().toString()).isEqualTo(
       """
-      |package wit
+      |package wit.wasi.clocks.v0_2_12
       |
       |import kotlin.UInt
       |import kotlin.ULong
@@ -44,16 +50,16 @@ class WitKotlinGeneratorTest {
       |/**
       | * gets the epoch time
       | */
-      |public interface `wall-clock` {
+      |public interface WallClock {
       |  /**
       |   * Read the current value of the clock.
       |   */
-      |  public fun now(): datetime
+      |  public fun now(): Datetime
       |
       |  /**
       |   * A time and date in seconds plus nanoseconds.
       |   */
-      |  public data class datetime(
+      |  public data class Datetime(
       |    public val seconds: ULong,
       |    public val nanoseconds: UInt,
       |  )

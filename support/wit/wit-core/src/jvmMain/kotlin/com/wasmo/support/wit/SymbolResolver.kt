@@ -7,8 +7,10 @@ package com.wasmo.support.wit
  *  * [Use]
  */
 class SymbolResolver(
-  private val packages: List<WitPackage>,
+  packages: List<WitPackage>,
 ) {
+  private val packageNameToPackage = packages.associateBy { it.packageName }
+
   fun resolveType(
     typeName: TypeName.Declared,
     inPackageName: PackageName? = null,
@@ -31,23 +33,47 @@ class SymbolResolver(
     inPackageName: PackageName? = null,
     inInterfaceName: Identifier? = null,
   ): TypePath? {
-    for (witPackage in packages) {
-      if (witPackage.packageName != inPackageName) continue
-      for (witFile in witPackage.files.values) {
-        for (`interface` in witFile.declarations) {
-          if (`interface` !is Interface || `interface`.name != inInterfaceName) continue
+    val witPackage = packageNameToPackage[inPackageName] ?: return null
 
-          for (type in `interface`.declarations) {
-            if (type !is TypeDeclaration) continue
-            if (type.name == typeName.name) {
-              return TypePath(witPackage.packageName, inInterfaceName, type.name)
+    for (witFile in witPackage.files.values) {
+      for (`interface` in witFile.declarations) {
+        if (`interface` !is Interface || `interface`.name != inInterfaceName) continue
+
+        for (declaration in `interface`.declarations) {
+          when (declaration) {
+            is TypeDeclaration -> {
+              // Direct match.
+              if (declaration.name == typeName.name) {
+                return TypePath(witPackage.packageName, inInterfaceName, declaration.name)
+              }
             }
+
+            is Use -> {
+              // Matched a 'use' statement that refers to another symbol.
+              val itemMatch = declaration.items.firstOrNull { it.matches(typeName) }
+              if (itemMatch != null) {
+                return resolveTypeOrNull(
+                  itemMatch.type,
+                  declaration.path.packageName ?: inPackageName,
+                  declaration.path.name,
+                )
+              }
+            }
+
+            else -> {}
           }
         }
       }
     }
 
     return null
+  }
+}
+
+private fun Use.Item.matches(typeName: TypeName.Declared): Boolean {
+  return when {
+    alias != null -> alias == typeName.name
+    else -> type == typeName
   }
 }
 
