@@ -72,6 +72,10 @@ data class PackageName(
       if (index > 0) append('/')
       append(name)
     }
+    if (version != null) {
+      append("@")
+      append(version.version)
+    }
   }
 
   companion object {

@@ -828,10 +828,10 @@ class WitReaderTest {
                 location = Location(4, 3),
                 path = UsePath(name = Identifier("an-interface")),
                 items = listOf(
-                  Use.Item(name = Identifier("a")),
-                  Use.Item(name = Identifier("list")),
-                  Use.Item(name = Identifier("of")),
-                  Use.Item(name = Identifier("names")),
+                  Use.Item(type = TypeName.Declared("a")),
+                  Use.Item(type = TypeName.Declared("list")),
+                  Use.Item(type = TypeName.Declared("of")),
+                  Use.Item(type = TypeName.Declared("names")),
                 ),
               ),
               Use(
@@ -845,8 +845,8 @@ class WitReaderTest {
                   version = SemVer("3.0"),
                 ),
                 items = listOf(
-                  Use.Item(name = Identifier("more")),
-                  Use.Item(name = Identifier("names"), alias = Identifier("foo")),
+                  Use.Item(type = TypeName.Declared("more")),
+                  Use.Item(type = TypeName.Declared("names"), alias = Identifier("foo")),
                 ),
               ),
             ),
@@ -1294,11 +1294,11 @@ class WitReaderTest {
                 ),
                 items = listOf(
                   Include.Item(
-                    name = Identifier("a"),
+                    type = TypeName.Declared("a"),
                     alias = Identifier("a1"),
                   ),
                   Include.Item(
-                    name = Identifier("b"),
+                    type = TypeName.Declared("b"),
                     alias = Identifier("b1"),
                   ),
                 ),
@@ -1684,10 +1684,10 @@ class WitReaderTest {
                 location = Location(2, 3),
                 path = UsePath(name = Identifier("an-interface")),
                 items = listOf(
-                  Use.Item(name = Identifier("a")),
-                  Use.Item(name = Identifier("list")),
-                  Use.Item(name = Identifier("of")),
-                  Use.Item(name = Identifier("names")),
+                  Use.Item(type = TypeName.Declared("a")),
+                  Use.Item(type = TypeName.Declared("list")),
+                  Use.Item(type = TypeName.Declared("of")),
+                  Use.Item(type = TypeName.Declared("names")),
                 ),
               ),
             ),
