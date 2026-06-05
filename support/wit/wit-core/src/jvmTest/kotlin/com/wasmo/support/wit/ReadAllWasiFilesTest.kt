@@ -51,18 +51,13 @@ class ReadAllWasiFilesTest {
       wasiProposals / "sockets/wit",
     )
 
-    val witFiles = directories
-      .flatMap { fileSystem.listRecursively(it) }
-      .filter { it.name.endsWith(".wit") }
-      .associateWith {
-        fileSystem.read(it) {
-          readUtf8().toWitFile()
-        }
-      }
+    val witPackages = directories.map {
+      WitPackageReader(fileSystem).read(it)
+    }
 
-    val resolver = SymbolResolver(witFiles.values.toList())
-    for ((path, witFile) in witFiles) {
-      for (ref in witFile.typeReferences()) {
+    val resolver = SymbolResolver(witPackages)
+    for (witPackage in witPackages) {
+      for (ref in witPackage.typeReferences()) {
         val declaredType = ref.typeName as? TypeName.Declared ?: continue
         try {
           resolver.resolveType(
@@ -72,7 +67,7 @@ class ReadAllWasiFilesTest {
           )
         } catch (e: IllegalArgumentException) {
           throw IllegalArgumentException(
-            "failed to resolve ${ref.typeName} from $path at ${ref.location}", e
+            "failed to resolve ${ref.typeName} from ${ref.path} at ${ref.location}", e,
           )
         }
       }

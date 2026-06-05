@@ -3,10 +3,12 @@ package com.wasmo.support.wit
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import kotlin.test.Test
+import okio.Path.Companion.toPath
 
 class TypeReferenceTest {
   @Test
   fun `collect type references`() {
+    val path = "clock.wit".toPath()
     val witFile = """
       |package wasi:clocks@0.2.12;
       |interface monotonic-clock {
@@ -16,33 +18,42 @@ class TypeReferenceTest {
       |    subscribe-instant: func(when: instant) -> pollable;
       |}
       """.trimMargin().toWitFile()
+    val witPackage = WitPackage(
+      packageName = PackageName("wasi", "clocks", "0.2.12"),
+      files = mapOf(path to witFile),
+    )
 
-    assertThat(witFile.typeReferences()).containsExactly(
+    assertThat(witPackage.typeReferences()).containsExactly(
       TypeReference(
+        path = path,
         location = Location(3, 5),
         packageName = PackageName("wasi", "io", "0.2.12"),
         interfaceName = Identifier("poll"),
         typeName = TypeName.Declared("pollable"),
       ),
       TypeReference(
+        path = path,
         location = Location(4, 5),
         packageName = PackageName("wasi", "clocks", "0.2.12"),
         interfaceName = Identifier("monotonic-clock"),
         typeName = TypeName.U64,
       ),
       TypeReference(
+        path = path,
         location = Location(5, 5),
         packageName = PackageName("wasi", "clocks", "0.2.12"),
         interfaceName = Identifier("monotonic-clock"),
         typeName = TypeName.Declared("instant"),
       ),
       TypeReference(
+        path = path,
         location = Location(6, 5),
         packageName = PackageName("wasi", "clocks", "0.2.12"),
         interfaceName = Identifier("monotonic-clock"),
         typeName = TypeName.Declared("instant"),
       ),
       TypeReference(
+        path = path,
         location = Location(6, 5),
         packageName = PackageName("wasi", "clocks", "0.2.12"),
         interfaceName = Identifier("monotonic-clock"),

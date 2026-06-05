@@ -2,8 +2,10 @@ package com.wasmo.support.wit.kotlin.generator
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.support.wit.WitPackage
 import com.wasmo.support.wit.toWitFile
 import kotlin.test.Test
+import okio.Path.Companion.toPath
 
 class WitKotlinGeneratorTest {
   @Test
@@ -25,14 +27,16 @@ class WitKotlinGeneratorTest {
       |}
       """.trimMargin().toWitFile()
 
+    val witPackages = listOf(
+      WitPackage(files = mapOf("clock.wit".toPath() to witFile)),
+    )
     val fileSpec = WitKotlinGenerator(
-      witFiles = listOf(witFile),
-      kotlinPackageName = "com.example",
+      witPackages = witPackages,
     ).generate()
 
     assertThat(fileSpec.toString()).isEqualTo(
       """
-      |package com.example
+      |package wit
       |
       |import kotlin.UInt
       |import kotlin.ULong

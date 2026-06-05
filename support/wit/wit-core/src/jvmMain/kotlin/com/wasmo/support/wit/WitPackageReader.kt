@@ -32,11 +32,11 @@ class WitPackageReader(
       }
     }
 
-    val packageNames = files.values.mapNotNull { it.packageName }
+    val packageNames = files.values.mapNotNull { it.packageName }.toSet()
     checkWit(packageNames.size <= 1) {
       """
       |multiple different package names in the same directory:
-      |  ${packageNames.joinToString(separator = "\n  ")}
+      |  ${packageNames.sortedBy { it.toString() }.joinToString(separator = "\n  ")}
       """.trimMargin()
     }
 
