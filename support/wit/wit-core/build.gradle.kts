@@ -14,5 +14,10 @@ kotlin {
         implementation(libs.okio)
       }
     }
+    jvmTest {
+      dependencies {
+        implementation(libs.okio.fakefilesystem)
+      }
+    }
   }
 }

@@ -31,7 +31,7 @@ internal class WitFileReader(
           val (value, kind) = readPackage(documentation, gate, location)
           when (kind) {
             PackageKind.Identifier -> {
-              checkWit(location, packageIdentifier == null && declarations.isEmpty()) {
+              checkWit(packageIdentifier == null && declarations.isEmpty(), location) {
                 "unexpected package identifier"
               }
               packageIdentifier = value
