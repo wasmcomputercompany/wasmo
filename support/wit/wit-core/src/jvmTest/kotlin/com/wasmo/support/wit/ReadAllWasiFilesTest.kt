@@ -64,11 +64,12 @@ class ReadAllWasiFilesTest {
     val resolver = SymbolResolver(witFiles.values.toList())
     for ((path, witFile) in witFiles) {
       for (ref in witFile.typeReferences()) {
+        val declaredType = ref.typeName as? TypeName.Declared ?: continue
         try {
           resolver.resolveType(
-            ref.typeName,
-            ref.packageName,
-            ref.interfaceName,
+            typeName = declaredType,
+            inPackageName = ref.packageName,
+            inInterfaceName = ref.interfaceName,
           )
           println("resolved ${ref.typeName} from $path at ${ref.location}")
         } catch (e: IllegalArgumentException) {

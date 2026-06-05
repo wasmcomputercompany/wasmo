@@ -27,6 +27,12 @@ class TypeReferenceTest {
         typeName = TypeName.Declared("pollable"),
       ),
       TypeReference(
+        location = Location(4, 5),
+        packageName = PackageName("wasi", "clocks", "0.2.12"),
+        interfaceName = Identifier("monotonic-clock"),
+        typeName = TypeName.U64,
+      ),
+      TypeReference(
         location = Location(5, 5),
         packageName = PackageName("wasi", "clocks", "0.2.12"),
         interfaceName = Identifier("monotonic-clock"),

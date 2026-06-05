@@ -27,10 +27,10 @@ data class TypeReference(
   val location: Location,
   val packageName: PackageName?,
   val interfaceName: Identifier?,
-  val typeName: TypeName.Declared,
+  val typeName: TypeName,
 )
 
-/** Does a depth-first traversal of [subject], looking for [TypeName.Declared] instances. */
+/** Does a depth-first traversal of [subject], looking for [TypeName] instances. */
 private class TypeReferenceScanner(
   private val packageName: PackageName?,
   private val interfaceName: Identifier? = null,
@@ -108,7 +108,7 @@ private class TypeReferenceScanner(
 
   context(sequence: SequenceScope<TypeReference>)
   private suspend fun yield(type: TypeName?) {
-    if (type is TypeName.Declared) {
+    if (type != null) {
       sequence.yield(TypeReference(subject.location, packageName, interfaceName, type))
     }
   }
