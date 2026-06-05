@@ -23,7 +23,7 @@ internal class AbsurdPostgresqlService(
       .setPort(postgresqlConfig.port)
       .setDatabase(postgresqlConfig.osDatabaseName)
       .setUser(postgresqlConfig.osUser)
-      .setPassword(postgresqlConfig.osPassword)
+      .setPassword(postgresqlConfig.osPassword.rawUnredactedSecret)
       .setSslMode(
         when {
           postgresqlConfig.ssl -> SslMode.VERIFY_FULL

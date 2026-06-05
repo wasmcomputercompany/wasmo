@@ -1,5 +1,6 @@
 package com.wasmo.sql.testing
 
+import com.wasmo.identifiers.Secret
 import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.sql.execute
 import io.vertx.sqlclient.SqlClient
@@ -11,10 +12,10 @@ val TestPostgresqlConfig = WasmoPostgresqlConfig(
   hostname = POSTGRESQL_HOSTNAME,
   ssl = false,
   adminUser = "postgres",
-  adminPassword = "password",
+  adminPassword = Secret("password"),
   adminDatabaseName = "postgres",
   osUser = "wasmo_test",
-  osPassword = "password",
+  osPassword = Secret("password"),
   osDatabaseName = "wasmo_test",
 )
 

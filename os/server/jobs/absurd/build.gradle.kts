@@ -21,6 +21,7 @@ kotlin {
         implementation(libs.postgresql)
         implementation(libs.vertx.postgresql)
         implementation(libs.vertx.sql.client)
+        implementation(projects.identifiers)
         implementation(projects.os.server.events.api)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.jobs.api)
