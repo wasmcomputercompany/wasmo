@@ -26,7 +26,7 @@ class WitFileReaderTest {
       """
       |package wasi:clocks@0.2.9;
       |package wasi:clocks;
-      """.toWitFile()
+      """.trimMargin().toWitFile()
     }
     assertThat(e.issue).isEqualTo("unexpected package identifier")
   }
