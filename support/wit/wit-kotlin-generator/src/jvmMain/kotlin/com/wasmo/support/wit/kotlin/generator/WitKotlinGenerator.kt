@@ -1,5 +1,6 @@
 package com.wasmo.support.wit.kotlin.generator
 
+import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.Documentable
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -45,11 +46,10 @@ class WitKotlinGenerator(
   private fun generate(witPackage: WitPackage): FileSpec {
     val builder = FileSpec.builder(
       witPackage.packageName?.toKotlin(kotlinPackagePrefix) ?: kotlinPackagePrefix,
-      "Wit",
+      "Api",
     )
     for (witFile in witPackage.files.values) {
-      addDeclarations(
-        builder = builder,
+      builder.addDeclarations(
         typeResolver = typeMapper.refine(witPackage.packageName),
         children = witFile.declarations,
       )
@@ -69,24 +69,22 @@ class WitKotlinGenerator(
     }
   }
 
-  private fun setDeclaration(
-    builder: Documentable.Builder<*>,
+  private fun <T : Documentable.Builder<*>> T.setDeclaration(
     declaration: Declaration? = null,
-  ) {
+  ): T = apply {
     val documentation = declaration?.documentation?.content
     if (documentation != null) {
-      builder.addKdoc(documentation.trimIndent())
+      addKdoc(documentation.trimIndent())
     }
   }
 
-  private fun addDeclarations(
-    builder: Any,
+  private fun <T : Any> T.addDeclarations(
     typeResolver: PackageTypeMapper,
     children: List<Declaration>,
-  ) {
+  ): T = apply {
     for (declaration in children) {
       val spec = generate(typeResolver, declaration) ?: continue
-      add(builder, spec)
+      add(this, spec)
     }
   }
 
@@ -96,11 +94,11 @@ class WitKotlinGenerator(
   ): Any? {
     return when (declaration) {
       is Case -> error("unexpected call")
-      is Enum -> null
+      is Enum -> generateEnum(scope as InterfaceTypeMapper, declaration)
       is Export -> null
       is Field -> error("unexpected call")
-      is Flag -> null
-      is Flags -> null
+      is Flag -> error("unexpected call")
+      is Flags -> generateFlags(scope as InterfaceTypeMapper, declaration)
       is Function -> generateFunction(scope, declaration)
       is Import -> null
       is Include -> null
@@ -111,7 +109,7 @@ class WitKotlinGenerator(
       is TopLevelUse -> null
       is TypeAlias -> null
       is Use -> null
-      is Variant -> generateVariant(scope, declaration)
+      is Variant -> generateVariant(scope as InterfaceTypeMapper, declaration)
       is World -> null
     }
   }
@@ -121,14 +119,13 @@ class WitKotlinGenerator(
     `interface`: Interface,
   ): TypeSpec {
     val interfaceScope = scope.refine(interfaceName = `interface`.name)
-    val builder = TypeSpec.interfaceBuilder(interfaceScope.className.simpleName)
-    setDeclaration(builder, `interface`)
-    addDeclarations(
-      builder = builder,
-      typeResolver = interfaceScope,
-      children = `interface`.declarations,
-    )
-    return builder.build()
+    return TypeSpec.interfaceBuilder(interfaceScope.className.simpleName)
+      .setDeclaration(`interface`)
+      .addDeclarations(
+        typeResolver = interfaceScope,
+        children = `interface`.declarations,
+      )
+      .build()
   }
 
   private fun generateRecord(
@@ -137,10 +134,7 @@ class WitKotlinGenerator(
   ): TypeSpec {
     val classBuilder = TypeSpec.classBuilder(record.name.name.toCamelCase(upperCamel = true))
       .addModifiers(KModifier.DATA)
-    setDeclaration(
-      builder = classBuilder,
-      declaration = record,
-    )
+      .setDeclaration(record)
 
     val constructorBuilder = FunSpec.constructorBuilder()
 
@@ -154,9 +148,7 @@ class WitKotlinGenerator(
       classBuilder.addProperty(
         PropertySpec.builder(name, type)
           .initializer("%N", parameter)
-          .apply {
-            setDeclaration(this, field)
-          }
+          .setDeclaration(field)
           .build(),
       )
     }
@@ -170,36 +162,105 @@ class WitKotlinGenerator(
     scope: PackageTypeMapper,
     record: Resource,
   ): TypeSpec {
-    val classBuilder = TypeSpec.interfaceBuilder(record.name.name.toCamelCase(upperCamel = true))
-    setDeclaration(
-      builder = classBuilder,
-      declaration = record,
-    )
-    addDeclarations(
-      builder = classBuilder,
-      typeResolver = scope,
-      children = record.functions,
-    )
-    return classBuilder.build()
+    return TypeSpec.interfaceBuilder(record.name.name.toCamelCase(upperCamel = true))
+      .setDeclaration(record)
+      .addDeclarations(
+        typeResolver = scope,
+        children = record.functions,
+      )
+      .build()
   }
 
   private fun generateVariant(
-    scope: PackageTypeMapper,
-    record: Variant,
+    scope: InterfaceTypeMapper,
+    variant: Variant,
   ): TypeSpec {
-    val classBuilder = TypeSpec.interfaceBuilder(record.name.name.toCamelCase(upperCamel = true))
-    setDeclaration(
-      builder = classBuilder,
-      declaration = record,
-    )
-    for (case in record.cases) {
-      val caseBuilder = TypeSpec.objectBuilder(case.name.name.toCamelCase(upperCamel = true))
-      setDeclaration(
-        builder = caseBuilder,
-        declaration = case,
-      )
-      classBuilder.addType(caseBuilder.build())
+    val variantName = variant.name.name.toCamelCase(upperCamel = true)
+    val classBuilder = TypeSpec.interfaceBuilder(variantName)
+      .addModifiers(KModifier.SEALED)
+      .setDeclaration(variant)
+    for (case in variant.cases) {
+      val type = case.type
+      val caseName = case.name.name.toCamelCase(upperCamel = true)
+      if (type != null) {
+        val kotlinType = scope.map(type)
+        classBuilder.addType(
+          TypeSpec.classBuilder(caseName)
+            .addModifiers(KModifier.DATA)
+            .addSuperinterface(scope.className.nestedClass(variantName))
+            .primaryConstructor(
+              FunSpec.constructorBuilder()
+                .addParameter("value", kotlinType)
+                .build(),
+            )
+            .addProperty(
+              PropertySpec.builder("value", kotlinType)
+                .initializer("%N", "value")
+                .build(),
+            )
+            .setDeclaration(case)
+            .build(),
+        )
+      } else {
+        classBuilder.addType(
+          TypeSpec.objectBuilder(caseName)
+            .addModifiers(KModifier.DATA)
+            .addSuperinterface(scope.className.nestedClass(variantName))
+            .setDeclaration(case)
+            .build(),
+        )
+      }
     }
+    return classBuilder.build()
+  }
+
+  private fun generateEnum(
+    scope: InterfaceTypeMapper,
+    enum: Enum,
+  ): TypeSpec {
+    val enumName = enum.name.name.toCamelCase(upperCamel = true)
+    val classBuilder = TypeSpec.enumBuilder(enumName)
+      .addModifiers(KModifier.SEALED)
+      .setDeclaration(enum)
+    for (case in enum.cases) {
+      check(case.type == null)
+      val caseName = case.name.name.toCamelCase(upperCamel = true)
+      classBuilder.addEnumConstant(
+        caseName,
+        TypeSpec.anonymousClassBuilder()
+          .setDeclaration(case)
+          .build(),
+      )
+    }
+    return classBuilder.build()
+  }
+
+  private fun generateFlags(
+    scope: InterfaceTypeMapper,
+    flags: Flags,
+  ): TypeSpec {
+    val classBuilder = TypeSpec.classBuilder(flags.name.name.toCamelCase(upperCamel = true))
+      .addModifiers(KModifier.DATA)
+      .setDeclaration(flags)
+
+    val constructorBuilder = FunSpec.constructorBuilder()
+
+    for (field in flags.flags) {
+      val name = field.name.name.toCamelCase(upperCamel = false)
+      val parameter = ParameterSpec.builder(name, BOOLEAN)
+        .build()
+      constructorBuilder.addParameter(parameter)
+
+      classBuilder.addProperty(
+        PropertySpec.builder(name, BOOLEAN)
+          .initializer("%N", parameter)
+          .setDeclaration(field)
+          .build(),
+      )
+    }
+
+    classBuilder.primaryConstructor(constructorBuilder.build())
+
     return classBuilder.build()
   }
 
@@ -207,19 +268,14 @@ class WitKotlinGenerator(
     scope: PackageTypeMapper,
     function: Function,
   ): FunSpec {
-    val builder = FunSpec.builder(function.name.name)
+    return FunSpec.builder(function.name.name)
       .addModifiers(KModifier.ABSTRACT)
-
-    val returnType = function.returnType
-    if (returnType != null) {
-      builder.returns(scope.map(returnType))
-    }
-
-    setDeclaration(
-      builder = builder,
-      declaration = function,
-    )
-
-    return builder.build()
+      .setDeclaration(function)
+      .apply {
+        val returnType = function.returnType
+        if (returnType != null) {
+          returns(scope.map(returnType))
+        }
+      }.build()
   }
 }

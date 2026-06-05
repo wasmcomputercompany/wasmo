@@ -77,6 +77,7 @@ class WitKotlinGeneratorTest {
       |package wit.wasi.clocks.v0_2_12
       |
       |import kotlin.Boolean
+      |import kotlin.String
       |import kotlin.UInt
       |import kotlin.ULong
       |
@@ -116,17 +117,43 @@ class WitKotlinGeneratorTest {
       |  /**
       |   * Lookup error codes.
       |   */
-      |  public interface ErrorCode {
+      |  public sealed interface ErrorCode {
       |    /**
       |     * Access denied.
       |     */
-      |    public object AccessDenied
+      |    public data object AccessDenied : ErrorCode
       |
       |    /**
       |     * A catch-all.
       |     */
-      |    public object Other
+      |    public data class Other(
+      |      public val `value`: String?,
+      |    ) : ErrorCode
       |  }
+      |
+      |  /**
+      |   * File or memory access pattern advisory information.
+      |   */
+      |  public sealed enum class Advice {
+      |    /**
+      |     * No advice.
+      |     */
+      |    Normal,
+      |    /**
+      |     * sequentially from lower to higher.
+      |     */
+      |    Sequential,
+      |  }
+      |
+      |  /**
+      |   * How paths are resolved.
+      |   */
+      |  public data class PathFlags(
+      |    /**
+      |     * Follow the darn things.
+      |     */
+      |    public val symlinkFollow: Boolean,
+      |  )
       |}
       |
       """.trimMargin(),
