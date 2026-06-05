@@ -8,15 +8,14 @@ import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.SymbolResolver
 import com.wasmo.support.wit.TypeName
-import com.wasmo.support.wit.WitReader
+import com.wasmo.support.wit.toWitFile
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class TypeMapperTest {
   @Test
   fun `map types`() {
-    val witFile = WitReader(
-      """
+    val witFile = """
       |package wasi:clocks;
       |
       |interface wall-clock {
@@ -24,8 +23,7 @@ class TypeMapperTest {
       |        seconds: u64,
       |    }
       |}
-      """.trimMargin(),
-    ).read()
+      """.trimMargin().toWitFile()
 
     val symbolResolver = SymbolResolver(listOf(witFile))
     val root = TypeMapper(

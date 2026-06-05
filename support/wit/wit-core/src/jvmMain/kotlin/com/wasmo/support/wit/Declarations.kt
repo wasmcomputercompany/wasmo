@@ -75,15 +75,6 @@ data class Location(
 }
 
 /**
- * Declarations may be [Use], [Interface], [World].
- */
-data class WitFile(
-  val packageDocumentation: Documentation? = null,
-  val packageName: PackageName? = null,
-  val declarations: List<Declaration>,
-)
-
-/**
  * An inline package.
  *
  * ```wit

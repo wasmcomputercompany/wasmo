@@ -333,7 +333,7 @@ internal class WitStructureReader(
       namespaces += identifier
       identifier = readIdentifier()
     }
-    checkWit(location, namespaces.isNotEmpty()) {
+    checkWit(namespaces.isNotEmpty(), location) {
       "expected package name to contain a ':'"
     }
     while (peek() == '/') {
@@ -386,7 +386,7 @@ internal class WitStructureReader(
       return UsePath(name = identifier)
     }
 
-    checkWit(location, namespaces.isNotEmpty() && packageNames.isNotEmpty()) {
+    checkWit(namespaces.isNotEmpty() && packageNames.isNotEmpty(), location) {
       "must have a namespace and a package name, or neither"
     }
 
@@ -498,21 +498,28 @@ internal class WitStructureReader(
   }
 
   internal inline fun checkWit(value: Boolean, message: () -> String) {
-    checkWit(location, value, message)
+    checkWit(value, location, message)
   }
 }
 
-internal inline fun checkWit(location: Location, value: Boolean, message: () -> String) {
+internal inline fun checkWit(
+  value: Boolean,
+  location: Location? = null,
+  message: () -> String,
+) {
   contract {
     returns() implies value
   }
   if (!value) {
-    throw WitException(location, message())
+    throw WitException(
+      issue = message(),
+      location = location,
+    )
   }
 }
 
 internal fun errorWit(location: Location, message: String): Nothing {
-  throw WitException(location, message)
+  throw WitException(issue = message, location = location)
 }
 
 internal fun CharArray.indexOf(substring: String, fromIndex: Int): Int {

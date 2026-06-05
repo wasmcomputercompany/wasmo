@@ -22,9 +22,8 @@ class ReadAllWasiFilesTest {
         readUtf8()
       }
 
-      val witReader = WitReader(witContent)
       try {
-        witReader.read()
+        witContent.toWitFile()
       } catch (e: WitException) {
         fail("decoding $path failed at ${e.location}: ${e.issue}")
       }
@@ -57,7 +56,7 @@ class ReadAllWasiFilesTest {
       .filter { it.name.endsWith(".wit") }
       .associateWith {
         fileSystem.read(it) {
-          WitReader(readUtf8()).read()
+          readUtf8().toWitFile()
         }
       }
 
@@ -71,9 +70,10 @@ class ReadAllWasiFilesTest {
             inPackageName = ref.packageName,
             inInterfaceName = ref.interfaceName,
           )
-          println("resolved ${ref.typeName} from $path at ${ref.location}")
         } catch (e: IllegalArgumentException) {
-          println("failed to resolve ${ref.typeName} from $path at ${ref.location}: $e")
+          throw IllegalArgumentException(
+            "failed to resolve ${ref.typeName} from $path at ${ref.location}", e
+          )
         }
       }
     }

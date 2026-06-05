@@ -7,8 +7,7 @@ import kotlin.test.Test
 class TypeReferenceTest {
   @Test
   fun `collect type references`() {
-    val witFile = WitReader(
-      """
+    val witFile = """
       |package wasi:clocks@0.2.12;
       |interface monotonic-clock {
       |    use wasi:io/poll@0.2.12.{pollable};
@@ -16,8 +15,7 @@ class TypeReferenceTest {
       |    now: func() -> instant;
       |    subscribe-instant: func(when: instant) -> pollable;
       |}
-      """.trimMargin(),
-    ).read()
+      """.trimMargin().toWitFile()
 
     assertThat(witFile.typeReferences()).containsExactly(
       TypeReference(

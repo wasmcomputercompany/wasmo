@@ -6,14 +6,13 @@ import assertk.assertions.isNull
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class WitReaderTest {
+class WitFileReaderTest {
   @Test
   fun packageOnly() {
     val wit = """
       |package wasi:clocks@0.2.9;
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         packageName = PackageName("wasi", "clocks", "0.2.9"),
         declarations = listOf(),
@@ -23,26 +22,22 @@ class WitReaderTest {
 
   @Test
   fun `multiple packages`() {
-    val wit = """
+    val e = assertFailsWith<WitException> {
+      """
       |package wasi:clocks@0.2.9;
       |package wasi:clocks;
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    val e = assertFailsWith<WitException> {
-      witReader.read()
+      """.trimMargin().toWitFile()
     }
     assertThat(e.issue).isEqualTo("unexpected package identifier")
   }
 
   @Test
   fun `package after another declaration`() {
-    val wit = """
+    val e = assertFailsWith<WitException> {
+      """
       |interface foo {}
       |package wasi:clocks;
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    val e = assertFailsWith<WitException> {
-      witReader.read()
+      """.trimMargin().toWitFile()
     }
     assertThat(e.issue).isEqualTo("unexpected package identifier")
   }
@@ -55,7 +50,7 @@ class WitReaderTest {
       |@unstable(feature = fancier-foo)
       |interface foo {}
       """.trimMargin()
-    val gate = WitReader(wit).readGateOrNull()
+    val gate = WitFileReader(wit).readGateOrNull()
     assertThat(gate).isEqualTo(
       Gate(
         unstable = "fancier-foo",
@@ -71,7 +66,7 @@ class WitReaderTest {
       |@unstable(feature = fancier-foo)
       |interface foo {}
       """.trimMargin()
-    val gate = WitReader(wit).readGateOrNull()
+    val gate = WitFileReader(wit).readGateOrNull()
     assertThat(gate).isEqualTo(Gate(unstable = "fancier-foo"))
   }
 
@@ -81,7 +76,7 @@ class WitReaderTest {
       |@since(version = 0.2.0)
       |interface foo {}
       """.trimMargin()
-    val gate = WitReader(wit).readGateOrNull()
+    val gate = WitFileReader(wit).readGateOrNull()
     assertThat(gate).isEqualTo(Gate(since = "0.2.0"))
   }
 
@@ -91,14 +86,14 @@ class WitReaderTest {
       |@deprecated(version = 0.2.2)
       |interface foo {}
       """.trimMargin()
-    val gate = WitReader(wit).readGateOrNull()
+    val gate = WitFileReader(wit).readGateOrNull()
     assertThat(gate).isEqualTo(Gate(deprecated = "0.2.2"))
   }
 
   @Test
   fun `readGate unexpected field`() {
     val e = assertFailsWith<WitException> {
-      WitReader("@unstable(version = 0.2.2)").readGateOrNull()
+      WitFileReader("@unstable(version = 0.2.2)").readGateOrNull()
     }
     assertThat(e.issue).isEqualTo("unexpected field: unstable.version")
   }
@@ -106,7 +101,8 @@ class WitReaderTest {
   @Test
   fun `readGate repeated unstable`() {
     val e = assertFailsWith<WitException> {
-      WitReader("@unstable(feature = fancier-foo) @unstable(feature = faster-foo)").readGateOrNull()
+      WitFileReader("@unstable(feature = fancier-foo) @unstable(feature = faster-foo)")
+        .readGateOrNull()
     }
     assertThat(e.issue).isEqualTo("unexpected field: unstable.feature")
   }
@@ -114,7 +110,7 @@ class WitReaderTest {
   @Test
   fun `readGate repeated since`() {
     val e = assertFailsWith<WitException> {
-      WitReader("@since(version = 0.2.0) @since(version = 0.3.0)").readGateOrNull()
+      WitFileReader("@since(version = 0.2.0) @since(version = 0.3.0)").readGateOrNull()
     }
     assertThat(e.issue).isEqualTo("unexpected field: since.version")
   }
@@ -122,22 +118,22 @@ class WitReaderTest {
   @Test
   fun `readGate repeated deprecated`() {
     val e = assertFailsWith<WitException> {
-      WitReader("@deprecated(version = 0.2.0) @deprecated(version = 0.3.0)").readGateOrNull()
+      WitFileReader("@deprecated(version = 0.2.0) @deprecated(version = 0.3.0)").readGateOrNull()
     }
     assertThat(e.issue).isEqualTo("unexpected field: deprecated.version")
   }
 
   @Test
   fun `readGate absent`() {
-    assertThat(WitReader("interface foo {}").readGateOrNull()).isNull()
+    assertThat(WitFileReader("interface foo {}").readGateOrNull()).isNull()
   }
 
   @Test
   fun `readInterface success`() {
     val wit = """
       |interface foo {}
-      """.trimMargin()
-    assertThat(WitReader(wit).read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -157,8 +153,8 @@ class WitReaderTest {
       |@deprecated(version = 0.2.2)
       |/**it is a good interface*/
       |interface foo {}
-      """.trimMargin()
-    assertThat(WitReader(wit).read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -185,8 +181,8 @@ class WitReaderTest {
       |  print: func(message: string, repeat: option<u32>) -> result<_, errno>;
       |  async-print: async func();
       |}
-      """.trimMargin()
-    assertThat(WitReader(wit).read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -240,9 +236,8 @@ class WitReaderTest {
       |
       |  resolution: func() -> datetime;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         packageName = PackageName("wasi", "clocks", "0.2.9"),
         declarations = listOf(
@@ -293,9 +288,8 @@ class WitReaderTest {
       |@since(version = 1.0)
       |interface wall-clock {
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -330,9 +324,8 @@ class WitReaderTest {
       |    nanoseconds: u32,
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -376,9 +369,8 @@ class WitReaderTest {
       |  @since(version = 5.0)
       |  now: func() -> datetime;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -408,9 +400,8 @@ class WitReaderTest {
       |    when: instant,
       |  ) -> pollable;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -460,9 +451,8 @@ class WitReaderTest {
       |    merge: static func(lhs: borrow<blob>, rhs: borrow<blob>) -> blob;
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -553,9 +543,8 @@ class WitReaderTest {
       |interface db {
       |  resource blob;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -592,9 +581,8 @@ class WitReaderTest {
       |    some(list<string>),
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -653,9 +641,8 @@ class WitReaderTest {
       |    supervillain,
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -713,9 +700,8 @@ class WitReaderTest {
       |    green,
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -766,9 +752,8 @@ class WitReaderTest {
       |  @since(version = 2.0)
       |  type my-complicated-tuple = tuple<u32, s32, string>;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -813,9 +798,8 @@ class WitReaderTest {
       |  @since(version = 2.0)
       |  use my:dependency/the-interface@3.0.{more, names as foo};
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Interface(
@@ -863,9 +847,8 @@ class WitReaderTest {
       |@since(version = 1.0)
       |world multi-function-device {
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -891,9 +874,8 @@ class WitReaderTest {
       |  @since(version = 2.0)
       |  export error-creator;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -931,9 +913,8 @@ class WitReaderTest {
       |  @since(version = 1.0)
       |  import primary: wasi:keyvalue/store;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -968,9 +949,8 @@ class WitReaderTest {
       |  @since(version = 2.0)
       |  export secondary: wasi:keyvalue/store;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1009,9 +989,8 @@ class WitReaderTest {
       |    log: func(param: string);
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1061,9 +1040,8 @@ class WitReaderTest {
       |    scan: func(document: string);
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1109,9 +1087,8 @@ class WitReaderTest {
       |  @since(version = 4.0)
       |  import log: func(param: string);
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1149,9 +1126,8 @@ class WitReaderTest {
       |  @since(version = 1.0)
       |  export scan: func(document: string);
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1187,9 +1163,8 @@ class WitReaderTest {
       |world multi-function-device {
       |  import two: store;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1216,9 +1191,8 @@ class WitReaderTest {
       |world multi-function-device {
       |  export two: store;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1247,9 +1221,8 @@ class WitReaderTest {
       |  @since(version = 1.0)
       |  include my-world-2;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1276,9 +1249,8 @@ class WitReaderTest {
       |world multi-function-device {
       |  include wasi:io/my-world-1 with { a as a1, b as b1 };
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1320,9 +1292,8 @@ class WitReaderTest {
       |  @since(version = 2.0)
       |  interface foo {}
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Package(
@@ -1354,9 +1325,8 @@ class WitReaderTest {
       |/// Use the Wasi HTTP handler also.
       |@since(version = 2.0)
       |use wasi:http/handler as http-handler;
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           TopLevelUse(
@@ -1394,9 +1364,8 @@ class WitReaderTest {
       |  @since(version = 1.0)
       |  use wasi:http/types@1.0.0;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Package(
@@ -1430,9 +1399,8 @@ class WitReaderTest {
       |  world multi-function-device {
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           Package(
@@ -1462,9 +1430,8 @@ class WitReaderTest {
       |    nanoseconds: u32,
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1504,9 +1471,8 @@ class WitReaderTest {
       |    green,
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1548,9 +1514,8 @@ class WitReaderTest {
       |    supervillain,
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1591,9 +1556,8 @@ class WitReaderTest {
       |    write: func(bytes: list<u8>);
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1644,9 +1608,8 @@ class WitReaderTest {
       |world multi-function-device {
       |  type my-awesome-u32 = u32;
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1671,9 +1634,8 @@ class WitReaderTest {
       |world multi-function-device {
       |  use an-interface.{a, list, of, names};
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
@@ -1707,9 +1669,8 @@ class WitReaderTest {
       |    some(list<string>),
       |  }
       |}
-      """.trimMargin()
-    val witReader = WitReader(wit)
-    assertThat(witReader.read()).isEqualTo(
+      """.trimMargin().toWitFile()
+    assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
           World(
