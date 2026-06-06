@@ -183,7 +183,7 @@ data class Case(
 data class Parameter(
   val location: Location,
   val name: Identifier,
-  val type: TypeName? = null,
+  val type: TypeName,
 ) {
   companion object {
     operator fun invoke(location: Location, name: String, type: TypeName) = Parameter(

@@ -1,14 +1,14 @@
 package com.wasmo.support.wit.kotlin.generator
 
 import assertk.assertThat
-import assertk.assertions.containsExactly
+import assertk.assertions.isEqualTo
 import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.WitPackage
 import com.wasmo.support.wit.toWitFile
 import kotlin.test.Test
 import okio.Path.Companion.toPath
 
-class WitKotlinGeneratorTest {
+class ApiGeneratorTest {
   @Test
   fun `full interface`() {
     val wasiClocks = WitPackage(
@@ -68,11 +68,12 @@ class WitKotlinGeneratorTest {
       ),
     )
 
-    val fileSpecs = WitKotlinGenerator(
-      witPackages = listOf(wasiClocks),
-    ).generate()
+    val kotlinMapper = KotlinMapper(listOf(wasiClocks))
+    val apiGenerator = ApiGenerator()
+    val kotlinPackage = kotlinMapper.mapPackage(wasiClocks)
+    val fileSpec = apiGenerator.generate(kotlinPackage)
 
-    assertThat(fileSpecs.map { it.toString() }).containsExactly(
+    assertThat(fileSpec.toString()).isEqualTo(
       """
       |package wit.wasi.clocks.v0_2_12
       |
@@ -154,6 +155,74 @@ class WitKotlinGeneratorTest {
       |     */
       |    public val symlinkFollow: Boolean,
       |  )
+      |}
+      |
+      """.trimMargin(),
+    )
+  }
+
+  @Test
+  fun `full world`() {
+    val wasiCommand = WitPackage(
+      packageName = PackageName("wasi", "cli", "0.3.0"),
+      files = mapOf(
+        "command.wit".toPath() to """
+          |package wasi:cli@0.3.0;
+          |
+          |world command {
+          |  include imports;
+          |  export run;
+          |}
+          """.trimMargin().toWitFile(),
+        "exit.wit".toPath() to """
+          |interface exit {
+          |  exit: func(status: result);
+          |}
+          """.trimMargin().toWitFile(),
+        "imports.wit".toPath() to """
+          |package wasi:cli@0.3.0;
+          |
+          |world imports {
+          |  import exit;
+          |}
+          """.trimMargin().toWitFile(),
+        "run.wit".toPath() to """
+          |interface run {
+          |  run: async func() -> result;
+          |}
+          """.trimMargin().toWitFile(),
+      ),
+    )
+
+    val kotlinMapper = KotlinMapper(listOf(wasiCommand))
+    val apiGenerator = ApiGenerator()
+    val kotlinPackage = kotlinMapper.mapPackage(wasiCommand)
+    val fileSpec = apiGenerator.generate(kotlinPackage)
+
+    assertThat(fileSpec.toString()).isEqualTo(
+      """
+      |package wit.wasi.cli.v0_3_0
+      |
+      |import kotlin.Pair
+      |
+      |public object Command {
+      |  public interface Guest {
+      |    public val run: Run
+      |  }
+      |}
+      |
+      |public interface Exit {
+      |  public fun exit(status: Pair<*, *>)
+      |}
+      |
+      |public object Imports {
+      |  public interface Host {
+      |    public val exit: Exit
+      |  }
+      |}
+      |
+      |public interface Run {
+      |  public fun run(): Pair<*, *>
       |}
       |
       """.trimMargin(),

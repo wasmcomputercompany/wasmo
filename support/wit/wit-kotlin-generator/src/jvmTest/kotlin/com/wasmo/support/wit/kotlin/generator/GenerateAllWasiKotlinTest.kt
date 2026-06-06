@@ -23,18 +23,20 @@ class GenerateAllWasiKotlinTest {
       wasiProposals / "sockets/wit",
     )
 
+    val packageReader = WitPackageReader(fileSystem)
     val witPackages = directories.map {
-      WitPackageReader(fileSystem).read(it)
+      packageReader.read(it)
     }
 
-    val fileSpecs = WitKotlinGenerator(
-      witPackages = witPackages,
-    ).generate()
+    val kotlinMapper = KotlinMapper(witPackages)
+    val apiGenerator = ApiGenerator()
 
     val directory = File("build/GenerateAllWasiKotlinTest")
     directory.mkdirs()
-    for (spec in fileSpecs) {
-      spec.writeTo(directory)
+    for (witPackage in witPackages) {
+      val kotlinPackage = kotlinMapper.mapPackage(witPackage)
+      val fileSpec = apiGenerator.generate(kotlinPackage)
+      fileSpec.writeTo(directory)
     }
   }
 }

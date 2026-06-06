@@ -8,6 +8,7 @@ import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.SymbolResolver
 import com.wasmo.support.wit.TypeName
+import com.wasmo.support.wit.UsePath
 
 /**
  * Map WIT types to Kotlin types.
@@ -28,6 +29,7 @@ interface PackageTypeMapper : TypeMapper {
 interface InterfaceTypeMapper : PackageTypeMapper {
   val interfaceName: Identifier
   val className: ClassName
+  fun refine(usePath: UsePath): InterfaceTypeMapper
 }
 
 fun TypeMapper(
@@ -75,6 +77,13 @@ internal class RealInterfaceTypeMapper(
 
   override fun refine(interfaceName: Identifier) =
     RealInterfaceTypeMapper(symbolResolver, kotlinPackagePrefix, packageName, interfaceName)
+
+  override fun refine(usePath: UsePath): InterfaceTypeMapper {
+    return when {
+      usePath.packageName != null -> refine(usePath.packageName).refine(usePath.name)
+      else -> refine(usePath.name)
+    }
+  }
 
   override fun map(typeName: TypeName): KotlinTypeName {
     return resolveTypeNameOrNull(typeName, packageName, interfaceName)
