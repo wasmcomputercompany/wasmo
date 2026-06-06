@@ -125,7 +125,7 @@ data class Resource(
   override val gate: Gate? = null,
   override val location: Location,
   override val name: Identifier,
-  val declarations: List<Declaration>,
+  val functions: List<Function>,
 ) : TypeDeclaration
 
 data class Record(

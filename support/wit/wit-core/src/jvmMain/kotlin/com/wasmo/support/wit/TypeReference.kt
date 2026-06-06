@@ -70,7 +70,7 @@ private class TypeReferenceScanner(
       is Interface -> scanner(interfaceName = subject.name).scan(subject.declarations)
       is Package -> scan(subject.declarations)
       is Record -> scan(subject.fields)
-      is Resource -> scan(subject.declarations)
+      is Resource -> scan(subject.functions)
       is TypeAlias -> yield(subject.target)
       is Variant -> scan(subject.cases)
       is Use -> {
