@@ -312,48 +312,30 @@ class WitKotlinGenerator(
         typeResolver = interfaceScope,
         children = world.declarations,
       )
-      .addType(
-        TypeSpec.interfaceBuilder("Guest")
-          .apply {
-            for (import in imports) {
-              addProperty(import.name, import.type)
-            }
-            if (exports.isNotEmpty()) {
-              addFunction(
-                FunSpec.builder("export")
-                  .addModifiers(KModifier.ABSTRACT)
-                  .apply {
-                    for (export in exports) {
-                      addParameter(export.name, export.type)
-                    }
-                  }
-                  .build(),
-              )
-            }
-          }
-          .build(),
-      )
-      .addType(
-        TypeSpec.interfaceBuilder("Host")
-          .apply {
-            for (import in exports) {
-              addProperty(import.name, import.type)
-            }
-            if (imports.isNotEmpty()) {
-              addFunction(
-                FunSpec.builder("export")
-                  .addModifiers(KModifier.ABSTRACT)
-                  .apply {
-                    for (import in imports) {
-                      addParameter(import.name, import.type)
-                    }
-                  }
-                  .build(),
-              )
-            }
-          }
-          .build(),
-      )
+      .apply {
+        if (exports.isNotEmpty()) {
+          addType(
+            TypeSpec.interfaceBuilder("Guest")
+              .apply {
+                for (export in exports) {
+                  addProperty(export.name, export.type)
+                }
+              }
+              .build(),
+          )
+        }
+        if (imports.isNotEmpty()) {
+          addType(
+            TypeSpec.interfaceBuilder("Host")
+              .apply {
+                for (import in imports) {
+                  addProperty(import.name, import.type)
+                }
+              }
+              .build(),
+          )
+        }
+      }
       .build()
   }
 

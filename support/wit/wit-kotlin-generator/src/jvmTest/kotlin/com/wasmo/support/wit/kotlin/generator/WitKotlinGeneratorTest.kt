@@ -205,10 +205,6 @@ class WitKotlinGeneratorTest {
       |
       |public object Command {
       |  public interface Guest {
-      |    public fun export(run: Run)
-      |  }
-      |
-      |  public interface Host {
       |    public val run: Run
       |  }
       |}
@@ -218,12 +214,8 @@ class WitKotlinGeneratorTest {
       |}
       |
       |public object Imports {
-      |  public interface Guest {
-      |    public val exit: Exit
-      |  }
-      |
       |  public interface Host {
-      |    public fun export(exit: Exit)
+      |    public val exit: Exit
       |  }
       |}
       |
