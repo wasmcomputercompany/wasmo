@@ -16,7 +16,19 @@ fun concatenate(aId: Int, bId: Int): Int {
     val bridge = GuestBridge(allocator)
     val a = bridge.get(aId)
     val b = bridge.get(bId)
-    val concat = a + b
+    val concat = concatenator.concatenate(a, b)
     bridge.put(concat)
+  }
+}
+
+lateinit var concatenator: Concatenator
+
+interface Concatenator {
+  fun concatenate(a: String, b: String): String
+}
+
+val initialize = run {
+  concatenator = object : Concatenator {
+    override fun concatenate(a: String, b: String) = a + b
   }
 }

@@ -1,14 +1,14 @@
 package com.wasmo.support.wit.kotlin.generator
 
 import assertk.assertThat
-import assertk.assertions.containsExactly
+import assertk.assertions.isEqualTo
 import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.WitPackage
 import com.wasmo.support.wit.toWitFile
 import kotlin.test.Test
 import okio.Path.Companion.toPath
 
-class WitKotlinGeneratorTest {
+class ApiGeneratorTest {
   @Test
   fun `full interface`() {
     val wasiClocks = WitPackage(
@@ -68,11 +68,12 @@ class WitKotlinGeneratorTest {
       ),
     )
 
-    val fileSpecs = WitKotlinGenerator(
-      witPackages = listOf(wasiClocks),
-    ).generate()
+    val kotlinMapper = KotlinMapper(listOf(wasiClocks))
+    val apiGenerator = ApiGenerator()
+    val kotlinPackage = kotlinMapper.mapPackage(wasiClocks)
+    val fileSpec = apiGenerator.generate(kotlinPackage)
 
-    assertThat(fileSpecs.map { it.toString() }).containsExactly(
+    assertThat(fileSpec.toString()).isEqualTo(
       """
       |package wit.wasi.clocks.v0_2_12
       |
@@ -193,11 +194,12 @@ class WitKotlinGeneratorTest {
       ),
     )
 
-    val fileSpecs = WitKotlinGenerator(
-      witPackages = listOf(wasiCommand),
-    ).generate()
+    val kotlinMapper = KotlinMapper(listOf(wasiCommand))
+    val apiGenerator = ApiGenerator()
+    val kotlinPackage = kotlinMapper.mapPackage(wasiCommand)
+    val fileSpec = apiGenerator.generate(kotlinPackage)
 
-    assertThat(fileSpecs.map { it.toString() }).containsExactly(
+    assertThat(fileSpec.toString()).isEqualTo(
       """
       |package wit.wasi.cli.v0_3_0
       |
