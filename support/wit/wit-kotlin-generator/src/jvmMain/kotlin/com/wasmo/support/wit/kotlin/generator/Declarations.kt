@@ -65,6 +65,12 @@ data class ResourceKt(
   val functions: List<FunctionKt>,
 ) : DeclarationKt
 
+data class TypeAliasKt(
+  override val documentation: String?,
+  val type: ClassName,
+  val target: TypeName
+) : DeclarationKt
+
 data class VariantKt(
   override val documentation: String?,
   val type: ClassName,

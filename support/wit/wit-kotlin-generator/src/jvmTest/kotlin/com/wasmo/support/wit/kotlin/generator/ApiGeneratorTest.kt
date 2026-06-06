@@ -81,6 +81,7 @@ class ApiGeneratorTest {
       |import kotlin.String
       |import kotlin.UInt
       |import kotlin.ULong
+      |import kotlin.jvm.JvmInline
       |
       |/**
       | * gets the epoch time
@@ -135,7 +136,7 @@ class ApiGeneratorTest {
       |  /**
       |   * File or memory access pattern advisory information.
       |   */
-      |  public sealed enum class Advice {
+      |  public enum class Advice {
       |    /**
       |     * No advice.
       |     */
@@ -154,6 +155,14 @@ class ApiGeneratorTest {
       |     * Follow the darn things.
       |     */
       |    public val symlinkFollow: Boolean,
+      |  )
+      |
+      |  /**
+      |   * You can do both with an epoch.
+      |   */
+      |  @JvmInline
+      |  public value class Instant(
+      |    public val `value`: Datetime,
       |  )
       |}
       |
