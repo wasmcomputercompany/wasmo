@@ -67,7 +67,7 @@ class KotlinMapper(
       is Record -> mapRecord(typeMapper as InterfaceTypeMapper, value)
       is Resource -> mapResource(typeMapper as InterfaceTypeMapper, value)
       is TopLevelUse -> null
-      is TypeAlias -> null
+      is TypeAlias -> mapTypeAlias(typeMapper as InterfaceTypeMapper, value)
       is Use -> null
       is Variant -> mapVariant(typeMapper as InterfaceTypeMapper, value)
       is World -> mapWorld(typeMapper, value)
@@ -101,6 +101,12 @@ class KotlinMapper(
     documentation = value.documentation?.content,
     type = typeMapper.className.nestedClass(value.name.name.toCamelCase(upperCamel = true)),
     functions = value.functions.map { mapFunction(typeMapper, it) },
+  )
+
+  fun mapTypeAlias(typeMapper: InterfaceTypeMapper, value: TypeAlias) = TypeAliasKt(
+    documentation = value.documentation?.content,
+    type = typeMapper.className.nestedClass(value.name.name.toCamelCase(upperCamel = true)),
+    target = typeMapper.map(value.target),
   )
 
   fun mapVariant(typeMapper: InterfaceTypeMapper, value: Variant) = VariantKt(

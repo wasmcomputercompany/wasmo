@@ -30,6 +30,7 @@ class ApiGenerator {
       is InterfaceKt -> (builder as TypeSpecHolder.Builder<*>).addType(generate(value))
       is RecordKt -> (builder as TypeSpecHolder.Builder<*>).addType(generate(value))
       is ResourceKt -> (builder as TypeSpecHolder.Builder<*>).addType(generate(value))
+      is TypeAliasKt -> (builder as TypeSpecHolder.Builder<*>).addType(generate(value))
       is VariantKt -> (builder as TypeSpecHolder.Builder<*>).addType(generate(value))
       is WorldKt -> (builder as TypeSpecHolder.Builder<*>).addType(generate(value))
       else -> error("unexpected value: $value")
@@ -54,31 +55,29 @@ class ApiGenerator {
     }
     .build()
 
-  private fun generate(value: RecordKt): TypeSpec {
-    val classBuilder = TypeSpec.classBuilder(value.type.simpleName)
-      .addModifiers(KModifier.DATA)
-      .setDeclaration(value)
+  private fun generate(value: RecordKt) = TypeSpec.classBuilder(value.type.simpleName)
+    .addModifiers(KModifier.DATA)
+    .setDeclaration(value)
+    .apply {
+      val constructorBuilder = FunSpec.constructorBuilder()
 
-    val constructorBuilder = FunSpec.constructorBuilder()
+      for (field in value.fields) {
+        val name = field.name
+        val parameter = ParameterSpec.builder(name, field.type)
+          .build()
+        constructorBuilder.addParameter(parameter)
 
-    for (field in value.fields) {
-      val name = field.name
-      val parameter = ParameterSpec.builder(name, field.type)
-        .build()
-      constructorBuilder.addParameter(parameter)
+        addProperty(
+          PropertySpec.builder(name, field.type)
+            .initializer("%N", parameter)
+            .setDeclaration(field)
+            .build(),
+        )
+      }
 
-      classBuilder.addProperty(
-        PropertySpec.builder(name, field.type)
-          .initializer("%N", parameter)
-          .setDeclaration(field)
-          .build(),
-      )
+      primaryConstructor(constructorBuilder.build())
     }
-
-    classBuilder.primaryConstructor(constructorBuilder.build())
-
-    return classBuilder.build()
-  }
+    .build()
 
   private fun generate(value: ResourceKt) = TypeSpec.interfaceBuilder(value.type.simpleName)
     .setDeclaration(value)
@@ -127,7 +126,6 @@ class ApiGenerator {
     .build()
 
   private fun generate(value: EnumKt) = TypeSpec.enumBuilder(value.type.simpleName)
-    .addModifiers(KModifier.SEALED)
     .setDeclaration(value)
     .apply {
       for (case in value.cases) {
@@ -138,6 +136,28 @@ class ApiGenerator {
             .build(),
         )
       }
+    }
+    .build()
+
+  private fun generate(value: TypeAliasKt) = TypeSpec.classBuilder(value.type.simpleName)
+    .addModifiers(KModifier.VALUE)
+    .addAnnotation(JvmInline::class)
+    .setDeclaration(value)
+    .apply {
+      val parameter = ParameterSpec.builder("value", value.target)
+        .build()
+
+      primaryConstructor(
+        FunSpec.constructorBuilder()
+          .addParameter(parameter)
+          .build(),
+      )
+
+      addProperty(
+        PropertySpec.builder("value", value.target)
+          .initializer("%N", parameter)
+          .build(),
+      )
     }
     .build()
 
