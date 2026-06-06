@@ -159,4 +159,79 @@ class WitKotlinGeneratorTest {
       """.trimMargin(),
     )
   }
+
+  @Test
+  fun `full world`() {
+    val wasiCommand = WitPackage(
+      packageName = PackageName("wasi", "cli", "0.3.0"),
+      files = mapOf(
+        "command.wit".toPath() to """
+          |package wasi:cli@0.3.0;
+          |
+          |world command {
+          |  include imports;
+          |  export run;
+          |}
+          """.trimMargin().toWitFile(),
+        "exit.wit".toPath() to """
+          |interface exit {
+          |  exit: func(status: result);
+          |}
+          """.trimMargin().toWitFile(),
+        "imports.wit".toPath() to """
+          |package wasi:cli@0.3.0;
+          |
+          |world imports {
+          |  import exit;
+          |}
+          """.trimMargin().toWitFile(),
+        "run.wit".toPath() to """
+          |interface run {
+          |  run: async func() -> result;
+          |}
+          """.trimMargin().toWitFile(),
+      ),
+    )
+
+    val fileSpecs = WitKotlinGenerator(
+      witPackages = listOf(wasiCommand),
+    ).generate()
+
+    assertThat(fileSpecs.map { it.toString() }).containsExactly(
+      """
+      |package wit.wasi.cli.v0_3_0
+      |
+      |import kotlin.Pair
+      |
+      |public object Command {
+      |  public interface Guest {
+      |    public fun export(run: Run)
+      |  }
+      |
+      |  public interface Host {
+      |    public val run: Run
+      |  }
+      |}
+      |
+      |public interface Exit {
+      |  public fun exit(status: Pair<*, *>)
+      |}
+      |
+      |public object Imports {
+      |  public interface Guest {
+      |    public val exit: Exit
+      |  }
+      |
+      |  public interface Host {
+      |    public fun export(exit: Exit)
+      |  }
+      |}
+      |
+      |public interface Run {
+      |  public fun run(): Pair<*, *>
+      |}
+      |
+      """.trimMargin(),
+    )
+  }
 }

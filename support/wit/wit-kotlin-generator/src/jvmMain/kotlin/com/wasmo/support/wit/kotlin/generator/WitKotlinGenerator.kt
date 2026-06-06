@@ -8,12 +8,14 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberSpecHolder
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeSpecHolder
 import com.wasmo.support.wit.Case
 import com.wasmo.support.wit.Declaration
 import com.wasmo.support.wit.Enum
 import com.wasmo.support.wit.Export
+import com.wasmo.support.wit.ExternalUsePath
 import com.wasmo.support.wit.Field
 import com.wasmo.support.wit.Flag
 import com.wasmo.support.wit.Flags
@@ -110,7 +112,7 @@ class WitKotlinGenerator(
       is TypeAlias -> null
       is Use -> null
       is Variant -> generateVariant(scope as InterfaceTypeMapper, declaration)
-      is World -> null
+      is World -> generateWorld(scope, declaration)
     }
   }
 
@@ -140,7 +142,7 @@ class WitKotlinGenerator(
 
     for (field in record.fields) {
       val type = scope.map(field.type)
-      val name = field.name.name
+      val name = field.name.name.toCamelCase(upperCamel = false)
       val parameter = ParameterSpec.builder(name, type)
         .build()
       constructorBuilder.addParameter(parameter)
@@ -268,14 +270,109 @@ class WitKotlinGenerator(
     scope: PackageTypeMapper,
     function: Function,
   ): FunSpec {
-    return FunSpec.builder(function.name.name)
+    val functionName = function.name.name.toCamelCase(upperCamel = false)
+    return FunSpec.builder(functionName)
       .addModifiers(KModifier.ABSTRACT)
       .setDeclaration(function)
       .apply {
+        for (parameter in function.parameters) {
+          addParameter(
+            name = parameter.name.name.toCamelCase(upperCamel = false),
+            type = scope.map(parameter.type),
+          )
+        }
         val returnType = function.returnType
         if (returnType != null) {
           returns(scope.map(returnType))
         }
       }.build()
   }
+
+  private fun generateWorld(
+    scope: PackageTypeMapper,
+    world: World,
+  ): TypeSpec {
+    val interfaceScope = scope.refine(interfaceName = world.name)
+
+    val imports = mutableListOf<BridgedSymbol>()
+    for (import in world.declarations.filterIsInstance<Import>()) {
+      val externalUsePath = import.value as? ExternalUsePath ?: continue
+      imports += BridgedSymbol(interfaceScope, externalUsePath)
+    }
+
+    val exports = mutableListOf<BridgedSymbol>()
+    for (export in world.declarations.filterIsInstance<Export>()) {
+      val externalUsePath = export.value as? ExternalUsePath ?: continue
+      exports += BridgedSymbol(interfaceScope, externalUsePath)
+    }
+
+    return TypeSpec.objectBuilder(interfaceScope.className.simpleName)
+      .setDeclaration(world)
+      .addDeclarations(
+        typeResolver = interfaceScope,
+        children = world.declarations,
+      )
+      .addType(
+        TypeSpec.interfaceBuilder("Guest")
+          .apply {
+            for (import in imports) {
+              addProperty(import.name, import.type)
+            }
+            if (exports.isNotEmpty()) {
+              addFunction(
+                FunSpec.builder("export")
+                  .addModifiers(KModifier.ABSTRACT)
+                  .apply {
+                    for (export in exports) {
+                      addParameter(export.name, export.type)
+                    }
+                  }
+                  .build(),
+              )
+            }
+          }
+          .build(),
+      )
+      .addType(
+        TypeSpec.interfaceBuilder("Host")
+          .apply {
+            for (import in exports) {
+              addProperty(import.name, import.type)
+            }
+            if (imports.isNotEmpty()) {
+              addFunction(
+                FunSpec.builder("export")
+                  .addModifiers(KModifier.ABSTRACT)
+                  .apply {
+                    for (import in imports) {
+                      addParameter(import.name, import.type)
+                    }
+                  }
+                  .build(),
+              )
+            }
+          }
+          .build(),
+      )
+      .build()
+  }
+
+  /** An interface imported or exported in a world. */
+  private class BridgedSymbol(
+    val name: String,
+    val type: TypeName,
+  ) {
+    companion object {
+      operator fun invoke(
+        scope: InterfaceTypeMapper,
+        externalUsePath: ExternalUsePath,
+      ): BridgedSymbol {
+        val name = (externalUsePath.plainName ?: externalUsePath.path.name)
+          .name.toCamelCase(upperCamel = false)
+        val type = scope.refine(externalUsePath.path).className
+        return BridgedSymbol(name, type)
+      }
+    }
+  }
+
 }

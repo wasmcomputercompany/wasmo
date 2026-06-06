@@ -52,6 +52,7 @@ internal fun String.toCamelCase(upperCamel: Boolean): String {
     var uppercase = upperCamel
     for (char in this@toCamelCase) {
       when (char) {
+        '%' -> continue
         '-' -> {
           uppercase = true
           continue
