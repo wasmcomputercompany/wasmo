@@ -15,7 +15,7 @@ import com.wasmo.support.wit.Interface
 import com.wasmo.support.wit.Package
 import com.wasmo.support.wit.Record
 import com.wasmo.support.wit.Resource
-import com.wasmo.support.wit.SymbolResolver
+import com.wasmo.support.wit.SymbolIndex
 import com.wasmo.support.wit.TopLevelUse
 import com.wasmo.support.wit.TypeAlias
 import com.wasmo.support.wit.Use
@@ -25,16 +25,23 @@ import com.wasmo.support.wit.World
 
 /**
  * Directly converts WIT model types ([World], [Function], etc.) to a Kotlin equivalents ([WorldKt],
- * [FunctionKt], etc.). This implements case mapping (`monotonic-clock` to `MonotonicClock`) and
- * type mapping (`s32` to `Int`).
+ * [FunctionKt], etc.).
+ *
+ * This performs the following transformations:
+ *
+ *  * Case mapping of names: `monotonic-clock` to `MonotonicClock`, `utc-offset` to `utcOffset`.
+ *  * Type mapping: `s32` to `Int`, `optional<string>` to `String?`.
+ *  * Flattening worlds by applying `include` declarations.
  */
 class KotlinMapper(
-  private val witPackages: List<WitPackage>,
+  witPackages: List<WitPackage>,
   private val kotlinPackagePrefix: String = "wit",
 ) {
+  private val index = SymbolIndex(witPackages)
+
   fun mapPackage(witPackage: WitPackage): WitPackageKt {
     val typeMapper = TypeMapper(
-      symbolResolver = SymbolResolver(witPackages),
+      index = index,
       kotlinPackagePrefix = kotlinPackagePrefix,
     )
 
@@ -158,11 +165,16 @@ class KotlinMapper(
   )
 
   fun mapWorld(typeMapper: PackageTypeMapper, value: World): WorldKt {
-    val interfaceTypeMapper = typeMapper.refine(interfaceName = value.name)
+    val flattener = WorldFlattener(index)
+    val flattened = flattener.flatten(
+      world = value,
+      inPackageName = typeMapper.packageName,
+    )
+    val interfaceTypeMapper = typeMapper.refine(interfaceName = flattened.name)
     return WorldKt(
-      documentation = value.documentation?.content,
+      documentation = flattened.documentation?.content,
       type = interfaceTypeMapper.className,
-      imports = value.declarations.filterIsInstance<Import>().mapNotNull {
+      imports = flattened.declarations.filterIsInstance<Import>().mapNotNull {
         val path = it.value as? ExternalUsePath ?: return@mapNotNull null
         WorldKt.Import(
           documentation = it.documentation?.content,
@@ -170,7 +182,7 @@ class KotlinMapper(
           type = interfaceTypeMapper.refine(path.path).className,
         )
       },
-      exports = value.declarations.filterIsInstance<Export>().mapNotNull {
+      exports = flattened.declarations.filterIsInstance<Export>().mapNotNull {
         val path = it.value as? ExternalUsePath ?: return@mapNotNull null
         WorldKt.Export(
           documentation = it.documentation?.content,

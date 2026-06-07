@@ -207,7 +207,10 @@ class ApiGeneratorTest {
     val kotlinMapper = KotlinMapper(listOf(wasiCommand))
     val apiGenerator = ApiGenerator()
     val kotlinPackage = kotlinMapper.mapPackage(wasiCommand)
-    val fileSpec = apiGenerator.generate(kotlinPackage)
+    val fileSpec = apiGenerator.generate(
+      witPackage = kotlinPackage,
+      worldFilter = { world -> world.type.simpleName == "Command" }
+    )
 
     assertThat(fileSpec.toString()).isEqualTo(
       """
@@ -220,16 +223,14 @@ class ApiGeneratorTest {
       |  public interface Guest {
       |    public val run: Run
       |  }
+      |
+      |  public interface Host {
+      |    public val exit: Exit
+      |  }
       |}
       |
       |public interface Exit {
       |  public fun exit(status: Pair<*, *>)
-      |}
-      |
-      |public object Imports {
-      |  public interface Host {
-      |    public val exit: Exit
-      |  }
       |}
       |
       |public interface Run {
