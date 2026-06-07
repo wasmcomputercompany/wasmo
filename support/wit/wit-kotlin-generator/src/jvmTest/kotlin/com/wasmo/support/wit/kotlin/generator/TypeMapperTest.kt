@@ -6,10 +6,10 @@ import assertk.assertions.isEqualTo
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.wasmo.support.wit.Identifier
-import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.SymbolIndex
 import com.wasmo.support.wit.TypeName
 import com.wasmo.support.wit.WitPackage
+import com.wasmo.support.wit.toPackageName
 import com.wasmo.support.wit.toWitFile
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -31,7 +31,7 @@ class TypeMapperTest {
     val index = SymbolIndex(
       packages = listOf(
         WitPackage(
-          packageName = PackageName("wasi", "clocks"),
+          packageName = "wasi:clocks".toPackageName(),
           files = mapOf("clock.wit".toPath() to witFile),
         ),
       ),
@@ -41,7 +41,7 @@ class TypeMapperTest {
       kotlinPackagePrefix = "wit",
     )
 
-    val packageTypeMapper = typeMapper.refine(PackageName("wasi", "clocks"))
+    val packageTypeMapper = typeMapper.refine("wasi:clocks".toPackageName())
     val interfaceTypeMapper = packageTypeMapper.refine(Identifier("wall-clock"))
 
     assertThat(interfaceTypeMapper.map(TypeName.Declared("datetime")))

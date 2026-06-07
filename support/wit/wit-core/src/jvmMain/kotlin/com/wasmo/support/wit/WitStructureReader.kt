@@ -5,7 +5,8 @@ package com.wasmo.support.wit
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-internal class WitStructureReader(
+@WitCoreInternalApi
+class WitStructureReader(
   private val chars: CharArray,
 ) {
   constructor(string: String) : this(string.toCharArray())

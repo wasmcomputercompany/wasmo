@@ -2,8 +2,8 @@ package com.wasmo.support.wit.kotlin.generator
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.WitPackage
+import com.wasmo.support.wit.toPackageName
 import com.wasmo.support.wit.toWitFile
 import kotlin.test.Test
 import okio.Path.Companion.toPath
@@ -12,7 +12,7 @@ class ApiGeneratorTest {
   @Test
   fun `full interface`() {
     val wasiClocks = WitPackage(
-      packageName = PackageName("wasi", "clocks", "0.2.12"),
+      packageName = "wasi:clocks@0.2.12".toPackageName(),
       files = mapOf(
         "clock.wit".toPath() to """
           |package wasi:clocks@0.2.12;
@@ -174,7 +174,7 @@ class ApiGeneratorTest {
   @Test
   fun `full world`() {
     val wasiCommand = WitPackage(
-      packageName = PackageName("wasi", "cli", "0.3.0"),
+      packageName = "wasi:cli@0.3.0".toPackageName(),
       files = mapOf(
         "command.wit".toPath() to """
           |package wasi:cli@0.3.0;

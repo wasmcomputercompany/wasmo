@@ -119,6 +119,7 @@ include(":support:tokens")
 include(":support:wit:wit-core")
 include(":support:wit:wit-kotlin")
 include(":support:wit:wit-kotlin-generator")
+include(":support:wit:wit-testing")
 include(":wasmox:wasmox-sql")
 include(":wasmox:wasmox-sqldelight")
 

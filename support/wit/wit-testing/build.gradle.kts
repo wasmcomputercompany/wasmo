@@ -12,12 +12,14 @@ kotlin {
     jvmMain {
       dependencies {
         implementation(libs.okio)
+        implementation(projects.support.wit.witCore)
+        implementation(projects.support.wit.witKotlin)
+        implementation(projects.support.wit.witKotlinGenerator)
       }
     }
     jvmTest {
       dependencies {
         implementation(libs.okio.fakefilesystem)
-        implementation(projects.support.wit.witTesting)
       }
     }
   }

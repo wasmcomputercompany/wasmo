@@ -14,8 +14,7 @@ class WitFileReaderTest {
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
       WitFile(
-        packageName = PackageName("wasi", "clocks", "0.2.9"),
-        declarations = listOf(),
+        packageName = "wasi:clocks@0.2.9".toPackageName(),
       ),
     )
   }
@@ -136,11 +135,7 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       WitFile(
         declarations = listOf(
-          Interface(
-            location = Location(1, 1),
-            name = Identifier("foo"),
-            declarations = listOf(),
-          ),
+          Interface(name = "foo"),
         ),
       ),
     )
@@ -158,16 +153,13 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            documentation = Documentation(
-              """
+            documentation = """
               | this is the foo interface
               |it is a good interface
               """.trimMargin(),
-            ),
             gate = Gate(deprecated = "0.2.2"),
             location = Location(4, 1),
-            name = Identifier("foo"),
-            declarations = listOf(),
+            name = "foo",
           ),
         ),
       ),
@@ -187,11 +179,11 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("foo"),
+            name = "foo",
             declarations = listOf(
               Function(
                 location = Location(2, 3),
-                name = Identifier("print"),
+                name = "print",
                 parameters = listOf(
                   Parameter(
                     location = Location(2, 15),
@@ -200,7 +192,7 @@ class WitFileReaderTest {
                   ),
                   Parameter(
                     location = Location(2, 32),
-                    name = Identifier("repeat"),
+                    name = "repeat",
                     type = TypeName.Option(TypeName.U32),
                   ),
                 ),
@@ -210,9 +202,8 @@ class WitFileReaderTest {
               ),
               Function(
                 location = Location(3, 3),
-                name = Identifier("async-print"),
+                name = "async-print",
                 async = true,
-                parameters = listOf(),
               ),
             ),
           ),
@@ -239,38 +230,36 @@ class WitFileReaderTest {
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
       WitFile(
-        packageName = PackageName("wasi", "clocks", "0.2.9"),
+        packageName = "wasi:clocks@0.2.9".toPackageName(),
         declarations = listOf(
           Interface(
             location = Location(3, 1),
-            name = Identifier("wall-clock"),
+            name = "wall-clock",
             declarations = listOf(
               Record(
                 location = Location(4, 3),
-                name = Identifier("datetime"),
+                name = "datetime",
                 fields = listOf(
                   Field(
                     location = Location(5, 5),
-                    name = Identifier("seconds"),
+                    name = "seconds",
                     type = TypeName.U64,
                   ),
                   Field(
                     location = Location(6, 5),
-                    name = Identifier("nanoseconds"),
+                    name = "nanoseconds",
                     type = TypeName.U32,
                   ),
                 ),
               ),
               Function(
                 location = Location(9, 3),
-                name = Identifier("now"),
-                parameters = listOf(),
+                name = "now",
                 returnType = TypeName.Declared("datetime"),
               ),
               Function(
                 location = Location(11, 3),
-                name = Identifier("resolution"),
-                parameters = listOf(),
+                name = "resolution",
                 returnType = TypeName.Declared("datetime"),
               ),
             ),
@@ -293,16 +282,13 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            documentation = Documentation(
-              """
+            documentation = """
               | tick tock
               | wall clock
               """.trimMargin(),
-            ),
             gate = Gate(since = "1.0"),
             location = Location(4, 1),
-            name = Identifier("wall-clock"),
-            declarations = listOf(),
+            name = "wall-clock",
           ),
         ),
       ),
@@ -330,26 +316,26 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("wall-clock"),
+            name = "wall-clock",
             declarations = listOf(
               Record(
-                documentation = Documentation(" spacetime"),
+                documentation = " spacetime",
                 gate = Gate(since = "2.0"),
                 location = Location(4, 3),
-                name = Identifier("datetime"),
+                name = "datetime",
                 fields = listOf(
                   Field(
-                    documentation = Documentation(" just a second"),
+                    documentation = " just a second",
                     gate = Gate(since = "3.0"),
                     location = Location(7, 5),
-                    name = Identifier("seconds"),
+                    name = "seconds",
                     type = TypeName.U64,
                   ),
                   Field(
-                    documentation = Documentation(" tick"),
+                    documentation = " tick",
                     gate = Gate(since = "4.0"),
                     location = Location(10, 5),
-                    name = Identifier("nanoseconds"),
+                    name = "nanoseconds",
                     type = TypeName.U32,
                   ),
                 ),
@@ -378,16 +364,16 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("wall-clock"),
+            name = "wall-clock",
             declarations = listOf(
               Function(
-                documentation = Documentation(" sample the clock"),
+                documentation = " sample the clock",
                 gate = Gate(since = "5.0"),
                 location = Location(4, 3),
-                name = Identifier("now"),
+                name = "now",
                 parameters = listOf(
                   Parameter(
-                    documentation = Documentation(" True to return a non-decreasing value."),
+                    documentation = " True to return a non-decreasing value.",
                     location = Location(6, 5),
                     name = "monotonic",
                     type = TypeName.Bool,
@@ -416,11 +402,11 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("monotonic-clock"),
+            name = "monotonic-clock",
             declarations = listOf(
               Function(
                 location = Location(2, 3),
-                name = Identifier("subscribe-instant"),
+                name = "subscribe-instant",
                 parameters = listOf(
                   Parameter(
                     location = Location(3, 5),
@@ -467,72 +453,70 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("db"),
+            name = "db",
             declarations = listOf(
               Resource(
-                documentation = Documentation(" big boi"),
+                documentation = " big boi",
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = Identifier("blob"),
+                name = "blob",
                 functions = listOf(
                   Function(
-                    documentation = Documentation(" makes a new one"),
+                    documentation = " makes a new one",
                     gate = Gate(since = "2.0"),
                     location = Location(7, 5),
                     constructor = true,
-                    name = Identifier("constructor"),
+                    name = "constructor",
                     parameters = listOf(
                       Parameter(
                         location = Location(7, 17),
-                        name = Identifier("init"),
+                        name = "init",
                         type = TypeName.List(TypeName.U8),
                       ),
                     ),
-                    returnType = null,
                   ),
                   Function(
-                    documentation = Documentation(" puts some bytes"),
+                    documentation = " puts some bytes",
                     gate = Gate(since = "3.0"),
                     location = Location(11, 5),
-                    name = Identifier("write"),
+                    name = "write",
                     parameters = listOf(
                       Parameter(
                         location = Location(11, 17),
-                        name = Identifier("bytes"),
+                        name = "bytes",
                         type = TypeName.List(TypeName.U8),
                       ),
                     ),
-                    returnType = null,
                   ),
                   Function(
-                    documentation = Documentation(" gets some bytes"),
+                    documentation = " gets some bytes",
                     gate = Gate(since = "4.0"),
                     location = Location(15, 5),
-                    name = Identifier("read"),
+                    name = "read",
                     parameters = listOf(
                       Parameter(
                         location = Location(15, 16),
-                        name = Identifier("n"),
+                        name = "n",
                         type = TypeName.U32,
                       ),
                     ),
                     returnType = TypeName.List(TypeName.U8),
                   ),
                   Function(
-                    documentation = Documentation(" smashes some blobs together"),
+                    documentation = " smashes some blobs together",
                     gate = Gate(since = "5.0"),
                     location = Location(19, 5),
                     static = true,
-                    name = Identifier("merge"),
+                    name = "merge",
                     parameters = listOf(
                       Parameter(
                         location = Location(19, 24),
-                        name = Identifier("lhs"),
+                        name = "lhs",
                         type = TypeName.Borrow(TypeName.Declared("blob")),
                       ),
                       Parameter(
                         location = Location(19, 43),
-                        name = Identifier("rhs"),
+                        name = "rhs",
                         type = TypeName.Borrow(TypeName.Declared("blob")),
                       ),
                     ),
@@ -559,12 +543,11 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("db"),
+            name = "db",
             declarations = listOf(
               Resource(
                 location = Location(2, 3),
-                name = Identifier("blob"),
-                functions = listOf(),
+                name = "blob",
               ),
             ),
           ),
@@ -597,31 +580,31 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("db"),
+            name = "db",
             declarations = listOf(
               Variant(
-                documentation = Documentation(" whats included"),
+                documentation = " whats included",
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = Identifier("filter"),
+                name = "filter",
                 cases = listOf(
                   Case(
-                    documentation = Documentation(" all the things"),
+                    documentation = " all the things",
                     gate = Gate(since = "2.0"),
                     location = Location(7, 5),
-                    name = Identifier("all"),
+                    name = "all",
                   ),
                   Case(
-                    documentation = Documentation(" zilch"),
+                    documentation = " zilch",
                     gate = Gate(since = "3.0"),
                     location = Location(10, 5),
-                    name = Identifier("none"),
+                    name = "none",
                   ),
                   Case(
-                    documentation = Documentation(" one"),
+                    documentation = " one",
                     gate = Gate(since = "4.0"),
                     location = Location(13, 5),
-                    name = Identifier("some"),
+                    name = "some",
                     type = TypeName.List(TypeName.String),
                   ),
                 ),
@@ -657,31 +640,31 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("db"),
+            name = "db",
             declarations = listOf(
               Flags(
-                documentation = Documentation(" comic character"),
+                documentation = " comic character",
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = Identifier("properties"),
+                name = "properties",
                 flags = listOf(
                   Flag(
-                    documentation = Documentation(" plastic"),
+                    documentation = " plastic",
                     gate = Gate(since = "2.0"),
                     location = Location(7, 5),
-                    name = Identifier("lego"),
+                    name = "lego",
                   ),
                   Flag(
-                    documentation = Documentation(" avenger"),
+                    documentation = " avenger",
                     gate = Gate(since = "3.0"),
                     location = Location(10, 5),
-                    name = Identifier("marvel-superhero"),
+                    name = "marvel-superhero",
                   ),
                   Flag(
-                    documentation = Documentation(" naughty"),
+                    documentation = " naughty",
                     gate = Gate(since = "4.0"),
                     location = Location(13, 5),
-                    name = Identifier("supervillain"),
+                    name = "supervillain",
                   ),
                 ),
               ),
@@ -716,31 +699,31 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("db"),
+            name = "db",
             declarations = listOf(
               Enum(
-                documentation = Documentation(" Roy G."),
+                documentation = " Roy G.",
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = Identifier("color"),
+                name = "color",
                 cases = listOf(
                   Case(
-                    documentation = Documentation(" #ff0000"),
+                    documentation = " #ff0000",
                     gate = Gate(since = "2.0"),
                     location = Location(7, 5),
-                    name = Identifier("red"),
+                    name = "red",
                   ),
                   Case(
-                    documentation = Documentation(" #0000ff"),
+                    documentation = " #0000ff",
                     gate = Gate(since = "3.0"),
                     location = Location(10, 5),
-                    name = Identifier("blue"),
+                    name = "blue",
                   ),
                   Case(
-                    documentation = Documentation(" #00ff00"),
+                    documentation = " #00ff00",
                     gate = Gate(since = "4.0"),
                     location = Location(13, 5),
-                    name = Identifier("green"),
+                    name = "green",
                   ),
                 ),
               ),
@@ -768,20 +751,20 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("db"),
+            name = "db",
             declarations = listOf(
               TypeAlias(
-                documentation = Documentation(" So Awesome."),
+                documentation = " So Awesome.",
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = Identifier("my-awesome-u32"),
+                name = "my-awesome-u32",
                 target = TypeName.U32,
               ),
               TypeAlias(
-                documentation = Documentation(" So Complicated."),
+                documentation = " So Complicated.",
                 gate = Gate(since = "2.0"),
                 location = Location(7, 3),
-                name = Identifier("my-complicated-tuple"),
+                name = "my-complicated-tuple",
                 target = TypeName.Tuple(
                   listOf(
                     TypeName.U32,
@@ -814,13 +797,13 @@ class WitFileReaderTest {
         declarations = listOf(
           Interface(
             location = Location(1, 1),
-            name = Identifier("db"),
+            name = "db",
             declarations = listOf(
               Use(
-                documentation = Documentation(" Four values."),
+                documentation = " Four values.",
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                path = UsePath(name = Identifier("an-interface")),
+                path = "an-interface",
                 items = listOf(
                   Use.Item(type = TypeName.Declared("a")),
                   Use.Item(type = TypeName.Declared("list")),
@@ -829,15 +812,10 @@ class WitFileReaderTest {
                 ),
               ),
               Use(
-                documentation = Documentation(" One aliased value."),
+                documentation = " One aliased value.",
                 gate = Gate(since = "2.0"),
                 location = Location(7, 3),
-                path = UsePath(
-                  namespaces = listOf(Identifier("my")),
-                  packageNames = listOf(Identifier("dependency")),
-                  name = Identifier("the-interface"),
-                  version = SemVer("3.0"),
-                ),
+                path = "my:dependency/the-interface@3.0",
                 items = listOf(
                   Use.Item(type = TypeName.Declared("more")),
                   Use.Item(type = TypeName.Declared("names"), alias = Identifier("foo")),
@@ -862,11 +840,10 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            documentation = Documentation(" a printer-scanner-fax thingy"),
+            documentation = " a printer-scanner-fax thingy",
             gate = Gate(since = "1.0"),
             location = Location(3, 1),
-            name = Identifier("multi-function-device"),
-            declarations = listOf(),
+            name = "multi-function-device",
           ),
         ),
       ),
@@ -890,23 +867,19 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Import(
                 documentation = Documentation(" The component needs an `error-reporter`"),
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                value = ExternalUsePath(
-                  path = UsePath(name = Identifier("error-reporter")),
-                ),
+                value = ExternalUsePath(path = "error-reporter"),
               ),
               Export(
                 documentation = Documentation(" This also exports an `error-creator`"),
                 gate = Gate(since = "2.0"),
                 location = Location(7, 3),
-                value = ExternalUsePath(
-                  path = UsePath(name = Identifier("error-creator")),
-                ),
+                value = ExternalUsePath(path = "error-creator"),
               ),
             ),
           ),
@@ -929,19 +902,15 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Import(
                 documentation = Documentation(" This store is aliased as 'primary'"),
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
                 value = ExternalUsePath(
-                  plainName = Identifier("primary"),
-                  path = UsePath(
-                    namespaces = listOf(Identifier("wasi")),
-                    packageNames = listOf(Identifier("keyvalue")),
-                    name = Identifier("store"),
-                  ),
+                  plainName = "primary",
+                  path = "wasi:keyvalue/store",
                 ),
               ),
             ),
@@ -965,19 +934,15 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Export(
                 documentation = Documentation(" This store is aliased as 'secondary'"),
                 gate = Gate(since = "2.0"),
                 location = Location(4, 3),
                 value = ExternalUsePath(
-                  plainName = Identifier("secondary"),
-                  path = UsePath(
-                    namespaces = listOf(Identifier("wasi")),
-                    packageNames = listOf(Identifier("keyvalue")),
-                    name = Identifier("store"),
-                  ),
+                  plainName = "secondary",
+                  path = "wasi:keyvalue/store",
                 ),
               ),
             ),
@@ -1010,20 +975,20 @@ class WitFileReaderTest {
               Import(
                 location = Location(4, 3),
                 value = Interface(
-                  documentation = Documentation(" This interface is inline"),
+                  documentation = " This interface is inline",
                   gate = Gate(since = "1.0"),
                   location = Location(4, 3),
-                  name = Identifier("host"),
+                  name = "host",
                   declarations = listOf(
                     Function(
-                      documentation = Documentation(" This function is in an inline interface"),
+                      documentation = " This function is in an inline interface",
                       gate = Gate(since = "2.0"),
                       location = Location(7, 5),
-                      name = Identifier("log"),
+                      name = "log",
                       parameters = listOf(
                         Parameter(
                           location = Location(7, 15),
-                          name = Identifier("param"),
+                          name = "param",
                           type = TypeName.String,
                         ),
                       ),
@@ -1056,25 +1021,25 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Export(
                 location = Location(4, 3),
                 value = Interface(
-                  documentation = Documentation(" We can export an inline interface"),
+                  documentation = " We can export an inline interface",
                   gate = Gate(since = "3.0"),
                   location = Location(4, 3),
-                  name = Identifier("guest"),
+                  name = "guest",
                   declarations = listOf(
                     Function(
-                      documentation = Documentation(" A function in an inline interface"),
+                      documentation = " A function in an inline interface",
                       gate = Gate(since = "4.0"),
                       location = Location(7, 5),
-                      name = Identifier("scan"),
+                      name = "scan",
                       parameters = listOf(
                         Parameter(
                           location = Location(7, 16),
-                          name = Identifier("document"),
+                          name = "document",
                           type = TypeName.String,
                         ),
                       ),
@@ -1103,19 +1068,19 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Import(
                 location = Location(4, 3),
                 value = Function(
-                  documentation = Documentation(" This function is inline"),
+                  documentation = " This function is inline",
                   gate = Gate(since = "4.0"),
                   location = Location(4, 3),
-                  name = Identifier("log"),
+                  name = "log",
                   parameters = listOf(
                     Parameter(
                       location = Location(4, 20),
-                      name = Identifier("param"),
+                      name = "param",
                       type = TypeName.String,
                     ),
                   ),
@@ -1142,19 +1107,19 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Export(
                 location = Location(4, 3),
                 value = Function(
-                  documentation = Documentation(" This exported function is inline"),
+                  documentation = " This exported function is inline",
                   gate = Gate(since = "1.0"),
                   location = Location(4, 3),
-                  name = Identifier("scan"),
+                  name = "scan",
                   parameters = listOf(
                     Parameter(
                       location = Location(4, 21),
-                      name = Identifier("document"),
+                      name = "document",
                       type = TypeName.String,
                     ),
                   ),
@@ -1179,13 +1144,13 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Import(
                 location = Location(2, 3),
                 value = ExternalUsePath(
-                  plainName = Identifier("two"),
-                  path = UsePath(name = Identifier("store")),
+                  plainName = "two",
+                  path = "store",
                 ),
               ),
             ),
@@ -1207,13 +1172,13 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Export(
                 location = Location(2, 3),
                 value = ExternalUsePath(
-                  plainName = Identifier("two"),
-                  path = UsePath(name = Identifier("store")),
+                  plainName = "two",
+                  path = "store",
                 ),
               ),
             ),
@@ -1237,13 +1202,13 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Include(
-                documentation = Documentation(" This include is pretty basic."),
+                documentation = " This include is pretty basic.",
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                path = UsePath(name = Identifier("my-world-2")),
+                path = "my-world-2",
                 items = listOf(),
               ),
             ),
@@ -1269,11 +1234,7 @@ class WitFileReaderTest {
             declarations = listOf(
               Include(
                 location = Location(2, 3),
-                path = UsePath(
-                  namespaces = listOf(Identifier("wasi")),
-                  packageNames = listOf(Identifier("io")),
-                  name = Identifier("my-world-1"),
-                ),
+                path = "wasi:io/my-world-1",
                 items = listOf(
                   Include.Item(
                     type = TypeName.Declared("a"),
@@ -1310,14 +1271,13 @@ class WitFileReaderTest {
             documentation = Documentation(" This package is pasted from somewhere else."),
             gate = Gate(since = "1.0"),
             location = Location(3, 1),
-            name = PackageName("local", "a"),
+            name = "local:a".toPackageName(),
             declarations = listOf(
               Interface(
-                documentation = Documentation(" This interface is included in a package."),
+                documentation = " This interface is included in a package.",
                 gate = Gate(since = "2.0"),
                 location = Location(6, 3),
-                name = Identifier("foo"),
-                declarations = listOf(),
+                name = "foo",
               ),
             ),
           ),
@@ -1343,22 +1303,13 @@ class WitFileReaderTest {
             documentation = Documentation(" Use the Wasi HTTP types."),
             gate = Gate(since = "1.0"),
             location = Location(3, 1),
-            path = UsePath(
-              namespaces = listOf(Identifier("wasi")),
-              packageNames = listOf(Identifier("http")),
-              name = Identifier("types"),
-              version = SemVer("1.0.0"),
-            ),
+            path = "wasi:http/types@1.0.0".toUsePath(),
           ),
           TopLevelUse(
             documentation = Documentation(" Use the Wasi HTTP handler also."),
             gate = Gate(since = "2.0"),
             location = Location(6, 1),
-            path = UsePath(
-              namespaces = listOf(Identifier("wasi")),
-              packageNames = listOf(Identifier("http")),
-              name = Identifier("handler"),
-            ),
+            path = "wasi:http/handler".toUsePath(),
             alias = Identifier("http-handler"),
           ),
         ),
@@ -1380,18 +1331,13 @@ class WitFileReaderTest {
         declarations = listOf(
           Package(
             location = Location(1, 1),
-            name = PackageName("local", "a"),
+            name = "local:a".toPackageName(),
             declarations = listOf(
               TopLevelUse(
                 documentation = Documentation(" Use the Wasi HTTP types."),
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                path = UsePath(
-                  namespaces = listOf(Identifier("wasi")),
-                  packageNames = listOf(Identifier("http")),
-                  name = Identifier("types"),
-                  version = SemVer("1.0.0"),
-                ),
+                path = "wasi:http/types@1.0.0".toUsePath(),
               ),
             ),
           ),
@@ -1415,14 +1361,13 @@ class WitFileReaderTest {
         declarations = listOf(
           Package(
             location = Location(1, 1),
-            name = PackageName("local", "a"),
+            name = "local:a".toPackageName(),
             declarations = listOf(
               World(
-                documentation = Documentation(" a printer-scanner-fax thingy"),
+                documentation = " a printer-scanner-fax thingy",
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                name = Identifier("multi-function-device"),
-                declarations = listOf(),
+                name = "multi-function-device",
               ),
             ),
           ),
@@ -1446,20 +1391,20 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Record(
                 location = Location(2, 3),
-                name = Identifier("datetime"),
+                name = "datetime",
                 fields = listOf(
                   Field(
                     location = Location(3, 5),
-                    name = Identifier("seconds"),
+                    name = "seconds",
                     type = TypeName.U64,
                   ),
                   Field(
                     location = Location(4, 5),
-                    name = Identifier("nanoseconds"),
+                    name = "nanoseconds",
                     type = TypeName.U32,
                   ),
                 ),
@@ -1487,23 +1432,23 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Enum(
                 location = Location(2, 3),
-                name = Identifier("color"),
+                name = "color",
                 cases = listOf(
                   Case(
                     location = Location(3, 5),
-                    name = Identifier("red"),
+                    name = "red",
                   ),
                   Case(
                     location = Location(4, 5),
-                    name = Identifier("blue"),
+                    name = "blue",
                   ),
                   Case(
                     location = Location(5, 5),
-                    name = Identifier("green"),
+                    name = "green",
                   ),
                 ),
               ),
@@ -1530,23 +1475,23 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Flags(
                 location = Location(2, 3),
-                name = Identifier("properties"),
+                name = "properties",
                 flags = listOf(
                   Flag(
                     location = Location(3, 5),
-                    name = Identifier("lego"),
+                    name = "lego",
                   ),
                   Flag(
                     location = Location(4, 5),
-                    name = Identifier("marvel-superhero"),
+                    name = "marvel-superhero",
                   ),
                   Flag(
                     location = Location(5, 5),
-                    name = Identifier("supervillain"),
+                    name = "supervillain",
                   ),
                 ),
               ),
@@ -1572,36 +1517,34 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Resource(
                 location = Location(2, 3),
-                name = Identifier("blob"),
+                name = "blob",
                 functions = listOf(
                   Function(
                     location = Location(3, 5),
                     constructor = true,
-                    name = Identifier("constructor"),
+                    name = "constructor",
                     parameters = listOf(
                       Parameter(
                         location = Location(3, 17),
-                        name = Identifier("init"),
+                        name = "init",
                         type = TypeName.List(TypeName.U8),
                       ),
                     ),
-                    returnType = null,
                   ),
                   Function(
                     location = Location(4, 5),
-                    name = Identifier("write"),
+                    name = "write",
                     parameters = listOf(
                       Parameter(
                         location = Location(4, 17),
-                        name = Identifier("bytes"),
+                        name = "bytes",
                         type = TypeName.List(TypeName.U8),
                       ),
                     ),
-                    returnType = null,
                   ),
                 ),
               ),
@@ -1624,11 +1567,11 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               TypeAlias(
                 location = Location(2, 3),
-                name = Identifier("my-awesome-u32"),
+                name = "my-awesome-u32",
                 target = TypeName.U32,
               ),
             ),
@@ -1650,11 +1593,11 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Use(
                 location = Location(2, 3),
-                path = UsePath(name = Identifier("an-interface")),
+                path = "an-interface",
                 items = listOf(
                   Use.Item(type = TypeName.Declared("a")),
                   Use.Item(type = TypeName.Declared("list")),
@@ -1685,23 +1628,23 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Variant(
                 location = Location(2, 3),
-                name = Identifier("filter"),
+                name = "filter",
                 cases = listOf(
                   Case(
                     location = Location(3, 5),
-                    name = Identifier("all"),
+                    name = "all",
                   ),
                   Case(
                     location = Location(4, 5),
-                    name = Identifier("none"),
+                    name = "none",
                   ),
                   Case(
                     location = Location(5, 5),
-                    name = Identifier("some"),
+                    name = "some",
                     type = TypeName.List(TypeName.String),
                   ),
                 ),

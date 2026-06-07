@@ -51,21 +51,21 @@ class WitPackageReaderTest {
     assertThat(witPackage).isEqualTo(
       WitPackage(
         packageDocumentation = Documentation(" command line interfaces!"),
-        packageName = PackageName("wasi", "cli"),
+        packageName = "wasi:cli".toPackageName(),
         files = mapOf(
           "command.wit".toPath() to WitFile(
             declarations = listOf(
               World(
                 location = Location(1, 1),
-                name = Identifier("command"),
+                name = "command",
                 declarations = listOf(
                   Export(
                     location = Location(2, 3),
-                    value = ExternalUsePath(path = UsePath(Identifier("run"))),
+                    value = ExternalUsePath(path = "run"),
                   ),
                   Import(
                     location = Location(3, 3),
-                    value = ExternalUsePath(path = UsePath(Identifier("exit"))),
+                    value = ExternalUsePath(path = "exit"),
                   ),
                 ),
               ),
@@ -73,19 +73,19 @@ class WitPackageReaderTest {
           ),
           "exit.wit".toPath() to WitFile(
             packageDocumentation = Documentation(" command line interfaces!"),
-            packageName = PackageName("wasi", "cli"),
+            packageName = "wasi:cli".toPackageName(),
             declarations = listOf(
               Interface(
                 location = Location(4, 1),
-                name = Identifier("exit"),
+                name = "exit",
                 declarations = listOf(
                   Function(
                     location = Location(5, 3),
-                    name = Identifier("exit"),
+                    name = "exit",
                     parameters = listOf(
                       Parameter(
                         location = Location(5, 14),
-                        name = Identifier("status"),
+                        name = "status",
                         type = TypeName.Result(),
                       ),
                     ),
@@ -98,12 +98,11 @@ class WitPackageReaderTest {
             declarations = listOf(
               Interface(
                 location = Location(1, 1),
-                name = Identifier("run"),
+                name = "run",
                 declarations = listOf(
                   Function(
                     location = Location(2, 3),
-                    name = Identifier("run"),
-                    parameters = listOf(),
+                    name = "run",
                     returnType = TypeName.Result(),
                   ),
                 ),

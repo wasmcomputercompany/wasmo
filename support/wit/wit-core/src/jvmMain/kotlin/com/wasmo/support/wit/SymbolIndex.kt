@@ -100,7 +100,11 @@ data class TypePath(
       typeName: String,
       version: String? = null,
     ) = TypePath(
-      packageName = PackageName(namespace, packageName, version),
+      packageName = PackageName(
+        namespaces = listOf(Identifier(namespace)),
+        names = listOf(Identifier(packageName)),
+        version = version?.let { SemVer(it) },
+      ),
       interfaceName = Identifier(interfaceName),
       typeName = Identifier(typeName),
     )
