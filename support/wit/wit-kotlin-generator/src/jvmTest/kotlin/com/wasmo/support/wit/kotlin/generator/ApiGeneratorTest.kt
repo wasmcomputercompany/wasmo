@@ -233,12 +233,6 @@ class ApiGeneratorTest {
       |  public fun exit(status: Pair<*, *>)
       |}
       |
-      |public object Imports {
-      |  public interface Host {
-      |    public val exit: Exit
-      |  }
-      |}
-      |
       |public interface Run {
       |  public fun run(): Pair<*, *>
       |}

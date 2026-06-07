@@ -166,7 +166,10 @@ class KotlinMapper(
 
   fun mapWorld(typeMapper: PackageTypeMapper, value: World): WorldKt {
     val flattener = WorldFlattener(index)
-    val flattened = flattener.flatten(typeMapper.packageName, value)
+    val flattened = flattener.flatten(
+      world = value,
+      inPackageName = typeMapper.packageName,
+    )
     val interfaceTypeMapper = typeMapper.refine(interfaceName = flattened.name)
     return WorldKt(
       documentation = flattened.documentation?.content,

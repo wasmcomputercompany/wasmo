@@ -34,39 +34,46 @@ class SymbolIndex(
     inInterfaceName: Identifier? = null,
   ): TypePath? {
     val witPackage = packageNameToPackage[inPackageName] ?: return null
+    val declarations = witPackage.files.values
+      .flatMap { it.declarations }
+      .filterIsInstance<Interface>()
+      .filter { it.name == inInterfaceName }
+      .flatMap { it.declarations }
 
-    for (witFile in witPackage.files.values) {
-      for (`interface` in witFile.declarations) {
-        if (`interface` !is Interface || `interface`.name != inInterfaceName) continue
-
-        for (declaration in `interface`.declarations) {
-          when (declaration) {
-            is TypeDeclaration -> {
-              // Direct match.
-              if (declaration.name == typeName.name) {
-                return TypePath(witPackage.packageName, inInterfaceName, declaration.name)
-              }
-            }
-
-            is Use -> {
-              // Matched a 'use' statement that refers to another symbol.
-              val itemMatch = declaration.items.firstOrNull { it.matches(typeName) }
-              if (itemMatch != null) {
-                return getTypeOrNull(
-                  itemMatch.type,
-                  declaration.path.packageName ?: inPackageName,
-                  declaration.path.name,
-                )
-              }
-            }
-
-            else -> {}
+    for (declaration in declarations) {
+      when (declaration) {
+        is TypeDeclaration -> {
+          // Direct match.
+          if (declaration.name == typeName.name) {
+            return TypePath(witPackage.packageName, inInterfaceName!!, declaration.name)
           }
         }
+
+        is Use -> {
+          // Matched a 'use' statement that refers to another symbol.
+          val itemMatch = declaration.items.firstOrNull { it.matches(typeName) }
+          if (itemMatch != null) {
+            return getTypeOrNull(
+              itemMatch.type,
+              declaration.path.packageName ?: inPackageName,
+              declaration.path.name,
+            )
+          }
+        }
+
+        else -> {}
       }
     }
 
     return null
+  }
+
+  fun getWorldOrNull(path: UsePath): World? {
+    val witPackage = packageNameToPackage[path.packageName] ?: return null
+    return witPackage.files.values
+      .flatMap { it.declarations }
+      .filterIsInstance<World>()
+      .singleOrNull { it.name == path.name }
   }
 }
 

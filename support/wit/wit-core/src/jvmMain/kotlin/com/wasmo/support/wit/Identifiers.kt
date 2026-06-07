@@ -10,8 +10,8 @@ data class UsePath(
 ) {
   companion object {
     operator fun invoke(
-      namespaces: List<Identifier>,
-      packageNames: List<Identifier>,
+      namespaces: List<Identifier> = listOf(),
+      packageNames: List<Identifier> = listOf(),
       name: Identifier,
       version: SemVer? = null,
     ): UsePath {
