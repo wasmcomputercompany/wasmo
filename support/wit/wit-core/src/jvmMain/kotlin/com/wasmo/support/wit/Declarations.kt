@@ -181,12 +181,19 @@ data class Case(
 ) : Declaration
 
 data class Parameter(
+  val documentation: Documentation? = null,
   val location: Location,
   val name: Identifier,
   val type: TypeName,
 ) {
   companion object {
-    operator fun invoke(location: Location, name: String, type: TypeName) = Parameter(
+    operator fun invoke(
+      documentation: Documentation? = null,
+      location: Location,
+      name: String,
+      type: TypeName,
+    ) = Parameter(
+      documentation = documentation,
       location = location,
       name = Identifier(name),
       type = type,
