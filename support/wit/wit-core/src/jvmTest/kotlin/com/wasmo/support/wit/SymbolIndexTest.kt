@@ -7,10 +7,10 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import okio.Path.Companion.toPath
 
-class SymbolResolverTest {
+class SymbolIndexTest {
   @Test
-  fun `resolve local symbols`() {
-    val resolver = SymbolResolver(
+  fun `find local symbols`() {
+    val index = SymbolIndex(
       packages = listOf(
         WitPackage(
           packageName = PackageName("wasi", "clocks"),
@@ -31,7 +31,7 @@ class SymbolResolverTest {
     )
 
     assertThat(
-      resolver.resolveType(
+      index.getType(
         inPackageName = PackageName("wasi", "clocks"),
         inInterfaceName = Identifier("wall-clock"),
         typeName = TypeName.Declared("datetime"),
@@ -40,18 +40,18 @@ class SymbolResolverTest {
 
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        resolver.resolveType(
+        index.getType(
           inPackageName = PackageName("wasi", "clocks"),
           inInterfaceName = Identifier("wall-clock"),
           typeName = TypeName.Declared("instant"),
         )
       },
-    ).hasMessage("unable to resolve instant in wasi:clocks/wall-clock")
+    ).hasMessage("unable to find instant in wasi:clocks/wall-clock")
   }
 
   @Test
-  fun `resolve symbols across packages with use`() {
-    val resolver = SymbolResolver(
+  fun `find symbols across packages with use`() {
+    val index = SymbolIndex(
       packages = listOf(
         WitPackage(
           packageName = PackageName("wasi", "cli"),
@@ -85,7 +85,7 @@ class SymbolResolverTest {
     )
 
     assertThat(
-      resolver.resolveType(
+      index.getType(
         inPackageName = PackageName("wasi", "cli"),
         inInterfaceName = Identifier("stdin"),
         typeName = TypeName.Declared("input-stream"),
@@ -94,8 +94,8 @@ class SymbolResolverTest {
   }
 
   @Test
-  fun `resolve symbols in same package with use`() {
-    val resolver = SymbolResolver(
+  fun `find symbols in same package with use`() {
+    val index = SymbolIndex(
       packages = listOf(
         WitPackage(
           packageName = PackageName("wasi", "clocks", "0.2.12"),
@@ -125,7 +125,7 @@ class SymbolResolverTest {
     )
 
     assertThat(
-      resolver.resolveType(
+      index.getType(
         inPackageName = PackageName("wasi", "clocks", "0.2.12"),
         inInterfaceName = Identifier("timezone"),
         typeName = TypeName.Declared("datetime"),

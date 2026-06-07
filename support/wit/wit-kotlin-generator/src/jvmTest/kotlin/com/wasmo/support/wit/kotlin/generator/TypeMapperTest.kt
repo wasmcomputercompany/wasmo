@@ -7,7 +7,7 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.PackageName
-import com.wasmo.support.wit.SymbolResolver
+import com.wasmo.support.wit.SymbolIndex
 import com.wasmo.support.wit.TypeName
 import com.wasmo.support.wit.WitPackage
 import com.wasmo.support.wit.toWitFile
@@ -28,7 +28,7 @@ class TypeMapperTest {
       |}
       """.trimMargin().toWitFile()
 
-    val symbolResolver = SymbolResolver(
+    val index = SymbolIndex(
       packages = listOf(
         WitPackage(
           packageName = PackageName("wasi", "clocks"),
@@ -37,7 +37,7 @@ class TypeMapperTest {
       ),
     )
     val typeMapper = TypeMapper(
-      symbolResolver = symbolResolver,
+      index = index,
       kotlinPackagePrefix = "wit",
     )
 
@@ -57,6 +57,6 @@ class TypeMapperTest {
       assertFailsWith<IllegalArgumentException> {
         interfaceTypeMapper.map(TypeName.Declared("instant"))
       },
-    ).hasMessage("unable to resolve instant in wasi:clocks/wall-clock")
+    ).hasMessage("unable to find instant in wasi:clocks/wall-clock")
   }
 }

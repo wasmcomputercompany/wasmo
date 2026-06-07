@@ -6,7 +6,7 @@ import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeName as KotlinTypeName
 import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.PackageName
-import com.wasmo.support.wit.SymbolResolver
+import com.wasmo.support.wit.SymbolIndex
 import com.wasmo.support.wit.TypeName
 import com.wasmo.support.wit.UsePath
 
@@ -33,31 +33,31 @@ interface InterfaceTypeMapper : PackageTypeMapper {
 }
 
 fun TypeMapper(
-  symbolResolver: SymbolResolver,
+  index: SymbolIndex,
   kotlinPackagePrefix: String,
 ): RootTypeMapper = RealRootTypeMapper(
-  symbolResolver = symbolResolver,
+  index = index,
   kotlinPackagePrefix = kotlinPackagePrefix,
 )
 
 internal class RealRootTypeMapper(
-  override val symbolResolver: SymbolResolver,
+  override val index: SymbolIndex,
   override val kotlinPackagePrefix: String,
 ) : AbstractTypeMapper(), RootTypeMapper
 
 internal class RealPackageTypeMapper(
-  override val symbolResolver: SymbolResolver,
+  override val index: SymbolIndex,
   override val kotlinPackagePrefix: String,
   override val packageName: PackageName?,
 ) : AbstractTypeMapper(), PackageTypeMapper {
   override fun refine(interfaceName: Identifier) =
-    RealInterfaceTypeMapper(symbolResolver, kotlinPackagePrefix, packageName, interfaceName)
+    RealInterfaceTypeMapper(index, kotlinPackagePrefix, packageName, interfaceName)
 
   override fun map(typeName: TypeName): KotlinTypeName {
-    return resolveTypeNameOrNull(typeName, packageName)
+    return mapOrNull(typeName, packageName)
       ?: throw IllegalArgumentException(
         buildString {
-          append("unable to resolve $typeName")
+          append("unable to find $typeName")
           if (packageName != null) {
             append(" in $packageName")
           }
@@ -67,7 +67,7 @@ internal class RealPackageTypeMapper(
 }
 
 internal class RealInterfaceTypeMapper(
-  override val symbolResolver: SymbolResolver,
+  override val index: SymbolIndex,
   override val kotlinPackagePrefix: String,
   override val packageName: PackageName?,
   override val interfaceName: Identifier,
@@ -76,7 +76,7 @@ internal class RealInterfaceTypeMapper(
     get() = className(kotlinPackagePrefix, packageName, interfaceName)
 
   override fun refine(interfaceName: Identifier) =
-    RealInterfaceTypeMapper(symbolResolver, kotlinPackagePrefix, packageName, interfaceName)
+    RealInterfaceTypeMapper(index, kotlinPackagePrefix, packageName, interfaceName)
 
   override fun refine(usePath: UsePath): InterfaceTypeMapper {
     return when {
@@ -86,10 +86,10 @@ internal class RealInterfaceTypeMapper(
   }
 
   override fun map(typeName: TypeName): KotlinTypeName {
-    return resolveTypeNameOrNull(typeName, packageName, interfaceName)
+    return mapOrNull(typeName, packageName, interfaceName)
       ?: throw IllegalArgumentException(
         buildString {
-          append("unable to resolve $typeName")
+          append("unable to find $typeName")
           if (packageName != null) {
             append(" in $packageName.$interfaceName")
           } else {
@@ -101,28 +101,14 @@ internal class RealInterfaceTypeMapper(
 }
 
 abstract class AbstractTypeMapper : TypeMapper {
-  abstract val symbolResolver: SymbolResolver
+  abstract val index: SymbolIndex
   abstract val kotlinPackagePrefix: String
 
   override fun map(typeName: TypeName): KotlinTypeName =
-    resolveTypeNameOrNull(typeName)
-      ?: error("unable to resolve $typeName")
+    mapOrNull(typeName)
+      ?: error("unable to find $typeName")
 
-  protected fun resolveSimpleTypeNameOrNull(
-    typeName: TypeName.Declared,
-    packageName: PackageName? = null,
-    interfaceName: Identifier? = null,
-  ): ClassName {
-    val typePath = symbolResolver.resolveType(typeName, packageName, interfaceName)
-    return className(
-      kotlinPackagePrefix,
-      typePath.packageName,
-      typePath.interfaceName,
-      typePath.typeName,
-    )
-  }
-
-  protected fun resolveTypeNameOrNull(
+  protected fun mapOrNull(
     typeName: TypeName,
     packageName: PackageName? = null,
     interfaceName: Identifier? = null,
@@ -162,7 +148,7 @@ abstract class AbstractTypeMapper : TypeMapper {
         typeName.err?.let { map(it) } ?: STAR,
       )
 
-      is TypeName.Declared -> resolveSimpleTypeNameOrNull(typeName, packageName, interfaceName)
+      is TypeName.Declared -> mapDeclaredType(typeName, packageName, interfaceName)
 
       is TypeName.Stream -> ClassNames.Stream.parameterizedBy(
         typeName.type?.let { map(it) } ?: STAR,
@@ -180,8 +166,22 @@ abstract class AbstractTypeMapper : TypeMapper {
     }
   }
 
+  protected fun mapDeclaredType(
+    typeName: TypeName.Declared,
+    packageName: PackageName? = null,
+    interfaceName: Identifier? = null,
+  ): ClassName {
+    val typePath = index.getType(typeName, packageName, interfaceName)
+    return className(
+      kotlinPackagePrefix,
+      typePath.packageName,
+      typePath.interfaceName,
+      typePath.typeName,
+    )
+  }
+
   fun refine(packageName: PackageName?): PackageTypeMapper =
-    RealPackageTypeMapper(symbolResolver, kotlinPackagePrefix, packageName)
+    RealPackageTypeMapper(index, kotlinPackagePrefix, packageName)
 }
 
 private object ClassNames {

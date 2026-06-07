@@ -6,20 +6,20 @@ package com.wasmo.support.wit
  *  * [TopLevelUse]
  *  * [Use]
  */
-class SymbolResolver(
+class SymbolIndex(
   packages: List<WitPackage>,
 ) {
   private val packageNameToPackage = packages.associateBy { it.packageName }
 
-  fun resolveType(
+  fun getType(
     typeName: TypeName.Declared,
     inPackageName: PackageName? = null,
     inInterfaceName: Identifier? = null,
   ): TypePath {
-    return resolveTypeOrNull(typeName, inPackageName, inInterfaceName)
+    return getTypeOrNull(typeName, inPackageName, inInterfaceName)
       ?: throw IllegalArgumentException(
         buildString {
-          append("unable to resolve $typeName")
+          append("unable to find $typeName")
           when {
             inInterfaceName != null -> append(" in ${UsePath(inPackageName, inInterfaceName)}")
             inPackageName != null -> append(" in $inPackageName")
@@ -28,7 +28,7 @@ class SymbolResolver(
       )
   }
 
-  fun resolveTypeOrNull(
+  fun getTypeOrNull(
     typeName: TypeName.Declared,
     inPackageName: PackageName? = null,
     inInterfaceName: Identifier? = null,
@@ -52,7 +52,7 @@ class SymbolResolver(
               // Matched a 'use' statement that refers to another symbol.
               val itemMatch = declaration.items.firstOrNull { it.matches(typeName) }
               if (itemMatch != null) {
-                return resolveTypeOrNull(
+                return getTypeOrNull(
                   itemMatch.type,
                   declaration.path.packageName ?: inPackageName,
                   declaration.path.name,

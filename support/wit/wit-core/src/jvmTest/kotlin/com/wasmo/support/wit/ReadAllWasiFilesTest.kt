@@ -38,7 +38,7 @@ class ReadAllWasiFilesTest {
   }
 
   @Test
-  fun `resolve all types`() {
+  fun `get all types`() {
     val directories = mutableListOf(
       wasiProposals / "cli/wit",
       wasiProposals / "clocks/wit",
@@ -53,19 +53,19 @@ class ReadAllWasiFilesTest {
       WitPackageReader(fileSystem).read(it)
     }
 
-    val resolver = SymbolResolver(witPackages)
+    val index = SymbolIndex(witPackages)
     for (witPackage in witPackages) {
       for (ref in witPackage.typeReferences()) {
         val declaredType = ref.typeName as? TypeName.Declared ?: continue
         try {
-          resolver.resolveType(
+          index.getType(
             typeName = declaredType,
             inPackageName = ref.packageName,
             inInterfaceName = ref.interfaceName,
           )
         } catch (e: IllegalArgumentException) {
           throw IllegalArgumentException(
-            "failed to resolve ${ref.typeName} from ${ref.path} at ${ref.location}", e,
+            "failed to find ${ref.typeName} from ${ref.path} at ${ref.location}", e,
           )
         }
       }
