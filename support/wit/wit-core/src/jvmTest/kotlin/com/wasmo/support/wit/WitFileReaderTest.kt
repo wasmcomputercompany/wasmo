@@ -194,14 +194,14 @@ class WitFileReaderTest {
                 name = Identifier("print"),
                 parameters = listOf(
                   Parameter(
-                    Location(2, 15),
-                    "message",
-                    TypeName.String,
+                    location = Location(2, 15),
+                    name = "message",
+                    type = TypeName.String,
                   ),
                   Parameter(
-                    Location(2, 32),
-                    Identifier("repeat"),
-                    TypeName.Option(TypeName.U32),
+                    location = Location(2, 32),
+                    name = Identifier("repeat"),
+                    type = TypeName.Option(TypeName.U32),
                   ),
                 ),
                 returnType = TypeName.Result(
@@ -367,7 +367,10 @@ class WitFileReaderTest {
       |interface wall-clock {
       |  /// sample the clock
       |  @since(version = 5.0)
-      |  now: func() -> datetime;
+      |  now: func(
+      |    /// True to return a non-decreasing value.
+      |    monotonic: bool,
+      |  ) -> datetime;
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
@@ -382,7 +385,14 @@ class WitFileReaderTest {
                 gate = Gate(since = "5.0"),
                 location = Location(4, 3),
                 name = Identifier("now"),
-                parameters = listOf(),
+                parameters = listOf(
+                  Parameter(
+                    documentation = Documentation(" True to return a non-decreasing value."),
+                    location = Location(6, 5),
+                    name = "monotonic",
+                    type = TypeName.Bool,
+                  ),
+                ),
                 returnType = TypeName.Declared("datetime"),
               ),
             ),

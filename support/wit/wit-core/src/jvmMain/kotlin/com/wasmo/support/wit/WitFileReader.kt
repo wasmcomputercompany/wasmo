@@ -649,6 +649,7 @@ internal class WitFileReader(
    */
   private fun readParameterList(): List<Parameter> {
     return source.readCommaSeparatedList(minSize = 0, '(', ')') {
+      val documentation = source.takeDocumentation()
       val location = source.location
       val parameterName = source.readIdentifier()
 
@@ -659,6 +660,7 @@ internal class WitFileReader(
       val parameterType = source.readTypeName()
 
       Parameter(
+        documentation = documentation,
         location = location,
         name = parameterName,
         type = parameterType,

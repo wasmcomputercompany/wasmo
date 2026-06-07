@@ -149,7 +149,7 @@ class KotlinMapper(
     name = value.name.name.toCamelCase(upperCamel = false),
     parameters = value.parameters.map { parameter ->
       FunctionKt.Parameter(
-        documentation = null, // TODO.
+        documentation = parameter.documentation?.content,
         name = parameter.name.name.toCamelCase(upperCamel = false),
         type = typeMapper.map(parameter.type),
       )
