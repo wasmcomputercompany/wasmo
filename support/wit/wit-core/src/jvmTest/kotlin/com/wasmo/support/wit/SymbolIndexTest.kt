@@ -14,7 +14,7 @@ class SymbolIndexTest {
     val index = SymbolIndex(
       packages = listOf(
         WitPackage(
-          packageName = PackageName("wasi", "clocks"),
+          packageName = "wasi:clocks".toPackageName(),
           files = mapOf(
             "clock.wit".toPath() to
               """
@@ -33,7 +33,7 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        inPackageName = PackageName("wasi", "clocks"),
+        inPackageName = "wasi:clocks".toPackageName(),
         inInterfaceName = Identifier("wall-clock"),
         typeName = TypeName.Declared("datetime"),
       ),
@@ -42,7 +42,7 @@ class SymbolIndexTest {
     assertThat(
       assertFailsWith<IllegalArgumentException> {
         index.getType(
-          inPackageName = PackageName("wasi", "clocks"),
+          inPackageName = "wasi:clocks".toPackageName(),
           inInterfaceName = Identifier("wall-clock"),
           typeName = TypeName.Declared("instant"),
         )
@@ -55,7 +55,7 @@ class SymbolIndexTest {
     val index = SymbolIndex(
       packages = listOf(
         WitPackage(
-          packageName = PackageName("wasi", "cli"),
+          packageName = "wasi:cli".toPackageName(),
           files = mapOf(
             "stdio.wit".toPath() to
               """
@@ -68,7 +68,7 @@ class SymbolIndexTest {
           ),
         ),
         WitPackage(
-          packageName = PackageName("wasi", "io", "0.2.12"),
+          packageName = "wasi:io@0.2.12".toPackageName(),
           files = mapOf(
             "streams.wit".toPath() to
               """
@@ -87,7 +87,7 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        inPackageName = PackageName("wasi", "cli"),
+        inPackageName = "wasi:cli".toPackageName(),
         inInterfaceName = Identifier("stdin"),
         typeName = TypeName.Declared("input-stream"),
       ),
@@ -99,7 +99,7 @@ class SymbolIndexTest {
     val index = SymbolIndex(
       packages = listOf(
         WitPackage(
-          packageName = PackageName("wasi", "clocks", "0.2.12"),
+          packageName = "wasi:clocks@0.2.12".toPackageName(),
           files = mapOf(
             "timezone.wit".toPath() to
               """
@@ -127,7 +127,7 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        inPackageName = PackageName("wasi", "clocks", "0.2.12"),
+        inPackageName = "wasi:clocks@0.2.12".toPackageName(),
         inInterfaceName = Identifier("timezone"),
         typeName = TypeName.Declared("datetime"),
       ),
@@ -137,7 +137,7 @@ class SymbolIndexTest {
   @Test
   fun `get world`() {
     val wasiCli = WitPackage(
-      packageName = PackageName("wasi", "cli", "0.2.12"),
+      packageName = "wasi:cli@0.2.12".toPackageName(),
       files = mapOf(
         "command.wit".toPath() to """
           |package wasi:cli@0.2.12;
@@ -148,7 +148,7 @@ class SymbolIndexTest {
       ),
     )
     val wasiIo = WitPackage(
-      packageName = PackageName("wasi", "io", "0.2.12"),
+      packageName = "wasi:io@0.2.12".toPackageName(),
       files = mapOf(
         "world.wit".toPath() to """
           |package wasi:io@0.2.12;
@@ -163,36 +163,12 @@ class SymbolIndexTest {
       packages = listOf(wasiCli, wasiIo),
     )
 
-    assertThat(
-      index.getWorldOrNull(
-        UsePath(
-          namespaces = listOf(Identifier("wasi")),
-          packageNames = listOf(Identifier("io")),
-          name = Identifier("imports"),
-          version = SemVer("0.2.12"),
-        ),
-      ),
-    ).isEqualTo(wasiIo.files.values.single().declarations.single())
+    assertThat(index.getWorldOrNull("wasi:io/imports@0.2.12".toUsePath()))
+      .isEqualTo(wasiIo.files.values.single().declarations.single())
 
-    assertThat(
-      index.getWorldOrNull(
-        UsePath(
-          namespaces = listOf(Identifier("wasi")),
-          packageNames = listOf(Identifier("cli")),
-          name = Identifier("command"),
-          version = SemVer("0.2.12"),
-        ),
-      ),
-    ).isEqualTo(wasiCli.files.values.single().declarations.single())
+    assertThat(index.getWorldOrNull("wasi:cli/command@0.2.12".toUsePath()))
+      .isEqualTo(wasiCli.files.values.single().declarations.single())
 
-    assertThat(
-      index.getWorldOrNull(
-        UsePath(
-          namespaces = listOf(Identifier("wasi")),
-          packageNames = listOf(Identifier("cli")),
-          name = Identifier("command"),
-        ),
-      ),
-    ).isNull()
+    assertThat(index.getWorldOrNull("wasi:cli/command".toUsePath())).isNull()
   }
 }

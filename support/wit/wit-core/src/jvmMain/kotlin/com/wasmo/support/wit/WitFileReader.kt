@@ -1,3 +1,5 @@
+@file:OptIn(WitCoreInternalApi::class)
+
 package com.wasmo.support.wit
 
 import com.wasmo.support.wit.Keywords.deprecated

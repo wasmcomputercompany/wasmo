@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.squareup.kotlinpoet.ClassName
 import com.wasmo.support.wit.Identifier
-import com.wasmo.support.wit.PackageName
+import com.wasmo.support.wit.toPackageName
 import kotlin.test.Test
 
 class IdentifierMappingTest {
@@ -22,9 +22,9 @@ class IdentifierMappingTest {
 
   @Test
   fun `packageName mapping`() {
-    assertThat(PackageName("wasi", "clocks").toKotlin("wit"))
+    assertThat("wasi:clocks".toPackageName().toKotlin("wit"))
       .isEqualTo("wit.wasi.clocks")
-    assertThat(PackageName("wasi", "clocks", "0.2.12").toKotlin("wit"))
+    assertThat("wasi:clocks@0.2.12".toPackageName().toKotlin("wit"))
       .isEqualTo("wit.wasi.clocks.v0_2_12")
   }
 
@@ -33,7 +33,7 @@ class IdentifierMappingTest {
     assertThat(
       className(
         packagePrefix = "wit",
-        packageName = PackageName("wasi", "clocks"),
+        packageName = "wasi:clocks".toPackageName(),
         interfaceName = Identifier("wall-clock"),
       ),
     ).isEqualTo(ClassName("wit.wasi.clocks", "WallClock"))
@@ -49,7 +49,7 @@ class IdentifierMappingTest {
     assertThat(
       className(
         packagePrefix = "wit",
-        packageName = PackageName("wasi", "clocks", "0.2.12"),
+        packageName = "wasi:clocks@0.2.12".toPackageName(),
         interfaceName = Identifier("wall-clock"),
       ),
     ).isEqualTo(ClassName("wit.wasi.clocks.v0_2_12", "WallClock"))

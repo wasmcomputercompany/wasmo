@@ -16,5 +16,10 @@ kotlin {
         implementation(projects.support.wit.witCore)
       }
     }
+    jvmTest {
+      dependencies {
+        implementation(projects.support.wit.witTesting)
+      }
+    }
   }
 }

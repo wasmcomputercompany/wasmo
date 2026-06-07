@@ -1,3 +1,5 @@
+@file:OptIn(WitCoreInternalApi::class)
+
 package com.wasmo.support.wit
 
 import assertk.assertThat
@@ -292,6 +294,8 @@ class WitStructureReaderTest {
 
   @Test
   fun `readIdentifier success`() {
+    fun String.parseIdentifier() = WitStructureReader(this).readIdentifier()
+
     assertThat("a".parseIdentifier()).isEqualTo(Identifier("a"))
     assertThat("a ".parseIdentifier()).isEqualTo(Identifier("a"))
     assertThat("a,".parseIdentifier()).isEqualTo(Identifier("a"))
@@ -311,35 +315,35 @@ class WitStructureReaderTest {
   @Test
   fun `readIdentifier crash`() {
     assertFailsWith<WitException> {
-      " ".parseIdentifier()
+      " ".toIdentifier()
     }
     assertFailsWith<WitException> {
-      "_".parseIdentifier()
+      "_".toIdentifier()
     }
     assertFailsWith<WitException> {
-      "()".parseIdentifier()
+      "()".toIdentifier()
     }
     assertFailsWith<WitException> {
-      "".parseIdentifier()
+      "".toIdentifier()
     }
     assertFailsWith<WitException> {
-      "%%".parseIdentifier()
+      "%%".toIdentifier()
     }
     assertFailsWith<WitException> {
-      "%".parseIdentifier()
+      "%".toIdentifier()
     }
     assertFailsWith<WitException> {
-      "% ".parseIdentifier()
+      "% ".toIdentifier()
     }
   }
 
   @Test
   fun `readSemver success`() {
-    assertThat("1".parseSemVer()).isEqualTo(SemVer("1"))
-    assertThat("1.0".parseSemVer()).isEqualTo(SemVer("1.0"))
-    assertThat("1.2.3".parseSemVer()).isEqualTo(SemVer("1.2.3"))
-    assertThat("1.0.0-alpha".parseSemVer()).isEqualTo(SemVer("1.0.0-alpha"))
-    assertThat("1.0.0-alpha+001".parseSemVer()).isEqualTo(SemVer("1.0.0-alpha+001"))
+    assertThat("1".toSemVer()).isEqualTo(SemVer("1"))
+    assertThat("1.0".toSemVer()).isEqualTo(SemVer("1.0"))
+    assertThat("1.2.3".toSemVer()).isEqualTo(SemVer("1.2.3"))
+    assertThat("1.0.0-alpha".toSemVer()).isEqualTo(SemVer("1.0.0-alpha"))
+    assertThat("1.0.0-alpha+001".toSemVer()).isEqualTo(SemVer("1.0.0-alpha+001"))
   }
 
   @Test
@@ -352,31 +356,31 @@ class WitStructureReaderTest {
   @Test
   fun `readSemver only dots`() {
     val e = assertFailsWith<WitException> {
-      "..".parseSemVer()
+      "..".toSemVer()
     }
     assertThat(e.issue).isEqualTo("expected a semver character")
   }
 
   @Test
   fun `readPackageName success`() {
-    assertThat("local:demo".parsePackageName()).isEqualTo(
+    assertThat("local:demo".toPackageName()).isEqualTo(
       PackageName(
-        namespace = "local",
-        name = "demo",
+        namespaces = listOf(Identifier("local")),
+        names = listOf(Identifier("demo")),
       ),
     )
-    assertThat("examples:fgates-deprecation@0.2.0".parsePackageName()).isEqualTo(
+    assertThat("examples:fgates-deprecation@0.2.0".toPackageName()).isEqualTo(
       PackageName(
-        namespace = "examples",
-        name = "fgates-deprecation",
-        version = "0.2.0",
+        namespaces = listOf(Identifier("examples")),
+        names = listOf(Identifier("fgates-deprecation")),
+        version = SemVer("0.2.0"),
       ),
     )
   }
 
   @Test
   fun `readPackageName multiple namespaces and multiple names`() {
-    assertThat("abc:def:ghi:jkl/mno/pqr".parsePackageName()).isEqualTo(
+    assertThat("abc:def:ghi:jkl/mno/pqr".toPackageName()).isEqualTo(
       PackageName(
         namespaces = listOf(Identifier("abc"), Identifier("def"), Identifier("ghi")),
         names = listOf(Identifier("jkl"), Identifier("mno"), Identifier("pqr")),
@@ -387,7 +391,7 @@ class WitStructureReaderTest {
   @Test
   fun `readPackageName missing namespace`() {
     val e = assertFailsWith<WitException> {
-      "local".parsePackageName()
+      "local".toPackageName()
     }
     assertThat(e.issue).isEqualTo("expected package name to contain a ':'")
   }
@@ -395,7 +399,7 @@ class WitStructureReaderTest {
   @Test
   fun `readPackageName empty namespace`() {
     val e = assertFailsWith<WitException> {
-      "a:".parsePackageName()
+      "a:".toPackageName()
     }
     assertThat(e.issue).isEqualTo("expected an identifier")
   }
@@ -403,7 +407,7 @@ class WitStructureReaderTest {
   @Test
   fun `readPackageName empty name`() {
     val e = assertFailsWith<WitException> {
-      ":".parsePackageName()
+      ":".toPackageName()
     }
     assertThat(e.issue).isEqualTo("expected an identifier")
   }
@@ -411,24 +415,24 @@ class WitStructureReaderTest {
   @Test
   fun `readPackageName empty version`() {
     val e = assertFailsWith<WitException> {
-      "a:b@ ".parsePackageName()
+      "a:b@ ".toPackageName()
     }
     assertThat(e.issue).isEqualTo("expected a semver character")
   }
 
   @Test
   fun `readUsePath success`() {
-    assertThat("my-interface".parseUsePath()).isEqualTo(
+    assertThat("my-interface".toUsePath()).isEqualTo(
       UsePath(name = Identifier("my-interface")),
     )
-    assertThat("namespace:package-name/my-interface".parseUsePath()).isEqualTo(
+    assertThat("namespace:package-name/my-interface".toUsePath()).isEqualTo(
       UsePath(
         namespaces = listOf(Identifier("namespace")),
         packageNames = listOf(Identifier("package-name")),
         name = Identifier("my-interface"),
       ),
     )
-    assertThat("namespace:package-name/my-interface@1.2.3".parseUsePath()).isEqualTo(
+    assertThat("namespace:package-name/my-interface@1.2.3".toUsePath()).isEqualTo(
       UsePath(
         namespaces = listOf(Identifier("namespace")),
         packageNames = listOf(Identifier("package-name")),
@@ -436,14 +440,14 @@ class WitStructureReaderTest {
         version = SemVer("1.2.3"),
       ),
     )
-    assertThat("abc:def:ghi/jkl/my-interface".parseUsePath()).isEqualTo(
+    assertThat("abc:def:ghi/jkl/my-interface".toUsePath()).isEqualTo(
       UsePath(
         namespaces = listOf(Identifier("abc"), Identifier("def")),
         packageNames = listOf(Identifier("ghi"), Identifier("jkl")),
         name = Identifier("my-interface"),
       ),
     )
-    assertThat("abc:def:ghi/jkl/my-interface@1.2.3".parseUsePath()).isEqualTo(
+    assertThat("abc:def:ghi/jkl/my-interface@1.2.3".toUsePath()).isEqualTo(
       UsePath(
         namespaces = listOf(Identifier("abc"), Identifier("def")),
         packageNames = listOf(Identifier("ghi"), Identifier("jkl")),
@@ -465,7 +469,7 @@ class WitStructureReaderTest {
   @Test
   fun `readUsePath namespace without package name`() {
     val e = assertFailsWith<WitException> {
-      "namespace:interface-name".parseUsePath()
+      "namespace:interface-name".toUsePath()
     }
     assertThat(e.issue).isEqualTo("must have a namespace and a package name, or neither")
   }
@@ -473,138 +477,123 @@ class WitStructureReaderTest {
   @Test
   fun `readUsePath package name without namespace`() {
     val e = assertFailsWith<WitException> {
-      "package-name/interface-name".parseUsePath()
+      "package-name/interface-name".toUsePath()
     }
     assertThat(e.issue).isEqualTo("must have a namespace and a package name, or neither")
   }
 
   @Test
   fun `readTypeName success`() {
-    assertThat("u32".parseTypeName())
+    assertThat("u32".toTypeName())
       .isEqualTo(TypeName.U32)
-    assertThat("string".parseTypeName())
+    assertThat("string".toTypeName())
       .isEqualTo(TypeName.String)
-    assertThat("tuple<u32>".parseTypeName())
+    assertThat("tuple<u32>".toTypeName())
       .isEqualTo(TypeName.Tuple(listOf(TypeName.U32)))
-    assertThat("tuple<u32, s8>".parseTypeName())
+    assertThat("tuple<u32, s8>".toTypeName())
       .isEqualTo(TypeName.Tuple(listOf(TypeName.U32, TypeName.S8)))
-    assertThat("tuple<u32, s8, string>".parseTypeName())
+    assertThat("tuple<u32, s8, string>".toTypeName())
       .isEqualTo(TypeName.Tuple(listOf(TypeName.U32, TypeName.S8, TypeName.String)))
-    assertThat("list<string>".parseTypeName())
+    assertThat("list<string>".toTypeName())
       .isEqualTo(TypeName.List(TypeName.String))
-    assertThat("list<string, 32>".parseTypeName())
+    assertThat("list<string, 32>".toTypeName())
       .isEqualTo(TypeName.List(TypeName.String, 32U))
-    assertThat("option<string>".parseTypeName())
+    assertThat("option<string>".toTypeName())
       .isEqualTo(TypeName.Option(TypeName.String))
-    assertThat("result<string>".parseTypeName())
+    assertThat("result<string>".toTypeName())
       .isEqualTo(TypeName.Result(TypeName.String))
-    assertThat("result<string, s32>".parseTypeName())
+    assertThat("result<string, s32>".toTypeName())
       .isEqualTo(TypeName.Result(TypeName.String, TypeName.S32))
-    assertThat("result<_, string>".parseTypeName())
+    assertThat("result<_, string>".toTypeName())
       .isEqualTo(TypeName.Result(null, TypeName.String))
-    assertThat("result".parseTypeName())
+    assertThat("result".toTypeName())
       .isEqualTo(TypeName.Result())
-    assertThat("map<u32, s64>".parseTypeName())
+    assertThat("map<u32, s64>".toTypeName())
       .isEqualTo(TypeName.Map(TypeName.U32, TypeName.S64))
-    assertThat("map<u32, list<string>>".parseTypeName())
+    assertThat("map<u32, list<string>>".toTypeName())
       .isEqualTo(TypeName.Map(TypeName.U32, TypeName.List(TypeName.String)))
-    assertThat("future".parseTypeName())
+    assertThat("future".toTypeName())
       .isEqualTo(TypeName.Future())
-    assertThat("future<string>".parseTypeName())
+    assertThat("future<string>".toTypeName())
       .isEqualTo(TypeName.Future(TypeName.String))
-    assertThat("borrow<string>".parseTypeName())
+    assertThat("borrow<string>".toTypeName())
       .isEqualTo(TypeName.Borrow(TypeName.String))
-    assertThat("stream".parseTypeName())
+    assertThat("stream".toTypeName())
       .isEqualTo(TypeName.Stream())
-    assertThat("stream<string>".parseTypeName())
+    assertThat("stream<string>".toTypeName())
       .isEqualTo(TypeName.Stream(TypeName.String))
-    assertThat("foo".parseTypeName())
+    assertThat("foo".toTypeName())
       .isEqualTo(TypeName.Declared("foo"))
   }
 
   @Test
   fun `readTypeName dangling type parameters`() {
     assertFailsWith<WitException> {
-      "tuple<".parseTypeName()
+      "tuple<".toTypeName()
     }
     assertFailsWith<WitException> {
-      "tuple<string".parseTypeName()
+      "tuple<string".toTypeName()
     }
     assertFailsWith<WitException> {
-      "tuple<string,".parseTypeName()
+      "tuple<string,".toTypeName()
     }
   }
 
   @Test
   fun `readTypeName invalid type parameters`() {
     assertFailsWith<WitException> {
-      "tuple".parseTypeName()
+      "tuple".toTypeName()
     }
     assertFailsWith<WitException> {
-      "tuple<>".parseTypeName()
+      "tuple<>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "list".parseTypeName()
+      "list".toTypeName()
     }
     assertFailsWith<WitException> {
-      "list<>".parseTypeName()
+      "list<>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "list<string, string, string>".parseTypeName()
+      "list<string, string, string>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "option".parseTypeName()
+      "option".toTypeName()
     }
     assertFailsWith<WitException> {
-      "option<>".parseTypeName()
+      "option<>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "option<string, string>".parseTypeName()
+      "option<string, string>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "result<_, _>".parseTypeName()
+      "result<_, _>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "map<string>".parseTypeName()
+      "map<string>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "map<string, string, string>".parseTypeName()
+      "map<string, string, string>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "future<>".parseTypeName()
+      "future<>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "future<string, string>".parseTypeName()
+      "future<string, string>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "stream<>".parseTypeName()
+      "stream<>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "stream<string, string>".parseTypeName()
+      "stream<string, string>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "borrow".parseTypeName()
+      "borrow".toTypeName()
     }
     assertFailsWith<WitException> {
-      "borrow<>".parseTypeName()
+      "borrow<>".toTypeName()
     }
     assertFailsWith<WitException> {
-      "borrow<string, string>".parseTypeName()
+      "borrow<string, string>".toTypeName()
     }
   }
-
-  private fun String.parseIdentifier(): Identifier =
-    WitStructureReader(this).readIdentifier()
-
-  private fun String.parsePackageName(): PackageName =
-    WitStructureReader(this).readPackageName()
-
-  private fun String.parseTypeName(): TypeName =
-    WitStructureReader(this).readTypeName()
-
-  private fun String.parseUsePath(): UsePath =
-    WitStructureReader(this).readUsePath()
-
-  private fun String.parseSemVer(): SemVer =
-    WitStructureReader(this).readSemVer()
 }

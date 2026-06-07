@@ -4,16 +4,14 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.support.wit.Export
 import com.wasmo.support.wit.ExternalUsePath
-import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.Import
 import com.wasmo.support.wit.Include
 import com.wasmo.support.wit.Location
-import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.SymbolIndex
-import com.wasmo.support.wit.UsePath
 import com.wasmo.support.wit.WitFile
 import com.wasmo.support.wit.WitPackage
 import com.wasmo.support.wit.World
+import com.wasmo.support.wit.toPackageName
 import kotlin.test.Test
 import okio.Path.Companion.toPath
 
@@ -21,33 +19,30 @@ class WorldFlattenerTest {
   @Test
   fun `include relative path`() {
     val command = World(
-      location = Location(1, 1),
-      name = Identifier("command"),
+      name = "command",
       declarations = listOf(
         Include(
-          location = Location(1, 1),
-          path = UsePath(name = Identifier("imports")),
+          path = "imports",
           items = listOf(),
         ),
         Export(
           location = Location(1, 1),
-          value = ExternalUsePath(path = UsePath(Identifier("run"))),
+          value = ExternalUsePath(path = "run"),
         ),
       ),
     )
 
     val imports = World(
-      location = Location(1, 1),
-      name = Identifier("imports"),
+      name = "imports",
       declarations = listOf(
         Import(
           location = Location(1, 1),
-          value = ExternalUsePath(path = UsePath(Identifier("exit"))),
+          value = ExternalUsePath(path = "exit"),
         ),
       ),
     )
 
-    val wasiCli = PackageName("wasi", "cli", "0.3.0")
+    val wasiCli = "wasi:cli@0.3.0".toPackageName()
     val wasiCommand = WitPackage(
       packageName = wasiCli,
       files = mapOf(
@@ -72,16 +67,15 @@ class WorldFlattenerTest {
       ),
     ).isEqualTo(
       World(
-        location = Location(1, 1),
-        name = Identifier("command"),
+        name = "command",
         declarations = listOf(
           Export(
             location = Location(1, 1),
-            value = ExternalUsePath(path = UsePath(Identifier("run"))),
+            value = ExternalUsePath(path = "run"),
           ),
           Import(
             location = Location(1, 1),
-            value = ExternalUsePath(path = UsePath(Identifier("exit"))),
+            value = ExternalUsePath(path = "exit"),
           ),
         ),
       ),

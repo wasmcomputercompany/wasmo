@@ -77,14 +77,6 @@ data class PackageName(
       append(version.version)
     }
   }
-
-  companion object {
-    operator fun invoke(namespace: String, name: String, version: String? = null) = PackageName(
-      namespaces = listOf(Identifier(namespace)),
-      names = listOf(Identifier(name)),
-      version = version?.let { SemVer(it) },
-    )
-  }
 }
 
 @JvmInline

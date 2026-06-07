@@ -17,5 +17,5 @@ data class WitPackage(
 data class WitFile(
   val packageDocumentation: Documentation? = null,
   val packageName: PackageName? = null,
-  val declarations: List<Declaration>,
+  val declarations: List<Declaration> = listOf(),
 )

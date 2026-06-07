@@ -53,18 +53,6 @@ data class Gate(
       append(")")
     }
   }
-
-  companion object {
-    operator fun invoke(
-      unstable: String? = null,
-      since: String? = null,
-      deprecated: String? = null,
-    ) = Gate(
-      unstable = unstable?.let { Identifier(it) },
-      since = since?.let { SemVer(it) },
-      deprecated = deprecated?.let { SemVer(it) },
-    )
-  }
 }
 
 data class Location(
@@ -185,21 +173,7 @@ data class Parameter(
   val location: Location,
   val name: Identifier,
   val type: TypeName,
-) {
-  companion object {
-    operator fun invoke(
-      documentation: Documentation? = null,
-      location: Location,
-      name: String,
-      type: TypeName,
-    ) = Parameter(
-      documentation = documentation,
-      location = location,
-      name = Identifier(name),
-      type = type,
-    )
-  }
-}
+)
 
 data class Flags(
   override val documentation: Documentation? = null,
