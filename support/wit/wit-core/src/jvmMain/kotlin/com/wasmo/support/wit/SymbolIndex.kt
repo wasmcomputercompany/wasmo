@@ -86,7 +86,7 @@ private fun Use.Item.matches(typeName: TypeName.Declared): Boolean {
 
 /** A fully-qualified type name. */
 data class TypePath(
-  val packageName: PackageName? = null,
+  val packageName: PackageName,
   val interfaceName: Identifier,
   val typeName: Identifier,
 ) {

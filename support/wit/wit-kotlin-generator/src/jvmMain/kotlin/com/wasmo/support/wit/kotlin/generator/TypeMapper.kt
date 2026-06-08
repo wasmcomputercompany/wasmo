@@ -14,19 +14,12 @@ import com.wasmo.support.wit.UsePath
  * Map WIT types to Kotlin types.
  */
 sealed interface TypeMapper {
+  val packageName: PackageName
   fun map(typeName: TypeName): KotlinTypeName
-}
-
-interface RootTypeMapper : TypeMapper {
-  fun refine(packageName: PackageName): PackageTypeMapper
-}
-
-interface PackageTypeMapper : TypeMapper {
-  val packageName: PackageName?
   fun refine(interfaceName: Identifier): InterfaceTypeMapper
 }
 
-interface InterfaceTypeMapper : PackageTypeMapper {
+interface InterfaceTypeMapper : TypeMapper {
   val interfaceName: Identifier
   val className: ClassName
   fun refine(usePath: UsePath): InterfaceTypeMapper
@@ -35,21 +28,18 @@ interface InterfaceTypeMapper : PackageTypeMapper {
 fun TypeMapper(
   index: SymbolIndex,
   kotlinPackagePrefix: String,
-): RootTypeMapper = RealRootTypeMapper(
+  packageName: PackageName,
+): TypeMapper = RealPackageTypeMapper(
   index = index,
   kotlinPackagePrefix = kotlinPackagePrefix,
+  packageName = packageName,
 )
-
-internal class RealRootTypeMapper(
-  override val index: SymbolIndex,
-  override val kotlinPackagePrefix: String,
-) : AbstractTypeMapper(), RootTypeMapper
 
 internal class RealPackageTypeMapper(
   override val index: SymbolIndex,
   override val kotlinPackagePrefix: String,
   override val packageName: PackageName,
-) : AbstractTypeMapper(), PackageTypeMapper {
+) : AbstractTypeMapper(), TypeMapper {
   override fun refine(interfaceName: Identifier) =
     RealInterfaceTypeMapper(index, kotlinPackagePrefix, packageName, interfaceName)
 
@@ -86,9 +76,7 @@ abstract class AbstractTypeMapper : TypeMapper {
   abstract val index: SymbolIndex
   abstract val kotlinPackagePrefix: String
 
-  override fun map(typeName: TypeName): KotlinTypeName =
-    mapOrNull(typeName)
-      ?: error("unable to find $typeName")
+  abstract override fun map(typeName: TypeName): KotlinTypeName
 
   protected fun mapOrNull(
     typeName: TypeName,
@@ -162,7 +150,7 @@ abstract class AbstractTypeMapper : TypeMapper {
     )
   }
 
-  fun refine(packageName: PackageName): PackageTypeMapper =
+  fun refine(packageName: PackageName): TypeMapper =
     RealPackageTypeMapper(index, kotlinPackagePrefix, packageName)
 }
 

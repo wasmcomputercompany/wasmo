@@ -39,10 +39,10 @@ class TypeMapperTest {
     val typeMapper = TypeMapper(
       index = index,
       kotlinPackagePrefix = "wit",
+      packageName = "wasi:clocks".toPackageName(),
     )
 
-    val packageTypeMapper = typeMapper.refine("wasi:clocks".toPackageName())
-    val interfaceTypeMapper = packageTypeMapper.refine(Identifier("wall-clock"))
+    val interfaceTypeMapper = typeMapper.refine(Identifier("wall-clock"))
 
     assertThat(interfaceTypeMapper.map(TypeName.Declared("datetime")))
       .isEqualTo(ClassName("wit.wasi.clocks", "WallClock", "Datetime"))
