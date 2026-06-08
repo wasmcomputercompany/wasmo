@@ -140,10 +140,39 @@ class WitPackageReaderTest {
     }
     assertThat(e).hasMessage(
       """
-      |multiple different package names in the same directory:
+      |multiple different package names in /my-package/*.wit:
       |  wasi:cli@1.0
       |  wasi:cli@2.0
       """.trimMargin(),
     )
+  }
+
+  @Test
+  fun `absent package name`() {
+    val directory = "/my-package".toPath()
+    val fileSystem = FakeFileSystem()
+    fileSystem.createDirectories(directory)
+    fileSystem.write(directory / "command.wit") {
+      writeUtf8(
+        """
+        |interface command {
+        |}
+        """.trimMargin(),
+      )
+    }
+    fileSystem.write(directory / "exit.wit") {
+      writeUtf8(
+        """
+        |interface exit {
+        |}
+        """.trimMargin(),
+      )
+    }
+
+    val packageReader = WitPackageReader(fileSystem)
+    val e = assertFailsWith<WitException> {
+      packageReader.read(directory)
+    }
+    assertThat(e).hasMessage("no package declaration in /my-package/*.wit")
   }
 }

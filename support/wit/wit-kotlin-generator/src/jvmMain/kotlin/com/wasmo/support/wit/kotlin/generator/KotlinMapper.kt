@@ -22,6 +22,7 @@ import com.wasmo.support.wit.Use
 import com.wasmo.support.wit.Variant
 import com.wasmo.support.wit.WitPackage
 import com.wasmo.support.wit.World
+import com.wasmo.support.wit.WorldFlattener
 
 /**
  * Directly converts WIT model types ([World], [Function], etc.) to a Kotlin equivalents ([WorldKt],
@@ -43,14 +44,15 @@ class KotlinMapper(
     val typeMapper = TypeMapper(
       index = index,
       kotlinPackagePrefix = kotlinPackagePrefix,
+      packageName = witPackage.packageName,
     )
 
     return WitPackageKt(
-      packageName = witPackage.packageName?.toKotlin(kotlinPackagePrefix) ?: kotlinPackagePrefix,
+      packageName = witPackage.packageName.toKotlin(kotlinPackagePrefix),
       declarations = witPackage.files.values.flatMap { witFile ->
         witFile.declarations.mapNotNull {
           mapDeclaration(
-            typeMapper = typeMapper.refine(witPackage.packageName),
+            typeMapper = typeMapper,
             value = it,
           )
         }
@@ -58,7 +60,7 @@ class KotlinMapper(
     )
   }
 
-  private fun mapDeclaration(typeMapper: PackageTypeMapper, value: Declaration): DeclarationKt? {
+  private fun mapDeclaration(typeMapper: TypeMapper, value: Declaration): DeclarationKt? {
     return when (value) {
       is Case -> error("unexpected call")
       is Enum -> mapEnum(typeMapper as InterfaceTypeMapper, value)
@@ -81,7 +83,7 @@ class KotlinMapper(
     }
   }
 
-  fun mapInterface(typeMapper: PackageTypeMapper, value: Interface): InterfaceKt {
+  fun mapInterface(typeMapper: TypeMapper, value: Interface): InterfaceKt {
     val interfaceTypeMapper = typeMapper.refine(interfaceName = value.name)
     return InterfaceKt(
       documentation = value.documentation?.content,
@@ -151,7 +153,7 @@ class KotlinMapper(
     },
   )
 
-  fun mapFunction(typeMapper: PackageTypeMapper, value: Function) = FunctionKt(
+  fun mapFunction(typeMapper: TypeMapper, value: Function) = FunctionKt(
     documentation = value.documentation?.content,
     name = value.name.name.toCamelCase(upperCamel = false),
     parameters = value.parameters.map { parameter ->
@@ -164,7 +166,7 @@ class KotlinMapper(
     returnType = value.returnType?.let { typeMapper.map(it) },
   )
 
-  fun mapWorld(typeMapper: PackageTypeMapper, value: World): WorldKt {
+  fun mapWorld(typeMapper: TypeMapper, value: World): WorldKt {
     val flattener = WorldFlattener(index)
     val flattened = flattener.flatten(
       world = value,
