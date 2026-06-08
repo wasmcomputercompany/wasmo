@@ -18,7 +18,7 @@ sealed interface TypeMapper {
 }
 
 interface RootTypeMapper : TypeMapper {
-  fun refine(packageName: PackageName?): PackageTypeMapper
+  fun refine(packageName: PackageName): PackageTypeMapper
 }
 
 interface PackageTypeMapper : TypeMapper {
@@ -48,28 +48,21 @@ internal class RealRootTypeMapper(
 internal class RealPackageTypeMapper(
   override val index: SymbolIndex,
   override val kotlinPackagePrefix: String,
-  override val packageName: PackageName?,
+  override val packageName: PackageName,
 ) : AbstractTypeMapper(), PackageTypeMapper {
   override fun refine(interfaceName: Identifier) =
     RealInterfaceTypeMapper(index, kotlinPackagePrefix, packageName, interfaceName)
 
   override fun map(typeName: TypeName): KotlinTypeName {
     return mapOrNull(typeName, packageName)
-      ?: throw IllegalArgumentException(
-        buildString {
-          append("unable to find $typeName")
-          if (packageName != null) {
-            append(" in $packageName")
-          }
-        },
-      )
+      ?: throw IllegalArgumentException("unable to find $typeName in $packageName")
   }
 }
 
 internal class RealInterfaceTypeMapper(
   override val index: SymbolIndex,
   override val kotlinPackagePrefix: String,
-  override val packageName: PackageName?,
+  override val packageName: PackageName,
   override val interfaceName: Identifier,
 ) : AbstractTypeMapper(), InterfaceTypeMapper {
   override val className: ClassName
@@ -79,24 +72,13 @@ internal class RealInterfaceTypeMapper(
     RealInterfaceTypeMapper(index, kotlinPackagePrefix, packageName, interfaceName)
 
   override fun refine(usePath: UsePath): InterfaceTypeMapper {
-    return when {
-      usePath.packageName != null -> refine(usePath.packageName).refine(usePath.name)
-      else -> refine(usePath.name)
-    }
+    val packageName = usePath.packageName ?: return refine(usePath.name)
+    return refine(packageName).refine(usePath.name)
   }
 
   override fun map(typeName: TypeName): KotlinTypeName {
     return mapOrNull(typeName, packageName, interfaceName)
-      ?: throw IllegalArgumentException(
-        buildString {
-          append("unable to find $typeName")
-          if (packageName != null) {
-            append(" in $packageName.$interfaceName")
-          } else {
-            append(" in $interfaceName")
-          }
-        },
-      )
+      ?: throw IllegalArgumentException("unable to find $typeName in $packageName.$interfaceName")
   }
 }
 
@@ -180,7 +162,7 @@ abstract class AbstractTypeMapper : TypeMapper {
     )
   }
 
-  fun refine(packageName: PackageName?): PackageTypeMapper =
+  fun refine(packageName: PackageName): PackageTypeMapper =
     RealPackageTypeMapper(index, kotlinPackagePrefix, packageName)
 }
 

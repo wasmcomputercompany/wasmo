@@ -31,7 +31,7 @@ fun WitPackage.typeReferences(): Sequence<TypeReference> = sequence {
 data class TypeReference(
   val path: Path,
   val location: Location,
-  val packageName: PackageName?,
+  val packageName: PackageName,
   val interfaceName: Identifier?,
   val typeName: TypeName,
 )
@@ -39,7 +39,7 @@ data class TypeReference(
 /** Does a depth-first traversal of [subject], looking for [TypeName] instances. */
 private class TypeReferenceScanner(
   private val path: Path,
-  private val packageName: PackageName?,
+  private val packageName: PackageName,
   private val interfaceName: Identifier? = null,
   private val subject: Declaration,
 ) {
@@ -90,7 +90,7 @@ private class TypeReferenceScanner(
   /** Returns a new scanner instance, which provides context to yielded types. */
   private fun scanner(
     subject: Declaration = this.subject,
-    packageName: PackageName? = this.packageName,
+    packageName: PackageName = this.packageName,
     interfaceName: Identifier? = this.interfaceName,
   ) = TypeReferenceScanner(
     path = path,
