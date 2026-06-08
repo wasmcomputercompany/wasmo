@@ -22,6 +22,7 @@ import com.wasmo.support.wit.Use
 import com.wasmo.support.wit.Variant
 import com.wasmo.support.wit.WitPackage
 import com.wasmo.support.wit.World
+import com.wasmo.support.wit.WorldFlattener
 
 /**
  * Directly converts WIT model types ([World], [Function], etc.) to a Kotlin equivalents ([WorldKt],

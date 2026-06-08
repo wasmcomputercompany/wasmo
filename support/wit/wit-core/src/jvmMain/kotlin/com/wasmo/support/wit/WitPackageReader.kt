@@ -33,16 +33,21 @@ class WitPackageReader(
     }
 
     val packageNames = files.values.mapNotNull { it.packageName }.toSet()
-    checkWit(packageNames.size <= 1) {
-      """
-      |multiple different package names in the same directory:
-      |  ${packageNames.sortedBy { it.toString() }.joinToString(separator = "\n  ")}
-      """.trimMargin()
+    checkWit(packageNames.size == 1) {
+      when {
+        packageNames.isEmpty() -> "no package declaration in $directory/*.wit"
+        else -> {
+          """
+          |multiple different package names in $directory/*.wit:
+          |  ${packageNames.sorted().joinToString(separator = "\n  ")}
+          """.trimMargin()
+        }
+      }
     }
 
     return WitPackage(
       packageDocumentation = files.values.mapNotNull { it.packageDocumentation }.concatenate(),
-      packageName = packageNames.firstOrNull(),
+      packageName = packageNames.single(),
       files = files,
     )
   }

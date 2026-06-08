@@ -1,10 +1,4 @@
-package com.wasmo.support.wit.kotlin.generator
-
-import com.wasmo.support.wit.Include
-import com.wasmo.support.wit.PackageName
-import com.wasmo.support.wit.SymbolIndex
-import com.wasmo.support.wit.UsePath
-import com.wasmo.support.wit.World
+package com.wasmo.support.wit
 
 class WorldFlattener(
   private val index: SymbolIndex,

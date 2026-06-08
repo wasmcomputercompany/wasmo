@@ -7,7 +7,7 @@ import okio.Path
  */
 data class WitPackage(
   val packageDocumentation: Documentation? = null,
-  val packageName: PackageName? = null,
+  val packageName: PackageName,
   val files: Map<Path, WitFile>,
 )
 

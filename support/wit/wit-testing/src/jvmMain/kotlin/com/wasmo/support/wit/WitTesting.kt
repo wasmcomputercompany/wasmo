@@ -30,6 +30,17 @@ fun Enum(
   cases = cases,
 )
 
+fun Export(
+  documentation: String? = null,
+  gate: Gate? = null,
+  value: ExternalType,
+) = Export(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  location = Location(1, 1),
+  value = value,
+)
+
 fun ExternalUsePath(
   plainName: String? = null,
   path: String,
@@ -108,6 +119,17 @@ fun Gate(
   unstable = unstable?.let { Identifier(it) },
   since = since?.toSemVer(),
   deprecated = deprecated?.toSemVer(),
+)
+
+fun Import(
+  documentation: String? = null,
+  gate: Gate? = null,
+  value: ExternalType,
+) = Import(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  location = Location(1, 1),
+  value = value,
 )
 
 fun Include(
