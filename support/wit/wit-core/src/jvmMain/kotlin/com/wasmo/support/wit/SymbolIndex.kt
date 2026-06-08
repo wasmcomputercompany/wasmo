@@ -13,7 +13,7 @@ class SymbolIndex(
 
   fun getType(
     typeName: TypeName.Declared,
-    inPackageName: PackageName? = null,
+    inPackageName: PackageName,
     inInterfaceName: Identifier? = null,
   ): TypePath {
     return getTypeOrNull(typeName, inPackageName, inInterfaceName)
@@ -22,7 +22,7 @@ class SymbolIndex(
           append("unable to find $typeName")
           when {
             inInterfaceName != null -> append(" in ${UsePath(inPackageName, inInterfaceName)}")
-            inPackageName != null -> append(" in $inPackageName")
+            else -> append(" in $inPackageName")
           }
         },
       )

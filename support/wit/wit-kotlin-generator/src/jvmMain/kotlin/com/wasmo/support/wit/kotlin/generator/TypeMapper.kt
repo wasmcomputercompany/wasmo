@@ -80,7 +80,7 @@ abstract class AbstractTypeMapper : TypeMapper {
 
   protected fun mapOrNull(
     typeName: TypeName,
-    packageName: PackageName? = null,
+    packageName: PackageName,
     interfaceName: Identifier? = null,
   ): KotlinTypeName? {
     val specialCase = ClassNames.WasmToKotlin[typeName]
@@ -138,7 +138,7 @@ abstract class AbstractTypeMapper : TypeMapper {
 
   protected fun mapDeclaredType(
     typeName: TypeName.Declared,
-    packageName: PackageName? = null,
+    packageName: PackageName,
     interfaceName: Identifier? = null,
   ): ClassName {
     val typePath = index.getType(typeName, packageName, interfaceName)

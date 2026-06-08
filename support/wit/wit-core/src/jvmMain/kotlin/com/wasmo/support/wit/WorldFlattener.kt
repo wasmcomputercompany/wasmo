@@ -5,7 +5,7 @@ class WorldFlattener(
 ) {
   fun flatten(
     world: World,
-    inPackageName: PackageName?,
+    inPackageName: PackageName,
   ): World {
     val seed = IncludedWorld(
       path = UsePath(
