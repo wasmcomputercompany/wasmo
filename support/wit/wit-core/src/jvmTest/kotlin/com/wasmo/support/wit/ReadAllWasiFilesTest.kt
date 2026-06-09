@@ -60,12 +60,12 @@ class ReadAllWasiFilesTest {
         try {
           index.getType(
             typeName = declaredType,
-            inPackageName = ref.packageName,
-            inInterfaceName = ref.interfaceName,
+            inPackageName = ref.location.packageName,
+            inInterfaceName = ref.location.interfaceName,
           )
         } catch (e: IllegalArgumentException) {
           throw IllegalArgumentException(
-            "failed to find ${ref.typeName} from ${ref.path} at ${ref.offset}", e,
+            "failed to find ${ref.typeName} from ${ref.location.path} at ${ref.location.offset}", e,
           )
         }
       }
