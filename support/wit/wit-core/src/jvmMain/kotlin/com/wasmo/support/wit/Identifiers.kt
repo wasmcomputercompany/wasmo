@@ -1,5 +1,30 @@
 package com.wasmo.support.wit
 
+import okio.Path
+
+/**
+ * A location within a `.wit` package. The package name and interface name define a scope to resolve
+ * relative references to types.
+ *
+ * Within a `use` or `include` declaration, the package name and interface name will be the target
+ * scope to search, which may be in a different path. For example, the `pollable` symbol will be
+ * resolved in the `wasi:io@0.2.12` package.
+ *
+ * ```wit
+ * package wasi:clocks@0.2.12;
+ *
+ * interface monotonic-clock {
+ *   use wasi:io/poll@0.2.12.{pollable};
+ * }
+ * ```
+ */
+data class Location(
+  val path: Path,
+  val offset: Offset,
+  val packageName: PackageName,
+  val interfaceName: Identifier?,
+)
+
 /**
  * This is a package name plus an interface name, or just an interface name. The encoded form always
  * puts the version at the end of the entire string.
