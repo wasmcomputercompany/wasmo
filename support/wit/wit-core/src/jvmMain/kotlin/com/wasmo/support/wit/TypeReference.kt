@@ -37,18 +37,9 @@ fun WitPackage.typeReferences(): Sequence<TypeReference> = sequence {
         }
       }
 
-      is Include -> {
-        for (item in subject.items) {
-          yield(TypeReference(location, item.type))
-        }
-      }
-
+      is Include.Item -> yield(TypeReference(location, subject.type))
       is TypeAlias -> yield(TypeReference(location, subject.target))
-      is Use -> {
-        for (item in subject.items) {
-          yield(TypeReference(location, item.type))
-        }
-      }
+      is Use.Item -> yield(TypeReference(location, subject.type))
 
       else -> {}
     }

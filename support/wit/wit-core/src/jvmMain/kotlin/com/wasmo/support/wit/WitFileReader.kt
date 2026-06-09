@@ -537,6 +537,9 @@ internal class WitFileReader(
     source.readLiteral('.')
 
     val items = source.readCommaSeparatedList {
+      val itemGate = readGateOrNull()
+      val itemDocumentation = source.takeDocumentation()
+      val itemOffset = source.offset
       val itemName = source.readIdentifier()
 
       source.skipWhitespace()
@@ -550,6 +553,9 @@ internal class WitFileReader(
       }
 
       Use.Item(
+        gate = itemGate,
+        documentation = itemDocumentation,
+        offset = itemOffset,
         type = TypeName.Declared(itemName),
         alias = alias,
       )
@@ -834,8 +840,10 @@ internal class WitFileReader(
     val items = when {
       source.tryReadLiteral("with") -> {
         source.readCommaSeparatedList {
-          source.skipWhitespace()
-          val name = TypeName.Declared(source.readIdentifier())
+          val itemGate = readGateOrNull()
+          val itemDocumentation = source.takeDocumentation()
+          val itemOffset = source.offset
+          val type = TypeName.Declared(source.readIdentifier())
 
           source.skipWhitespace()
           source.readLiteral("as")
@@ -844,7 +852,10 @@ internal class WitFileReader(
           val alias = source.readIdentifier()
 
           Include.Item(
-            type = name,
+            documentation = itemDocumentation,
+            gate = itemGate,
+            offset = itemOffset,
+            type = type,
             alias = alias,
           )
         }

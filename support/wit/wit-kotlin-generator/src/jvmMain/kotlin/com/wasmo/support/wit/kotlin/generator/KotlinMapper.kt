@@ -68,6 +68,7 @@ class KotlinMapper(
       is Flags -> mapFlags(typeMapper as InterfaceTypeMapper, value)
       is Function -> mapFunction(typeMapper, value)
       is Include -> null
+      is Include.Item -> error("unexpected call")
       is Interface -> mapInterface(typeMapper, value)
       is Package -> null
       is Record -> mapRecord(typeMapper as InterfaceTypeMapper, value)
@@ -75,6 +76,7 @@ class KotlinMapper(
       is TopLevelUse -> null
       is TypeAlias -> mapTypeAlias(typeMapper as InterfaceTypeMapper, value)
       is Use -> null
+      is Use.Item -> error("unexpected call")
       is Variant -> mapVariant(typeMapper as InterfaceTypeMapper, value)
       is World -> mapWorld(typeMapper, value)
     }
