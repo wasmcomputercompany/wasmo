@@ -30,21 +30,16 @@ fun Enum(
   cases = cases,
 )
 
-fun Export(
+fun ExternalUsePath(
   documentation: String? = null,
   gate: Gate? = null,
-  value: ExternalType,
-) = Export(
-  documentation = documentation?.let { Documentation(it) },
-  gate = gate,
-  location = Location(1, 1),
-  value = value,
-)
-
-fun ExternalUsePath(
+  location: Location = Location(1, 1),
   plainName: String? = null,
   path: String,
 ) = ExternalUsePath(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  location = location,
   plainName = plainName?.let { Identifier(it) },
   path = path.toUsePath(),
 )
@@ -119,17 +114,6 @@ fun Gate(
   unstable = unstable?.let { Identifier(it) },
   since = since?.toSemVer(),
   deprecated = deprecated?.toSemVer(),
-)
-
-fun Import(
-  documentation: String? = null,
-  gate: Gate? = null,
-  value: ExternalType,
-) = Import(
-  documentation = documentation?.let { Documentation(it) },
-  gate = gate,
-  location = Location(1, 1),
-  value = value,
 )
 
 fun Include(
@@ -248,10 +232,14 @@ fun World(
   location: Location = Location(1, 1),
   name: String,
   declarations: List<Declaration> = listOf(),
+  imports: List<World.Api> = listOf(),
+  exports: List<World.Api> = listOf(),
 ) = World(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   location = location,
   name = Identifier(name),
   declarations = declarations,
+  imports = imports,
+  exports = exports,
 )

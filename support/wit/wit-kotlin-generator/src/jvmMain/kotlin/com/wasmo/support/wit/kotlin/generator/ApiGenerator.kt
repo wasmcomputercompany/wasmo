@@ -205,23 +205,23 @@ class ApiGenerator {
   private fun generate(value: WorldKt) = TypeSpec.objectBuilder(value.type.simpleName)
     .setDeclaration(value)
     .apply {
-      if (value.exports.isNotEmpty()) {
+      if (value.guestApis.isNotEmpty()) {
         addType(
           TypeSpec.interfaceBuilder("Guest")
             .apply {
-              for (export in value.exports) {
-                addProperty(export.name, export.type)
+              for (export in value.guestApis) {
+                add(export)
               }
             }
             .build(),
         )
       }
-      if (value.imports.isNotEmpty()) {
+      if (value.hostApis.isNotEmpty()) {
         addType(
           TypeSpec.interfaceBuilder("Host")
             .apply {
-              for (import in value.imports) {
-                addProperty(import.name, import.type)
+              for (import in value.hostApis) {
+                add(import)
               }
             }
             .build(),
@@ -229,4 +229,15 @@ class ApiGenerator {
       }
     }
     .build()
+
+  private fun TypeSpec.Builder.add(externalType: WorldKt.Api) {
+    when (externalType) {
+      is ExternalUsePathKt -> addProperty(externalType.name, externalType.type)
+      is FunctionKt -> addFunction(generate(externalType))
+      is InterfaceKt -> {
+        addProperty(externalType.instanceName, externalType.type)
+        addType(generate(externalType))
+      }
+    }
+  }
 }

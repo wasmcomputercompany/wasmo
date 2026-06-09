@@ -58,14 +58,16 @@ class WitPackageReaderTest {
               World(
                 location = Location(1, 1),
                 name = "command",
-                declarations = listOf(
-                  Export(
-                    location = Location(2, 3),
-                    value = ExternalUsePath(path = "run"),
-                  ),
-                  Import(
+                imports = listOf(
+                  ExternalUsePath(
                     location = Location(3, 3),
-                    value = ExternalUsePath(path = "exit"),
+                    path = "exit",
+                  ),
+                ),
+                exports = listOf(
+                  ExternalUsePath(
+                    location = Location(2, 3),
+                    path = "run",
                   ),
                 ),
               ),

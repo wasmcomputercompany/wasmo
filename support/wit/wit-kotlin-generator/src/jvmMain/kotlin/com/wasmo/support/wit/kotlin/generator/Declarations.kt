@@ -12,28 +12,27 @@ data class WitPackageKt(
   val declarations: List<DeclarationKt>,
 )
 
+data class ExternalUsePathKt(
+  override val documentation: String?,
+  val name: String,
+  val type: TypeName,
+) : DeclarationKt, WorldKt.Api
+
 data class InterfaceKt(
   override val documentation: String?,
   val type: ClassName,
+  val instanceName: String,
   val declarations: List<DeclarationKt>,
-) : DeclarationKt
+) : DeclarationKt, WorldKt.Api
 
 data class WorldKt(
   override val documentation: String?,
   val type: ClassName,
-  val imports : List<Import>,
-  val exports : List<Export>,
+  val declarations : List<DeclarationKt>,
+  val hostApis : List<Api>,
+  val guestApis : List<Api>,
 ) : DeclarationKt {
-  data class Import(
-    override val documentation: String?,
-    val name: String,
-    val type: TypeName,
-  ): DeclarationKt
-  data class Export(
-    override val documentation: String?,
-    val name: String,
-    val type: TypeName,
-  ): DeclarationKt
+  interface Api : DeclarationKt
 }
 
 data class EnumKt(
@@ -99,7 +98,7 @@ data class FunctionKt(
   val name: String,
   val parameters: List<Parameter>,
   val returnType: TypeName?,
-) : DeclarationKt {
+) : DeclarationKt, WorldKt.Api {
   data class Parameter(
     override val documentation: String?,
     val name: String,

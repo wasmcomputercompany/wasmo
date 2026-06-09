@@ -673,6 +673,14 @@ internal class WitFileReader(
   /**
    * ```ebnf
    * world-item ::= gate 'world' id '{' world-items* '}'
+   *
+   * world-items ::= gate world-definition
+   *
+   * world-definition ::= export-item
+   *                    | import-item
+   *                    | use-item
+   *                    | typedef-item
+   *                    | include-item
    * ```
    */
   internal fun readWorld(
@@ -687,12 +695,29 @@ internal class WitFileReader(
     source.readLiteral('{')
 
     val declarations = mutableListOf<Declaration>()
+    val imports = mutableListOf<World.Api>()
+    val exports = mutableListOf<World.Api>()
 
     while (true) {
       source.skipWhitespace()
       if (source.tryReadLiteral('}')) break
 
-      declarations += readWorldItem()
+      val itemGate = readGateOrNull()
+      val itemDocumentation = source.takeDocumentation()
+      val itemLocation = source.location
+      when (val identifier = source.readIdentifier()) {
+        Keywords.enum -> declarations += readEnum(itemDocumentation, itemGate, itemLocation)
+        Keywords.export -> exports += readWorldApi(itemDocumentation, itemGate, itemLocation)
+        Keywords.flags -> declarations += readFlags(itemDocumentation, itemGate, itemLocation)
+        Keywords.import -> imports += readWorldApi(itemDocumentation, itemGate, itemLocation)
+        Keywords.include -> declarations += readInclude(itemDocumentation, itemGate, itemLocation)
+        Keywords.record -> declarations += readRecord(itemDocumentation, itemGate, itemLocation)
+        Keywords.resource -> declarations += readResource(itemDocumentation, itemGate, itemLocation)
+        Keywords.type -> declarations += readTypeAlias(itemDocumentation, itemGate, itemLocation)
+        Keywords.use -> declarations += readUse(itemDocumentation, itemGate, itemLocation)
+        Keywords.variant -> declarations += readVariant(itemDocumentation, itemGate, itemLocation)
+        else -> errorWit(location, "unexpected identifier: $identifier")
+      }
     }
 
     return World(
@@ -701,139 +726,42 @@ internal class WitFileReader(
       location = location,
       name = name,
       declarations = declarations,
+      imports = imports,
+      exports = exports,
     )
-  }
-
-  /**
-   * ```ebnf
-   * world-items ::= gate world-definition
-   *
-   * world-definition ::= export-item
-   *                    | import-item
-   *                    | use-item
-   *                    | typedef-item
-   *                    | include-item
-   * ```
-   */
-  internal fun readWorldItem(): Declaration {
-    val gate = readGateOrNull()
-    val documentation = source.takeDocumentation()
-    val location = source.location
-
-    return when (val identifier = source.readIdentifier()) {
-      Keywords.enum -> readEnum(documentation, gate, location)
-      Keywords.export -> readExport(documentation, gate, location)
-      Keywords.flags -> readFlags(documentation, gate, location)
-      Keywords.import -> readImport(documentation, gate, location)
-      Keywords.include -> readInclude(documentation, gate, location)
-      Keywords.record -> readRecord(documentation, gate, location)
-      Keywords.resource -> readResource(documentation, gate, location)
-      Keywords.type -> readTypeAlias(documentation, gate, location)
-      Keywords.use -> readUse(documentation, gate, location)
-      Keywords.variant -> readVariant(documentation, gate, location)
-      else -> errorWit(location, "unexpected identifier: $identifier")
-    }
   }
 
   /**
    * ```ebnf
    * import-item ::= 'import' id ':' extern-type
    *               | 'import' use-path ';'
-   * ```
-   */
-  private fun readImport(
-    documentation: Documentation?,
-    gate: Gate?,
-    location: Location,
-  ): Import {
-    return source.select(
-      {
-        source.skipWhitespace()
-        val identifier = source.readIdentifier()
-        source.skipWhitespace()
-        source.readLiteral(':')
-        val value = readExternalType(documentation, gate, location, identifier)
-        when {
-          // Omit documentation on the import if it's been applied to the imported value.
-          value is Declaration -> {
-            Import(
-              location = location,
-              value = value,
-            )
-          }
-
-          else -> {
-            Import(
-              documentation = documentation,
-              gate = gate,
-              location = location,
-              value = value,
-            )
-          }
-        }
-      },
-      {
-        source.skipWhitespace()
-        val path = source.readUsePath()
-        source.skipWhitespace()
-        source.readLiteral(';')
-        Import(
-          documentation = documentation,
-          gate = gate,
-          location = location,
-          value = ExternalUsePath(path = path),
-        )
-      },
-    )
-  }
-
-  /**
-   * ```ebnf
    * export-item ::= 'export' id ':' extern-type
    *               | 'export' use-path ';'
    * ```
    */
-  private fun readExport(
+  private fun readWorldApi(
     documentation: Documentation?,
     gate: Gate?,
     location: Location,
-  ): Export {
+  ): World.Api {
     return source.select(
       {
         source.skipWhitespace()
         val identifier = source.readIdentifier()
         source.skipWhitespace()
         source.readLiteral(':')
-        val value = readExternalType(documentation, gate, location, identifier)
-        when {
-          // Omit documentation on the import if it's been applied to the exported value.
-          value is Declaration -> {
-            Export(
-              location = location,
-              value = value,
-            )
-          }
-
-          else -> {
-            Export(
-              documentation = documentation,
-              gate = gate,
-              location = location,
-              value = value,
-            )
-          }
-        }
+        readExternalType(documentation, gate, location, identifier)
       },
       {
         source.skipWhitespace()
         val path = source.readUsePath()
         source.skipWhitespace()
         source.readLiteral(';')
-        Export(
+        ExternalUsePath(
           documentation = documentation,
           gate = gate,
           location = location,
-          value = ExternalUsePath(path = path),
+          path = path,
         )
       },
     )
@@ -851,7 +779,7 @@ internal class WitFileReader(
     gate: Gate?,
     location: Location,
     identifier: Identifier,
-  ): ExternalType {
+  ): World.Api {
     return source.select(
       {
         readFuncType(documentation, gate, location, identifier)
@@ -873,6 +801,9 @@ internal class WitFileReader(
         val path = source.readUsePath()
         source.readLiteral(';')
         ExternalUsePath(
+          documentation = documentation,
+          gate = gate,
+          location = location,
           plainName = identifier,
           path = path,
         )
