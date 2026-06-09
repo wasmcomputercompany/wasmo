@@ -158,7 +158,7 @@ class WitFileReaderTest {
               |it is a good interface
               """.trimMargin(),
             gate = Gate(deprecated = "0.2.2"),
-            location = Location(4, 1),
+            offset = Offset(4, 1),
             name = "foo",
           ),
         ),
@@ -178,20 +178,20 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "foo",
             declarations = listOf(
               Function(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 name = "print",
                 parameters = listOf(
                   Parameter(
-                    location = Location(2, 15),
+                    offset = Offset(2, 15),
                     name = "message",
                     type = TypeName.String,
                   ),
                   Parameter(
-                    location = Location(2, 32),
+                    offset = Offset(2, 32),
                     name = "repeat",
                     type = TypeName.Option(TypeName.U32),
                   ),
@@ -201,7 +201,7 @@ class WitFileReaderTest {
                 ),
               ),
               Function(
-                location = Location(3, 3),
+                offset = Offset(3, 3),
                 name = "async-print",
                 async = true,
               ),
@@ -233,32 +233,32 @@ class WitFileReaderTest {
         packageName = "wasi:clocks@0.2.9".toPackageName(),
         declarations = listOf(
           Interface(
-            location = Location(3, 1),
+            offset = Offset(3, 1),
             name = "wall-clock",
             declarations = listOf(
               Record(
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "datetime",
                 fields = listOf(
                   Field(
-                    location = Location(5, 5),
+                    offset = Offset(5, 5),
                     name = "seconds",
                     type = TypeName.U64,
                   ),
                   Field(
-                    location = Location(6, 5),
+                    offset = Offset(6, 5),
                     name = "nanoseconds",
                     type = TypeName.U32,
                   ),
                 ),
               ),
               Function(
-                location = Location(9, 3),
+                offset = Offset(9, 3),
                 name = "now",
                 returnType = TypeName.Declared("datetime"),
               ),
               Function(
-                location = Location(11, 3),
+                offset = Offset(11, 3),
                 name = "resolution",
                 returnType = TypeName.Declared("datetime"),
               ),
@@ -287,7 +287,7 @@ class WitFileReaderTest {
               | wall clock
               """.trimMargin(),
             gate = Gate(since = "1.0"),
-            location = Location(4, 1),
+            offset = Offset(4, 1),
             name = "wall-clock",
           ),
         ),
@@ -315,26 +315,26 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "wall-clock",
             declarations = listOf(
               Record(
                 documentation = " spacetime",
                 gate = Gate(since = "2.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "datetime",
                 fields = listOf(
                   Field(
                     documentation = " just a second",
                     gate = Gate(since = "3.0"),
-                    location = Location(7, 5),
+                    offset = Offset(7, 5),
                     name = "seconds",
                     type = TypeName.U64,
                   ),
                   Field(
                     documentation = " tick",
                     gate = Gate(since = "4.0"),
-                    location = Location(10, 5),
+                    offset = Offset(10, 5),
                     name = "nanoseconds",
                     type = TypeName.U32,
                   ),
@@ -363,18 +363,18 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "wall-clock",
             declarations = listOf(
               Function(
                 documentation = " sample the clock",
                 gate = Gate(since = "5.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "now",
                 parameters = listOf(
                   Parameter(
                     documentation = " True to return a non-decreasing value.",
-                    location = Location(6, 5),
+                    offset = Offset(6, 5),
                     name = "monotonic",
                     type = TypeName.Bool,
                   ),
@@ -401,15 +401,15 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "monotonic-clock",
             declarations = listOf(
               Function(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 name = "subscribe-instant",
                 parameters = listOf(
                   Parameter(
-                    location = Location(3, 5),
+                    offset = Offset(3, 5),
                     name = "when",
                     type = TypeName.Declared("instant"),
                   ),
@@ -452,24 +452,24 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "db",
             declarations = listOf(
               Resource(
                 documentation = " big boi",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "blob",
                 functions = listOf(
                   Function(
                     documentation = " makes a new one",
                     gate = Gate(since = "2.0"),
-                    location = Location(7, 5),
+                    offset = Offset(7, 5),
                     constructor = true,
                     name = "constructor",
                     parameters = listOf(
                       Parameter(
-                        location = Location(7, 17),
+                        offset = Offset(7, 17),
                         name = "init",
                         type = TypeName.List(TypeName.U8),
                       ),
@@ -478,11 +478,11 @@ class WitFileReaderTest {
                   Function(
                     documentation = " puts some bytes",
                     gate = Gate(since = "3.0"),
-                    location = Location(11, 5),
+                    offset = Offset(11, 5),
                     name = "write",
                     parameters = listOf(
                       Parameter(
-                        location = Location(11, 17),
+                        offset = Offset(11, 17),
                         name = "bytes",
                         type = TypeName.List(TypeName.U8),
                       ),
@@ -491,11 +491,11 @@ class WitFileReaderTest {
                   Function(
                     documentation = " gets some bytes",
                     gate = Gate(since = "4.0"),
-                    location = Location(15, 5),
+                    offset = Offset(15, 5),
                     name = "read",
                     parameters = listOf(
                       Parameter(
-                        location = Location(15, 16),
+                        offset = Offset(15, 16),
                         name = "n",
                         type = TypeName.U32,
                       ),
@@ -505,17 +505,17 @@ class WitFileReaderTest {
                   Function(
                     documentation = " smashes some blobs together",
                     gate = Gate(since = "5.0"),
-                    location = Location(19, 5),
+                    offset = Offset(19, 5),
                     static = true,
                     name = "merge",
                     parameters = listOf(
                       Parameter(
-                        location = Location(19, 24),
+                        offset = Offset(19, 24),
                         name = "lhs",
                         type = TypeName.Borrow(TypeName.Declared("blob")),
                       ),
                       Parameter(
-                        location = Location(19, 43),
+                        offset = Offset(19, 43),
                         name = "rhs",
                         type = TypeName.Borrow(TypeName.Declared("blob")),
                       ),
@@ -542,11 +542,11 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "db",
             declarations = listOf(
               Resource(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 name = "blob",
               ),
             ),
@@ -579,31 +579,31 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "db",
             declarations = listOf(
               Variant(
                 documentation = " whats included",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "filter",
                 cases = listOf(
                   Case(
                     documentation = " all the things",
                     gate = Gate(since = "2.0"),
-                    location = Location(7, 5),
+                    offset = Offset(7, 5),
                     name = "all",
                   ),
                   Case(
                     documentation = " zilch",
                     gate = Gate(since = "3.0"),
-                    location = Location(10, 5),
+                    offset = Offset(10, 5),
                     name = "none",
                   ),
                   Case(
                     documentation = " one",
                     gate = Gate(since = "4.0"),
-                    location = Location(13, 5),
+                    offset = Offset(13, 5),
                     name = "some",
                     type = TypeName.List(TypeName.String),
                   ),
@@ -639,31 +639,31 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "db",
             declarations = listOf(
               Flags(
                 documentation = " comic character",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "properties",
                 flags = listOf(
                   Flag(
                     documentation = " plastic",
                     gate = Gate(since = "2.0"),
-                    location = Location(7, 5),
+                    offset = Offset(7, 5),
                     name = "lego",
                   ),
                   Flag(
                     documentation = " avenger",
                     gate = Gate(since = "3.0"),
-                    location = Location(10, 5),
+                    offset = Offset(10, 5),
                     name = "marvel-superhero",
                   ),
                   Flag(
                     documentation = " naughty",
                     gate = Gate(since = "4.0"),
-                    location = Location(13, 5),
+                    offset = Offset(13, 5),
                     name = "supervillain",
                   ),
                 ),
@@ -698,31 +698,31 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "db",
             declarations = listOf(
               Enum(
                 documentation = " Roy G.",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "color",
                 cases = listOf(
                   Case(
                     documentation = " #ff0000",
                     gate = Gate(since = "2.0"),
-                    location = Location(7, 5),
+                    offset = Offset(7, 5),
                     name = "red",
                   ),
                   Case(
                     documentation = " #0000ff",
                     gate = Gate(since = "3.0"),
-                    location = Location(10, 5),
+                    offset = Offset(10, 5),
                     name = "blue",
                   ),
                   Case(
                     documentation = " #00ff00",
                     gate = Gate(since = "4.0"),
-                    location = Location(13, 5),
+                    offset = Offset(13, 5),
                     name = "green",
                   ),
                 ),
@@ -750,20 +750,20 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "db",
             declarations = listOf(
               TypeAlias(
                 documentation = " So Awesome.",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "my-awesome-u32",
                 target = TypeName.U32,
               ),
               TypeAlias(
                 documentation = " So Complicated.",
                 gate = Gate(since = "2.0"),
-                location = Location(7, 3),
+                offset = Offset(7, 3),
                 name = "my-complicated-tuple",
                 target = TypeName.Tuple(
                   listOf(
@@ -796,13 +796,13 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Interface(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "db",
             declarations = listOf(
               Use(
                 documentation = " Four values.",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 path = "an-interface",
                 items = listOf(
                   Use.Item(type = TypeName.Declared("a")),
@@ -814,7 +814,7 @@ class WitFileReaderTest {
               Use(
                 documentation = " One aliased value.",
                 gate = Gate(since = "2.0"),
-                location = Location(7, 3),
+                offset = Offset(7, 3),
                 path = "my:dependency/the-interface@3.0",
                 items = listOf(
                   Use.Item(type = TypeName.Declared("more")),
@@ -842,7 +842,7 @@ class WitFileReaderTest {
           World(
             documentation = " a printer-scanner-fax thingy",
             gate = Gate(since = "1.0"),
-            location = Location(3, 1),
+            offset = Offset(3, 1),
             name = "multi-function-device",
           ),
         ),
@@ -866,13 +866,13 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             imports = listOf(
               ExternalUsePath(
                 documentation = " The component needs an `error-reporter`",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 path = "error-reporter",
               ),
             ),
@@ -880,7 +880,7 @@ class WitFileReaderTest {
               ExternalUsePath(
                 documentation = " This also exports an `error-creator`",
                 gate = Gate(since = "2.0"),
-                location = Location(7, 3),
+                offset = Offset(7, 3),
                 path = "error-creator",
               ),
             ),
@@ -903,13 +903,13 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             imports = listOf(
               ExternalUsePath(
                 documentation = " This store is aliased as 'primary'",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 plainName = "primary",
                 path = "wasi:keyvalue/store",
               ),
@@ -933,13 +933,13 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             exports = listOf(
               ExternalUsePath(
                 documentation = " This store is aliased as 'secondary'",
                 gate = Gate(since = "2.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 plainName = "secondary",
                 path = "wasi:keyvalue/store",
               ),
@@ -967,23 +967,23 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             imports = listOf(
               Interface(
                 documentation = " This interface is inline",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "host",
                 declarations = listOf(
                   Function(
                     documentation = " This function is in an inline interface",
                     gate = Gate(since = "2.0"),
-                    location = Location(7, 5),
+                    offset = Offset(7, 5),
                     name = "log",
                     parameters = listOf(
                       Parameter(
-                        location = Location(7, 15),
+                        offset = Offset(7, 15),
                         name = "param",
                         type = TypeName.String,
                       ),
@@ -1015,23 +1015,23 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             exports = listOf(
               Interface(
                 documentation = " We can export an inline interface",
                 gate = Gate(since = "3.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "guest",
                 declarations = listOf(
                   Function(
                     documentation = " A function in an inline interface",
                     gate = Gate(since = "4.0"),
-                    location = Location(7, 5),
+                    offset = Offset(7, 5),
                     name = "scan",
                     parameters = listOf(
                       Parameter(
-                        location = Location(7, 16),
+                        offset = Offset(7, 16),
                         name = "document",
                         type = TypeName.String,
                       ),
@@ -1059,17 +1059,17 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             imports = listOf(
               Function(
                 documentation = " This function is inline",
                 gate = Gate(since = "4.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "log",
                 parameters = listOf(
                   Parameter(
-                    location = Location(4, 20),
+                    offset = Offset(4, 20),
                     name = "param",
                     type = TypeName.String,
                   ),
@@ -1095,17 +1095,17 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             exports = listOf(
               Function(
                 documentation = " This exported function is inline",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "scan",
                 parameters = listOf(
                   Parameter(
-                    location = Location(4, 21),
+                    offset = Offset(4, 21),
                     name = "document",
                     type = TypeName.String,
                   ),
@@ -1129,11 +1129,11 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             imports = listOf(
               ExternalUsePath(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 plainName = "two",
                 path = "store",
               ),
@@ -1155,11 +1155,11 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             exports = listOf(
               ExternalUsePath(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 plainName = "two",
                 path = "store",
               ),
@@ -1183,13 +1183,13 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             declarations = listOf(
               Include(
                 documentation = " This include is pretty basic.",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 path = "my-world-2",
                 items = listOf(),
               ),
@@ -1211,11 +1211,11 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             declarations = listOf(
               Include(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 path = "wasi:io/my-world-1",
                 items = listOf(
                   Include.Item(
@@ -1252,13 +1252,13 @@ class WitFileReaderTest {
           Package(
             documentation = Documentation(" This package is pasted from somewhere else."),
             gate = Gate(since = "1.0"),
-            location = Location(3, 1),
+            offset = Offset(3, 1),
             name = "local:a".toPackageName(),
             declarations = listOf(
               Interface(
                 documentation = " This interface is included in a package.",
                 gate = Gate(since = "2.0"),
-                location = Location(6, 3),
+                offset = Offset(6, 3),
                 name = "foo",
               ),
             ),
@@ -1284,13 +1284,13 @@ class WitFileReaderTest {
           TopLevelUse(
             documentation = Documentation(" Use the Wasi HTTP types."),
             gate = Gate(since = "1.0"),
-            location = Location(3, 1),
+            offset = Offset(3, 1),
             path = "wasi:http/types@1.0.0".toUsePath(),
           ),
           TopLevelUse(
             documentation = Documentation(" Use the Wasi HTTP handler also."),
             gate = Gate(since = "2.0"),
-            location = Location(6, 1),
+            offset = Offset(6, 1),
             path = "wasi:http/handler".toUsePath(),
             alias = Identifier("http-handler"),
           ),
@@ -1312,13 +1312,13 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Package(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "local:a".toPackageName(),
             declarations = listOf(
               TopLevelUse(
                 documentation = Documentation(" Use the Wasi HTTP types."),
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 path = "wasi:http/types@1.0.0".toUsePath(),
               ),
             ),
@@ -1342,13 +1342,13 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           Package(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "local:a".toPackageName(),
             declarations = listOf(
               World(
                 documentation = " a printer-scanner-fax thingy",
                 gate = Gate(since = "1.0"),
-                location = Location(4, 3),
+                offset = Offset(4, 3),
                 name = "multi-function-device",
               ),
             ),
@@ -1372,20 +1372,20 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             declarations = listOf(
               Record(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 name = "datetime",
                 fields = listOf(
                   Field(
-                    location = Location(3, 5),
+                    offset = Offset(3, 5),
                     name = "seconds",
                     type = TypeName.U64,
                   ),
                   Field(
-                    location = Location(4, 5),
+                    offset = Offset(4, 5),
                     name = "nanoseconds",
                     type = TypeName.U32,
                   ),
@@ -1413,23 +1413,23 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             declarations = listOf(
               Enum(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 name = "color",
                 cases = listOf(
                   Case(
-                    location = Location(3, 5),
+                    offset = Offset(3, 5),
                     name = "red",
                   ),
                   Case(
-                    location = Location(4, 5),
+                    offset = Offset(4, 5),
                     name = "blue",
                   ),
                   Case(
-                    location = Location(5, 5),
+                    offset = Offset(5, 5),
                     name = "green",
                   ),
                 ),
@@ -1456,23 +1456,23 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             declarations = listOf(
               Flags(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 name = "properties",
                 flags = listOf(
                   Flag(
-                    location = Location(3, 5),
+                    offset = Offset(3, 5),
                     name = "lego",
                   ),
                   Flag(
-                    location = Location(4, 5),
+                    offset = Offset(4, 5),
                     name = "marvel-superhero",
                   ),
                   Flag(
-                    location = Location(5, 5),
+                    offset = Offset(5, 5),
                     name = "supervillain",
                   ),
                 ),
@@ -1498,31 +1498,31 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             declarations = listOf(
               Resource(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 name = "blob",
                 functions = listOf(
                   Function(
-                    location = Location(3, 5),
+                    offset = Offset(3, 5),
                     constructor = true,
                     name = "constructor",
                     parameters = listOf(
                       Parameter(
-                        location = Location(3, 17),
+                        offset = Offset(3, 17),
                         name = "init",
                         type = TypeName.List(TypeName.U8),
                       ),
                     ),
                   ),
                   Function(
-                    location = Location(4, 5),
+                    offset = Offset(4, 5),
                     name = "write",
                     parameters = listOf(
                       Parameter(
-                        location = Location(4, 17),
+                        offset = Offset(4, 17),
                         name = "bytes",
                         type = TypeName.List(TypeName.U8),
                       ),
@@ -1548,11 +1548,11 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             declarations = listOf(
               TypeAlias(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 name = "my-awesome-u32",
                 target = TypeName.U32,
               ),
@@ -1574,11 +1574,11 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             declarations = listOf(
               Use(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 path = "an-interface",
                 items = listOf(
                   Use.Item(type = TypeName.Declared("a")),
@@ -1609,23 +1609,23 @@ class WitFileReaderTest {
       WitFile(
         declarations = listOf(
           World(
-            location = Location(1, 1),
+            offset = Offset(1, 1),
             name = "multi-function-device",
             declarations = listOf(
               Variant(
-                location = Location(2, 3),
+                offset = Offset(2, 3),
                 name = "filter",
                 cases = listOf(
                   Case(
-                    location = Location(3, 5),
+                    offset = Offset(3, 5),
                     name = "all",
                   ),
                   Case(
-                    location = Location(4, 5),
+                    offset = Offset(4, 5),
                     name = "none",
                   ),
                   Case(
-                    location = Location(5, 5),
+                    offset = Offset(5, 5),
                     name = "some",
                     type = TypeName.List(TypeName.String),
                   ),

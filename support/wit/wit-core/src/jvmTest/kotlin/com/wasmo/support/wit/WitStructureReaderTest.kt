@@ -16,56 +16,56 @@ class WitStructureReaderTest {
   fun `tryReadLiteral char success`() {
     val reader = WitStructureReader("a")
     assertThat(reader.tryReadLiteral('a')).isTrue()
-    assertThat(reader.location).isEqualTo(Location(1, 2))
+    assertThat(reader.offset).isEqualTo(Offset(1, 2))
   }
 
   @Test
   fun `tryReadLiteral char wrong value`() {
     val reader = WitStructureReader("a")
     assertThat(reader.tryReadLiteral('b')).isFalse()
-    assertThat(reader.location).isEqualTo(Location(1, 1))
+    assertThat(reader.offset).isEqualTo(Offset(1, 1))
   }
 
   @Test
   fun `tryReadLiteral char eof`() {
     val reader = WitStructureReader("")
     assertThat(reader.tryReadLiteral('a')).isFalse()
-    assertThat(reader.location).isEqualTo(Location(1, 1))
+    assertThat(reader.offset).isEqualTo(Offset(1, 1))
   }
 
   @Test
   fun `tryReadLiteral string success`() {
     val reader = WitStructureReader("a")
     assertThat(reader.tryReadLiteral("a")).isTrue()
-    assertThat(reader.location).isEqualTo(Location(1, 2))
+    assertThat(reader.offset).isEqualTo(Offset(1, 2))
   }
 
   @Test
   fun `tryReadLiteral string multiple characters success`() {
     val reader = WitStructureReader("abcd")
     assertThat(reader.tryReadLiteral("abc")).isTrue()
-    assertThat(reader.location).isEqualTo(Location(1, 4))
+    assertThat(reader.offset).isEqualTo(Offset(1, 4))
   }
 
   @Test
   fun `tryReadLiteral string multiple characters wrong value`() {
     val reader = WitStructureReader("abcd")
     assertThat(reader.tryReadLiteral("abd")).isFalse()
-    assertThat(reader.location).isEqualTo(Location(1, 1))
+    assertThat(reader.offset).isEqualTo(Offset(1, 1))
   }
 
   @Test
   fun `tryReadLiteral string wrong value`() {
     val reader = WitStructureReader("a")
     assertThat(reader.tryReadLiteral("b")).isFalse()
-    assertThat(reader.location).isEqualTo(Location(1, 1))
+    assertThat(reader.offset).isEqualTo(Offset(1, 1))
   }
 
   @Test
   fun `tryReadLiteral string eof`() {
     val reader = WitStructureReader("")
     assertThat(reader.tryReadLiteral("a")).isFalse()
-    assertThat(reader.location).isEqualTo(Location(1, 1))
+    assertThat(reader.offset).isEqualTo(Offset(1, 1))
   }
 
   @Test
@@ -112,7 +112,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isNull()
-    assertThat(reader.location).isEqualTo(Location(4, 1))
+    assertThat(reader.offset).isEqualTo(Offset(4, 1))
   }
 
   @Test
@@ -127,7 +127,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isEqualTo(Documentation("abc"))
-    assertThat(reader.location).isEqualTo(Location(4, 1))
+    assertThat(reader.offset).isEqualTo(Offset(4, 1))
   }
 
   @Test
@@ -140,7 +140,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isNull()
-    assertThat(reader.location).isEqualTo(Location(2, 6))
+    assertThat(reader.offset).isEqualTo(Offset(2, 6))
   }
 
   @Test
@@ -153,7 +153,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isNull()
-    assertThat(reader.location).isEqualTo(Location(2, 7))
+    assertThat(reader.offset).isEqualTo(Offset(2, 7))
   }
 
   @Test
@@ -165,7 +165,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isNull()
-    assertThat(reader.location).isEqualTo(Location(1, 3))
+    assertThat(reader.offset).isEqualTo(Offset(1, 3))
   }
 
   @Test
@@ -180,7 +180,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isEqualTo(Documentation("abc"))
-    assertThat(reader.location).isEqualTo(Location(4, 1))
+    assertThat(reader.offset).isEqualTo(Offset(4, 1))
   }
 
   @Test
@@ -197,7 +197,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isEqualTo(Documentation("abc\ndef"))
-    assertThat(reader.location).isEqualTo(Location(6, 1))
+    assertThat(reader.offset).isEqualTo(Offset(6, 1))
   }
 
   @Test
@@ -212,7 +212,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isNull()
-    assertThat(reader.location).isEqualTo(Location(4, 1))
+    assertThat(reader.offset).isEqualTo(Offset(4, 1))
   }
 
   @Test
@@ -227,7 +227,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isEqualTo(Documentation("abc"))
-    assertThat(reader.location).isEqualTo(Location(4, 1))
+    assertThat(reader.offset).isEqualTo(Offset(4, 1))
   }
 
   @Test
@@ -241,7 +241,7 @@ class WitStructureReaderTest {
     val e = assertFailsWith<WitException> {
       reader.skipWhitespace()
     }
-    assertThat(e.location).isEqualTo(Location(2, 1))
+    assertThat(e.offset).isEqualTo(Offset(2, 1))
     assertThat(e.issue).isEqualTo("unterminated comment")
   }
 
@@ -254,7 +254,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isNull()
-    assertThat(reader.location).isEqualTo(Location(1, 6))
+    assertThat(reader.offset).isEqualTo(Offset(1, 6))
   }
 
   @Test
@@ -269,7 +269,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isEqualTo(Documentation("abc"))
-    assertThat(reader.location).isEqualTo(Location(4, 1))
+    assertThat(reader.offset).isEqualTo(Offset(4, 1))
   }
 
   @Test
@@ -289,7 +289,7 @@ class WitStructureReaderTest {
     )
     reader.skipWhitespace()
     assertThat(reader.takeDocumentation()).isEqualTo(Documentation("abc\n\ndef\nghi"))
-    assertThat(reader.location).isEqualTo(Location(9, 1))
+    assertThat(reader.offset).isEqualTo(Offset(9, 1))
   }
 
   @Test
@@ -350,7 +350,7 @@ class WitStructureReaderTest {
   fun `readSemver omits trailing dots`() {
     val reader = WitStructureReader("1.2.")
     assertThat(reader.readSemVer()).isEqualTo(SemVer("1.2"))
-    assertThat(reader.location).isEqualTo(Location(1, 4))
+    assertThat(reader.offset).isEqualTo(Offset(1, 4))
   }
 
   @Test
@@ -463,7 +463,7 @@ class WitStructureReaderTest {
     assertThat(reader.readUsePath()).isEqualTo(
       UsePath(name = Identifier("my-interface")),
     )
-    assertThat(reader.location).isEqualTo(Location(1, 13)) // At the '@' symbol.
+    assertThat(reader.offset).isEqualTo(Offset(1, 13)) // At the '@' symbol.
   }
 
   @Test

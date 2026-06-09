@@ -5,13 +5,13 @@ import com.wasmo.support.wit.Include.Item
 fun Case(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   type: TypeName? = null,
 ) = Case(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
   type = type,
 )
@@ -19,13 +19,13 @@ fun Case(
 fun Enum(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   cases: List<Case>,
 ) = Enum(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
   cases = cases,
 )
@@ -33,13 +33,13 @@ fun Enum(
 fun ExternalUsePath(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   plainName: String? = null,
   path: String,
 ) = ExternalUsePath(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   plainName = plainName?.let { Identifier(it) },
   path = path.toUsePath(),
 )
@@ -47,13 +47,13 @@ fun ExternalUsePath(
 fun Flags(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   flags: List<Flag>,
 ) = Flags(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
   flags = flags,
 )
@@ -61,13 +61,13 @@ fun Flags(
 fun Field(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   type: TypeName,
 ) = Field(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
   type = type,
 )
@@ -75,19 +75,19 @@ fun Field(
 fun Flag(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
 ) = Flag(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
 )
 
 fun Function(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   async: Boolean = false,
   static: Boolean = false,
   constructor: Boolean = false,
@@ -97,7 +97,7 @@ fun Function(
 ) = Function(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   async = async,
   static = static,
   constructor = constructor,
@@ -119,13 +119,13 @@ fun Gate(
 fun Include(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   path: String,
   items: List<Item> = listOf(),
 ) = Include(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   path = path.toUsePath(),
   items = items,
 )
@@ -133,25 +133,25 @@ fun Include(
 fun Interface(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   declarations: List<Declaration> = listOf(),
 ) = Interface(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
   declarations = declarations,
 )
 
 fun Parameter(
   documentation: String? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   type: TypeName,
 ) = Parameter(
   documentation = documentation?.let { Documentation(it) },
-  location = location,
+  offset = offset,
   name = Identifier(name),
   type = type,
 )
@@ -159,13 +159,13 @@ fun Parameter(
 fun Record(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   fields: List<Field>,
 ) = Record(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
   fields = fields,
 )
@@ -173,13 +173,13 @@ fun Record(
 fun Resource(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   functions: List<Function> = listOf(),
 ) = Resource(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
   functions = functions,
 )
@@ -187,13 +187,13 @@ fun Resource(
 fun TypeAlias(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   target: TypeName,
 ) = TypeAlias(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
   target = target,
 )
@@ -201,13 +201,13 @@ fun TypeAlias(
 fun Use(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   path: String,
   items: List<Use.Item>,
 ) = Use(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   path = path.toUsePath(),
   items = items,
 )
@@ -215,13 +215,13 @@ fun Use(
 fun Variant(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   cases: List<Case>,
 ) = Variant(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
   cases = cases,
 )
@@ -229,7 +229,7 @@ fun Variant(
 fun World(
   documentation: String? = null,
   gate: Gate? = null,
-  location: Location = Location(1, 1),
+  offset: Offset = Offset(1, 1),
   name: String,
   declarations: List<Declaration> = listOf(),
   imports: List<World.Api> = listOf(),
@@ -237,7 +237,7 @@ fun World(
 ) = World(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  location = location,
+  offset = offset,
   name = Identifier(name),
   declarations = declarations,
   imports = imports,

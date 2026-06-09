@@ -3,7 +3,7 @@ package com.wasmo.support.wit
 sealed interface Declaration {
   val documentation: Documentation?
   val gate: Gate?
-  val location: Location
+  val offset: Offset
 }
 
 sealed interface TypeDeclaration : Declaration {
@@ -55,7 +55,7 @@ data class Gate(
   }
 }
 
-data class Location(
+data class Offset(
   val line: Int,
   val column: Int,
 ) {
@@ -74,7 +74,7 @@ data class Location(
 data class Package(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val name: PackageName? = null,
   val declarations: List<Declaration>,
 ) : Declaration
@@ -95,7 +95,7 @@ data class Package(
 data class Interface(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val name: Identifier,
   val declarations: List<Declaration>,
 ) : Declaration, World.Api
@@ -103,7 +103,7 @@ data class Interface(
 data class World(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val name: Identifier,
   val declarations: List<Declaration>,
   val imports: List<Api>,
@@ -115,7 +115,7 @@ data class World(
 data class Resource(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   override val name: Identifier,
   val functions: List<Function>,
 ) : TypeDeclaration
@@ -123,7 +123,7 @@ data class Resource(
 data class Record(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   override val name: Identifier,
   val fields: List<Field>,
 ) : TypeDeclaration
@@ -131,7 +131,7 @@ data class Record(
 data class Field(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val name: Identifier,
   val type: TypeName,
 ) : Declaration
@@ -139,7 +139,7 @@ data class Field(
 data class Function(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val async: Boolean = false,
   val static: Boolean = false,
   val constructor: Boolean = false,
@@ -151,7 +151,7 @@ data class Function(
 data class Variant(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   override val name: Identifier,
   val cases: List<Case>,
 ) : TypeDeclaration
@@ -159,7 +159,7 @@ data class Variant(
 data class Enum(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   override val name: Identifier,
   val cases: List<Case>,
 ) : TypeDeclaration
@@ -167,14 +167,14 @@ data class Enum(
 data class Case(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val name: Identifier,
   val type: TypeName? = null,
 ) : Declaration
 
 data class Parameter(
   val documentation: Documentation? = null,
-  val location: Location,
+  val offset: Offset,
   val name: Identifier,
   val type: TypeName,
 )
@@ -182,7 +182,7 @@ data class Parameter(
 data class Flags(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   override val name: Identifier,
   val flags: List<Flag>,
 ) : TypeDeclaration
@@ -190,14 +190,14 @@ data class Flags(
 data class Flag(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val name: Identifier,
 ) : Declaration
 
 data class TypeAlias(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   override val name: Identifier,
   val target: TypeName,
 ) : TypeDeclaration
@@ -205,7 +205,7 @@ data class TypeAlias(
 data class TopLevelUse(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val path: UsePath,
   val alias: Identifier? = null,
 ) : Declaration
@@ -223,7 +223,7 @@ data class TopLevelUse(
 data class Use(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val path: UsePath,
   val items: List<Item>,
 ) : Declaration {
@@ -236,7 +236,7 @@ data class Use(
 data class ExternalUsePath(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val plainName: Identifier? = null,
   val path: UsePath,
 ) : World.Api
@@ -252,7 +252,7 @@ data class ExternalUsePath(
 data class Include(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
-  override val location: Location,
+  override val offset: Offset,
   val path: UsePath,
   val items: List<Item>,
 ) : Declaration {
