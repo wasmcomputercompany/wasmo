@@ -789,7 +789,11 @@ class WitFileReaderTest {
       |  use an-interface.{a, list, of, names};
       |  /// One aliased value.
       |  @since(version = 2.0)
-      |  use my:dependency/the-interface@3.0.{more, names as foo};
+      |  use my:dependency/the-interface@3.0.{
+      |    /// we can document use items?!
+      |    more,
+      |    names as foo
+      |  };
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
@@ -805,10 +809,10 @@ class WitFileReaderTest {
                 offset = Offset(4, 3),
                 path = "an-interface",
                 items = listOf(
-                  Use.Item(type = TypeName.Declared("a")),
-                  Use.Item(type = TypeName.Declared("list")),
-                  Use.Item(type = TypeName.Declared("of")),
-                  Use.Item(type = TypeName.Declared("names")),
+                  UseItem(offset = Offset(4, 21), type = "a"),
+                  UseItem(offset = Offset(4, 24), type = "list"),
+                  UseItem(offset = Offset(4, 30), type = "of"),
+                  UseItem(offset = Offset(4, 34), type = "names"),
                 ),
               ),
               Use(
@@ -817,8 +821,16 @@ class WitFileReaderTest {
                 offset = Offset(7, 3),
                 path = "my:dependency/the-interface@3.0",
                 items = listOf(
-                  Use.Item(type = TypeName.Declared("more")),
-                  Use.Item(type = TypeName.Declared("names"), alias = Identifier("foo")),
+                  UseItem(
+                    documentation = " we can document use items?!",
+                    offset = Offset(9, 5),
+                    type = "more",
+                  ),
+                  UseItem(
+                    offset = Offset(10, 5),
+                    type = "names",
+                    alias = "foo",
+                  ),
                 ),
               ),
             ),
@@ -1204,7 +1216,11 @@ class WitFileReaderTest {
   fun `world include with items`() {
     val wit = """
       |world multi-function-device {
-      |  include wasi:io/my-world-1 with { a as a1, b as b1 };
+      |  include wasi:io/my-world-1 with {
+      |    a as a1,
+      |    /// we can document include items?!
+      |    b as b1
+      |  };
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
@@ -1218,13 +1234,16 @@ class WitFileReaderTest {
                 offset = Offset(2, 3),
                 path = "wasi:io/my-world-1",
                 items = listOf(
-                  Include.Item(
-                    type = TypeName.Declared("a"),
-                    alias = Identifier("a1"),
+                  IncludeItem(
+                    offset = Offset(3, 5),
+                    type = "a",
+                    alias = "a1",
                   ),
-                  Include.Item(
-                    type = TypeName.Declared("b"),
-                    alias = Identifier("b1"),
+                  IncludeItem(
+                    documentation = " we can document include items?!",
+                    offset = Offset(5, 5),
+                    type = "b",
+                    alias = "b1",
                   ),
                 ),
               ),
@@ -1581,10 +1600,10 @@ class WitFileReaderTest {
                 offset = Offset(2, 3),
                 path = "an-interface",
                 items = listOf(
-                  Use.Item(type = TypeName.Declared("a")),
-                  Use.Item(type = TypeName.Declared("list")),
-                  Use.Item(type = TypeName.Declared("of")),
-                  Use.Item(type = TypeName.Declared("names")),
+                  UseItem(offset = Offset(2, 21), type = "a"),
+                  UseItem(offset = Offset(2, 24), type = "list"),
+                  UseItem(offset = Offset(2, 30), type = "of"),
+                  UseItem(offset = Offset(2, 34), type = "names"),
                 ),
               ),
             ),

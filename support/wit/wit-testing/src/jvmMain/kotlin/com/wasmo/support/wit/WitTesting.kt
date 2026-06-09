@@ -1,7 +1,5 @@
 package com.wasmo.support.wit
 
-import com.wasmo.support.wit.Include.Item
-
 fun Case(
   documentation: String? = null,
   gate: Gate? = null,
@@ -121,13 +119,27 @@ fun Include(
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   path: String,
-  items: List<Item> = listOf(),
+  items: List<Include.Item> = listOf(),
 ) = Include(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
   path = path.toUsePath(),
   items = items,
+)
+
+fun IncludeItem(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  type: String,
+  alias: String,
+) = Include.Item(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  type = TypeName.Declared(type),
+  alias = Identifier(alias),
 )
 
 fun Interface(
@@ -210,6 +222,20 @@ fun Use(
   offset = offset,
   path = path.toUsePath(),
   items = items,
+)
+
+fun UseItem(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  type: String,
+  alias: String? = null,
+) = Use.Item(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  type = TypeName.Declared(type),
+  alias = alias?.let { Identifier(it) },
 )
 
 fun Variant(

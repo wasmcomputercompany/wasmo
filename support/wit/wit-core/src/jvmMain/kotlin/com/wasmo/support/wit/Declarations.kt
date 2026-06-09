@@ -228,9 +228,12 @@ data class Use(
   val items: List<Item>,
 ) : Declaration {
   data class Item(
+    override val documentation: Documentation? = null,
+    override val gate: Gate? = null,
+    override val offset: Offset,
     val type: TypeName.Declared,
     val alias: Identifier? = null,
-  )
+  ) : Declaration
 }
 
 data class ExternalUsePath(
@@ -257,7 +260,10 @@ data class Include(
   val items: List<Item>,
 ) : Declaration {
   data class Item(
+    override val documentation: Documentation? = null,
+    override val gate: Gate? = null,
+    override val offset: Offset,
     val type: TypeName.Declared,
     val alias: Identifier,
-  )
+  ) : Declaration
 }
