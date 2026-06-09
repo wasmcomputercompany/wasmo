@@ -22,6 +22,12 @@ class WorldFlattener(
       declarations = set.flatMap {
         it.world.declarations.filter { it !is Include }
       },
+      imports = set.flatMap {
+        it.world.imports
+      },
+      exports = set.flatMap {
+        it.world.exports
+      },
     )
   }
 

@@ -3,13 +3,11 @@ package com.wasmo.support.wit.kotlin.generator
 import com.wasmo.support.wit.Case
 import com.wasmo.support.wit.Declaration
 import com.wasmo.support.wit.Enum
-import com.wasmo.support.wit.Export
 import com.wasmo.support.wit.ExternalUsePath
 import com.wasmo.support.wit.Field
 import com.wasmo.support.wit.Flag
 import com.wasmo.support.wit.Flags
 import com.wasmo.support.wit.Function
-import com.wasmo.support.wit.Import
 import com.wasmo.support.wit.Include
 import com.wasmo.support.wit.Interface
 import com.wasmo.support.wit.Package
@@ -64,12 +62,11 @@ class KotlinMapper(
     return when (value) {
       is Case -> error("unexpected call")
       is Enum -> mapEnum(typeMapper as InterfaceTypeMapper, value)
-      is Export -> null
+      is ExternalUsePath -> null
       is Field -> error("unexpected call")
       is Flag -> error("unexpected call")
       is Flags -> mapFlags(typeMapper as InterfaceTypeMapper, value)
       is Function -> mapFunction(typeMapper, value)
-      is Import -> null
       is Include -> null
       is Interface -> mapInterface(typeMapper, value)
       is Package -> null
@@ -88,6 +85,7 @@ class KotlinMapper(
     return InterfaceKt(
       documentation = value.documentation?.content,
       type = interfaceTypeMapper.className,
+      instanceName = value.name.name.toCamelCase(upperCamel = false),
       declarations = value.declarations.mapNotNull {
         mapDeclaration(interfaceTypeMapper, it)
       },
@@ -176,22 +174,31 @@ class KotlinMapper(
     return WorldKt(
       documentation = flattened.documentation?.content,
       type = interfaceTypeMapper.className,
-      imports = flattened.declarations.filterIsInstance<Import>().mapNotNull {
-        val path = it.value as? ExternalUsePath ?: return@mapNotNull null
-        WorldKt.Import(
-          documentation = it.documentation?.content,
-          name = (path.plainName ?: path.path.name).name.toCamelCase(upperCamel = false),
-          type = interfaceTypeMapper.refine(path.path).className,
-        )
+      declarations = flattened.declarations.mapNotNull {
+        mapDeclaration(interfaceTypeMapper, it)
       },
-      exports = flattened.declarations.filterIsInstance<Export>().mapNotNull {
-        val path = it.value as? ExternalUsePath ?: return@mapNotNull null
-        WorldKt.Export(
-          documentation = it.documentation?.content,
-          name = (path.plainName ?: path.path.name).name.toCamelCase(upperCamel = false),
-          type = interfaceTypeMapper.refine(path.path).className,
-        )
+      hostApis = flattened.imports.map {
+        mapWorldApi(interfaceTypeMapper, it)
+      },
+      guestApis = flattened.exports.map {
+        mapWorldApi(interfaceTypeMapper, it)
       },
     )
+  }
+
+  private fun mapWorldApi(
+    typeMapper: InterfaceTypeMapper,
+    value: World.Api,
+  ): WorldKt.Api {
+    return when (value) {
+      is ExternalUsePath -> ExternalUsePathKt(
+        documentation = value.documentation?.content,
+        name = (value.plainName ?: value.path.name).name.toCamelCase(upperCamel = false),
+        type = typeMapper.refine(value.path).className,
+      )
+
+      is Function -> mapFunction(typeMapper, value)
+      is Interface -> mapInterface(typeMapper, value)
+    }
   }
 }

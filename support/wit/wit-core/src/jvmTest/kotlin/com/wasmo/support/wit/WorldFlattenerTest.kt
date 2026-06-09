@@ -10,17 +10,13 @@ class WorldFlattenerTest {
   fun `include relative path`() {
     val command = World(
       name = "command",
-      declarations = listOf(
-        Include(path = "imports"),
-        Export(value = ExternalUsePath(path = "run")),
-      ),
+      declarations = listOf(Include(path = "imports")),
+      exports = listOf(ExternalUsePath(path = "run")),
     )
 
     val imports = World(
       name = "imports",
-      declarations = listOf(
-        Import(value = ExternalUsePath(path = "exit")),
-      ),
+      imports = listOf(ExternalUsePath(path = "exit")),
     )
 
     val wasiCommand = WitPackage(
@@ -46,10 +42,8 @@ class WorldFlattenerTest {
     ).isEqualTo(
       World(
         name = "command",
-        declarations = listOf(
-          Export(value = ExternalUsePath(path = "run")),
-          Import(value = ExternalUsePath(path = "exit")),
-        ),
+        exports = listOf(ExternalUsePath(path = "run")),
+        imports = listOf(ExternalUsePath(path = "exit")),
       ),
     )
   }

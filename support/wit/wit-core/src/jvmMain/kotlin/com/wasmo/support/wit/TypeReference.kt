@@ -47,7 +47,6 @@ private class TypeReferenceScanner(
   suspend fun scan() {
     when (subject) {
       is Case -> yield(subject.type)
-      is Export -> scan(subject.value)
       is Field -> yield(subject.type)
       is Function -> {
         for (parameter in subject.parameters) {
@@ -56,7 +55,6 @@ private class TypeReferenceScanner(
         yield(subject.returnType)
       }
 
-      is Import -> scan(subject.value)
       is Include -> {
         val scanner = scanner(
           interfaceName = subject.path.name,
@@ -83,6 +81,13 @@ private class TypeReferenceScanner(
         }
       }
 
+      is World -> {
+        val scanner = scanner(interfaceName = subject.name)
+        scanner.scan(subject.declarations)
+        scanner.scan(subject.imports)
+        scanner.scan(subject.exports)
+      }
+
       else -> {}
     }
   }
@@ -103,14 +108,6 @@ private class TypeReferenceScanner(
   private suspend fun scan(declarations: Iterable<Declaration>) {
     for (declaration in declarations) {
       scanner(subject = declaration).scan()
-    }
-  }
-
-  context(sequence: SequenceScope<TypeReference>)
-  private suspend fun scan(value: ExternalType) {
-    return when (value) {
-      is Declaration -> scanner(value).scan()
-      is ExternalUsePath -> {}
     }
   }
 

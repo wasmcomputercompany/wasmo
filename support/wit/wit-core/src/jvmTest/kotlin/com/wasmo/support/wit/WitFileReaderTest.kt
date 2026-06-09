@@ -868,18 +868,20 @@ class WitFileReaderTest {
           World(
             location = Location(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
-              Import(
-                documentation = Documentation(" The component needs an `error-reporter`"),
+            imports = listOf(
+              ExternalUsePath(
+                documentation = " The component needs an `error-reporter`",
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                value = ExternalUsePath(path = "error-reporter"),
+                path = "error-reporter",
               ),
-              Export(
-                documentation = Documentation(" This also exports an `error-creator`"),
+            ),
+            exports = listOf(
+              ExternalUsePath(
+                documentation = " This also exports an `error-creator`",
                 gate = Gate(since = "2.0"),
                 location = Location(7, 3),
-                value = ExternalUsePath(path = "error-creator"),
+                path = "error-creator",
               ),
             ),
           ),
@@ -903,15 +905,13 @@ class WitFileReaderTest {
           World(
             location = Location(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
-              Import(
-                documentation = Documentation(" This store is aliased as 'primary'"),
+            imports = listOf(
+              ExternalUsePath(
+                documentation = " This store is aliased as 'primary'",
                 gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                value = ExternalUsePath(
-                  plainName = "primary",
-                  path = "wasi:keyvalue/store",
-                ),
+                plainName = "primary",
+                path = "wasi:keyvalue/store",
               ),
             ),
           ),
@@ -935,15 +935,13 @@ class WitFileReaderTest {
           World(
             location = Location(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
-              Export(
-                documentation = Documentation(" This store is aliased as 'secondary'"),
+            exports = listOf(
+              ExternalUsePath(
+                documentation = " This store is aliased as 'secondary'",
                 gate = Gate(since = "2.0"),
                 location = Location(4, 3),
-                value = ExternalUsePath(
-                  plainName = "secondary",
-                  path = "wasi:keyvalue/store",
-                ),
+                plainName = "secondary",
+                path = "wasi:keyvalue/store",
               ),
             ),
           ),
@@ -970,27 +968,24 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
-            declarations = listOf(
-              Import(
+            name = "multi-function-device",
+            imports = listOf(
+              Interface(
+                documentation = " This interface is inline",
+                gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                value = Interface(
-                  documentation = " This interface is inline",
-                  gate = Gate(since = "1.0"),
-                  location = Location(4, 3),
-                  name = "host",
-                  declarations = listOf(
-                    Function(
-                      documentation = " This function is in an inline interface",
-                      gate = Gate(since = "2.0"),
-                      location = Location(7, 5),
-                      name = "log",
-                      parameters = listOf(
-                        Parameter(
-                          location = Location(7, 15),
-                          name = "param",
-                          type = TypeName.String,
-                        ),
+                name = "host",
+                declarations = listOf(
+                  Function(
+                    documentation = " This function is in an inline interface",
+                    gate = Gate(since = "2.0"),
+                    location = Location(7, 5),
+                    name = "log",
+                    parameters = listOf(
+                      Parameter(
+                        location = Location(7, 15),
+                        name = "param",
+                        type = TypeName.String,
                       ),
                     ),
                   ),
@@ -1022,26 +1017,23 @@ class WitFileReaderTest {
           World(
             location = Location(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
-              Export(
+            exports = listOf(
+              Interface(
+                documentation = " We can export an inline interface",
+                gate = Gate(since = "3.0"),
                 location = Location(4, 3),
-                value = Interface(
-                  documentation = " We can export an inline interface",
-                  gate = Gate(since = "3.0"),
-                  location = Location(4, 3),
-                  name = "guest",
-                  declarations = listOf(
-                    Function(
-                      documentation = " A function in an inline interface",
-                      gate = Gate(since = "4.0"),
-                      location = Location(7, 5),
-                      name = "scan",
-                      parameters = listOf(
-                        Parameter(
-                          location = Location(7, 16),
-                          name = "document",
-                          type = TypeName.String,
-                        ),
+                name = "guest",
+                declarations = listOf(
+                  Function(
+                    documentation = " A function in an inline interface",
+                    gate = Gate(since = "4.0"),
+                    location = Location(7, 5),
+                    name = "scan",
+                    parameters = listOf(
+                      Parameter(
+                        location = Location(7, 16),
+                        name = "document",
+                        type = TypeName.String,
                       ),
                     ),
                   ),
@@ -1069,20 +1061,17 @@ class WitFileReaderTest {
           World(
             location = Location(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
-              Import(
+            imports = listOf(
+              Function(
+                documentation = " This function is inline",
+                gate = Gate(since = "4.0"),
                 location = Location(4, 3),
-                value = Function(
-                  documentation = " This function is inline",
-                  gate = Gate(since = "4.0"),
-                  location = Location(4, 3),
-                  name = "log",
-                  parameters = listOf(
-                    Parameter(
-                      location = Location(4, 20),
-                      name = "param",
-                      type = TypeName.String,
-                    ),
+                name = "log",
+                parameters = listOf(
+                  Parameter(
+                    location = Location(4, 20),
+                    name = "param",
+                    type = TypeName.String,
                   ),
                 ),
               ),
@@ -1108,20 +1097,17 @@ class WitFileReaderTest {
           World(
             location = Location(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
-              Export(
+            exports = listOf(
+              Function(
+                documentation = " This exported function is inline",
+                gate = Gate(since = "1.0"),
                 location = Location(4, 3),
-                value = Function(
-                  documentation = " This exported function is inline",
-                  gate = Gate(since = "1.0"),
-                  location = Location(4, 3),
-                  name = "scan",
-                  parameters = listOf(
-                    Parameter(
-                      location = Location(4, 21),
-                      name = "document",
-                      type = TypeName.String,
-                    ),
+                name = "scan",
+                parameters = listOf(
+                  Parameter(
+                    location = Location(4, 21),
+                    name = "document",
+                    type = TypeName.String,
                   ),
                 ),
               ),
@@ -1145,13 +1131,11 @@ class WitFileReaderTest {
           World(
             location = Location(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
-              Import(
+            imports = listOf(
+              ExternalUsePath(
                 location = Location(2, 3),
-                value = ExternalUsePath(
-                  plainName = "two",
-                  path = "store",
-                ),
+                plainName = "two",
+                path = "store",
               ),
             ),
           ),
@@ -1173,13 +1157,11 @@ class WitFileReaderTest {
           World(
             location = Location(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
-              Export(
+            exports = listOf(
+              ExternalUsePath(
                 location = Location(2, 3),
-                value = ExternalUsePath(
-                  plainName = "two",
-                  path = "store",
-                ),
+                plainName = "two",
+                path = "store",
               ),
             ),
           ),
@@ -1230,7 +1212,7 @@ class WitFileReaderTest {
         declarations = listOf(
           World(
             location = Location(1, 1),
-            name = Identifier("multi-function-device"),
+            name = "multi-function-device",
             declarations = listOf(
               Include(
                 location = Location(2, 3),

@@ -98,7 +98,7 @@ data class Interface(
   override val location: Location,
   val name: Identifier,
   val declarations: List<Declaration>,
-) : Declaration, ExternalType
+) : Declaration, World.Api
 
 data class World(
   override val documentation: Documentation? = null,
@@ -106,7 +106,11 @@ data class World(
   override val location: Location,
   val name: Identifier,
   val declarations: List<Declaration>,
-) : Declaration
+  val imports: List<Api>,
+  val exports: List<Api>,
+) : Declaration {
+  sealed interface Api : Declaration
+}
 
 data class Resource(
   override val documentation: Documentation? = null,
@@ -142,7 +146,7 @@ data class Function(
   val name: Identifier,
   val parameters: List<Parameter>,
   val returnType: TypeName? = null,
-) : Declaration, ExternalType
+) : Declaration, World.Api
 
 data class Variant(
   override val documentation: Documentation? = null,
@@ -229,27 +233,13 @@ data class Use(
   )
 }
 
-data class Import(
-  override val documentation: Documentation? = null,
-  override val gate: Gate? = null,
-  override val location: Location,
-  val value: ExternalType,
-) : Declaration
-
-data class Export(
-  override val documentation: Documentation? = null,
-  override val gate: Gate? = null,
-  override val location: Location,
-  val value: ExternalType,
-) : Declaration
-
-/** External types are the subjects of imports and exports. */
-sealed interface ExternalType
-
 data class ExternalUsePath(
+  override val documentation: Documentation? = null,
+  override val gate: Gate? = null,
+  override val location: Location,
   val plainName: Identifier? = null,
   val path: UsePath,
-) : ExternalType
+) : World.Api
 
 /**
  * Examples:
