@@ -24,7 +24,7 @@ class ReadAllWasiFilesTest {
       try {
         witContent.toWitFile()
       } catch (e: WitException) {
-        fail("decoding $path failed at ${e.location}: ${e.issue}")
+        fail("decoding $path failed at ${e.offset}: ${e.issue}")
       }
 
       witFileCount++
@@ -65,7 +65,7 @@ class ReadAllWasiFilesTest {
           )
         } catch (e: IllegalArgumentException) {
           throw IllegalArgumentException(
-            "failed to find ${ref.typeName} from ${ref.path} at ${ref.location}", e,
+            "failed to find ${ref.typeName} from ${ref.path} at ${ref.offset}", e,
           )
         }
       }

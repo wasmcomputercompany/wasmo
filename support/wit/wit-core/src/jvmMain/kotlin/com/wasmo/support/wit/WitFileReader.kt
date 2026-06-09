@@ -26,14 +26,14 @@ internal class WitFileReader(
 
       val gate = readGateOrNull()
       val documentation = source.takeDocumentation()
-      val location = source.location
+      val offset = source.offset
 
       when (val identifier = source.readIdentifier()) {
         Keywords.`package` -> {
-          val (value, kind) = readPackage(documentation, gate, location)
+          val (value, kind) = readPackage(documentation, gate, offset)
           when (kind) {
             PackageKind.Identifier -> {
-              checkWit(packageIdentifier == null && declarations.isEmpty(), location) {
+              checkWit(packageIdentifier == null && declarations.isEmpty(), offset) {
                 "unexpected package identifier"
               }
               packageIdentifier = value
@@ -46,18 +46,18 @@ internal class WitFileReader(
         }
 
         Keywords.`interface` -> {
-          declarations += readInterface(documentation, gate, location)
+          declarations += readInterface(documentation, gate, offset)
         }
 
         Keywords.use -> {
-          declarations += readTopLevelUse(documentation, gate, location)
+          declarations += readTopLevelUse(documentation, gate, offset)
         }
 
         Keywords.world -> {
-          declarations += readWorld(documentation, gate, location)
+          declarations += readWorld(documentation, gate, offset)
         }
 
-        else -> errorWit(location, "unexpected identifier: $identifier")
+        else -> errorWit(offset, "unexpected identifier: $identifier")
       }
     }
 
@@ -79,7 +79,7 @@ internal class WitFileReader(
   private fun readPackage(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): Pair<Package, PackageKind> {
     source.skipWhitespace()
     val name = source.readPackageName()
@@ -94,13 +94,13 @@ internal class WitFileReader(
 
           val nestedGate = readGateOrNull()
           val nestedDocumentation = source.takeDocumentation()
-          val nestedLocation = source.location
+          val nestedOffset = source.offset
 
           declarations += when (val identifier = source.readIdentifier()) {
-            Keywords.`interface` -> readInterface(nestedDocumentation, nestedGate, nestedLocation)
-            Keywords.use -> readTopLevelUse(nestedDocumentation, nestedGate, nestedLocation)
-            Keywords.world -> readWorld(nestedDocumentation, nestedGate, nestedLocation)
-            else -> errorWit(nestedLocation, "unexpected identifier: $identifier")
+            Keywords.`interface` -> readInterface(nestedDocumentation, nestedGate, nestedOffset)
+            Keywords.use -> readTopLevelUse(nestedDocumentation, nestedGate, nestedOffset)
+            Keywords.world -> readWorld(nestedDocumentation, nestedGate, nestedOffset)
+            else -> errorWit(nestedOffset, "unexpected identifier: $identifier")
           }
         }
 
@@ -116,7 +116,7 @@ internal class WitFileReader(
     return Package(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       name = name,
       declarations = declarations,
     ) to packageKind
@@ -138,7 +138,7 @@ internal class WitFileReader(
   internal fun readInterface(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): Interface {
     source.skipWhitespace()
     val name = source.readIdentifier()
@@ -146,7 +146,7 @@ internal class WitFileReader(
     return Interface(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       name = name,
       declarations = declarations,
     )
@@ -185,17 +185,17 @@ internal class WitFileReader(
   internal fun readInterfaceItem(): Declaration {
     val gate = readGateOrNull()
     val documentation = source.takeDocumentation()
-    val location = source.location
+    val offset = source.offset
 
     return when (val identifier = source.readIdentifier()) {
-      Keywords.enum -> readEnum(documentation, gate, location)
-      Keywords.flags -> readFlags(documentation, gate, location)
-      Keywords.record -> readRecord(documentation, gate, location)
-      Keywords.resource -> readResource(documentation, gate, location)
-      Keywords.variant -> readVariant(documentation, gate, location)
-      Keywords.type -> readTypeAlias(documentation, gate, location)
-      Keywords.use -> readUse(documentation, gate, location)
-      else -> readFuncItem(documentation, gate, location, identifier)
+      Keywords.enum -> readEnum(documentation, gate, offset)
+      Keywords.flags -> readFlags(documentation, gate, offset)
+      Keywords.record -> readRecord(documentation, gate, offset)
+      Keywords.resource -> readResource(documentation, gate, offset)
+      Keywords.variant -> readVariant(documentation, gate, offset)
+      Keywords.type -> readTypeAlias(documentation, gate, offset)
+      Keywords.use -> readUse(documentation, gate, offset)
+      else -> readFuncItem(documentation, gate, offset, identifier)
     }
   }
 
@@ -212,7 +212,7 @@ internal class WitFileReader(
   private fun readRecord(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): Record {
     source.skipWhitespace()
     val name = source.readIdentifier()
@@ -220,7 +220,7 @@ internal class WitFileReader(
     val fields = source.readCommaSeparatedList {
       val fieldGate = readGateOrNull()
       val fieldDocumentation = source.takeDocumentation()
-      val fieldLocation = source.location
+      val fieldOffset = source.offset
       val fieldName = source.readIdentifier()
 
       source.skipWhitespace()
@@ -232,7 +232,7 @@ internal class WitFileReader(
       Field(
         documentation = fieldDocumentation,
         gate = fieldGate,
-        location = fieldLocation,
+        offset = fieldOffset,
         name = fieldName,
         type = fieldType,
       )
@@ -241,7 +241,7 @@ internal class WitFileReader(
     return Record(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       name = name,
       fields = fields,
     )
@@ -261,7 +261,7 @@ internal class WitFileReader(
   private fun readVariant(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): Variant {
     source.skipWhitespace()
     val name = source.readIdentifier()
@@ -269,7 +269,7 @@ internal class WitFileReader(
     val cases = source.readCommaSeparatedList {
       val caseGate = readGateOrNull()
       val caseDocumentation = source.takeDocumentation()
-      val caseLocation = source.location
+      val caseOffset = source.offset
       val caseName = source.readIdentifier()
 
       source.skipWhitespace()
@@ -289,7 +289,7 @@ internal class WitFileReader(
       Case(
         documentation = caseDocumentation,
         gate = caseGate,
-        location = caseLocation,
+        offset = caseOffset,
         name = caseName,
         type = typeName,
       )
@@ -298,7 +298,7 @@ internal class WitFileReader(
     return Variant(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       name = name,
       cases = cases,
     )
@@ -316,7 +316,7 @@ internal class WitFileReader(
   private fun readResource(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): Resource {
     source.skipWhitespace()
     val name = source.readIdentifier()
@@ -330,7 +330,7 @@ internal class WitFileReader(
 
         val functionGate = readGateOrNull()
         val functionDocumentation = source.takeDocumentation()
-        val functionLocation = source.location
+        val functionOffset = source.offset
 
         when (val identifier = source.readIdentifier()) {
           Keywords.constructor -> {
@@ -340,7 +340,7 @@ internal class WitFileReader(
             declarations += Function(
               documentation = functionDocumentation,
               gate = functionGate,
-              location = functionLocation,
+              offset = functionOffset,
               constructor = true,
               name = identifier,
               parameters = parameters,
@@ -351,7 +351,7 @@ internal class WitFileReader(
             declarations += readFuncItem(
               documentation = functionDocumentation,
               gate = functionGate,
-              location = functionLocation,
+              offset = functionOffset,
               identifier = identifier,
             )
           }
@@ -364,7 +364,7 @@ internal class WitFileReader(
     return Resource(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       name = name,
       functions = declarations,
     )
@@ -381,7 +381,7 @@ internal class WitFileReader(
   private fun readFlags(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): Flags {
     source.skipWhitespace()
     val name = source.readIdentifier()
@@ -389,13 +389,13 @@ internal class WitFileReader(
     val flags = source.readCommaSeparatedList {
       val flagGate = readGateOrNull()
       val flagDocumentation = source.takeDocumentation()
-      val flagLocation = source.location
+      val flagOffset = source.offset
       val flagName = source.readIdentifier()
 
       Flag(
         documentation = flagDocumentation,
         gate = flagGate,
-        location = flagLocation,
+        offset = flagOffset,
         name = flagName,
       )
     }
@@ -403,7 +403,7 @@ internal class WitFileReader(
     return Flags(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       name = name,
       flags = flags,
     )
@@ -420,7 +420,7 @@ internal class WitFileReader(
   private fun readEnum(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): Enum {
     source.skipWhitespace()
     val name = source.readIdentifier()
@@ -428,13 +428,13 @@ internal class WitFileReader(
     val cases = source.readCommaSeparatedList {
       val caseGate = readGateOrNull()
       val caseDocumentation = source.takeDocumentation()
-      val caseLocation = source.location
+      val caseOffset = source.offset
       val caseName = source.readIdentifier()
 
       Case(
         documentation = caseDocumentation,
         gate = caseGate,
-        location = caseLocation,
+        offset = caseOffset,
         name = caseName,
       )
     }
@@ -442,7 +442,7 @@ internal class WitFileReader(
     return Enum(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       name = name,
       cases = cases,
     )
@@ -456,7 +456,7 @@ internal class WitFileReader(
   private fun readTypeAlias(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): TypeAlias {
     source.skipWhitespace()
     val name = source.readIdentifier()
@@ -473,7 +473,7 @@ internal class WitFileReader(
     return TypeAlias(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       name = name,
       target = type,
     )
@@ -487,7 +487,7 @@ internal class WitFileReader(
   private fun readTopLevelUse(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): TopLevelUse {
     source.skipWhitespace()
     val path = source.readUsePath()
@@ -508,7 +508,7 @@ internal class WitFileReader(
     return TopLevelUse(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       path = path,
       alias = alias,
     )
@@ -528,7 +528,7 @@ internal class WitFileReader(
   private fun readUse(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): Use {
     source.skipWhitespace()
     val path = source.readUsePath()
@@ -561,7 +561,7 @@ internal class WitFileReader(
     return Use(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       path = path,
       items = items,
     )
@@ -575,12 +575,12 @@ internal class WitFileReader(
   private fun readFuncItem(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
     identifier: Identifier,
   ): Function {
     source.skipWhitespace()
     source.readLiteral(':')
-    return readFuncType(documentation, gate, location, identifier)
+    return readFuncType(documentation, gate, offset, identifier)
   }
 
   /**
@@ -594,7 +594,7 @@ internal class WitFileReader(
   private fun readFuncType(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
     identifier: Identifier,
   ): Function {
     var async = false
@@ -606,7 +606,7 @@ internal class WitFileReader(
         Keywords.async -> async = true
         Keywords.static -> static = true
         Keywords.func -> break
-        else -> errorWit(location, "unexpected identifier: $modifier")
+        else -> errorWit(offset, "unexpected identifier: $modifier")
       }
     }
 
@@ -629,7 +629,7 @@ internal class WitFileReader(
     return Function(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       async = async,
       static = static,
       constructor = false,
@@ -652,7 +652,7 @@ internal class WitFileReader(
   private fun readParameterList(): List<Parameter> {
     return source.readCommaSeparatedList(minSize = 0, '(', ')') {
       val documentation = source.takeDocumentation()
-      val location = source.location
+      val offset = source.offset
       val parameterName = source.readIdentifier()
 
       source.skipWhitespace()
@@ -663,7 +663,7 @@ internal class WitFileReader(
 
       Parameter(
         documentation = documentation,
-        location = location,
+        offset = offset,
         name = parameterName,
         type = parameterType,
       )
@@ -686,7 +686,7 @@ internal class WitFileReader(
   internal fun readWorld(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): World {
     source.skipWhitespace()
     val name = source.readIdentifier()
@@ -704,26 +704,26 @@ internal class WitFileReader(
 
       val itemGate = readGateOrNull()
       val itemDocumentation = source.takeDocumentation()
-      val itemLocation = source.location
+      val itemOffset = source.offset
       when (val identifier = source.readIdentifier()) {
-        Keywords.enum -> declarations += readEnum(itemDocumentation, itemGate, itemLocation)
-        Keywords.export -> exports += readWorldApi(itemDocumentation, itemGate, itemLocation)
-        Keywords.flags -> declarations += readFlags(itemDocumentation, itemGate, itemLocation)
-        Keywords.import -> imports += readWorldApi(itemDocumentation, itemGate, itemLocation)
-        Keywords.include -> declarations += readInclude(itemDocumentation, itemGate, itemLocation)
-        Keywords.record -> declarations += readRecord(itemDocumentation, itemGate, itemLocation)
-        Keywords.resource -> declarations += readResource(itemDocumentation, itemGate, itemLocation)
-        Keywords.type -> declarations += readTypeAlias(itemDocumentation, itemGate, itemLocation)
-        Keywords.use -> declarations += readUse(itemDocumentation, itemGate, itemLocation)
-        Keywords.variant -> declarations += readVariant(itemDocumentation, itemGate, itemLocation)
-        else -> errorWit(location, "unexpected identifier: $identifier")
+        Keywords.enum -> declarations += readEnum(itemDocumentation, itemGate, itemOffset)
+        Keywords.export -> exports += readWorldApi(itemDocumentation, itemGate, itemOffset)
+        Keywords.flags -> declarations += readFlags(itemDocumentation, itemGate, itemOffset)
+        Keywords.import -> imports += readWorldApi(itemDocumentation, itemGate, itemOffset)
+        Keywords.include -> declarations += readInclude(itemDocumentation, itemGate, itemOffset)
+        Keywords.record -> declarations += readRecord(itemDocumentation, itemGate, itemOffset)
+        Keywords.resource -> declarations += readResource(itemDocumentation, itemGate, itemOffset)
+        Keywords.type -> declarations += readTypeAlias(itemDocumentation, itemGate, itemOffset)
+        Keywords.use -> declarations += readUse(itemDocumentation, itemGate, itemOffset)
+        Keywords.variant -> declarations += readVariant(itemDocumentation, itemGate, itemOffset)
+        else -> errorWit(offset, "unexpected identifier: $identifier")
       }
     }
 
     return World(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       name = name,
       declarations = declarations,
       imports = imports,
@@ -742,7 +742,7 @@ internal class WitFileReader(
   private fun readWorldApi(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): World.Api {
     return source.select(
       {
@@ -750,7 +750,7 @@ internal class WitFileReader(
         val identifier = source.readIdentifier()
         source.skipWhitespace()
         source.readLiteral(':')
-        readExternalType(documentation, gate, location, identifier)
+        readExternalType(documentation, gate, offset, identifier)
       },
       {
         source.skipWhitespace()
@@ -760,7 +760,7 @@ internal class WitFileReader(
         ExternalUsePath(
           documentation = documentation,
           gate = gate,
-          location = location,
+          offset = offset,
           path = path,
         )
       },
@@ -777,12 +777,12 @@ internal class WitFileReader(
   private fun readExternalType(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
     identifier: Identifier,
   ): World.Api {
     return source.select(
       {
-        readFuncType(documentation, gate, location, identifier)
+        readFuncType(documentation, gate, offset, identifier)
       },
       {
         source.skipWhitespace()
@@ -791,7 +791,7 @@ internal class WitFileReader(
         Interface(
           documentation = documentation,
           gate = gate,
-          location = location,
+          offset = offset,
           name = identifier,
           declarations = declarations,
         )
@@ -803,7 +803,7 @@ internal class WitFileReader(
         ExternalUsePath(
           documentation = documentation,
           gate = gate,
-          location = location,
+          offset = offset,
           plainName = identifier,
           path = path,
         )
@@ -825,7 +825,7 @@ internal class WitFileReader(
   private fun readInclude(
     documentation: Documentation?,
     gate: Gate?,
-    location: Location,
+    offset: Offset,
   ): Include {
     source.skipWhitespace()
     val path = source.readUsePath()
@@ -859,7 +859,7 @@ internal class WitFileReader(
     return Include(
       documentation = documentation,
       gate = gate,
-      location = location,
+      offset = offset,
       path = path,
       items = items,
     )
@@ -886,7 +886,7 @@ internal class WitFileReader(
     var deprecatedVersion: SemVer? = null
 
     while (true) {
-      val location = source.location
+      val offset = source.offset
       val gateItem = source.readAnnotationOrNull() ?: break
 
       source.skipWhitespace()
@@ -912,7 +912,7 @@ internal class WitFileReader(
           deprecatedVersion = source.readSemVer()
         }
 
-        else -> errorWit(location, "unexpected field: $gateItem.$fieldName")
+        else -> errorWit(offset, "unexpected field: $gateItem.$fieldName")
       }
 
       source.skipWhitespace()

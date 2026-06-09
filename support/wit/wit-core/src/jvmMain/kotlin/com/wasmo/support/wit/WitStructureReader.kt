@@ -16,8 +16,8 @@ class WitStructureReader(
   private var line = 0
   private var lineStart = 0
 
-  val location: Location
-    get() = Location(line + 1, pos - lineStart + 1)
+  val offset: Offset
+    get() = Offset(line + 1, pos - lineStart + 1)
 
   val exhausted: Boolean
     get() = pos == chars.size
@@ -324,7 +324,7 @@ class WitStructureReader(
    * ```
    */
   fun readPackageName(): PackageName {
-    val location = location
+    val offset = this@WitStructureReader.offset
     val namespaces = mutableListOf<Identifier>()
     val names = mutableListOf<Identifier>()
 
@@ -334,7 +334,7 @@ class WitStructureReader(
       namespaces += identifier
       identifier = readIdentifier()
     }
-    checkWit(namespaces.isNotEmpty(), location) {
+    checkWit(namespaces.isNotEmpty(), offset) {
       "expected package name to contain a ':'"
     }
     while (peek() == '/') {
@@ -387,7 +387,7 @@ class WitStructureReader(
       return UsePath(name = identifier)
     }
 
-    checkWit(namespaces.isNotEmpty() && packageNames.isNotEmpty(), location) {
+    checkWit(namespaces.isNotEmpty() && packageNames.isNotEmpty(), offset) {
       "must have a namespace and a package name, or neither"
     }
 
@@ -499,13 +499,13 @@ class WitStructureReader(
   }
 
   internal inline fun checkWit(value: Boolean, message: () -> String) {
-    checkWit(value, location, message)
+    checkWit(value, offset, message)
   }
 }
 
 internal inline fun checkWit(
   value: Boolean,
-  location: Location? = null,
+  offset: Offset? = null,
   message: () -> String,
 ) {
   contract {
@@ -514,13 +514,13 @@ internal inline fun checkWit(
   if (!value) {
     throw WitException(
       issue = message(),
-      location = location,
+      offset = offset,
     )
   }
 }
 
-internal fun errorWit(location: Location, message: String): Nothing {
-  throw WitException(issue = message, location = location)
+internal fun errorWit(offset: Offset, message: String): Nothing {
+  throw WitException(issue = message, offset = offset)
 }
 
 internal fun CharArray.indexOf(substring: String, fromIndex: Int): Int {

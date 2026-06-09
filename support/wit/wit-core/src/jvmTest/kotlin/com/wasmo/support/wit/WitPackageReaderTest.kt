@@ -56,17 +56,17 @@ class WitPackageReaderTest {
           "command.wit".toPath() to WitFile(
             declarations = listOf(
               World(
-                location = Location(1, 1),
+                offset = Offset(1, 1),
                 name = "command",
                 imports = listOf(
                   ExternalUsePath(
-                    location = Location(3, 3),
+                    offset = Offset(3, 3),
                     path = "exit",
                   ),
                 ),
                 exports = listOf(
                   ExternalUsePath(
-                    location = Location(2, 3),
+                    offset = Offset(2, 3),
                     path = "run",
                   ),
                 ),
@@ -78,15 +78,15 @@ class WitPackageReaderTest {
             packageName = "wasi:cli".toPackageName(),
             declarations = listOf(
               Interface(
-                location = Location(4, 1),
+                offset = Offset(4, 1),
                 name = "exit",
                 declarations = listOf(
                   Function(
-                    location = Location(5, 3),
+                    offset = Offset(5, 3),
                     name = "exit",
                     parameters = listOf(
                       Parameter(
-                        location = Location(5, 14),
+                        offset = Offset(5, 14),
                         name = "status",
                         type = TypeName.Result(),
                       ),
@@ -99,11 +99,11 @@ class WitPackageReaderTest {
           "run.wit".toPath() to WitFile(
             declarations = listOf(
               Interface(
-                location = Location(1, 1),
+                offset = Offset(1, 1),
                 name = "run",
                 declarations = listOf(
                   Function(
-                    location = Location(2, 3),
+                    offset = Offset(2, 3),
                     name = "run",
                     returnType = TypeName.Result(),
                   ),

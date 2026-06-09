@@ -27,7 +27,7 @@ class WitPackageReader(
         throw WitException(
           issue = e.issue,
           path = path.toString(),
-          location = e.location,
+          offset = e.offset,
         )
       }
     }

@@ -30,7 +30,7 @@ fun WitPackage.typeReferences(): Sequence<TypeReference> = sequence {
  */
 data class TypeReference(
   val path: Path,
-  val location: Location,
+  val offset: Offset,
   val packageName: PackageName,
   val interfaceName: Identifier?,
   val typeName: TypeName,
@@ -114,7 +114,7 @@ private class TypeReferenceScanner(
   context(sequence: SequenceScope<TypeReference>)
   private suspend fun yield(type: TypeName?) {
     if (type != null) {
-      sequence.yield(TypeReference(path, subject.location, packageName, interfaceName, type))
+      sequence.yield(TypeReference(path, subject.offset, packageName, interfaceName, type))
     }
   }
 }

@@ -4,10 +4,10 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import kotlin.test.Test
 
-class LocationTest {
+class OffsetTest {
   @Test
-  fun `Location toString`() {
-    assertThat(Location(13, 12).toString())
+  fun `Offset toString`() {
+    assertThat(Offset(13, 12).toString())
       .isEqualTo("13:12")
   }
 }
