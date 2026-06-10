@@ -5,7 +5,7 @@ import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.wasmo.support.wit.Location
+import com.wasmo.support.wit.Scope
 import com.wasmo.support.wit.SymbolIndex
 import com.wasmo.support.wit.TypeName
 import com.wasmo.support.wit.WitPackage
@@ -39,7 +39,7 @@ class TypeMapperTest {
     val typeMapper = TypeMapper(
       index = index,
       kotlinPackagePrefix = "wit",
-      location = Location(
+      scope = Scope(
         packageName = "wasi:clocks",
         interfaceName = "wall-clock",
       ),

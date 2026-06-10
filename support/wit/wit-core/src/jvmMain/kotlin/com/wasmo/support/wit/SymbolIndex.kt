@@ -11,17 +11,17 @@ class SymbolIndex(
 ) {
   private val packageNameToPackage = packages.associateBy { it.packageName }
 
-  fun getType(location: Location, typeName: TypeName.Declared): TypePath {
-    return getTypeOrNull(typeName, location)
-      ?: throw IllegalArgumentException("unable to find $typeName in $location")
+  fun getType(scope: Scope, typeName: TypeName.Declared): TypePath {
+    return getTypeOrNull(scope, typeName)
+      ?: throw IllegalArgumentException("unable to find $typeName in $scope")
   }
 
-  fun getTypeOrNull(typeName: TypeName.Declared, location: Location): TypePath? {
-    val witPackage = packageNameToPackage[location.packageName] ?: return null
+  fun getTypeOrNull(scope: Scope, typeName: TypeName.Declared): TypePath? {
+    val witPackage = packageNameToPackage[scope.packageName] ?: return null
     val declarations = witPackage.files.values
       .flatMap { it.declarations }
       .filterIsInstance<Interface>()
-      .filter { it.name == location.interfaceName }
+      .filter { it.name == scope.interfaceName }
       .flatMap { it.declarations }
 
     for (declaration in declarations) {
@@ -29,7 +29,7 @@ class SymbolIndex(
         is TypeDeclaration -> {
           // Direct match.
           if (declaration.name == typeName.name) {
-            return TypePath(witPackage.packageName, location.interfaceName!!, declaration.name)
+            return TypePath(witPackage.packageName, scope.interfaceName!!, declaration.name)
           }
         }
 
@@ -38,8 +38,8 @@ class SymbolIndex(
           val itemMatch = declaration.items.firstOrNull { it.matches(typeName) }
           if (itemMatch != null) {
             return getTypeOrNull(
+              scope = scope.copy(usePath = declaration.path),
               typeName = itemMatch.type,
-              location = location.copy(declaration.path),
             )
           }
         }

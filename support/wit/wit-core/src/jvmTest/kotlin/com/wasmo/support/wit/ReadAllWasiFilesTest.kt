@@ -59,13 +59,11 @@ class ReadAllWasiFilesTest {
         val declaredType = ref.typeName as? TypeName.Declared ?: continue
         try {
           index.getType(
+            scope = ref.scope,
             typeName = declaredType,
-            location = ref.location,
           )
         } catch (e: IllegalArgumentException) {
-          throw IllegalArgumentException(
-            "failed to find ${ref.typeName} from ${ref.location}", e,
-          )
+          throw IllegalArgumentException("failed to find ${ref.typeName} from ${ref.scope}", e)
         }
       }
     }

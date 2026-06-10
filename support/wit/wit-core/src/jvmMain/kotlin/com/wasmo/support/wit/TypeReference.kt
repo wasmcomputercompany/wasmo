@@ -5,13 +5,13 @@ import okio.Path
 /**
  * A reference to a type expected to be found elsewhere.
  *
- * The [location] describes where to look, which is not necessarily where the type was encountered.
+ * The [scope] describes where to look, which is not necessarily where the type was encountered.
  * For example, a [Use] may specify which package to look in for a referenced type.
  */
 data class TypeReference(
   val path: Path,
   val offset: Offset,
-  val location: Location,
+  val scope: Scope,
   val typeName: TypeName,
 )
 
@@ -50,9 +50,9 @@ fun WitPackage.typeReferences(): Sequence<TypeReference> = sequence {
   }
 }
 
-private fun LocatedDeclaration.typeReference(typeName: TypeName) = TypeReference(
+private fun ScopedDeclaration.typeReference(typeName: TypeName) = TypeReference(
   path = path,
   offset = declaration.offset,
-  location = location,
+  scope = scope,
   typeName = typeName,
 )

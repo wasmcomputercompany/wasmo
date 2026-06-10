@@ -156,10 +156,10 @@ fun Interface(
   declarations = declarations,
 )
 
-fun Location(
+fun Scope(
   packageName: String,
   interfaceName: String? = null,
-) = Location(
+) = Scope(
   packageName = packageName.toPackageName(),
   interfaceName = interfaceName?.let { Identifier(it) },
 )
