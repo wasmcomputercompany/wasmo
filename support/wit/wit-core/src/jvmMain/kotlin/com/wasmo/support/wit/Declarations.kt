@@ -75,7 +75,7 @@ data class Package(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
-  val name: PackageName? = null,
+  val name: PackageName,
   val declarations: List<Declaration>,
 ) : Declaration
 

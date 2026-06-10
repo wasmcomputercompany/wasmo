@@ -11,33 +11,17 @@ class SymbolIndex(
 ) {
   private val packageNameToPackage = packages.associateBy { it.packageName }
 
-  fun getType(
-    typeName: TypeName.Declared,
-    inPackageName: PackageName,
-    inInterfaceName: Identifier? = null,
-  ): TypePath {
-    return getTypeOrNull(typeName, inPackageName, inInterfaceName)
-      ?: throw IllegalArgumentException(
-        buildString {
-          append("unable to find $typeName")
-          when {
-            inInterfaceName != null -> append(" in ${UsePath(inPackageName, inInterfaceName)}")
-            else -> append(" in $inPackageName")
-          }
-        },
-      )
+  fun getType(location: Location, typeName: TypeName.Declared): TypePath {
+    return getTypeOrNull(typeName, location)
+      ?: throw IllegalArgumentException("unable to find $typeName in $location")
   }
 
-  fun getTypeOrNull(
-    typeName: TypeName.Declared,
-    inPackageName: PackageName? = null,
-    inInterfaceName: Identifier? = null,
-  ): TypePath? {
-    val witPackage = packageNameToPackage[inPackageName] ?: return null
+  fun getTypeOrNull(typeName: TypeName.Declared, location: Location): TypePath? {
+    val witPackage = packageNameToPackage[location.packageName] ?: return null
     val declarations = witPackage.files.values
       .flatMap { it.declarations }
       .filterIsInstance<Interface>()
-      .filter { it.name == inInterfaceName }
+      .filter { it.name == location.interfaceName }
       .flatMap { it.declarations }
 
     for (declaration in declarations) {
@@ -45,7 +29,7 @@ class SymbolIndex(
         is TypeDeclaration -> {
           // Direct match.
           if (declaration.name == typeName.name) {
-            return TypePath(witPackage.packageName, inInterfaceName!!, declaration.name)
+            return TypePath(witPackage.packageName, location.interfaceName!!, declaration.name)
           }
         }
 
@@ -54,9 +38,8 @@ class SymbolIndex(
           val itemMatch = declaration.items.firstOrNull { it.matches(typeName) }
           if (itemMatch != null) {
             return getTypeOrNull(
-              itemMatch.type,
-              declaration.path.packageName ?: inPackageName,
-              declaration.path.name,
+              typeName = itemMatch.type,
+              location = location.copy(declaration.path),
             )
           }
         }

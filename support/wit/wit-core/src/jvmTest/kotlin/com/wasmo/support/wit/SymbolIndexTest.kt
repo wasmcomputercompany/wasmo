@@ -33,8 +33,10 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        inPackageName = "wasi:clocks".toPackageName(),
-        inInterfaceName = Identifier("wall-clock"),
+        location = Location(
+          packageName = "wasi:clocks",
+          interfaceName = "wall-clock",
+        ),
         typeName = TypeName.Declared("datetime"),
       ),
     ).isEqualTo(TypePath("wasi", "clocks", "wall-clock", "datetime"))
@@ -42,12 +44,14 @@ class SymbolIndexTest {
     assertThat(
       assertFailsWith<IllegalArgumentException> {
         index.getType(
-          inPackageName = "wasi:clocks".toPackageName(),
-          inInterfaceName = Identifier("wall-clock"),
+          location = Location(
+            packageName = "wasi:clocks",
+            interfaceName = "wall-clock",
+          ),
           typeName = TypeName.Declared("instant"),
         )
       },
-    ).hasMessage("unable to find instant in wasi:clocks/wall-clock")
+    ).hasMessage("unable to find instant in wasi:clocks/wall-clock at file.wit:1:1")
   }
 
   @Test
@@ -87,8 +91,10 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        inPackageName = "wasi:cli".toPackageName(),
-        inInterfaceName = Identifier("stdin"),
+        location = Location(
+          packageName = "wasi:cli",
+          interfaceName = "stdin",
+        ),
         typeName = TypeName.Declared("input-stream"),
       ),
     ).isEqualTo(TypePath("wasi", "io", "streams", "input-stream", "0.2.12"))
@@ -127,8 +133,10 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        inPackageName = "wasi:clocks@0.2.12".toPackageName(),
-        inInterfaceName = Identifier("timezone"),
+        location = Location(
+          packageName = "wasi:clocks@0.2.12",
+          interfaceName = "timezone",
+        ),
         typeName = TypeName.Declared("datetime"),
       ),
     ).isEqualTo(TypePath("wasi", "clocks", "wall-clock", "datetime", "0.2.12"))

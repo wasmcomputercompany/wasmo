@@ -3,7 +3,7 @@ package com.wasmo.support.wit.kotlin.generator
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.squareup.kotlinpoet.ClassName
-import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.Location
 import com.wasmo.support.wit.toPackageName
 import kotlin.test.Test
 
@@ -33,24 +33,20 @@ class IdentifierMappingTest {
     assertThat(
       className(
         packagePrefix = "wit",
-        packageName = "wasi:clocks".toPackageName(),
-        interfaceName = Identifier("wall-clock"),
+        Location(
+          packageName = "wasi:clocks",
+          interfaceName = "wall-clock",
+        ),
       ),
     ).isEqualTo(ClassName("wit.wasi.clocks", "WallClock"))
 
     assertThat(
       className(
         packagePrefix = "wit",
-        packageName = null,
-        interfaceName = Identifier("wall-clock"),
-      ),
-    ).isEqualTo(ClassName("wit", "WallClock"))
-
-    assertThat(
-      className(
-        packagePrefix = "wit",
-        packageName = "wasi:clocks@0.2.12".toPackageName(),
-        interfaceName = Identifier("wall-clock"),
+        Location(
+          packageName = "wasi:clocks@0.2.12",
+          interfaceName = "wall-clock",
+        ),
       ),
     ).isEqualTo(ClassName("wit.wasi.clocks.v0_2_12", "WallClock"))
   }

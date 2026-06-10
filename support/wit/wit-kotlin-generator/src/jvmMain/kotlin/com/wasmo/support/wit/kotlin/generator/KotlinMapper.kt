@@ -1,5 +1,6 @@
 package com.wasmo.support.wit.kotlin.generator
 
+import com.squareup.kotlinpoet.ClassName
 import com.wasmo.support.wit.Case
 import com.wasmo.support.wit.Declaration
 import com.wasmo.support.wit.Enum
@@ -10,6 +11,7 @@ import com.wasmo.support.wit.Flags
 import com.wasmo.support.wit.Function
 import com.wasmo.support.wit.Include
 import com.wasmo.support.wit.Interface
+import com.wasmo.support.wit.Location
 import com.wasmo.support.wit.Package
 import com.wasmo.support.wit.Record
 import com.wasmo.support.wit.Resource
@@ -39,19 +41,21 @@ class KotlinMapper(
   private val index = SymbolIndex(witPackages)
 
   fun mapPackage(witPackage: WitPackage): WitPackageKt {
-    val typeMapper = TypeMapper(
-      index = index,
-      kotlinPackagePrefix = kotlinPackagePrefix,
-      packageName = witPackage.packageName,
-    )
-
     return WitPackageKt(
       packageName = witPackage.packageName.toKotlin(kotlinPackagePrefix),
-      declarations = witPackage.files.values.flatMap { witFile ->
-        witFile.declarations.mapNotNull {
+      declarations = witPackage.files.flatMap { (path, witFile) ->
+        witFile.declarations.mapNotNull { declaration ->
           mapDeclaration(
-            typeMapper = typeMapper,
-            value = it,
+            typeMapper = TypeMapper(
+              index = index,
+              kotlinPackagePrefix = kotlinPackagePrefix,
+              location = Location(
+                offset = declaration.offset,
+                path = path,
+                packageName = witPackage.packageName,
+              ),
+            ),
+            value = declaration,
           )
         }
       },
@@ -61,29 +65,31 @@ class KotlinMapper(
   private fun mapDeclaration(typeMapper: TypeMapper, value: Declaration): DeclarationKt? {
     return when (value) {
       is Case -> error("unexpected call")
-      is Enum -> mapEnum(typeMapper as InterfaceTypeMapper, value)
+      is Enum -> mapEnum(typeMapper, value)
       is ExternalUsePath -> null
       is Field -> error("unexpected call")
       is Flag -> error("unexpected call")
-      is Flags -> mapFlags(typeMapper as InterfaceTypeMapper, value)
+      is Flags -> mapFlags(typeMapper, value)
       is Function -> mapFunction(typeMapper, value)
       is Include -> null
       is Include.Item -> error("unexpected call")
       is Interface -> mapInterface(typeMapper, value)
       is Package -> null
-      is Record -> mapRecord(typeMapper as InterfaceTypeMapper, value)
-      is Resource -> mapResource(typeMapper as InterfaceTypeMapper, value)
+      is Record -> mapRecord(typeMapper, value)
+      is Resource -> mapResource(typeMapper, value)
       is TopLevelUse -> null
-      is TypeAlias -> mapTypeAlias(typeMapper as InterfaceTypeMapper, value)
+      is TypeAlias -> mapTypeAlias(typeMapper, value)
       is Use -> null
       is Use.Item -> error("unexpected call")
-      is Variant -> mapVariant(typeMapper as InterfaceTypeMapper, value)
+      is Variant -> mapVariant(typeMapper, value)
       is World -> mapWorld(typeMapper, value)
     }
   }
 
   fun mapInterface(typeMapper: TypeMapper, value: Interface): InterfaceKt {
-    val interfaceTypeMapper = typeMapper.refine(interfaceName = value.name)
+    val interfaceTypeMapper = typeMapper.copy(
+      location = typeMapper.location.copy(interfaceName = value.name),
+    )
     return InterfaceKt(
       documentation = value.documentation?.content,
       type = interfaceTypeMapper.className,
@@ -94,7 +100,7 @@ class KotlinMapper(
     )
   }
 
-  fun mapRecord(typeMapper: InterfaceTypeMapper, value: Record) = RecordKt(
+  fun mapRecord(typeMapper: TypeMapper, value: Record) = RecordKt(
     documentation = value.documentation?.content,
     type = typeMapper.className.nestedClass(value.name.name.toCamelCase(upperCamel = true)),
     fields = value.fields.map { field ->
@@ -106,19 +112,19 @@ class KotlinMapper(
     },
   )
 
-  fun mapResource(typeMapper: InterfaceTypeMapper, value: Resource) = ResourceKt(
+  fun mapResource(typeMapper: TypeMapper, value: Resource) = ResourceKt(
     documentation = value.documentation?.content,
     type = typeMapper.className.nestedClass(value.name.name.toCamelCase(upperCamel = true)),
     functions = value.functions.map { mapFunction(typeMapper, it) },
   )
 
-  fun mapTypeAlias(typeMapper: InterfaceTypeMapper, value: TypeAlias) = TypeAliasKt(
+  fun mapTypeAlias(typeMapper: TypeMapper, value: TypeAlias) = TypeAliasKt(
     documentation = value.documentation?.content,
     type = typeMapper.className.nestedClass(value.name.name.toCamelCase(upperCamel = true)),
     target = typeMapper.map(value.target),
   )
 
-  fun mapVariant(typeMapper: InterfaceTypeMapper, value: Variant) = VariantKt(
+  fun mapVariant(typeMapper: TypeMapper, value: Variant) = VariantKt(
     documentation = value.documentation?.content,
     type = typeMapper.className.nestedClass(value.name.name.toCamelCase(upperCamel = true)),
     cases = value.cases.map { case ->
@@ -130,7 +136,7 @@ class KotlinMapper(
     },
   )
 
-  fun mapEnum(typeMapper: InterfaceTypeMapper, value: Enum) = EnumKt(
+  fun mapEnum(typeMapper: TypeMapper, value: Enum) = EnumKt(
     documentation = value.documentation?.content,
     type = typeMapper.className.nestedClass(value.name.name.toCamelCase(upperCamel = true)),
     cases = value.cases.map {
@@ -142,7 +148,7 @@ class KotlinMapper(
     },
   )
 
-  fun mapFlags(typeMapper: InterfaceTypeMapper, value: Flags) = FlagsKt(
+  fun mapFlags(typeMapper: TypeMapper, value: Flags) = FlagsKt(
     documentation = value.documentation?.content,
     type = typeMapper.className.nestedClass(value.name.name.toCamelCase(upperCamel = true)),
     flags = value.flags.map { flag ->
@@ -170,9 +176,10 @@ class KotlinMapper(
     val flattener = WorldFlattener(index)
     val flattened = flattener.flatten(
       world = value,
-      inPackageName = typeMapper.packageName,
+      inPackageName = typeMapper.location.packageName,
     )
-    val interfaceTypeMapper = typeMapper.refine(interfaceName = flattened.name)
+    val interfaceTypeMapper =
+      typeMapper.copy(typeMapper.location.copy(interfaceName = flattened.name))
     return WorldKt(
       documentation = flattened.documentation?.content,
       type = interfaceTypeMapper.className,
@@ -189,18 +196,24 @@ class KotlinMapper(
   }
 
   private fun mapWorldApi(
-    typeMapper: InterfaceTypeMapper,
+    typeMapper: TypeMapper,
     value: World.Api,
   ): WorldKt.Api {
     return when (value) {
       is ExternalUsePath -> ExternalUsePathKt(
         documentation = value.documentation?.content,
         name = (value.plainName ?: value.path.name).name.toCamelCase(upperCamel = false),
-        type = typeMapper.refine(value.path).className,
+        type = typeMapper.copy(typeMapper.location.copy(value.path)).className,
       )
 
       is Function -> mapFunction(typeMapper, value)
       is Interface -> mapInterface(typeMapper, value)
     }
   }
+
+  private val TypeMapper.className: ClassName
+    get() = className(
+      packagePrefix = kotlinPackagePrefix,
+      location = location,
+    )
 }

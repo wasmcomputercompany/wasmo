@@ -22,8 +22,20 @@ data class Location(
   val path: Path,
   val offset: Offset,
   val packageName: PackageName,
-  val interfaceName: Identifier?,
-)
+  val interfaceName: Identifier? = null,
+) {
+  fun copy(usePath: UsePath): Location = copy(
+    packageName = usePath.packageName ?: packageName,
+    interfaceName = usePath.name,
+  )
+
+  override fun toString(): String {
+    return when {
+      interfaceName != null -> "${UsePath(packageName, interfaceName)} at $path:$offset"
+      else -> "$packageName at $path:$offset"
+    }
+  }
+}
 
 /**
  * This is a package name plus an interface name, or just an interface name. The encoded form always

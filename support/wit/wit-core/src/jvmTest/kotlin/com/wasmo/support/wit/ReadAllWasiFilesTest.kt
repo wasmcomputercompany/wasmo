@@ -60,8 +60,7 @@ class ReadAllWasiFilesTest {
         try {
           index.getType(
             typeName = declaredType,
-            inPackageName = ref.location.packageName,
-            inInterfaceName = ref.location.interfaceName,
+            location = ref.location,
           )
         } catch (e: IllegalArgumentException) {
           throw IllegalArgumentException(

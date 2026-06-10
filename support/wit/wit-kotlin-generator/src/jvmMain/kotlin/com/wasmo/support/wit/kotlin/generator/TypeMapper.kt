@@ -4,85 +4,26 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeName as KotlinTypeName
-import com.wasmo.support.wit.Identifier
-import com.wasmo.support.wit.PackageName
+import com.wasmo.support.wit.Location
 import com.wasmo.support.wit.SymbolIndex
 import com.wasmo.support.wit.TypeName
-import com.wasmo.support.wit.UsePath
 
 /**
  * Map WIT types to Kotlin types.
  */
-sealed interface TypeMapper {
-  val packageName: PackageName
-  fun map(typeName: TypeName): KotlinTypeName
-  fun refine(interfaceName: Identifier): InterfaceTypeMapper
-}
+class TypeMapper(
+  private val index: SymbolIndex,
+  private val kotlinPackagePrefix: String,
+  val location: Location,
+) {
+  fun copy(location: Location) = TypeMapper(index, kotlinPackagePrefix, location)
 
-interface InterfaceTypeMapper : TypeMapper {
-  val interfaceName: Identifier
-  val className: ClassName
-  fun refine(usePath: UsePath): InterfaceTypeMapper
-}
-
-fun TypeMapper(
-  index: SymbolIndex,
-  kotlinPackagePrefix: String,
-  packageName: PackageName,
-): TypeMapper = RealPackageTypeMapper(
-  index = index,
-  kotlinPackagePrefix = kotlinPackagePrefix,
-  packageName = packageName,
-)
-
-internal class RealPackageTypeMapper(
-  override val index: SymbolIndex,
-  override val kotlinPackagePrefix: String,
-  override val packageName: PackageName,
-) : AbstractTypeMapper(), TypeMapper {
-  override fun refine(interfaceName: Identifier) =
-    RealInterfaceTypeMapper(index, kotlinPackagePrefix, packageName, interfaceName)
-
-  override fun map(typeName: TypeName): KotlinTypeName {
-    return mapOrNull(typeName, packageName)
-      ?: throw IllegalArgumentException("unable to find $typeName in $packageName")
-  }
-}
-
-internal class RealInterfaceTypeMapper(
-  override val index: SymbolIndex,
-  override val kotlinPackagePrefix: String,
-  override val packageName: PackageName,
-  override val interfaceName: Identifier,
-) : AbstractTypeMapper(), InterfaceTypeMapper {
-  override val className: ClassName
-    get() = className(kotlinPackagePrefix, packageName, interfaceName)
-
-  override fun refine(interfaceName: Identifier) =
-    RealInterfaceTypeMapper(index, kotlinPackagePrefix, packageName, interfaceName)
-
-  override fun refine(usePath: UsePath): InterfaceTypeMapper {
-    val packageName = usePath.packageName ?: return refine(usePath.name)
-    return refine(packageName).refine(usePath.name)
+  fun map(typeName: TypeName): KotlinTypeName {
+    return mapOrNull(typeName)
+      ?: throw IllegalArgumentException("unable to find $typeName in $location")
   }
 
-  override fun map(typeName: TypeName): KotlinTypeName {
-    return mapOrNull(typeName, packageName, interfaceName)
-      ?: throw IllegalArgumentException("unable to find $typeName in $packageName.$interfaceName")
-  }
-}
-
-abstract class AbstractTypeMapper : TypeMapper {
-  abstract val index: SymbolIndex
-  abstract val kotlinPackagePrefix: String
-
-  abstract override fun map(typeName: TypeName): KotlinTypeName
-
-  protected fun mapOrNull(
-    typeName: TypeName,
-    packageName: PackageName,
-    interfaceName: Identifier? = null,
-  ): KotlinTypeName? {
+  private fun mapOrNull(typeName: TypeName): KotlinTypeName? {
     val specialCase = ClassNames.WasmToKotlin[typeName]
     if (specialCase != null) return specialCase
 
@@ -118,7 +59,7 @@ abstract class AbstractTypeMapper : TypeMapper {
         typeName.err?.let { map(it) } ?: STAR,
       )
 
-      is TypeName.Declared -> mapDeclaredType(typeName, packageName, interfaceName)
+      is TypeName.Declared -> mapDeclaredType(typeName)
 
       is TypeName.Stream -> ClassNames.Stream.parameterizedBy(
         typeName.type?.let { map(it) } ?: STAR,
@@ -136,22 +77,14 @@ abstract class AbstractTypeMapper : TypeMapper {
     }
   }
 
-  protected fun mapDeclaredType(
-    typeName: TypeName.Declared,
-    packageName: PackageName,
-    interfaceName: Identifier? = null,
-  ): ClassName {
-    val typePath = index.getType(typeName, packageName, interfaceName)
+  private fun mapDeclaredType(typeName: TypeName.Declared): ClassName {
+    val typePath = index.getType(location, typeName)
     return className(
-      kotlinPackagePrefix,
-      typePath.packageName,
-      typePath.interfaceName,
-      typePath.typeName,
+      packagePrefix = kotlinPackagePrefix,
+      location = location,
+      typeName = typePath.typeName,
     )
   }
-
-  fun refine(packageName: PackageName): TypeMapper =
-    RealPackageTypeMapper(index, kotlinPackagePrefix, packageName)
 }
 
 private object ClassNames {
