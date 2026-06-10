@@ -182,6 +182,10 @@ class ApiGeneratorTest {
           |world command {
           |  include imports;
           |  export run;
+          |  export args: func() -> list<string>;
+          |  import platform: interface {
+          |    log: func(message: string);
+          |  }
           |}
           """.trimMargin().toWitFile(),
         "exit.wit".toPath() to """
@@ -218,14 +222,24 @@ class ApiGeneratorTest {
       |package wit.wasi.cli.v0_3_0
       |
       |import kotlin.Pair
+      |import kotlin.String
+      |import kotlin.collections.List
       |
       |public object Command {
       |  public interface Guest {
       |    public val run: Run
+      |
+      |    public fun args(): List<String>
       |  }
       |
       |  public interface Host {
+      |    public val platform: Platform
+      |
       |    public val exit: Exit
+      |
+      |    public interface Platform {
+      |      public fun log(message: String)
+      |    }
       |  }
       |}
       |

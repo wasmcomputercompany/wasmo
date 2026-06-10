@@ -205,22 +205,24 @@ class ApiGenerator {
   private fun generate(value: WorldKt) = TypeSpec.objectBuilder(value.type.simpleName)
     .setDeclaration(value)
     .apply {
-      if (value.guestApis.isNotEmpty()) {
+      val guest = value.guest
+      if (guest != null && guest.apis.isNotEmpty()) {
         addType(
-          TypeSpec.interfaceBuilder("Guest")
+          TypeSpec.interfaceBuilder(guest.type)
             .apply {
-              for (export in value.guestApis) {
+              for (export in guest.apis) {
                 add(export)
               }
             }
             .build(),
         )
       }
-      if (value.hostApis.isNotEmpty()) {
+      val host = value.host
+      if (host != null && host.apis.isNotEmpty()) {
         addType(
-          TypeSpec.interfaceBuilder("Host")
+          TypeSpec.interfaceBuilder(host.type)
             .apply {
-              for (import in value.hostApis) {
+              for (import in host.apis) {
                 add(import)
               }
             }

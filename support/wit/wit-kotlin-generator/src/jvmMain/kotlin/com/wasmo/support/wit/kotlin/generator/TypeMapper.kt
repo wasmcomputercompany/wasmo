@@ -71,11 +71,10 @@ class TypeMapper(
         typeName.err?.let { map(it) } ?: STAR,
       )
 
-      is TypeName.Declared -> className(
-        packagePrefix = kotlinPackagePrefix,
-        scope = scope,
-        typeName = index.getType(scope, typeName).typeName,
-      )
+      is TypeName.Declared -> {
+        val typeName = index.getType(scope, typeName)
+        typeName.toNameMapper(kotlinPackagePrefix).className
+      }
 
       is TypeName.Stream -> ClassNames.Stream.parameterizedBy(
         typeName.type?.let { map(it) } ?: STAR,
