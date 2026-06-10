@@ -11,18 +11,12 @@ class SymbolIndex(
 ) {
   private val packageNameToPackage = packages.associateBy { it.packageName }
 
-  fun getType(
-    location: Location,
-    typeName: TypeName.Declared,
-  ): TypePath {
+  fun getType(location: Location, typeName: TypeName.Declared): TypePath {
     return getTypeOrNull(typeName, location)
       ?: throw IllegalArgumentException("unable to find $typeName in $location")
   }
 
-  fun getTypeOrNull(
-    typeName: TypeName.Declared,
-    location: Location,
-  ): TypePath? {
+  fun getTypeOrNull(typeName: TypeName.Declared, location: Location): TypePath? {
     val witPackage = packageNameToPackage[location.packageName] ?: return null
     val declarations = witPackage.files.values
       .flatMap { it.declarations }
@@ -45,7 +39,7 @@ class SymbolIndex(
           if (itemMatch != null) {
             return getTypeOrNull(
               typeName = itemMatch.type,
-              location = location.withUsePath(declaration.path),
+              location = location.copy(declaration.path),
             )
           }
         }

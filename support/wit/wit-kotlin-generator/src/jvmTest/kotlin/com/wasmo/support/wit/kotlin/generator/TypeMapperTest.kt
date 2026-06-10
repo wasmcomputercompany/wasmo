@@ -7,7 +7,6 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.Location
-import com.wasmo.support.wit.Offset
 import com.wasmo.support.wit.SymbolIndex
 import com.wasmo.support.wit.TypeName
 import com.wasmo.support.wit.WitPackage
@@ -42,10 +41,7 @@ class TypeMapperTest {
       index = index,
       kotlinPackagePrefix = "wit",
       location = Location(
-        path = "clock.wit".toPath(),
-        offset = Offset(1, 1),
-        packageName = "wasi:clocks".toPackageName(),
-        interfaceName = null,
+        packageName = "wasi:clocks",
       ),
     )
 
@@ -66,6 +62,6 @@ class TypeMapperTest {
       assertFailsWith<IllegalArgumentException> {
         interfaceTypeMapper.map(TypeName.Declared("instant"))
       },
-    ).hasMessage("unable to find instant in wasi:clocks/wall-clock at clock.wit:1:1")
+    ).hasMessage("unable to find instant in wasi:clocks/wall-clock at file.wit:1:1")
   }
 }

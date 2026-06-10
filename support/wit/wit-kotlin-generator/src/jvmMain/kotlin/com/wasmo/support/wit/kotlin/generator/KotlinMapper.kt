@@ -53,7 +53,6 @@ class KotlinMapper(
                 offset = declaration.offset,
                 path = path,
                 packageName = witPackage.packageName,
-                interfaceName = null,
               ),
             ),
             value = declaration,
@@ -204,7 +203,7 @@ class KotlinMapper(
       is ExternalUsePath -> ExternalUsePathKt(
         documentation = value.documentation?.content,
         name = (value.plainName ?: value.path.name).name.toCamelCase(upperCamel = false),
-        type = typeMapper.copy(typeMapper.location.withUsePath(value.path)).className,
+        type = typeMapper.copy(typeMapper.location.copy(value.path)).className,
       )
 
       is Function -> mapFunction(typeMapper, value)

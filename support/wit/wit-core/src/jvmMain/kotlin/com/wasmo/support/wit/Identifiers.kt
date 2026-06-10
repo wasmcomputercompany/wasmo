@@ -22,11 +22,11 @@ data class Location(
   val path: Path,
   val offset: Offset,
   val packageName: PackageName,
-  val interfaceName: Identifier?,
+  val interfaceName: Identifier? = null,
 ) {
-  fun withUsePath(path: UsePath): Location = copy(
-    packageName = path.packageName ?: packageName,
-    interfaceName = path.name,
+  fun copy(usePath: UsePath): Location = copy(
+    packageName = usePath.packageName ?: packageName,
+    interfaceName = usePath.name,
   )
 
   override fun toString(): String {

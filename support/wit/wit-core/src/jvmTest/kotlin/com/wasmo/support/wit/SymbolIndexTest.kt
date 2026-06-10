@@ -34,10 +34,8 @@ class SymbolIndexTest {
     assertThat(
       index.getType(
         location = Location(
-          path = "clock.wit".toPath(),
-          offset = Offset(1, 1),
-          packageName = "wasi:clocks".toPackageName(),
-          interfaceName = Identifier("wall-clock"),
+          packageName = "wasi:clocks",
+          interfaceName = "wall-clock",
         ),
         typeName = TypeName.Declared("datetime"),
       ),
@@ -47,15 +45,13 @@ class SymbolIndexTest {
       assertFailsWith<IllegalArgumentException> {
         index.getType(
           location = Location(
-            path = "clock.wit".toPath(),
-            offset = Offset(1, 1),
-            packageName = "wasi:clocks".toPackageName(),
-            interfaceName = Identifier("wall-clock"),
+            packageName = "wasi:clocks",
+            interfaceName = "wall-clock",
           ),
           typeName = TypeName.Declared("instant"),
         )
       },
-    ).hasMessage("unable to find instant in wasi:clocks/wall-clock at clock.wit:1:1")
+    ).hasMessage("unable to find instant in wasi:clocks/wall-clock at file.wit:1:1")
   }
 
   @Test
@@ -96,10 +92,8 @@ class SymbolIndexTest {
     assertThat(
       index.getType(
         location = Location(
-          path = "stdio.wit".toPath(),
-          offset = Offset(1, 1),
-          packageName = "wasi:cli".toPackageName(),
-          interfaceName = Identifier("stdin"),
+          packageName = "wasi:cli",
+          interfaceName = "stdin",
         ),
         typeName = TypeName.Declared("input-stream"),
       ),
@@ -140,10 +134,8 @@ class SymbolIndexTest {
     assertThat(
       index.getType(
         location = Location(
-          path = "timezone.wit".toPath(),
-          offset = Offset(1, 1),
-          packageName = "wasi:clocks@0.2.12".toPackageName(),
-          interfaceName = Identifier("timezone"),
+          packageName = "wasi:clocks@0.2.12",
+          interfaceName = "timezone",
         ),
         typeName = TypeName.Declared("datetime"),
       ),
