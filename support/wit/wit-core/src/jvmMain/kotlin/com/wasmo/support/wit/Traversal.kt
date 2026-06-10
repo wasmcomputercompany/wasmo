@@ -29,28 +29,21 @@ suspend fun SequenceScope<Pair<Location, Declaration>>.depthFirstDeclarations(
 
   when (subject) {
     is Include -> {
-      val childLocation = subjectLocation.copy(
-        packageName = subject.path.packageName ?: location.packageName,
-        interfaceName = subject.path.name,
-      )
+      val childLocation = subjectLocation.withUsePath(subject.path)
       for (item in subject.items) {
         yield(childLocation to item)
       }
     }
 
     is Interface -> {
-      val childLocation = subjectLocation.copy(
-        interfaceName = subject.name,
-      )
+      val childLocation = subjectLocation.copy(interfaceName = subject.name)
       for (declaration in subject.declarations) {
         depthFirstDeclarations(childLocation, declaration)
       }
     }
 
     is Package -> {
-      val childLocation = subjectLocation.copy(
-        packageName = subject.name ?: location.packageName,
-      )
+      val childLocation = subjectLocation.copy(packageName = subject.name)
       for (declaration in subject.declarations) {
         depthFirstDeclarations(childLocation, declaration)
       }
@@ -75,19 +68,14 @@ suspend fun SequenceScope<Pair<Location, Declaration>>.depthFirstDeclarations(
     }
 
     is Use -> {
-      val childLocation = subjectLocation.copy(
-        packageName = subject.path.packageName ?: location.packageName,
-        interfaceName = subject.path.name,
-      )
+      val childLocation = subjectLocation.withUsePath(subject.path)
       for (item in subject.items) {
         yield(childLocation to item)
       }
     }
 
     is World -> {
-      val childLocation = subjectLocation.copy(
-        interfaceName = subject.name,
-      )
+      val childLocation = subjectLocation.copy(interfaceName = subject.name)
       for (export in subject.declarations) {
         depthFirstDeclarations(childLocation, export)
       }
@@ -102,4 +90,3 @@ suspend fun SequenceScope<Pair<Location, Declaration>>.depthFirstDeclarations(
     else -> {}
   }
 }
-

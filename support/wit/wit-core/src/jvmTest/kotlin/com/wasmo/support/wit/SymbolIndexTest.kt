@@ -33,8 +33,12 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        inPackageName = "wasi:clocks".toPackageName(),
-        inInterfaceName = Identifier("wall-clock"),
+        location = Location(
+          path = "clock.wit".toPath(),
+          offset = Offset(1, 1),
+          packageName = "wasi:clocks".toPackageName(),
+          interfaceName = Identifier("wall-clock"),
+        ),
         typeName = TypeName.Declared("datetime"),
       ),
     ).isEqualTo(TypePath("wasi", "clocks", "wall-clock", "datetime"))
@@ -42,12 +46,16 @@ class SymbolIndexTest {
     assertThat(
       assertFailsWith<IllegalArgumentException> {
         index.getType(
-          inPackageName = "wasi:clocks".toPackageName(),
-          inInterfaceName = Identifier("wall-clock"),
+          location = Location(
+            path = "clock.wit".toPath(),
+            offset = Offset(1, 1),
+            packageName = "wasi:clocks".toPackageName(),
+            interfaceName = Identifier("wall-clock"),
+          ),
           typeName = TypeName.Declared("instant"),
         )
       },
-    ).hasMessage("unable to find instant in wasi:clocks/wall-clock")
+    ).hasMessage("unable to find instant in wasi:clocks/wall-clock at clock.wit:1:1")
   }
 
   @Test
@@ -87,8 +95,12 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        inPackageName = "wasi:cli".toPackageName(),
-        inInterfaceName = Identifier("stdin"),
+        location = Location(
+          path = "stdio.wit".toPath(),
+          offset = Offset(1, 1),
+          packageName = "wasi:cli".toPackageName(),
+          interfaceName = Identifier("stdin"),
+        ),
         typeName = TypeName.Declared("input-stream"),
       ),
     ).isEqualTo(TypePath("wasi", "io", "streams", "input-stream", "0.2.12"))
@@ -127,8 +139,12 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        inPackageName = "wasi:clocks@0.2.12".toPackageName(),
-        inInterfaceName = Identifier("timezone"),
+        location = Location(
+          path = "timezone.wit".toPath(),
+          offset = Offset(1, 1),
+          packageName = "wasi:clocks@0.2.12".toPackageName(),
+          interfaceName = Identifier("timezone"),
+        ),
         typeName = TypeName.Declared("datetime"),
       ),
     ).isEqualTo(TypePath("wasi", "clocks", "wall-clock", "datetime", "0.2.12"))

@@ -2,23 +2,23 @@ package com.wasmo.support.wit.kotlin.generator
 
 import com.squareup.kotlinpoet.ClassName
 import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.Location
 import com.wasmo.support.wit.PackageName
 
 internal fun className(
   packagePrefix: String,
-  packageName: PackageName?,
-  interfaceName: Identifier,
+  location: Location,
 ): ClassName {
-  val kotlinPackageName = packageName?.toKotlin(packagePrefix) ?: packagePrefix
+  val kotlinPackageName = location.packageName.toKotlin(packagePrefix)
+  val interfaceName = location.interfaceName ?: error("unexpected call to className")
   return ClassName(kotlinPackageName, interfaceName.name.toCamelCase(upperCamel = true))
 }
 
 internal fun className(
   packagePrefix: String,
-  packageName: PackageName?,
-  interfaceName: Identifier,
+  location: Location,
   typeName: Identifier,
-) = className(packagePrefix, packageName, interfaceName)
+) = className(packagePrefix, location)
   .nestedClass(typeName.name.toCamelCase(upperCamel = true))
 
 internal fun PackageName.toKotlin(prefix: String): String {
