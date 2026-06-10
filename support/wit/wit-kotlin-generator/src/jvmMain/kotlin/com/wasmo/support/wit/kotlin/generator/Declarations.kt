@@ -29,9 +29,17 @@ data class WorldKt(
   override val documentation: String?,
   val type: ClassName,
   val declarations : List<DeclarationKt>,
-  val hostApis : List<Api>,
-  val guestApis : List<Api>,
+  val host : Host?,
+  val guest : Guest?,
 ) : DeclarationKt {
+  data class Host(
+    val type: ClassName,
+    val apis : List<Api>,
+  )
+  data class Guest(
+    val type: ClassName,
+    val apis : List<Api>,
+  )
   interface Api : DeclarationKt
 }
 
