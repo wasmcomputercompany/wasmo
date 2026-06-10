@@ -4,10 +4,19 @@ sealed interface Declaration {
   val documentation: Documentation?
   val gate: Gate?
   val offset: Offset
+  fun children(): List<Declaration> = listOf()
+}
+
+sealed class CompositeDeclartion(private val _children: List<Declaration>): Declaration {
+  final override fun children(): List<Declaration> = _children
 }
 
 sealed interface TypeDeclaration : Declaration {
   val name: Identifier
+}
+
+sealed class CompositeTypeDeclaration(private val _children: List<Declaration>): TypeDeclaration {
+  final override fun children(): List<Declaration> = _children
 }
 
 @JvmInline
@@ -77,7 +86,7 @@ data class Package(
   override val offset: Offset,
   val name: PackageName,
   val declarations: List<Declaration>,
-) : Declaration
+) : CompositeDeclartion(declarations)
 
 /**
  * Declarations may be:
@@ -98,7 +107,7 @@ data class Interface(
   override val offset: Offset,
   val name: Identifier,
   val declarations: List<Declaration>,
-) : Declaration, World.Api
+) : CompositeDeclartion(declarations), World.Api
 
 data class World(
   override val documentation: Documentation? = null,
@@ -108,7 +117,7 @@ data class World(
   val declarations: List<Declaration>,
   val imports: List<Api>,
   val exports: List<Api>,
-) : Declaration {
+) : CompositeDeclartion(declarations) {
   sealed interface Api : Declaration
 }
 
@@ -118,7 +127,7 @@ data class Resource(
   override val offset: Offset,
   override val name: Identifier,
   val functions: List<Function>,
-) : TypeDeclaration
+) : CompositeTypeDeclaration(functions)
 
 data class Record(
   override val documentation: Documentation? = null,
@@ -126,7 +135,7 @@ data class Record(
   override val offset: Offset,
   override val name: Identifier,
   val fields: List<Field>,
-) : TypeDeclaration
+) : CompositeTypeDeclaration(fields)
 
 data class Field(
   override val documentation: Documentation? = null,
@@ -154,7 +163,7 @@ data class Variant(
   override val offset: Offset,
   override val name: Identifier,
   val cases: List<Case>,
-) : TypeDeclaration
+) : CompositeTypeDeclaration(cases)
 
 data class Enum(
   override val documentation: Documentation? = null,
@@ -162,7 +171,7 @@ data class Enum(
   override val offset: Offset,
   override val name: Identifier,
   val cases: List<Case>,
-) : TypeDeclaration
+) : CompositeTypeDeclaration(cases)
 
 data class Case(
   override val documentation: Documentation? = null,
@@ -185,7 +194,7 @@ data class Flags(
   override val offset: Offset,
   override val name: Identifier,
   val flags: List<Flag>,
-) : TypeDeclaration
+) : CompositeTypeDeclaration(flags)
 
 data class Flag(
   override val documentation: Documentation? = null,
@@ -226,7 +235,7 @@ data class Use(
   override val offset: Offset,
   val path: UsePath,
   val items: List<Item>,
-) : Declaration {
+) : CompositeDeclartion(items) {
   data class Item(
     override val documentation: Documentation? = null,
     override val gate: Gate? = null,
@@ -258,7 +267,7 @@ data class Include(
   override val offset: Offset,
   val path: UsePath,
   val items: List<Item>,
-) : Declaration {
+) : CompositeDeclartion(items) {
   data class Item(
     override val documentation: Documentation? = null,
     override val gate: Gate? = null,
