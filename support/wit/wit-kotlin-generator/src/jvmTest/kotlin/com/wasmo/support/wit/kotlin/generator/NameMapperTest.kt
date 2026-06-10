@@ -19,7 +19,7 @@ class NameMapperTest {
   @Test
   fun `package name mapping with version`() {
     val nameMapper = "wasi:clocks@0.2.12".toPackageName().toNameMapper("wit")
-    assertThat(nameMapper.packageName).isEqualTo("wit.wasi.clocksv0_2_12")
+    assertThat(nameMapper.packageName).isEqualTo("wit.wasi.clocks.v0_2_12")
     assertThat((nameMapper + Identifier("wall-clock")).className)
       .isEqualTo(ClassName("wit.wasi.clocks.v0_2_12", "WallClock"))
   }
