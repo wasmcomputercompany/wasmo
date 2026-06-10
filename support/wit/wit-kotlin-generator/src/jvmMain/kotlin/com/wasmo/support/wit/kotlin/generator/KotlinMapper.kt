@@ -11,10 +11,10 @@ import com.wasmo.support.wit.Flags
 import com.wasmo.support.wit.Function
 import com.wasmo.support.wit.Include
 import com.wasmo.support.wit.Interface
-import com.wasmo.support.wit.Location
 import com.wasmo.support.wit.Package
 import com.wasmo.support.wit.Record
 import com.wasmo.support.wit.Resource
+import com.wasmo.support.wit.Scope
 import com.wasmo.support.wit.SymbolIndex
 import com.wasmo.support.wit.TopLevelUse
 import com.wasmo.support.wit.TypeAlias
@@ -43,17 +43,13 @@ class KotlinMapper(
   fun mapPackage(witPackage: WitPackage): WitPackageKt {
     return WitPackageKt(
       packageName = witPackage.packageName.toKotlin(kotlinPackagePrefix),
-      declarations = witPackage.files.flatMap { (path, witFile) ->
+      declarations = witPackage.files.values.flatMap { witFile ->
         witFile.declarations.mapNotNull { declaration ->
           mapDeclaration(
             typeMapper = TypeMapper(
               index = index,
               kotlinPackagePrefix = kotlinPackagePrefix,
-              location = Location(
-                offset = declaration.offset,
-                path = path,
-                packageName = witPackage.packageName,
-              ),
+              scope = Scope(packageName = witPackage.packageName),
             ),
             value = declaration,
           )
@@ -87,15 +83,13 @@ class KotlinMapper(
   }
 
   fun mapInterface(typeMapper: TypeMapper, value: Interface): InterfaceKt {
-    val interfaceTypeMapper = typeMapper.copy(
-      location = typeMapper.location.copy(interfaceName = value.name),
-    )
+    val typeMapper = typeMapper.withScope(interfaceName = value.name)
     return InterfaceKt(
       documentation = value.documentation?.content,
-      type = interfaceTypeMapper.className,
+      type = typeMapper.className,
       instanceName = value.name.name.toCamelCase(upperCamel = false),
       declarations = value.declarations.mapNotNull {
-        mapDeclaration(interfaceTypeMapper, it)
+        mapDeclaration(typeMapper, it)
       },
     )
   }
@@ -176,21 +170,20 @@ class KotlinMapper(
     val flattener = WorldFlattener(index)
     val flattened = flattener.flatten(
       world = value,
-      inPackageName = typeMapper.location.packageName,
+      inPackageName = typeMapper.scope.packageName,
     )
-    val interfaceTypeMapper =
-      typeMapper.copy(typeMapper.location.copy(interfaceName = flattened.name))
+    val typeMapper = typeMapper.withScope(interfaceName = flattened.name)
     return WorldKt(
       documentation = flattened.documentation?.content,
-      type = interfaceTypeMapper.className,
+      type = typeMapper.className,
       declarations = flattened.declarations.mapNotNull {
-        mapDeclaration(interfaceTypeMapper, it)
+        mapDeclaration(typeMapper, it)
       },
       hostApis = flattened.imports.map {
-        mapWorldApi(interfaceTypeMapper, it)
+        mapWorldApi(typeMapper, it)
       },
       guestApis = flattened.exports.map {
-        mapWorldApi(interfaceTypeMapper, it)
+        mapWorldApi(typeMapper, it)
       },
     )
   }
@@ -203,7 +196,7 @@ class KotlinMapper(
       is ExternalUsePath -> ExternalUsePathKt(
         documentation = value.documentation?.content,
         name = (value.plainName ?: value.path.name).name.toCamelCase(upperCamel = false),
-        type = typeMapper.copy(typeMapper.location.copy(value.path)).className,
+        type = typeMapper.withScope(usePath = value.path).className,
       )
 
       is Function -> mapFunction(typeMapper, value)
@@ -214,6 +207,6 @@ class KotlinMapper(
   private val TypeMapper.className: ClassName
     get() = className(
       packagePrefix = kotlinPackagePrefix,
-      location = location,
+      scope = scope,
     )
 }

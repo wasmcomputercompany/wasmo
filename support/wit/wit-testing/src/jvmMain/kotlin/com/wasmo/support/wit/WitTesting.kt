@@ -1,8 +1,5 @@
 package com.wasmo.support.wit
 
-import okio.Path
-import okio.Path.Companion.toPath
-
 fun Case(
   documentation: String? = null,
   gate: Gate? = null,
@@ -159,14 +156,10 @@ fun Interface(
   declarations = declarations,
 )
 
-fun Location(
-  path: Path = "file.wit".toPath(),
-  offset: Offset = Offset(1, 1),
+fun Scope(
   packageName: String,
   interfaceName: String? = null,
-) = Location(
-  path = path,
-  offset = offset,
+) = Scope(
   packageName = packageName.toPackageName(),
   interfaceName = interfaceName?.let { Identifier(it) },
 )

@@ -5,8 +5,7 @@ import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.wasmo.support.wit.Identifier
-import com.wasmo.support.wit.Location
+import com.wasmo.support.wit.Scope
 import com.wasmo.support.wit.SymbolIndex
 import com.wasmo.support.wit.TypeName
 import com.wasmo.support.wit.WitPackage
@@ -40,19 +39,16 @@ class TypeMapperTest {
     val typeMapper = TypeMapper(
       index = index,
       kotlinPackagePrefix = "wit",
-      location = Location(
+      scope = Scope(
         packageName = "wasi:clocks",
+        interfaceName = "wall-clock",
       ),
     )
 
-    val interfaceTypeMapper = typeMapper.copy(
-      typeMapper.location.copy(interfaceName = Identifier("wall-clock")),
-    )
-
-    assertThat(interfaceTypeMapper.map(TypeName.Declared("datetime")))
+    assertThat(typeMapper.map(TypeName.Declared("datetime")))
       .isEqualTo(ClassName("wit.wasi.clocks", "WallClock", "Datetime"))
 
-    assertThat(interfaceTypeMapper.map(TypeName.List(TypeName.Declared("datetime"))))
+    assertThat(typeMapper.map(TypeName.List(TypeName.Declared("datetime"))))
       .isEqualTo(
         ClassName("kotlin.collections", "List")
           .parameterizedBy(ClassName("wit.wasi.clocks", "WallClock", "Datetime")),
@@ -60,8 +56,8 @@ class TypeMapperTest {
 
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        interfaceTypeMapper.map(TypeName.Declared("instant"))
+        typeMapper.map(TypeName.Declared("instant"))
       },
-    ).hasMessage("unable to find instant in wasi:clocks/wall-clock at file.wit:1:1")
+    ).hasMessage("unable to find instant in wasi:clocks/wall-clock")
   }
 }

@@ -33,7 +33,7 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        location = Location(
+        scope = Scope(
           packageName = "wasi:clocks",
           interfaceName = "wall-clock",
         ),
@@ -44,14 +44,14 @@ class SymbolIndexTest {
     assertThat(
       assertFailsWith<IllegalArgumentException> {
         index.getType(
-          location = Location(
+          scope = Scope(
             packageName = "wasi:clocks",
             interfaceName = "wall-clock",
           ),
           typeName = TypeName.Declared("instant"),
         )
       },
-    ).hasMessage("unable to find instant in wasi:clocks/wall-clock at file.wit:1:1")
+    ).hasMessage("unable to find instant in wasi:clocks/wall-clock")
   }
 
   @Test
@@ -91,7 +91,7 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        location = Location(
+        scope = Scope(
           packageName = "wasi:cli",
           interfaceName = "stdin",
         ),
@@ -133,7 +133,7 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        location = Location(
+        scope = Scope(
           packageName = "wasi:clocks@0.2.12",
           interfaceName = "timezone",
         ),

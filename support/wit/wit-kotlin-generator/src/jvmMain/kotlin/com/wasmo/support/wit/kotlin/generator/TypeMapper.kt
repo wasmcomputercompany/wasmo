@@ -4,9 +4,11 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeName as KotlinTypeName
-import com.wasmo.support.wit.Location
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.Scope
 import com.wasmo.support.wit.SymbolIndex
 import com.wasmo.support.wit.TypeName
+import com.wasmo.support.wit.UsePath
 
 /**
  * Map WIT types to Kotlin types.
@@ -14,13 +16,23 @@ import com.wasmo.support.wit.TypeName
 class TypeMapper(
   private val index: SymbolIndex,
   private val kotlinPackagePrefix: String,
-  val location: Location,
+  val scope: Scope,
 ) {
-  fun copy(location: Location) = TypeMapper(index, kotlinPackagePrefix, location)
+  fun withScope(interfaceName: Identifier) = TypeMapper(
+    index = index,
+    kotlinPackagePrefix = kotlinPackagePrefix,
+    scope = scope.copy(interfaceName = interfaceName),
+  )
+
+  fun withScope(usePath: UsePath) = TypeMapper(
+    index = index,
+    kotlinPackagePrefix = kotlinPackagePrefix,
+    scope = scope.copy(usePath = usePath),
+  )
 
   fun map(typeName: TypeName): KotlinTypeName {
     return mapOrNull(typeName)
-      ?: throw IllegalArgumentException("unable to find $typeName in $location")
+      ?: throw IllegalArgumentException("unable to find $typeName in $scope")
   }
 
   private fun mapOrNull(typeName: TypeName): KotlinTypeName? {
@@ -59,7 +71,11 @@ class TypeMapper(
         typeName.err?.let { map(it) } ?: STAR,
       )
 
-      is TypeName.Declared -> mapDeclaredType(typeName)
+      is TypeName.Declared -> className(
+        packagePrefix = kotlinPackagePrefix,
+        scope = scope,
+        typeName = index.getType(scope, typeName).typeName,
+      )
 
       is TypeName.Stream -> ClassNames.Stream.parameterizedBy(
         typeName.type?.let { map(it) } ?: STAR,
@@ -75,15 +91,6 @@ class TypeMapper(
         }
       }
     }
-  }
-
-  private fun mapDeclaredType(typeName: TypeName.Declared): ClassName {
-    val typePath = index.getType(location, typeName)
-    return className(
-      packagePrefix = kotlinPackagePrefix,
-      location = location,
-      typeName = typePath.typeName,
-    )
   }
 }
 
