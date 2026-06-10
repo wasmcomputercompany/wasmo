@@ -25,45 +25,45 @@ class TypeReferenceTest {
 
     assertThat(witPackage.typeReferences()).containsExactly(
       TypeReference(
+        path = path,
+        offset = Offset(3, 30),
         Location(
-          path = path,
-          offset = Offset(3, 5),
           packageName = "wasi:io@0.2.12".toPackageName(),
           interfaceName = Identifier("poll"),
         ),
         typeName = TypeName.Declared("pollable"),
       ),
       TypeReference(
+        path = path,
+        offset = Offset(4, 5),
         Location(
-          path = path,
-          offset = Offset(4, 5),
           packageName = "wasi:clocks@0.2.12".toPackageName(),
           interfaceName = Identifier("monotonic-clock"),
         ),
         typeName = TypeName.U64,
       ),
       TypeReference(
+        path = path,
+        offset = Offset(5, 5),
         Location(
-          path = path,
-          offset = Offset(5, 5),
           packageName = "wasi:clocks@0.2.12".toPackageName(),
           interfaceName = Identifier("monotonic-clock"),
         ),
         typeName = TypeName.Declared("instant"),
       ),
       TypeReference(
+        path = path,
+        offset = Offset(6, 5),
         Location(
-          path = path,
-          offset = Offset(6, 5),
           packageName = "wasi:clocks@0.2.12".toPackageName(),
           interfaceName = Identifier("monotonic-clock"),
         ),
         typeName = TypeName.Declared("instant"),
       ),
       TypeReference(
+        path = path,
+        offset = Offset(6, 5),
         Location(
-          path = path,
-          offset = Offset(6, 5),
           packageName = "wasi:clocks@0.2.12".toPackageName(),
           interfaceName = Identifier("monotonic-clock"),
         ),

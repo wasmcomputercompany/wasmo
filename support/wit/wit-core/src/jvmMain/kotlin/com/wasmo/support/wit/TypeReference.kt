@@ -1,5 +1,7 @@
 package com.wasmo.support.wit
 
+import okio.Path
+
 /**
  * A reference to a type expected to be found elsewhere.
  *
@@ -7,6 +9,8 @@ package com.wasmo.support.wit
  * For example, a [Use] may specify which package to look in for a referenced type.
  */
 data class TypeReference(
+  val path: Path,
+  val offset: Offset,
   val location: Location,
   val typeName: TypeName,
 )
@@ -19,29 +23,36 @@ data class TypeReference(
  * declarations don't otherwise impact source code.
  */
 fun WitPackage.typeReferences(): Sequence<TypeReference> = sequence {
-  for ((location, subject) in depthFirstDeclarations) {
-    when (subject) {
+  for (declaration in depthFirstDeclarations) {
+    when (val subject = declaration.declaration) {
       is Case -> {
         if (subject.type != null) {
-          yield(TypeReference(location, subject.type))
+          yield(declaration.typeReference(subject.type))
         }
       }
 
-      is Field -> yield(TypeReference(location, subject.type))
+      is Field -> yield(declaration.typeReference(subject.type))
       is Function -> {
         for (parameter in subject.parameters) {
-          yield(TypeReference(location, parameter.type))
+          yield(declaration.typeReference(parameter.type))
         }
         if (subject.returnType != null) {
-          yield(TypeReference(location, subject.returnType))
+          yield(declaration.typeReference(subject.returnType))
         }
       }
 
-      is Include.Item -> yield(TypeReference(location, subject.type))
-      is TypeAlias -> yield(TypeReference(location, subject.target))
-      is Use.Item -> yield(TypeReference(location, subject.type))
+      is Include.Item -> yield(declaration.typeReference(subject.type))
+      is TypeAlias -> yield(declaration.typeReference(subject.target))
+      is Use.Item -> yield(declaration.typeReference(subject.type))
 
       else -> {}
     }
   }
 }
+
+private fun LocatedDeclaration.typeReference(typeName: TypeName) = TypeReference(
+  path = path,
+  offset = declaration.offset,
+  location = location,
+  typeName = typeName,
+)

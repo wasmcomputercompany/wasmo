@@ -51,7 +51,7 @@ class SymbolIndexTest {
           typeName = TypeName.Declared("instant"),
         )
       },
-    ).hasMessage("unable to find instant in wasi:clocks/wall-clock at file.wit:1:1")
+    ).hasMessage("unable to find instant in wasi:clocks/wall-clock")
   }
 
   @Test

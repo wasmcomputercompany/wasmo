@@ -64,7 +64,7 @@ class ReadAllWasiFilesTest {
           )
         } catch (e: IllegalArgumentException) {
           throw IllegalArgumentException(
-            "failed to find ${ref.typeName} from ${ref.location.path} at ${ref.location.offset}", e,
+            "failed to find ${ref.typeName} from ${ref.location}", e,
           )
         }
       }

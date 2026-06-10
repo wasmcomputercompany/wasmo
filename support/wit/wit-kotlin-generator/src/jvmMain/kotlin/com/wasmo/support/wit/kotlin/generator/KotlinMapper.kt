@@ -43,17 +43,13 @@ class KotlinMapper(
   fun mapPackage(witPackage: WitPackage): WitPackageKt {
     return WitPackageKt(
       packageName = witPackage.packageName.toKotlin(kotlinPackagePrefix),
-      declarations = witPackage.files.flatMap { (path, witFile) ->
+      declarations = witPackage.files.values.flatMap { witFile ->
         witFile.declarations.mapNotNull { declaration ->
           mapDeclaration(
             typeMapper = TypeMapper(
               index = index,
               kotlinPackagePrefix = kotlinPackagePrefix,
-              location = Location(
-                offset = declaration.offset,
-                path = path,
-                packageName = witPackage.packageName,
-              ),
+              location = Location(packageName = witPackage.packageName),
             ),
             value = declaration,
           )

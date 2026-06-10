@@ -1,88 +1,93 @@
 package com.wasmo.support.wit
 
+import okio.Path
+
 /**
  * Returns a sequence that traverses the declarations of this package.
  */
-val WitPackage.depthFirstDeclarations: Sequence<Pair<Location, Declaration>>
+val WitPackage.depthFirstDeclarations: Sequence<LocatedDeclaration>
   get() = sequence {
     for ((path, witFile) in files) {
       for (declaration in witFile.declarations) {
         depthFirstDeclarations(
-          location = Location(
-            offset = declaration.offset,
-            path = path,
-            packageName = packageName,
-          ),
+          path = path,
+          location = Location(packageName = packageName),
           subject = declaration,
         )
       }
     }
   }
 
-suspend fun SequenceScope<Pair<Location, Declaration>>.depthFirstDeclarations(
+data class LocatedDeclaration(
+  val path: Path,
+  val location: Location,
+  val declaration: Declaration,
+)
+
+private suspend fun SequenceScope<LocatedDeclaration>.depthFirstDeclarations(
+  path: Path,
   location: Location,
   subject: Declaration,
 ) {
-  var location = location.copy(offset = subject.offset)
-  yield(location to subject)
+  yield(LocatedDeclaration(path, location, subject))
 
   when (subject) {
     is Include -> {
-      location = location.copy(subject.path)
+      val location = location.copy(usePath = subject.path)
       for (item in subject.items) {
-        yield(location to item)
+        yield(LocatedDeclaration(path, location, item))
       }
     }
 
     is Interface -> {
-      location = location.copy(interfaceName = subject.name)
+      val location = location.copy(interfaceName = subject.name)
       for (declaration in subject.declarations) {
-        depthFirstDeclarations(location, declaration)
+        depthFirstDeclarations(path, location, declaration)
       }
     }
 
     is Package -> {
-      location = location.copy(packageName = subject.name)
+      val location = location.copy(packageName = subject.name, interfaceName = null)
       for (declaration in subject.declarations) {
-        depthFirstDeclarations(location, declaration)
+        depthFirstDeclarations(path, location, declaration)
       }
     }
 
     is Record -> {
       for (field in subject.fields) {
-        depthFirstDeclarations(location, field)
+        depthFirstDeclarations(path, location, field)
       }
     }
 
     is Resource -> {
       for (function in subject.functions) {
-        depthFirstDeclarations(location, function)
+        depthFirstDeclarations(path, location, function)
       }
     }
 
     is Variant -> {
       for (case in subject.cases) {
-        depthFirstDeclarations(location, case)
+        depthFirstDeclarations(path, location, case)
       }
     }
 
     is Use -> {
-      location = location.copy(subject.path)
+      val location = location.copy(usePath = subject.path)
       for (item in subject.items) {
-        yield(location to item)
+        yield(LocatedDeclaration(path, location, item))
       }
     }
 
     is World -> {
-      location = location.copy(interfaceName = subject.name)
+      val location = location.copy(interfaceName = subject.name)
       for (export in subject.declarations) {
-        depthFirstDeclarations(location, export)
+        depthFirstDeclarations(path, location, export)
       }
       for (export in subject.imports) {
-        depthFirstDeclarations(location, export)
+        depthFirstDeclarations(path, location, export)
       }
       for (export in subject.exports) {
-        depthFirstDeclarations(location, export)
+        depthFirstDeclarations(path, location, export)
       }
     }
 
