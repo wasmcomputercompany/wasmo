@@ -1,6 +1,6 @@
 package com.wasmo.support.wit.kotlin.generator
 
-import com.wasmo.support.wit.io.WitPackageReader
+import com.wasmo.support.wit.io.IoWitPackageReader
 import com.wasmo.support.wit.ir.IrMapper
 import java.io.File
 import kotlin.test.Test
@@ -24,12 +24,12 @@ class GenerateAllWasiKotlinTest {
       wasiProposals / "sockets/wit",
     )
 
-    val packageReader = WitPackageReader(fileSystem)
-    val ioPackages = directories.map {
+    val packageReader = IoWitPackageReader(fileSystem)
+    val ioWitPackages = directories.map {
       packageReader.read(it)
     }
 
-    val irPackages = IrMapper(ioPackages).map()
+    val irPackages = IrMapper(ioWitPackages).map()
     val ktMapper = KtMapper()
     val apiGenerator = ApiGenerator()
 

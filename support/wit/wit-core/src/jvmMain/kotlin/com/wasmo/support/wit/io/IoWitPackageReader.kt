@@ -12,7 +12,7 @@ import okio.Path
  * files in the same directory. If multiple files in the same directory declare a package, they must
  * declare the same package.
  */
-class WitPackageReader(
+class IoWitPackageReader(
   private val fileSystem: FileSystem,
 ) {
   fun read(directory: Path): IoWitPackage {

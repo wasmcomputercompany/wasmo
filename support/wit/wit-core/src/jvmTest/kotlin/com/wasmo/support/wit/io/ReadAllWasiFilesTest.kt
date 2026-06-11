@@ -51,10 +51,10 @@ class ReadAllWasiFilesTest {
       wasiProposals / "sockets/wit",
     )
 
-    val witPackages = directories.map {
-      WitPackageReader(fileSystem).read(it)
+    val ioWitPackages = directories.map {
+      IoWitPackageReader(fileSystem).read(it)
     }
 
-    IrMapper(witPackages).map()
+    IrMapper(ioWitPackages).map()
   }
 }

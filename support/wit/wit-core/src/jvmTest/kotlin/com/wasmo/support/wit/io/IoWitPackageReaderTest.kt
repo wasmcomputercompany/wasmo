@@ -12,7 +12,7 @@ import kotlin.test.assertFailsWith
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 
-class WitPackageReaderTest {
+class IoWitPackageReaderTest {
   @Test
   fun happyPath() {
     val directory = "/my-package".toPath()
@@ -49,10 +49,10 @@ class WitPackageReaderTest {
         """.trimMargin(),
       )
     }
-    val packageReader = WitPackageReader(fileSystem)
-    val witPackage = packageReader.read(directory)
+    val packageReader = IoWitPackageReader(fileSystem)
+    val ioWitPackage = packageReader.read(directory)
 
-    assertThat(witPackage).isEqualTo(
+    assertThat(ioWitPackage).isEqualTo(
       IoWitPackage(
         packageDocumentation = Documentation(" command line interfaces!"),
         packageName = "wasi:cli".toPackageName(),
@@ -140,7 +140,7 @@ class WitPackageReaderTest {
       )
     }
 
-    val packageReader = WitPackageReader(fileSystem)
+    val packageReader = IoWitPackageReader(fileSystem)
     val e = assertFailsWith<WitException> {
       packageReader.read(directory)
     }
@@ -175,7 +175,7 @@ class WitPackageReaderTest {
       )
     }
 
-    val packageReader = WitPackageReader(fileSystem)
+    val packageReader = IoWitPackageReader(fileSystem)
     val e = assertFailsWith<WitException> {
       packageReader.read(directory)
     }
