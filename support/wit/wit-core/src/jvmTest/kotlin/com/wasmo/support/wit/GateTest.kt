@@ -2,7 +2,6 @@ package com.wasmo.support.wit
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.support.wit.io.Gate
 import kotlin.test.Test
 
 class GateTest {

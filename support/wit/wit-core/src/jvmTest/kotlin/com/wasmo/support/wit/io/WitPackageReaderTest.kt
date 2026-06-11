@@ -6,6 +6,7 @@ import assertk.assertions.isEqualTo
 import com.wasmo.support.wit.Documentation
 import com.wasmo.support.wit.Offset
 import com.wasmo.support.wit.WitException
+import com.wasmo.support.wit.toPackageName
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import okio.Path.Companion.toPath
@@ -58,17 +59,17 @@ class WitPackageReaderTest {
         files = mapOf(
           "command.wit".toPath() to IoWitFile(
             items = listOf(
-              World(
+              IoWorld(
                 offset = Offset(1, 1),
                 name = "command",
                 imports = listOf(
-                  ExternalUsePath(
+                  IoExternalApi(
                     offset = Offset(3, 3),
                     path = "exit",
                   ),
                 ),
                 exports = listOf(
-                  ExternalUsePath(
+                  IoExternalApi(
                     offset = Offset(2, 3),
                     path = "run",
                   ),
@@ -80,15 +81,15 @@ class WitPackageReaderTest {
             packageDocumentation = Documentation(" command line interfaces!"),
             packageName = "wasi:cli".toPackageName(),
             items = listOf(
-              Interface(
+              IoInterface(
                 offset = Offset(4, 1),
                 name = "exit",
                 items = listOf(
-                  Function(
+                  IoFunction(
                     offset = Offset(5, 3),
                     name = "exit",
                     parameters = listOf(
-                      Parameter(
+                      IoParameter(
                         offset = Offset(5, 14),
                         name = "status",
                         type = IoTypeName.Result(),
@@ -101,11 +102,11 @@ class WitPackageReaderTest {
           ),
           "run.wit".toPath() to IoWitFile(
             items = listOf(
-              Interface(
+              IoInterface(
                 offset = Offset(1, 1),
                 name = "run",
                 items = listOf(
-                  Function(
+                  IoFunction(
                     offset = Offset(2, 3),
                     name = "run",
                     returnType = IoTypeName.Result(),

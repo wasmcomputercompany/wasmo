@@ -769,7 +769,7 @@ internal class WitFileReader(
         val path = source.readUsePath()
         source.skipWhitespace()
         source.readLiteral(';')
-        IoExternalUsePath(
+        IoExternalApi(
           documentation = documentation,
           gate = gate,
           offset = offset,
@@ -812,7 +812,7 @@ internal class WitFileReader(
         source.skipWhitespace()
         val path = source.readUsePath()
         source.readLiteral(';')
-        IoExternalUsePath(
+        IoExternalApi(
           documentation = documentation,
           gate = gate,
           offset = offset,

@@ -18,7 +18,7 @@ fun PackageName.toNameMapper(prefix: String): NameMapper.Package {
 }
 
 fun IrTypeName.Declared.toNameMapper(prefix: String): NameMapper.Class =
-  packageName.toNameMapper(prefix) + interfaceName + name
+  packageName.toNameMapper(prefix) + parentName + name
 
 private fun String.toPackageSegment(): String {
   return map { char ->

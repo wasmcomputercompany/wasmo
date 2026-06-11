@@ -211,7 +211,7 @@ data class IoUse(
   ) : IoDeclaration
 }
 
-data class IoExternalUsePath(
+data class IoExternalApi(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
