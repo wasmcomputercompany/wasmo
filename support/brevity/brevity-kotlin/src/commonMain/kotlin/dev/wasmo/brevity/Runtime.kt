@@ -1,4 +1,4 @@
-package dev.wasmo.brevity.io.kotlin
+package dev.wasmo.brevity
 
 data class Quad<A, B, C, D>(
   val a: A,
@@ -20,4 +20,3 @@ class Borrow<T : Any>(val value: T) {
 interface Stream<T : Any> {
   fun next(): T
 }
-

@@ -96,13 +96,15 @@ Project layout
 | ` '- journal`           | A sample app.                                                       |
 | `docs`                  |                                                                     |
 | ` '- code`              | Design docs for Wasmo OS.                                           |
-| ` '- local_development` | Run Wasmo OS locally.                                               |
+| ` '- distributions`     | Documents our executable artifacts.                                 |
+| ` '- local_development` | Develop Wasmo OS locally.                                           |
 | ` '- platform`          | Build Wasmo apps.                                                   |
 | ` '- runbooks`          | Operate the hosted Wasmo.com service.                               |
 | `identifiers`           | Zero-dependency symbols and types used by both platform and OS.     |
 | `os`                    | Wasmo OS, the software that hosts computers and apps.               |
 | ` '- api`               | HTTP APIs and data models shared by client and server.              |
 | ` '- catalog`           | The catalog of Wasmo products that may be purchased.                |
+| ` '- cli`               | The moose command-line tool.                                        |
 | ` '- client`            | The frontend JavaScript application of the OS.                      |
 | ` '- distributions`     | Deployable artifacts to run Wasmo OS.                               |
 | ` '- framework`         | Wasmo OS's own web framework, built on Kotlin and Ktor.             |
@@ -110,7 +112,12 @@ Project layout
 | ` '- routes`            | Encode and decode Wasmo OS's URLs as values.                        |
 | ` '- server`            | The backend Kotlin server of Wasmo OS.                              |
 | `platform`              | APIs exposed by Wasmo OS to its apps.                               |
+| `submodules`            |                                                                     |
+| ` '- pico`              | The [Pico] CSS framework.                                           |
+| ` '- wasi`              | The [WebAssembly System Interface].                                 |
 | `support`               | Standalone support libraries. This is not intended as a stable API. |
+| ` '- absurd`            | Kotlin bindings for the [Absurd] durable workflow system.           |
+| ` '- brevity`           | A WIT processor.                                                    |
 | ` '- dom-tester`        | A library for snapshot testing HTML elements.                       |
 | ` '- issues`            | A library for modeling warnings and errors.                         |
 | ` '- router`            | A library for typesafe navigation in web apps.                      |
@@ -120,4 +127,10 @@ Project layout
 | ` '- wasmox-sqldelight` | A library for running [SQLDelight] in a Wasmo app.                  |
 | `wasmo-build`           | Gradle stuff for building this project.                             |
 
+[Absurd]: https://earendil-works.github.io/absurd/
+
+[Pico]: https://picocss.com/
+
 [SQLDelight]: https://github.com/sqldelight/sqldelight
+
+[WebAssembly System Interface]: https://github.com/WebAssembly/WASI

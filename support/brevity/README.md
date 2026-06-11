@@ -1,7 +1,10 @@
-WIT
-===
+Brevity
+=======
 
-A Kotlin implementation of a WIT parser.
+‘brevity is the soul of wit’
+  –– Polonius in Shakespeare’s Hamlet
+
+This is a Kotlin implementation of a WIT processor.
 
 See the [Explainer], [Overview] and [Spec].
 

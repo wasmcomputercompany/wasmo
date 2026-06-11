@@ -76,7 +76,7 @@ class TypeMapper(
 
 private object ClassNames {
   val Boolean = ClassName("kotlin", "Boolean")
-  val Borrow = ClassName("com.wasmo.support.wit.kotlin", "Borrow")
+  val Borrow = ClassName("dev.wasmo.brevity", "Borrow")
   val Byte = ClassName("kotlin", "Byte")
   val Deferred = ClassName("kotlinx.coroutines", "Deferred")
   val Double = ClassName("kotlin", "Double")
@@ -86,9 +86,9 @@ private object ClassNames {
   val Long = ClassName("kotlin", "Long")
   val Map = ClassName("kotlin.collections", "Map")
   val Pair = ClassName("kotlin", "Pair")
-  val Quad = ClassName("com.wasmo.support.wit.kotlin", "Quad")
+  val Quad = ClassName("dev.wasmo.brevity", "Quad")
   val Short = ClassName("kotlin", "Short")
-  val Stream = ClassName("com.wasmo.support.wit.kotlin", "Stream")
+  val Stream = ClassName("dev.wasmo.brevity", "Stream")
   val String = ClassName("kotlin", "String")
   val Triple = ClassName("kotlin", "Triple")
   val UByte = ClassName("kotlin", "UByte")
