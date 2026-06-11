@@ -5,7 +5,10 @@ package com.wasmo.sql
 import app.cash.burst.InterceptTest
 import assertk.assertThat
 import assertk.assertions.containsExactly
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
+import com.wasmo.api.SqlEventListener.SqlEvent
 import com.wasmo.sql.testing.AllTypes
 import com.wasmo.sql.testing.Balance
 import com.wasmo.sql.testing.KeyValue
@@ -145,6 +148,28 @@ class RealSqlServiceTest {
   }
 
   @Test
+  fun `execute and executeQuery fire events`() = runTest {
+    tester.sqlDatabase.newConnection().use { connection ->
+      val createDinnerTable = "CREATE TABLE Dinner (location TEXT, seats BIGINT)"
+      connection.execute(createDinnerTable)
+      val createStarted = tester.events.removeLast().assertIsInstanceOf<SqlEvent.SqlStarted>()
+      assertThat(createStarted.query).isEqualTo(createDinnerTable)
+      assertThat(createStarted.params).isEmpty()
+
+      val queryDinnerTable = "SELECT * FROM Dinner WHERE location = $1"
+      val location = "Dining room"
+      connection.executeQuery(queryDinnerTable) {
+        this.bindString(0, location)
+      }
+
+      val queryStarted = tester.events.removeLast().assertIsInstanceOf<SqlEvent.SqlStarted>()
+      assertThat(queryStarted.query).isEqualTo(queryDinnerTable)
+      assertThat(queryStarted.params).isEqualTo(listOf(location))
+    }
+  }
+
+
+  @Test
   @Ignore("our connection pool leaks connection state, ugh")
   fun `transaction scoped settings are isolated`() = runTest {
     tester.sqlDatabase.newConnection().use { connection ->
@@ -188,4 +213,9 @@ class RealSqlServiceTest {
       )
     }
   }
+}
+
+inline fun <reified T: Any> Any.assertIsInstanceOf(): T {
+  assertThat(this).isInstanceOf<T>()
+  return this as T
 }

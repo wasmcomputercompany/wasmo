@@ -1,5 +1,6 @@
 package wasmo.sql
 
+import com.wasmo.api.SqlEventListener
 import com.wasmo.identifiers.Secret
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.RealOsDatabaseInitializer
@@ -30,7 +31,7 @@ class FakeSqlService(
       appPrefix = "fake_sql_service",
     )
 
-    val clientFactory = PostgresqlClient.Factory()
+    val clientFactory = PostgresqlClient.Factory { }
     RealOsDatabaseInitializer(clientFactory, config).apply {
       initialize()
       dangerouslyClearSchema()

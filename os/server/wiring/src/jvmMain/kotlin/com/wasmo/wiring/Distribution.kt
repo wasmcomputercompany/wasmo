@@ -1,5 +1,7 @@
 package com.wasmo.wiring
 
+import com.wasmo.api.OsConfig
+import com.wasmo.api.SqlEventListener
 import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.ProvisioningDb
@@ -15,6 +17,7 @@ import wasmo.sql.SqlDatabase
  * Each subclass is its own particular distribution of Wasmo OS.
  */
 abstract class Distribution {
+  protected abstract val sqlEventListener: SqlEventListener
   protected abstract val postgresqlConfig: WasmoPostgresqlConfig
   protected abstract val ktorConfig: WasmoKtorConfig
 
@@ -31,7 +34,7 @@ abstract class Distribution {
       takeFrom(config.engineConfig)
     }
 
-    val postgresqlClientFactory = PostgresqlClient.Factory()
+    val postgresqlClientFactory = PostgresqlClient.Factory(sqlEventListener)
     val osPostgresqlClient = postgresqlClientFactory.connect(postgresqlConfig.os)
     val provisioningDb = ProvisioningDb(
       provisioningDb = postgresqlClientFactory.connect(postgresqlConfig.admin)

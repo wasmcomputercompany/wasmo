@@ -110,7 +110,7 @@ class ServiceTester : CoroutineTestInterceptor {
     fileSystem.createDirectories(testDirectory)
 
     val prefix = ProjectPrefix.detect()
-    val clientFactory = PostgresqlClient.Factory()
+    val clientFactory = PostgresqlClient.Factory { }
     val postgresqlConfig = testPostgresqlConfig(prefix)
     val initializer = RealOsDatabaseInitializer(
       clientFactory = clientFactory,

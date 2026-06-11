@@ -6,7 +6,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
-import com.wasmo.api.OsConfig
+import com.wasmo.api.SqlEventListener
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.identifiers.Deployment
@@ -94,7 +94,34 @@ class HomelabCommand : CliktCommand() {
       )
     }
 
+    val sqlEventListener = if (devMode) {
+      // Setup coroutines debugging.
+      DebugProbes.install()
+      DebugProbes.enableCreationStackTraces = true
+      DebugProbes.sanitizeStackTraces = true
+      System.setProperty(
+        kotlinx.coroutines.DEBUG_PROPERTY_NAME,
+        kotlinx.coroutines.DEBUG_PROPERTY_VALUE_ON
+      )
+      SqlEventListener { event ->
+        when (event) {
+          is SqlEventListener.SqlEvent.SqlStarted -> {
+            println("executing: ${event.query} ${event.params.joinToString(", ")}")
+          }
+        }
+      }
+    } else {
+      SqlEventListener { }
+    }.also {
+      println("devMode: $devMode")
+      println("DebugProbes.isInstalled: ${DebugProbes.isInstalled}")
+      println("DebugProbes.enableCreationStackTraces: ${DebugProbes.enableCreationStackTraces}")
+      println("${kotlinx.coroutines.DEBUG_PROPERTY_NAME}: ${System.getProperty(kotlinx.coroutines.DEBUG_PROPERTY_NAME)}")
+    }
+
+
     val distribution = object : Distribution() {
+      override val sqlEventListener: SqlEventListener = sqlEventListener
       override val postgresqlConfig = postgresqlConfig
       override val ktorConfig = ktorConfig
 
@@ -128,24 +155,7 @@ class HomelabCommand : CliktCommand() {
           objectStoreAddress = objectStoreAddress,
           sessionCookieSpec = SessionCookieSpec.Http,
           localPostgresql = localPostgresql,
-          osConfig = if (devMode) {
-            // Setup coroutines debugging.
-            DebugProbes.install()
-            DebugProbes.enableCreationStackTraces = true
-            DebugProbes.sanitizeStackTraces = true
-            System.setProperty(kotlinx.coroutines.DEBUG_PROPERTY_NAME, kotlinx.coroutines.DEBUG_PROPERTY_VALUE_ON)
-            System.setProperty("kotlinx.coroutines.stacktrace.recovery", "true")
-            OsConfig.DevMode
-          } else {
-            OsConfig.Standard
-          }.also {
-            println("OsConfig: $it")
-            println("DebugProbes.isInstalled: ${DebugProbes.isInstalled}")
-            println("DebugProbes.enableCreationStackTraces: ${DebugProbes.enableCreationStackTraces}")
-            println("${kotlinx.coroutines.DEBUG_PROPERTY_NAME}: ${System.getProperty(kotlinx.coroutines.DEBUG_PROPERTY_NAME)}")
-            val stackTraceRecovery = "kotlinx.coroutines.stacktrace.recovery"
-            println("$stackTraceRecovery: ${System.getProperty(stackTraceRecovery)}")
-          }
+          sqlEventListener = sqlEventListener,
         )
         return serviceGraph.wasmoService
       }
