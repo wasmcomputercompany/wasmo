@@ -27,8 +27,8 @@ class ApiGenerator {
 
   private fun FileSpec.Builder.addPackageItem(value: KtWitPackage.Item) {
     when (value) {
-      is KtInterface -> addType(generate(value))
-      is KtWorld -> addType(generate(value))
+      is KtInterface -> addType(interfaceToApi(value))
+      is KtWorld -> addType(worldToApi(value))
     }
   }
 
@@ -41,7 +41,7 @@ class ApiGenerator {
     }
   }
 
-  private fun generate(value: KtInterface) = TypeSpec.interfaceBuilder(value.type.simpleName)
+  private fun interfaceToApi(value: KtInterface) = TypeSpec.interfaceBuilder(value.type.simpleName)
     .setDeclaration(value)
     .apply {
       for (declaration in value.items) {
@@ -52,17 +52,17 @@ class ApiGenerator {
 
   private fun TypeSpec.Builder.addInterfaceItem(value: KtInterface.Item) {
     when (value) {
-      is KtEnum -> addType(generate(value))
-      is KtFlags -> addType(generate(value))
-      is KtFunction -> addFunction(generate(value))
-      is KtRecord -> addType(generate(value))
-      is KtResource -> addType(generate(value))
-      is KtTypeAlias -> addType(generate(value))
-      is KtVariant -> addType(generate(value))
+      is KtEnum -> addType(enumToApi(value))
+      is KtFlags -> addType(flagsToApi(value))
+      is KtFunction -> addFunction(functionToApi(value))
+      is KtRecord -> addType(recordToApi(value))
+      is KtResource -> addType(resourceToApi(value))
+      is KtTypeAlias -> addType(typeAliasToApi(value))
+      is KtVariant -> addType(variantToApi(value))
     }
   }
 
-  private fun generate(value: KtRecord) = TypeSpec.classBuilder(value.type.simpleName)
+  private fun recordToApi(value: KtRecord) = TypeSpec.classBuilder(value.type.simpleName)
     .addModifiers(KModifier.DATA)
     .setDeclaration(value)
     .apply {
@@ -86,16 +86,16 @@ class ApiGenerator {
     }
     .build()
 
-  private fun generate(value: KtResource) = TypeSpec.interfaceBuilder(value.type.simpleName)
+  private fun resourceToApi(value: KtResource) = TypeSpec.interfaceBuilder(value.type.simpleName)
     .setDeclaration(value)
     .apply {
       for (function in value.functions) {
-        addFunction(generate(function))
+        addFunction(functionToApi(function))
       }
     }
     .build()
 
-  private fun generate(value: KtVariant) = TypeSpec.interfaceBuilder(value.type.simpleName)
+  private fun variantToApi(value: KtVariant) = TypeSpec.interfaceBuilder(value.type.simpleName)
     .addModifiers(KModifier.SEALED)
     .setDeclaration(value)
     .apply {
@@ -132,7 +132,7 @@ class ApiGenerator {
     }
     .build()
 
-  private fun generate(value: KtEnum) = TypeSpec.enumBuilder(value.type.simpleName)
+  private fun enumToApi(value: KtEnum) = TypeSpec.enumBuilder(value.type.simpleName)
     .setDeclaration(value)
     .apply {
       for (case in value.cases) {
@@ -146,7 +146,7 @@ class ApiGenerator {
     }
     .build()
 
-  private fun generate(value: KtTypeAlias) = TypeSpec.classBuilder(value.type.simpleName)
+  private fun typeAliasToApi(value: KtTypeAlias) = TypeSpec.classBuilder(value.type.simpleName)
     .addModifiers(KModifier.VALUE)
     .addAnnotation(JvmInline::class)
     .setDeclaration(value)
@@ -168,7 +168,7 @@ class ApiGenerator {
     }
     .build()
 
-  private fun generate(value: KtFlags) = TypeSpec.classBuilder(value.type.simpleName)
+  private fun flagsToApi(value: KtFlags) = TypeSpec.classBuilder(value.type.simpleName)
     .addModifiers(KModifier.DATA)
     .setDeclaration(value)
     .apply {
@@ -190,7 +190,7 @@ class ApiGenerator {
     }
     .build()
 
-  private fun generate(value: KtFunction) = FunSpec.builder(value.name)
+  private fun functionToApi(value: KtFunction) = FunSpec.builder(value.name)
     .addModifiers(KModifier.ABSTRACT)
     .setDeclaration(value)
     .apply {
@@ -204,7 +204,7 @@ class ApiGenerator {
     }
     .build()
 
-  private fun generate(value: KtWorld) = TypeSpec.objectBuilder(value.type.simpleName)
+  private fun worldToApi(value: KtWorld) = TypeSpec.objectBuilder(value.type.simpleName)
     .setDeclaration(value)
     .apply {
       for (item in value.items) {
@@ -240,12 +240,12 @@ class ApiGenerator {
 
   private fun TypeSpec.Builder.addWorldItem(value: KtWorld.Item) {
     when (value) {
-      is KtEnum -> addType(generate(value))
-      is KtFlags -> addType(generate(value))
-      is KtRecord -> addType(generate(value))
-      is KtResource -> addType(generate(value))
-      is KtTypeAlias -> addType(generate(value))
-      is KtVariant -> addType(generate(value))
+      is KtEnum -> addType(enumToApi(value))
+      is KtFlags -> addType(flagsToApi(value))
+      is KtRecord -> addType(recordToApi(value))
+      is KtResource -> addType(resourceToApi(value))
+      is KtTypeAlias -> addType(typeAliasToApi(value))
+      is KtVariant -> addType(variantToApi(value))
       else -> error("unexpected value: $value")
     }
   }
@@ -253,10 +253,10 @@ class ApiGenerator {
   private fun TypeSpec.Builder.addWorldApi(externalType: KtWorld.Api) {
     when (externalType) {
       is KtExternalApi -> addProperty(externalType.name, externalType.type)
-      is KtFunction -> addFunction(generate(externalType))
+      is KtFunction -> addFunction(functionToApi(externalType))
       is KtInterface -> {
         addProperty(externalType.instanceName, externalType.type)
-        addType(generate(externalType))
+        addType(interfaceToApi(externalType))
       }
     }
   }
