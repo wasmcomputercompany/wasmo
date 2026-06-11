@@ -1,63 +1,27 @@
 package com.wasmo.support.wit.kotlin.generator
 
 import assertk.assertThat
-import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.wasmo.support.wit.Scope
-import com.wasmo.support.wit.SymbolIndex
-import com.wasmo.support.wit.TypeName
-import com.wasmo.support.wit.WitPackage
-import com.wasmo.support.wit.toPackageName
-import com.wasmo.support.wit.toWitFile
+import com.wasmo.support.wit.io.IrTypeNameDeclared
+import com.wasmo.support.wit.ir.IrTypeName
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
-import okio.Path.Companion.toPath
 
 class TypeMapperTest {
   @Test
   fun `map types`() {
-    val witFile = """
-      |package wasi:clocks;
-      |
-      |interface wall-clock {
-      |    record datetime {
-      |        seconds: u64,
-      |    }
-      |}
-      """.trimMargin().toWitFile()
-
-    val index = SymbolIndex(
-      packages = listOf(
-        WitPackage(
-          packageName = "wasi:clocks".toPackageName(),
-          files = mapOf("clock.wit".toPath() to witFile),
-        ),
-      ),
-    )
-    val typeMapper = TypeMapper(
-      index = index,
-      kotlinPackagePrefix = "wit",
-      scope = Scope(
-        packageName = "wasi:clocks",
-        interfaceName = "wall-clock",
-      ),
-    )
-
-    assertThat(typeMapper.map(TypeName.Declared("datetime")))
-      .isEqualTo(ClassName("wit.wasi.clocks", "WallClock", "Datetime"))
-
-    assertThat(typeMapper.map(TypeName.List(TypeName.Declared("datetime"))))
-      .isEqualTo(
-        ClassName("kotlin.collections", "List")
-          .parameterizedBy(ClassName("wit.wasi.clocks", "WallClock", "Datetime")),
-      )
+    val typeMapper = TypeMapper(kotlinPackagePrefix = "wit")
 
     assertThat(
-      assertFailsWith<IllegalArgumentException> {
-        typeMapper.map(TypeName.Declared("instant"))
-      },
-    ).hasMessage("unable to find instant in wasi:clocks/wall-clock")
+      typeMapper.map(IrTypeNameDeclared("wasi:clocks", "wall-clock", "datetime")),
+    ).isEqualTo(ClassName("wit.wasi.clocks", "WallClock", "Datetime"))
+
+    assertThat(
+      typeMapper.map(IrTypeName.List(IrTypeNameDeclared("wasi:clocks", "wall-clock", "datetime"))),
+    ).isEqualTo(
+      ClassName("kotlin.collections", "List")
+        .parameterizedBy(ClassName("wit.wasi.clocks", "WallClock", "Datetime")),
+    )
   }
 }

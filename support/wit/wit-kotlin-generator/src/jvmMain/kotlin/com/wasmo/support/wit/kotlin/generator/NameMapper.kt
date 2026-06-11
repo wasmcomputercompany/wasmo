@@ -3,7 +3,7 @@ package com.wasmo.support.wit.kotlin.generator
 import com.squareup.kotlinpoet.ClassName
 import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.PackageName
-import com.wasmo.support.wit.TypePath
+import com.wasmo.support.wit.ir.IrTypeName
 
 fun PackageName.toNameMapper(prefix: String): NameMapper.Package {
   val segments = buildList {
@@ -17,8 +17,8 @@ fun PackageName.toNameMapper(prefix: String): NameMapper.Package {
   return NameMapper.Package(segments.joinToString(separator = "."))
 }
 
-fun TypePath.toNameMapper(prefix: String): NameMapper.Class =
-  packageName.toNameMapper(prefix) + interfaceName + typeName
+fun IrTypeName.Declared.toNameMapper(prefix: String): NameMapper.Class =
+  packageName.toNameMapper(prefix) + interfaceName + name
 
 private fun String.toPackageSegment(): String {
   return map { char ->

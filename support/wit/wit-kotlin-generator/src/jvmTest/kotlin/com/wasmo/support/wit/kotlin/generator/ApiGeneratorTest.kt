@@ -2,16 +2,17 @@ package com.wasmo.support.wit.kotlin.generator
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.wasmo.support.wit.WitPackage
-import com.wasmo.support.wit.toPackageName
-import com.wasmo.support.wit.toWitFile
+import com.wasmo.support.wit.io.IoWitPackage
+import com.wasmo.support.wit.io.toPackageName
+import com.wasmo.support.wit.io.toWitFile
+import com.wasmo.support.wit.ir.IrMapper
 import kotlin.test.Test
 import okio.Path.Companion.toPath
 
 class ApiGeneratorTest {
   @Test
   fun `full interface`() {
-    val wasiClocks = WitPackage(
+    val wasiClocks = IoWitPackage(
       packageName = "wasi:clocks@0.2.12".toPackageName(),
       files = mapOf(
         "clock.wit".toPath() to """
@@ -68,10 +69,9 @@ class ApiGeneratorTest {
       ),
     )
 
-    val kotlinMapper = KotlinMapper(listOf(wasiClocks))
-    val apiGenerator = ApiGenerator()
-    val kotlinPackage = kotlinMapper.mapPackage(wasiClocks)
-    val fileSpec = apiGenerator.generate(kotlinPackage)
+    val witPackage = IrMapper(listOf(wasiClocks)).map().single()
+    val kotlinPackage = KotlinMapper().mapPackage(witPackage)
+    val fileSpec = ApiGenerator().generate(kotlinPackage)
 
     assertThat(fileSpec.toString()).isEqualTo(
       """
@@ -173,7 +173,7 @@ class ApiGeneratorTest {
 
   @Test
   fun `full world`() {
-    val wasiCommand = WitPackage(
+    val wasiCommand = IoWitPackage(
       packageName = "wasi:cli@0.3.0".toPackageName(),
       files = mapOf(
         "command.wit".toPath() to """
@@ -208,10 +208,9 @@ class ApiGeneratorTest {
       ),
     )
 
-    val kotlinMapper = KotlinMapper(listOf(wasiCommand))
-    val apiGenerator = ApiGenerator()
-    val kotlinPackage = kotlinMapper.mapPackage(wasiCommand)
-    val fileSpec = apiGenerator.generate(
+    val witPackage = IrMapper(listOf(wasiCommand)).map().single()
+    val kotlinPackage = KotlinMapper().mapPackage(witPackage)
+    val fileSpec = ApiGenerator().generate(
       witPackage = kotlinPackage,
       worldFilter = { world -> world.type.simpleName == "Command" }
     )

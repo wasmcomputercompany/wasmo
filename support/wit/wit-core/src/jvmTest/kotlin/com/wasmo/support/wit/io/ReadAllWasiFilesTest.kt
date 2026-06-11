@@ -1,7 +1,9 @@
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.support.wit.WitException
+import com.wasmo.support.wit.ir.IrMapper
 import kotlin.test.Test
 import kotlin.test.fail
 import okio.FileSystem
@@ -38,7 +40,7 @@ class ReadAllWasiFilesTest {
   }
 
   @Test
-  fun `get all types`() {
+  fun `map all files`() {
     val directories = mutableListOf(
       wasiProposals / "cli/wit",
       wasiProposals / "clocks/wit",
@@ -53,19 +55,6 @@ class ReadAllWasiFilesTest {
       WitPackageReader(fileSystem).read(it)
     }
 
-    val index = SymbolIndex(witPackages)
-    for (witPackage in witPackages) {
-      for (ref in witPackage.typeReferences()) {
-        val declaredType = ref.typeName as? TypeName.Declared ?: continue
-        try {
-          index.getType(
-            scope = ref.scope,
-            typeName = declaredType,
-          )
-        } catch (e: IllegalArgumentException) {
-          throw IllegalArgumentException("failed to find ${ref.typeName} from ${ref.scope}", e)
-        }
-      }
-    }
+    IrMapper(witPackages).map()
   }
 }

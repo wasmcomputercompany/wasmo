@@ -1,8 +1,12 @@
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import com.wasmo.support.wit.Documentation
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.Offset
+import com.wasmo.support.wit.WitException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -13,7 +17,7 @@ class WitFileReaderTest {
       |package wasi:clocks@0.2.9;
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
+      IoWitFile(
         packageName = "wasi:clocks@0.2.9".toPackageName(),
       ),
     )
@@ -133,8 +137,8 @@ class WitFileReaderTest {
       |interface foo {}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(name = "foo"),
         ),
       ),
@@ -150,8 +154,8 @@ class WitFileReaderTest {
       |interface foo {}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             documentation = """
               | this is the foo interface
@@ -175,12 +179,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "foo",
-            declarations = listOf(
+            items = listOf(
               Function(
                 offset = Offset(2, 3),
                 name = "print",
@@ -188,16 +192,16 @@ class WitFileReaderTest {
                   Parameter(
                     offset = Offset(2, 15),
                     name = "message",
-                    type = TypeName.String,
+                    type = IoTypeName.String,
                   ),
                   Parameter(
                     offset = Offset(2, 32),
                     name = "repeat",
-                    type = TypeName.Option(TypeName.U32),
+                    type = IoTypeName.Option(IoTypeName.U32),
                   ),
                 ),
-                returnType = TypeName.Result(
-                  err = TypeName.Declared("errno"),
+                returnType = IoTypeName.Result(
+                  err = IoTypeName.Declared("errno"),
                 ),
               ),
               Function(
@@ -229,13 +233,13 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
+      IoWitFile(
         packageName = "wasi:clocks@0.2.9".toPackageName(),
-        declarations = listOf(
+        items = listOf(
           Interface(
             offset = Offset(3, 1),
             name = "wall-clock",
-            declarations = listOf(
+            items = listOf(
               Record(
                 offset = Offset(4, 3),
                 name = "datetime",
@@ -243,24 +247,24 @@ class WitFileReaderTest {
                   Field(
                     offset = Offset(5, 5),
                     name = "seconds",
-                    type = TypeName.U64,
+                    type = IoTypeName.U64,
                   ),
                   Field(
                     offset = Offset(6, 5),
                     name = "nanoseconds",
-                    type = TypeName.U32,
+                    type = IoTypeName.U32,
                   ),
                 ),
               ),
               Function(
                 offset = Offset(9, 3),
                 name = "now",
-                returnType = TypeName.Declared("datetime"),
+                returnType = IoTypeName.Declared("datetime"),
               ),
               Function(
                 offset = Offset(11, 3),
                 name = "resolution",
-                returnType = TypeName.Declared("datetime"),
+                returnType = IoTypeName.Declared("datetime"),
               ),
             ),
           ),
@@ -279,8 +283,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             documentation = """
               | tick tock
@@ -312,12 +316,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "wall-clock",
-            declarations = listOf(
+            items = listOf(
               Record(
                 documentation = " spacetime",
                 gate = Gate(since = "2.0"),
@@ -329,14 +333,14 @@ class WitFileReaderTest {
                     gate = Gate(since = "3.0"),
                     offset = Offset(7, 5),
                     name = "seconds",
-                    type = TypeName.U64,
+                    type = IoTypeName.U64,
                   ),
                   Field(
                     documentation = " tick",
                     gate = Gate(since = "4.0"),
                     offset = Offset(10, 5),
                     name = "nanoseconds",
-                    type = TypeName.U32,
+                    type = IoTypeName.U32,
                   ),
                 ),
               ),
@@ -360,12 +364,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "wall-clock",
-            declarations = listOf(
+            items = listOf(
               Function(
                 documentation = " sample the clock",
                 gate = Gate(since = "5.0"),
@@ -376,10 +380,10 @@ class WitFileReaderTest {
                     documentation = " True to return a non-decreasing value.",
                     offset = Offset(6, 5),
                     name = "monotonic",
-                    type = TypeName.Bool,
+                    type = IoTypeName.Bool,
                   ),
                 ),
-                returnType = TypeName.Declared("datetime"),
+                returnType = IoTypeName.Declared("datetime"),
               ),
             ),
           ),
@@ -398,12 +402,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "monotonic-clock",
-            declarations = listOf(
+            items = listOf(
               Function(
                 offset = Offset(2, 3),
                 name = "subscribe-instant",
@@ -411,10 +415,10 @@ class WitFileReaderTest {
                   Parameter(
                     offset = Offset(3, 5),
                     name = "when",
-                    type = TypeName.Declared("instant"),
+                    type = IoTypeName.Declared("instant"),
                   ),
                 ),
-                returnType = TypeName.Declared("pollable"),
+                returnType = IoTypeName.Declared("pollable"),
               ),
             ),
           ),
@@ -449,12 +453,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "db",
-            declarations = listOf(
+            items = listOf(
               Resource(
                 documentation = " big boi",
                 gate = Gate(since = "1.0"),
@@ -471,7 +475,7 @@ class WitFileReaderTest {
                       Parameter(
                         offset = Offset(7, 17),
                         name = "init",
-                        type = TypeName.List(TypeName.U8),
+                        type = IoTypeName.List(IoTypeName.U8),
                       ),
                     ),
                   ),
@@ -484,7 +488,7 @@ class WitFileReaderTest {
                       Parameter(
                         offset = Offset(11, 17),
                         name = "bytes",
-                        type = TypeName.List(TypeName.U8),
+                        type = IoTypeName.List(IoTypeName.U8),
                       ),
                     ),
                   ),
@@ -497,10 +501,10 @@ class WitFileReaderTest {
                       Parameter(
                         offset = Offset(15, 16),
                         name = "n",
-                        type = TypeName.U32,
+                        type = IoTypeName.U32,
                       ),
                     ),
-                    returnType = TypeName.List(TypeName.U8),
+                    returnType = IoTypeName.List(IoTypeName.U8),
                   ),
                   Function(
                     documentation = " smashes some blobs together",
@@ -512,15 +516,15 @@ class WitFileReaderTest {
                       Parameter(
                         offset = Offset(19, 24),
                         name = "lhs",
-                        type = TypeName.Borrow(TypeName.Declared("blob")),
+                        type = IoTypeName.Borrow(IoTypeName.Declared("blob")),
                       ),
                       Parameter(
                         offset = Offset(19, 43),
                         name = "rhs",
-                        type = TypeName.Borrow(TypeName.Declared("blob")),
+                        type = IoTypeName.Borrow(IoTypeName.Declared("blob")),
                       ),
                     ),
-                    returnType = TypeName.Declared("blob"),
+                    returnType = IoTypeName.Declared("blob"),
                   ),
                 ),
               ),
@@ -539,12 +543,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "db",
-            declarations = listOf(
+            items = listOf(
               Resource(
                 offset = Offset(2, 3),
                 name = "blob",
@@ -576,12 +580,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "db",
-            declarations = listOf(
+            items = listOf(
               Variant(
                 documentation = " whats included",
                 gate = Gate(since = "1.0"),
@@ -605,7 +609,7 @@ class WitFileReaderTest {
                     gate = Gate(since = "4.0"),
                     offset = Offset(13, 5),
                     name = "some",
-                    type = TypeName.List(TypeName.String),
+                    type = IoTypeName.List(IoTypeName.String),
                   ),
                 ),
               ),
@@ -636,12 +640,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "db",
-            declarations = listOf(
+            items = listOf(
               Flags(
                 documentation = " comic character",
                 gate = Gate(since = "1.0"),
@@ -695,12 +699,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "db",
-            declarations = listOf(
+            items = listOf(
               Enum(
                 documentation = " Roy G.",
                 gate = Gate(since = "1.0"),
@@ -747,29 +751,29 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "db",
-            declarations = listOf(
+            items = listOf(
               TypeAlias(
                 documentation = " So Awesome.",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
                 name = "my-awesome-u32",
-                target = TypeName.U32,
+                target = IoTypeName.U32,
               ),
               TypeAlias(
                 documentation = " So Complicated.",
                 gate = Gate(since = "2.0"),
                 offset = Offset(7, 3),
                 name = "my-complicated-tuple",
-                target = TypeName.Tuple(
+                target = IoTypeName.Tuple(
                   listOf(
-                    TypeName.U32,
-                    TypeName.S32,
-                    TypeName.String,
+                    IoTypeName.U32,
+                    IoTypeName.S32,
+                    IoTypeName.String,
                   ),
                 ),
               ),
@@ -797,12 +801,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           Interface(
             offset = Offset(1, 1),
             name = "db",
-            declarations = listOf(
+            items = listOf(
               Use(
                 documentation = " Four values.",
                 gate = Gate(since = "1.0"),
@@ -849,8 +853,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             documentation = " a printer-scanner-fax thingy",
             gate = Gate(since = "1.0"),
@@ -875,8 +879,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
@@ -912,8 +916,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
@@ -942,8 +946,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
@@ -976,8 +980,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
@@ -987,7 +991,7 @@ class WitFileReaderTest {
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
                 name = "host",
-                declarations = listOf(
+                items = listOf(
                   Function(
                     documentation = " This function is in an inline interface",
                     gate = Gate(since = "2.0"),
@@ -997,7 +1001,7 @@ class WitFileReaderTest {
                       Parameter(
                         offset = Offset(7, 15),
                         name = "param",
-                        type = TypeName.String,
+                        type = IoTypeName.String,
                       ),
                     ),
                   ),
@@ -1024,8 +1028,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
@@ -1035,7 +1039,7 @@ class WitFileReaderTest {
                 gate = Gate(since = "3.0"),
                 offset = Offset(4, 3),
                 name = "guest",
-                declarations = listOf(
+                items = listOf(
                   Function(
                     documentation = " A function in an inline interface",
                     gate = Gate(since = "4.0"),
@@ -1045,7 +1049,7 @@ class WitFileReaderTest {
                       Parameter(
                         offset = Offset(7, 16),
                         name = "document",
-                        type = TypeName.String,
+                        type = IoTypeName.String,
                       ),
                     ),
                   ),
@@ -1068,8 +1072,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
@@ -1083,7 +1087,7 @@ class WitFileReaderTest {
                   Parameter(
                     offset = Offset(4, 20),
                     name = "param",
-                    type = TypeName.String,
+                    type = IoTypeName.String,
                   ),
                 ),
               ),
@@ -1104,8 +1108,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
@@ -1119,7 +1123,7 @@ class WitFileReaderTest {
                   Parameter(
                     offset = Offset(4, 21),
                     name = "document",
-                    type = TypeName.String,
+                    type = IoTypeName.String,
                   ),
                 ),
               ),
@@ -1138,8 +1142,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
@@ -1164,8 +1168,8 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
@@ -1192,12 +1196,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
+            items = listOf(
               Include(
                 documentation = " This include is pretty basic.",
                 gate = Gate(since = "1.0"),
@@ -1224,12 +1228,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
+            items = listOf(
               Include(
                 offset = Offset(2, 3),
                 path = "wasi:io/my-world-1",
@@ -1266,9 +1270,9 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
-          Package(
+      IoWitFile(
+        items = listOf(
+          IoInlinePackage(
             documentation = Documentation(" This package is pasted from somewhere else."),
             gate = Gate(since = "1.0"),
             offset = Offset(3, 1),
@@ -1298,15 +1302,15 @@ class WitFileReaderTest {
       |use wasi:http/handler as http-handler;
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
-          TopLevelUse(
+      IoWitFile(
+        items = listOf(
+          IoTopLevelUse(
             documentation = Documentation(" Use the Wasi HTTP types."),
             gate = Gate(since = "1.0"),
             offset = Offset(3, 1),
             path = "wasi:http/types@1.0.0".toUsePath(),
           ),
-          TopLevelUse(
+          IoTopLevelUse(
             documentation = Documentation(" Use the Wasi HTTP handler also."),
             gate = Gate(since = "2.0"),
             offset = Offset(6, 1),
@@ -1328,13 +1332,13 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
-          Package(
+      IoWitFile(
+        items = listOf(
+          IoInlinePackage(
             offset = Offset(1, 1),
             name = "local:a".toPackageName(),
             declarations = listOf(
-              TopLevelUse(
+              IoTopLevelUse(
                 documentation = Documentation(" Use the Wasi HTTP types."),
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
@@ -1358,9 +1362,9 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
-          Package(
+      IoWitFile(
+        items = listOf(
+          IoInlinePackage(
             offset = Offset(1, 1),
             name = "local:a".toPackageName(),
             declarations = listOf(
@@ -1388,12 +1392,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
+            items = listOf(
               Record(
                 offset = Offset(2, 3),
                 name = "datetime",
@@ -1401,12 +1405,12 @@ class WitFileReaderTest {
                   Field(
                     offset = Offset(3, 5),
                     name = "seconds",
-                    type = TypeName.U64,
+                    type = IoTypeName.U64,
                   ),
                   Field(
                     offset = Offset(4, 5),
                     name = "nanoseconds",
-                    type = TypeName.U32,
+                    type = IoTypeName.U32,
                   ),
                 ),
               ),
@@ -1429,12 +1433,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
+            items = listOf(
               Enum(
                 offset = Offset(2, 3),
                 name = "color",
@@ -1472,12 +1476,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
+            items = listOf(
               Flags(
                 offset = Offset(2, 3),
                 name = "properties",
@@ -1514,12 +1518,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
+            items = listOf(
               Resource(
                 offset = Offset(2, 3),
                 name = "blob",
@@ -1532,7 +1536,7 @@ class WitFileReaderTest {
                       Parameter(
                         offset = Offset(3, 17),
                         name = "init",
-                        type = TypeName.List(TypeName.U8),
+                        type = IoTypeName.List(IoTypeName.U8),
                       ),
                     ),
                   ),
@@ -1543,7 +1547,7 @@ class WitFileReaderTest {
                       Parameter(
                         offset = Offset(4, 17),
                         name = "bytes",
-                        type = TypeName.List(TypeName.U8),
+                        type = IoTypeName.List(IoTypeName.U8),
                       ),
                     ),
                   ),
@@ -1564,16 +1568,16 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
+            items = listOf(
               TypeAlias(
                 offset = Offset(2, 3),
                 name = "my-awesome-u32",
-                target = TypeName.U32,
+                target = IoTypeName.U32,
               ),
             ),
           ),
@@ -1590,12 +1594,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
+            items = listOf(
               Use(
                 offset = Offset(2, 3),
                 path = "an-interface",
@@ -1625,12 +1629,12 @@ class WitFileReaderTest {
       |}
       """.trimMargin().toWitFile()
     assertThat(wit).isEqualTo(
-      WitFile(
-        declarations = listOf(
+      IoWitFile(
+        items = listOf(
           World(
             offset = Offset(1, 1),
             name = "multi-function-device",
-            declarations = listOf(
+            items = listOf(
               Variant(
                 offset = Offset(2, 3),
                 name = "filter",
@@ -1646,7 +1650,7 @@ class WitFileReaderTest {
                   Case(
                     offset = Offset(5, 5),
                     name = "some",
-                    type = TypeName.List(TypeName.String),
+                    type = IoTypeName.List(IoTypeName.String),
                   ),
                 ),
               ),

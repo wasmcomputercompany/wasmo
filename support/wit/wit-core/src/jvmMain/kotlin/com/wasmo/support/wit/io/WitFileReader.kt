@@ -1,24 +1,30 @@
 @file:OptIn(WitCoreInternalApi::class)
 
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
 
-import com.wasmo.support.wit.Keywords.deprecated
-import com.wasmo.support.wit.Keywords.feature
-import com.wasmo.support.wit.Keywords.since
-import com.wasmo.support.wit.Keywords.unstable
-import com.wasmo.support.wit.Keywords.version
+import com.wasmo.support.wit.Documentation
+import com.wasmo.support.wit.Gate
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.Offset
+import com.wasmo.support.wit.SemVer
+import com.wasmo.support.wit.WitCoreInternalApi
+import com.wasmo.support.wit.io.Keywords.deprecated
+import com.wasmo.support.wit.io.Keywords.feature
+import com.wasmo.support.wit.io.Keywords.since
+import com.wasmo.support.wit.io.Keywords.unstable
+import com.wasmo.support.wit.io.Keywords.version
 
-fun String.toWitFile(): WitFile = WitFileReader(this).read()
+fun String.toWitFile(): IoWitFile = WitFileReader(this).read()
 
 internal class WitFileReader(
-  private val source: WitStructureReader,
+  private val source: WitSyntaxReader,
 ) {
-  constructor(string: String) : this(WitStructureReader(string))
+  constructor(string: String) : this(WitSyntaxReader(string))
 
-  fun read(): WitFile {
-    val declarations = mutableListOf<Declaration>()
+  fun read(): IoWitFile {
+    val items = mutableListOf<IoWitFile.Item>()
 
-    var packageIdentifier: Package? = null
+    var packageIdentifier: IoInlinePackage? = null
 
     while (true) {
       source.skipWhitespace()
@@ -33,38 +39,38 @@ internal class WitFileReader(
           val (value, kind) = readPackage(documentation, gate, offset)
           when (kind) {
             PackageKind.Identifier -> {
-              checkWit(packageIdentifier == null && declarations.isEmpty(), offset) {
+              checkWit(packageIdentifier == null && items.isEmpty(), offset) {
                 "unexpected package identifier"
               }
               packageIdentifier = value
             }
 
             PackageKind.Nested -> {
-              declarations += value
+              items += value
             }
           }
         }
 
         Keywords.`interface` -> {
-          declarations += readInterface(documentation, gate, offset)
+          items += readInterface(documentation, gate, offset)
         }
 
         Keywords.use -> {
-          declarations += readTopLevelUse(documentation, gate, offset)
+          items += readTopLevelUse(documentation, gate, offset)
         }
 
         Keywords.world -> {
-          declarations += readWorld(documentation, gate, offset)
+          items += readWorld(documentation, gate, offset)
         }
 
         else -> errorWit(offset, "unexpected identifier: $identifier")
       }
     }
 
-    return WitFile(
+    return IoWitFile(
       packageDocumentation = packageIdentifier?.documentation,
       packageName = packageIdentifier?.name,
-      declarations = declarations,
+      items = items,
     )
   }
 
@@ -80,10 +86,10 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): Pair<Package, PackageKind> {
+  ): Pair<IoInlinePackage, PackageKind> {
     source.skipWhitespace()
     val name = source.readPackageName()
-    val declarations = mutableListOf<Declaration>()
+    val declarations = mutableListOf<IoDeclaration>()
 
     source.skipWhitespace()
     val packageKind = when {
@@ -113,7 +119,7 @@ internal class WitFileReader(
       }
     }
 
-    return Package(
+    return IoInlinePackage(
       documentation = documentation,
       gate = gate,
       offset = offset,
@@ -139,24 +145,24 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): Interface {
+  ): IoInterface {
     source.skipWhitespace()
     val name = source.readIdentifier()
     val declarations = readInterfaceItems()
-    return Interface(
+    return IoInterface(
       documentation = documentation,
       gate = gate,
       offset = offset,
       name = name,
-      declarations = declarations,
+      items = declarations,
     )
   }
 
-  private fun readInterfaceItems(): List<Declaration> {
+  private fun readInterfaceItems(): List<IoInterface.Item> {
     source.skipWhitespace()
     source.readLiteral('{')
 
-    val result = mutableListOf<Declaration>()
+    val result = mutableListOf<IoInterface.Item>()
     while (true) {
       source.skipWhitespace()
       if (source.tryReadLiteral('}')) break
@@ -182,7 +188,7 @@ internal class WitFileReader(
    *                | type-item
    * ```
    */
-  internal fun readInterfaceItem(): Declaration {
+  internal fun readInterfaceItem(): IoInterface.Item {
     val gate = readGateOrNull()
     val documentation = source.takeDocumentation()
     val offset = source.offset
@@ -213,7 +219,7 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): Record {
+  ): IoRecord {
     source.skipWhitespace()
     val name = source.readIdentifier()
 
@@ -229,7 +235,7 @@ internal class WitFileReader(
       source.skipWhitespace()
       val fieldType = source.readTypeName()
 
-      Field(
+      IoField(
         documentation = fieldDocumentation,
         gate = fieldGate,
         offset = fieldOffset,
@@ -238,7 +244,7 @@ internal class WitFileReader(
       )
     }
 
-    return Record(
+    return IoRecord(
       documentation = documentation,
       gate = gate,
       offset = offset,
@@ -262,7 +268,7 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): Variant {
+  ): IoVariant {
     source.skipWhitespace()
     val name = source.readIdentifier()
 
@@ -286,7 +292,7 @@ internal class WitFileReader(
         else -> null
       }
 
-      Case(
+      IoCase(
         documentation = caseDocumentation,
         gate = caseGate,
         offset = caseOffset,
@@ -295,7 +301,7 @@ internal class WitFileReader(
       )
     }
 
-    return Variant(
+    return IoVariant(
       documentation = documentation,
       gate = gate,
       offset = offset,
@@ -317,10 +323,10 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): Resource {
+  ): IoResource {
     source.skipWhitespace()
     val name = source.readIdentifier()
-    val declarations = mutableListOf<Function>()
+    val declarations = mutableListOf<IoFunction>()
 
     source.skipWhitespace()
     if (source.tryReadLiteral('{')) {
@@ -337,7 +343,7 @@ internal class WitFileReader(
             val parameters = readParameterList()
             source.skipWhitespace()
             source.readLiteral(';')
-            declarations += Function(
+            declarations += IoFunction(
               documentation = functionDocumentation,
               gate = functionGate,
               offset = functionOffset,
@@ -361,7 +367,7 @@ internal class WitFileReader(
       source.readLiteral(';')
     }
 
-    return Resource(
+    return IoResource(
       documentation = documentation,
       gate = gate,
       offset = offset,
@@ -382,7 +388,7 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): Flags {
+  ): IoFlags {
     source.skipWhitespace()
     val name = source.readIdentifier()
 
@@ -392,7 +398,7 @@ internal class WitFileReader(
       val flagOffset = source.offset
       val flagName = source.readIdentifier()
 
-      Flag(
+      IoFlag(
         documentation = flagDocumentation,
         gate = flagGate,
         offset = flagOffset,
@@ -400,7 +406,7 @@ internal class WitFileReader(
       )
     }
 
-    return Flags(
+    return IoFlags(
       documentation = documentation,
       gate = gate,
       offset = offset,
@@ -421,7 +427,7 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): Enum {
+  ): IoEnum {
     source.skipWhitespace()
     val name = source.readIdentifier()
 
@@ -431,7 +437,7 @@ internal class WitFileReader(
       val caseOffset = source.offset
       val caseName = source.readIdentifier()
 
-      Case(
+      IoCase(
         documentation = caseDocumentation,
         gate = caseGate,
         offset = caseOffset,
@@ -439,7 +445,7 @@ internal class WitFileReader(
       )
     }
 
-    return Enum(
+    return IoEnum(
       documentation = documentation,
       gate = gate,
       offset = offset,
@@ -457,7 +463,7 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): TypeAlias {
+  ): IoTypeAlias {
     source.skipWhitespace()
     val name = source.readIdentifier()
 
@@ -470,7 +476,7 @@ internal class WitFileReader(
     source.skipWhitespace()
     source.readLiteral(';')
 
-    return TypeAlias(
+    return IoTypeAlias(
       documentation = documentation,
       gate = gate,
       offset = offset,
@@ -488,7 +494,7 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): TopLevelUse {
+  ): IoTopLevelUse {
     source.skipWhitespace()
     val path = source.readUsePath()
 
@@ -505,7 +511,7 @@ internal class WitFileReader(
     source.skipWhitespace()
     source.readLiteral(';')
 
-    return TopLevelUse(
+    return IoTopLevelUse(
       documentation = documentation,
       gate = gate,
       offset = offset,
@@ -529,7 +535,7 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): Use {
+  ): IoUse {
     source.skipWhitespace()
     val path = source.readUsePath()
 
@@ -552,11 +558,11 @@ internal class WitFileReader(
         else -> null
       }
 
-      Use.Item(
+      IoUse.Item(
         gate = itemGate,
         documentation = itemDocumentation,
         offset = itemOffset,
-        type = TypeName.Declared(itemName),
+        type = IoTypeName.Declared(itemName),
         alias = alias,
       )
     }
@@ -564,7 +570,7 @@ internal class WitFileReader(
     source.skipWhitespace()
     source.readLiteral(';')
 
-    return Use(
+    return IoUse(
       documentation = documentation,
       gate = gate,
       offset = offset,
@@ -583,7 +589,7 @@ internal class WitFileReader(
     gate: Gate?,
     offset: Offset,
     identifier: Identifier,
-  ): Function {
+  ): IoFunction {
     source.skipWhitespace()
     source.readLiteral(':')
     return readFuncType(documentation, gate, offset, identifier)
@@ -602,7 +608,7 @@ internal class WitFileReader(
     gate: Gate?,
     offset: Offset,
     identifier: Identifier,
-  ): Function {
+  ): IoFunction {
     var async = false
     var static = false
 
@@ -632,7 +638,7 @@ internal class WitFileReader(
     source.skipWhitespace()
     source.readLiteral(';')
 
-    return Function(
+    return IoFunction(
       documentation = documentation,
       gate = gate,
       offset = offset,
@@ -655,7 +661,7 @@ internal class WitFileReader(
    * named-type ::= id ':' ty
    * ```
    */
-  private fun readParameterList(): List<Parameter> {
+  private fun readParameterList(): List<IoParameter> {
     return source.readCommaSeparatedList(minSize = 0, '(', ')') {
       val documentation = source.takeDocumentation()
       val offset = source.offset
@@ -667,7 +673,7 @@ internal class WitFileReader(
       source.skipWhitespace()
       val parameterType = source.readTypeName()
 
-      Parameter(
+      IoParameter(
         documentation = documentation,
         offset = offset,
         name = parameterName,
@@ -693,16 +699,16 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): World {
+  ): IoWorld {
     source.skipWhitespace()
     val name = source.readIdentifier()
 
     source.skipWhitespace()
     source.readLiteral('{')
 
-    val declarations = mutableListOf<Declaration>()
-    val imports = mutableListOf<World.Api>()
-    val exports = mutableListOf<World.Api>()
+    val items = mutableListOf<IoWorld.Item>()
+    val imports = mutableListOf<IoWorld.Api>()
+    val exports = mutableListOf<IoWorld.Api>()
 
     while (true) {
       source.skipWhitespace()
@@ -712,26 +718,26 @@ internal class WitFileReader(
       val itemDocumentation = source.takeDocumentation()
       val itemOffset = source.offset
       when (val identifier = source.readIdentifier()) {
-        Keywords.enum -> declarations += readEnum(itemDocumentation, itemGate, itemOffset)
+        Keywords.enum -> items += readEnum(itemDocumentation, itemGate, itemOffset)
         Keywords.export -> exports += readWorldApi(itemDocumentation, itemGate, itemOffset)
-        Keywords.flags -> declarations += readFlags(itemDocumentation, itemGate, itemOffset)
+        Keywords.flags -> items += readFlags(itemDocumentation, itemGate, itemOffset)
         Keywords.import -> imports += readWorldApi(itemDocumentation, itemGate, itemOffset)
-        Keywords.include -> declarations += readInclude(itemDocumentation, itemGate, itemOffset)
-        Keywords.record -> declarations += readRecord(itemDocumentation, itemGate, itemOffset)
-        Keywords.resource -> declarations += readResource(itemDocumentation, itemGate, itemOffset)
-        Keywords.type -> declarations += readTypeAlias(itemDocumentation, itemGate, itemOffset)
-        Keywords.use -> declarations += readUse(itemDocumentation, itemGate, itemOffset)
-        Keywords.variant -> declarations += readVariant(itemDocumentation, itemGate, itemOffset)
+        Keywords.include -> items += readInclude(itemDocumentation, itemGate, itemOffset)
+        Keywords.record -> items += readRecord(itemDocumentation, itemGate, itemOffset)
+        Keywords.resource -> items += readResource(itemDocumentation, itemGate, itemOffset)
+        Keywords.type -> items += readTypeAlias(itemDocumentation, itemGate, itemOffset)
+        Keywords.use -> items += readUse(itemDocumentation, itemGate, itemOffset)
+        Keywords.variant -> items += readVariant(itemDocumentation, itemGate, itemOffset)
         else -> errorWit(offset, "unexpected identifier: $identifier")
       }
     }
 
-    return World(
+    return IoWorld(
       documentation = documentation,
       gate = gate,
       offset = offset,
       name = name,
-      declarations = declarations,
+      items = items,
       imports = imports,
       exports = exports,
     )
@@ -749,7 +755,7 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): World.Api {
+  ): IoWorld.Api {
     return source.select(
       {
         source.skipWhitespace()
@@ -763,7 +769,7 @@ internal class WitFileReader(
         val path = source.readUsePath()
         source.skipWhitespace()
         source.readLiteral(';')
-        ExternalUsePath(
+        IoExternalUsePath(
           documentation = documentation,
           gate = gate,
           offset = offset,
@@ -785,7 +791,7 @@ internal class WitFileReader(
     gate: Gate?,
     offset: Offset,
     identifier: Identifier,
-  ): World.Api {
+  ): IoWorld.Api {
     return source.select(
       {
         readFuncType(documentation, gate, offset, identifier)
@@ -794,19 +800,19 @@ internal class WitFileReader(
         source.skipWhitespace()
         source.readLiteral("interface")
         val declarations = readInterfaceItems()
-        Interface(
+        IoInterface(
           documentation = documentation,
           gate = gate,
           offset = offset,
           name = identifier,
-          declarations = declarations,
+          items = declarations,
         )
       },
       {
         source.skipWhitespace()
         val path = source.readUsePath()
         source.readLiteral(';')
-        ExternalUsePath(
+        IoExternalUsePath(
           documentation = documentation,
           gate = gate,
           offset = offset,
@@ -832,7 +838,7 @@ internal class WitFileReader(
     documentation: Documentation?,
     gate: Gate?,
     offset: Offset,
-  ): Include {
+  ): IoInclude {
     source.skipWhitespace()
     val path = source.readUsePath()
 
@@ -843,7 +849,7 @@ internal class WitFileReader(
           val itemGate = readGateOrNull()
           val itemDocumentation = source.takeDocumentation()
           val itemOffset = source.offset
-          val type = TypeName.Declared(source.readIdentifier())
+          val type = IoTypeName.Declared(source.readIdentifier())
 
           source.skipWhitespace()
           source.readLiteral("as")
@@ -851,7 +857,7 @@ internal class WitFileReader(
           source.skipWhitespace()
           val alias = source.readIdentifier()
 
-          Include.Item(
+          IoInclude.Item(
             documentation = itemDocumentation,
             gate = itemGate,
             offset = itemOffset,
@@ -867,7 +873,7 @@ internal class WitFileReader(
     source.skipWhitespace()
     source.readLiteral(';')
 
-    return Include(
+    return IoInclude(
       documentation = documentation,
       gate = gate,
       offset = offset,

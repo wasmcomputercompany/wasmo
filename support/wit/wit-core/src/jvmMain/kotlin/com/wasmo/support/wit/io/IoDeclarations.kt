@@ -1,65 +1,37 @@
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
 
-sealed interface Declaration {
+import com.wasmo.support.wit.Documentation
+import com.wasmo.support.wit.Gate
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.Offset
+import com.wasmo.support.wit.PackageName
+import okio.Path
+
+/**
+ * A collection of `.wit` files from a single file system directory.
+ */
+data class IoWitPackage(
+  val packageDocumentation: Documentation? = null,
+  val packageName: PackageName,
+  val files: Map<Path, IoWitFile>,
+)
+
+data class IoWitFile(
+  val packageDocumentation: Documentation? = null,
+  val packageName: PackageName? = null,
+  val items: List<Item> = listOf(),
+) {
+  sealed interface Item : IoDeclaration
+}
+
+sealed interface IoDeclaration {
   val documentation: Documentation?
   val gate: Gate?
   val offset: Offset
 }
 
-sealed interface TypeDeclaration : Declaration {
+sealed interface IoTypeDeclaration : IoDeclaration, IoInterface.Item, IoWorld.Item {
   val name: Identifier
-}
-
-@JvmInline
-value class Documentation(
-  val content: String,
-)
-
-/**
- * Gates are like annotations syntactically.
- *
- * ```wit
- * @unstable(feature = fancier-foo)
- * @since(version = 0.2.0)
- * @deprecated(version = 0.2.2)
- * interface foo {}
- * ```
- */
-data class Gate(
-  val unstable: Identifier? = null,
-  val since: SemVer? = null,
-  val deprecated: SemVer? = null,
-) {
-  init {
-    require(unstable != null || since != null || deprecated != null)
-  }
-
-  override fun toString() = buildString {
-    if (unstable != null) {
-      append("@unstable(feature = ")
-      append(unstable)
-      append(")")
-    }
-    if (since != null) {
-      if (isNotEmpty()) append(" ")
-      append("@since(version = ")
-      append(since)
-      append(")")
-    }
-    if (deprecated != null) {
-      if (isNotEmpty()) append(" ")
-      append("@deprecated(version = ")
-      append(deprecated)
-      append(")")
-    }
-  }
-}
-
-data class Offset(
-  val line: Int,
-  val column: Int,
-) {
-  override fun toString() = "$line:$column"
 }
 
 /**
@@ -71,72 +43,75 @@ data class Offset(
  * }
  * ```
  */
-data class Package(
+data class IoInlinePackage(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   val name: PackageName,
-  val declarations: List<Declaration>,
-) : Declaration
+  val declarations: List<IoDeclaration>,
+) : IoDeclaration, IoWitFile.Item
 
 /**
  * Declarations may be:
  *
- *  * [Use]
+ *  * [IoUse]
  *  * Type Declarations
- *    * [Resource]
- *    * [Record]
- *    * [Variant]
- *    * [Enum]
- *    * [Flags]
- *    * [TypeAlias]
- *  * [Function]
+ *    * [IoResource]
+ *    * [IoRecord]
+ *    * [IoVariant]
+ *    * [IoEnum]
+ *    * [IoFlags]
+ *    * [IoTypeAlias]
+ *  * [IoFunction]
  */
-data class Interface(
+data class IoInterface(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   val name: Identifier,
-  val declarations: List<Declaration>,
-) : Declaration, World.Api
-
-data class World(
-  override val documentation: Documentation? = null,
-  override val gate: Gate? = null,
-  override val offset: Offset,
-  val name: Identifier,
-  val declarations: List<Declaration>,
-  val imports: List<Api>,
-  val exports: List<Api>,
-) : Declaration {
-  sealed interface Api : Declaration
+  val items: List<Item>,
+) : IoDeclaration, IoWorld.Api, IoWitFile.Item {
+  sealed interface Item : IoDeclaration
 }
 
-data class Resource(
-  override val documentation: Documentation? = null,
-  override val gate: Gate? = null,
-  override val offset: Offset,
-  override val name: Identifier,
-  val functions: List<Function>,
-) : TypeDeclaration
-
-data class Record(
-  override val documentation: Documentation? = null,
-  override val gate: Gate? = null,
-  override val offset: Offset,
-  override val name: Identifier,
-  val fields: List<Field>,
-) : TypeDeclaration
-
-data class Field(
+data class IoWorld(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   val name: Identifier,
-  val type: TypeName,
-) : Declaration
+  val items: List<Item>,
+  val imports: List<Api>,
+  val exports: List<Api>,
+) : IoDeclaration, IoWitFile.Item {
+  sealed interface Api : IoDeclaration
+  sealed interface Item : IoDeclaration
+}
 
-data class Function(
+data class IoResource(
+  override val documentation: Documentation? = null,
+  override val gate: Gate? = null,
+  override val offset: Offset,
+  override val name: Identifier,
+  val functions: List<IoFunction>,
+) : IoTypeDeclaration
+
+data class IoRecord(
+  override val documentation: Documentation? = null,
+  override val gate: Gate? = null,
+  override val offset: Offset,
+  override val name: Identifier,
+  val fields: List<IoField>,
+) : IoTypeDeclaration
+
+data class IoField(
+  override val documentation: Documentation? = null,
+  override val gate: Gate? = null,
+  override val offset: Offset,
+  val name: Identifier,
+  val type: IoTypeName,
+) : IoDeclaration
+
+data class IoFunction(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
@@ -144,71 +119,71 @@ data class Function(
   val static: Boolean = false,
   val constructor: Boolean = false,
   val name: Identifier,
-  val parameters: List<Parameter>,
-  val returnType: TypeName? = null,
-) : Declaration, World.Api
+  val parameters: List<IoParameter>,
+  val returnType: IoTypeName? = null,
+) : IoDeclaration, IoWorld.Api, IoInterface.Item
 
-data class Variant(
+data class IoVariant(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   override val name: Identifier,
-  val cases: List<Case>,
-) : TypeDeclaration
+  val cases: List<IoCase>,
+) : IoTypeDeclaration
 
-data class Enum(
+data class IoEnum(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   override val name: Identifier,
-  val cases: List<Case>,
-) : TypeDeclaration
+  val cases: List<IoCase>,
+) : IoTypeDeclaration
 
-data class Case(
+data class IoCase(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   val name: Identifier,
-  val type: TypeName? = null,
-) : Declaration
+  val type: IoTypeName? = null,
+) : IoDeclaration
 
-data class Parameter(
+data class IoParameter(
   val documentation: Documentation? = null,
   val offset: Offset,
   val name: Identifier,
-  val type: TypeName,
+  val type: IoTypeName,
 )
 
-data class Flags(
+data class IoFlags(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   override val name: Identifier,
-  val flags: List<Flag>,
-) : TypeDeclaration
+  val flags: List<IoFlag>,
+) : IoTypeDeclaration
 
-data class Flag(
+data class IoFlag(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   val name: Identifier,
-) : Declaration
+) : IoDeclaration
 
-data class TypeAlias(
+data class IoTypeAlias(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   override val name: Identifier,
-  val target: TypeName,
-) : TypeDeclaration
+  val target: IoTypeName,
+) : IoTypeDeclaration
 
-data class TopLevelUse(
+data class IoTopLevelUse(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   val path: UsePath,
   val alias: Identifier? = null,
-) : Declaration
+) : IoDeclaration, IoWitFile.Item
 
 /**
  * Examples:
@@ -220,29 +195,29 @@ data class TopLevelUse(
  * use types.{errno as my-errno};
  * ```
  */
-data class Use(
+data class IoUse(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   val path: UsePath,
   val items: List<Item>,
-) : Declaration {
+) : IoDeclaration, IoInterface.Item, IoWorld.Item {
   data class Item(
     override val documentation: Documentation? = null,
     override val gate: Gate? = null,
     override val offset: Offset,
-    val type: TypeName.Declared,
+    val type: IoTypeName.Declared,
     val alias: Identifier? = null,
-  ) : Declaration
+  ) : IoDeclaration
 }
 
-data class ExternalUsePath(
+data class IoExternalUsePath(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   val plainName: Identifier? = null,
   val path: UsePath,
-) : World.Api
+) : IoDeclaration, IoWorld.Api
 
 /**
  * Examples:
@@ -252,18 +227,18 @@ data class ExternalUsePath(
  * include my-world-2;
  * ```
  */
-data class Include(
+data class IoInclude(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   val path: UsePath,
   val items: List<Item>,
-) : Declaration {
+) : IoDeclaration, IoWorld.Item {
   data class Item(
     override val documentation: Documentation? = null,
     override val gate: Gate? = null,
     override val offset: Offset,
-    val type: TypeName.Declared,
+    val type: IoTypeName.Declared,
     val alias: Identifier,
-  ) : Declaration
+  ) : IoDeclaration
 }

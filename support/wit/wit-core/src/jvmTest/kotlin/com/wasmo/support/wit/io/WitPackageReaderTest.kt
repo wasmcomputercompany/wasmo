@@ -1,8 +1,11 @@
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
 
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import com.wasmo.support.wit.Documentation
+import com.wasmo.support.wit.Offset
+import com.wasmo.support.wit.WitException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import okio.Path.Companion.toPath
@@ -49,12 +52,12 @@ class WitPackageReaderTest {
     val witPackage = packageReader.read(directory)
 
     assertThat(witPackage).isEqualTo(
-      WitPackage(
+      IoWitPackage(
         packageDocumentation = Documentation(" command line interfaces!"),
         packageName = "wasi:cli".toPackageName(),
         files = mapOf(
-          "command.wit".toPath() to WitFile(
-            declarations = listOf(
+          "command.wit".toPath() to IoWitFile(
+            items = listOf(
               World(
                 offset = Offset(1, 1),
                 name = "command",
@@ -73,14 +76,14 @@ class WitPackageReaderTest {
               ),
             ),
           ),
-          "exit.wit".toPath() to WitFile(
+          "exit.wit".toPath() to IoWitFile(
             packageDocumentation = Documentation(" command line interfaces!"),
             packageName = "wasi:cli".toPackageName(),
-            declarations = listOf(
+            items = listOf(
               Interface(
                 offset = Offset(4, 1),
                 name = "exit",
-                declarations = listOf(
+                items = listOf(
                   Function(
                     offset = Offset(5, 3),
                     name = "exit",
@@ -88,7 +91,7 @@ class WitPackageReaderTest {
                       Parameter(
                         offset = Offset(5, 14),
                         name = "status",
-                        type = TypeName.Result(),
+                        type = IoTypeName.Result(),
                       ),
                     ),
                   ),
@@ -96,16 +99,16 @@ class WitPackageReaderTest {
               ),
             ),
           ),
-          "run.wit".toPath() to WitFile(
-            declarations = listOf(
+          "run.wit".toPath() to IoWitFile(
+            items = listOf(
               Interface(
                 offset = Offset(1, 1),
                 name = "run",
-                declarations = listOf(
+                items = listOf(
                   Function(
                     offset = Offset(2, 3),
                     name = "run",
-                    returnType = TypeName.Result(),
+                    returnType = IoTypeName.Result(),
                   ),
                 ),
               ),

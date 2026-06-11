@@ -1,4 +1,7 @@
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
+
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.PackageName
 
 /**
  * A logical place to in a `.wit` declaration tree. Use this to resolve relative references to
