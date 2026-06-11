@@ -12,8 +12,8 @@ kotlin {
     jvmMain {
       dependencies {
         implementation(libs.okio)
-        implementation(projects.support.wit.witCore)
-        implementation(projects.support.wit.witKotlin)
+        implementation(projects.support.brevity.brevityCore)
+        implementation(projects.support.brevity.brevityKotlin)
       }
     }
     jvmTest {

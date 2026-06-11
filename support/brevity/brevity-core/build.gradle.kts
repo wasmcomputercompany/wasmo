@@ -11,14 +11,13 @@ kotlin {
   sourceSets {
     jvmMain {
       dependencies {
-        implementation(libs.kotlinpoet)
         implementation(libs.okio)
-        implementation(projects.support.wit.witCore)
       }
     }
     jvmTest {
       dependencies {
-        implementation(projects.support.wit.witTesting)
+        implementation(libs.okio.fakefilesystem)
+        implementation(projects.support.brevity.brevityTesting)
       }
     }
   }
