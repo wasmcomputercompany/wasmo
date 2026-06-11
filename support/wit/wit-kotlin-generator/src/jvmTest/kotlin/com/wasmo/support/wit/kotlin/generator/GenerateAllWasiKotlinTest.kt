@@ -1,6 +1,7 @@
 package com.wasmo.support.wit.kotlin.generator
 
-import com.wasmo.support.wit.WitPackageReader
+import com.wasmo.support.wit.io.WitPackageReader
+import com.wasmo.support.wit.ir.IrMapper
 import java.io.File
 import kotlin.test.Test
 import okio.FileSystem
@@ -24,17 +25,18 @@ class GenerateAllWasiKotlinTest {
     )
 
     val packageReader = WitPackageReader(fileSystem)
-    val witPackages = directories.map {
+    val ioPackages = directories.map {
       packageReader.read(it)
     }
 
-    val kotlinMapper = KotlinMapper(witPackages)
+    val irPackages = IrMapper(ioPackages).map()
+    val kotlinMapper = KotlinMapper()
     val apiGenerator = ApiGenerator()
 
     val directory = File("build/GenerateAllWasiKotlinTest")
     directory.mkdirs()
-    for (witPackage in witPackages) {
-      val kotlinPackage = kotlinMapper.mapPackage(witPackage)
+    for (irPackage in irPackages) {
+      val kotlinPackage = kotlinMapper.mapPackage(irPackage)
       val fileSpec = apiGenerator.generate(kotlinPackage)
       fileSpec.writeTo(directory)
     }

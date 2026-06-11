@@ -1,5 +1,7 @@
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
 
+import com.wasmo.support.wit.Documentation
+import com.wasmo.support.wit.WitException
 import okio.FileSystem
 import okio.Path
 
@@ -13,8 +15,8 @@ import okio.Path
 class WitPackageReader(
   private val fileSystem: FileSystem,
 ) {
-  fun read(directory: Path): WitPackage {
-    val files = mutableMapOf<Path, WitFile>()
+  fun read(directory: Path): IoWitPackage {
+    val files = mutableMapOf<Path, IoWitFile>()
     for (path in fileSystem.list(directory)) {
       if (!path.name.endsWith(".wit", ignoreCase = true)) continue
 
@@ -45,7 +47,7 @@ class WitPackageReader(
       }
     }
 
-    return WitPackage(
+    return IoWitPackage(
       packageDocumentation = files.values.mapNotNull { it.packageDocumentation }.concatenate(),
       packageName = packageNames.single(),
       files = files,

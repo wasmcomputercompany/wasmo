@@ -1,69 +1,76 @@
 @file:OptIn(WitCoreInternalApi::class)
 
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import com.wasmo.support.wit.Documentation
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.Offset
+import com.wasmo.support.wit.PackageName
+import com.wasmo.support.wit.SemVer
+import com.wasmo.support.wit.WitCoreInternalApi
+import com.wasmo.support.wit.WitException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class WitStructureReaderTest {
+class WitSyntaxReaderTest {
 
   @Test
   fun `tryReadLiteral char success`() {
-    val reader = WitStructureReader("a")
+    val reader = WitSyntaxReader("a")
     assertThat(reader.tryReadLiteral('a')).isTrue()
     assertThat(reader.offset).isEqualTo(Offset(1, 2))
   }
 
   @Test
   fun `tryReadLiteral char wrong value`() {
-    val reader = WitStructureReader("a")
+    val reader = WitSyntaxReader("a")
     assertThat(reader.tryReadLiteral('b')).isFalse()
     assertThat(reader.offset).isEqualTo(Offset(1, 1))
   }
 
   @Test
   fun `tryReadLiteral char eof`() {
-    val reader = WitStructureReader("")
+    val reader = WitSyntaxReader("")
     assertThat(reader.tryReadLiteral('a')).isFalse()
     assertThat(reader.offset).isEqualTo(Offset(1, 1))
   }
 
   @Test
   fun `tryReadLiteral string success`() {
-    val reader = WitStructureReader("a")
+    val reader = WitSyntaxReader("a")
     assertThat(reader.tryReadLiteral("a")).isTrue()
     assertThat(reader.offset).isEqualTo(Offset(1, 2))
   }
 
   @Test
   fun `tryReadLiteral string multiple characters success`() {
-    val reader = WitStructureReader("abcd")
+    val reader = WitSyntaxReader("abcd")
     assertThat(reader.tryReadLiteral("abc")).isTrue()
     assertThat(reader.offset).isEqualTo(Offset(1, 4))
   }
 
   @Test
   fun `tryReadLiteral string multiple characters wrong value`() {
-    val reader = WitStructureReader("abcd")
+    val reader = WitSyntaxReader("abcd")
     assertThat(reader.tryReadLiteral("abd")).isFalse()
     assertThat(reader.offset).isEqualTo(Offset(1, 1))
   }
 
   @Test
   fun `tryReadLiteral string wrong value`() {
-    val reader = WitStructureReader("a")
+    val reader = WitSyntaxReader("a")
     assertThat(reader.tryReadLiteral("b")).isFalse()
     assertThat(reader.offset).isEqualTo(Offset(1, 1))
   }
 
   @Test
   fun `tryReadLiteral string eof`() {
-    val reader = WitStructureReader("")
+    val reader = WitSyntaxReader("")
     assertThat(reader.tryReadLiteral("a")).isFalse()
     assertThat(reader.offset).isEqualTo(Offset(1, 1))
   }
@@ -102,7 +109,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `skip whitespace and end of line comment`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |//abc
@@ -117,7 +124,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `skip whitespace and end of line documentation`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |///abc
@@ -132,7 +139,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `dangling end of line comment`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |//abc
@@ -145,7 +152,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `dangling end of line documentation comment`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |///abc
@@ -158,7 +165,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `document ends with end of line comment`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |//
       """.trimMargin(),
@@ -170,7 +177,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `end of line documentation`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |///abc
@@ -185,7 +192,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `multiple lines of end of line documentation`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |///abc
@@ -202,7 +209,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `skip whitespace and asterisk comment`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |/*abc*/
@@ -217,7 +224,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `skip whitespace and asterisk documentation`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |/**abc*/
@@ -232,7 +239,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `dangling asterisk comment`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |/*abc
@@ -247,7 +254,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `document ends with asterisk comment`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |/* */
       """.trimMargin(),
@@ -259,7 +266,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `asterisk documentation`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |/**abc*/
@@ -274,7 +281,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `multiple lines of asterisk documentation`() {
-    val reader = WitStructureReader(
+    val reader = WitSyntaxReader(
       """
       |
       |/**abc
@@ -294,7 +301,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `readIdentifier success`() {
-    fun String.parseIdentifier() = WitStructureReader(this).readIdentifier()
+    fun String.parseIdentifier() = WitSyntaxReader(this).readIdentifier()
 
     assertThat("a".parseIdentifier()).isEqualTo(Identifier("a"))
     assertThat("a ".parseIdentifier()).isEqualTo(Identifier("a"))
@@ -348,7 +355,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `readSemver omits trailing dots`() {
-    val reader = WitStructureReader("1.2.")
+    val reader = WitSyntaxReader("1.2.")
     assertThat(reader.readSemVer()).isEqualTo(SemVer("1.2"))
     assertThat(reader.offset).isEqualTo(Offset(1, 4))
   }
@@ -459,7 +466,7 @@ class WitStructureReaderTest {
 
   @Test
   fun `readUsePath semver`() {
-    val reader = WitStructureReader("my-interface@1.2.3")
+    val reader = WitSyntaxReader("my-interface@1.2.3")
     assertThat(reader.readUsePath()).isEqualTo(
       UsePath(name = Identifier("my-interface")),
     )
@@ -485,45 +492,45 @@ class WitStructureReaderTest {
   @Test
   fun `readTypeName success`() {
     assertThat("u32".toTypeName())
-      .isEqualTo(TypeName.U32)
+      .isEqualTo(IoTypeName.U32)
     assertThat("string".toTypeName())
-      .isEqualTo(TypeName.String)
+      .isEqualTo(IoTypeName.String)
     assertThat("tuple<u32>".toTypeName())
-      .isEqualTo(TypeName.Tuple(listOf(TypeName.U32)))
+      .isEqualTo(IoTypeName.Tuple(listOf(IoTypeName.U32)))
     assertThat("tuple<u32, s8>".toTypeName())
-      .isEqualTo(TypeName.Tuple(listOf(TypeName.U32, TypeName.S8)))
+      .isEqualTo(IoTypeName.Tuple(listOf(IoTypeName.U32, IoTypeName.S8)))
     assertThat("tuple<u32, s8, string>".toTypeName())
-      .isEqualTo(TypeName.Tuple(listOf(TypeName.U32, TypeName.S8, TypeName.String)))
+      .isEqualTo(IoTypeName.Tuple(listOf(IoTypeName.U32, IoTypeName.S8, IoTypeName.String)))
     assertThat("list<string>".toTypeName())
-      .isEqualTo(TypeName.List(TypeName.String))
+      .isEqualTo(IoTypeName.List(IoTypeName.String))
     assertThat("list<string, 32>".toTypeName())
-      .isEqualTo(TypeName.List(TypeName.String, 32U))
+      .isEqualTo(IoTypeName.List(IoTypeName.String, 32U))
     assertThat("option<string>".toTypeName())
-      .isEqualTo(TypeName.Option(TypeName.String))
+      .isEqualTo(IoTypeName.Option(IoTypeName.String))
     assertThat("result<string>".toTypeName())
-      .isEqualTo(TypeName.Result(TypeName.String))
+      .isEqualTo(IoTypeName.Result(IoTypeName.String))
     assertThat("result<string, s32>".toTypeName())
-      .isEqualTo(TypeName.Result(TypeName.String, TypeName.S32))
+      .isEqualTo(IoTypeName.Result(IoTypeName.String, IoTypeName.S32))
     assertThat("result<_, string>".toTypeName())
-      .isEqualTo(TypeName.Result(null, TypeName.String))
+      .isEqualTo(IoTypeName.Result(null, IoTypeName.String))
     assertThat("result".toTypeName())
-      .isEqualTo(TypeName.Result())
+      .isEqualTo(IoTypeName.Result())
     assertThat("map<u32, s64>".toTypeName())
-      .isEqualTo(TypeName.Map(TypeName.U32, TypeName.S64))
+      .isEqualTo(IoTypeName.Map(IoTypeName.U32, IoTypeName.S64))
     assertThat("map<u32, list<string>>".toTypeName())
-      .isEqualTo(TypeName.Map(TypeName.U32, TypeName.List(TypeName.String)))
+      .isEqualTo(IoTypeName.Map(IoTypeName.U32, IoTypeName.List(IoTypeName.String)))
     assertThat("future".toTypeName())
-      .isEqualTo(TypeName.Future())
+      .isEqualTo(IoTypeName.Future())
     assertThat("future<string>".toTypeName())
-      .isEqualTo(TypeName.Future(TypeName.String))
+      .isEqualTo(IoTypeName.Future(IoTypeName.String))
     assertThat("borrow<string>".toTypeName())
-      .isEqualTo(TypeName.Borrow(TypeName.String))
+      .isEqualTo(IoTypeName.Borrow(IoTypeName.String))
     assertThat("stream".toTypeName())
-      .isEqualTo(TypeName.Stream())
+      .isEqualTo(IoTypeName.Stream())
     assertThat("stream<string>".toTypeName())
-      .isEqualTo(TypeName.Stream(TypeName.String))
+      .isEqualTo(IoTypeName.Stream(IoTypeName.String))
     assertThat("foo".toTypeName())
-      .isEqualTo(TypeName.Declared("foo"))
+      .isEqualTo(IoTypeName.Declared("foo"))
   }
 
   @Test

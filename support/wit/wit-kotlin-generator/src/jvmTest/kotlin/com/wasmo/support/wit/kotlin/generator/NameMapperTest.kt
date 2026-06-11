@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.squareup.kotlinpoet.ClassName
 import com.wasmo.support.wit.Identifier
-import com.wasmo.support.wit.toPackageName
+import com.wasmo.support.wit.io.toPackageName
 import kotlin.test.Test
 
 class NameMapperTest {

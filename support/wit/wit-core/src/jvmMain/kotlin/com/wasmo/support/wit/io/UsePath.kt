@@ -1,4 +1,8 @@
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
+
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.PackageName
+import com.wasmo.support.wit.SemVer
 
 /**
  * This is a package name plus an interface name, or just an interface name. The encoded form always
@@ -43,45 +47,4 @@ data class UsePath(
       append(packageName.version)
     }
   }
-}
-
-@JvmInline
-value class Identifier(
-  val name: String,
-) {
-  override fun toString() = name
-}
-
-data class PackageName(
-  val namespaces: List<Identifier>,
-  val names: List<Identifier>,
-  val version: SemVer? = null,
-) : Comparable<PackageName> {
-  init {
-    check(namespaces.isNotEmpty() && names.isNotEmpty())
-  }
-
-  override fun compareTo(other: PackageName) = toString().compareTo(other.toString())
-
-  override fun toString() = buildString {
-    for (name in namespaces) {
-      append(name)
-      append(':')
-    }
-    for ((index, name) in names.withIndex()) {
-      if (index > 0) append('/')
-      append(name)
-    }
-    if (version != null) {
-      append("@")
-      append(version.version)
-    }
-  }
-}
-
-@JvmInline
-value class SemVer(
-  val version: String,
-) {
-  override fun toString() = version
 }

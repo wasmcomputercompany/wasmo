@@ -1,12 +1,33 @@
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
 
-fun Case(
+import com.wasmo.support.wit.Documentation
+import com.wasmo.support.wit.Gate
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.Offset
+import com.wasmo.support.wit.ir.IrCase
+import com.wasmo.support.wit.ir.IrEnum
+import com.wasmo.support.wit.ir.IrExternalUsePath
+import com.wasmo.support.wit.ir.IrField
+import com.wasmo.support.wit.ir.IrFlag
+import com.wasmo.support.wit.ir.IrFlags
+import com.wasmo.support.wit.ir.IrFunction
+import com.wasmo.support.wit.ir.IrInterface
+import com.wasmo.support.wit.ir.IrInterfaceName
+import com.wasmo.support.wit.ir.IrParameter
+import com.wasmo.support.wit.ir.IrRecord
+import com.wasmo.support.wit.ir.IrResource
+import com.wasmo.support.wit.ir.IrTypeAlias
+import com.wasmo.support.wit.ir.IrTypeName
+import com.wasmo.support.wit.ir.IrVariant
+import com.wasmo.support.wit.ir.IrWorld
+
+fun IrCase(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  type: TypeName? = null,
-) = Case(
+  type: IrTypeName? = null,
+) = IrCase(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -14,13 +35,23 @@ fun Case(
   type = type,
 )
 
-fun Enum(
+fun IrTypeNameDeclared(
+  packageName: String,
+  parentName: String,
+  typeName: String,
+) = IrTypeName.Declared(
+  packageName = packageName.toPackageName(),
+  interfaceName = Identifier(parentName),
+  name = Identifier(typeName),
+)
+
+fun IrEnum(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  cases: List<Case>,
-) = Enum(
+  cases: List<IrCase>,
+) = IrEnum(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -28,27 +59,27 @@ fun Enum(
   cases = cases,
 )
 
-fun ExternalUsePath(
+fun IrExternalUsePath(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   plainName: String? = null,
-  path: String,
-) = ExternalUsePath(
+  path: IrInterfaceName,
+) = IrExternalUsePath(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
   plainName = plainName?.let { Identifier(it) },
-  path = path.toUsePath(),
+  path = path,
 )
 
-fun Flags(
+fun IrFlags(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  flags: List<Flag>,
-) = Flags(
+  flags: List<IrFlag>,
+) = IrFlags(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -56,13 +87,13 @@ fun Flags(
   flags = flags,
 )
 
-fun Field(
+fun IrField(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  type: TypeName,
-) = Field(
+  type: IrTypeName,
+) = IrField(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -70,19 +101,19 @@ fun Field(
   type = type,
 )
 
-fun Flag(
+fun IrFlag(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-) = Flag(
+) = IoFlag(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
   name = Identifier(name),
 )
 
-fun Function(
+fun IrFunction(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -90,9 +121,9 @@ fun Function(
   static: Boolean = false,
   constructor: Boolean = false,
   name: String,
-  parameters: List<Parameter> = listOf(),
-  returnType: TypeName? = null,
-) = Function(
+  parameters: List<IrParameter> = listOf(),
+  returnType: IrTypeName? = null,
+) = IrFunction(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -104,85 +135,47 @@ fun Function(
   returnType = returnType,
 )
 
-fun Gate(
-  unstable: String? = null,
-  since: String? = null,
-  deprecated: String? = null,
-) = Gate(
-  unstable = unstable?.let { Identifier(it) },
-  since = since?.toSemVer(),
-  deprecated = deprecated?.toSemVer(),
-)
-
-fun Include(
-  documentation: String? = null,
-  gate: Gate? = null,
-  offset: Offset = Offset(1, 1),
-  path: String,
-  items: List<Include.Item> = listOf(),
-) = Include(
-  documentation = documentation?.let { Documentation(it) },
-  gate = gate,
-  offset = offset,
-  path = path.toUsePath(),
-  items = items,
-)
-
-fun IncludeItem(
-  documentation: String? = null,
-  gate: Gate? = null,
-  offset: Offset = Offset(1, 1),
-  type: String,
-  alias: String,
-) = Include.Item(
-  documentation = documentation?.let { Documentation(it) },
-  gate = gate,
-  offset = offset,
-  type = TypeName.Declared(type),
-  alias = Identifier(alias),
-)
-
-fun Interface(
+fun IrInterface(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  declarations: List<Declaration> = listOf(),
-) = Interface(
+  items: List<IrInterface.Item> = listOf(),
+) = IrInterface(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
   name = Identifier(name),
-  declarations = declarations,
+  items = items,
 )
 
-fun Scope(
+fun IrInterfaceName(
   packageName: String,
-  interfaceName: String? = null,
-) = Scope(
+  name: String,
+) = IrInterfaceName(
   packageName = packageName.toPackageName(),
-  interfaceName = interfaceName?.let { Identifier(it) },
+  name = Identifier(name),
 )
 
-fun Parameter(
+fun IrParameter(
   documentation: String? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  type: TypeName,
-) = Parameter(
+  type: IrTypeName,
+) = IrParameter(
   documentation = documentation?.let { Documentation(it) },
   offset = offset,
   name = Identifier(name),
   type = type,
 )
 
-fun Record(
+fun IrRecord(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  fields: List<Field>,
-) = Record(
+  fields: List<IrField>,
+) = IrRecord(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -190,13 +183,13 @@ fun Record(
   fields = fields,
 )
 
-fun Resource(
+fun IrResource(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  functions: List<Function> = listOf(),
-) = Resource(
+  functions: List<IrFunction> = listOf(),
+) = IrResource(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -204,13 +197,13 @@ fun Resource(
   functions = functions,
 )
 
-fun TypeAlias(
+fun IrTypeAlias(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  target: TypeName,
-) = TypeAlias(
+  target: IrTypeName,
+) = IrTypeAlias(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -218,41 +211,13 @@ fun TypeAlias(
   target = target,
 )
 
-fun Use(
-  documentation: String? = null,
-  gate: Gate? = null,
-  offset: Offset = Offset(1, 1),
-  path: String,
-  items: List<Use.Item>,
-) = Use(
-  documentation = documentation?.let { Documentation(it) },
-  gate = gate,
-  offset = offset,
-  path = path.toUsePath(),
-  items = items,
-)
-
-fun UseItem(
-  documentation: String? = null,
-  gate: Gate? = null,
-  offset: Offset = Offset(1, 1),
-  type: String,
-  alias: String? = null,
-) = Use.Item(
-  documentation = documentation?.let { Documentation(it) },
-  gate = gate,
-  offset = offset,
-  type = TypeName.Declared(type),
-  alias = alias?.let { Identifier(it) },
-)
-
-fun Variant(
+fun IrVariant(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  cases: List<Case>,
-) = Variant(
+  cases: List<IrCase>,
+) = IrVariant(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -260,20 +225,20 @@ fun Variant(
   cases = cases,
 )
 
-fun World(
+fun IrWorld(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   name: String,
-  declarations: List<Declaration> = listOf(),
-  imports: List<World.Api> = listOf(),
-  exports: List<World.Api> = listOf(),
-) = World(
+  items: List<IrWorld.Item> = listOf(),
+  imports: List<IrWorld.Api> = listOf(),
+  exports: List<IrWorld.Api> = listOf(),
+) = IrWorld(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
   name = Identifier(name),
-  declarations = declarations,
+  items = items,
   imports = imports,
   exports = exports,
 )

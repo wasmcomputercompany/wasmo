@@ -1,19 +1,25 @@
-package com.wasmo.support.wit
+package com.wasmo.support.wit.ir
 
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.io.IoTypeName
+import com.wasmo.support.wit.io.IoWitPackage
+import com.wasmo.support.wit.io.toPackageName
+import com.wasmo.support.wit.io.toUsePath
+import com.wasmo.support.wit.io.toWitFile
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import okio.Path.Companion.toPath
 
-class SymbolIndexTest {
+class IrMapperTest {
   @Test
   fun `find local symbols`() {
-    val index = SymbolIndex(
+    val index = IrMapper(
       packages = listOf(
-        WitPackage(
+        IoWitPackage(
           packageName = "wasi:clocks".toPackageName(),
           files = mapOf(
             "clock.wit".toPath() to
@@ -33,22 +39,24 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        scope = Scope(
-          packageName = "wasi:clocks",
-          interfaceName = "wall-clock",
-        ),
-        typeName = TypeName.Declared("datetime"),
+        packageName = "wasi:clocks",
+        parentName = "wall-clock",
+        typeName = IoTypeName.Declared("datetime"),
       ),
-    ).isEqualTo(TypePath("wasi", "clocks", "wall-clock", "datetime"))
+    ).isEqualTo(
+      IrTypeName.Declared(
+        packageName = "wasi:clocks".toPackageName(),
+        interfaceName = Identifier("wall-clock"),
+        name = Identifier("datetime"),
+      ),
+    )
 
     assertThat(
       assertFailsWith<IllegalArgumentException> {
         index.getType(
-          scope = Scope(
-            packageName = "wasi:clocks",
-            interfaceName = "wall-clock",
-          ),
-          typeName = TypeName.Declared("instant"),
+          packageName = "wasi:clocks",
+          parentName = "wall-clock",
+          typeName = IoTypeName.Declared("instant"),
         )
       },
     ).hasMessage("unable to find instant in wasi:clocks/wall-clock")
@@ -56,9 +64,9 @@ class SymbolIndexTest {
 
   @Test
   fun `find symbols across packages with use`() {
-    val index = SymbolIndex(
+    val index = IrMapper(
       packages = listOf(
-        WitPackage(
+        IoWitPackage(
           packageName = "wasi:cli".toPackageName(),
           files = mapOf(
             "stdio.wit".toPath() to
@@ -71,7 +79,7 @@ class SymbolIndexTest {
               """.trimMargin().toWitFile(),
           ),
         ),
-        WitPackage(
+        IoWitPackage(
           packageName = "wasi:io@0.2.12".toPackageName(),
           files = mapOf(
             "streams.wit".toPath() to
@@ -91,20 +99,24 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        scope = Scope(
-          packageName = "wasi:cli",
-          interfaceName = "stdin",
-        ),
-        typeName = TypeName.Declared("input-stream"),
+        packageName = "wasi:cli",
+        parentName = "stdin",
+        typeName = IoTypeName.Declared("input-stream"),
       ),
-    ).isEqualTo(TypePath("wasi", "io", "streams", "input-stream", "0.2.12"))
+    ).isEqualTo(
+      IrTypeName.Declared(
+        packageName = "wasi:io@0.2.12".toPackageName(),
+        interfaceName = Identifier("streams"),
+        name = Identifier("input-stream"),
+      ),
+    )
   }
 
   @Test
   fun `find symbols in same package with use`() {
-    val index = SymbolIndex(
+    val index = IrMapper(
       packages = listOf(
-        WitPackage(
+        IoWitPackage(
           packageName = "wasi:clocks@0.2.12".toPackageName(),
           files = mapOf(
             "timezone.wit".toPath() to
@@ -133,18 +145,22 @@ class SymbolIndexTest {
 
     assertThat(
       index.getType(
-        scope = Scope(
-          packageName = "wasi:clocks@0.2.12",
-          interfaceName = "timezone",
-        ),
-        typeName = TypeName.Declared("datetime"),
+        packageName = "wasi:clocks@0.2.12",
+        parentName = "timezone",
+        typeName = IoTypeName.Declared("datetime"),
       ),
-    ).isEqualTo(TypePath("wasi", "clocks", "wall-clock", "datetime", "0.2.12"))
+    ).isEqualTo(
+      IrTypeName.Declared(
+        packageName = "wasi:clocks@0.2.12".toPackageName(),
+        interfaceName = Identifier("wall-clock"),
+        name = Identifier("datetime"),
+      ),
+    )
   }
 
   @Test
   fun `get world`() {
-    val wasiCli = WitPackage(
+    val wasiCli = IoWitPackage(
       packageName = "wasi:cli@0.2.12".toPackageName(),
       files = mapOf(
         "command.wit".toPath() to """
@@ -155,7 +171,7 @@ class SymbolIndexTest {
           """.trimMargin().toWitFile(),
       ),
     )
-    val wasiIo = WitPackage(
+    val wasiIo = IoWitPackage(
       packageName = "wasi:io@0.2.12".toPackageName(),
       files = mapOf(
         "world.wit".toPath() to """
@@ -167,16 +183,31 @@ class SymbolIndexTest {
       ),
     )
 
-    val index = SymbolIndex(
+    val index = IrMapper(
       packages = listOf(wasiCli, wasiIo),
     )
 
     assertThat(index.getWorldOrNull("wasi:io/imports@0.2.12".toUsePath()))
-      .isEqualTo(wasiIo.files.values.single().declarations.single())
+      .isEqualTo(wasiIo.files.values.single().items.single())
 
     assertThat(index.getWorldOrNull("wasi:cli/command@0.2.12".toUsePath()))
-      .isEqualTo(wasiCli.files.values.single().declarations.single())
+      .isEqualTo(wasiCli.files.values.single().items.single())
 
     assertThat(index.getWorldOrNull("wasi:cli/command".toUsePath())).isNull()
+  }
+
+  private fun IrMapper.getType(
+    packageName: String,
+    parentName: String,
+    typeName: IoTypeName,
+  ): IrTypeName {
+    context(
+      IrMapper.Context(
+        packageName = packageName.toPackageName(),
+        parentName = Identifier(parentName),
+      ),
+    ) {
+      return typeName.typeNameToIr()
+    }
   }
 }

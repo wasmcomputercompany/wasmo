@@ -1,4 +1,4 @@
-package com.wasmo.support.wit.kotlin
+package com.wasmo.support.wit.io.kotlin
 
 data class Quad<A, B, C, D>(
   val a: A,

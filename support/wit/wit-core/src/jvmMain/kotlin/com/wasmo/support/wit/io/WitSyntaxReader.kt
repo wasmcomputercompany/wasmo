@@ -1,12 +1,19 @@
 @file:OptIn(ExperimentalContracts::class)
 
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
 
+import com.wasmo.support.wit.Documentation
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.Offset
+import com.wasmo.support.wit.PackageName
+import com.wasmo.support.wit.SemVer
+import com.wasmo.support.wit.WitCoreInternalApi
+import com.wasmo.support.wit.WitException
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @WitCoreInternalApi
-class WitStructureReader(
+class WitSyntaxReader(
   private val chars: CharArray,
 ) {
   constructor(string: String) : this(string.toCharArray())
@@ -24,7 +31,7 @@ class WitStructureReader(
 
   /**
    * Attempt each element of [options] until one returns normally. If an options throws a
-   * [WitException], it is skipped. If no options return a value, the first option's exception is
+   * [com.wasmo.support.wit.WitException], it is skipped. If no options return a value, the first option's exception is
    * rethrown.
    *
    * This function is weird because it does speculative execution of parsing. It's likely to lead
@@ -225,9 +232,9 @@ class WitStructureReader(
    *          | 'stream'
    * ```
    */
-  fun readTypeName(): TypeName {
+  fun readTypeName(): IoTypeName {
     return when (val identifier = readIdentifier()) {
-      Keywords.tuple -> TypeName.Tuple(readTypeList("tuple", min = 1, max = Int.MAX_VALUE))
+      Keywords.tuple -> IoTypeName.Tuple(readTypeList("tuple", min = 1, max = Int.MAX_VALUE))
       Keywords.list -> {
         readLiteral('<')
         skipWhitespace()
@@ -243,10 +250,10 @@ class WitStructureReader(
         }
         skipWhitespace()
         readLiteral('>')
-        TypeName.List(type, size)
+        IoTypeName.List(type, size)
       }
 
-      Keywords.option -> TypeName.Option(readTypeList("option", min = 1, max = 1).single())
+      Keywords.option -> IoTypeName.Option(readTypeList("option", min = 1, max = 1).single())
       Keywords.result -> {
         if (tryReadLiteral('<')) {
           skipWhitespace()
@@ -265,34 +272,34 @@ class WitStructureReader(
           }
           skipWhitespace()
           readLiteral('>')
-          TypeName.Result(ok, err)
+          IoTypeName.Result(ok, err)
         } else {
-          TypeName.Result()
+          IoTypeName.Result()
         }
       }
 
       Keywords.map -> {
         val (key, value) = readTypeList("map", min = 2, max = 2)
-        TypeName.Map(key, value)
+        IoTypeName.Map(key, value)
       }
 
-      Keywords.borrow -> TypeName.Borrow(readTypeList("borrow", min = 1, max = 1).single())
-      Keywords.future -> TypeName.Future(readTypeList("future", min = 0, max = 1).singleOrNull())
-      Keywords.stream -> TypeName.Stream(readTypeList("stream", min = 0, max = 1).singleOrNull())
-      Keywords.bool -> TypeName.Bool
-      Keywords.s8 -> TypeName.S8
-      Keywords.s16 -> TypeName.S16
-      Keywords.s32 -> TypeName.S32
-      Keywords.s64 -> TypeName.S64
-      Keywords.u8 -> TypeName.U8
-      Keywords.u16 -> TypeName.U16
-      Keywords.u32 -> TypeName.U32
-      Keywords.u64 -> TypeName.U64
-      Keywords.f32 -> TypeName.F32
-      Keywords.f64 -> TypeName.F64
-      Keywords.char -> TypeName.Char
-      Keywords.string -> TypeName.String
-      else -> TypeName.Declared(identifier)
+      Keywords.borrow -> IoTypeName.Borrow(readTypeList("borrow", min = 1, max = 1).single())
+      Keywords.future -> IoTypeName.Future(readTypeList("future", min = 0, max = 1).singleOrNull())
+      Keywords.stream -> IoTypeName.Stream(readTypeList("stream", min = 0, max = 1).singleOrNull())
+      Keywords.bool -> IoTypeName.Bool
+      Keywords.s8 -> IoTypeName.S8
+      Keywords.s16 -> IoTypeName.S16
+      Keywords.s32 -> IoTypeName.S32
+      Keywords.s64 -> IoTypeName.S64
+      Keywords.u8 -> IoTypeName.U8
+      Keywords.u16 -> IoTypeName.U16
+      Keywords.u32 -> IoTypeName.U32
+      Keywords.u64 -> IoTypeName.U64
+      Keywords.f32 -> IoTypeName.F32
+      Keywords.f64 -> IoTypeName.F64
+      Keywords.char -> IoTypeName.Char
+      Keywords.string -> IoTypeName.String
+      else -> IoTypeName.Declared(identifier)
     }
   }
 
@@ -300,9 +307,9 @@ class WitStructureReader(
     name: String,
     min: Int,
     max: Int,
-  ): List<TypeName> {
+  ): List<IoTypeName> {
     require(min in 0..max)
-    val result = mutableListOf<TypeName>()
+    val result = mutableListOf<IoTypeName>()
     if (tryReadLiteral('<')) {
       skipWhitespace()
       result += readTypeName()
@@ -324,7 +331,7 @@ class WitStructureReader(
    * ```
    */
   fun readPackageName(): PackageName {
-    val offset = this@WitStructureReader.offset
+    val offset = this@WitSyntaxReader.offset
     val namespaces = mutableListOf<Identifier>()
     val names = mutableListOf<Identifier>()
 

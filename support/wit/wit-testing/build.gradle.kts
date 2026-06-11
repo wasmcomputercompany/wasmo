@@ -14,7 +14,6 @@ kotlin {
         implementation(libs.okio)
         implementation(projects.support.wit.witCore)
         implementation(projects.support.wit.witKotlin)
-        implementation(projects.support.wit.witKotlinGenerator)
       }
     }
     jvmTest {

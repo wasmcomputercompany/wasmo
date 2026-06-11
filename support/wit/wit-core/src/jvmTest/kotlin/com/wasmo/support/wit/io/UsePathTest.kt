@@ -1,7 +1,9 @@
-package com.wasmo.support.wit
+package com.wasmo.support.wit.io
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.wasmo.support.wit.Identifier
+import com.wasmo.support.wit.SemVer
 import kotlin.test.Test
 
 class UsePathTest {
