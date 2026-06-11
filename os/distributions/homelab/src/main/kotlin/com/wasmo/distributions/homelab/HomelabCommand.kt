@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
+import com.wasmo.api.OsConfig
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.identifiers.Deployment
@@ -24,7 +25,9 @@ import com.wasmo.wiring.Distribution
 import com.wasmo.wiring.WasmoService
 import dev.zacsweers.metro.createGraphFactory
 import io.ktor.server.engine.EmbeddedServer
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
@@ -34,6 +37,8 @@ import wasmo.sql.SqlDatabase
 class HomelabCommand : CliktCommand() {
   val container: Boolean by option("--container")
     .flag("--no-container", default = true)
+  val devMode: Boolean by option("--dev-mode")
+    .flag("--no-dev-mode", default = false)
   val stripePublishableKey: String by option()
     .defaultLazy {
       System.getenv("STRIPE_PUBLISHABLE_KEY")
@@ -45,6 +50,7 @@ class HomelabCommand : CliktCommand() {
         ?: "sk_UNKNOWN"
     }
 
+  @OptIn(ExperimentalCoroutinesApi::class)
   override fun run() = runBlocking {
     var baseUrl = "http://wasmo.localhost:8080/".toHttpUrl()
 
@@ -119,6 +125,24 @@ class HomelabCommand : CliktCommand() {
           objectStoreAddress = objectStoreAddress,
           sessionCookieSpec = SessionCookieSpec.Http,
           localPostgresql = localPostgresql,
+          osConfig = if (devMode) {
+            // Setup coroutines debugging.
+            DebugProbes.install()
+            DebugProbes.enableCreationStackTraces = true
+            DebugProbes.sanitizeStackTraces = true
+            System.setProperty(kotlinx.coroutines.DEBUG_PROPERTY_NAME, kotlinx.coroutines.DEBUG_PROPERTY_VALUE_ON)
+            System.setProperty("kotlinx.coroutines.stacktrace.recovery", "true")
+            OsConfig.DevMode
+          } else {
+            OsConfig.Standard
+          }.also {
+            println("OsConfig: $it")
+            println("DebugProbes.isInstalled: ${DebugProbes.isInstalled}")
+            println("DebugProbes.enableCreationStackTraces: ${DebugProbes.enableCreationStackTraces}")
+            println("${kotlinx.coroutines.DEBUG_PROPERTY_NAME}: ${System.getProperty(kotlinx.coroutines.DEBUG_PROPERTY_NAME)}")
+            val stackTraceRecovery = "kotlinx.coroutines.stacktrace.recovery"
+            println("$stackTraceRecovery: ${System.getProperty(stackTraceRecovery)}")
+          }
         )
         return serviceGraph.wasmoService
       }

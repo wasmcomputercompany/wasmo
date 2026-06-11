@@ -64,6 +64,7 @@ dependencies {
   implementation(libs.clikt)
   implementation(libs.clikt.core)
   implementation(libs.kotlinx.coroutines.core)
+  implementation(libs.kotlinx.coroutines.debug)
   implementation(libs.ktor.server.core)
   implementation(libs.ktor.server.netty)
   implementation(libs.okhttp)
