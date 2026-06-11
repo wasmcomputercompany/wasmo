@@ -14,7 +14,7 @@ class TypeMapper(
   private val kotlinPackagePrefix: String,
 ) {
   fun map(typeName: IrParentName): KotlinTypeName {
-    return (typeName.packageName.toNameMapper(kotlinPackagePrefix) + typeName.name).className
+    return (typeName.packageName.toKotlin(kotlinPackagePrefix) + typeName.name).name
   }
 
   fun map(typeName: IrTypeName): KotlinTypeName {
@@ -54,7 +54,7 @@ class TypeMapper(
       )
 
       is IrTypeName.Declared -> {
-        typeName.toNameMapper(kotlinPackagePrefix).className
+        typeName.toKotlin(kotlinPackagePrefix).name
       }
 
       is IrTypeName.Stream -> ClassNames.Stream.parameterizedBy(

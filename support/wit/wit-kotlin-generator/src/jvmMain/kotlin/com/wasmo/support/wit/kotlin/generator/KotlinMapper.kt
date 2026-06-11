@@ -16,94 +16,79 @@ import com.wasmo.support.wit.ir.IrWitPackage
 import com.wasmo.support.wit.ir.IrWorld
 
 /**
- * Directly converts WIT model types ([IoWorld], [IoFunction], etc.) to a Kotlin equivalents ([WorldKt],
- * [FunctionKt], etc.).
- *
- * This performs the following transformations:
- *
- *  * Case mapping of names: `monotonic-clock` to `MonotonicClock`, `utc-offset` to `utcOffset`.
- *  * Type mapping: `s32` to `Int`, `optional<string>` to `String?`.
- *  * Flattening worlds by applying `include` declarations.
+ * Directly converts WIT model types ([IoWorld], [IoFunction], etc.) to a Kotlin equivalents
+ * ([WorldKt], [FunctionKt], etc.).
  */
 class KotlinMapper(
   private val kotlinPackagePrefix: String = "wit",
 ) {
   private val typeMapper = TypeMapper(kotlinPackagePrefix)
 
-  fun mapPackage(witPackage: IrWitPackage): WitPackageKt {
-    val nameMapper = witPackage.packageName.toNameMapper(kotlinPackagePrefix)
-    return WitPackageKt(
-      packageName = nameMapper.packageName,
-      declarations = witPackage.items.mapNotNull { declaration ->
-        mapPackageItem(
-          nameMapper = nameMapper,
-          value = declaration,
-        )
-      },
-    )
-  }
-
-  private fun mapPackageItem(
-    nameMapper: NameMapper,
-    value: IrWitPackage.Item,
-  ): DeclarationKt? {
-    return when (value) {
-      is IrInterface -> mapInterface(nameMapper, value)
-      is IrWorld -> mapWorld(nameMapper, value)
+  fun map(witPackage: IrWitPackage): WitPackageKt {
+    val kotlinName = witPackage.packageName.toKotlin(kotlinPackagePrefix)
+    context(Context(kotlinName)) {
+      return WitPackageKt(
+        packageName = kotlinName.name,
+        declarations = witPackage.items.mapNotNull { declaration ->
+          declaration.packageItemToKt()
+        },
+      )
     }
   }
 
-  private fun mapInterfaceItem(
-    nameMapper: NameMapper,
-    value: IrInterface.Item,
-  ): DeclarationKt? {
-    return when (value) {
-      is IrEnum -> mapEnum(nameMapper, value)
-      is IrFlags -> mapFlags(nameMapper, value)
-      is IrFunction -> mapFunction(nameMapper, value)
-      is IrRecord -> mapRecord(nameMapper, value)
-      is IrResource -> mapResource(nameMapper, value)
-      is IrTypeAlias -> mapTypeAlias(nameMapper, value)
-      is IrVariant -> mapVariant(nameMapper, value)
+  context(context: Context)
+  internal fun IrWitPackage.Item.packageItemToKt(): DeclarationKt? {
+    return when (this) {
+      is IrInterface -> interfaceToKt()
+      is IrWorld -> worldToKt()
     }
   }
 
-  private fun mapWorldItem(
-    nameMapper: NameMapper,
-    value: IrWorld.Item,
-  ): DeclarationKt? {
-    return when (value) {
-      is IrEnum -> mapEnum(nameMapper, value)
-      is IrFlags -> mapFlags(nameMapper, value)
-      is IrRecord -> mapRecord(nameMapper, value)
-      is IrResource -> mapResource(nameMapper, value)
-      is IrTypeAlias -> mapTypeAlias(nameMapper, value)
-      is IrVariant -> mapVariant(nameMapper, value)
+  context(context: Context)
+  internal fun IrInterface.Item.interfaceItemToKt(): DeclarationKt? {
+    return when (this) {
+      is IrEnum -> enumToKt()
+      is IrFlags -> flagsToKt()
+      is IrFunction -> functionToKt()
+      is IrRecord -> recordToKt()
+      is IrResource -> resourceToKt()
+      is IrTypeAlias -> typeAliasToKt()
+      is IrVariant -> variantToKt()
     }
   }
 
-  fun mapInterface(
-    nameMapper: NameMapper,
-    value: IrInterface,
-  ): InterfaceKt {
-    val nameMapper = nameMapper + value.name
-    return InterfaceKt(
-      documentation = value.documentation?.content,
-      type = nameMapper.className,
-      instanceName = value.name.name.toCamelCase(upperCamel = false),
-      declarations = value.items.mapNotNull {
-        mapInterfaceItem(nameMapper, it)
-      },
-    )
+  context(context: Context)
+  internal fun IrWorld.Item.worldItemToKt(): DeclarationKt? {
+    return when (this) {
+      is IrEnum -> enumToKt()
+      is IrFlags -> flagsToKt()
+      is IrRecord -> recordToKt()
+      is IrResource -> resourceToKt()
+      is IrTypeAlias -> typeAliasToKt()
+      is IrVariant -> variantToKt()
+    }
   }
 
-  fun mapRecord(
-    nameMapper: NameMapper,
-    value: IrRecord,
-  ) = RecordKt(
-    documentation = value.documentation?.content,
-    type = (nameMapper + value.name).className,
-    fields = value.fields.map { field ->
+  context(context: Context)
+  internal fun IrInterface.interfaceToKt(): InterfaceKt {
+    val kotlinName = context.kotlinName + name
+    context(Context(kotlinName)) {
+      return InterfaceKt(
+        documentation = documentation?.content,
+        type = kotlinName.name,
+        instanceName = name.name.toCamelCase(upperCamel = false),
+        declarations = items.mapNotNull {
+          it.interfaceItemToKt()
+        },
+      )
+    }
+  }
+
+  context(context: Context)
+  internal fun IrRecord.recordToKt() = RecordKt(
+    documentation = documentation?.content,
+    type = (context.kotlinName + name).name,
+    fields = fields.map { field ->
       RecordKt.Field(
         documentation = field.documentation?.content,
         name = field.name.name.toCamelCase(upperCamel = false),
@@ -112,31 +97,25 @@ class KotlinMapper(
     },
   )
 
-  fun mapResource(
-    nameMapper: NameMapper,
-    value: IrResource,
-  ) = ResourceKt(
-    documentation = value.documentation?.content,
-    type = (nameMapper + value.name).className,
-    functions = value.functions.map { mapFunction(nameMapper, it) },
+  context(context: Context)
+  internal fun IrResource.resourceToKt() = ResourceKt(
+    documentation = documentation?.content,
+    type = (context.kotlinName + name).name,
+    functions = functions.map { it.functionToKt() },
   )
 
-  fun mapTypeAlias(
-    nameMapper: NameMapper,
-    value: IrTypeAlias,
-  ) = TypeAliasKt(
-    documentation = value.documentation?.content,
-    type = (nameMapper + value.name).className,
-    target = typeMapper.map(value.target),
+  context(context: Context)
+  internal fun IrTypeAlias.typeAliasToKt() = TypeAliasKt(
+    documentation = documentation?.content,
+    type = (context.kotlinName + name).name,
+    target = typeMapper.map(target),
   )
 
-  fun mapVariant(
-    nameMapper: NameMapper,
-    value: IrVariant,
-  ) = VariantKt(
-    documentation = value.documentation?.content,
-    type = (nameMapper + value.name).className,
-    cases = value.cases.map { case ->
+  context(context: Context)
+  internal fun IrVariant.variantToKt() = VariantKt(
+    documentation = documentation?.content,
+    type = (context.kotlinName + name).name,
+    cases = cases.map { case ->
       VariantKt.Case(
         documentation = case.documentation?.content,
         name = case.name.name.toCamelCase(upperCamel = true),
@@ -145,13 +124,11 @@ class KotlinMapper(
     },
   )
 
-  fun mapEnum(
-    nameMapper: NameMapper,
-    value: IrEnum,
-  ) = EnumKt(
-    documentation = value.documentation?.content,
-    type = (nameMapper + value.name).className,
-    cases = value.cases.map {
+  context(context: Context)
+  internal fun IrEnum.enumToKt() = EnumKt(
+    documentation = documentation?.content,
+    type = (context.kotlinName + name).name,
+    cases = cases.map {
       check(it.type == null)
       EnumKt.Case(
         documentation = it.documentation?.content,
@@ -160,13 +137,11 @@ class KotlinMapper(
     },
   )
 
-  fun mapFlags(
-    nameMapper: NameMapper,
-    value: IrFlags,
-  ) = FlagsKt(
-    documentation = value.documentation?.content,
-    type = (nameMapper + value.name).className,
-    flags = value.flags.map { flag ->
+  context(context: Context)
+  internal fun IrFlags.flagsToKt() = FlagsKt(
+    documentation = documentation?.content,
+    type = (context.kotlinName + name).name,
+    flags = flags.map { flag ->
       FlagsKt.Flag(
         documentation = flag.documentation?.content,
         name = flag.name.name.toCamelCase(upperCamel = false),
@@ -174,61 +149,63 @@ class KotlinMapper(
     },
   )
 
-  fun mapFunction(
-    nameMapper: NameMapper,
-    value: IrFunction,
-  ) = FunctionKt(
-    documentation = value.documentation?.content,
-    name = value.name.name.toCamelCase(upperCamel = false),
-    parameters = value.parameters.map { parameter ->
+  context(context: Context)
+  internal fun IrFunction.functionToKt() = FunctionKt(
+    documentation = documentation?.content,
+    name = name.name.toCamelCase(upperCamel = false),
+    parameters = parameters.map { parameter ->
       FunctionKt.Parameter(
         documentation = parameter.documentation?.content,
         name = parameter.name.name.toCamelCase(upperCamel = false),
         type = typeMapper.map(parameter.type),
       )
     },
-    returnType = value.returnType?.let { typeMapper.map(it) },
+    returnType = returnType?.let { typeMapper.map(it) },
   )
 
-  fun mapWorld(
-    nameMapper: NameMapper,
-    value: IrWorld,
-  ): WorldKt {
-    val nameMapper = nameMapper + value.name
-    val hostNameMapper = nameMapper + Identifier("Host")
-    val guestNameMapper = nameMapper + Identifier("Guest")
+  context(context: Context)
+  internal fun IrWorld.worldToKt(): WorldKt {
+    val kotlinName = context.kotlinName + name
+    val hostName = kotlinName + Identifier("Host")
+    val guestName = kotlinName + Identifier("Guest")
     return WorldKt(
-      documentation = value.documentation?.content,
-      type = nameMapper.className,
-      declarations = value.items.mapNotNull {
-        mapWorldItem(nameMapper, it)
+      documentation = documentation?.content,
+      type = kotlinName.name,
+      declarations = context(Context(kotlinName)) {
+        items.mapNotNull { it.worldItemToKt() }
       },
-      host = WorldKt.Host(
-        type = hostNameMapper.className,
-        apis = value.imports.map { mapWorldApi(hostNameMapper, it) },
-      ),
-      guest = WorldKt.Guest(
-        type = guestNameMapper.className,
-        apis = value.exports.map { mapWorldApi(guestNameMapper, it) },
-      ),
+      host = context(Context(hostName)) {
+        WorldKt.Host(
+          type = hostName.name,
+          apis = imports.map { it.worldApiToKt() },
+        )
+      },
+      guest = context(Context(guestName)) {
+        WorldKt.Guest(
+          type = guestName.name,
+          apis = exports.map { it.worldApiToKt() },
+        )
+      },
     )
   }
 
-  private fun mapWorldApi(
-    nameMapper: NameMapper,
-    value: IrWorld.Api,
-  ): WorldKt.Api {
-    return when (value) {
+  context(context: Context)
+  private fun IrWorld.Api.worldApiToKt(): WorldKt.Api {
+    return when (this) {
       is IrExternalApi -> {
         ExternalUsePathKt(
-          documentation = value.documentation?.content,
-          name = (value.plainName ?: value.path.name).name.toCamelCase(upperCamel = false),
-          type = typeMapper.map(value.path),
+          documentation = documentation?.content,
+          name = (plainName ?: path.name).name.toCamelCase(upperCamel = false),
+          type = typeMapper.map(path),
         )
       }
 
-      is IrFunction -> mapFunction(nameMapper, value)
-      is IrInterface -> mapInterface(nameMapper, value)
+      is IrFunction -> functionToKt()
+      is IrInterface -> interfaceToKt()
     }
   }
+
+  internal class Context(
+    val kotlinName: KotlinName,
+  )
 }

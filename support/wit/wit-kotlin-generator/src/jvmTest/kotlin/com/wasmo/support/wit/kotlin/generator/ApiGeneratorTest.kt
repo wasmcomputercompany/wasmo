@@ -70,7 +70,7 @@ class ApiGeneratorTest {
     )
 
     val witPackage = IrMapper(listOf(wasiClocks)).map().single()
-    val kotlinPackage = KotlinMapper().mapPackage(witPackage)
+    val kotlinPackage = KotlinMapper().map(witPackage)
     val fileSpec = ApiGenerator().generate(kotlinPackage)
 
     assertThat(fileSpec.toString()).isEqualTo(
@@ -209,7 +209,7 @@ class ApiGeneratorTest {
     )
 
     val witPackage = IrMapper(listOf(wasiCommand)).map().single()
-    val kotlinPackage = KotlinMapper().mapPackage(witPackage)
+    val kotlinPackage = KotlinMapper().map(witPackage)
     val fileSpec = ApiGenerator().generate(
       witPackage = kotlinPackage,
       worldFilter = { world -> world.type.simpleName == "Command" }

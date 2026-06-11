@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import kotlin.test.Test
 
-class IdentifierMappingTest {
+class CamelCaseTest {
   @Test
   fun `camel case`() {
     assertThat("".toCamelCase(upperCamel = true)).isEqualTo("")
