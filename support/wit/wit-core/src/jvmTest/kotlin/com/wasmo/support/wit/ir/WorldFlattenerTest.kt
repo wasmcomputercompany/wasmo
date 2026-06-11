@@ -3,30 +3,27 @@ package com.wasmo.support.wit.ir
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.support.wit.Identifier
-import com.wasmo.support.wit.io.ExternalUsePath
-import com.wasmo.support.wit.io.Include
+import com.wasmo.support.wit.io.IoExternalApi
+import com.wasmo.support.wit.io.IoInclude
 import com.wasmo.support.wit.io.IoWitFile
 import com.wasmo.support.wit.io.IoWitPackage
-import com.wasmo.support.wit.io.IrExternalUsePath
-import com.wasmo.support.wit.io.IrInterfaceName
-import com.wasmo.support.wit.io.IrWorld
-import com.wasmo.support.wit.io.World
-import com.wasmo.support.wit.io.toPackageName
+import com.wasmo.support.wit.io.IoWorld
+import com.wasmo.support.wit.toPackageName
 import kotlin.test.Test
 import okio.Path.Companion.toPath
 
 class WorldFlattenerTest {
   @Test
   fun `include relative path`() {
-    val command = World(
+    val command = IoWorld(
       name = "command",
-      items = listOf(Include(path = "imports")),
-      exports = listOf(ExternalUsePath(path = "run")),
+      items = listOf(IoInclude(path = "imports")),
+      exports = listOf(IoExternalApi(path = "run")),
     )
 
-    val imports = World(
+    val imports = IoWorld(
       name = "imports",
-      imports = listOf(ExternalUsePath(path = "exit")),
+      imports = listOf(IoExternalApi(path = "exit")),
     )
 
     val wasiCommand = IoWitPackage(
@@ -48,8 +45,8 @@ class WorldFlattenerTest {
     ).isEqualTo(
       IrWorld(
         name = "command",
-        exports = listOf(IrExternalUsePath(path = IrInterfaceName("wasi:cli@0.3.0", "run"))),
-        imports = listOf(IrExternalUsePath(path = IrInterfaceName("wasi:cli@0.3.0", "exit"))),
+        exports = listOf(IrExternalApi(path = IrInterfaceName("wasi:cli@0.3.0", "run"))),
+        imports = listOf(IrExternalApi(path = IrInterfaceName("wasi:cli@0.3.0", "exit"))),
       ),
     )
   }

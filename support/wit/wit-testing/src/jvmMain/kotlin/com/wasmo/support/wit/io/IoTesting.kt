@@ -5,7 +5,7 @@ import com.wasmo.support.wit.Gate
 import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.Offset
 
-fun Case(
+fun IoCase(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -19,7 +19,7 @@ fun Case(
   type = type,
 )
 
-fun Enum(
+fun IoEnum(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -33,13 +33,13 @@ fun Enum(
   cases = cases,
 )
 
-fun ExternalUsePath(
+fun IoExternalApi(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   plainName: String? = null,
   path: String,
-) = IoExternalUsePath(
+) = IoExternalApi(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -47,7 +47,7 @@ fun ExternalUsePath(
   path = path.toUsePath(),
 )
 
-fun Flags(
+fun IoFlags(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -61,7 +61,7 @@ fun Flags(
   flags = flags,
 )
 
-fun Field(
+fun IoField(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -75,7 +75,7 @@ fun Field(
   type = type,
 )
 
-fun Flag(
+fun IoFlag(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -87,7 +87,7 @@ fun Flag(
   name = Identifier(name),
 )
 
-fun Function(
+fun IoFunction(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -109,17 +109,7 @@ fun Function(
   returnType = returnType,
 )
 
-fun Gate(
-  unstable: String? = null,
-  since: String? = null,
-  deprecated: String? = null,
-) = Gate(
-  unstable = unstable?.let { Identifier(it) },
-  since = since?.toSemVer(),
-  deprecated = deprecated?.toSemVer(),
-)
-
-fun Include(
+fun IoInclude(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -133,7 +123,7 @@ fun Include(
   items = items,
 )
 
-fun IncludeItem(
+fun IoIncludeItem(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -147,7 +137,7 @@ fun IncludeItem(
   alias = Identifier(alias),
 )
 
-fun Interface(
+fun IoInterface(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -161,15 +151,7 @@ fun Interface(
   items = items,
 )
 
-fun Scope(
-  packageName: String,
-  interfaceName: String? = null,
-) = Scope(
-  packageName = packageName.toPackageName(),
-  interfaceName = interfaceName?.let { Identifier(it) },
-)
-
-fun Parameter(
+fun IoParameter(
   documentation: String? = null,
   offset: Offset = Offset(1, 1),
   name: String,
@@ -181,7 +163,7 @@ fun Parameter(
   type = type,
 )
 
-fun Record(
+fun IoRecord(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -195,7 +177,7 @@ fun Record(
   fields = fields,
 )
 
-fun Resource(
+fun IoResource(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -209,7 +191,7 @@ fun Resource(
   functions = functions,
 )
 
-fun TypeAlias(
+fun IoTypeAlias(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -223,7 +205,7 @@ fun TypeAlias(
   target = target,
 )
 
-fun Use(
+fun IoUse(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -237,7 +219,7 @@ fun Use(
   items = items,
 )
 
-fun UseItem(
+fun IoUseItem(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -251,7 +233,7 @@ fun UseItem(
   alias = alias?.let { Identifier(it) },
 )
 
-fun Variant(
+fun IoVariant(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
@@ -265,7 +247,7 @@ fun Variant(
   cases = cases,
 )
 
-fun World(
+fun IoWorld(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),

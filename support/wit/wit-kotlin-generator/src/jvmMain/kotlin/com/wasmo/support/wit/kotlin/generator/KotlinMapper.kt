@@ -4,7 +4,7 @@ import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.io.IoFunction
 import com.wasmo.support.wit.io.IoWorld
 import com.wasmo.support.wit.ir.IrEnum
-import com.wasmo.support.wit.ir.IrExternalUsePath
+import com.wasmo.support.wit.ir.IrExternalApi
 import com.wasmo.support.wit.ir.IrFlags
 import com.wasmo.support.wit.ir.IrFunction
 import com.wasmo.support.wit.ir.IrInterface
@@ -219,7 +219,7 @@ class KotlinMapper(
     value: IrWorld.Api,
   ): WorldKt.Api {
     return when (value) {
-      is IrExternalUsePath -> {
+      is IrExternalApi -> {
         ExternalUsePathKt(
           documentation = value.documentation?.content,
           name = (value.plainName ?: value.path.name).name.toCamelCase(upperCamel = false),

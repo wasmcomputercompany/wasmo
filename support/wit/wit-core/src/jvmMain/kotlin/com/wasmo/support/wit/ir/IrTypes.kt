@@ -21,7 +21,7 @@ sealed class IrTypeName {
   /** Identifies a [IrTypeDeclaration]. */
   data class Declared(
     val packageName: PackageName,
-    val interfaceName: Identifier,
+    val parentName: Identifier,
     val name: Identifier,
   ) : IrTypeName() {
     override fun toString() = buildString {
@@ -33,7 +33,7 @@ sealed class IrTypeName {
         append(packageName)
         append('/')
       }
-      append(interfaceName)
+      append(parentName)
       if (packageName.version != null) {
         append('@')
         append(packageName.version)

@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.wasmo.support.wit.io.IrTypeNameDeclared
+import com.wasmo.support.wit.ir.IrTypeNameDeclared
 import com.wasmo.support.wit.ir.IrTypeName
 import kotlin.test.Test
 

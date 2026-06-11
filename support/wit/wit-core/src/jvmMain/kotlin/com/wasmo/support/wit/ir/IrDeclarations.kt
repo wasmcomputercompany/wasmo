@@ -137,10 +137,10 @@ data class IrTypeAlias(
   val target: IrTypeName,
 ) : IrTypeDeclaration, IrInterface.Item
 
-data class IrExternalUsePath(
+data class IrExternalApi(
   override val documentation: Documentation? = null,
   override val gate: Gate? = null,
   override val offset: Offset,
   val plainName: Identifier? = null,
-  val path: IrInterfaceName,
+  val path: IrParentName,
 ) : IrDeclaration, IrWorld.Api

@@ -4,9 +4,11 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.wasmo.support.wit.Documentation
+import com.wasmo.support.wit.Gate
 import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.Offset
 import com.wasmo.support.wit.WitException
+import com.wasmo.support.wit.toPackageName
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -139,7 +141,7 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(name = "foo"),
+          IoInterface(name = "foo"),
         ),
       ),
     )
@@ -156,7 +158,7 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             documentation = """
               | this is the foo interface
               |it is a good interface
@@ -181,20 +183,20 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "foo",
             items = listOf(
-              Function(
+              IoFunction(
                 offset = Offset(2, 3),
                 name = "print",
                 parameters = listOf(
-                  Parameter(
+                  IoParameter(
                     offset = Offset(2, 15),
                     name = "message",
                     type = IoTypeName.String,
                   ),
-                  Parameter(
+                  IoParameter(
                     offset = Offset(2, 32),
                     name = "repeat",
                     type = IoTypeName.Option(IoTypeName.U32),
@@ -204,7 +206,7 @@ class WitFileReaderTest {
                   err = IoTypeName.Declared("errno"),
                 ),
               ),
-              Function(
+              IoFunction(
                 offset = Offset(3, 3),
                 name = "async-print",
                 async = true,
@@ -236,32 +238,32 @@ class WitFileReaderTest {
       IoWitFile(
         packageName = "wasi:clocks@0.2.9".toPackageName(),
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(3, 1),
             name = "wall-clock",
             items = listOf(
-              Record(
+              IoRecord(
                 offset = Offset(4, 3),
                 name = "datetime",
                 fields = listOf(
-                  Field(
+                  IoField(
                     offset = Offset(5, 5),
                     name = "seconds",
                     type = IoTypeName.U64,
                   ),
-                  Field(
+                  IoField(
                     offset = Offset(6, 5),
                     name = "nanoseconds",
                     type = IoTypeName.U32,
                   ),
                 ),
               ),
-              Function(
+              IoFunction(
                 offset = Offset(9, 3),
                 name = "now",
                 returnType = IoTypeName.Declared("datetime"),
               ),
-              Function(
+              IoFunction(
                 offset = Offset(11, 3),
                 name = "resolution",
                 returnType = IoTypeName.Declared("datetime"),
@@ -285,7 +287,7 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             documentation = """
               | tick tock
               | wall clock
@@ -318,24 +320,24 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "wall-clock",
             items = listOf(
-              Record(
+              IoRecord(
                 documentation = " spacetime",
                 gate = Gate(since = "2.0"),
                 offset = Offset(4, 3),
                 name = "datetime",
                 fields = listOf(
-                  Field(
+                  IoField(
                     documentation = " just a second",
                     gate = Gate(since = "3.0"),
                     offset = Offset(7, 5),
                     name = "seconds",
                     type = IoTypeName.U64,
                   ),
-                  Field(
+                  IoField(
                     documentation = " tick",
                     gate = Gate(since = "4.0"),
                     offset = Offset(10, 5),
@@ -366,17 +368,17 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "wall-clock",
             items = listOf(
-              Function(
+              IoFunction(
                 documentation = " sample the clock",
                 gate = Gate(since = "5.0"),
                 offset = Offset(4, 3),
                 name = "now",
                 parameters = listOf(
-                  Parameter(
+                  IoParameter(
                     documentation = " True to return a non-decreasing value.",
                     offset = Offset(6, 5),
                     name = "monotonic",
@@ -404,15 +406,15 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "monotonic-clock",
             items = listOf(
-              Function(
+              IoFunction(
                 offset = Offset(2, 3),
                 name = "subscribe-instant",
                 parameters = listOf(
-                  Parameter(
+                  IoParameter(
                     offset = Offset(3, 5),
                     name = "when",
                     type = IoTypeName.Declared("instant"),
@@ -455,50 +457,50 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "db",
             items = listOf(
-              Resource(
+              IoResource(
                 documentation = " big boi",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
                 name = "blob",
                 functions = listOf(
-                  Function(
+                  IoFunction(
                     documentation = " makes a new one",
                     gate = Gate(since = "2.0"),
                     offset = Offset(7, 5),
                     constructor = true,
                     name = "constructor",
                     parameters = listOf(
-                      Parameter(
+                      IoParameter(
                         offset = Offset(7, 17),
                         name = "init",
                         type = IoTypeName.List(IoTypeName.U8),
                       ),
                     ),
                   ),
-                  Function(
+                  IoFunction(
                     documentation = " puts some bytes",
                     gate = Gate(since = "3.0"),
                     offset = Offset(11, 5),
                     name = "write",
                     parameters = listOf(
-                      Parameter(
+                      IoParameter(
                         offset = Offset(11, 17),
                         name = "bytes",
                         type = IoTypeName.List(IoTypeName.U8),
                       ),
                     ),
                   ),
-                  Function(
+                  IoFunction(
                     documentation = " gets some bytes",
                     gate = Gate(since = "4.0"),
                     offset = Offset(15, 5),
                     name = "read",
                     parameters = listOf(
-                      Parameter(
+                      IoParameter(
                         offset = Offset(15, 16),
                         name = "n",
                         type = IoTypeName.U32,
@@ -506,19 +508,19 @@ class WitFileReaderTest {
                     ),
                     returnType = IoTypeName.List(IoTypeName.U8),
                   ),
-                  Function(
+                  IoFunction(
                     documentation = " smashes some blobs together",
                     gate = Gate(since = "5.0"),
                     offset = Offset(19, 5),
                     static = true,
                     name = "merge",
                     parameters = listOf(
-                      Parameter(
+                      IoParameter(
                         offset = Offset(19, 24),
                         name = "lhs",
                         type = IoTypeName.Borrow(IoTypeName.Declared("blob")),
                       ),
-                      Parameter(
+                      IoParameter(
                         offset = Offset(19, 43),
                         name = "rhs",
                         type = IoTypeName.Borrow(IoTypeName.Declared("blob")),
@@ -545,11 +547,11 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "db",
             items = listOf(
-              Resource(
+              IoResource(
                 offset = Offset(2, 3),
                 name = "blob",
               ),
@@ -582,29 +584,29 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "db",
             items = listOf(
-              Variant(
+              IoVariant(
                 documentation = " whats included",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
                 name = "filter",
                 cases = listOf(
-                  Case(
+                  IoCase(
                     documentation = " all the things",
                     gate = Gate(since = "2.0"),
                     offset = Offset(7, 5),
                     name = "all",
                   ),
-                  Case(
+                  IoCase(
                     documentation = " zilch",
                     gate = Gate(since = "3.0"),
                     offset = Offset(10, 5),
                     name = "none",
                   ),
-                  Case(
+                  IoCase(
                     documentation = " one",
                     gate = Gate(since = "4.0"),
                     offset = Offset(13, 5),
@@ -642,29 +644,29 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "db",
             items = listOf(
-              Flags(
+              IoFlags(
                 documentation = " comic character",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
                 name = "properties",
                 flags = listOf(
-                  Flag(
+                  IoFlag(
                     documentation = " plastic",
                     gate = Gate(since = "2.0"),
                     offset = Offset(7, 5),
                     name = "lego",
                   ),
-                  Flag(
+                  IoFlag(
                     documentation = " avenger",
                     gate = Gate(since = "3.0"),
                     offset = Offset(10, 5),
                     name = "marvel-superhero",
                   ),
-                  Flag(
+                  IoFlag(
                     documentation = " naughty",
                     gate = Gate(since = "4.0"),
                     offset = Offset(13, 5),
@@ -701,29 +703,29 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "db",
             items = listOf(
-              Enum(
+              IoEnum(
                 documentation = " Roy G.",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
                 name = "color",
                 cases = listOf(
-                  Case(
+                  IoCase(
                     documentation = " #ff0000",
                     gate = Gate(since = "2.0"),
                     offset = Offset(7, 5),
                     name = "red",
                   ),
-                  Case(
+                  IoCase(
                     documentation = " #0000ff",
                     gate = Gate(since = "3.0"),
                     offset = Offset(10, 5),
                     name = "blue",
                   ),
-                  Case(
+                  IoCase(
                     documentation = " #00ff00",
                     gate = Gate(since = "4.0"),
                     offset = Offset(13, 5),
@@ -753,18 +755,18 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "db",
             items = listOf(
-              TypeAlias(
+              IoTypeAlias(
                 documentation = " So Awesome.",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
                 name = "my-awesome-u32",
                 target = IoTypeName.U32,
               ),
-              TypeAlias(
+              IoTypeAlias(
                 documentation = " So Complicated.",
                 gate = Gate(since = "2.0"),
                 offset = Offset(7, 3),
@@ -803,34 +805,34 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          Interface(
+          IoInterface(
             offset = Offset(1, 1),
             name = "db",
             items = listOf(
-              Use(
+              IoUse(
                 documentation = " Four values.",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
                 path = "an-interface",
                 items = listOf(
-                  UseItem(offset = Offset(4, 21), type = "a"),
-                  UseItem(offset = Offset(4, 24), type = "list"),
-                  UseItem(offset = Offset(4, 30), type = "of"),
-                  UseItem(offset = Offset(4, 34), type = "names"),
+                  IoUseItem(offset = Offset(4, 21), type = "a"),
+                  IoUseItem(offset = Offset(4, 24), type = "list"),
+                  IoUseItem(offset = Offset(4, 30), type = "of"),
+                  IoUseItem(offset = Offset(4, 34), type = "names"),
                 ),
               ),
-              Use(
+              IoUse(
                 documentation = " One aliased value.",
                 gate = Gate(since = "2.0"),
                 offset = Offset(7, 3),
                 path = "my:dependency/the-interface@3.0",
                 items = listOf(
-                  UseItem(
+                  IoUseItem(
                     documentation = " we can document use items?!",
                     offset = Offset(9, 5),
                     type = "more",
                   ),
-                  UseItem(
+                  IoUseItem(
                     offset = Offset(10, 5),
                     type = "names",
                     alias = "foo",
@@ -855,7 +857,7 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             documentation = " a printer-scanner-fax thingy",
             gate = Gate(since = "1.0"),
             offset = Offset(3, 1),
@@ -881,11 +883,11 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             imports = listOf(
-              ExternalUsePath(
+              IoExternalApi(
                 documentation = " The component needs an `error-reporter`",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
@@ -893,7 +895,7 @@ class WitFileReaderTest {
               ),
             ),
             exports = listOf(
-              ExternalUsePath(
+              IoExternalApi(
                 documentation = " This also exports an `error-creator`",
                 gate = Gate(since = "2.0"),
                 offset = Offset(7, 3),
@@ -918,11 +920,11 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             imports = listOf(
-              ExternalUsePath(
+              IoExternalApi(
                 documentation = " This store is aliased as 'primary'",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
@@ -948,11 +950,11 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             exports = listOf(
-              ExternalUsePath(
+              IoExternalApi(
                 documentation = " This store is aliased as 'secondary'",
                 gate = Gate(since = "2.0"),
                 offset = Offset(4, 3),
@@ -982,23 +984,23 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             imports = listOf(
-              Interface(
+              IoInterface(
                 documentation = " This interface is inline",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
                 name = "host",
                 items = listOf(
-                  Function(
+                  IoFunction(
                     documentation = " This function is in an inline interface",
                     gate = Gate(since = "2.0"),
                     offset = Offset(7, 5),
                     name = "log",
                     parameters = listOf(
-                      Parameter(
+                      IoParameter(
                         offset = Offset(7, 15),
                         name = "param",
                         type = IoTypeName.String,
@@ -1030,23 +1032,23 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             exports = listOf(
-              Interface(
+              IoInterface(
                 documentation = " We can export an inline interface",
                 gate = Gate(since = "3.0"),
                 offset = Offset(4, 3),
                 name = "guest",
                 items = listOf(
-                  Function(
+                  IoFunction(
                     documentation = " A function in an inline interface",
                     gate = Gate(since = "4.0"),
                     offset = Offset(7, 5),
                     name = "scan",
                     parameters = listOf(
-                      Parameter(
+                      IoParameter(
                         offset = Offset(7, 16),
                         name = "document",
                         type = IoTypeName.String,
@@ -1074,17 +1076,17 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             imports = listOf(
-              Function(
+              IoFunction(
                 documentation = " This function is inline",
                 gate = Gate(since = "4.0"),
                 offset = Offset(4, 3),
                 name = "log",
                 parameters = listOf(
-                  Parameter(
+                  IoParameter(
                     offset = Offset(4, 20),
                     name = "param",
                     type = IoTypeName.String,
@@ -1110,17 +1112,17 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             exports = listOf(
-              Function(
+              IoFunction(
                 documentation = " This exported function is inline",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
                 name = "scan",
                 parameters = listOf(
-                  Parameter(
+                  IoParameter(
                     offset = Offset(4, 21),
                     name = "document",
                     type = IoTypeName.String,
@@ -1144,11 +1146,11 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             imports = listOf(
-              ExternalUsePath(
+              IoExternalApi(
                 offset = Offset(2, 3),
                 plainName = "two",
                 path = "store",
@@ -1170,11 +1172,11 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             exports = listOf(
-              ExternalUsePath(
+              IoExternalApi(
                 offset = Offset(2, 3),
                 plainName = "two",
                 path = "store",
@@ -1198,11 +1200,11 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             items = listOf(
-              Include(
+              IoInclude(
                 documentation = " This include is pretty basic.",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
@@ -1230,20 +1232,20 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             items = listOf(
-              Include(
+              IoInclude(
                 offset = Offset(2, 3),
                 path = "wasi:io/my-world-1",
                 items = listOf(
-                  IncludeItem(
+                  IoIncludeItem(
                     offset = Offset(3, 5),
                     type = "a",
                     alias = "a1",
                   ),
-                  IncludeItem(
+                  IoIncludeItem(
                     documentation = " we can document include items?!",
                     offset = Offset(5, 5),
                     type = "b",
@@ -1278,7 +1280,7 @@ class WitFileReaderTest {
             offset = Offset(3, 1),
             name = "local:a".toPackageName(),
             declarations = listOf(
-              Interface(
+              IoInterface(
                 documentation = " This interface is included in a package.",
                 gate = Gate(since = "2.0"),
                 offset = Offset(6, 3),
@@ -1368,7 +1370,7 @@ class WitFileReaderTest {
             offset = Offset(1, 1),
             name = "local:a".toPackageName(),
             declarations = listOf(
-              World(
+              IoWorld(
                 documentation = " a printer-scanner-fax thingy",
                 gate = Gate(since = "1.0"),
                 offset = Offset(4, 3),
@@ -1394,20 +1396,20 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             items = listOf(
-              Record(
+              IoRecord(
                 offset = Offset(2, 3),
                 name = "datetime",
                 fields = listOf(
-                  Field(
+                  IoField(
                     offset = Offset(3, 5),
                     name = "seconds",
                     type = IoTypeName.U64,
                   ),
-                  Field(
+                  IoField(
                     offset = Offset(4, 5),
                     name = "nanoseconds",
                     type = IoTypeName.U32,
@@ -1435,23 +1437,23 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             items = listOf(
-              Enum(
+              IoEnum(
                 offset = Offset(2, 3),
                 name = "color",
                 cases = listOf(
-                  Case(
+                  IoCase(
                     offset = Offset(3, 5),
                     name = "red",
                   ),
-                  Case(
+                  IoCase(
                     offset = Offset(4, 5),
                     name = "blue",
                   ),
-                  Case(
+                  IoCase(
                     offset = Offset(5, 5),
                     name = "green",
                   ),
@@ -1478,23 +1480,23 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             items = listOf(
-              Flags(
+              IoFlags(
                 offset = Offset(2, 3),
                 name = "properties",
                 flags = listOf(
-                  Flag(
+                  IoFlag(
                     offset = Offset(3, 5),
                     name = "lego",
                   ),
-                  Flag(
+                  IoFlag(
                     offset = Offset(4, 5),
                     name = "marvel-superhero",
                   ),
-                  Flag(
+                  IoFlag(
                     offset = Offset(5, 5),
                     name = "supervillain",
                   ),
@@ -1520,31 +1522,31 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             items = listOf(
-              Resource(
+              IoResource(
                 offset = Offset(2, 3),
                 name = "blob",
                 functions = listOf(
-                  Function(
+                  IoFunction(
                     offset = Offset(3, 5),
                     constructor = true,
                     name = "constructor",
                     parameters = listOf(
-                      Parameter(
+                      IoParameter(
                         offset = Offset(3, 17),
                         name = "init",
                         type = IoTypeName.List(IoTypeName.U8),
                       ),
                     ),
                   ),
-                  Function(
+                  IoFunction(
                     offset = Offset(4, 5),
                     name = "write",
                     parameters = listOf(
-                      Parameter(
+                      IoParameter(
                         offset = Offset(4, 17),
                         name = "bytes",
                         type = IoTypeName.List(IoTypeName.U8),
@@ -1570,11 +1572,11 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             items = listOf(
-              TypeAlias(
+              IoTypeAlias(
                 offset = Offset(2, 3),
                 name = "my-awesome-u32",
                 target = IoTypeName.U32,
@@ -1596,18 +1598,18 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             items = listOf(
-              Use(
+              IoUse(
                 offset = Offset(2, 3),
                 path = "an-interface",
                 items = listOf(
-                  UseItem(offset = Offset(2, 21), type = "a"),
-                  UseItem(offset = Offset(2, 24), type = "list"),
-                  UseItem(offset = Offset(2, 30), type = "of"),
-                  UseItem(offset = Offset(2, 34), type = "names"),
+                  IoUseItem(offset = Offset(2, 21), type = "a"),
+                  IoUseItem(offset = Offset(2, 24), type = "list"),
+                  IoUseItem(offset = Offset(2, 30), type = "of"),
+                  IoUseItem(offset = Offset(2, 34), type = "names"),
                 ),
               ),
             ),
@@ -1631,23 +1633,23 @@ class WitFileReaderTest {
     assertThat(wit).isEqualTo(
       IoWitFile(
         items = listOf(
-          World(
+          IoWorld(
             offset = Offset(1, 1),
             name = "multi-function-device",
             items = listOf(
-              Variant(
+              IoVariant(
                 offset = Offset(2, 3),
                 name = "filter",
                 cases = listOf(
-                  Case(
+                  IoCase(
                     offset = Offset(3, 5),
                     name = "all",
                   ),
-                  Case(
+                  IoCase(
                     offset = Offset(4, 5),
                     name = "none",
                   ),
-                  Case(
+                  IoCase(
                     offset = Offset(5, 5),
                     name = "some",
                     type = IoTypeName.List(IoTypeName.String),

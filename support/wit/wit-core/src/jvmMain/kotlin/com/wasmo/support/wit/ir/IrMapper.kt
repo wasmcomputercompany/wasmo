@@ -5,7 +5,7 @@ import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.io.IoCase
 import com.wasmo.support.wit.io.IoEnum
-import com.wasmo.support.wit.io.IoExternalUsePath
+import com.wasmo.support.wit.io.IoExternalApi
 import com.wasmo.support.wit.io.IoField
 import com.wasmo.support.wit.io.IoFlag
 import com.wasmo.support.wit.io.IoFlags
@@ -202,7 +202,7 @@ class IrMapper(
   )
 
   context(context: Context)
-  private fun IoExternalUsePath.externalUsePathToIr() = IrExternalUsePath(
+  private fun IoExternalApi.externalUsePathToIr() = IrExternalApi(
     documentation = documentation,
     gate = gate,
     offset = offset,
@@ -211,7 +211,7 @@ class IrMapper(
   )
 
   context(context: Context)
-  private fun UsePath.usePathToIr() = IrInterfaceName(
+  private fun UsePath.usePathToIr() = IrParentName(
     packageName = packageName ?: context.packageName,
     name = name,
   )
@@ -344,7 +344,7 @@ class IrMapper(
   context(context: Context)
   private fun IoWorld.Api.worldApiToIr(): IrWorld.Api {
     return when (this) {
-      is IoExternalUsePath -> externalUsePathToIr()
+      is IoExternalApi -> externalUsePathToIr()
       is IoFunction -> functionToIr()
       is IoInterface -> interfaceToIr(context.packageName)
     }

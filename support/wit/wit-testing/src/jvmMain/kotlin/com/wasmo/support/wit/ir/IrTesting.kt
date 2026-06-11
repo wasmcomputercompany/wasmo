@@ -1,25 +1,11 @@
-package com.wasmo.support.wit.io
+package com.wasmo.support.wit.ir
 
 import com.wasmo.support.wit.Documentation
 import com.wasmo.support.wit.Gate
 import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.Offset
-import com.wasmo.support.wit.ir.IrCase
-import com.wasmo.support.wit.ir.IrEnum
-import com.wasmo.support.wit.ir.IrExternalUsePath
-import com.wasmo.support.wit.ir.IrField
-import com.wasmo.support.wit.ir.IrFlag
-import com.wasmo.support.wit.ir.IrFlags
-import com.wasmo.support.wit.ir.IrFunction
-import com.wasmo.support.wit.ir.IrInterface
-import com.wasmo.support.wit.ir.IrInterfaceName
-import com.wasmo.support.wit.ir.IrParameter
-import com.wasmo.support.wit.ir.IrRecord
-import com.wasmo.support.wit.ir.IrResource
-import com.wasmo.support.wit.ir.IrTypeAlias
-import com.wasmo.support.wit.ir.IrTypeName
-import com.wasmo.support.wit.ir.IrVariant
-import com.wasmo.support.wit.ir.IrWorld
+import com.wasmo.support.wit.io.IoFlag
+import com.wasmo.support.wit.toPackageName
 
 fun IrCase(
   documentation: String? = null,
@@ -41,7 +27,7 @@ fun IrTypeNameDeclared(
   typeName: String,
 ) = IrTypeName.Declared(
   packageName = packageName.toPackageName(),
-  interfaceName = Identifier(parentName),
+  parentName = Identifier(parentName),
   name = Identifier(typeName),
 )
 
@@ -59,13 +45,13 @@ fun IrEnum(
   cases = cases,
 )
 
-fun IrExternalUsePath(
+fun IrExternalApi(
   documentation: String? = null,
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   plainName: String? = null,
-  path: IrInterfaceName,
-) = IrExternalUsePath(
+  path: IrParentName,
+) = IrExternalApi(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
@@ -152,7 +138,7 @@ fun IrInterface(
 fun IrInterfaceName(
   packageName: String,
   name: String,
-) = IrInterfaceName(
+) = IrParentName(
   packageName = packageName.toPackageName(),
   name = Identifier(name),
 )

@@ -14,6 +14,9 @@ import com.wasmo.support.wit.PackageName
 import com.wasmo.support.wit.SemVer
 import com.wasmo.support.wit.WitCoreInternalApi
 import com.wasmo.support.wit.WitException
+import com.wasmo.support.wit.toIdentifier
+import com.wasmo.support.wit.toPackageName
+import com.wasmo.support.wit.toSemVer
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -491,116 +494,116 @@ class WitSyntaxReaderTest {
 
   @Test
   fun `readTypeName success`() {
-    assertThat("u32".toTypeName())
+    assertThat("u32".toIoTypeName())
       .isEqualTo(IoTypeName.U32)
-    assertThat("string".toTypeName())
+    assertThat("string".toIoTypeName())
       .isEqualTo(IoTypeName.String)
-    assertThat("tuple<u32>".toTypeName())
+    assertThat("tuple<u32>".toIoTypeName())
       .isEqualTo(IoTypeName.Tuple(listOf(IoTypeName.U32)))
-    assertThat("tuple<u32, s8>".toTypeName())
+    assertThat("tuple<u32, s8>".toIoTypeName())
       .isEqualTo(IoTypeName.Tuple(listOf(IoTypeName.U32, IoTypeName.S8)))
-    assertThat("tuple<u32, s8, string>".toTypeName())
+    assertThat("tuple<u32, s8, string>".toIoTypeName())
       .isEqualTo(IoTypeName.Tuple(listOf(IoTypeName.U32, IoTypeName.S8, IoTypeName.String)))
-    assertThat("list<string>".toTypeName())
+    assertThat("list<string>".toIoTypeName())
       .isEqualTo(IoTypeName.List(IoTypeName.String))
-    assertThat("list<string, 32>".toTypeName())
+    assertThat("list<string, 32>".toIoTypeName())
       .isEqualTo(IoTypeName.List(IoTypeName.String, 32U))
-    assertThat("option<string>".toTypeName())
+    assertThat("option<string>".toIoTypeName())
       .isEqualTo(IoTypeName.Option(IoTypeName.String))
-    assertThat("result<string>".toTypeName())
+    assertThat("result<string>".toIoTypeName())
       .isEqualTo(IoTypeName.Result(IoTypeName.String))
-    assertThat("result<string, s32>".toTypeName())
+    assertThat("result<string, s32>".toIoTypeName())
       .isEqualTo(IoTypeName.Result(IoTypeName.String, IoTypeName.S32))
-    assertThat("result<_, string>".toTypeName())
+    assertThat("result<_, string>".toIoTypeName())
       .isEqualTo(IoTypeName.Result(null, IoTypeName.String))
-    assertThat("result".toTypeName())
+    assertThat("result".toIoTypeName())
       .isEqualTo(IoTypeName.Result())
-    assertThat("map<u32, s64>".toTypeName())
+    assertThat("map<u32, s64>".toIoTypeName())
       .isEqualTo(IoTypeName.Map(IoTypeName.U32, IoTypeName.S64))
-    assertThat("map<u32, list<string>>".toTypeName())
+    assertThat("map<u32, list<string>>".toIoTypeName())
       .isEqualTo(IoTypeName.Map(IoTypeName.U32, IoTypeName.List(IoTypeName.String)))
-    assertThat("future".toTypeName())
+    assertThat("future".toIoTypeName())
       .isEqualTo(IoTypeName.Future())
-    assertThat("future<string>".toTypeName())
+    assertThat("future<string>".toIoTypeName())
       .isEqualTo(IoTypeName.Future(IoTypeName.String))
-    assertThat("borrow<string>".toTypeName())
+    assertThat("borrow<string>".toIoTypeName())
       .isEqualTo(IoTypeName.Borrow(IoTypeName.String))
-    assertThat("stream".toTypeName())
+    assertThat("stream".toIoTypeName())
       .isEqualTo(IoTypeName.Stream())
-    assertThat("stream<string>".toTypeName())
+    assertThat("stream<string>".toIoTypeName())
       .isEqualTo(IoTypeName.Stream(IoTypeName.String))
-    assertThat("foo".toTypeName())
+    assertThat("foo".toIoTypeName())
       .isEqualTo(IoTypeName.Declared("foo"))
   }
 
   @Test
   fun `readTypeName dangling type parameters`() {
     assertFailsWith<WitException> {
-      "tuple<".toTypeName()
+      "tuple<".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "tuple<string".toTypeName()
+      "tuple<string".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "tuple<string,".toTypeName()
+      "tuple<string,".toIoTypeName()
     }
   }
 
   @Test
   fun `readTypeName invalid type parameters`() {
     assertFailsWith<WitException> {
-      "tuple".toTypeName()
+      "tuple".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "tuple<>".toTypeName()
+      "tuple<>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "list".toTypeName()
+      "list".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "list<>".toTypeName()
+      "list<>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "list<string, string, string>".toTypeName()
+      "list<string, string, string>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "option".toTypeName()
+      "option".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "option<>".toTypeName()
+      "option<>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "option<string, string>".toTypeName()
+      "option<string, string>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "result<_, _>".toTypeName()
+      "result<_, _>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "map<string>".toTypeName()
+      "map<string>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "map<string, string, string>".toTypeName()
+      "map<string, string, string>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "future<>".toTypeName()
+      "future<>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "future<string, string>".toTypeName()
+      "future<string, string>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "stream<>".toTypeName()
+      "stream<>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "stream<string, string>".toTypeName()
+      "stream<string, string>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "borrow".toTypeName()
+      "borrow".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "borrow<>".toTypeName()
+      "borrow<>".toIoTypeName()
     }
     assertFailsWith<WitException> {
-      "borrow<string, string>".toTypeName()
+      "borrow<string, string>".toIoTypeName()
     }
   }
 }

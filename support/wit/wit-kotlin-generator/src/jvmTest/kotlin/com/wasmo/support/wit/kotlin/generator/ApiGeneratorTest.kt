@@ -3,9 +3,9 @@ package com.wasmo.support.wit.kotlin.generator
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.wasmo.support.wit.io.IoWitPackage
-import com.wasmo.support.wit.io.toPackageName
 import com.wasmo.support.wit.io.toWitFile
 import com.wasmo.support.wit.ir.IrMapper
+import com.wasmo.support.wit.toPackageName
 import kotlin.test.Test
 import okio.Path.Companion.toPath
 

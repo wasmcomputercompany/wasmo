@@ -4,7 +4,7 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeName as KotlinTypeName
-import com.wasmo.support.wit.ir.IrInterfaceName
+import com.wasmo.support.wit.ir.IrParentName
 import com.wasmo.support.wit.ir.IrTypeName
 
 /**
@@ -13,7 +13,7 @@ import com.wasmo.support.wit.ir.IrTypeName
 class TypeMapper(
   private val kotlinPackagePrefix: String,
 ) {
-  fun map(typeName: IrInterfaceName): KotlinTypeName {
+  fun map(typeName: IrParentName): KotlinTypeName {
     return (typeName.packageName.toNameMapper(kotlinPackagePrefix) + typeName.name).className
   }
 

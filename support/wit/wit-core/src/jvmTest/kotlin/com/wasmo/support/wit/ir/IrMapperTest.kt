@@ -7,7 +7,7 @@ import assertk.assertions.isNull
 import com.wasmo.support.wit.Identifier
 import com.wasmo.support.wit.io.IoTypeName
 import com.wasmo.support.wit.io.IoWitPackage
-import com.wasmo.support.wit.io.toPackageName
+import com.wasmo.support.wit.toPackageName
 import com.wasmo.support.wit.io.toUsePath
 import com.wasmo.support.wit.io.toWitFile
 import kotlin.test.Test
@@ -46,7 +46,7 @@ class IrMapperTest {
     ).isEqualTo(
       IrTypeName.Declared(
         packageName = "wasi:clocks".toPackageName(),
-        interfaceName = Identifier("wall-clock"),
+        parentName = Identifier("wall-clock"),
         name = Identifier("datetime"),
       ),
     )
@@ -106,7 +106,7 @@ class IrMapperTest {
     ).isEqualTo(
       IrTypeName.Declared(
         packageName = "wasi:io@0.2.12".toPackageName(),
-        interfaceName = Identifier("streams"),
+        parentName = Identifier("streams"),
         name = Identifier("input-stream"),
       ),
     )
@@ -152,7 +152,7 @@ class IrMapperTest {
     ).isEqualTo(
       IrTypeName.Declared(
         packageName = "wasi:clocks@0.2.12".toPackageName(),
-        interfaceName = Identifier("wall-clock"),
+        parentName = Identifier("wall-clock"),
         name = Identifier("datetime"),
       ),
     )
