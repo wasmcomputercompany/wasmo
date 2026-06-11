@@ -12,7 +12,7 @@ import okio.Path.Companion.toPath
 class ApiGeneratorTest {
   @Test
   fun `full interface`() {
-    val wasiClocks = IoWitPackage(
+    val ioPackage = IoWitPackage(
       packageName = "wasi:clocks@0.2.12".toPackageName(),
       files = mapOf(
         "clock.wit".toPath() to """
@@ -69,9 +69,9 @@ class ApiGeneratorTest {
       ),
     )
 
-    val witPackage = IrMapper(listOf(wasiClocks)).map().single()
-    val kotlinPackage = KotlinMapper().mapPackage(witPackage)
-    val fileSpec = ApiGenerator().generate(kotlinPackage)
+    val irPackage = IrMapper(listOf(ioPackage)).map().single()
+    val ktPackage = KtMapper().map(irPackage)
+    val fileSpec = ApiGenerator().generate(ktPackage)
 
     assertThat(fileSpec.toString()).isEqualTo(
       """
@@ -173,7 +173,7 @@ class ApiGeneratorTest {
 
   @Test
   fun `full world`() {
-    val wasiCommand = IoWitPackage(
+    val ioPackage = IoWitPackage(
       packageName = "wasi:cli@0.3.0".toPackageName(),
       files = mapOf(
         "command.wit".toPath() to """
@@ -208,10 +208,10 @@ class ApiGeneratorTest {
       ),
     )
 
-    val witPackage = IrMapper(listOf(wasiCommand)).map().single()
-    val kotlinPackage = KotlinMapper().mapPackage(witPackage)
+    val irPackage = IrMapper(listOf(ioPackage)).map().single()
+    val ktPackage = KtMapper().map(irPackage)
     val fileSpec = ApiGenerator().generate(
-      witPackage = kotlinPackage,
+      witPackage = ktPackage,
       worldFilter = { world -> world.type.simpleName == "Command" }
     )
 

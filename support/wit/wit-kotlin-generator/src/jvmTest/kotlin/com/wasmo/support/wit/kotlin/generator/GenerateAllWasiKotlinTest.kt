@@ -30,14 +30,14 @@ class GenerateAllWasiKotlinTest {
     }
 
     val irPackages = IrMapper(ioPackages).map()
-    val kotlinMapper = KotlinMapper()
+    val ktMapper = KtMapper()
     val apiGenerator = ApiGenerator()
 
     val directory = File("build/GenerateAllWasiKotlinTest")
     directory.mkdirs()
     for (irPackage in irPackages) {
-      val kotlinPackage = kotlinMapper.mapPackage(irPackage)
-      val fileSpec = apiGenerator.generate(kotlinPackage)
+      val ktPackage = ktMapper.map(irPackage)
+      val fileSpec = apiGenerator.generate(ktPackage)
       fileSpec.writeTo(directory)
     }
   }
