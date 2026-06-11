@@ -1,0 +1,230 @@
+package dev.wasmo.brevity.ir
+
+import dev.wasmo.brevity.Documentation
+import dev.wasmo.brevity.Gate
+import dev.wasmo.brevity.Identifier
+import dev.wasmo.brevity.Offset
+import dev.wasmo.brevity.io.IoFlag
+import dev.wasmo.brevity.toPackageName
+
+fun IrCase(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  type: IrTypeName? = null,
+) = IrCase(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+  type = type,
+)
+
+fun IrTypeNameDeclared(
+  packageName: String,
+  parentName: String,
+  typeName: String,
+) = IrTypeName.Declared(
+  packageName = packageName.toPackageName(),
+  parentName = Identifier(parentName),
+  name = Identifier(typeName),
+)
+
+fun IrEnum(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  cases: List<IrCase>,
+) = IrEnum(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+  cases = cases,
+)
+
+fun IrExternalApi(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  plainName: String? = null,
+  path: IrParentName,
+) = IrExternalApi(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  plainName = plainName?.let { Identifier(it) },
+  path = path,
+)
+
+fun IrFlags(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  flags: List<IrFlag>,
+) = IrFlags(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+  flags = flags,
+)
+
+fun IrField(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  type: IrTypeName,
+) = IrField(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+  type = type,
+)
+
+fun IrFlag(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+) = IoFlag(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+)
+
+fun IrFunction(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  async: Boolean = false,
+  static: Boolean = false,
+  constructor: Boolean = false,
+  name: String,
+  parameters: List<IrParameter> = listOf(),
+  returnType: IrTypeName? = null,
+) = IrFunction(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  async = async,
+  static = static,
+  constructor = constructor,
+  name = Identifier(name),
+  parameters = parameters,
+  returnType = returnType,
+)
+
+fun IrInterface(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  items: List<IrInterface.Item> = listOf(),
+) = IrInterface(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+  items = items,
+)
+
+fun IrInterfaceName(
+  packageName: String,
+  name: String,
+) = IrParentName(
+  packageName = packageName.toPackageName(),
+  name = Identifier(name),
+)
+
+fun IrParameter(
+  documentation: String? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  type: IrTypeName,
+) = IrParameter(
+  documentation = documentation?.let { Documentation(it) },
+  offset = offset,
+  name = Identifier(name),
+  type = type,
+)
+
+fun IrRecord(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  fields: List<IrField>,
+) = IrRecord(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+  fields = fields,
+)
+
+fun IrResource(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  functions: List<IrFunction> = listOf(),
+) = IrResource(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+  functions = functions,
+)
+
+fun IrTypeAlias(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  target: IrTypeName,
+) = IrTypeAlias(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+  target = target,
+)
+
+fun IrVariant(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  cases: List<IrCase>,
+) = IrVariant(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+  cases = cases,
+)
+
+fun IrWorld(
+  documentation: String? = null,
+  gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
+  name: String,
+  items: List<IrWorld.Item> = listOf(),
+  imports: List<IrWorld.Api> = listOf(),
+  exports: List<IrWorld.Api> = listOf(),
+) = IrWorld(
+  documentation = documentation?.let { Documentation(it) },
+  gate = gate,
+  offset = offset,
+  name = Identifier(name),
+  items = items,
+  imports = imports,
+  exports = exports,
+)
