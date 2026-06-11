@@ -3,113 +3,120 @@ package com.wasmo.support.wit.kotlin.generator
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
 
-sealed interface DeclarationKt {
+sealed interface KtDeclaration {
   val documentation: String?
 }
 
-data class WitPackageKt(
+data class KtWitPackage(
   val packageName: String,
-  val declarations: List<DeclarationKt>,
-)
+  val items: List<Item>,
+) {
+  sealed interface Item
+}
 
-data class ExternalUsePathKt(
+data class KtExternalApi(
   override val documentation: String?,
   val name: String,
   val type: TypeName,
-) : DeclarationKt, WorldKt.Api
+) : KtDeclaration, KtWorld.Api
 
-data class InterfaceKt(
+data class KtInterface(
   override val documentation: String?,
   val type: ClassName,
   val instanceName: String,
-  val declarations: List<DeclarationKt>,
-) : DeclarationKt, WorldKt.Api
-
-data class WorldKt(
-  override val documentation: String?,
-  val type: ClassName,
-  val declarations : List<DeclarationKt>,
-  val host : Host?,
-  val guest : Guest?,
-) : DeclarationKt {
-  data class Host(
-    val type: ClassName,
-    val apis : List<Api>,
-  )
-  data class Guest(
-    val type: ClassName,
-    val apis : List<Api>,
-  )
-  interface Api : DeclarationKt
+  val items: List<Item>,
+) : KtDeclaration, KtWorld.Api, KtWitPackage.Item {
+  sealed interface Item : KtDeclaration
 }
 
-data class EnumKt(
+data class KtWorld(
+  override val documentation: String?,
+  val type: ClassName,
+  val items: List<Item>,
+  val host: Host?,
+  val guest: Guest?,
+) : KtDeclaration, KtWitPackage.Item {
+  data class Host(
+    val type: ClassName,
+    val apis: List<Api>,
+  )
+
+  data class Guest(
+    val type: ClassName,
+    val apis: List<Api>,
+  )
+
+  interface Item : KtDeclaration
+  interface Api : KtDeclaration
+}
+
+data class KtEnum(
   override val documentation: String?,
   val type: ClassName,
   val cases: List<Case>,
-) : DeclarationKt {
+) : KtDeclaration, KtInterface.Item, KtWorld.Item {
   data class Case(
     override val documentation: String?,
     val name: String,
-  ) : DeclarationKt
+  ) : KtDeclaration
 }
 
-data class RecordKt(
+data class KtRecord(
   override val documentation: String?,
   val type: ClassName,
   val fields: List<Field>,
-) : DeclarationKt {
+) : KtDeclaration, KtInterface.Item, KtWorld.Item {
   data class Field(
     override val documentation: String?,
     val name: String,
     val type: TypeName,
-  ) : DeclarationKt
+  ) : KtDeclaration
 }
 
-data class ResourceKt(
+data class KtResource(
   override val documentation: String?,
   val type: ClassName,
-  val functions: List<FunctionKt>,
-) : DeclarationKt
+  val functions: List<KtFunction>,
+) : KtDeclaration, KtInterface.Item, KtWorld.Item
 
-data class TypeAliasKt(
+data class KtTypeAlias(
   override val documentation: String?,
   val type: ClassName,
-  val target: TypeName
-) : DeclarationKt
+  val target: TypeName,
+) : KtDeclaration, KtInterface.Item, KtWorld.Item
 
-data class VariantKt(
+data class KtVariant(
   override val documentation: String?,
   val type: ClassName,
   val cases: List<Case>,
-) : DeclarationKt {
+) : KtDeclaration, KtInterface.Item, KtWorld.Item {
   data class Case(
     override val documentation: String?,
     val name: String,
     val type: TypeName?,
-  ) : DeclarationKt
+  ) : KtDeclaration
 }
 
-data class FlagsKt(
+data class KtFlags(
   override val documentation: String?,
   val type: ClassName,
   val flags: List<Flag>,
-) : DeclarationKt {
+) : KtDeclaration, KtInterface.Item, KtWorld.Item {
   data class Flag(
     override val documentation: String?,
     val name: String,
-  ) : DeclarationKt
+  ) : KtDeclaration
 }
 
-data class FunctionKt(
+data class KtFunction(
   override val documentation: String?,
   val name: String,
   val parameters: List<Parameter>,
   val returnType: TypeName?,
-) : DeclarationKt, WorldKt.Api {
+) : KtDeclaration, KtInterface.Item, KtWorld.Api {
   data class Parameter(
     override val documentation: String?,
     val name: String,
     val type: TypeName,
-  ) : DeclarationKt
+  ) : KtDeclaration
 }
