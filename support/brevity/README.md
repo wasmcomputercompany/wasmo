@@ -1,8 +1,8 @@
 Brevity
 =======
 
-‘brevity is the soul of wit’
-  –– Polonius in Shakespeare’s Hamlet
+> _‘brevity is the soul of wit’_
+>  –– Polonius in Shakespeare’s Hamlet
 
 This is a Kotlin implementation of a WIT processor.
 
