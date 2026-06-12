@@ -1,24 +1,24 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  id("wasmo-build")
-}
-
-wasmoBuild {
-  libraryJvm()
 }
 
 kotlin {
+  jvm()
   sourceSets {
     jvmMain {
       dependencies {
         implementation(libs.kotlinpoet)
         implementation(libs.okio)
-        implementation(projects.support.brevity.brevityCore)
+        implementation(projects.brevityCore)
       }
     }
     jvmTest {
       dependencies {
-        implementation(projects.support.brevity.brevityTesting)
+        implementation(libs.assertk)
+        implementation(libs.kotlin.test)
+        implementation(libs.kotlin.test.junit)
+        implementation(libs.okio.fakefilesystem)
+        implementation(projects.brevityTesting)
       }
     }
   }
