@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 
 plugins {
   id("wasmo-build").apply(false)
+  id("brevity").apply(false)
   id("dom-tester").apply(false)
   alias(libs.plugins.kotlin.jvm).apply(false)
   alias(libs.plugins.kotlin.multiplatform).apply(false)
