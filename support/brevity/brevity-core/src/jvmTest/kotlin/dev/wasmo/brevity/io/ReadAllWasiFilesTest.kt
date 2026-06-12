@@ -36,7 +36,7 @@ class ReadAllWasiFilesTest {
     // the WASI submodule, it's probably correct to change this value.
     //
     // But don't change it to 0, that means our paths are out of date.
-    assertThat(witFileCount).isEqualTo(57)
+    assertThat(witFileCount).isEqualTo(24)
   }
 
   @Test
@@ -46,7 +46,6 @@ class ReadAllWasiFilesTest {
       wasiProposals / "clocks/wit",
       wasiProposals / "filesystem/wit",
       wasiProposals / "http/wit",
-      wasiProposals / "io/wit",
       wasiProposals / "random/wit",
       wasiProposals / "sockets/wit",
     )
