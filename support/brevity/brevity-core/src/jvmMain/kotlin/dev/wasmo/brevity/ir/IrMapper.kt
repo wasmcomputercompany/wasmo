@@ -351,9 +351,7 @@ class IrMapper(
   private fun IoWorld.Api.worldApiToIr(): IrWorld.Api? {
     return when (this) {
       is IoExternalApi -> externalUsePathToIr()
-        .takeIf { candidate ->
-          getInterfaceOrNull(candidate.path.usePath)?.items?.any { it is IoFunction } == true
-        }
+        .takeIf { getInterfaceOrNull(it.path.usePath)?.declaresApis() ?: false }
 
       is IoFunction -> functionToIr()
       is IoInterface -> interfaceToIr(context.packageName)
@@ -422,3 +420,11 @@ private fun IoUse.Item.matches(typeName: IoTypeName.Declared): Boolean {
     else -> type == typeName
   }
 }
+
+/**
+ * Returns true if this interface declares functions to be imported or exported.
+ *
+ * TODO: probably also return true if any [IoResource] member has a static function or constructor.
+ */
+private fun IoInterface.declaresApis(): Boolean =
+  items.any { it is IoFunction }
