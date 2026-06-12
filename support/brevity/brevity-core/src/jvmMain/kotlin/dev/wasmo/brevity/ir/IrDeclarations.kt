@@ -7,7 +7,7 @@ import dev.wasmo.brevity.Offset
 import dev.wasmo.brevity.PackageName
 
 data class IrWitPackage(
-  val packageDocumentation: Documentation?,
+  val packageDocumentation: Documentation? = null,
   val packageName: PackageName,
   val items: List<Item> = listOf(),
 ) {

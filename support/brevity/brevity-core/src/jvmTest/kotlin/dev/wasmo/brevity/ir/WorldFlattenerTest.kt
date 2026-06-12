@@ -45,8 +45,8 @@ class WorldFlattenerTest {
     ).isEqualTo(
       IrWorld(
         name = "command",
-        exports = listOf(IrExternalApi(path = IrInterfaceName("wasi:cli@0.3.0", "run"))),
-        imports = listOf(IrExternalApi(path = IrInterfaceName("wasi:cli@0.3.0", "exit"))),
+        exports = listOf(IrExternalApi(path = IrParentName("wasi:cli@0.3.0", "run"))),
+        imports = listOf(IrExternalApi(path = IrParentName("wasi:cli@0.3.0", "exit"))),
       ),
     )
   }
