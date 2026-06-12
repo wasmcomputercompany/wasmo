@@ -1,6 +1,7 @@
 package dev.wasmo.brevity.ir
 
 import dev.wasmo.brevity.Documentation
+import dev.wasmo.brevity.FunctionName
 import dev.wasmo.brevity.Gate
 import dev.wasmo.brevity.Identifier
 import dev.wasmo.brevity.Offset
@@ -76,11 +77,9 @@ data class IrFunction(
   override val gate: Gate? = null,
   override val offset: Offset,
   val async: Boolean = false,
-  val static: Boolean = false,
-  val constructor: Boolean = false,
-  val name: Identifier,
   val parameters: List<IrParameter>,
   val returnType: IrTypeName? = null,
+  val functionName: FunctionName,
 ) : IrDeclaration, IrWorld.Api, IrInterface.Item
 
 data class IrVariant(

@@ -152,7 +152,7 @@ class KtMapper(
   context(context: Context)
   internal fun IrFunction.functionToKt() = KtFunction(
     documentation = documentation?.content,
-    name = name.name.toCamelCase(upperCamel = false),
+    name = functionName.name.name.toCamelCase(upperCamel = false),
     parameters = parameters.map { parameter ->
       KtFunction.Parameter(
         documentation = parameter.documentation?.content,

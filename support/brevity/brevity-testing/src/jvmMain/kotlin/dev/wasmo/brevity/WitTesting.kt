@@ -25,6 +25,18 @@ fun String.toSemVer(): SemVer {
   return result
 }
 
+fun FunctionName(
+  packageName: String,
+  name: String,
+  resourceName: String? = null,
+  annotation: Annotation? = resourceName?.let { Annotation.Method },
+) = FunctionName(
+  packageName = packageName.toPackageName(),
+  name = Identifier(name),
+  resourceName = resourceName?.let { Identifier(it) },
+  annotation = annotation,
+)
+
 fun Gate(
   unstable: String? = null,
   since: String? = null,

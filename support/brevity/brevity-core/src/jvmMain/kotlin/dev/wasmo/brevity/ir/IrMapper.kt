@@ -1,6 +1,8 @@
 package dev.wasmo.brevity.ir
 
+import dev.wasmo.brevity.Annotation
 import dev.wasmo.brevity.Documentation
+import dev.wasmo.brevity.FunctionName
 import dev.wasmo.brevity.Identifier
 import dev.wasmo.brevity.PackageName
 import dev.wasmo.brevity.io.IoCase
@@ -24,6 +26,7 @@ import dev.wasmo.brevity.io.IoUse
 import dev.wasmo.brevity.io.IoVariant
 import dev.wasmo.brevity.io.IoWitPackage
 import dev.wasmo.brevity.io.IoWorld
+import dev.wasmo.brevity.io.Keywords
 import dev.wasmo.brevity.io.UsePath
 
 class IrMapper(
@@ -56,11 +59,10 @@ class IrMapper(
     }
   }
 
-
   private fun addPackage(ioPackage: IoWitPackage) {
     val builder = irPackages.getOrPut(ioPackage.packageName) { PackageBuilder() }
 
-    for ((path, ioFile) in ioPackage.files) {
+    for ((_, ioFile) in ioPackage.files) {
       for (item in ioFile.items) {
         when (item) {
           is IoInterface -> builder.items += item.interfaceToIr(ioPackage.packageName)
@@ -127,16 +129,39 @@ class IrMapper(
   )
 
   context(context: Context)
-  private fun IoFunction.functionToIr() = IrFunction(
+  private fun IoFunction.functionToIr(resourceName: Identifier? = null) = IrFunction(
     documentation = documentation,
     gate = gate,
     offset = offset,
     async = async,
-    static = static,
-    constructor = constructor,
-    name = name,
     parameters = parameters.map { it.parameterToIr() },
     returnType = returnType?.typeNameToIr(),
+    functionName = when {
+      constructor && resourceName != null && name == Keywords.constructor -> FunctionName(
+        packageName = context.packageName,
+        name = resourceName,
+        annotation = Annotation.Constructor,
+      )
+
+      static && resourceName != null -> FunctionName(
+        packageName = context.packageName,
+        resourceName = resourceName,
+        name = name,
+        annotation = Annotation.Static,
+      )
+
+      resourceName != null -> FunctionName(
+        packageName = context.packageName,
+        resourceName = resourceName,
+        name = name,
+        annotation = Annotation.Method,
+      )
+
+      else -> FunctionName(
+        packageName = context.packageName,
+        name = name,
+      )
+    },
   )
 
   context(context: Context)
@@ -180,7 +205,9 @@ class IrMapper(
     gate = gate,
     offset = offset,
     name = name,
-    functions = functions.map { it.functionToIr() },
+    functions = functions.map {
+      it.functionToIr(resourceName = name)
+    },
   )
 
   context(context: Context)
