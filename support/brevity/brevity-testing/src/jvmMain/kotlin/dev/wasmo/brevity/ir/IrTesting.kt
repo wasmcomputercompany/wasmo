@@ -1,6 +1,8 @@
 package dev.wasmo.brevity.ir
 
+import dev.wasmo.brevity.Annotation
 import dev.wasmo.brevity.Documentation
+import dev.wasmo.brevity.FunctionName
 import dev.wasmo.brevity.Gate
 import dev.wasmo.brevity.Identifier
 import dev.wasmo.brevity.Offset
@@ -103,21 +105,25 @@ fun IrFunction(
   gate: Gate? = null,
   offset: Offset = Offset(1, 1),
   async: Boolean = false,
-  static: Boolean = false,
-  constructor: Boolean = false,
   name: String,
   parameters: List<IrParameter> = listOf(),
   returnType: IrTypeName? = null,
+  packageName: String,
+  resourceName: String? = null,
+  annotation: Annotation? = resourceName?.let { Annotation.Method },
 ) = IrFunction(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
   offset = offset,
   async = async,
-  static = static,
-  constructor = constructor,
-  name = Identifier(name),
   parameters = parameters,
   returnType = returnType,
+  functionName = FunctionName(
+    packageName = packageName.toPackageName(),
+    name = Identifier(name),
+    resourceName = resourceName?.let { Identifier(resourceName) },
+    annotation = annotation,
+  ),
 )
 
 fun IrInterface(

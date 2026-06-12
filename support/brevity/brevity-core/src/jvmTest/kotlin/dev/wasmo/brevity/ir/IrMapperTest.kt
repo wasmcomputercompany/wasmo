@@ -5,6 +5,8 @@ import assertk.assertions.containsExactly
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import dev.wasmo.brevity.Annotation
+import dev.wasmo.brevity.FunctionName
 import dev.wasmo.brevity.Identifier
 import dev.wasmo.brevity.Offset
 import dev.wasmo.brevity.io.IoTypeName
@@ -201,6 +203,7 @@ class IrMapperTest {
                 offset = Offset(4, 3),
                 name = "now",
                 returnType = IrTypeName.S64,
+                packageName = "wasi:clocks@0.3.0",
               ),
             ),
           ),
@@ -287,6 +290,83 @@ class IrMapperTest {
       .isEqualTo(wasiCli.files.values.single().items.single())
 
     assertThat(irMapper.getWorldOrNull("wasi:cli/command".toUsePath())).isNull()
+  }
+
+  @Test
+  fun `interface function abi names`() {
+    val ioPackages = listOf(
+      IoWitPackage(
+        packageName = "wasi:clocks@0.3.0".toPackageName(),
+        files = mapOf(
+          "system-clock.wit".toPath() to """
+            |interface system-clock {
+            |  now: func() -> u64;
+            |}
+            """.trimMargin().toWitFile(),
+        ),
+      ),
+    )
+
+    val irPackage = IrMapper(ioPackages).map().single()
+    val irInterface = irPackage.items.single() as IrInterface
+    val irFunction = irInterface.items.single() as IrFunction
+    assertThat(irFunction.functionName).isEqualTo(
+      FunctionName(
+        name = "now",
+        packageName = "wasi:clocks@0.3.0",
+      ),
+    )
+    assertThat(irFunction.functionName.abiName).isEqualTo("now")
+  }
+
+  @Test
+  fun `resource function abi names`() {
+    val ioPackages = listOf(
+      IoWitPackage(
+        packageName = "wasi:http@0.3.0".toPackageName(),
+        files = mapOf(
+          "types.wit".toPath() to """
+            |interface types {
+            |  resource fields {
+            |    constructor();
+            |    from-list: static func(entries: list<tuple<string,list<u8>>>) -> fields;
+            |    has: func(name: string) -> bool;
+            |    clone: func() -> fields;
+            |  }
+            |}
+            """.trimMargin().toWitFile(),
+        ),
+      ),
+    )
+
+    val irPackage = IrMapper(ioPackages).map().single()
+    val irInterface = irPackage.items.single() as IrInterface
+    val irResource = irInterface.items.single() as IrResource
+    assertThat(irResource.functions.map { it.functionName }).containsExactly(
+      FunctionName(
+        packageName = "wasi:http@0.3.0",
+        name = "fields",
+        annotation = Annotation.Constructor,
+      ),
+      FunctionName(
+        packageName = "wasi:http@0.3.0",
+        name = "from-list",
+        resourceName = "fields",
+        annotation = Annotation.Static,
+      ),
+      FunctionName(
+        packageName = "wasi:http@0.3.0",
+        name = "has",
+        resourceName = "fields",
+        annotation = Annotation.Method,
+      ),
+      FunctionName(
+        packageName = "wasi:http@0.3.0",
+        name = "clone",
+        resourceName = "fields",
+        annotation = Annotation.Method,
+      ),
+    )
   }
 
   private fun IrMapper.getType(
