@@ -21,3 +21,12 @@ brevity {
     )
   }
 }
+
+kotlin {
+  sourceSets {
+    commonMain {
+      // Hack in a dependency on the runtime library because includeBuild isn't working?
+      kotlin.srcDir("../brevity/brevity-kotlin/src/commonMain/kotlin")
+    }
+  }
+}
