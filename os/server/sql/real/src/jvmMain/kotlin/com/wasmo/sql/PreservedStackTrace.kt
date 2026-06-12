@@ -1,8 +1,5 @@
 package com.wasmo.sql
 
-import com.wasmo.sql.PreservedStackTrace.Empty
-import com.wasmo.sql.PreservedStackTrace.Full
-
 /**
  * Preserves a stack trace for rethrowing later on, with the cause filled in.
  *
@@ -25,13 +22,8 @@ import com.wasmo.sql.PreservedStackTrace.Full
  *
  * ```kotlin
  * suspend fun myFunction() {
- *   val preserves = PreserveStackTrace(shouldPreserve = true) {
- *     Exception("Something went wrong")
- *   }
- *   try {
+ *   preserveStacktrace {
  *     createFuture().awaitSuspending()
- *   } catch (e: Exception) {
- *     preserves.thawAndThrow(e)
  *   }
  * }
  *
@@ -41,31 +33,20 @@ import com.wasmo.sql.PreservedStackTrace.Full
  * up the stack trace can still throw away stack information.
  *
  * Saving this stack trace isn't free. (If it were, Kotlin would do it automatically all the time
- * instead of just under debug builds.) So putting this everywhere all the time is not great. 
+ * instead of just under debug builds.) So putting this everywhere all the time is not great.
  */
-sealed interface PreservedStackTrace {
-  fun thawAndThrow(cause: Throwable): Nothing
-
-  object Empty : PreservedStackTrace {
-    override fun thawAndThrow(cause: Throwable): Nothing {
-      throw cause
-    }
-  }
-
-  data class Full(val preservedStackTrace: Throwable) : PreservedStackTrace {
-    override fun thawAndThrow(cause: Throwable): Nothing {
-      preservedStackTrace.initCause(cause)
-
-      val syntheticElement = StackTraceElement(javaClass.name, "thawAndThrow", "", 0)
-      cause.stackTrace += arrayOf(syntheticElement) + preservedStackTrace.stackTrace
-      throw cause
-    }
+suspend inline fun <T> preserveStackTrace(block: suspend () -> T): T {
+  val preserved = Throwable()
+  try {
+    return block()
+  } catch (e: Throwable) {
+    e.stackTrace = buildList {
+      for (frame in e.stackTrace) {
+        if (frame.className.startsWith("kotlin.coroutines.")) break // Ignore dispatcher stuff.
+        add(frame)
+      }
+      addAll(preserved.stackTrace)
+    }.toTypedArray()
+    throw e
   }
 }
-
-fun PreservedStackTrace(shouldPreserve: Boolean): PreservedStackTrace =
-  if (shouldPreserve) {
-    Full(Exception())
-  } else {
-    Empty
-  }
