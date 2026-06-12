@@ -2,6 +2,7 @@ rootProject.name = "wasmo"
 
 includeBuild("wasmo-build")
 includeBuild("support/dom-tester/gradle-plugin")
+includeBuild("support/brevity")
 
 pluginManagement {
   repositories {
@@ -110,10 +111,6 @@ include(":platform:api")
 include(":platform:packaging")
 include(":platform:testing")
 include(":support:absurd")
-include(":support:brevity:brevity-core")
-include(":support:brevity:brevity-kotlin")
-include(":support:brevity:brevity-kotlin-generator")
-include(":support:brevity:brevity-testing")
 include(":support:close-tracker")
 include(":support:dom-tester")
 include(":support:issues")

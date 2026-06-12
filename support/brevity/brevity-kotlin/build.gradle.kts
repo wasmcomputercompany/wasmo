@@ -1,17 +1,22 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
-  id("wasmo-build")
-}
-
-wasmoBuild {
-  libraryJvmWasm()
 }
 
 kotlin {
+  jvm()
   sourceSets {
-    commonMain {
+    jvmMain {
       dependencies {
         implementation(libs.okio)
+      }
+    }
+    jvmTest {
+      dependencies {
+        implementation(libs.assertk)
+        implementation(libs.kotlin.test)
+        implementation(libs.kotlin.test.junit)
+        implementation(libs.okio.fakefilesystem)
+        implementation(projects.brevityTesting)
       }
     }
   }
