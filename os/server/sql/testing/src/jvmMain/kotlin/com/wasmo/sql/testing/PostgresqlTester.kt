@@ -17,13 +17,15 @@ class PostgresqlTester : CoroutineTestInterceptor {
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
     val postgresqlClientFactory = PostgresqlClient.Factory()
+    val prefix = ProjectPrefix.detect()
+    val postgresqlConfig = testPostgresqlConfig(prefix)
     val initializer = RealOsDatabaseInitializer(
       clientFactory = postgresqlClientFactory,
-      config = TestPostgresqlConfig,
+      config = postgresqlConfig,
     )
     initializer.initialize()
     initializer.dangerouslyClearSchema()
-    postgresqlClientFactory.connect(TestPostgresqlConfig.os).use { client ->
+    postgresqlClientFactory.connect(postgresqlConfig.os).use { client ->
       run = Run(
         client = client,
         sqlDatabase = client.asSqlDatabase(),
