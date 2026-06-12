@@ -36,7 +36,7 @@ class ReadAllWasiFilesTest {
     // the WASI submodule, it's probably correct to change this value.
     //
     // But don't change it to 0, that means our paths are out of date.
-    assertThat(witFileCount).isEqualTo(57)
+    assertThat(witFileCount).isEqualTo(24)
   }
 
   @Test

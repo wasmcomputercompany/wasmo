@@ -4,7 +4,9 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import dev.wasmo.brevity.Identifier
 import dev.wasmo.brevity.io.IoExternalApi
+import dev.wasmo.brevity.io.IoFunction
 import dev.wasmo.brevity.io.IoInclude
+import dev.wasmo.brevity.io.IoInterface
 import dev.wasmo.brevity.io.IoWitFile
 import dev.wasmo.brevity.io.IoWitPackage
 import dev.wasmo.brevity.io.IoWorld
@@ -13,6 +15,10 @@ import kotlin.test.Test
 import okio.Path.Companion.toPath
 
 class WorldFlattenerTest {
+  /**
+   * Note that imports and exports are stripped unless the target interfaces declare at least one
+   * function.
+   */
   @Test
   fun `include relative path`() {
     val command = IoWorld(
@@ -26,14 +32,38 @@ class WorldFlattenerTest {
       imports = listOf(IoExternalApi(path = "exit")),
     )
 
+    val run = IoInterface(
+      name = "run",
+      items = listOf(
+        IoFunction(
+          name = "run"
+        )
+      )
+    )
+
+    val exit = IoInterface(
+      name = "exit",
+      items = listOf(
+        IoFunction(
+          name = "exit"
+        )
+      )
+    )
+
     val wasiCommand = IoWitPackage(
       packageName = "wasi:cli@0.3.0".toPackageName(),
       files = mapOf(
         "command.wit".toPath() to IoWitFile(
           items = listOf(command),
         ),
+        "exit.wit".toPath() to IoWitFile(
+          items = listOf(exit),
+        ),
         "imports.wit".toPath() to IoWitFile(
           items = listOf(imports),
+        ),
+        "run.wit".toPath() to IoWitFile(
+          items = listOf(run),
         ),
       ),
     )
