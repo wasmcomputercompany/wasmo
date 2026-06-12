@@ -19,7 +19,6 @@ class GenerateAllWasiKotlinTest {
       wasiProposals / "clocks/wit",
       wasiProposals / "filesystem/wit",
       wasiProposals / "http/wit",
-      wasiProposals / "io/wit",
       wasiProposals / "random/wit",
       wasiProposals / "sockets/wit",
     )

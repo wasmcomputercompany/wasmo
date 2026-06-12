@@ -317,12 +317,12 @@ class IrMapper(
       },
       imports = set.flatMap { included ->
         context(included.context) {
-          included.world.imports.map { it.worldApiToIr() }
+          included.world.imports.mapNotNull { it.worldApiToIr() }
         }
       },
       exports = set.flatMap { included ->
         context(included.context) {
-          included.world.exports.map { it.worldApiToIr() }
+          included.world.exports.mapNotNull { it.worldApiToIr() }
         }
       },
     )
@@ -342,10 +342,19 @@ class IrMapper(
     }
   }
 
+  /**
+   * Returns null if the external API doesn't declare any functions. This is perfectly reasonable
+   * to express in WIT, but not useful for generating bindings. It also triggers name collisions
+   * because some WASI worlds import multiple 'types' interfaces.
+   */
   context(context: Context)
-  private fun IoWorld.Api.worldApiToIr(): IrWorld.Api {
+  private fun IoWorld.Api.worldApiToIr(): IrWorld.Api? {
     return when (this) {
       is IoExternalApi -> externalUsePathToIr()
+        .takeIf { candidate ->
+          getInterfaceOrNull(candidate.path.usePath)?.items?.any { it is IoFunction } == true
+        }
+
       is IoFunction -> functionToIr()
       is IoInterface -> interfaceToIr(context.packageName)
     }
@@ -378,6 +387,14 @@ class IrMapper(
     return witPackage.files.values
       .flatMap { it.items }
       .filterIsInstance<IoWorld>()
+      .singleOrNull { it.name == path.name }
+  }
+
+  internal fun getInterfaceOrNull(path: UsePath): IoInterface? {
+    val witPackage = packageNameToPackage[path.packageName] ?: return null
+    return witPackage.files.values
+      .flatMap { it.items }
+      .filterIsInstance<IoInterface>()
       .singleOrNull { it.name == path.name }
   }
 

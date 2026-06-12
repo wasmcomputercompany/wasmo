@@ -15,7 +15,6 @@ brevity {
       File(project.rootDir, "submodules/WASI/proposals/clocks/wit"),
       File(project.rootDir, "submodules/WASI/proposals/filesystem/wit"),
       File(project.rootDir, "submodules/WASI/proposals/http/wit"),
-      File(project.rootDir, "submodules/WASI/proposals/io/wit"),
       File(project.rootDir, "submodules/WASI/proposals/random/wit"),
       File(project.rootDir, "submodules/WASI/proposals/sockets/wit"),
     )
@@ -27,6 +26,9 @@ kotlin {
     commonMain {
       // Hack in a dependency on the runtime library because includeBuild isn't working?
       kotlin.srcDir("../brevity/brevity-kotlin/src/commonMain/kotlin")
+      dependencies {
+        api(libs.kotlinx.coroutines.core)
+      }
     }
   }
 }
