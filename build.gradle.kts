@@ -44,7 +44,6 @@ allprojects {
       compilerOptions {
         optIn.add("kotlin.js.ExperimentalJsExport")
         optIn.add("kotlin.time.ExperimentalTime")
-        freeCompilerArgs.add("-Xcontext-parameters")
         freeCompilerArgs.add("-Xexpect-actual-classes")
       }
     }
@@ -60,7 +59,6 @@ allprojects {
     extensions.configure<KotlinJvmExtension> {
       compilerOptions {
         optIn.add("kotlin.time.ExperimentalTime")
-        freeCompilerArgs.add("-Xcontext-parameters")
       }
     }
   }

@@ -4,6 +4,7 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 
@@ -34,6 +35,7 @@ internal class RealBrevityExtension(
       val kotlin = project.extensions.getByName("kotlin") as KotlinMultiplatformExtension
       kotlin.apply {
         sourceSets.commonMain {
+          @OptIn(ExperimentalKotlinGradlePluginApi::class)
           generatedKotlin.srcDir(commonMain)
         }
       }

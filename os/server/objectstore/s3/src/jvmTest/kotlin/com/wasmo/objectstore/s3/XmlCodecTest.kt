@@ -14,7 +14,11 @@ class XmlCodecTest {
 
   @Test
   fun happyPath() {
-    @Suppress("UNCHECKED_CAST", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+    @Suppress(
+      "UNCHECKED_CAST",
+      "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
+      "TYPE_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
+    )
     val converter = converterFactory.responseBodyConverter(
       ListBucketResult::class.java,
       arrayOf(),
