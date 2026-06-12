@@ -27,6 +27,7 @@ class FakeSqlService(
       osUser = databaseName,
       osPassword = Secret("password"),
       osDatabaseName = databaseName,
+      appPrefix = "fake_sql_service",
     )
 
     val clientFactory = PostgresqlClient.Factory()

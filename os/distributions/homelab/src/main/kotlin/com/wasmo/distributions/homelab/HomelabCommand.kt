@@ -54,6 +54,12 @@ class HomelabCommand : CliktCommand() {
   override fun run() = runBlocking {
     var baseUrl = "http://wasmo.localhost:8080/".toHttpUrl()
 
+    val deployment = Deployment(
+      baseUrl = baseUrl,
+      sendFromEmailAddress = "noreply@wasmo.dev",
+      distributionShortCode = DistributionShortCode("hl"),
+    )
+
     var postgresqlConfig = WasmoPostgresqlConfig(
       hostname = "localhost",
       adminUser = "postgres",
@@ -62,6 +68,7 @@ class HomelabCommand : CliktCommand() {
       osUser = "wasmo_homelab",
       osPassword = Secret("password"),
       osDatabaseName = "wasmo_homelab",
+      appPrefix = deployment.distributionShortCode.shortCode,
     )
 
     var ktorConfig = WasmoKtorConfig()
@@ -117,11 +124,7 @@ class HomelabCommand : CliktCommand() {
           wasmoDb = wasmoDb,
           provisioningDb = provisioningDb,
           postgresqlConfig = postgresqlConfig,
-          deployment = Deployment(
-            baseUrl = baseUrl,
-            sendFromEmailAddress = "noreply@wasmo.dev",
-            distributionShortCode = DistributionShortCode("hl"),
-          ),
+          deployment = deployment,
           objectStoreAddress = objectStoreAddress,
           sessionCookieSpec = SessionCookieSpec.Http,
           localPostgresql = localPostgresql,

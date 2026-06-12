@@ -50,6 +50,12 @@ class SandboxCommand : CliktCommand() {
     val postgresDatabasePassword = System.getenv("PGPASSWORD")
       ?: error("required env PGPASSWORD not set")
 
+    val deployment = Deployment(
+      baseUrl = "https://wasmo.dev/".toHttpUrl(),
+      sendFromEmailAddress = "noreply@wasmo.dev",
+      distributionShortCode = DistributionShortCode("wd"),
+    )
+
     val sandboxDistribution = object : Distribution() {
       override val postgresqlConfig = WasmoPostgresqlConfig(
         hostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
@@ -60,6 +66,7 @@ class SandboxCommand : CliktCommand() {
         osUser = "pscale_api_uh85t8q0waqt.hkqtmgf3pdzi",
         osPassword = Secret(postgresDatabasePassword),
         osDatabaseName = "wasmo_dev",
+        appPrefix = deployment.distributionShortCode.shortCode,
       )
 
       override val ktorConfig = WasmoKtorConfig()
@@ -85,11 +92,7 @@ class SandboxCommand : CliktCommand() {
           wasmoDb = wasmoDb,
           provisioningDb = provisioningDb,
           postgresqlConfig = postgresqlConfig,
-          deployment = Deployment(
-            baseUrl = "https://wasmo.dev/".toHttpUrl(),
-            sendFromEmailAddress = "noreply@wasmo.dev",
-            distributionShortCode = DistributionShortCode("wd"),
-          ),
+          deployment = deployment,
           objectStoreAddress = BackblazeB2BucketAddress(
             regionId = b2RegionId,
             applicationKeyId = b2ApplicationKeyId,

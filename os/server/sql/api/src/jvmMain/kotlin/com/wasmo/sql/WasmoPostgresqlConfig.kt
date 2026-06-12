@@ -12,6 +12,7 @@ data class WasmoPostgresqlConfig(
   val osUser: String,
   val osPassword: Secret,
   val osDatabaseName: String,
+  val appPrefix: String,
 ) {
   /** Connect to the database to provision application databases. */
   val admin: PostgresqlAddress
