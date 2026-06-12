@@ -65,25 +65,15 @@ internal class RealSqlConnection(
   override suspend fun execute(
     sql: String,
     bindParameters: (SqlBinder.() -> Unit)?,
-  ) = run {
-    val preservedStackTrace = PreservedStackTrace(shouldPreserve = true)
-    try {
-      executeInternal(sql, bindParameters).rowCount().toLong()
-    } catch (e: Exception) {
-      preservedStackTrace.thawAndThrow(e)
-    }
+  ) = preserveStackTrace {
+    executeInternal(sql, bindParameters).rowCount().toLong()
   }
 
   override suspend fun executeQuery(
     sql: String,
     bindParameters: (SqlBinder.() -> Unit)?,
-  ) = run {
-    val preservedStackTrace = PreservedStackTrace(shouldPreserve = true)
-    try {
-      RealRowIterator(executeInternal(sql, bindParameters).iterator())
-    } catch (e: SqlException) {
-      preservedStackTrace.thawAndThrow(e)
-    }
+  ) = preserveStackTrace {
+    RealRowIterator(executeInternal(sql, bindParameters).iterator())
   }
 
   private suspend fun executeInternal(
