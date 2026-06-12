@@ -1,4 +1,4 @@
-package com.wasmo.support.absurd
+package dev.wasmo.absurd
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo

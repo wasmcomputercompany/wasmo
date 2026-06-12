@@ -1,4 +1,4 @@
-package com.wasmo.support.absurd
+package dev.wasmo.absurd
 
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor

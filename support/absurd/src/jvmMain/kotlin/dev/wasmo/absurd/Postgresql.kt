@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalUuidApi::class)
 
-package com.wasmo.support.absurd
+package dev.wasmo.absurd
 
 import io.vertx.core.Completable
 import io.vertx.core.Future

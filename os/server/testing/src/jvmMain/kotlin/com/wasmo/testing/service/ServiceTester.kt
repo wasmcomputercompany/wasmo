@@ -13,7 +13,6 @@ import com.wasmo.sql.asSqlDatabase
 import com.wasmo.sql.testing.TestPostgresqlConfig
 import com.wasmo.sql.testing.dropAppDatabases
 import com.wasmo.sql.testing.dropAppRoles
-import com.wasmo.support.absurd.dangerouslyClearAbsurdSchema
 import com.wasmo.support.tokens.newToken
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePasskey
@@ -23,6 +22,7 @@ import com.wasmo.testing.apps.PublishedApp
 import com.wasmo.testing.apps.SampleApps
 import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.TestEventListener
+import dev.wasmo.absurd.dangerouslyClearAbsurdSchema
 import dev.zacsweers.metro.createGraphFactory
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.Dispatchers

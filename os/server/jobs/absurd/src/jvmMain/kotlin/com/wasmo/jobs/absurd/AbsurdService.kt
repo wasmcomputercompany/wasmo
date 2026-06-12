@@ -10,12 +10,12 @@ import com.wasmo.jobs.JobCompletedEvent
 import com.wasmo.jobs.JobRegistration
 import com.wasmo.jobs.OsJobHandler
 import com.wasmo.jobs.StepHandle
-import com.wasmo.support.absurd.Absurd
-import com.wasmo.support.absurd.CancellationPolicy as AbsurdCancellationPolicy
-import com.wasmo.support.absurd.StepHandle as AbsurdStepHandle
-import com.wasmo.support.absurd.TaskHandler as AbsurdJobHandler
-import com.wasmo.support.absurd.TaskName as AbsurdJobName
-import com.wasmo.support.absurd.TaskRegistration as AbsurdJobRegistration
+import dev.wasmo.absurd.Absurd
+import dev.wasmo.absurd.CancellationPolicy as AbsurdCancellationPolicy
+import dev.wasmo.absurd.StepHandle as AbsurdStepHandle
+import dev.wasmo.absurd.TaskHandler as AbsurdJobHandler
+import dev.wasmo.absurd.TaskName as AbsurdJobName
+import dev.wasmo.absurd.TaskRegistration as AbsurdJobRegistration
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import java.io.Closeable
