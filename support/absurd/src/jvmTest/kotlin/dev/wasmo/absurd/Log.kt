@@ -1,4 +1,4 @@
-package com.wasmo.support.absurd
+package dev.wasmo.absurd
 
 interface Log {
   fun log(message: String)

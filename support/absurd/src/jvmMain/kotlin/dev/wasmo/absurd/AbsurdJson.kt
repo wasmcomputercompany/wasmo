@@ -1,4 +1,4 @@
-package com.wasmo.support.absurd
+package dev.wasmo.absurd
 
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.ExperimentalSerializationApi

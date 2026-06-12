@@ -1,9 +1,8 @@
-package com.wasmo.support.absurd
+package dev.wasmo.absurd
 
 import assertk.Assert
 import assertk.assertions.support.fail
 import kotlin.reflect.KClass
-import kotlinx.coroutines.channels.Channel
 
 fun Assert<TaskResult<*, *>?>.isFailure(
   message: String,

@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalUuidApi::class)
 
-package com.wasmo.support.absurd
+package dev.wasmo.absurd
 
 import app.cash.burst.InterceptTest
 import assertk.assertThat

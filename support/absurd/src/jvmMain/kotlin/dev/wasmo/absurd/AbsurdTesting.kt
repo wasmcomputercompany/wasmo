@@ -1,4 +1,4 @@
-package com.wasmo.support.absurd
+package dev.wasmo.absurd
 
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.PgException

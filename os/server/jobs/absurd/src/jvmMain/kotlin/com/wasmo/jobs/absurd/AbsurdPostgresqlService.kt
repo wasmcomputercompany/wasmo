@@ -2,7 +2,7 @@ package com.wasmo.jobs.absurd
 
 import com.wasmo.identifiers.OsScope
 import com.wasmo.sql.WasmoPostgresqlConfig
-import com.wasmo.support.absurd.PostgresqlClient
+import dev.wasmo.absurd.PostgresqlClient
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import io.vertx.pgclient.PgConnectOptions
