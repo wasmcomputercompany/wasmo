@@ -48,13 +48,12 @@ fun IrEnum(
 fun IrExternalApi(
   documentation: String? = null,
   gate: Gate? = null,
-  offset: Offset = Offset(1, 1),
   plainName: String? = null,
   path: IrParentName,
 ) = IrExternalApi(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  offset = offset,
+  offset = Offset(1, 1),
   plainName = plainName?.let { Identifier(it) },
   path = path,
 )
@@ -135,14 +134,6 @@ fun IrInterface(
   items = items,
 )
 
-fun IrInterfaceName(
-  packageName: String,
-  name: String,
-) = IrParentName(
-  packageName = packageName.toPackageName(),
-  name = Identifier(name),
-)
-
 fun IrParameter(
   documentation: String? = null,
   offset: Offset = Offset(1, 1),
@@ -153,6 +144,14 @@ fun IrParameter(
   offset = offset,
   name = Identifier(name),
   type = type,
+)
+
+fun IrParentName(
+  packageName: String,
+  name: String,
+) = IrParentName(
+  packageName = packageName.toPackageName(),
+  name = Identifier(name),
 )
 
 fun IrRecord(

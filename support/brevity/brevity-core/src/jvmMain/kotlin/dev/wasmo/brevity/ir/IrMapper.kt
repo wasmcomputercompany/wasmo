@@ -298,33 +298,34 @@ class IrMapper(
   /** Collect includes recursively. */
   private fun IoWorld.worldToIr(packageName: PackageName): IrWorld {
     val seed = IncludedWorld(
-      path = UsePath(
-        packageName = packageName,
-        name = name,
-      ),
+      packageName = packageName,
       world = this,
     )
 
     val set = LinkedHashSet<IncludedWorld>()
     seed.collectIncludesRecursively(set)
 
-    context(Context(packageName, name)) {
-      return IrWorld(
-        documentation = documentation,
-        gate = gate,
-        offset = offset,
-        name = name,
-        items = set.flatMap {
-          it.world.items.mapNotNull { it.worldItemToIrOrNull() }
-        },
-        imports = set.flatMap {
-          it.world.imports.map { it.worldApiToIr() }
-        },
-        exports = set.flatMap {
-          it.world.exports.map { it.worldApiToIr() }
-        },
-      )
-    }
+    return IrWorld(
+      documentation = documentation,
+      gate = gate,
+      offset = offset,
+      name = name,
+      items = set.flatMap { included ->
+        context(included.context) {
+          included.world.items.mapNotNull { it.worldItemToIrOrNull() }
+        }
+      },
+      imports = set.flatMap { included ->
+        context(included.context) {
+          included.world.imports.map { it.worldApiToIr() }
+        }
+      },
+      exports = set.flatMap { included ->
+        context(included.context) {
+          included.world.exports.map { it.worldApiToIr() }
+        }
+      },
+    )
   }
 
   context(context: Context)
@@ -356,14 +357,15 @@ class IrMapper(
     if (!set.add(this)) return // Duplicate.
 
     for (include in world.items.filterIsInstance<IoInclude>()) {
-      val path = include.path.copy(
-        packageName = include.path.packageName ?: path.packageName,
+      val packageName = include.path.packageName ?: packageName
+      val lookupPath = include.path.copy(
+        packageName = packageName,
       )
-      val world = getWorldOrNull(path)
-        ?: error("unable to find world $path included by ${this.path}")
+      val world = getWorldOrNull(lookupPath)
+        ?: error("unable to find world $lookupPath included by $this")
 
       IncludedWorld(
-        path = path,
+        packageName = packageName,
         world = world,
       ).collectIncludesRecursively(
         set = set,
@@ -382,12 +384,19 @@ class IrMapper(
   internal class Context(
     val packageName: PackageName,
     val parentName: Identifier,
-  )
+  ) {
+    override fun toString() = UsePath(packageName, parentName).toString()
+  }
 
   private data class IncludedWorld(
-    val path: UsePath,
+    val packageName: PackageName,
     val world: IoWorld,
-  )
+  ) {
+    val context: Context
+      get() = Context(packageName, world.name)
+
+    override fun toString() = context.toString()
+  }
 }
 
 private fun IoUse.Item.matches(typeName: IoTypeName.Declared): Boolean {
