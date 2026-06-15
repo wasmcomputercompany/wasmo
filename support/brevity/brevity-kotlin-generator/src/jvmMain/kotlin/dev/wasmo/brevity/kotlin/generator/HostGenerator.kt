@@ -40,7 +40,10 @@ class HostGenerator {
       else -> value.guest.type
     }
     val implementation = value.type.peerClass("${value.type.simpleName}World")
-    val implementationGuestTypeName = implementation.nestedClass("Guest")
+    val implementationGuestTypeName = when {
+      value.guest.apis.isEmpty() -> UNIT
+      else -> implementation.nestedClass("Guest")
+    }
 
     addFunction(
       FunSpec.builder("World")
@@ -56,7 +59,14 @@ class HostGenerator {
           ).build(),
         )
         .apply {
-          addStatement("val %N = %T()", "guest", implementationGuestTypeName)
+          when {
+            value.guest.apis.isEmpty() -> {
+              addStatement("val %N = %T", "guest", implementationGuestTypeName)
+            }
+            else -> {
+              addStatement("val %N = %T()", "guest", implementationGuestTypeName)
+            }
+          }
           addStatement("val %N = hostFactory(%N)", "host", "guest")
           addStatement("return %T(%N, %N)", implementation, "host", "guest")
         }
@@ -70,35 +80,7 @@ class HostGenerator {
         .addSuperinterface(guestType)
         .apply {
           for (api in guestApis) {
-            when (api) {
-              is KtExternalApi -> {}
-              is KtFunction -> {
-                addProperty(
-                  PropertySpec.builder(api.ktName, Symbols.ChicoryRuntime.ExportFunction)
-                    .addModifiers(KModifier.LATEINIT)
-                    .mutable(true)
-                    .build(),
-                )
-
-                addFunction(
-                  FunSpec.builder(api.ktName)
-                    .addModifiers(KModifier.OVERRIDE)
-                    .apply {
-                      addCode("return %N.apply(", api.ktName)
-                      for ((index, parameter) in api.parameters.withIndex()) {
-                        if (index > 0) addCode(", ")
-                        addCode("%N", parameter.name)
-                        addParameter(parameter.name, parameter.type)
-                      }
-                      addCode(")[0]")
-                    }
-                    .returns(api.returnType ?: UNIT)
-                    .build(),
-                )
-              }
-
-              is KtInterface -> {}
-            }
+            addGuestApi(api)
           }
         }
         .build()
@@ -146,6 +128,46 @@ class HostGenerator {
         )
         .build(),
     )
+  }
+
+  private fun TypeSpec.Builder.addGuestApi(api: KtWorld.Api) {
+    when (api) {
+      is KtExternalApi -> {
+        addProperty(
+          PropertySpec.builder(api.name, api.type)
+            .addModifiers(KModifier.LATEINIT, KModifier.OVERRIDE)
+            .mutable(true)
+            .build(),
+        )
+      }
+
+      is KtFunction -> {
+        addProperty(
+          PropertySpec.builder(api.ktName, Symbols.ChicoryRuntime.ExportFunction)
+            .addModifiers(KModifier.LATEINIT)
+            .mutable(true)
+            .build(),
+        )
+
+        addFunction(
+          FunSpec.builder(api.ktName)
+            .addModifiers(KModifier.OVERRIDE)
+            .apply {
+              addCode("return %N.apply(", api.ktName)
+              for ((index, parameter) in api.parameters.withIndex()) {
+                if (index > 0) addCode(", ")
+                addCode("%N", parameter.name)
+                addParameter(parameter.name, parameter.type)
+              }
+              addCode(")[0]")
+            }
+            .returns(api.returnType ?: UNIT)
+            .build(),
+        )
+      }
+
+      is KtInterface -> {}
+    }
   }
 
   private fun FunSpec.Builder.initExport(api: KtWorld.Api) {

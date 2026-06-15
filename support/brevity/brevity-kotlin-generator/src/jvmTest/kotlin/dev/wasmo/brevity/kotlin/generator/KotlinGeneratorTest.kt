@@ -309,7 +309,9 @@ class KotlinGeneratorTest {
       |  override fun initImports(store: Store) {
       |  }
       |
-      |  public class Guest : Command.Guest
+      |  public class Guest : Command.Guest {
+      |    override lateinit var run: Run
+      |  }
       |}
       |
       """.trimMargin()
@@ -486,14 +488,14 @@ class KotlinGeneratorTest {
       |import kotlin.Unit
       |
       |public fun Command.World(hostFactory: (Unit) -> Command.Host): World<Command.Host, Unit> {
-      |  val guest = CommandWorld.Guest()
+      |  val guest = Unit
       |  val host = hostFactory(guest)
       |  return CommandWorld(host, guest)
       |}
       |
       |private class CommandWorld(
       |  override val host: Command.Host,
-      |  override val guest: CommandWorld.Guest,
+      |  override val guest: Unit,
       |) : World<Command.Host, Unit> {
       |  override fun initExports(instance: Instance) {
       |  }
@@ -599,14 +601,14 @@ class KotlinGeneratorTest {
       |import kotlin.Unit
       |
       |public fun Imports.World(hostFactory: (Unit) -> Unit): World<Unit, Unit> {
-      |  val guest = ImportsWorld.Guest()
+      |  val guest = Unit
       |  val host = hostFactory(guest)
       |  return ImportsWorld(host, guest)
       |}
       |
       |private class ImportsWorld(
       |  override val host: Unit,
-      |  override val guest: ImportsWorld.Guest,
+      |  override val guest: Unit,
       |) : World<Unit, Unit> {
       |  override fun initExports(instance: Instance) {
       |  }
