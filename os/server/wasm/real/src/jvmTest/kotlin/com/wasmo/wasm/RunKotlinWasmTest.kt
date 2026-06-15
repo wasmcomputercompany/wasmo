@@ -13,6 +13,14 @@ class RunKotlinWasmTest {
   )
 
   @Test
+  fun `call sum`() = runTest {
+    val sum = tester.instance.export("wasmo:testing#sum")
+    val result = sum.apply(5L, 10L)
+
+    assertThat(result[0]).isEqualTo(15L)
+  }
+
+  @Test
   fun `call concatenate`() = runTest {
     val bId = tester.bridge.put("World!")
     val aId = tester.bridge.put("Hello, ")

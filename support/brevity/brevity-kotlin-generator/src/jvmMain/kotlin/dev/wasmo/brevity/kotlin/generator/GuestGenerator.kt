@@ -31,15 +31,29 @@ class GuestGenerator {
     val guest = value.guest ?: return
     if (guest.apis.isEmpty()) return
 
-    addProperty(PropertySpec.builder(guest.name, guest.type)
-      .addModifiers(KModifier.LATEINIT)
+    val guestFieldName = "${value.type.simpleName}_${guest.name}"
+
+    addProperty(PropertySpec.builder(guestFieldName, guest.type)
+      .addModifiers(KModifier.PRIVATE, KModifier.LATEINIT)
       .mutable(true)
+      .build())
+
+    addProperty(PropertySpec.builder(guest.name, guest.type)
+      .receiver(value.type)
+      .mutable(true)
+      .getter(FunSpec.getterBuilder()
+        .addCode("return $guestFieldName")
+        .build())
+      .setter(FunSpec.setterBuilder()
+        .addParameter("value", guest.type)
+        .addCode("%N = %N", guestFieldName, "value")
+        .build())
       .build())
 
     for (api in guest.apis) {
       when (api) {
         is KtExternalApi -> {}
-        is KtFunction -> addFunction(functionToGuest(guest, api))
+        is KtFunction -> addFunction(functionToGuest(guestFieldName, api))
         is KtInterface -> {} // addType(interfaceToGuest(guest, api))
       }
     }
@@ -49,21 +63,27 @@ class GuestGenerator {
     TODO()
   }
 
-  private fun functionToGuest(guest: KtWorld.Guest, value: KtFunction): FunSpec {
-    return FunSpec.builder(value.ktName)
+  private fun functionToGuest(
+    guestFieldName: String,
+    value: KtFunction,
+  ): FunSpec {
+    return FunSpec.builder("${guestFieldName}_${value.ktName}")
+      .addModifiers(KModifier.PRIVATE)
       .addAnnotation(AnnotationSpec.builder(KotlinWasm.WasmExport)
         .addMember("%S", "${value.name.packageName}#${value.name.abiName}")
         .build())
       .apply {
-        addCode("%N.%N(", guest.name, value.ktName)
-        for ((index, parameter) in value.parameters.withIndex()) {
-          if (index > 0) addCode(", ")
-          addParameter(ParameterSpec.builder(parameter.name, parameter.type).build())
-        }
-        addCode(")")
         if (value.returnType != null) {
+          addCode("return ")
           returns(value.returnType)
         }
+        addCode("%N.%N(", guestFieldName, value.ktName)
+        for ((index, parameter) in value.parameters.withIndex()) {
+          addParameter(ParameterSpec.builder(parameter.name, parameter.type).build())
+          if (index > 0) addCode(", ")
+          addCode(parameter.name)
+        }
+        addCode(")")
       }
 
       .build()

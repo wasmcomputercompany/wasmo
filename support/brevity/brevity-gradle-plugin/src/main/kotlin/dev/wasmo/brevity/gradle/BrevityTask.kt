@@ -3,6 +3,7 @@ package dev.wasmo.brevity.gradle
 import dev.wasmo.brevity.io.IoWitPackageReader
 import dev.wasmo.brevity.ir.IrMapper
 import dev.wasmo.brevity.kotlin.generator.ApiGenerator
+import dev.wasmo.brevity.kotlin.generator.GuestGenerator
 import dev.wasmo.brevity.kotlin.generator.KtMapper
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
@@ -31,11 +32,15 @@ abstract class BrevityTask : DefaultTask() {
   @get:OutputDirectory
   internal abstract val outputKotlinCommonMain: DirectoryProperty
 
+  @get:OutputDirectory
+  internal abstract val outputKotlinWasmWasiMain: DirectoryProperty
+
   @TaskAction
   fun execute() {
     val packageReader = IoWitPackageReader(FileSystem.SYSTEM)
     val ktMapper = KtMapper()
     val apiGenerator = ApiGenerator()
+    val guestGenerator = GuestGenerator()
 
     val ioWitPackages = inputWitPackageDirectories.map {
       packageReader.read(it.toOkioPath())
@@ -44,11 +49,18 @@ abstract class BrevityTask : DefaultTask() {
     val commonMainDir = outputKotlinCommonMain.get().asFile
     commonMainDir.mkdirs()
 
+    val wasmWasiMainDir = outputKotlinWasmWasiMain.get().asFile
+    wasmWasiMainDir.mkdirs()
+
     val irPackages = IrMapper(ioWitPackages).map()
     for (irPackage in irPackages) {
       val ktPackage = ktMapper.map(irPackage)
-      val fileSpec = apiGenerator.generate(ktPackage)
-      fileSpec.writeTo(commonMainDir)
+
+      val apiFileSpec = apiGenerator.generate(ktPackage)
+      apiFileSpec.writeTo(commonMainDir)
+
+      val guestFileSpec = guestGenerator.generate(ktPackage)
+      guestFileSpec.writeTo(wasmWasiMainDir)
     }
   }
 }

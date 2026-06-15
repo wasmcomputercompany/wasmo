@@ -27,15 +27,19 @@ internal class RealBrevityExtension(
       group = "brevity"
       description = "generate Kotlin from WIT"
       outputKotlinCommonMain.value(project.layout.buildDirectory.dir("brevity/commonMain"))
+      outputKotlinWasmWasiMain.value(project.layout.buildDirectory.dir("brevity/wasmWasiMain"))
       action.execute(this)
     }
 
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     project.plugins.withType<KotlinMultiplatformPluginWrapper> {
       val kotlin = project.extensions.getByName("kotlin") as KotlinMultiplatformExtension
       kotlin.apply {
         sourceSets.commonMain {
-          @OptIn(ExperimentalKotlinGradlePluginApi::class)
           generatedKotlin.srcDir(brevityTask.map { it.outputKotlinCommonMain })
+        }
+        sourceSets.wasmWasiMain {
+          generatedKotlin.srcDir(brevityTask.map { it.outputKotlinWasmWasiMain })
         }
       }
     }

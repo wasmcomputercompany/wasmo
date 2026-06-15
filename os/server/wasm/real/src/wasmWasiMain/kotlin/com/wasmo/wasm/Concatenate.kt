@@ -26,9 +26,3 @@ lateinit var concatenator: Concatenator
 interface Concatenator {
   fun concatenate(a: String, b: String): String
 }
-
-val initialize = run {
-  concatenator = object : Concatenator {
-    override fun concatenate(a: String, b: String) = a + b
-  }
-}
