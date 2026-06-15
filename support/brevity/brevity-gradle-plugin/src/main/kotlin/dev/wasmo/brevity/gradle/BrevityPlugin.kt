@@ -23,11 +23,10 @@ internal class RealBrevityExtension(
   val project: Project,
 ) : BrevityExtension {
   override fun generateKotlin(action: Action<BrevityTask>) {
-    val commonMain = project.layout.buildDirectory.dir("brevity/commonMain")
-    project.tasks.register("brevity", BrevityTask::class.java) {
+    val brevityTask = project.tasks.register("brevity", BrevityTask::class.java) {
       group = "brevity"
       description = "generate Kotlin from WIT"
-      outputKotlinCommonMain.value(commonMain)
+      outputKotlinCommonMain.value(project.layout.buildDirectory.dir("brevity/commonMain"))
       action.execute(this)
     }
 
@@ -36,7 +35,7 @@ internal class RealBrevityExtension(
       kotlin.apply {
         sourceSets.commonMain {
           @OptIn(ExperimentalKotlinGradlePluginApi::class)
-          generatedKotlin.srcDir(commonMain)
+          generatedKotlin.srcDir(brevityTask.map { it.outputKotlinCommonMain })
         }
       }
     }

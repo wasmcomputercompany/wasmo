@@ -2,14 +2,30 @@ plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.burst)
   id("wasmo-build")
+  id("brevity")
 }
 
 wasmoBuild {
   libraryJvmWasm()
 }
 
+brevity {
+  generateKotlin {
+    inputWitPackageDirectories.from(
+      File(projectDir, "src/commonMain/wit"),
+    )
+  }
+}
+
 kotlin {
   sourceSets {
+    commonMain {
+      // Hack in a dependency on the runtime library because includeBuild isn't working?
+      kotlin.srcDir("../../../brevity/brevity-kotlin/src/commonMain/kotlin")
+//      dependencies {
+//        api(libs.kotlinx.coroutines.core)
+//      }
+    }
     val jvmMain by getting {
       dependencies {
         implementation(libs.chicory.runtime)

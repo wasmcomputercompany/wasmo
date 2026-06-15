@@ -2,6 +2,7 @@ package dev.wasmo.brevity.kotlin.generator
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
+import dev.wasmo.brevity.FunctionName
 
 sealed interface KtDeclaration {
   val documentation: String?
@@ -37,17 +38,19 @@ data class KtWorld(
   val guest: Guest?,
 ) : KtDeclaration, KtWitPackage.Item {
   data class Host(
+    val name: String,
     val type: ClassName,
     val apis: List<Api>,
   )
 
   data class Guest(
+    val name: String,
     val type: ClassName,
     val apis: List<Api>,
   )
 
-  interface Item : KtDeclaration
-  interface Api : KtDeclaration
+  sealed interface Item : KtDeclaration
+  sealed interface Api : KtDeclaration
 }
 
 data class KtEnum(
@@ -110,7 +113,8 @@ data class KtFlags(
 
 data class KtFunction(
   override val documentation: String?,
-  val name: String,
+  val ktName: String,
+  val name: FunctionName,
   val parameters: List<Parameter>,
   val returnType: TypeName?,
 ) : KtDeclaration, KtInterface.Item, KtWorld.Api {

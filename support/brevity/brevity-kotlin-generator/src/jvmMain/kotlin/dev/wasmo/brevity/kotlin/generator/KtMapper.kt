@@ -1,5 +1,6 @@
 package dev.wasmo.brevity.kotlin.generator
 
+import com.squareup.kotlinpoet.NameAllocator
 import dev.wasmo.brevity.Identifier
 import dev.wasmo.brevity.io.IoFunction
 import dev.wasmo.brevity.io.IoWorld
@@ -21,12 +22,13 @@ import dev.wasmo.brevity.ir.IrWorld
  */
 class KtMapper(
   private val kotlinPackagePrefix: String = "wit",
+  private val worldFilter: (IrWorld) -> Boolean = { true },
 ) {
   private val typeMapper = TypeMapper(kotlinPackagePrefix)
 
   fun map(witPackage: IrWitPackage): KtWitPackage {
     val kotlinName = witPackage.packageName.toKotlin(kotlinPackagePrefix)
-    context(Context(kotlinName)) {
+    context(Context(kotlinName, NameAllocator())) {
       return KtWitPackage(
         packageName = kotlinName.name,
         items = witPackage.items.mapNotNull { declaration ->
@@ -72,7 +74,7 @@ class KtMapper(
   context(context: Context)
   internal fun IrInterface.interfaceToKt(): KtInterface {
     val kotlinName = context.kotlinName + name
-    context(Context(kotlinName)) {
+    context(context.copy(kotlinName = kotlinName)) {
       return KtInterface(
         documentation = documentation?.content,
         type = kotlinName.name,
@@ -152,7 +154,8 @@ class KtMapper(
   context(context: Context)
   internal fun IrFunction.functionToKt() = KtFunction(
     documentation = documentation?.content,
-    name = functionName.name.name.toCamelCase(upperCamel = false),
+    ktName = functionName.name.name.toCamelCase(upperCamel = false),
+    name = functionName,
     parameters = parameters.map { parameter ->
       KtFunction.Parameter(
         documentation = parameter.documentation?.content,
@@ -164,24 +167,28 @@ class KtMapper(
   )
 
   context(context: Context)
-  internal fun IrWorld.worldToKt(): KtWorld {
+  internal fun IrWorld.worldToKt(): KtWorld? {
+    if (!worldFilter.invoke(this)) return null
+
     val kotlinName = context.kotlinName + name
     val hostName = kotlinName + Identifier("Host")
     val guestName = kotlinName + Identifier("Guest")
     return KtWorld(
       documentation = documentation?.content,
       type = kotlinName.name,
-      items = context(Context(kotlinName)) {
+      items = context(context.copy(kotlinName = kotlinName)) {
         items.mapNotNull { it.worldItemToKt() }
       },
-      host = context(Context(hostName)) {
+      host = context(context.copy(kotlinName = hostName)) {
         KtWorld.Host(
+          name = context.nameAllocator.newName("host"),
           type = hostName.name,
           apis = imports.map { it.worldApiToKt() },
         )
       },
-      guest = context(Context(guestName)) {
+      guest = context(context.copy(kotlinName = guestName)) {
         KtWorld.Guest(
+          name = context.nameAllocator.newName("guest"),
           type = guestName.name,
           apis = exports.map { it.worldApiToKt() },
         )
@@ -205,7 +212,8 @@ class KtMapper(
     }
   }
 
-  internal class Context(
+  internal data class Context(
     val kotlinName: KotlinName,
+    val nameAllocator: NameAllocator,
   )
 }
