@@ -13,6 +13,7 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
+        api(projects.os.api)
         implementation(libs.commons.dbcp2)
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)

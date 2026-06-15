@@ -2,6 +2,7 @@
 
 package com.wasmo.sql
 
+import com.wasmo.api.SqlEventListener
 import com.wasmo.support.closetracker.CloseListener
 import com.wasmo.support.closetracker.CloseTracker
 import io.vertx.core.buffer.Buffer
@@ -32,11 +33,12 @@ import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
 
-fun PostgresqlClient.asSqlDatabase(): SqlDatabase = RealSqlDatabase(this)
+fun PostgresqlClient.asSqlDatabase(): SqlDatabase = RealSqlDatabase(this, sqlEventListener = this.sqlEventListener)
 
 internal class RealSqlDatabase(
   private val client: PostgresqlClient,
   private val closeListener: CloseListener? = null,
+  private val sqlEventListener: SqlEventListener,
 ) : SqlDatabase {
   private val closeTracker = CloseTracker()
 
@@ -45,6 +47,7 @@ internal class RealSqlDatabase(
       RealSqlConnection(
         sqlClient = client.connect(),
         closeListener = closeListener,
+        sqlEventListener = sqlEventListener,
       )
     }
   }
@@ -59,6 +62,7 @@ internal class RealSqlDatabase(
 internal class RealSqlConnection(
   override val sqlClient: SqlClient,
   private val closeListener: CloseListener,
+  private val sqlEventListener: SqlEventListener,
 ) : OsSqlConnection {
   private val closeTracker = CloseTracker()
 
@@ -86,10 +90,14 @@ internal class RealSqlConnection(
           val preparedQuery = sqlClient.preparedQuery(sql)
           val tupleBuilder = TupleBuilder()
           tupleBuilder.bindParameters()
+          sqlEventListener.onEvent(SqlEventListener.SqlEvent.SqlStarted(sql, tupleBuilder.values))
           preparedQuery.execute(tupleBuilder.build())
         }
 
-        else -> sqlClient.query(sql).execute()
+        else -> {
+          sqlEventListener.onEvent(SqlEventListener.SqlEvent.SqlStarted(sql, emptyList()))
+          sqlClient.query(sql).execute()
+        }
       }
 
       return future.awaitSuspending()
@@ -106,13 +114,14 @@ internal class RealSqlConnection(
 }
 
 internal class TupleBuilder : SqlBinder {
-  private val values = mutableListOf<Any?>()
+  private val _values = mutableListOf<Any?>()
+  public val values: List<Any?> = _values
 
   private fun set(index: Int, value: Any) {
-    while (values.size <= index) {
-      values += null
+    while (_values.size <= index) {
+      _values += null
     }
-    values[index] = value
+    _values[index] = value
   }
 
   override fun bindBool(index: Int, value: Boolean?) {
@@ -158,7 +167,7 @@ internal class TupleBuilder : SqlBinder {
     set(index, jsonValue)
   }
 
-  fun build(): Tuple = Tuple.wrap(values)
+  fun build(): Tuple = Tuple.wrap(_values)
 }
 
 internal class RealRowIterator(

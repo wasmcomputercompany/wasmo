@@ -5,6 +5,7 @@ import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.accounts.passkeys.AccountsPasskeysBindings
 import com.wasmo.api.OsConfig
+import com.wasmo.api.SqlEventListener
 import com.wasmo.calls.CallGraph
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.computers.ComputerServiceGraph
@@ -88,7 +89,7 @@ internal interface HomelabGraph {
       @Provides catalog: Catalog,
       @Provides postgresqlConfig: WasmoPostgresqlConfig,
       @Provides localPostgresql: LocalPostgresql,
-      @Provides osConfig: OsConfig,
+      @Provides sqlEventListener: SqlEventListener,
     ): HomelabGraph
   }
 }
