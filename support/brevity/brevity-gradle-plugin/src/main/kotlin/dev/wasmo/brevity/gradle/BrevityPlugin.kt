@@ -23,20 +23,27 @@ internal class RealBrevityExtension(
   val project: Project,
 ) : BrevityExtension {
   override fun generateKotlin(action: Action<BrevityTask>) {
-    val commonMain = project.layout.buildDirectory.dir("brevity/commonMain")
-    project.tasks.register("brevity", BrevityTask::class.java) {
+    val brevityTask = project.tasks.register("brevity", BrevityTask::class.java) {
       group = "brevity"
       description = "generate Kotlin from WIT"
-      outputKotlinCommonMain.value(commonMain)
+      outputKotlinCommonMain.value(project.layout.buildDirectory.dir("brevity/commonMain"))
+      outputKotlinWasmWasiMain.value(project.layout.buildDirectory.dir("brevity/wasmWasiMain"))
+      outputKotlinJvmMain.value(project.layout.buildDirectory.dir("brevity/jvmMain"))
       action.execute(this)
     }
 
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     project.plugins.withType<KotlinMultiplatformPluginWrapper> {
       val kotlin = project.extensions.getByName("kotlin") as KotlinMultiplatformExtension
       kotlin.apply {
         sourceSets.commonMain {
-          @OptIn(ExperimentalKotlinGradlePluginApi::class)
-          generatedKotlin.srcDir(commonMain)
+          generatedKotlin.srcDir(brevityTask.map { it.outputKotlinCommonMain })
+        }
+        sourceSets.wasmWasiMain {
+          generatedKotlin.srcDir(brevityTask.map { it.outputKotlinWasmWasiMain })
+        }
+        sourceSets.jvmMain {
+          generatedKotlin.srcDir(brevityTask.map { it.outputKotlinJvmMain })
         }
       }
     }

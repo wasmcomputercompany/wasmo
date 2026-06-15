@@ -1,0 +1,5 @@
+package wasmo:testing;
+
+world wasmo-testing {
+  export sum: func (a: s64, b: s64) -> s64;
+}

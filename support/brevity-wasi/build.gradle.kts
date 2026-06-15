@@ -30,5 +30,12 @@ kotlin {
         api(libs.kotlinx.coroutines.core)
       }
     }
+    jvmMain {
+      // Hack in a dependency on the runtime library because includeBuild isn't working?
+      kotlin.srcDir("../brevity/brevity-kotlin/src/jvmMain/kotlin")
+      dependencies {
+        implementation(libs.chicory.runtime)
+      }
+    }
   }
 }

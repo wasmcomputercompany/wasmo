@@ -6,14 +6,27 @@ import assertk.assertions.isNullOrEmpty
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
+import wit.wasmo.testing.WasmoTesting
+import wit.wasmo.testing.World
 
 class RunKotlinWasmTest {
-  private val tester = WasmTester.Factory().createFromWasm(
-    "build/compileSync/wasmWasi/main/developmentExecutable/kotlin/wasmo-os-server-wasm-real.wasm".toPath(),
-  )
+  @Test
+  fun `call sum`() = runTest {
+    val world = WasmoTesting.World { Unit }
+    val tester = WasmTester.Builder()
+      .moduleWasm()
+      .addWorld(world)
+      .build()
+    val result = world.guest.sum(5L, 10L)
+    assertThat(result).isEqualTo(15L)
+  }
 
   @Test
   fun `call concatenate`() = runTest {
+    val tester = WasmTester.Builder()
+      .moduleWasm()
+      .build()
+
     val bId = tester.bridge.put("World!")
     val aId = tester.bridge.put("Hello, ")
 
@@ -25,6 +38,10 @@ class RunKotlinWasmTest {
 
   @Test
   fun `call printGreeting`() = runTest {
+    val tester = WasmTester.Builder()
+      .moduleWasm()
+      .build()
+
     val nameId = tester.bridge.put("Jesse")
 
     val concatenate = tester.instance.export("printGreeting")
@@ -36,6 +53,9 @@ class RunKotlinWasmTest {
 
   @Test
   fun `call printError`() = runTest {
+    val tester = WasmTester.Builder()
+      .moduleWasm()
+      .build()
     val nameId = tester.bridge.put("Jesse")
 
     val concatenate = tester.instance.export("printError")
@@ -43,5 +63,9 @@ class RunKotlinWasmTest {
     assertThat(result).isNullOrEmpty()
 
     assertThat(tester.wasi.stderr.readUtf8()).isEqualTo("Exception: boom, Jesse!\n\n")
+  }
+
+  private fun WasmTester.Builder.moduleWasm() = apply {
+    wasmPath("build/compileSync/wasmWasi/main/developmentExecutable/kotlin/wasmo-os-server-wasm-real.wasm".toPath())
   }
 }
