@@ -21,12 +21,14 @@ kotlin {
   sourceSets {
     commonMain {
       // Hack in a dependency on the runtime library because includeBuild isn't working?
-      kotlin.srcDir("../../../brevity/brevity-kotlin/src/commonMain/kotlin")
+      kotlin.srcDir("../../../../support/brevity/brevity-kotlin/src/commonMain/kotlin/")
 //      dependencies {
 //        api(libs.kotlinx.coroutines.core)
 //      }
     }
     val jvmMain by getting {
+      // Hack in a dependency on the runtime library because includeBuild isn't working?
+      kotlin.srcDir("../../../../support/brevity/brevity-kotlin/src/jvmMain/kotlin/")
       dependencies {
         implementation(libs.chicory.runtime)
         implementation(libs.chicory.wabt)

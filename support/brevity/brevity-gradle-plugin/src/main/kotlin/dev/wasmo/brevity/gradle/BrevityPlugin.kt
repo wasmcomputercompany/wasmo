@@ -28,6 +28,7 @@ internal class RealBrevityExtension(
       description = "generate Kotlin from WIT"
       outputKotlinCommonMain.value(project.layout.buildDirectory.dir("brevity/commonMain"))
       outputKotlinWasmWasiMain.value(project.layout.buildDirectory.dir("brevity/wasmWasiMain"))
+      outputKotlinJvmMain.value(project.layout.buildDirectory.dir("brevity/jvmMain"))
       action.execute(this)
     }
 
@@ -40,6 +41,9 @@ internal class RealBrevityExtension(
         }
         sourceSets.wasmWasiMain {
           generatedKotlin.srcDir(brevityTask.map { it.outputKotlinWasmWasiMain })
+        }
+        sourceSets.jvmMain {
+          generatedKotlin.srcDir(brevityTask.map { it.outputKotlinJvmMain })
         }
       }
     }

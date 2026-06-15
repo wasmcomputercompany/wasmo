@@ -28,29 +28,28 @@ class GuestGenerator {
   }
 
   private fun FileSpec.Builder.addWorld(value: KtWorld) {
-    val guest = value.guest ?: return
-    if (guest.apis.isEmpty()) return
+    if (value.guest.apis.isEmpty()) return
 
-    val guestFieldName = "${value.type.simpleName}_${guest.name}"
+    val guestFieldName = "${value.type.simpleName}_${value.guest.name}"
 
-    addProperty(PropertySpec.builder(guestFieldName, guest.type)
+    addProperty(PropertySpec.builder(guestFieldName, value.guest.type)
       .addModifiers(KModifier.PRIVATE, KModifier.LATEINIT)
       .mutable(true)
       .build())
 
-    addProperty(PropertySpec.builder(guest.name, guest.type)
+    addProperty(PropertySpec.builder(value.guest.name, value.guest.type)
       .receiver(value.type)
       .mutable(true)
       .getter(FunSpec.getterBuilder()
         .addCode("return $guestFieldName")
         .build())
       .setter(FunSpec.setterBuilder()
-        .addParameter("value", guest.type)
+        .addParameter("value", value.guest.type)
         .addCode("%N = %N", guestFieldName, "value")
         .build())
       .build())
 
-    for (api in guest.apis) {
+    for (api in value.guest.apis) {
       when (api) {
         is KtExternalApi -> {}
         is KtFunction -> addFunction(functionToGuest(guestFieldName, api))
@@ -69,7 +68,7 @@ class GuestGenerator {
   ): FunSpec {
     return FunSpec.builder("${guestFieldName}_${value.ktName}")
       .addModifiers(KModifier.PRIVATE)
-      .addAnnotation(AnnotationSpec.builder(KotlinWasm.WasmExport)
+      .addAnnotation(AnnotationSpec.builder(Symbols.KotlinWasm.WasmExport)
         .addMember("%S", "${value.name.packageName}#${value.name.abiName}")
         .build())
       .apply {

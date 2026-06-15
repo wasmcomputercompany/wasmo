@@ -5,6 +5,7 @@ import com.dylibso.chicory.runtime.Store
 import com.dylibso.chicory.wabt.Wat2Wasm
 import com.dylibso.chicory.wasm.Parser
 import com.dylibso.chicory.wasm.WasmModule
+import dev.wasmo.brevity.World
 import okio.FileSystem
 import okio.Path
 
@@ -15,18 +16,26 @@ class WasmTester(
   val instance: Instance,
   val wasi: FakeWasi,
 ) {
-  class Factory {
-    fun createFromWasm(path: Path): WasmTester {
-      return FileSystem.SYSTEM.read(path) {
-        create(readByteArray())
+  class Builder {
+    private var wasmBytes: ByteArray? = null
+    private val worlds = mutableListOf<World<*, *>>()
+
+    fun wasmPath(path: Path) = apply {
+      wasmBytes = FileSystem.SYSTEM.read(path) {
+        readByteArray()
       }
     }
 
-    fun createFromWat(wat: String): WasmTester {
-      return create(Wat2Wasm.parse(wat))
+    fun wat(wat: String) = apply {
+      wasmBytes = Wat2Wasm.parse(wat)
     }
 
-    fun create(wasmBytes: ByteArray): WasmTester {
+    fun addWorld(world: World<*, *>) = apply {
+      worlds += world
+    }
+
+    fun build(): WasmTester {
+      check(wasmBytes != null) { "call wasmPath() or wat() first" }
       val wasmModule = Parser.parse(wasmBytes)
       val store = Store()
       val wasi = FakeWasi()
@@ -34,8 +43,14 @@ class WasmTester(
         wasi = wasi,
       )
       satisfyImports(bridge, store)
+      for (world in worlds) {
+        world.initImports(store)
+      }
 
       val instance = store.instantiate("name", wasmModule)
+      for (world in worlds) {
+        world.initExports(instance)
+      }
 
       return WasmTester(
         store = store,

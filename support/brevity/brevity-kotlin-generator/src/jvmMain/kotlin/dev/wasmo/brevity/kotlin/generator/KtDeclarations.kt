@@ -34,8 +34,8 @@ data class KtWorld(
   override val documentation: String?,
   val type: ClassName,
   val items: List<Item>,
-  val host: Host?,
-  val guest: Guest?,
+  val host: Host,
+  val guest: Guest,
 ) : KtDeclaration, KtWitPackage.Item {
   data class Host(
     val name: String,

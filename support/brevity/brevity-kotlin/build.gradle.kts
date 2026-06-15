@@ -10,13 +10,9 @@ kotlin {
         implementation(libs.okio)
       }
     }
-    jvmTest {
+    val jvmMain by getting {
       dependencies {
-        implementation(libs.assertk)
-        implementation(libs.kotlin.test)
-        implementation(libs.kotlin.test.junit)
-        implementation(libs.okio.fakefilesystem)
-        implementation(projects.brevityTesting)
+        implementation(libs.chicory.runtime)
       }
     }
   }

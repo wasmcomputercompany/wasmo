@@ -207,24 +207,22 @@ class ApiGenerator {
         addWorldItem(item)
       }
 
-      val guest = value.guest
-      if (guest != null && guest.apis.isNotEmpty()) {
+      if (value.guest.apis.isNotEmpty()) {
         addType(
-          TypeSpec.interfaceBuilder(guest.type)
+          TypeSpec.interfaceBuilder(value.guest.type)
             .apply {
-              for (export in guest.apis) {
+              for (export in value.guest.apis) {
                 addWorldApi(export)
               }
             }
             .build(),
         )
       }
-      val host = value.host
-      if (host != null && host.apis.isNotEmpty()) {
+      if (value.host.apis.isNotEmpty()) {
         addType(
-          TypeSpec.interfaceBuilder(host.type)
+          TypeSpec.interfaceBuilder(value.host.type)
             .apply {
-              for (import in host.apis) {
+              for (import in value.host.apis) {
                 addWorldApi(import)
               }
             }
