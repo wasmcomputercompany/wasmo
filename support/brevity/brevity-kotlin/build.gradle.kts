@@ -1,11 +1,12 @@
 plugins {
-  alias(libs.plugins.kotlin.multiplatform)
+  id("org.jetbrains.kotlin.multiplatform")
 }
 
 kotlin {
   jvm()
+  wasmWasi()
   sourceSets {
-    jvmMain {
+    commonMain {
       dependencies {
         implementation(libs.okio)
       }

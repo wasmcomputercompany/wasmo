@@ -3,10 +3,6 @@ plugins {
   `java-gradle-plugin`
 }
 
-repositories {
-  mavenCentral()
-}
-
 dependencies {
   add("compileOnly", kotlin("gradle-plugin"))
   add("compileOnly", kotlin("gradle-plugin-api"))
