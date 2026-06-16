@@ -1,6 +1,5 @@
 package com.wasmo.ktor
 
-import com.wasmo.common.logging.Logger
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 
@@ -8,7 +7,4 @@ import dev.zacsweers.metro.Binds
 abstract class KtorBindings {
   @Binds
   internal abstract fun bindActionRouter(real: RealActionRouter): ActionRouter
-
-  @Binds
-  internal abstract fun bindLogger(real: KtorLogger): Logger
 }

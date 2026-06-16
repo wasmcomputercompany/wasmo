@@ -2,7 +2,8 @@
 
 package com.wasmo.sql
 
-import com.wasmo.api.SqlEventListener
+import com.wasmo.api.SqlExecuteStartedEvent
+import com.wasmo.events.EventListener
 import com.wasmo.support.closetracker.CloseListener
 import com.wasmo.support.closetracker.CloseTracker
 import io.vertx.core.buffer.Buffer
@@ -33,12 +34,12 @@ import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
 
-fun PostgresqlClient.asSqlDatabase(): SqlDatabase = RealSqlDatabase(this, sqlEventListener = this.sqlEventListener)
+fun PostgresqlClient.asSqlDatabase(): SqlDatabase = RealSqlDatabase(this, eventListener = this.eventListener)
 
 internal class RealSqlDatabase(
   private val client: PostgresqlClient,
   private val closeListener: CloseListener? = null,
-  private val sqlEventListener: SqlEventListener,
+  private val eventListener: EventListener,
 ) : SqlDatabase {
   private val closeTracker = CloseTracker()
 
@@ -47,7 +48,7 @@ internal class RealSqlDatabase(
       RealSqlConnection(
         sqlClient = client.connect(),
         closeListener = closeListener,
-        sqlEventListener = sqlEventListener,
+        eventListener = eventListener,
       )
     }
   }
@@ -62,7 +63,7 @@ internal class RealSqlDatabase(
 internal class RealSqlConnection(
   override val sqlClient: SqlClient,
   private val closeListener: CloseListener,
-  private val sqlEventListener: SqlEventListener,
+  private val eventListener: EventListener,
 ) : OsSqlConnection {
   private val closeTracker = CloseTracker()
 
@@ -90,12 +91,12 @@ internal class RealSqlConnection(
           val preparedQuery = sqlClient.preparedQuery(sql)
           val tupleBuilder = TupleBuilder()
           tupleBuilder.bindParameters()
-          sqlEventListener.onEvent(SqlEventListener.SqlEvent.SqlStarted(sql, tupleBuilder.values))
+          eventListener.onEvent(SqlExecuteStartedEvent(sql, tupleBuilder.values))
           preparedQuery.execute(tupleBuilder.build())
         }
 
         else -> {
-          sqlEventListener.onEvent(SqlEventListener.SqlEvent.SqlStarted(sql, emptyList()))
+          eventListener.onEvent(SqlExecuteStartedEvent(sql, emptyList()))
           sqlClient.query(sql).execute()
         }
       }

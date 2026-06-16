@@ -1,6 +1,9 @@
 package com.wasmo.wiring
 
-import com.wasmo.api.SqlEventListener
+import com.wasmo.common.logging.Logger
+import com.wasmo.events.EventListener
+import com.wasmo.events.LoggingEventListener
+import com.wasmo.ktor.KtorLogger
 import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.ProvisioningDb
@@ -16,7 +19,16 @@ import wasmo.sql.SqlDatabase
  * Each subclass is its own particular distribution of Wasmo OS.
  */
 abstract class Distribution {
-  protected abstract val sqlEventListener: SqlEventListener
+  /**
+   * Created as part of bootstrapping the service.
+   * Guaranteed to be available upon call to [createService].
+   */
+  protected lateinit var eventListener: EventListener
+  /**
+   * Created as part of bootstrapping the service.
+   * Guaranteed to be available upon call to [createService].
+   */
+  protected lateinit var logger: Logger
   protected abstract val postgresqlConfig: WasmoPostgresqlConfig
   protected abstract val ktorConfig: WasmoKtorConfig
 
@@ -33,7 +45,10 @@ abstract class Distribution {
       takeFrom(config.engineConfig)
     }
 
-    val postgresqlClientFactory = PostgresqlClient.Factory(sqlEventListener)
+    logger = KtorLogger(server)
+    eventListener = LoggingEventListener(logger)
+
+    val postgresqlClientFactory = PostgresqlClient.Factory(eventListener)
     val osPostgresqlClient = postgresqlClientFactory.connect(postgresqlConfig.os)
     val provisioningDb = ProvisioningDb(
       provisioningDb = postgresqlClientFactory.connect(postgresqlConfig.admin)

@@ -1,6 +1,5 @@
 package wasmo.sql
 
-import com.wasmo.api.SqlEventListener
 import com.wasmo.identifiers.Secret
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.RealOsDatabaseInitializer

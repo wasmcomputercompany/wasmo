@@ -1,5 +1,6 @@
 package com.wasmo.events
 
+import com.wasmo.api.SqlExecuteStartedEvent
 import com.wasmo.common.logging.Logger
 import com.wasmo.identifiers.Event
 import com.wasmo.identifiers.OsScope
@@ -16,6 +17,11 @@ class LoggingEventListener(
 ) : EventListener {
   override fun onEvent(event: Event) {
     when (event) {
+      is SqlExecuteStartedEvent -> {
+        logger.info(
+          message ="executing: ${event.query} ${event.params.joinToString(", ")}"
+        )
+      }
       is InstallAppEvent -> {
         logger.info(
           message = "Installed on ${event.computerSlug.value}: ${event.appSlug.value}",

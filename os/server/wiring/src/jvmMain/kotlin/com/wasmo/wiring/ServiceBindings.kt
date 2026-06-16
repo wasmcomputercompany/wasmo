@@ -4,8 +4,6 @@ import com.wasmo.api.routes.RouteCodec
 import com.wasmo.common.routes.RealRouteCodec
 import com.wasmo.computers.AppCatalog
 import com.wasmo.computers.loadDefaultAppCatalogFromResources
-import com.wasmo.events.EventListener
-import com.wasmo.events.LoggingEventListener
 import com.wasmo.framework.ContentTypeDatabase
 import com.wasmo.framework.MDN
 import com.wasmo.http.OkHttpClientHttpService
@@ -43,9 +41,6 @@ abstract class ServiceBindings {
 
   @Binds
   abstract fun bindRouteCodecFactory(real: RealRouteCodec.Factory): RouteCodec.Factory
-
-  @Binds
-  abstract fun bindEventListener(real: LoggingEventListener): EventListener
 
   @Binds
   abstract fun bindAppLoader(real: JvmAppLoader): AppLoader

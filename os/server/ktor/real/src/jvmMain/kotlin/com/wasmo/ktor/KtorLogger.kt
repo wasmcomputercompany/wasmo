@@ -1,16 +1,11 @@
 package com.wasmo.ktor
 
 import com.wasmo.common.logging.Logger
-import com.wasmo.identifiers.OsScope
 import com.wasmo.support.issues.Issue
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.SingleIn
 import io.ktor.server.application.log
 import io.ktor.server.engine.EmbeddedServer
 
-@Inject
-@SingleIn(OsScope::class)
-internal class KtorLogger(
+class KtorLogger(
   server: EmbeddedServer<*, *>,
 ) : Logger {
   private val log = server.application.log

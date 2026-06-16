@@ -19,6 +19,7 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.vertx.postgresql)
         implementation(projects.identifiers)
+        implementation(projects.os.server.events.api)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.db)
         implementation(projects.os.server.sql.api)

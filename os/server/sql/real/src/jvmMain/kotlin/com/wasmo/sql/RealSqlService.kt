@@ -1,7 +1,6 @@
 package com.wasmo.sql
 
-import com.wasmo.api.OsConfig
-import com.wasmo.api.SqlEventListener
+import com.wasmo.events.EventListener
 import com.wasmo.identifiers.DatabaseSlug
 import com.wasmo.identifiers.InstalledAppScope
 import com.wasmo.support.closetracker.CloseTracker
@@ -17,7 +16,7 @@ import wasmo.sql.SqlService
 @SingleIn(InstalledAppScope::class)
 class RealSqlService(
   private val sqlDatabaseProvisioner: SqlDatabaseProvisioner,
-  private val sqlEventListener: SqlEventListener,
+  private val eventListener: EventListener,
 ) : SqlService {
   private val closeTracker = CloseTracker()
 
@@ -25,13 +24,13 @@ class RealSqlService(
     val databaseSlug = DatabaseSlug(name)
     return closeTracker.track { closeListener ->
       val databaseAddress = sqlDatabaseProvisioner.getOrProvision(databaseSlug)
-      val client = PostgresqlClient.Factory(sqlEventListener)
+      val client = PostgresqlClient.Factory(eventListener)
         .connect(databaseAddress)
 
       RealSqlDatabase(
         client = client,
         closeListener = closeListener,
-        sqlEventListener = sqlEventListener,
+        eventListener = eventListener,
       )
     }
   }

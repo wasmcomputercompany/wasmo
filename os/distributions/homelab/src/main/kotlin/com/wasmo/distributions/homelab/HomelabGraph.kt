@@ -4,14 +4,14 @@ import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
 import com.wasmo.accounts.passkeys.AccountsPasskeysBindings
-import com.wasmo.api.OsConfig
-import com.wasmo.api.SqlEventListener
 import com.wasmo.calls.CallGraph
 import com.wasmo.common.catalog.Catalog
+import com.wasmo.common.logging.Logger
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
 import com.wasmo.computers.free.FreeComputersBindings
 import com.wasmo.emails.EmailBindings
+import com.wasmo.events.EventListener
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
@@ -89,7 +89,8 @@ internal interface HomelabGraph {
       @Provides catalog: Catalog,
       @Provides postgresqlConfig: WasmoPostgresqlConfig,
       @Provides localPostgresql: LocalPostgresql,
-      @Provides sqlEventListener: SqlEventListener,
+      @Provides logger: Logger,
+      @Provides eventListener: EventListener,
     ): HomelabGraph
   }
 }
