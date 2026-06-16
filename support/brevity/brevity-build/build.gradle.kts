@@ -4,13 +4,10 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 
 plugins {
-  alias(libs.plugins.kotlin.multiplatform).apply(false)
+  `kotlin-dsl`
 }
 
 allprojects {
-  group = "dev.wasmo.brevity"
-  version = "0.1.0-SNAPSHOT"
-
   plugins.withType<KotlinMultiplatformPluginWrapper> {
     extensions.configure<KotlinMultiplatformExtension> {
       compilerOptions {
@@ -27,3 +24,4 @@ allprojects {
     }
   }
 }
+

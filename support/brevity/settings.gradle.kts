@@ -1,5 +1,7 @@
 rootProject.name = "brevity"
 
+includeBuild("brevity-build")
+
 pluginManagement {
   repositories {
     mavenCentral()
@@ -20,6 +22,7 @@ dependencyResolutionManagement {
 
 include(":brevity-core")
 include(":brevity-gradle-plugin")
+include(":brevity-host")
 include(":brevity-kotlin")
 include(":brevity-kotlin-generator")
 include(":brevity-testing")
