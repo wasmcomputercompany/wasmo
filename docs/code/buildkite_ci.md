@@ -12,7 +12,7 @@ another:
 * JDK
 * Gradle
 * NodeJS: to run Kotlin/JS tests
-* Chrome: to run Kotlin/JS tests
+* Rust: our reference platform for WebAssembly
 
 See [wasmo/ci image Dockerfile](../../wasmo-build/ci/Dockerfile).
 
@@ -45,7 +45,14 @@ $ docker build -t wasmo/ci .
 $ docker push wasmo/ci
 ```
 
-Run a command as it runs in the Buildkite Docker Compose.
+Remove the pinned sha256 from `.buildkite/docker-compose.yml`:
+
+```diff
+-image: wasmo/ci@sha256:fffcd3e123de5ca944aa7d1f0551d371991f5b8cb8deb41a484741ce0eeb8e48
++image: wasmo/ci
+```
+
+Next run the build:
 
 ```bash
 $ cd ../..
