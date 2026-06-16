@@ -1,5 +1,6 @@
 package com.wasmo.wasm
 
+import wit.wasmo.testing.Calculator
 import wit.wasmo.testing.WasmoTesting
 import wit.wasmo.testing.guest
 
@@ -11,6 +12,10 @@ import wit.wasmo.testing.guest
 @EagerInitialization
 val actuallyInitialize = run {
   WasmoTesting.guest = object : WasmoTesting.Guest {
+    override val calculator = object : Calculator {
+      override fun multiply(a: Long, b: Long) = a * b
+    }
+
     override fun sum(a: Long, b: Long): Long {
       return a + b
     }

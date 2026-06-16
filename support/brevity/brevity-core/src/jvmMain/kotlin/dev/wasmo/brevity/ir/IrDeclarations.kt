@@ -142,4 +142,5 @@ data class IrExternalApi(
   override val offset: Offset,
   val plainName: Identifier? = null,
   val path: IrParentName,
+  val functions: List<IrFunction>,
 ) : IrDeclaration, IrWorld.Api

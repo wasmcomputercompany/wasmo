@@ -50,14 +50,18 @@ fun IrEnum(
 fun IrExternalApi(
   documentation: String? = null,
   gate: Gate? = null,
+  offset: Offset = Offset(1, 1),
   plainName: String? = null,
-  path: IrParentName,
+  packageName: String,
+  parentName: String,
+  functions: List<IrFunction> = listOf(),
 ) = IrExternalApi(
   documentation = documentation?.let { Documentation(it) },
   gate = gate,
-  offset = Offset(1, 1),
+  offset = offset,
   plainName = plainName?.let { Identifier(it) },
-  path = path,
+  path = IrParentName(packageName, parentName),
+  functions = functions,
 )
 
 fun IrFlags(
@@ -109,6 +113,7 @@ fun IrFunction(
   parameters: List<IrParameter> = listOf(),
   returnType: IrTypeName? = null,
   packageName: String,
+  parentName: String,
   resourceName: String? = null,
   annotation: Annotation? = resourceName?.let { Annotation.Method },
 ) = IrFunction(
@@ -120,8 +125,9 @@ fun IrFunction(
   returnType = returnType,
   functionName = FunctionName(
     packageName = packageName.toPackageName(),
+    parentName = Identifier(parentName),
     name = Identifier(name),
-    resourceName = resourceName?.let { Identifier(resourceName) },
+    resourceName = resourceName?.let { Identifier(it) },
     annotation = annotation,
   ),
 )
