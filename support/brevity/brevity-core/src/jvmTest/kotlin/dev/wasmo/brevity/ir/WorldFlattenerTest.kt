@@ -36,18 +36,18 @@ class WorldFlattenerTest {
       name = "run",
       items = listOf(
         IoFunction(
-          name = "run"
-        )
-      )
+          name = "run",
+        ),
+      ),
     )
 
     val exit = IoInterface(
       name = "exit",
       items = listOf(
         IoFunction(
-          name = "exit"
-        )
-      )
+          name = "exit",
+        ),
+      ),
     )
 
     val wasiCommand = IoWitPackage(
@@ -75,8 +75,32 @@ class WorldFlattenerTest {
     ).isEqualTo(
       IrWorld(
         name = "command",
-        exports = listOf(IrExternalApi(path = IrParentName("wasi:cli@0.3.0", "run"))),
-        imports = listOf(IrExternalApi(path = IrParentName("wasi:cli@0.3.0", "exit"))),
+        exports = listOf(
+          IrExternalApi(
+            packageName = "wasi:cli@0.3.0",
+            parentName = "run",
+            functions = listOf(
+              IrFunction(
+                packageName = "wasi:cli@0.3.0",
+                parentName = "run",
+                name = "run",
+              ),
+            ),
+          ),
+        ),
+        imports = listOf(
+          IrExternalApi(
+            packageName = "wasi:cli@0.3.0",
+            parentName = "exit",
+            functions = listOf(
+              IrFunction(
+                packageName = "wasi:cli@0.3.0",
+                parentName = "exit",
+                name = "exit",
+              ),
+            ),
+          ),
+        ),
       ),
     )
   }

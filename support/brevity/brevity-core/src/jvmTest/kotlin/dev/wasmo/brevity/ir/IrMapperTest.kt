@@ -167,6 +167,15 @@ class IrMapperTest {
               IrExternalApi(
                 offset = Offset(4, 3),
                 path = IrParentName("wasi:clocks@0.3.0", "monotonic-clock"),
+                functions = listOf(
+                  IrFunction(
+                    offset = Offset(4, 3),
+                    returnType = IrTypeName.S64,
+                    name = "now",
+                    packageName = "wasi:clocks@0.3.0",
+                    parentName = "monotonic-clock",
+                  )
+                )
               ),
             ),
           ),
@@ -177,6 +186,15 @@ class IrMapperTest {
               IrExternalApi(
                 offset = Offset(4, 3),
                 path = IrParentName("wasi:clocks@0.3.0", "monotonic-clock"),
+                functions = listOf(
+                  IrFunction(
+                    offset = Offset(4, 3),
+                    returnType = IrTypeName.S64,
+                    name = "now",
+                    packageName = "wasi:clocks@0.3.0",
+                    parentName = "monotonic-clock",
+                  )
+                )
               ),
             ),
           ),
@@ -192,6 +210,15 @@ class IrMapperTest {
               IrExternalApi(
                 offset = Offset(4, 3),
                 path = IrParentName("wasi:clocks@0.3.0", "monotonic-clock"),
+                functions = listOf(
+                  IrFunction(
+                    offset = Offset(4, 3),
+                    returnType = IrTypeName.S64,
+                    name = "now",
+                    packageName = "wasi:clocks@0.3.0",
+                    parentName = "monotonic-clock",
+                  )
+                )
               ),
             ),
           ),
@@ -204,6 +231,7 @@ class IrMapperTest {
                 name = "now",
                 returnType = IrTypeName.S64,
                 packageName = "wasi:clocks@0.3.0",
+                parentName = "monotonic-clock",
               ),
             ),
           ),
@@ -314,6 +342,7 @@ class IrMapperTest {
       FunctionName(
         name = "now",
         packageName = "wasi:clocks@0.3.0",
+        parentName = "system-clock",
       ),
     )
     assertThat(irFunction.functionName.abiName).isEqualTo("now")
@@ -345,23 +374,27 @@ class IrMapperTest {
     assertThat(irResource.functions.map { it.functionName }).containsExactly(
       FunctionName(
         packageName = "wasi:http@0.3.0",
+        parentName = "types",
         name = "fields",
         annotation = Annotation.Constructor,
       ),
       FunctionName(
         packageName = "wasi:http@0.3.0",
+        parentName = "types",
         name = "from-list",
         resourceName = "fields",
         annotation = Annotation.Static,
       ),
       FunctionName(
         packageName = "wasi:http@0.3.0",
+        parentName = "types",
         name = "has",
         resourceName = "fields",
         annotation = Annotation.Method,
       ),
       FunctionName(
         packageName = "wasi:http@0.3.0",
+        parentName = "types",
         name = "clone",
         resourceName = "fields",
         annotation = Annotation.Method,

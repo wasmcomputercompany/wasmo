@@ -1,9 +1,11 @@
 package dev.wasmo.brevity.kotlin.generator
 
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
+import com.squareup.kotlinpoet.MemberSpecHolder
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
@@ -39,10 +41,10 @@ class HostGenerator {
       value.guest.apis.isEmpty() -> UNIT
       else -> value.guest.type
     }
-    val implementation = value.type.peerClass("${value.type.simpleName}World")
+    val implementationTypeName = value.type.peerClass("${value.type.simpleName}World")
     val implementationGuestTypeName = when {
       value.guest.apis.isEmpty() -> UNIT
-      else -> implementation.nestedClass("Guest")
+      else -> implementationTypeName.nestedClass("Guest")
     }
 
     addFunction(
@@ -63,28 +65,34 @@ class HostGenerator {
             value.guest.apis.isEmpty() -> {
               addStatement("val %N = %T", "guest", implementationGuestTypeName)
             }
+
             else -> {
               addStatement("val %N = %T()", "guest", implementationGuestTypeName)
             }
           }
           addStatement("val %N = hostFactory(%N)", "host", "guest")
-          addStatement("return %T(%N, %N)", implementation, "host", "guest")
+          addStatement("return %T(%N, %N)", implementationTypeName, "host", "guest")
         }
         .build(),
     )
 
-    val implementationBuilder = TypeSpec.classBuilder(implementation.simpleName)
+    val implementationBuilder = TypeSpec.classBuilder(implementationTypeName.simpleName)
 
     if (guestApis.isNotEmpty()) {
-      val implementationGuest = TypeSpec.classBuilder(implementationGuestTypeName)
-        .addSuperinterface(guestType)
-        .apply {
-          for (api in guestApis) {
-            addGuestApi(api)
+      for (api in guestApis) {
+        implementationBuilder.declareGuestTypes(implementationTypeName, api)
+      }
+
+      implementationBuilder.addType(
+        TypeSpec.classBuilder(implementationGuestTypeName)
+          .addSuperinterface(guestType)
+          .apply {
+            for (api in guestApis) {
+              addGuestApi(implementationTypeName, api)
+            }
           }
-        }
-        .build()
-      implementationBuilder.addType(implementationGuest)
+          .build(),
+      )
     }
 
     addType(
@@ -130,52 +138,84 @@ class HostGenerator {
     )
   }
 
-  private fun TypeSpec.Builder.addGuestApi(api: KtWorld.Api) {
+  /** Declares implementations of guest interfaces. */
+  private fun TypeSpec.Builder.declareGuestTypes(worldClassName: ClassName, api: KtWorld.Api) {
     when (api) {
       is KtExternalApi -> {
-        addProperty(
-          PropertySpec.builder(api.name, api.type)
-            .addModifiers(KModifier.LATEINIT, KModifier.OVERRIDE)
-            .mutable(true)
-            .build(),
-        )
-      }
-
-      is KtFunction -> {
-        addProperty(
-          PropertySpec.builder(api.ktName, Symbols.ChicoryRuntime.ExportFunction)
-            .addModifiers(KModifier.LATEINIT)
-            .mutable(true)
-            .build(),
-        )
-
-        addFunction(
-          FunSpec.builder(api.ktName)
-            .addModifiers(KModifier.OVERRIDE)
+        val type = worldClassName.nestedClass(api.type.simpleName)
+        addType(
+          TypeSpec.classBuilder(type)
+            .addSuperinterface(api.type)
             .apply {
-              addCode("return %N.apply(", api.ktName)
-              for ((index, parameter) in api.parameters.withIndex()) {
-                if (index > 0) addCode(", ")
-                addCode("%N", parameter.name)
-                addParameter(parameter.name, parameter.type)
+              for (function in api.functions) {
+                addGuestFunction(function)
               }
-              addCode(")[0]")
             }
-            .returns(api.returnType ?: UNIT)
             .build(),
         )
       }
+
+      else -> {}
+    }
+  }
+
+  /** Adds symbols to the Guest implementation. */
+  private fun TypeSpec.Builder.addGuestApi(worldClassName: ClassName, api: KtWorld.Api) {
+    when (api) {
+      is KtExternalApi -> {
+        val type = worldClassName.nestedClass(api.type.simpleName)
+        addProperty(
+          PropertySpec.builder(api.name, type)
+            .addModifiers(KModifier.OVERRIDE)
+            .initializer("%T()", type)
+            .build(),
+        )
+      }
+
+      is KtFunction -> addGuestFunction(api)
 
       is KtInterface -> {}
     }
   }
 
+  private fun MemberSpecHolder.Builder<*>.addGuestFunction(value: KtFunction) {
+    addProperty(
+      PropertySpec.builder(value.ktName, Symbols.ChicoryRuntime.ExportFunction)
+        .addModifiers(KModifier.LATEINIT)
+        .mutable(true)
+        .build(),
+    )
+
+    addFunction(
+      FunSpec.builder(value.ktName)
+        .addModifiers(KModifier.OVERRIDE)
+        .apply {
+          addCode("return %N.apply(", value.ktName)
+          for ((index, parameter) in value.parameters.withIndex()) {
+            if (index > 0) addCode(", ")
+            addCode("%N", parameter.name)
+            addParameter(parameter.name, parameter.type)
+          }
+          addCode(")[0]")
+        }
+        .returns(value.returnType ?: UNIT)
+        .build(),
+    )
+  }
+
   private fun FunSpec.Builder.initExport(api: KtWorld.Api) {
     when (api) {
-      is KtExternalApi -> {}
+      is KtExternalApi -> {
+        for (function in api.functions) {
+          addStatement(
+            "guest.%N.%N = %N.export(%S)", api.name, function.ktName, "instance",
+            function.name,
+          )
+        }
+      }
+
       is KtFunction -> {
-        val functionName = "${api.name.packageName}#${api.name.name}"
-        addStatement("guest.%N = %N.export(%S)", api.ktName, "instance", functionName)
+        addStatement("guest.%N = %N.export(%S)", api.ktName, "instance", api.name)
       }
 
       is KtInterface -> {}

@@ -18,7 +18,8 @@ data class KtWitPackage(
 data class KtExternalApi(
   override val documentation: String?,
   val name: String,
-  val type: TypeName,
+  val type: ClassName,
+  val functions: List<KtFunction>,
 ) : KtDeclaration, KtWorld.Api
 
 data class KtInterface(

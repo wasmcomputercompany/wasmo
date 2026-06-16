@@ -139,12 +139,14 @@ class IrMapper(
     functionName = when {
       constructor && resourceName != null && name == Keywords.constructor -> FunctionName(
         packageName = context.packageName,
+        parentName = context.parentName,
         name = resourceName,
         annotation = Annotation.Constructor,
       )
 
       static && resourceName != null -> FunctionName(
         packageName = context.packageName,
+        parentName = context.parentName,
         resourceName = resourceName,
         name = name,
         annotation = Annotation.Static,
@@ -152,6 +154,7 @@ class IrMapper(
 
       resourceName != null -> FunctionName(
         packageName = context.packageName,
+        parentName = context.parentName,
         resourceName = resourceName,
         name = name,
         annotation = Annotation.Method,
@@ -159,6 +162,7 @@ class IrMapper(
 
       else -> FunctionName(
         packageName = context.packageName,
+        parentName = context.parentName,
         name = name,
       )
     },
@@ -229,13 +233,20 @@ class IrMapper(
   )
 
   context(context: Context)
-  private fun IoExternalApi.externalUsePathToIr() = IrExternalApi(
-    documentation = documentation,
-    gate = gate,
-    offset = offset,
-    plainName = plainName,
-    path = path.usePathToIr(),
-  )
+  private fun IoExternalApi.externalUsePathToIr(): IrExternalApi {
+    val parentName = path.usePathToIr()
+    return IrExternalApi(
+      documentation = documentation,
+      gate = gate,
+      offset = offset,
+      plainName = plainName,
+      path = parentName,
+      functions = context(Context(parentName.packageName, parentName.name)) {
+        val interfaceItems = getInterfaceOrNull(parentName.usePath)?.items ?: listOf()
+        interfaceItems.filterIsInstance<IoFunction>().map { it.functionToIr() }
+      },
+    )
+  }
 
   context(context: Context)
   private fun UsePath.usePathToIr() = IrParentName(

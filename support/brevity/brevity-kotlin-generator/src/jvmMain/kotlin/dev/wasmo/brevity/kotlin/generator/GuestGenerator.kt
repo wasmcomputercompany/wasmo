@@ -6,7 +6,6 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
 
 class GuestGenerator {
   fun generate(witPackage: KtWitPackage): FileSpec {
@@ -32,51 +31,80 @@ class GuestGenerator {
 
     val guestFieldName = "${value.type.simpleName}_${value.guest.name}"
 
-    addProperty(PropertySpec.builder(guestFieldName, value.guest.type)
-      .addModifiers(KModifier.PRIVATE, KModifier.LATEINIT)
-      .mutable(true)
-      .build())
+    addProperty(
+      PropertySpec.builder(guestFieldName, value.guest.type)
+        .addModifiers(KModifier.PRIVATE, KModifier.LATEINIT)
+        .mutable(true)
+        .build(),
+    )
 
-    addProperty(PropertySpec.builder(value.guest.name, value.guest.type)
-      .receiver(value.type)
-      .mutable(true)
-      .getter(FunSpec.getterBuilder()
-        .addCode("return $guestFieldName")
-        .build())
-      .setter(FunSpec.setterBuilder()
-        .addParameter("value", value.guest.type)
-        .addCode("%N = %N", guestFieldName, "value")
-        .build())
-      .build())
+    addProperty(
+      PropertySpec.builder(value.guest.name, value.guest.type)
+        .receiver(value.type)
+        .mutable(true)
+        .getter(
+          FunSpec.getterBuilder()
+            .addCode("return $guestFieldName")
+            .build(),
+        )
+        .setter(
+          FunSpec.setterBuilder()
+            .addParameter("value", value.guest.type)
+            .addCode("%N = %N", guestFieldName, "value")
+            .build(),
+        )
+        .build(),
+    )
 
     for (api in value.guest.apis) {
       when (api) {
-        is KtExternalApi -> {}
-        is KtFunction -> addFunction(functionToGuest(guestFieldName, api))
-        is KtInterface -> {} // addType(interfaceToGuest(guest, api))
+        is KtExternalApi -> {
+          for (function in api.functions) {
+            addFunction(
+              functionToGuest(
+                guestFieldName = guestFieldName,
+                parentName = api.name,
+                value = function,
+              ),
+            )
+          }
+        }
+
+        is KtFunction -> addFunction(
+          functionToGuest(
+            guestFieldName = guestFieldName,
+            parentName = null,
+            value = api,
+          ),
+        )
+
+        is KtInterface -> {}
       }
     }
   }
 
-  private fun interfaceToGuest(guest: KtWorld.Guest, value: KtInterface): TypeSpec {
-    TODO()
-  }
-
   private fun functionToGuest(
     guestFieldName: String,
+    parentName: String? = null,
     value: KtFunction,
   ): FunSpec {
     return FunSpec.builder("${guestFieldName}_${value.ktName}")
       .addModifiers(KModifier.PRIVATE)
-      .addAnnotation(AnnotationSpec.builder(Symbols.KotlinWasm.WasmExport)
-        .addMember("%S", "${value.name.packageName}#${value.name.abiName}")
-        .build())
+      .addAnnotation(
+        AnnotationSpec.builder(Symbols.KotlinWasm.WasmExport)
+          .addMember("%S", value.name)
+          .build(),
+      )
       .apply {
         if (value.returnType != null) {
           addCode("return ")
           returns(value.returnType)
         }
-        addCode("%N.%N(", guestFieldName, value.ktName)
+        addCode("%N.", guestFieldName)
+        if (parentName != null) {
+          addCode("%N.", parentName)
+        }
+        addCode("%N(", value.ktName)
         for ((index, parameter) in value.parameters.withIndex()) {
           addParameter(ParameterSpec.builder(parameter.name, parameter.type).build())
           if (index > 0) addCode(", ")

@@ -11,7 +11,7 @@ import wit.wasmo.testing.World
 
 class RunKotlinWasmTest {
   @Test
-  fun `call sum`() = runTest {
+  fun `call function declared on world`() = runTest {
     val world = WasmoTesting.World { Unit }
     val tester = WasmTester.Builder()
       .moduleWasm()
@@ -19,6 +19,17 @@ class RunKotlinWasmTest {
       .build()
     val result = world.guest.sum(5L, 10L)
     assertThat(result).isEqualTo(15L)
+  }
+
+  @Test
+  fun `call function declared on interface`() = runTest {
+    val world = WasmoTesting.World { Unit }
+    val tester = WasmTester.Builder()
+      .moduleWasm()
+      .addWorld(world)
+      .build()
+    val result = world.guest.calculator.multiply(5L, 10L)
+    assertThat(result).isEqualTo(50L)
   }
 
   @Test

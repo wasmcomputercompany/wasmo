@@ -204,6 +204,7 @@ class KtMapper(
           documentation = documentation?.content,
           name = (plainName ?: path.name).name.toCamelCase(upperCamel = false),
           type = typeMapper.map(path),
+          functions = functions.map { it.functionToKt() }
         )
       }
 

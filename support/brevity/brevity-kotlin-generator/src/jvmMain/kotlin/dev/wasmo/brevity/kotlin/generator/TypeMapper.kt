@@ -13,7 +13,7 @@ import dev.wasmo.brevity.ir.IrTypeName
 class TypeMapper(
   private val kotlinPackagePrefix: String,
 ) {
-  fun map(typeName: IrParentName): KotlinTypeName {
+  fun map(typeName: IrParentName): ClassName {
     return (typeName.packageName.toKotlin(kotlinPackagePrefix) + typeName.name).name
   }
 
