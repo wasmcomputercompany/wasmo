@@ -1,6 +1,5 @@
 package com.wasmo.wiring
 
-import com.wasmo.api.OsConfig
 import com.wasmo.api.SqlEventListener
 import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.sql.PostgresqlClient
