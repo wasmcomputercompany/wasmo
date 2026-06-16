@@ -3,7 +3,7 @@ package com.wasmo.distributions.hosted
 import com.github.ajalt.clikt.core.CliktCommand
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
-import com.wasmo.api.OsConfig
+import com.wasmo.api.SqlEventListener
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.identifiers.Deployment
@@ -58,7 +58,7 @@ class HostedCommand : CliktCommand() {
     )
 
     val distribution = object : Distribution() {
-      override val osConfig: OsConfig = OsConfig.Standard
+      override val sqlEventListener: SqlEventListener = SqlEventListener {}
       override val postgresqlConfig = WasmoPostgresqlConfig(
         hostname = "gcp-northamerica-northeast1-1.pg.psdb.cloud",
         ssl = false,
@@ -102,6 +102,7 @@ class HostedCommand : CliktCommand() {
             bucket = b2Bucket,
           ),
           sessionCookieSpec = SessionCookieSpec.Https,
+          sqlEventListener = sqlEventListener,
         )
         return serviceGraph.wasmoService
       }
