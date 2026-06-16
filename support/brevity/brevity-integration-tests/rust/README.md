@@ -3,14 +3,6 @@ Rust integration tests
 
 Confirm Brevity's generated APIs interop with Rust.
 
-Setup
------
-
-```bash
-$ rustup target add wasm32-wasip2
-```
-
-
 Build
 -----
 

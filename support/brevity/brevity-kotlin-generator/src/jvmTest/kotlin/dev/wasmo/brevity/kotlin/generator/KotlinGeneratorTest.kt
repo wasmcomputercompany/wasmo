@@ -387,7 +387,7 @@ class KotlinGeneratorTest {
       |    Command_guest = `value`
       |  }
       |
-      |@WasmExport("wasi:cli/command@0.3.0#run")
+      |@WasmExport("run")
       |private fun Command_guest_run(args: List<String>): Int = Command_guest.run(args)
       |
       """.trimMargin()
@@ -418,7 +418,7 @@ class KotlinGeneratorTest {
       |  override val guest: Guest,
       |) : World<Unit, Command.Guest> {
       |  override fun initExports(instance: Instance) {
-      |    guest.run = instance.export("wasi:cli/command@0.3.0#run")
+      |    guest.run = instance.export("run")
       |  }
       |
       |  override fun initImports(store: Store) {
