@@ -42,7 +42,7 @@ abstract class BrevityTask : DefaultTask() {
   @TaskAction
   fun execute() {
     val packageReader = IoWitPackageReader(FileSystem.SYSTEM)
-    val ktMapper = KtMapper()
+    val ktMapper = KtMapper(onlyLongs = true)
     val apiGenerator = ApiGenerator()
     val guestGenerator = GuestGenerator()
     val hostGenerator = HostGenerator()
