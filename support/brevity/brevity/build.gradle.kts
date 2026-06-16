@@ -13,7 +13,7 @@ kotlin {
     }
     val jvmMain by getting {
       dependencies {
-        implementation(libs.chicory.runtime)
+        api(libs.chicory.runtime)
       }
     }
   }

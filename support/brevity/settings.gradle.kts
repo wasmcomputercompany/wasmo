@@ -1,4 +1,4 @@
-rootProject.name = "brevity"
+rootProject.name = "brevity-root"
 
 includeBuild("brevity-build")
 
@@ -20,11 +20,12 @@ dependencyResolutionManagement {
   }
 }
 
-include(":brevity-core")
+include(":brevity")
 include(":brevity-gradle-plugin")
-include(":brevity-host")
-include(":brevity-kotlin")
+include(":brevity-integration-tests")
 include(":brevity-kotlin-generator")
 include(":brevity-testing")
+include(":brevity-wasi")
+include(":brevity-wit")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

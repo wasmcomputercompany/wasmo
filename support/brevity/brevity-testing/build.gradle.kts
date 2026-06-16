@@ -8,8 +8,8 @@ kotlin {
     jvmMain {
       dependencies {
         implementation(libs.okio)
-        implementation(projects.brevityCore)
-        implementation(projects.brevityKotlin)
+        implementation(projects.brevity)
+        implementation(projects.brevityWit)
       }
     }
     jvmTest {

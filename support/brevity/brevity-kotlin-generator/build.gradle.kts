@@ -9,7 +9,7 @@ kotlin {
       dependencies {
         implementation(libs.kotlinpoet)
         implementation(libs.okio)
-        implementation(projects.brevityCore)
+        implementation(projects.brevityWit)
       }
     }
     jvmTest {

@@ -77,6 +77,6 @@ class RunKotlinWasmTest {
   }
 
   private fun WasmTester.Builder.moduleWasm() = apply {
-    wasmPath("build/compileSync/wasmWasi/main/developmentExecutable/kotlin/brevity-brevity-host.wasm".toPath())
+    wasmPath("build/compileSync/wasmWasi/main/developmentExecutable/kotlin/brevity-root-brevity-integration-tests.wasm".toPath())
   }
 }

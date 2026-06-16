@@ -9,8 +9,8 @@ dependencies {
   implementation(libs.kotlin.gradle.plugin)
   implementation(libs.kotlinpoet)
   implementation(libs.okio)
-  implementation(projects.brevityCore)
   implementation(projects.brevityKotlinGenerator)
+  implementation(projects.brevityWit)
 }
 
 gradlePlugin {
