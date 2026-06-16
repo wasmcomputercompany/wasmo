@@ -14,6 +14,7 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.okio)
+        implementation(projects.identifiers)
         implementation(projects.os.logging)
         implementation(projects.os.server.events.api)
         implementation(projects.os.server.identifiers)
