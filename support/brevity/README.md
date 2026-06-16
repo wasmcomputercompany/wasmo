@@ -11,11 +11,15 @@ See the [Explainer], [Overview] and [Spec].
 This project contains documentation and specifications copyrighted by the
 [W3C WebAssembly Community Group], licensed under the Apache license.
 
-* **wit-core**: Parses and models `.wit` files.
-* **wit-kotlin**: A runtime library for running components in Kotlin. It declares built-in types
-  for `Tuple` and `Result` types.
-* **wit-kotlin-generator**: uses parsed `.wit` files to generate `.kt` files.
-* **wit-testing**: test facets for our own internal testing.
+* **brevity**: A runtime library for running components in Kotlin. It declares built-in types for
+  `Tuple` and `Result` types.
+* **brevity-build**: Gradle project so we can run Brevity’s Gradle plugin in Brevity’s own build.
+* **brevity-kotlin-generator**: uses parsed `.wit` files to generate `.kt` files.
+* **brevity-gradle-plugin**: integrates Brevity with Gradle.
+* **brevity-integration-tests**: executes generated API stubs on the [Chicory] runtime.
+* **brevity-testing**: test facets for our own internal testing.
+* **brevity-wasi**: Compiles [WASI] to Kotlin.
+* **brevity-wit**: Parses and models `.wit` files.
 
 Models
 ------
@@ -33,7 +37,9 @@ We have several different representations of the `.wit` code, that fit together 
 * **api**: a user-facing Kotlin API for a project, represented as `KotlinPoet` files.
 
 
+[Chicory]: https://github.com/dylibso/chicory
 [Explainer]: https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md
 [Overview]: https://component-model.bytecodealliance.org/design/wit.html
 [Spec]: https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md
 [W3C WebAssembly Community Group]: https://www.w3.org/community/webassembly/
+[WASI]: https://github.com/WebAssembly/WASI/

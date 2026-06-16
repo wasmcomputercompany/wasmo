@@ -16,7 +16,7 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        implementation(projects.brevityKotlin)
+        implementation(projects.brevity)
       }
     }
     jvmMain {
