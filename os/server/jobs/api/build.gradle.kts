@@ -17,6 +17,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.serialization.core)
         implementation(libs.kotlinx.serialization.json)
+        implementation(projects.identifiers)
         implementation(projects.os.api)
         implementation(projects.os.server.identifiers)
         implementation(projects.platform.api)
