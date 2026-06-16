@@ -129,7 +129,10 @@ class IrMapper(
   )
 
   context(context: Context)
-  private fun IoFunction.functionToIr(resourceName: Identifier? = null) = IrFunction(
+  private fun IoFunction.functionToIr(
+    worldFunction: Boolean = false,
+    resourceName: Identifier? = null,
+  ) = IrFunction(
     documentation = documentation,
     gate = gate,
     offset = offset,
@@ -137,6 +140,10 @@ class IrMapper(
     parameters = parameters.map { it.parameterToIr() },
     returnType = returnType?.typeNameToIr(),
     functionName = when {
+      worldFunction -> FunctionName(
+        name = name,
+      )
+
       constructor && resourceName != null && name == Keywords.constructor -> FunctionName(
         packageName = context.packageName,
         parentName = context.parentName,
@@ -391,7 +398,7 @@ class IrMapper(
       is IoExternalApi -> externalUsePathToIr()
         .takeIf { getInterfaceOrNull(it.path.usePath)?.declaresApis() ?: false }
 
-      is IoFunction -> functionToIr()
+      is IoFunction -> functionToIr(worldFunction = true)
       is IoInterface -> interfaceToIr(context.packageName)
     }
   }

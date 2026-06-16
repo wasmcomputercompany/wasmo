@@ -7,3 +7,7 @@ kotlin-js-store/yarn.lock
 
 # dom-tester
 **/karma.config.d/generated-dom-tester.js
+
+# Rust
+target
+Cargo.lock

@@ -1,14 +1,17 @@
 package com.wasmo.wasm
 
+import app.cash.burst.Burst
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNullOrEmpty
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
+import okio.Path
 import okio.Path.Companion.toPath
 import wit.wasmo.testing.WasmoTesting
 import wit.wasmo.testing.World
 
+@Burst
 class RunKotlinWasmTest {
   @Test
   fun `call function declared on world`() = runTest {
@@ -22,10 +25,12 @@ class RunKotlinWasmTest {
   }
 
   @Test
-  fun `call function declared on interface`() = runTest {
+  fun `call function declared on interface`(
+    wasmSource: WasmSource,
+  ) = runTest {
     val world = WasmoTesting.World { Unit }
     val tester = WasmTester.Builder()
-      .moduleWasm()
+      .wasmPath(wasmSource.path)
       .addWorld(world)
       .build()
     val result = world.guest.calculator.multiply(5L, 10L)
@@ -78,5 +83,16 @@ class RunKotlinWasmTest {
 
   private fun WasmTester.Builder.moduleWasm() = apply {
     wasmPath("build/compileSync/wasmWasi/main/developmentExecutable/kotlin/brevity-root-brevity-integration-tests.wasm".toPath())
+  }
+
+  enum class WasmSource(
+    val path: Path,
+  ) {
+    Kotlin(
+      path = "build/compileSync/wasmWasi/main/developmentExecutable/kotlin/brevity-root-brevity-integration-tests.wasm".toPath(),
+    ),
+    Rust(
+      path = "rust/target/unbundled/unbundled-module0.wasm".toPath(),
+    )
   }
 }
