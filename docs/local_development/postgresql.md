@@ -26,12 +26,6 @@ $ echo 'export PATH="/usr/local/opt/libpq/bin:$PATH"' >> ~/.zshrc
 $ source ~/.zshrc
 ```
 
-Create the `postgres` superuser:
-
-```bash
-$ createuser -h localhost -s postgres
-```
-
 And create your local databases:
 
 ```bash
