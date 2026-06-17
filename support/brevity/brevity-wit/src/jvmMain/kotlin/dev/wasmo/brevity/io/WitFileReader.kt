@@ -89,7 +89,7 @@ internal class WitFileReader(
   ): Pair<IoInlinePackage, PackageKind> {
     source.skipWhitespace()
     val name = source.readPackageName()
-    val declarations = mutableListOf<IoDeclaration>()
+    val declarations = mutableListOf<IoWitFile.Item>()
 
     source.skipWhitespace()
     val packageKind = when {

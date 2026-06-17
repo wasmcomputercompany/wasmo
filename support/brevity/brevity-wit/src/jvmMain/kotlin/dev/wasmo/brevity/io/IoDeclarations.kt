@@ -48,7 +48,7 @@ data class IoInlinePackage(
   override val gate: Gate? = null,
   override val offset: Offset,
   val name: PackageName,
-  val declarations: List<IoDeclaration>,
+  val declarations: List<IoWitFile.Item>,
 ) : IoDeclaration, IoWitFile.Item
 
 /**
