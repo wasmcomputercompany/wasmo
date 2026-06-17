@@ -8,7 +8,7 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
-import com.wasmo.api.SqlEventListener.SqlEvent
+import com.wasmo.api.SqlExecuteStartedEvent
 import com.wasmo.sql.testing.AllTypes
 import com.wasmo.sql.testing.Balance
 import com.wasmo.sql.testing.KeyValue
@@ -152,7 +152,7 @@ class RealSqlServiceTest {
     tester.sqlDatabase.newConnection().use { connection ->
       val createDinnerTable = "CREATE TABLE Dinner (location TEXT, seats BIGINT)"
       connection.execute(createDinnerTable)
-      val createStarted = tester.events.removeLast().assertIsInstanceOf<SqlEvent.SqlStarted>()
+      val createStarted = tester.events.removeLast().assertIsInstanceOf<SqlExecuteStartedEvent>()
       assertThat(createStarted.query).isEqualTo(createDinnerTable)
       assertThat(createStarted.params).isEmpty()
 
@@ -162,7 +162,7 @@ class RealSqlServiceTest {
         this.bindString(0, location)
       }
 
-      val queryStarted = tester.events.removeLast().assertIsInstanceOf<SqlEvent.SqlStarted>()
+      val queryStarted = tester.events.removeLast().assertIsInstanceOf<SqlExecuteStartedEvent>()
       assertThat(queryStarted.query).isEqualTo(queryDinnerTable)
       assertThat(queryStarted.params).isEqualTo(listOf(location))
     }

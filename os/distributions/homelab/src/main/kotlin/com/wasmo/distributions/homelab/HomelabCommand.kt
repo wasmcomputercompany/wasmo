@@ -6,12 +6,13 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
-import com.wasmo.api.SqlEventListener
 import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
+import com.wasmo.events.LoggingEventListener
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.DistributionShortCode
 import com.wasmo.identifiers.Secret
+import com.wasmo.ktor.KtorLogger
 import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.objectstore.FileSystemObjectStoreAddress
 import com.wasmo.objectstore.ObjectStoreAddress
@@ -94,7 +95,7 @@ class HomelabCommand : CliktCommand() {
       )
     }
 
-    val sqlEventListener = if (devMode) {
+    if (devMode) {
       // Setup coroutines debugging.
       DebugProbes.install()
       DebugProbes.enableCreationStackTraces = true
@@ -103,25 +104,13 @@ class HomelabCommand : CliktCommand() {
         kotlinx.coroutines.DEBUG_PROPERTY_NAME,
         kotlinx.coroutines.DEBUG_PROPERTY_VALUE_ON
       )
-      SqlEventListener { event ->
-        when (event) {
-          is SqlEventListener.SqlEvent.SqlStarted -> {
-            println("executing: ${event.query} ${event.params.joinToString(", ")}")
-          }
-        }
-      }
-    } else {
-      SqlEventListener { }
-    }.also {
-      println("devMode: $devMode")
-      println("DebugProbes.isInstalled: ${DebugProbes.isInstalled}")
-      println("DebugProbes.enableCreationStackTraces: ${DebugProbes.enableCreationStackTraces}")
-      println("${kotlinx.coroutines.DEBUG_PROPERTY_NAME}: ${System.getProperty(kotlinx.coroutines.DEBUG_PROPERTY_NAME)}")
     }
-
+    println("devMode: $devMode")
+    println("DebugProbes.isInstalled: ${DebugProbes.isInstalled}")
+    println("DebugProbes.enableCreationStackTraces: ${DebugProbes.enableCreationStackTraces}")
+    println("${kotlinx.coroutines.DEBUG_PROPERTY_NAME}: ${System.getProperty(kotlinx.coroutines.DEBUG_PROPERTY_NAME)}")
 
     val distribution = object : Distribution() {
-      override val sqlEventListener: SqlEventListener = sqlEventListener
       override val postgresqlConfig = postgresqlConfig
       override val ktorConfig = ktorConfig
 
@@ -130,6 +119,8 @@ class HomelabCommand : CliktCommand() {
         provisioningDb: ProvisioningDb,
         wasmoDb: SqlDatabase,
       ): WasmoService {
+        val logger = KtorLogger(server)
+        val eventListener = LoggingEventListener(logger)
         val localPostgresql = when (container) {
           true -> LocalPostgresql.Exec
           else -> LocalPostgresql.None
@@ -155,7 +146,8 @@ class HomelabCommand : CliktCommand() {
           objectStoreAddress = objectStoreAddress,
           sessionCookieSpec = SessionCookieSpec.Http,
           localPostgresql = localPostgresql,
-          sqlEventListener = sqlEventListener,
+          logger = logger,
+          eventListener = eventListener,
         )
         return serviceGraph.wasmoService
       }

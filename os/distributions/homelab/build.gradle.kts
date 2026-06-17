@@ -75,6 +75,7 @@ dependencies {
   implementation(projects.os.api)
   implementation(projects.os.catalog)
   implementation(projects.os.framework)
+  implementation(projects.os.logging)
   implementation(projects.os.routes)
   implementation(projects.os.server.accounts.api)
   implementation(projects.os.server.accounts.real)

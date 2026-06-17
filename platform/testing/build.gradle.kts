@@ -23,6 +23,7 @@ kotlin {
         implementation(libs.vertx.sql.client)
         implementation(projects.identifiers)
         implementation(projects.os.server.downloader.real)
+        implementation(projects.os.server.events.api)
         implementation(projects.os.server.identifiers)
         implementation(projects.os.server.objectstore.fs)
         implementation(projects.os.server.sql.api)

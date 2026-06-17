@@ -2,7 +2,6 @@ package com.wasmo.testing.service
 
 import com.wasmo.accounts.AccountsBindings
 import com.wasmo.accounts.ClientAuthenticator
-import com.wasmo.api.SqlEventListener
 import com.wasmo.common.logging.Logger
 import com.wasmo.computers.ComputerServiceGraph
 import com.wasmo.computers.ComputersBindings
@@ -86,9 +85,6 @@ interface ServiceTesterGraph {
     override fun info(message: String, issues: List<Issue>) {}
     override fun info(message: String, throwable: Throwable?) {}
   }
-
-  @Provides
-  fun provideSqlEventListener(): SqlEventListener = SqlEventListener { }
 
   @DependencyGraph.Factory
   interface Factory {

@@ -1,7 +1,6 @@
 package com.wasmo.sql
 
-import com.wasmo.api.OsConfig
-import com.wasmo.api.SqlEventListener
+import com.wasmo.events.EventListener
 import com.wasmo.identifiers.OsScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -21,7 +20,7 @@ import okio.Closeable
 class PostgresqlClient(
   private val address: PostgresqlAddress,
   private val pool: Pool,
-  val sqlEventListener: SqlEventListener,
+  val eventListener: EventListener,
 ) : Closeable {
   suspend fun <T> withConnection(block: suspend SqlClient.() -> T): T {
     val connection = connect()
@@ -46,7 +45,7 @@ class PostgresqlClient(
   @Inject
   @SingleIn(OsScope::class)
   class Factory(
-    private val sqlEventListener: SqlEventListener,
+    private val eventListener: EventListener,
   ) {
     fun connect(
       address: PostgresqlAddress,
@@ -82,7 +81,7 @@ class PostgresqlClient(
         }
         .build()
 
-      return PostgresqlClient(address, pool, sqlEventListener = sqlEventListener)
+      return PostgresqlClient(address, pool, eventListener = eventListener)
     }
   }
 }
