@@ -117,7 +117,6 @@ Project layout
 | ` '- wasi`              | The [WebAssembly System Interface].                                 |
 | `support`               | Standalone support libraries. This is not intended as a stable API. |
 | ` '- absurd`            | Kotlin bindings for the [Absurd] durable workflow system.           |
-| ` '- brevity`           | A WIT processor.                                                    |
 | ` '- dom-tester`        | A library for snapshot testing HTML elements.                       |
 | ` '- issues`            | A library for modeling warnings and errors.                         |
 | ` '- router`            | A library for typesafe navigation in web apps.                      |

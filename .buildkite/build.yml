@@ -2,7 +2,6 @@ steps:
   - label: ":gradle: Build"
     commands:
       - "cat .buildkite/gradle.properties >> gradle.properties"
-      - "gradle -p support/brevity allTests"
       - "gradle jvmTest"
     plugins:
       - docker-compose#v5.11.0:
