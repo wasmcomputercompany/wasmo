@@ -3,7 +3,7 @@ package com.wasmo.distributions.sandbox
 import com.github.ajalt.clikt.core.CliktCommand
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
-import com.wasmo.api.stripe.StripePublishableKey
+import com.wasmo.api.payments.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.DistributionShortCode

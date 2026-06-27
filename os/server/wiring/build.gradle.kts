@@ -45,7 +45,6 @@ kotlin {
         implementation(projects.os.server.objectstore.s3)
         implementation(projects.os.server.okhttpclient)
         implementation(projects.os.server.passkeys.real)
-        implementation(projects.os.server.payments.stripe)
         implementation(projects.os.server.permits.real)
         implementation(projects.os.server.postgresqloperator.api)
         implementation(projects.os.server.sendemail.postmark)

@@ -1,10 +1,10 @@
 package com.wasmo.api
 
+import com.wasmo.api.payments.ComputerPaymentMethod
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.api.stripe.StripePublishableKey
 
 interface OsHtml {
-  val stripePublishableKey: StripePublishableKey
+  val computerPaymentMethod: ComputerPaymentMethod
   val accountSnapshot: AccountSnapshot
   val routingContext: RoutingContext
   val inviteTicket: InviteTicket?

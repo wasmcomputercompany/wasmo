@@ -1,4 +1,4 @@
-package com.wasmo.api.stripe
+package com.wasmo.api.payments
 
 import kotlinx.serialization.Serializable
 
