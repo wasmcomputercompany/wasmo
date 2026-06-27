@@ -1,6 +1,6 @@
 package com.wasmo.stripe
 
-import com.wasmo.api.stripe.StripePublishableKey
+import com.wasmo.api.payments.StripePublishableKey
 
 data class StripeCredentials(
   val publishableKey: StripePublishableKey,

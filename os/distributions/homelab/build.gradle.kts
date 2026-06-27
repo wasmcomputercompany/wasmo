@@ -52,8 +52,6 @@ jib {
 
     // TODO(jwilson): these secrets aren't used. Stop requiring them.
     environment = mapOf(
-      "STRIPE_PUBLISHABLE_KEY" to ("pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"),
-      "STRIPE_SECRET_KEY" to ("sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"),
       "POSTMARK_SERVER_TOKEN" to ("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
     )
   }
@@ -99,7 +97,6 @@ dependencies {
   implementation(projects.os.server.objectstore.s3)
   implementation(projects.os.server.okhttpclient)
   implementation(projects.os.server.passkeys.real)
-  implementation(projects.os.server.payments.stripe)
   implementation(projects.os.server.permits.real)
   implementation(projects.os.server.postgresqloperator.api)
   implementation(projects.os.server.postgresqloperator.exec)

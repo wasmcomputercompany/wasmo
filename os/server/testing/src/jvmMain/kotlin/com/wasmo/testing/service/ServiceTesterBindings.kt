@@ -2,7 +2,8 @@ package com.wasmo.testing.service
 
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
-import com.wasmo.api.stripe.StripePublishableKey
+import com.wasmo.api.payments.ComputerPaymentMethod
+import com.wasmo.api.payments.StripePublishableKey
 import com.wasmo.computers.AppCatalog
 import com.wasmo.events.EventListener
 import com.wasmo.framework.ContentTypeDatabase
@@ -84,8 +85,8 @@ abstract class ServiceTesterBindings {
 
     @Provides
     @SingleIn(OsScope::class)
-    fun provideStripePublishableKey(): StripePublishableKey =
-      StripePublishableKey("pk_test_5544332211")
+    fun provideComputerPaymentMethod(): ComputerPaymentMethod =
+      ComputerPaymentMethod.Stripe(StripePublishableKey("pk_test_5544332211"))
 
     @Provides
     @SingleIn(OsScope::class)

@@ -4,10 +4,10 @@ import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
 import com.wasmo.api.InviteTicket
+import com.wasmo.api.payments.ComputerPaymentMethod
 import com.wasmo.api.SignInSnapshot
 import com.wasmo.api.WasmoJson
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.framework.ContentTypes
 import com.wasmo.framework.MapPageData
 import com.wasmo.framework.Response
@@ -30,7 +30,7 @@ import okio.BufferedSink
 @AssistedInject
 class RealServerOsHtml(
   override val deployment: Deployment,
-  override val stripePublishableKey: StripePublishableKey,
+  override val computerPaymentMethod: ComputerPaymentMethod,
   @Assisted override val accountSnapshot: AccountSnapshot,
   @Assisted override val routingContext: RoutingContext,
   @Assisted override val inviteTicket: InviteTicket?,
@@ -40,7 +40,7 @@ class RealServerOsHtml(
 ) : ServerOsHtml, ResponseBody {
   val pageData: MapPageData
     get() = MapPageData.Builder(WasmoJson)
-      .put("stripe_publishable_key", stripePublishableKey)
+      .put("computer_payment_method", computerPaymentMethod)
       .put("routing_context", routingContext)
       .put("account_snapshot", accountSnapshot)
       .apply {

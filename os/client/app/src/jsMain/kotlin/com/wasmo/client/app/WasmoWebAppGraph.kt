@@ -3,11 +3,11 @@ package com.wasmo.client.app
 import com.wasmo.api.AccountSnapshot
 import com.wasmo.api.ComputerListSnapshot
 import com.wasmo.api.ComputerSnapshot
+import com.wasmo.api.payments.ComputerPaymentMethod
 import com.wasmo.api.SignInSnapshot
 import com.wasmo.api.WasmoApi
 import com.wasmo.api.routes.RouteCodec
 import com.wasmo.api.routes.RoutingContext
-import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.client.app.api.RealWasmoApi
 import com.wasmo.client.app.browser.Browser
 import com.wasmo.client.app.browser.RealBrowser
@@ -51,9 +51,9 @@ interface WasmoWebAppGraph {
 
   @Provides
   @SingleIn(ClientAppScope::class)
-  fun provideStripePublishableKey(pageData: PageData): StripePublishableKey =
-    pageData.get<StripePublishableKey>("stripe_publishable_key")
-      ?: error("required stripe_publishable_key pageData not found")
+  fun providePaymentConfig(pageData: PageData): ComputerPaymentMethod =
+    pageData.get<ComputerPaymentMethod>("computer_payment_method")
+      ?: error("required computer_payment_method pageData not found")
 
   @Provides
   @SingleIn(ClientAppScope::class)
