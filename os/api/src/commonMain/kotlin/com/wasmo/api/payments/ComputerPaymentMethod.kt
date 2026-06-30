@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 sealed class ComputerPaymentMethod {
   /** No payment possible - only works for computers that are free. */
   @Serializable
-  @SerialName("payment-config-free")
+  @SerialName("payment-method-free-only")
   data object FreeOnly : ComputerPaymentMethod()
 
   /**
@@ -18,6 +18,6 @@ sealed class ComputerPaymentMethod {
    * must be set up separately for distributions that need it.
    */
   @Serializable
-  @SerialName("payment-config-stripe")
+  @SerialName("payment-method-stripe")
   data class Stripe(val stripePublishableKey: StripePublishableKey) : ComputerPaymentMethod()
 }
