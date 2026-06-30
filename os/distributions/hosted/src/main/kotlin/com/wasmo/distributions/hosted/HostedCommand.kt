@@ -12,6 +12,7 @@ import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.objectstore.BackblazeB2BucketAddress
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
+import com.wasmo.sql.AppDatabaseSecret
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.stripe.StripeCredentials
@@ -23,12 +24,15 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.decodeHex
+import okio.ByteString.Companion.encodeUtf8
 import wasmo.sql.SqlDatabase
 
 class HostedCommand : CliktCommand() {
   override fun run() = runBlocking {
     val cookieSecret = System.getenv("COOKIE_SECRET")
       ?: error("required env COOKIE_SECRET not set")
+    val appDbSecret = System.getenv("APP_DATABASE_SECRET")
+      ?: error("required env APP_DATABASE_SECRET not set")
 
     val postmarkServerToken = System.getenv("POSTMARK_SERVER_TOKEN")
       ?: error("required env POSTMARK_SERVER_TOKEN not set")
@@ -80,6 +84,7 @@ class HostedCommand : CliktCommand() {
         val serviceGraph = hostedGraphFactory.create(
           server = server,
           cookieSecret = CookieSecret(cookieSecret.decodeHex()),
+          appDatabaseSecret = AppDatabaseSecret(appDbSecret.encodeUtf8()),
           postmarkCredentials = PostmarkCredentials(
             baseUrl = PostmarkProductionBaseUrl,
             serverToken = postmarkServerToken,

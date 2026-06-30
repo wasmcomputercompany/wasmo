@@ -18,14 +18,14 @@ import okio.ByteString.Companion.encodeUtf8
 @Inject
 @SingleIn(InstalledAppScope::class)
 class AppDatabasePasswordSource(
-  private val config: WasmoPostgresqlConfig,
+  private val secret: AppDatabaseSecret,
   private val computerSlug: ComputerSlug,
   private val appSlug: AppSlug,
 ) {
   fun retrievePassword(databaseSlug: DatabaseSlug): Secret {
     val passwordSource = computerSlug.value + DELIMITER + appSlug.value + DELIMITER + databaseSlug.value
     val derivedPassword = passwordSource.encodeUtf8()
-      .hmacSha256(config.osPassword.rawUnredactedSecret.encodeUtf8())
+      .hmacSha256(secret.value)
       .base64()
     return Secret(derivedPassword)
   }

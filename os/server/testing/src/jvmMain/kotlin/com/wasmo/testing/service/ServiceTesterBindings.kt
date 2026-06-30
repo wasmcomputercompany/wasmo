@@ -15,6 +15,7 @@ import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.hostnamePatterns
 import com.wasmo.payments.PaymentsService
 import com.wasmo.sendemail.SendEmailService
+import com.wasmo.sql.AppDatabaseSecret
 import com.wasmo.testing.FakeAppPublisher
 import com.wasmo.testing.FakePaymentsService
 import com.wasmo.testing.FakeSendEmailService
@@ -94,6 +95,10 @@ abstract class ServiceTesterBindings {
     @Provides
     @SingleIn(OsScope::class)
     fun provideCookieSecret(): CookieSecret = CookieSecret("secret".encodeUtf8())
+
+    @Provides
+    @SingleIn(OsScope::class)
+    fun provideAppDbSecret(): AppDatabaseSecret = AppDatabaseSecret("app-db-secret".encodeUtf8())
 
     @Provides
     @SingleIn(OsScope::class)
