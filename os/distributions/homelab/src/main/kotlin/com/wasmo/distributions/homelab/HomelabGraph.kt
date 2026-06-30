@@ -27,6 +27,7 @@ import com.wasmo.postgresqloperator.ExecPostgresqlOperatorBindings
 import com.wasmo.postgresqloperator.LocalPostgresql
 import com.wasmo.sendemail.postmark.PostmarkBindings
 import com.wasmo.sendemail.postmark.PostmarkCredentials
+import com.wasmo.sql.AppDatabaseSecret
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.sql.WasmoPostgresqlConfig
@@ -82,6 +83,7 @@ internal interface HomelabGraph {
       @Provides provisioningDb: ProvisioningDb,
       @Provides postmarkCredentials: PostmarkCredentials,
       @Provides cookieSecret: CookieSecret,
+      @Provides appDatabaseSecret: AppDatabaseSecret,
       @Provides deployment: Deployment,
       @Provides sessionCookieSpec: SessionCookieSpec,
       @Provides stripeCredentials: StripeCredentials,

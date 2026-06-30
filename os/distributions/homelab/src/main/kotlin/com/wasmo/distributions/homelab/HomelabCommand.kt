@@ -19,6 +19,7 @@ import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.postgresqloperator.LocalPostgresql
 import com.wasmo.sendemail.postmark.PostmarkCredentials
 import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
+import com.wasmo.sql.AppDatabaseSecret
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.stripe.StripeCredentials
@@ -130,6 +131,7 @@ class HomelabCommand : CliktCommand() {
         val serviceGraph = homelabGraphFactory.create(
           server = server,
           cookieSecret = CookieSecret("butters".encodeUtf8()),
+          appDatabaseSecret = AppDatabaseSecret("rhubarb".encodeUtf8()),
           postmarkCredentials = PostmarkCredentials(
             baseUrl = PostmarkProductionBaseUrl,
             serverToken = System.getenv("POSTMARK_SERVER_TOKEN") ?: "?",
