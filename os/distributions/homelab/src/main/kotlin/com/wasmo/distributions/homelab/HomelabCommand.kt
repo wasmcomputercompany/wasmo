@@ -6,7 +6,6 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.wasmo.accounts.CookieSecret
 import com.wasmo.accounts.SessionCookieSpec
-import com.wasmo.api.stripe.StripePublishableKey
 import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.events.LoggingEventListener
 import com.wasmo.identifiers.Deployment
@@ -22,7 +21,6 @@ import com.wasmo.sendemail.postmark.PostmarkProductionBaseUrl
 import com.wasmo.sql.AppDatabaseSecret
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.WasmoPostgresqlConfig
-import com.wasmo.stripe.StripeCredentials
 import com.wasmo.wiring.Distribution
 import com.wasmo.wiring.WasmoService
 import dev.zacsweers.metro.createGraphFactory
@@ -41,16 +39,6 @@ class HomelabCommand : CliktCommand() {
     .flag("--no-container", default = true)
   val devMode: Boolean by option("--dev-mode")
     .flag("--no-dev-mode", default = false)
-  val stripePublishableKey: String by option()
-    .defaultLazy {
-      System.getenv("STRIPE_PUBLISHABLE_KEY")
-        ?: "pk_UNKNOWN"
-    }
-  val stripeSecretKey: String by option()
-    .defaultLazy {
-      System.getenv("STRIPE_SECRET_KEY")
-        ?: "sk_UNKNOWN"
-    }
 
   @OptIn(ExperimentalCoroutinesApi::class)
   override fun run() = runBlocking {
@@ -135,10 +123,6 @@ class HomelabCommand : CliktCommand() {
           postmarkCredentials = PostmarkCredentials(
             baseUrl = PostmarkProductionBaseUrl,
             serverToken = System.getenv("POSTMARK_SERVER_TOKEN") ?: "?",
-          ),
-          stripeCredentials = StripeCredentials(
-            publishableKey = StripePublishableKey(stripePublishableKey),
-            secretKey = stripeSecretKey,
           ),
           catalog = DevelopmentCatalog,
           wasmoDb = wasmoDb,

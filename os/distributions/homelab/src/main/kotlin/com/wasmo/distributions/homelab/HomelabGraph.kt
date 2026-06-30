@@ -31,8 +31,6 @@ import com.wasmo.sql.AppDatabaseSecret
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.SqlServiceBindings
 import com.wasmo.sql.WasmoPostgresqlConfig
-import com.wasmo.stripe.StripeBindings
-import com.wasmo.stripe.StripeCredentials
 import com.wasmo.usernames.UsernameBindings
 import com.wasmo.website.WebsiteBindings
 import com.wasmo.wiring.ObjectStoreBindings
@@ -64,7 +62,6 @@ import wasmo.sql.SqlDatabase
     S3ObjectStoreBindings::class,
     ServiceBindings::class,
     SqlServiceBindings::class,
-    StripeBindings::class,
     UsernameBindings::class,
     WebsiteBindings::class,
   ],
@@ -86,7 +83,6 @@ internal interface HomelabGraph {
       @Provides appDatabaseSecret: AppDatabaseSecret,
       @Provides deployment: Deployment,
       @Provides sessionCookieSpec: SessionCookieSpec,
-      @Provides stripeCredentials: StripeCredentials,
       @Provides objectStoreAddress: ObjectStoreAddress,
       @Provides catalog: Catalog,
       @Provides postgresqlConfig: WasmoPostgresqlConfig,

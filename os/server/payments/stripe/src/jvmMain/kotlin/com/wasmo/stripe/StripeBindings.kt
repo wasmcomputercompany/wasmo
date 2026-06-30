@@ -1,7 +1,7 @@
 package com.wasmo.stripe
 
 import com.stripe.StripeClient
-import com.wasmo.api.stripe.StripePublishableKey
+import com.wasmo.api.payments.StripePublishableKey
 import com.wasmo.common.catalog.Catalog
 import com.wasmo.framework.ActionRegistration
 import com.wasmo.identifiers.Deployment
