@@ -44,7 +44,34 @@ Passwords are optional.
 
 Once supported, passwords can be added to accounts that do not yet have one.
 
-Passwords will be stored following [OWASP guidelines].
+Passwords will be stored following [OWASP guidelines]. Specifically we store a hash + salt for each password in the DB, see [Password Hashing](#password-hashing) below.
+
+On sign-in, passwords are only used in connection with usernames, so for now they implicitly only exist on Homelab.
+We don't support passwords for email addresses, because if the Distribution supports verify email addresses then that is enough, and if it can't then an unverified email address is just a username.
+Deliberate account sharing with a spouse works by either sharing a challenge code or password.
+
+The client is told *whether* there is a password associated with each particular username, so it knows whether to prompt for one during sign-in.
+
+At most one password per account, and only if there's a username associated with the account.
+Implementation: At most one canonical username exists per account (aliases point to it), only the canonical username may have a password.
+The pointer is transactionally updated for all aliases when a new canonical username is set for a given account.
+
+#### Password Hashing
+- We'll store an *Argon2* hash ([Wikipedia](https://en.wikipedia.org/wiki/Argon2)) for each password.
+- Inputs to the hash are:
+  - the plaintext password as UTF-8 bytes
+  - a random per-password salt (16 bytes)
+  - a random per-Wasmo instance **pepper** (TBD bytes - maybe >= 16 bytes to match salt?), passed as **associatedData** to the `Argon2` function.
+  - these hard coded values (from OWASP guidelines); the hard-coded values at the time a password is created are stored with the hashes, in case we want to change these values later.
+    - memory size m=12288 (12 MiB)
+    - iterations t=3
+    - parallelism p=1
+- Hashing happens on the server only; during login, the client sends the plaintext password over https (else the hash would become the password); open question: Is this standard, or is there a better way?
+- Protection against brute force cracking is initially only through the slowness of Argon2 + difficulty of obtaining DB + pepper. In the future, rate limiting will be added for all server calls (doesn't help protect leaked DB + pepper).
+- We'll use the [reference implementation of Argon2](https://github.com/P-H-C/phc-winner-argon2) (in C) with these [JVM bindings](https://github.com/phxql/argon2-jvm) - that project is much more active than [the alternative](https://github.com/kosprov/jargon2-api) also linked from the reference implementation GitHub page.
+- The per-Wasmo instance *pepper* value means that password hashes can only be used on that instance.
+- The pepper value is secret configuration of the Wasmo instance, like the postgresql password. It's stored in the same place: For now in an environment variable, later in a dedicated secrets vault.
+- Out of the three variants (Argon2i, Argon2d, and Argon2id), we'll ues Argon2id for hybrid protection against both classes of attack noted in the [README](https://github.com/P-H-C/phc-winner-argon2/blob/master/README.md).
 
 ### `InstanceAdminGrant`
 
