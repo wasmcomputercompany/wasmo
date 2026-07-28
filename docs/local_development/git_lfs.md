@@ -11,6 +11,7 @@ Set it up like so:
 ```bash
 $ brew install git-lfs
 $ git lfs install
+$ git lfs fetch
 ```
 
 [git-lfs]: https://git-lfs.com/
