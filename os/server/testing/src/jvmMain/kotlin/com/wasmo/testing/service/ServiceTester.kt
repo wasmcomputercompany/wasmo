@@ -3,6 +3,7 @@ package com.wasmo.testing.service
 import app.cash.burst.coroutines.CoroutineTestFunction
 import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.accounts.ClientAuthenticator
+import com.wasmo.identifiers.HashingPepper
 import com.wasmo.jobs.OsJobQueue
 import com.wasmo.passkeys.RealAuthenticatorDatabase
 import com.wasmo.permits.PermitService
@@ -26,6 +27,7 @@ import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.TestEventListener
 import dev.wasmo.absurd.dangerouslyClearAbsurdSchema
 import dev.zacsweers.metro.createGraphFactory
+import java.util.Base64
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -33,6 +35,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encodeUtf8
+import okio.ByteString.Companion.toByteString
 import okio.FileSystem
 import okio.Path
 import wasmo.http.FakeHttpService
@@ -168,6 +171,7 @@ class ServiceTester : CoroutineTestInterceptor {
             coroutineScope = this,
             fileSystem = fileSystem,
             testDirectory = testDirectory,
+            hashingPepper = HashingPepper("pepper for tests".encodeUtf8()) // 16 bytes
           )
           wasmoDb.transaction {
             graph.migrator.ensureSchemaVersion()

@@ -74,7 +74,7 @@ It's the user's choice whether they want to enable password authentication for t
     - memory size m=12288 (12 MiB)
     - iterations t=3
     - parallelism p=1
-- The pepper and accountId together are passed as **associatedData** in the `Argon2` function. While we could just concatenate them, we will instead serialize a protobuf containing those two values in order to remain more flexible about future additions.
+- The password, pepper, accountId bytes are concatenated and together passed as `data` to the `Argon2` function.
 - Hashing happens on the server only; during login, the client sends the plaintext password over https (else the hash would become the password); note that the cookie is transmitted over https as well.
 - Protection against brute force cracking is provided through
    - slowness of Argon2 + difficulty of obtaining DB + pepper

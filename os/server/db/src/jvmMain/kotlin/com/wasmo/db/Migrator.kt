@@ -150,4 +150,5 @@ enum class NamedSchema(val version: Long) {
   ABSURD(2),
   ABSURD_QUEUE(3),
   USERNAME(4),
+  PASSWORD(5),
 }

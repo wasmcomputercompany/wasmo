@@ -20,8 +20,21 @@ sealed interface SignUpEvent {
     val usernameSlug: UsernameSlug,
   ) : SignUpEvent
 
+  data class ClickSignInWithUsernamePassword(
+    val usernameSlug: UsernameSlug,
+    val password: String,
+  ) : SignUpEvent
+
   data class EditUsername(
     val username: String,
+  ) : SignUpEvent
+
+  data class EditPassword(
+    val password: String,
+  ) : SignUpEvent
+
+  data class EditPasswordConfirmation(
+    val passwordConfirmation: String,
   ) : SignUpEvent
 
   data object ClickSignUpWithUsername : SignUpEvent

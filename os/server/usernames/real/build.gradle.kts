@@ -22,6 +22,8 @@ kotlin {
         implementation(projects.os.server.accounts.api)
         implementation(projects.os.server.calls.api)
         implementation(projects.os.server.identifiers)
+        implementation(projects.os.server.passwords.api)
+        implementation(projects.os.server.permits.api)
         implementation(projects.os.server.sql.api)
         implementation(projects.platform.api)
         implementation(projects.wasmox.wasmoxSql)
@@ -33,6 +35,7 @@ kotlin {
         implementation(libs.burst.coroutines)
         implementation(projects.platform.testing)
         implementation(projects.os.server.testing)
+        implementation(projects.os.server.website.api)
       }
     }
   }

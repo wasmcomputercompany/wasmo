@@ -10,6 +10,7 @@ import com.wasmo.api.LinkUsernameRequest
 import com.wasmo.api.LinkUsernameResponse
 import com.wasmo.api.WasmoApi
 import com.wasmo.client.identifiers.ClientAppScope
+import com.wasmo.identifiers.Secret
 import com.wasmo.identifiers.UsernameSlug
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -36,10 +37,14 @@ interface AccountDataService {
 
   suspend fun createUsername(
     username: UsernameSlug,
+    // "" means no password
+    password: String = "",
   ): CreateUsernameResponse
 
   suspend fun linkUsername(
     username: UsernameSlug,
+    // "" means no password
+    password: String = "",
   ): LinkUsernameResponse
 }
 
@@ -82,17 +87,21 @@ class RealAccountDataService(
 
   override suspend fun createUsername(
     username: UsernameSlug,
+    password: String,
   ) = wasmoApi.createUsername(
     CreateUsernameRequest(
       username = username,
+      password = password,
     ),
   )
 
   override suspend fun linkUsername(
     username: UsernameSlug,
+    password: String,
   ) = wasmoApi.linkUsername(
     LinkUsernameRequest(
       username = username,
+      password = password,
     ),
   )
 }

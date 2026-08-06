@@ -8,6 +8,7 @@ import com.wasmo.computers.ComputersBindings
 import com.wasmo.db.DefaultMigratorBindings
 import com.wasmo.db.Migrator
 import com.wasmo.identifiers.Deployment
+import com.wasmo.identifiers.HashingPepper
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
@@ -15,6 +16,7 @@ import com.wasmo.jobs.OsJobQueue
 import com.wasmo.jobs.absurd.AbsurdBindings
 import com.wasmo.jobs.absurd.AbsurdService
 import com.wasmo.passkeys.PasskeysBindings
+import com.wasmo.passwords.PasswordBindings
 import com.wasmo.permits.PermitService
 import com.wasmo.permits.PermitsBindings
 import com.wasmo.sql.ProvisioningDb
@@ -31,6 +33,7 @@ import com.wasmo.testing.events.TestEventListener
 import com.wasmo.usernames.UsernameBindings
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import okio.FileSystem
 import okio.Path
@@ -48,6 +51,7 @@ import wasmo.time.FakeClock
     DefaultMigratorBindings::class,
     InstalledAppBindings::class,
     PasskeysBindings::class,
+    PasswordBindings::class,
     PermitsBindings::class,
     SqlServiceBindings::class,
     ServiceTesterBindings::class,
@@ -95,6 +99,7 @@ interface ServiceTesterGraph {
       @Provides coroutineScope: CoroutineScope,
       @Provides fileSystem: FileSystem,
       @Provides @TestDirectory testDirectory: Path,
+      @Provides hashingPepper: HashingPepper,
     ): ServiceTesterGraph
   }
 }
