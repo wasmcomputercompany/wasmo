@@ -5,7 +5,7 @@ services:
       POSTGRES_PASSWORD: password
 
   ci-build:
-    image: wasmo/ci@sha256:e1da1de318b2fc2c1285a9016c7eebf2872d122c207c9d88ab4c79096c51823f
+    image: wasmo/ci@sha256:cc362254b66a629b61f90e91ab5bb4962ed9e511590b3515ab48a820173b029d
     working_dir: /workdir
     volumes:
       - ..:/workdir
