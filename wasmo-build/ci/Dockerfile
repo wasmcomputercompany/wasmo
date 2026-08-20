@@ -16,6 +16,7 @@ FROM eclipse-temurin:25-alpine-3.23
 RUN set -o errexit -o nounset \
     && echo "Installing utilities with apk" \
     && apk add --no-cache \
+      argon2-libs \
       make \
       curl \
       tar \

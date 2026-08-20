@@ -1,4 +1,5 @@
 [versions]
+argon2 = "2.12"
 assertk = "0.28.1"
 burst = "2.13.0"
 chicory = "1.7.5"
@@ -29,6 +30,7 @@ vertx = "5.0.10"
 webauthn4j = "0.30.2.RELEASE"
 
 [libraries]
+argon2 = { module = "de.mkammerer:argon2-jvm-nolibs", version.ref="argon2" }
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
 burst-coroutines = { module = "app.cash.burst:burst-coroutines", version.ref = "burst" }
 chicory-runtime = { module = "com.dylibso.chicory:runtime", version.ref = "chicory" }
