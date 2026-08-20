@@ -1,4 +1,5 @@
 [versions]
+argon2 = "2.12"
 assertk = "0.28.1"
 burst = "2.13.0"
 chicory = "1.7.5"
