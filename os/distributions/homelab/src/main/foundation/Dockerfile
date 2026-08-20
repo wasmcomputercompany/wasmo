@@ -14,6 +14,7 @@ ARG PG_MAJOR=18
 RUN \
     echo "installing dependencies" \
     && apk add \
+    argon2-libs \
     gosu \
     postgresql${PG_MAJOR} \
     postgresql${PG_MAJOR}-contrib \
