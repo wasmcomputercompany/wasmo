@@ -34,9 +34,9 @@ RUN set -o errexit -o nounset \
     && which unzip
 
 # Gradle.
-ENV GRADLE_VERSION=9.5.1
-ARG GRADLE_DOWNLOAD_SHA256=bafc141b619ad6350fd975fc903156dd5c151998cc8b058e8c1044ab5f7b031f
-ENV GRADLE_HOME=/opt/gradle
+ENV GRADLE_VERSION="9.5.1"
+ARG GRADLE_DOWNLOAD_SHA256="bafc141b619ad6350fd975fc903156dd5c151998cc8b058e8c1044ab5f7b031f"
+ENV GRADLE_HOME="/opt/gradle"
 VOLUME /home/gradle/.gradle
 WORKDIR /home/gradle
 RUN --mount=type=cache,target=/downloads,rw \
@@ -70,7 +70,7 @@ RUN set -o errexit -o nounset \
 USER root
 
 # Node.
-ENV NODE_VERSION=26.1.0
+ENV NODE_VERSION="26.1.0"
 RUN --mount=type=cache,target=/downloads,rw \
     set -o errexit -o nounset \
     \
@@ -103,5 +103,16 @@ RUN --mount=type=cache,target=/downloads,rw \
     && node --version \
     && npm --version \
     && rm -rf /tmp/*
+
+# Kotlin toolchain.
+# We run '--version' because it downloads its dependencies on the first run.
+ENV KOTLIN_CLI_NO_WELCOME_BANNER="1"
+ENV KOTLIN_CLI_JAVA_HOME="$JAVA_HOME"
+ENV HOME="/root"
+ENV PATH="$HOME/.local/bin:$PATH"
+RUN echo "Installing Kotlin toolchain" \
+    && set -o errexit -o nounset \
+    && curl -fsSL https://kotl.in/install.sh | sh \
+    && kotlin --version
 
 CMD ["gradle"]
