@@ -312,7 +312,7 @@ internal class RealAbsurd(
         )
       }
     } catch (e: PgException) {
-      if (e.isProbablyDueToCanceledTask) return // Nothing to do.
+      if (e.isDueToCanceledTask) return // Nothing to do.
       throw e
     }
   }
@@ -334,7 +334,7 @@ internal class RealAbsurd(
         )
       }
     } catch (e: PgException) {
-      if (e.isProbablyDueToCanceledTask) return // Nothing to do.
+      if (e.isDueToCanceledTask) return // Nothing to do.
       throw e
     }
   }
@@ -626,12 +626,8 @@ private fun PgException.toTaskStateException(): Throwable? {
   }
 }
 
-/**
- * We say 'probably' here 'cause there isn't an Absurd code for these exceptions.
- * https://github.com/earendil-works/absurd/issues/95
- */
-private val PgException.isProbablyDueToCanceledTask: Boolean
-  get() = sqlState == "P0001"
+private val PgException.isDueToCanceledTask: Boolean
+  get() = sqlState == "AB001"
 
 internal class AwaitEventResult(
   val shouldSuspend: Boolean,
