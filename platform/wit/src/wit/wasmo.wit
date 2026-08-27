@@ -1,0 +1,7 @@
+package wasmo:platform;
+
+/// This is a placeholder API to exercise Brevity.
+@since(version = 0.1.0)
+world wasmo {
+  export greet: func(subject: s32) -> string;
+}
