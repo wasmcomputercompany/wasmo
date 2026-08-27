@@ -1,6 +1,7 @@
 [versions]
 argon2 = "2.12"
 assertk = "0.28.1"
+brevity = "0.1.1"
 burst = "2.13.0"
 chicory = "1.7.5"
 clikt = "5.0.1"
@@ -32,6 +33,8 @@ webauthn4j = "0.30.2.RELEASE"
 [libraries]
 argon2 = { module = "de.mkammerer:argon2-jvm-nolibs", version.ref="argon2" }
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
+brevity = { module = "dev.wasmo.brevity:brevity", version.ref = "brevity" }
+brevity-wasi-p2 = { module = "dev.wasmo.brevity:brevity-wasi-p2", version.ref = "brevity" }
 burst-coroutines = { module = "app.cash.burst:burst-coroutines", version.ref = "burst" }
 chicory-runtime = { module = "com.dylibso.chicory:runtime", version.ref = "chicory" }
 chicory-wabt = { module = "com.dylibso.chicory:wabt", version.ref = "chicory" }
@@ -91,6 +94,7 @@ vertx-sql-client = { module = "io.vertx:vertx-sql-client", version.ref = "vertx"
 webauthn4j-core = { module = "com.webauthn4j:webauthn4j-core", version.ref = "webauthn4j" }
 
 [plugins]
+brevity = { id = "dev.wasmo.brevity", version.ref = "brevity" }
 burst = { id = "app.cash.burst", version.ref = "burst" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
