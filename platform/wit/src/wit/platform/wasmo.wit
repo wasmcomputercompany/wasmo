@@ -28,10 +28,18 @@ world wasmo {
   /// inbound HTTP calls.
   export wasi:http/incoming-handler@0.2.0;
 
+  /// job queue.
+  import wasmo:jobs/job-queue-factory;
+  export wasmo:jobs/job-handler-factory;
+
+  /// Invoked after an app is first installed, and after each version update.
+  export after-install: func(
+    /// will be 0 if this is the first install of the app.
+    old-version: s64,
+    new-version: s64,
+  );
+
   // TODO: object store
   // TODO: downloader
   // TODO: SQL
-  // TODO: job queue
-  /// A placeholder API.
-  export greet: func(subject: s32) -> string;
 }

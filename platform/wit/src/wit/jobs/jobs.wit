@@ -1,0 +1,54 @@
+package wasmo:jobs;
+
+@since(version = 0.1.0)
+interface types {
+  use wasi:clocks/wall-clock@0.2.0.{datetime};
+
+  /// An opaque value that will be passed back to the handler.
+  @since(version = 0.1.0)
+  type job = list<u8>;
+
+  @since(version = 0.1.0)
+  resource job-handler {
+    handle: func(job: job);
+  }
+
+  /// Enqueues a job to be executed either immediately (if `executeAt` is null), or at the specified
+  /// time.
+  ///
+  /// Enqueuing a job ID that's already enqueued is the same as canceling that job ID and then
+  /// enqueueing it.
+  @since(version = 0.1.0)
+  resource job-queue {
+    enqueue: func(
+      job: job,
+      /// The time when the OS will attempt to run the job. Actual execution may be delayed due to
+      /// availability of resources. Use none to execute immediately.
+      execute-at: option<datetime>
+    );
+
+    /// Attempts to cancel `job` from executing. This has no effect if the job has already started
+    /// executing.
+    cancel: func(job: job);
+  }
+}
+
+@since(version = 0.1.0)
+interface job-queue-factory {
+  use types.{job-queue};
+
+  @since(version = 0.1.0)
+  get: func(
+    name: string,
+  ) -> job-queue;
+}
+
+@since(version = 0.1.0)
+interface job-handler-factory {
+  use types.{job-handler};
+
+  @since(version = 0.1.0)
+  get: func(
+    name: string,
+  ) -> job-handler;
+}
