@@ -1,6 +1,6 @@
 [submodule "submodules/pico"]
 	path = submodules/pico
 	url = https://github.com/picocss/pico.git
-[submodule "submodules/WASI"]
-	path = submodules/WASI
+[submodule "submodules/wasi-p2"]
+	path = submodules/wasi-p2
 	url = https://github.com/WebAssembly/WASI.git

@@ -1,7 +1,37 @@
 package wasmo:platform;
 
-/// This is a placeholder API to exercise Brevity.
+/// The API contract between Wasmo OS and its applications.
 @since(version = 0.1.0)
 world wasmo {
+  /// a limited environment with runtime configuration.
+  import wasi:cli/environment@0.2.0;
+
+  /// a developer-facing console.
+  import wasi:cli/stderr@0.2.0;
+  import wasi:cli/stdout@0.2.0;
+
+  /// stdin is present, but empty.
+  import wasi:cli/stdin@0.2.0;
+
+  /// time.
+  import wasi:clocks/monotonic-clock@0.2.0;
+  import wasi:clocks/wall-clock@0.2.0;
+
+  /// randomness.
+  import wasi:random/insecure-seed@0.2.0;
+  import wasi:random/insecure@0.2.0;
+  import wasi:random/random@0.2.0;
+
+  /// outbound HTTP calls.
+  import wasi:http/outgoing-handler@0.2.0;
+
+  /// inbound HTTP calls.
+  export wasi:http/incoming-handler@0.2.0;
+
+  // TODO: object store
+  // TODO: downloader
+  // TODO: SQL
+  // TODO: job queue
+  /// A placeholder API.
   export greet: func(subject: s32) -> string;
 }
