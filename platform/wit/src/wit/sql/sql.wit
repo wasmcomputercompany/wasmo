@@ -1,0 +1,87 @@
+package wasmo:sql;
+
+@since(version = 0.1.0)
+interface types {
+  use wasi:clocks/wall-clock@0.2.0.{datetime};
+
+  @since(version = 0.1.0)
+  type uuid = string;
+
+  @since(version = 0.1.0)
+  type json-literal = string;
+
+  /// Closing a database cancels all in-flight calls.
+  @since(version = 0.1.0)
+  resource sql-database {
+    new-connection: func() -> sql-connection;
+  }
+
+  @since(version = 0.1.0)
+  resource sql-connection {
+    /// Return the number of rows in an UPDATE, INSERT, or DELETE clause.
+    execute: func(
+      sql: string,
+      parameters: list<option<sql-value>>,
+    ) -> result<u64, sql-error>;
+
+    /// Return the rows in a SELECT clause.
+    execute-query: func(
+      sql: string,
+      parameters: list<option<sql-value>>,
+    ) -> result<row-iterator, sql-error>;
+  }
+
+  @since(version = 0.1.0)
+  variant sql-value {
+    bool(bool),
+    s32(s32),
+    s64(s64),
+    f32(f32),
+    f64(f64),
+    datetime(datetime),
+    string(string),
+    bytes(list<u8>),
+    uuid(uuid),
+    json(json-literal),
+  }
+
+  @since(version = 0.1.0)
+  type sql-row = list<option<sql-value>>;
+
+  @since(version = 0.1.0)
+  resource row-iterator {
+    /// Returns none if there is no next row.
+    next: func() -> result<option<sql-row>, sql-error>;
+  }
+
+  /// See the Postgresql docs for an explanation of each of these properties.
+  /// https://www.postgresql.org/docs/current/protocol-error-fields.html
+  @since(version = 0.1.0)
+  record sql-error {
+    message: option<string>,
+    /// https://www.postgresql.org/docs/current/errcodes-appendix.html
+    sql-state: option<string>,
+    detail: option<string>,
+    hint: option<string>,
+    position: option<string>,
+    where: option<string>,
+    schema: option<string>,
+    table: option<string>,
+    column: option<string>,
+    data-type: option<string>,
+    constraint: option<string>,
+    file: option<string>,
+    line: option<string>,
+    routine: option<string>,
+  }
+}
+
+@since(version = 0.1.0)
+interface sql-database-factory {
+  use types.{sql-database};
+
+  /// Connect to the named database, creating it if necessary. Use '""' for the application's
+  /// default database.
+  @since(version = 0.1.0)
+  get: func(name: string) -> sql-database;
+}

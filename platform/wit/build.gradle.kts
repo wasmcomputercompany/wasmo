@@ -19,6 +19,7 @@ brevity {
     inputWitPackageDirectories.from(
       File(project.projectDir, "src/wit/jobs"),
       File(project.projectDir, "src/wit/platform"),
+      File(project.projectDir, "src/wit/sql"),
       File(project.rootDir, "submodules/wasi-p2/preview2/cli"),
       File(project.rootDir, "submodules/wasi-p2/preview2/clocks"),
       File(project.rootDir, "submodules/wasi-p2/preview2/filesystem"),
@@ -36,7 +37,6 @@ kotlin {
       dependencies {
         implementation(libs.okio)
         implementation(libs.brevity)
-        implementation(libs.brevity.wasi.p2)
       }
     }
     val jvmMain by getting {

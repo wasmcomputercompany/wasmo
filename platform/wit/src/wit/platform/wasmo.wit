@@ -32,6 +32,9 @@ world wasmo {
   import wasmo:jobs/job-queue-factory;
   export wasmo:jobs/job-handler-factory;
 
+  /// SQL database.
+  export wasmo:sql/sql-database-factory;
+
   /// Invoked after an app is first installed, and after each version update.
   export after-install: func(
     /// will be 0 if this is the first install of the app.
@@ -41,5 +44,4 @@ world wasmo {
 
   // TODO: object store
   // TODO: downloader
-  // TODO: SQL
 }
