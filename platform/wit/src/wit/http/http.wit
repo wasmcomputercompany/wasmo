@@ -1,0 +1,45 @@
+package wasmo:http;
+
+@since(version = 0.1.0)
+interface types {
+  @since(version = 0.1.0)
+  type url = string;
+
+  @since(version = 0.1.0)
+  record http-request {
+    method: string,
+    url: url,
+    headers: list<header>,
+    body: option<list<u8>>,
+  }
+
+  @since(version = 0.1.0)
+  record http-response {
+    code: u32,
+    headers: list<header>,
+    body: list<u8>,
+  }
+
+  @since(version = 0.1.0)
+  record header {
+    name: string,
+    value: string,
+  }
+
+  @since(version = 0.1.0)
+  variant error-code {
+    internal-error(option<string>)
+  }
+}
+
+@since(version = 0.1.0)
+interface http-service {
+  use types.{
+    error-code,
+    http-request,
+    http-response,
+  };
+
+  @since(version = 0.1.0)
+  execute: func(request: http-request) -> result<http-response, error-code>;
+}

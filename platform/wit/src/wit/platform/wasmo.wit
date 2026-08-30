@@ -3,40 +3,41 @@ package wasmo:platform;
 /// The API contract between Wasmo OS and its applications.
 @since(version = 0.1.0)
 world wasmo {
-  /// a limited environment with runtime configuration.
+  /// A limited environment with runtime configuration.
   import wasi:cli/environment@0.2.0;
 
-  /// a developer-facing console.
+  /// A developer-facing console.
   import wasi:cli/stderr@0.2.0;
   import wasi:cli/stdout@0.2.0;
 
-  /// stdin is present, but empty.
+  /// Stdin is present, but empty.
   import wasi:cli/stdin@0.2.0;
 
-  /// time.
+  /// Time.
   import wasi:clocks/monotonic-clock@0.2.0;
   import wasi:clocks/wall-clock@0.2.0;
 
-  /// randomness.
+  /// Randomness.
   import wasi:random/insecure-seed@0.2.0;
   import wasi:random/insecure@0.2.0;
   import wasi:random/random@0.2.0;
 
-  /// outbound HTTP calls.
-  import wasi:http/outgoing-handler@0.2.0;
+  /// HTTP inbound and outbound.
+  import wasmo:http/http-service;
+  export wasmo:http/http-service;
 
-  /// inbound HTTP calls.
-  export wasi:http/incoming-handler@0.2.0;
-
-  // object store.
+  // Object store.
   import wasmo:object-store/object-store;
 
-  /// job queue.
+  /// Job queue.
   import wasmo:jobs/job-queue-factory;
   export wasmo:jobs/job-handler-factory;
 
   /// SQL database.
   export wasmo:sql/sql-database-factory;
+
+  /// Data transfer.
+  export wasmo:transfer-service/transfer-service;
 
   /// Invoked after an app is first installed, and after each version update.
   export after-install: func(
@@ -44,6 +45,4 @@ world wasmo {
     old-version: s64,
     new-version: s64,
   );
-
-  // TODO: downloader
 }

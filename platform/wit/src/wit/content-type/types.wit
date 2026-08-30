@@ -2,6 +2,8 @@ package wasmo:content-type;
 
 @since(version = 0.1.0)
 interface types {
+  /// An [RFC 2045](https://datatracker.ietf.org/doc/rfc2045/) Media Type, appropriate to
+  /// describe the content type of an HTTP request or response body.
   @since(version = 0.1.0)
   type content-type = string;
 }

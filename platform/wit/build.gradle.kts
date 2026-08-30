@@ -18,11 +18,13 @@ brevity {
     worlds.add("wasmo:platform/wasmo")
     inputWitPackageDirectories.from(
       File(project.projectDir, "src/wit/content-type"),
+      File(project.projectDir, "src/wit/http"),
       File(project.projectDir, "src/wit/jobs"),
       File(project.projectDir, "src/wit/json"),
       File(project.projectDir, "src/wit/object-store"),
       File(project.projectDir, "src/wit/platform"),
       File(project.projectDir, "src/wit/sql"),
+      File(project.projectDir, "src/wit/transfer-service"),
       File(project.projectDir, "src/wit/uuid"),
       File(project.rootDir, "submodules/wasi-p2/preview2/cli"),
       File(project.rootDir, "submodules/wasi-p2/preview2/clocks"),
