@@ -1,0 +1,7 @@
+package wasmo:content-type;
+
+@since(version = 0.1.0)
+interface types {
+  @since(version = 0.1.0)
+  type content-type = string;
+}

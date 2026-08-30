@@ -1,0 +1,109 @@
+package wasmo:object-store;
+
+@since(version = 0.1.0)
+interface types {
+  use wasmo:content-type/types.{content-type};
+
+  /// UTF-8 encoded key length must be at least 1 byte, and at most 1024 bytes.
+  /// Each code point must be greater than '\u0020' (space).
+  /// '\u007f' (delete) is not permitted.
+  /// https://www.backblaze.com/docs/cloud-storage-files#file-names
+  @since(version = 0.1.0)
+  type key = string;
+
+  @since(version = 0.1.0)
+  record put-object-request {
+    key: key,
+    value: list<u8>,
+    content-type: option<content-type>,
+  }
+
+  @since(version = 0.1.0)
+  record put-object-response {
+    etag: string,
+  }
+
+  @since(version = 0.1.0)
+  record get-object-request {
+    key: key,
+  }
+
+  @since(version = 0.1.0)
+  record get-object-response {
+    value: list<u8>,
+    etag: option<string>,
+    content-type: option<content-type>,
+  }
+
+  @since(version = 0.1.0)
+  record delete-object-request {
+    key: key,
+  }
+
+  @since(version = 0.1.0)
+  record list-objects-request {
+    /// none to list all items, or a string suffixed with "/" to list only items with that prefix.
+    /// Use this with [delimiter] to list objects like a hierarchical file system.
+    prefix: option<string>,
+    /// "/" to flatten results within a common prefix, or null to return all results with a common
+    /// directory prefix.
+    delimiter: option<string>,
+    continuation-token: option<string>,
+  }
+
+  @since(version = 0.1.0)
+  record list-objects-response {
+    entries: list<entry>,
+    next-request: option<list-objects-request>,
+  }
+
+  @since(version = 0.1.0)
+  variant entry {
+    object(entry-object),
+    common-prefix(string),
+  }
+
+  @since(version = 0.1.0)
+  record entry-object {
+    key: key,
+    etag: string,
+    size: u64,
+  }
+
+  @since(version = 0.1.0)
+  variant error-code {
+    internal-error(option<string>)
+  }
+}
+
+/// An S3-like object store.
+@since(version = 0.1.0)
+interface object-store {
+  use types.{
+    delete-object-request,
+    error-code,
+    get-object-request,
+    get-object-response,
+    list-objects-request,
+    list-objects-response,
+    put-object-request,
+    put-object-response,
+  };
+
+  /// https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html
+  @since(version = 0.1.0)
+  put: func(request: put-object-request) -> result<put-object-response, error-code>;
+
+  /// https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html
+  @since(version = 0.1.0)
+  get: func(request: get-object-request) -> result<get-object-response, error-code>;
+
+  /// Replaces the value with a delete marker. It will continue to be returned by [list].
+  /// https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html
+  @since(version = 0.1.0)
+  delete: func(request: delete-object-request) -> result<_, error-code>;
+
+  /// https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
+  @since(version = 0.1.0)
+  %list: func(request: list-objects-request) -> result<list-objects-response, error-code>;
+}
