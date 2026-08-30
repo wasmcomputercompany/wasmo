@@ -1,0 +1,7 @@
+package wasmo:uuid;
+
+@since(version = 0.1.0)
+interface types {
+  @since(version = 0.1.0)
+  type uuid = tuple<u64, u64>;
+}

@@ -3,12 +3,8 @@ package wasmo:sql;
 @since(version = 0.1.0)
 interface types {
   use wasi:clocks/wall-clock@0.2.0.{datetime};
-
-  @since(version = 0.1.0)
-  type uuid = string;
-
-  @since(version = 0.1.0)
-  type json-literal = string;
+  use wasmo:json/types.{json-literal};
+  use wasmo:uuid/types.{uuid};
 
   /// Closing a database cancels all in-flight calls.
   @since(version = 0.1.0)

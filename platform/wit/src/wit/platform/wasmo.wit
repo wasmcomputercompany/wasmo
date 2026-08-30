@@ -28,6 +28,9 @@ world wasmo {
   /// inbound HTTP calls.
   export wasi:http/incoming-handler@0.2.0;
 
+  // object store.
+  import wasmo:object-store/object-store;
+
   /// job queue.
   import wasmo:jobs/job-queue-factory;
   export wasmo:jobs/job-handler-factory;
@@ -42,6 +45,5 @@ world wasmo {
     new-version: s64,
   );
 
-  // TODO: object store
   // TODO: downloader
 }
