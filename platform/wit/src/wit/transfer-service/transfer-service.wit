@@ -1,0 +1,40 @@
+package wasmo:transfer-service;
+
+@since(version = 0.1.0)
+interface types {
+  use wasmo:http/types.{http-request, http-response};
+  use wasmo:object-store/types.{key};
+
+  @since(version = 0.1.0)
+  record download-request {
+    http-request: http-request,
+    object-store-key: key,
+  }
+
+  @since(version = 0.1.0)
+  record download-response {
+    /// The response body of this response will be empty.
+    http-response: http-response,
+    /// This is absent if the file was not saved.
+    etag: option<string>,
+  }
+
+  @since(version = 0.1.0)
+  variant error-code {
+    internal-error(option<string>)
+  }
+}
+
+@since(version = 0.1.0)
+interface transfer-service {
+  use types.{
+    error-code,
+    download-request,
+    download-response,
+  };
+
+  /// Make an HTTP request and save its response to the object store.
+  /// This will only write to the object store if the HTTP response is successful.
+  @since(version = 0.1.0)
+  download: func(request: download-request) -> result<download-response, error-code>;
+}
