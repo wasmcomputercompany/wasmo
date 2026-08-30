@@ -1,14 +1,14 @@
 package wasmo.downloader
 
-import wasmo.http.HttpRequest
-import wasmo.http.HttpResponse
+import wit.wasmo.http.Types.HttpRequest
+import wit.wasmo.http.Types.HttpResponse
 
 interface Downloader {
   /**
    * Make an HTTP request and save its response to the object store.
    *
    * This will only write to the object store if the HTTP response is
-   * [successful][HttpResponse.isSuccessful].
+   * successful.
    */
   suspend fun download(transferRequest: TransferRequest): TransferResponse
 }

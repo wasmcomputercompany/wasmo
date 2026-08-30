@@ -34,10 +34,10 @@ world wasmo {
   export wasmo:jobs/job-handler-factory;
 
   /// SQL database.
-  export wasmo:sql/sql-database-factory;
+  import wasmo:sql/sql-database-factory;
 
   /// Data transfer.
-  export wasmo:transfer-service/transfer-service;
+  import wasmo:transfer-service/transfer-service;
 
   /// Invoked after an app is first installed, and after each version update.
   export after-install: func(

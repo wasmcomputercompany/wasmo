@@ -15,11 +15,11 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.IOException
-import wasmo.http.Header
-import wasmo.http.HttpRequest
-import wasmo.http.HttpResponse
 import wasmo.http.HttpService
 import wasmo.http.httpUrl
+import wit.wasmo.http.Types.Header
+import wit.wasmo.http.Types.HttpRequest
+import wit.wasmo.http.Types.HttpResponse
 
 @Inject
 @SingleIn(OsScope::class)
@@ -84,7 +84,7 @@ internal fun Response.toWasmo(): HttpResponse {
   }
 
   return HttpResponse(
-    code = code,
+    code = code.toUInt(),
     headers = headers,
     body = body.byteString(),
   )

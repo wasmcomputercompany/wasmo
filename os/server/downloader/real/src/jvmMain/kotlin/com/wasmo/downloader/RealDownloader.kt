@@ -5,6 +5,7 @@ import wasmo.downloader.Downloader
 import wasmo.downloader.TransferRequest
 import wasmo.downloader.TransferResponse
 import wasmo.http.HttpService
+import wasmo.http.isSuccessful
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
 

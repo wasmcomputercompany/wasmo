@@ -1,8 +1,8 @@
 package com.wasmo.journal.server.attachments
 
-import wasmo.http.Header
 import wasmo.http.HttpResponse
-import wasmo.objectstore.PutObjectRequest
+import wit.wasmo.http.Types.Header
+import wit.wasmo.http.Types.HttpResponse
 
 /**
  * ```
@@ -17,7 +17,7 @@ class GetAttachmentAction(
     attachmentToken: String,
   ): HttpResponse {
     val attachment = attachmentStore.get(entryToken, attachmentToken)
-      ?: return HttpResponse(code = 404)
+      ?: return HttpResponse(code = 404U)
 
     return HttpResponse(
       headers = buildList {

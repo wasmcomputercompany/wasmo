@@ -5,9 +5,12 @@ import kotlinx.serialization.encodeToString
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
+import wit.wasmo.http.Types.Header
+import wit.wasmo.http.Types.HttpRequest
+import wit.wasmo.http.Types.HttpResponse
 
 val HttpRequest.httpUrl: HttpUrl
-  get() = url.toHttpUrl()
+  get() = url.value.toHttpUrl()
 
 inline fun <reified T> HttpResponse(
   toml: Toml,
@@ -15,7 +18,7 @@ inline fun <reified T> HttpResponse(
   headers: List<Header> = listOf(),
   body: T,
 ) = HttpResponse(
-  code = code,
+  code = code.toUInt(),
   headers = headers + Header("content-type", "application/toml"),
   body = toml.encodeToString<T>(body).encodeUtf8(),
 )

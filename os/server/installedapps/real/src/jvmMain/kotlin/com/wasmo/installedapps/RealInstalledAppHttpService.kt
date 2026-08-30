@@ -12,11 +12,13 @@ import dev.zacsweers.metro.SingleIn
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import wasmo.access.Caller
 import wasmo.access.ComputerAccess
-import wasmo.http.Header as PlatformHeader
-import wasmo.http.HttpRequest
-import wasmo.http.HttpResponse
+import wasmo.http.contentType
 import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.ObjectStore
+import wit.wasmo.http.Types.Header as PlatformHeader
+import wit.wasmo.http.Types.HttpRequest
+import wit.wasmo.http.Types.HttpResponse
+import wit.wasmo.http.Types.Url
 
 /**
  * Attempts to satisfy an HTTP request according to our routing precedence rules.
@@ -104,13 +106,13 @@ class RealInstalledAppHttpService(
 
   private fun Request.toApplicationHttpRequest() = HttpRequest(
     method = method,
-    url = url.toString(),
+    url = Url(url.toString()),
     headers = headers.map { PlatformHeader(it.name, it.value) },
     body = body,
   )
 
   private fun HttpResponse.toOsHttpResponse(): Response<ResponseBody> = Response(
-    status = this.code,
+    status = this.code.toInt(),
     headers = this.headers,
     contentType = this.contentType?.toMediaTypeOrNull(),
     body = ResponseBody { sink -> sink.write(body) },
