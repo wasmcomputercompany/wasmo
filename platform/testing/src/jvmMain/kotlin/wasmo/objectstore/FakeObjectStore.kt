@@ -16,7 +16,9 @@ import wit.wasmo.object_store.Types.PutObjectResponse
 
 class FakeObjectStore : ObjectStore {
   var nextException: Exception? = null
-  private val objects = TreeMap<Key, Object>()
+  private val objects = TreeMap<Key, Object>(
+    { a, b -> a.value.compareTo(b.value) },
+  )
 
   operator fun get(key: String): ByteString? =
     objects[Key(key)]?.value
@@ -68,7 +70,7 @@ class FakeObjectStore : ObjectStore {
             key = it.key,
             etag = it.value.etag,
             size = it.value.size.toULong(),
-          )
+          ),
         )
       },
       nextRequest = null,
