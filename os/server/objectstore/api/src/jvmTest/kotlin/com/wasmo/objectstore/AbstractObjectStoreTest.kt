@@ -8,10 +8,10 @@ import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.objectstore.DeleteObjectRequest
+import wasmo.objectstore.Entry
 import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.GetObjectResponse
 import wasmo.objectstore.ListObjectsRequest
-import wasmo.objectstore.ListObjectsResponse
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
 import wasmo.objectstore.etag
@@ -130,10 +130,10 @@ abstract class AbstractObjectStoreTest {
 
     val response = store.list(ListObjectsRequest())
     assertThat(response.entries).containsExactly(
-      ListObjectsResponse.Object("shows/pokerface/s1e1.mp4", casino.etag, casino.size.toLong()),
-      ListObjectsResponse.Object("shows/pokerface/s1e2.mp4", subway.etag, subway.size.toLong()),
-      ListObjectsResponse.Object("shows/silo/s1e1.mp4", freedom.etag, freedom.size.toLong()),
-      ListObjectsResponse.Object("shows/silo/s1e2.mp4", juliette.etag, juliette.size.toLong()),
+      Entry("shows/pokerface/s1e1.mp4", casino.etag, casino.size.toULong()),
+      Entry("shows/pokerface/s1e2.mp4", subway.etag, subway.size.toULong()),
+      Entry("shows/silo/s1e1.mp4", freedom.etag, freedom.size.toULong()),
+      Entry("shows/silo/s1e2.mp4", juliette.etag, juliette.size.toULong()),
     )
   }
 
@@ -146,13 +146,13 @@ abstract class AbstractObjectStoreTest {
 
     val pokerfaceResponse = store.list(ListObjectsRequest(prefix = "shows/pokerface/"))
     assertThat(pokerfaceResponse.entries).containsExactly(
-      ListObjectsResponse.Object("shows/pokerface/s1e1.mp4", casino.etag, casino.size.toLong()),
-      ListObjectsResponse.Object("shows/pokerface/s1e2.mp4", subway.etag, subway.size.toLong()),
+      Entry("shows/pokerface/s1e1.mp4", casino.etag, casino.size.toULong()),
+      Entry("shows/pokerface/s1e2.mp4", subway.etag, subway.size.toULong()),
     )
     val siloResponse = store.list(ListObjectsRequest(prefix = "shows/silo/"))
     assertThat(siloResponse.entries).containsExactly(
-      ListObjectsResponse.Object("shows/silo/s1e1.mp4", freedom.etag, freedom.size.toLong()),
-      ListObjectsResponse.Object("shows/silo/s1e2.mp4", juliette.etag, juliette.size.toLong()),
+      Entry("shows/silo/s1e1.mp4", freedom.etag, freedom.size.toULong()),
+      Entry("shows/silo/s1e2.mp4", juliette.etag, juliette.size.toULong()),
     )
   }
 

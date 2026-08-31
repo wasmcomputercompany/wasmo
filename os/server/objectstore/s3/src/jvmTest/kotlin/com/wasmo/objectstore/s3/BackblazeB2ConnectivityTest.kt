@@ -12,8 +12,8 @@ import okio.ByteString.Companion.encodeUtf8
 import wasmo.objectstore.DeleteObjectRequest
 import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.ListObjectsRequest
-import wasmo.objectstore.ListObjectsResponse
 import wasmo.objectstore.PutObjectRequest
+import wit.wasmo.object_store.Types.Entry
 
 /**
  * Run this test manually to confirm connectivity to a particular Backblaze bucket.
@@ -61,7 +61,7 @@ class BackblazeB2ConnectivityTest {
 
     val list = objectStore.list(ListObjectsRequest())
 
-    assertThat(list.entries.map { (it as? ListObjectsResponse.Object)?.key }).containsExactly(
+    assertThat(list.entries.map { (it as? Entry.Object)?.value?.key }).containsExactly(
       key,
     )
 
@@ -69,7 +69,7 @@ class BackblazeB2ConnectivityTest {
 
     // According to the Backblaze B2 docs, DELETE replaces an object with a tombstone.
     // We need to delete with a specific version parameter to properly delete.
-    assertThat(list.entries.map { (it as? ListObjectsResponse.Object)?.key }).containsExactly(
+    assertThat(list.entries.map { (it as? Entry.Object)?.value?.key }).containsExactly(
       key,
     )
   }

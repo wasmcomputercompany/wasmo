@@ -2,16 +2,28 @@ package wasmo.objectstore
 
 import java.util.TreeMap
 import okio.ByteString
+import wit.wasmo.content_type.Types.ContentType
+import wit.wasmo.object_store.Types.DeleteObjectRequest
+import wit.wasmo.object_store.Types.Entry
+import wit.wasmo.object_store.Types.EntryObject
+import wit.wasmo.object_store.Types.GetObjectRequest
+import wit.wasmo.object_store.Types.GetObjectResponse
+import wit.wasmo.object_store.Types.Key
+import wit.wasmo.object_store.Types.ListObjectsRequest
+import wit.wasmo.object_store.Types.ListObjectsResponse
+import wit.wasmo.object_store.Types.PutObjectRequest
+import wit.wasmo.object_store.Types.PutObjectResponse
 
 class FakeObjectStore : ObjectStore {
   var nextException: Exception? = null
-  private val objects = TreeMap<String, Object>()
+  private val objects = TreeMap<Key, Object>()
 
   operator fun get(key: String): ByteString? =
-    objects[key]?.value
+    objects[Key(key)]?.value
 
   override suspend fun put(request: PutObjectRequest): PutObjectResponse {
     throwIfNecessary()
+    request.key.validateKey()
     val o = objects.getOrPut(request.key) {
       Object(
         key = request.key,
@@ -26,17 +38,19 @@ class FakeObjectStore : ObjectStore {
 
   override suspend fun get(request: GetObjectRequest): GetObjectResponse {
     throwIfNecessary()
+    request.key.validateKey()
     val o = objects[request.key]
     return GetObjectResponse(
       value = o?.value,
+      etag = o?.value?.etag,
       contentType = o?.contentType,
     )
   }
 
-  override suspend fun delete(request: DeleteObjectRequest): DeleteObjectResponse {
+  override suspend fun delete(request: DeleteObjectRequest) {
     throwIfNecessary()
+    request.key.validateKey()
     objects.remove(request.key)
-    return DeleteObjectResponse
   }
 
   fun list(prefix: String): List<ByteString> =
@@ -49,10 +63,12 @@ class FakeObjectStore : ObjectStore {
     val objects = listObjects(request.prefix)
     return ListObjectsResponse(
       entries = objects.map {
-        ListObjectsResponse.Object(
-          key = it.key,
-          etag = it.value.etag,
-          size = it.value.size.toLong(),
+        Entry.Object(
+          value = EntryObject(
+            key = it.key,
+            etag = it.value.etag,
+            size = it.value.size.toULong(),
+          )
         )
       },
       nextRequest = null,
@@ -61,14 +77,14 @@ class FakeObjectStore : ObjectStore {
 
   private fun listObjects(prefix: String?): List<Object> {
     val map = when {
-      prefix != null -> objects.tailMap(prefix)
+      prefix != null -> objects.tailMap(Key(prefix))
       else -> objects
     }
 
     val list = mutableListOf<Object>()
 
     for ((key, value) in map) {
-      if (prefix != null && !key.startsWith(prefix)) break
+      if (prefix != null && !key.value.startsWith(prefix)) break
       list += value
     }
 
@@ -84,9 +100,9 @@ class FakeObjectStore : ObjectStore {
   }
 
   private class Object(
-    val key: String,
+    val key: Key,
   ) {
     var value = ByteString.EMPTY
-    var contentType: String? = null
+    var contentType: ContentType? = null
   }
 }

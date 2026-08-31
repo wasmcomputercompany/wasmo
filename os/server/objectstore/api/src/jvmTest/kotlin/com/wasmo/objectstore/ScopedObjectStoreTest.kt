@@ -8,11 +8,11 @@ import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.objectstore.DeleteObjectRequest
+import wasmo.objectstore.Entry
 import wasmo.objectstore.FakeObjectStore
 import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.GetObjectResponse
 import wasmo.objectstore.ListObjectsRequest
-import wasmo.objectstore.ListObjectsResponse
 import wasmo.objectstore.PutObjectRequest
 import wasmo.objectstore.ScopedObjectStore
 import wasmo.objectstore.etag
@@ -57,18 +57,18 @@ class ScopedObjectStoreTest : AbstractObjectStoreTest() {
 
     assertThat(unscopedStore.list(ListObjectsRequest()).entries)
       .containsExactly(
-        ListObjectsResponse.Object("shows/pokerface/s1e1.mp4", casino.etag, casino.size.toLong()),
-        ListObjectsResponse.Object("shows/pokerface/s1e2.mp4", subway.etag, subway.size.toLong()),
+        Entry("shows/pokerface/s1e1.mp4", casino.etag, casino.size.toULong()),
+        Entry("shows/pokerface/s1e2.mp4", subway.etag, subway.size.toULong()),
       )
     assertThat(unscopedStore.list(ListObjectsRequest(prefix = "shows/pokerface/")).entries)
       .containsExactly(
-        ListObjectsResponse.Object("shows/pokerface/s1e1.mp4", casino.etag, casino.size.toLong()),
-        ListObjectsResponse.Object("shows/pokerface/s1e2.mp4", subway.etag, subway.size.toLong()),
+        Entry("shows/pokerface/s1e1.mp4", casino.etag, casino.size.toULong()),
+        Entry("shows/pokerface/s1e2.mp4", subway.etag, subway.size.toULong()),
       )
     assertThat(store.list(ListObjectsRequest()).entries)
       .containsExactly(
-        ListObjectsResponse.Object("s1e1.mp4", casino.etag, casino.size.toLong()),
-        ListObjectsResponse.Object("s1e2.mp4", subway.etag, subway.size.toLong()),
+        Entry("s1e1.mp4", casino.etag, casino.size.toULong()),
+        Entry("s1e2.mp4", subway.etag, subway.size.toULong()),
       )
     assertThat(store.list(ListObjectsRequest(prefix = "shows/pokerface/")).entries)
       .isEmpty()
@@ -87,7 +87,7 @@ class ScopedObjectStoreTest : AbstractObjectStoreTest() {
     assertThat(unscopedStore.get(GetObjectRequest("shows/pokerface/s1e2.mp4")))
       .isEqualTo(GetObjectResponse(value = subway))
     assertThat(unscopedStore.list(ListObjectsRequest()).entries).containsExactly(
-      ListObjectsResponse.Object("shows/pokerface/s1e2.mp4", subway.etag, subway.size.toLong()),
+      Entry("shows/pokerface/s1e2.mp4", subway.etag, subway.size.toULong()),
     )
   }
 }

@@ -14,16 +14,21 @@ import okio.IOException
 import okio.Path
 import okio.Sink
 import okio.Timeout
-import wasmo.objectstore.DeleteObjectRequest
-import wasmo.objectstore.DeleteObjectResponse
-import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.GetObjectResponse
-import wasmo.objectstore.ListObjectsRequest
 import wasmo.objectstore.ListObjectsResponse
 import wasmo.objectstore.ObjectStore
-import wasmo.objectstore.PutObjectRequest
-import wasmo.objectstore.PutObjectResponse
 import wasmo.objectstore.etag
+import wasmo.objectstore.validateKey
+import wit.wasmo.object_store.Types.DeleteObjectRequest
+import wit.wasmo.object_store.Types.Entry
+import wit.wasmo.object_store.Types.EntryObject
+import wit.wasmo.object_store.Types.GetObjectRequest
+import wit.wasmo.object_store.Types.GetObjectResponse
+import wit.wasmo.object_store.Types.Key
+import wit.wasmo.object_store.Types.ListObjectsRequest
+import wit.wasmo.object_store.Types.ListObjectsResponse
+import wit.wasmo.object_store.Types.PutObjectRequest
+import wit.wasmo.object_store.Types.PutObjectResponse
 
 /**
  * This attempts to store file metadata in extended attributes.
@@ -45,7 +50,7 @@ class FileSystemObjectStore(
       write(request.value)
     }
 
-    path.userAttributes?.writeAttributeUtf8("user.mimetype", request.contentType)
+    path.userAttributes?.writeAttributeUtf8("user.mimetype", request.contentType?.value)
 
     return PutObjectResponse(request.value.etag)
   }
@@ -67,13 +72,12 @@ class FileSystemObjectStore(
     }
   }
 
-  override suspend fun delete(request: DeleteObjectRequest): DeleteObjectResponse {
+  override suspend fun delete(request: DeleteObjectRequest) {
     fileSystem.delete(request.key.toPath())
-    return DeleteObjectResponse
   }
 
   override suspend fun list(request: ListObjectsRequest): ListObjectsResponse {
-    val root = request.prefix?.toPath() ?: path
+    val root = request.prefix?.let { Key(it) }?.toPath() ?: path
     val entries = fileSystem.listRecursively(root).mapNotNull { path ->
       try {
         fileSystem.read(path) {
@@ -82,10 +86,12 @@ class FileSystemObjectStore(
             readAll(etagSink)
             etagSink.hash
           }
-          ListObjectsResponse.Object(
-            key = path.toKey(),
-            etag = etag.hex(),
-            size = countingSink.count,
+          Entry.Object(
+            EntryObject(
+              key = path.toKey(),
+              etag = etag.hex(),
+              size = countingSink.count.toULong(),
+            )
           )
         }
       } catch (_: IOException) {
@@ -97,14 +103,16 @@ class FileSystemObjectStore(
     )
   }
 
-  private fun String.toPath(): Path {
-    val result = path.resolve(this)
+  private fun Key.toPath(): Path {
+    validateKey()
+    val result = path.resolve(this.value)
     require(path.isAncestorOf(result)) { "unexpected key: $this" }
     return result
   }
 
-  private fun Path.toKey(): String {
-    return relativeTo(path).toString()
+  private fun Path.toKey(): Key {
+    return Key(relativeTo(path).toString())
+      .apply { validateKey() }
   }
 
   private val Path.userAttributes: UserDefinedFileAttributeView?

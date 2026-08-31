@@ -23,15 +23,19 @@ import retrofit2.http.Header
 import retrofit2.http.PUT
 import retrofit2.http.Query
 import retrofit2.http.Url
-import wasmo.objectstore.DeleteObjectRequest
-import wasmo.objectstore.DeleteObjectResponse
-import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.GetObjectResponse
-import wasmo.objectstore.ListObjectsRequest
-import wasmo.objectstore.ListObjectsResponse
 import wasmo.objectstore.ObjectStore
-import wasmo.objectstore.PutObjectRequest
-import wasmo.objectstore.PutObjectResponse
+import wasmo.objectstore.validateKey
+import wit.wasmo.object_store.Types.DeleteObjectRequest
+import wit.wasmo.object_store.Types.Entry
+import wit.wasmo.object_store.Types.EntryObject
+import wit.wasmo.object_store.Types.GetObjectRequest
+import wit.wasmo.object_store.Types.GetObjectResponse
+import wit.wasmo.object_store.Types.Key
+import wit.wasmo.object_store.Types.ListObjectsRequest
+import wit.wasmo.object_store.Types.ListObjectsResponse
+import wit.wasmo.object_store.Types.PutObjectRequest
+import wit.wasmo.object_store.Types.PutObjectResponse
 
 @Inject
 @SingleIn(OsScope::class)
@@ -70,9 +74,10 @@ internal class S3ObjectStore(
   private val service: SimpleStorageService,
 ) : ObjectStore {
   override suspend fun put(request: PutObjectRequest): PutObjectResponse {
+    request.key.validateKey()
     val response = service.put(
-      key = request.key,
-      contentType = request.contentType,
+      key = request.key.value,
+      contentType = request.contentType?.value,
       requestBody = request.value.toRequestBody(),
     )
     return PutObjectResponse(
@@ -81,8 +86,9 @@ internal class S3ObjectStore(
   }
 
   override suspend fun get(request: GetObjectRequest): GetObjectResponse {
+    request.key.validateKey()
     val response = service.get(
-      key = request.key,
+      key = request.key.value,
     )
     return GetObjectResponse(
       value = response.body()!!.byteString(),
@@ -91,11 +97,11 @@ internal class S3ObjectStore(
     )
   }
 
-  override suspend fun delete(request: DeleteObjectRequest): DeleteObjectResponse {
+  override suspend fun delete(request: DeleteObjectRequest) {
+    request.key.validateKey()
     service.delete(
-      key = request.key,
+      key = request.key.value,
     )
-    return DeleteObjectResponse
   }
 
   override suspend fun list(request: ListObjectsRequest): ListObjectsResponse {
@@ -106,10 +112,12 @@ internal class S3ObjectStore(
     )
     return ListObjectsResponse(
       entries = listBucketResult.Contents.map {
-        ListObjectsResponse.Object(
-          key = it.Key,
-          etag = it.ETag,
-          size = it.Size,
+        Entry.Object(
+          EntryObject(
+            key = Key(it.Key),
+            etag = it.ETag,
+            size = it.Size.toULong(),
+          )
         )
       },
       nextRequest = listBucketResult.NextContinuationToken?.let {

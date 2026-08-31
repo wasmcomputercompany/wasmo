@@ -3,9 +3,10 @@ package com.wasmo.journal.server.publishing
 import com.wasmo.journal.db.Attachment
 import com.wasmo.journal.server.attachments.AttachmentStore
 import okio.ByteString.Companion.encodeUtf8
-import wasmo.objectstore.DeleteObjectRequest
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
+import wit.wasmo.object_store.Types.DeleteObjectRequest
+import wit.wasmo.object_store.Types.Key
 
 /**
  * Manages the `site/` directory in the object store.
@@ -45,7 +46,7 @@ class SiteStore(
   suspend fun deleteList() {
     objectStore.delete(
       DeleteObjectRequest(
-        key = "www-public/index.html",
+        key = Key("www-public/index.html"),
       ),
     )
   }
@@ -88,14 +89,14 @@ class SiteStore(
     for (i in 0 until attachments.size) {
       objectStore.delete(
         DeleteObjectRequest(
-          key = "www-public/${attachmentPath(slug, i)}",
+          key = Key("www-public/${attachmentPath(slug, i)}"),
         ),
       )
     }
 
     objectStore.delete(
       DeleteObjectRequest(
-        key = "www-public/$slug/index.html",
+        key = Key("www-public/$slug/index.html"),
       ),
     )
   }
