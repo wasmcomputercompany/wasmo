@@ -21,12 +21,13 @@ import com.wasmo.journal.server.publishing.RequestPublishAction
 import kotlin.time.Clock
 import kotlinx.serialization.serializer
 import okio.ByteString.Companion.encodeUtf8
-import wasmo.http.Header
-import wasmo.http.HttpRequest
 import wasmo.http.HttpResponse
 import wasmo.http.HttpService
 import wasmo.http.httpUrl
 import wasmo.jobs.JobQueue
+import wit.wasmo.http.Types.Header
+import wit.wasmo.http.Types.HttpRequest
+import wit.wasmo.http.Types.HttpResponse
 
 class JournalHttpService(
   private val clock: Clock,
@@ -124,7 +125,7 @@ class JournalHttpService(
     }
 
     return HttpResponse(
-      code = 404,
+      code = 404U,
       headers = listOf(
         Header("content-type", "text/html"),
       ),

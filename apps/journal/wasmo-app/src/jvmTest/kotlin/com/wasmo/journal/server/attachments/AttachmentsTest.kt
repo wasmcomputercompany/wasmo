@@ -7,8 +7,8 @@ import com.wasmo.journal.server.JournalAppTester
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
-import wasmo.http.Header
 import wasmo.http.HttpResponse
+import wit.wasmo.http.Types.Header
 
 class AttachmentsTest {
   @InterceptTest
@@ -80,7 +80,7 @@ class AttachmentsTest {
       ),
     ).isEqualTo(
       HttpResponse(
-        code = 404,
+        code = 404U,
       ),
     )
   }

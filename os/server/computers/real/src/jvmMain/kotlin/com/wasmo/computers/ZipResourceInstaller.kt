@@ -24,6 +24,7 @@ import okio.buffer
 import okio.source
 import wasmo.http.HttpRequest
 import wasmo.http.HttpService
+import wasmo.http.isSuccessful
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
 import wasmo.objectstore.ScopedObjectStore

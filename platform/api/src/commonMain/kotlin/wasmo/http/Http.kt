@@ -1,34 +1,43 @@
 package wasmo.http
 
 import okio.ByteString
+import wit.wasmo.http.Types.Header
+import wit.wasmo.http.Types.HttpRequest as WitHttpRequest
+import wit.wasmo.http.Types.HttpResponse as WitHttpResponse
+import wit.wasmo.http.Types.Url
 
 interface HttpService {
-  suspend fun execute(request: HttpRequest): HttpResponse
+  suspend fun execute(request: WitHttpRequest): WitHttpResponse
 }
 
-data class HttpRequest(
-  val method: String = "GET",
-  val url: String,
-  val headers: List<Header> = listOf(),
-  val body: ByteString? = null,
-) {
-  val contentType: String?
-    get() = headers.firstOrNull { it.name.equals(other = "content-type", ignoreCase = true) }?.value
-}
-
-data class Header(
-  val name: String,
-  val value: String,
+fun HttpRequest(
+  method: String = "GET",
+  url: String,
+  headers: List<Header> = listOf(),
+  body: ByteString? = null,
+) = WitHttpRequest(
+  method,
+  Url(url),
+  headers,
+  body,
 )
 
-data class HttpResponse(
-  val code: Int = 200,
-  val headers: List<Header> = listOf(),
-  val body: ByteString = ByteString.EMPTY,
-) {
-  val isSuccessful: Boolean
-    get() = code in 200..299
+fun HttpResponse(
+  code: UInt = 200U,
+  headers: List<Header> = listOf(),
+  body: ByteString = ByteString.EMPTY,
+  unused: Unit = Unit,
+) = WitHttpResponse(
+  code,
+  headers,
+  body,
+)
 
-  val contentType: String?
-    get() = headers.firstOrNull { it.name.equals(other = "content-type", ignoreCase = true) }?.value
-}
+val WitHttpRequest.contentType: String?
+  get() = headers.firstOrNull { it.name.equals(other = "content-type", ignoreCase = true) }?.value
+
+val WitHttpResponse.isSuccessful: Boolean
+  get() = code in 200U..299U
+
+val WitHttpResponse.contentType: String?
+  get() = headers.firstOrNull { it.name.equals(other = "content-type", ignoreCase = true) }?.value

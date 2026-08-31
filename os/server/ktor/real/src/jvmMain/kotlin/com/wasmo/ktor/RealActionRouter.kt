@@ -42,7 +42,7 @@ import io.ktor.utils.io.asSource
 import kotlinx.io.okio.asOkioSource
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.buffer
-import wasmo.http.Header
+import wit.wasmo.http.Types.Header
 
 /**
  * Bridge our web framework ([ActionRegistration], [RpcAction], etc.) to Ktor's API.

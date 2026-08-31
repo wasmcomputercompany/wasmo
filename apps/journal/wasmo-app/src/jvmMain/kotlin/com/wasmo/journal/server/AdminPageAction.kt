@@ -9,8 +9,9 @@ import kotlinx.html.script
 import kotlinx.html.title
 import kotlinx.html.unsafe
 import okio.Buffer
-import wasmo.http.Header
 import wasmo.http.HttpResponse
+import wit.wasmo.http.Types.Header
+import wit.wasmo.http.Types.HttpResponse
 
 class AdminPageAction {
   suspend fun admin(): HttpResponse {

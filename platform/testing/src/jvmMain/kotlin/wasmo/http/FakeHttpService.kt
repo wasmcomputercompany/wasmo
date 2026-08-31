@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.update
 import okhttp3.HttpUrl
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
+import wit.wasmo.http.Types.HttpRequest
+import wit.wasmo.http.Types.HttpResponse
 
 class FakeHttpService : HttpService {
   private val handlersFlow = MutableStateFlow(listOf<Handler>())
@@ -27,7 +29,7 @@ class FakeHttpService : HttpService {
       .firstNotNullOfOrNull { it.handle(request) }
       ?: responses[request.httpUrl]
       ?: HttpResponse(
-        code = 404,
+        code = 404U,
         body = "no handler for $request".encodeUtf8(),
       )
   }
