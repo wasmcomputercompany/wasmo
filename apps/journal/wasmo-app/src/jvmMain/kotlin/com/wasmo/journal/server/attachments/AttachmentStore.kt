@@ -20,7 +20,7 @@ class AttachmentStore(
 
     return Attachment(
       data = response.value ?: return null,
-      contentType = response.contentType,
+      contentType = response.contentType?.value
     )
   }
 

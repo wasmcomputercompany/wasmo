@@ -2,6 +2,17 @@ package wasmo.objectstore
 
 import okio.Buffer
 import okio.ByteString
+import wit.wasmo.content_type.Types.ContentType
+import wit.wasmo.object_store.Types.DeleteObjectRequest
+import wit.wasmo.object_store.Types.Entry
+import wit.wasmo.object_store.Types.EntryObject
+import wit.wasmo.object_store.Types.GetObjectRequest
+import wit.wasmo.object_store.Types.GetObjectResponse
+import wit.wasmo.object_store.Types.Key
+import wit.wasmo.object_store.Types.ListObjectsRequest
+import wit.wasmo.object_store.Types.ListObjectsResponse
+import wit.wasmo.object_store.Types.PutObjectRequest
+import wit.wasmo.object_store.Types.PutObjectResponse
 
 /**
  * An S3-like object store.
@@ -22,7 +33,7 @@ interface ObjectStore {
    *
    * https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html
    */
-  suspend fun delete(request: DeleteObjectRequest): DeleteObjectResponse
+  suspend fun delete(request: DeleteObjectRequest)
 
   /**
    * https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
@@ -30,72 +41,67 @@ interface ObjectStore {
   suspend fun list(request: ListObjectsRequest): ListObjectsResponse
 }
 
-data class PutObjectRequest(
-  val key: String,
-  val value: ByteString,
-  val contentType: String? = null,
-) {
-  init {
-    key.validateKey()
-  }
-}
-
-data class PutObjectResponse(
-  val etag: String,
+fun PutObjectRequest(
+  key: String,
+  value: ByteString,
+  contentType: String? = null,
+) = PutObjectRequest(
+  key = Key(key),
+  value = value,
+  contentType = contentType?.toContentType(),
 )
 
-data class GetObjectRequest(
-  val key: String,
-) {
-  init {
-    key.validateKey()
-  }
-}
+fun GetObjectRequest(
+  key: String,
+) = GetObjectRequest(Key(key))
 
-data class GetObjectResponse(
-  val value: ByteString?,
-  val etag: String? = value?.etag,
-  val contentType: String? = null,
+fun DeleteObjectRequest(
+  key: String,
+) = DeleteObjectRequest(Key(key))
+
+fun GetObjectResponse(
+  value: ByteString?,
+  etag: String? = value?.etag,
+  contentType: String? = null,
+) = GetObjectResponse(
+  value = value,
+  etag = etag,
+  contentType = contentType?.toContentType(),
 )
 
-data class DeleteObjectRequest(
-  val key: String,
-) {
-  init {
-    key.validateKey()
-  }
-}
-
-object DeleteObjectResponse
-
-/**
- * @param prefix null to list all items, or a string suffixed with "/" to list only items with that
- *   prefix. Use this with [delimiter] to list objects like a hierarchical file system.
- * @param delimiter "/" to flatten results within a common prefix, or null to return all results
- *   with a common directory prefix.
- */
-data class ListObjectsRequest(
-  val prefix: String? = null,
-  val delimiter: String? = null,
-  val continuationToken: String? = null,
+fun ListObjectsRequest(
+  prefix: String? = null,
+  delimiter: String? = null,
+  continuationToken: String? = null,
+  unused: Unit = Unit,
+) = ListObjectsRequest(
+  prefix = prefix,
+  delimiter = delimiter,
+  continuationToken = continuationToken,
 )
 
-data class ListObjectsResponse(
-  val entries: List<Entry>,
-  val nextRequest: ListObjectsRequest? = null,
-) {
-  sealed class Entry
+fun ListObjectsResponse(
+  entries: List<Entry>,
+  nextRequest: ListObjectsRequest? = null,
+  unused: Unit = Unit,
+) = ListObjectsResponse(
+  entries = entries,
+  nextRequest = nextRequest,
+)
 
-  data class Object(
-    val key: String,
-    val etag: String,
-    val size: Long,
-  ) : Entry()
+fun Entry(
+  key: String,
+  etag: String,
+  size: ULong,
+) = Entry.Object(
+  EntryObject(
+    key = Key(key),
+    etag = etag,
+    size = size,
+  ),
+)
 
-  data class CommonPrefix(
-    val prefix: String,
-  ) : Entry()
-}
+fun String.toContentType() = ContentType(this)
 
 /** An object that prefixes all entries with [prefix]. */
 class ScopedObjectStore(
@@ -107,25 +113,27 @@ class ScopedObjectStore(
   }
 
   override suspend fun put(request: PutObjectRequest) =
-    delegate.put(request.copy(key = prefix + request.key))
+    delegate.put(request.copy(key = Key(prefix + request.key.value)))
 
   override suspend fun get(request: GetObjectRequest) =
-    delegate.get(request.copy(key = prefix + request.key))
+    delegate.get(request.copy(key = Key(prefix + request.key.value)))
 
   override suspend fun delete(request: DeleteObjectRequest) =
-    delegate.delete(request.copy(key = prefix + request.key))
+    delegate.delete(request.copy(key = Key(prefix + request.key.value)))
 
   override suspend fun list(request: ListObjectsRequest): ListObjectsResponse {
     val result = delegate.list(request.copy(prefix = prefix + (request.prefix ?: "")))
     return result.copy(
       entries = result.entries.map { entry ->
         when (entry) {
-          is ListObjectsResponse.CommonPrefix -> entry.copy(
-            prefix = entry.prefix.removePrefix(prefix),
+          is Entry.CommonPrefix -> entry.copy(
+            value = entry.value.removePrefix(prefix),
           )
 
-          is ListObjectsResponse.Object -> entry.copy(
-            key = entry.key.removePrefix(prefix),
+          is Entry.Object -> entry.copy(
+            value = entry.value.copy(
+              key = Key(entry.value.key.value.removePrefix(prefix)),
+            ),
           )
         }
       },
@@ -142,13 +150,13 @@ val ByteString.etag: String
 /**
  * https://www.backblaze.com/docs/cloud-storage-files#file-names
  */
-fun String.validateKey() {
+fun Key.validateKey() {
   val buffer = Buffer()
-    .writeUtf8(this)
+    .writeUtf8(value)
 
   val utf8Size = buffer.size
   require(utf8Size in 1..1024) {
-    "key length must be in 1..1024 but was $utf8Size: $this"
+    "key length must be in 1..1024 but was $utf8Size: $value"
   }
 
   while (!buffer.exhausted()) {

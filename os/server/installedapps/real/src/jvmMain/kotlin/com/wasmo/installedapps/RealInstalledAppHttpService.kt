@@ -88,7 +88,7 @@ class RealInstalledAppHttpService(
     )
     val value = response.value ?: return null
     return Response(
-      contentType = response.contentType?.toMediaTypeOrNull()
+      contentType = response.contentType?.value?.toMediaTypeOrNull()
         ?: contentTypeDatabase[urlPath],
       body = ResponseBody {
         it.write(value)

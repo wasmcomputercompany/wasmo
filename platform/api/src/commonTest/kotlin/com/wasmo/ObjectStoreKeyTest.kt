@@ -5,31 +5,32 @@ import assertk.assertions.hasMessage
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import wasmo.objectstore.validateKey
+import wit.wasmo.object_store.Types.Key
 
 class ObjectStoreKeyTest {
   @Test
   fun validateKeyLengthAscii() {
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        "".validateKey()
+        Key("").validateKey()
       },
     ).hasMessage("key length must be in 1..1024 but was 0: ")
-    "a".validateKey()
-    "a".repeat(1024).validateKey()
+    Key("a").validateKey()
+    Key("a".repeat(1024)).validateKey()
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        "a".repeat(1025).validateKey()
+        Key("a".repeat(1025)).validateKey()
       },
     ).hasMessage("key length must be in 1..1024 but was 1025: ${"a".repeat(1025)}")
   }
 
   @Test
   fun validateKeyLengthNonAscii() {
-    "🍩".validateKey()
-    "🍩".repeat(256).validateKey()
+    Key("🍩").validateKey()
+    Key("🍩".repeat(256)).validateKey()
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        "🍩".repeat(257).validateKey()
+        Key("🍩".repeat(257)).validateKey()
       },
     ).hasMessage("key length must be in 1..1024 but was 1028: ${"🍩".repeat(257)}")
   }
@@ -38,21 +39,21 @@ class ObjectStoreKeyTest {
   fun validateKeyContent() {
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        "\u0000".validateKey()
+        Key("\u0000").validateKey()
       },
     ).hasMessage("key has invalid code point at 0: 0x0")
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        "\u001f".validateKey()
+        Key("\u001f").validateKey()
       },
     ).hasMessage("key has invalid code point at 0: 0x1f")
-    "\u0020".validateKey()
-    "\u007e".validateKey()
+    Key("\u0020").validateKey()
+    Key("\u007e").validateKey()
     assertThat(
       assertFailsWith<IllegalArgumentException> {
-        "\u007f".validateKey()
+        Key("\u007f").validateKey()
       },
     ).hasMessage("key has invalid code point at 0: 0x7f")
-    "\u0080".validateKey()
+    Key("\u0080").validateKey()
   }
 }
