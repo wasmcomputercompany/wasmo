@@ -7,6 +7,7 @@ import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.PasswordDigest
 import com.wasmo.identifiers.PasswordDigestId
 import kotlin.time.Clock
+import kotlinx.serialization.json.Json
 import wasmo.sql.SqlConnection
 import wasmox.sql.single
 import wasmox.sql.singleOrNull
@@ -31,7 +32,7 @@ suspend fun findPasswordDigestForAccount(accountId: AccountId): DbPasswordDigest
       id = getPasswordDigestId(0),
       accountId = getAccountId(1),
       createdAt = getInstant(2)!!,
-      passwordDigest = PasswordDigest(getString(3)!!)
+      passwordDigest = Json.decodeFromString<PasswordDigest>(getString(3)!!)
     )
   }
 }
@@ -64,7 +65,7 @@ suspend fun insertPasswordDigest(clock: Clock, accountId: AccountId, passwordDig
   {
     bindAccountId(0, accountId)
     bindInstant(1, now)
-    bindString(2, passwordDigest.value)
+    bindString(2, Json.encodeToString(passwordDigest))
   }
   return rowIterator.single {
     getPasswordDigestId(0)

@@ -13,8 +13,10 @@ kotlin {
   sourceSets {
     val jvmMain by getting {
       dependencies {
-        implementation(libs.argon2)
+        implementation(libs.bouncycastle)
         implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.serialization.core)
+        implementation(libs.kotlinx.serialization.json)
         implementation(libs.okio)
         implementation(projects.os.server.db)
         implementation(projects.os.server.identifiers)
@@ -26,7 +28,7 @@ kotlin {
     }
     val jvmTest by getting {
       dependencies {
-        implementation(libs.argon2)
+        implementation(libs.bouncycastle)
         implementation(libs.kotlinx.coroutines.test)
         implementation(libs.burst.coroutines)
         implementation(projects.platform.testing)

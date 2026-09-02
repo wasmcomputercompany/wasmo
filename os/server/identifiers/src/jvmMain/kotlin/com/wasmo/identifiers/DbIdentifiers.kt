@@ -1,6 +1,8 @@
 package com.wasmo.identifiers
 
+import com.wasmo.json.ByteStringAsHexSerializer
 import java.security.MessageDigest
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
@@ -36,13 +38,14 @@ class AccountPassword(val secretValue: String) {
 }
 
 @JvmInline
-value class HashingPepper(val value: ByteString) {
-  init {
-      require(value.size == 16) {
-        "Hashing pepper should be exactly 16 bytes."
-      }
-  }
-}
+value class HashingPepper(val value: ByteString)
+
+@JvmInline
+@Serializable
+value class HashingSalt(
+  @Serializable(with = ByteStringAsHexSerializer::class)
+  val value: ByteString,
+)
 
 /**
  * A composite value composing salted hash of the password, the salt, and metadata (e.g. hash
@@ -51,8 +54,51 @@ value class HashingPepper(val value: ByteString) {
  *
  * Argon2PasswordHasher produces passwordHashes that are salted and peppered
  */
+@Serializable
+data class PasswordDigest(
+  @SerialName("h")
+  val hash: PasswordHash,
+  @SerialName("s")
+  val salt: HashingSalt,
+  @SerialName("libConfig")
+  val argon2LibraryConfig: Argon2LibraryConfig,
+  @SerialName("config")
+  val argon2WasmoConfig: Argon2WasmoConfig,
+)
+
+@Serializable
 @JvmInline
-value class PasswordDigest(val value: String)
+value class PasswordHash(
+  @Serializable(with = ByteStringAsHexSerializer::class)
+  @SerialName("v")
+  val value: ByteString,
+)
+
+@Serializable
+data class Argon2LibraryConfig(
+  @SerialName("m")
+  val memoryKiBytes: Int,
+  @SerialName("it")
+  val iterations: Int,
+  @SerialName("p")
+  val parallelism: Int,
+  @SerialName("sb")
+  val saltNumBytes: Int,
+  @SerialName("hb")
+  val hashNumBytes: Int,
+  @SerialName("v")
+  val version: Int,
+  @SerialName("t")
+  val type: Int,
+)
+
+@Serializable
+data class Argon2WasmoConfig(
+  @SerialName("pb")
+  val pepperNumBytes: Int,
+  @SerialName("v")
+  val wasmoHasherVersion: Int,
+)
 
 @Serializable
 @JvmInline
