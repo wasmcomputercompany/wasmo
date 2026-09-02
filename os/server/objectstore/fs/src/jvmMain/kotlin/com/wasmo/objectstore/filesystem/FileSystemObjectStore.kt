@@ -19,16 +19,16 @@ import wasmo.objectstore.ListObjectsResponse
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.etag
 import wasmo.objectstore.validateKey
-import wit.wasmo.object_store.Types.DeleteObjectRequest
-import wit.wasmo.object_store.Types.Entry
-import wit.wasmo.object_store.Types.EntryObject
-import wit.wasmo.object_store.Types.GetObjectRequest
-import wit.wasmo.object_store.Types.GetObjectResponse
-import wit.wasmo.object_store.Types.Key
-import wit.wasmo.object_store.Types.ListObjectsRequest
-import wit.wasmo.object_store.Types.ListObjectsResponse
-import wit.wasmo.object_store.Types.PutObjectRequest
-import wit.wasmo.object_store.Types.PutObjectResponse
+import wit.wasmo.objectstore.DeleteObjectRequest
+import wit.wasmo.objectstore.Entry
+import wit.wasmo.objectstore.EntryObject
+import wit.wasmo.objectstore.GetObjectRequest
+import wit.wasmo.objectstore.GetObjectResponse
+import wit.wasmo.objectstore.Key
+import wit.wasmo.objectstore.ListObjectsRequest
+import wit.wasmo.objectstore.ListObjectsResponse
+import wit.wasmo.objectstore.PutObjectRequest
+import wit.wasmo.objectstore.PutObjectResponse
 
 /**
  * This attempts to store file metadata in extended attributes.

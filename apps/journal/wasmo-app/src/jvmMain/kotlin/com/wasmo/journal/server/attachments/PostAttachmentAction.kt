@@ -7,8 +7,8 @@ import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.http.HttpResponse
 import wasmo.http.contentType
-import wit.wasmo.http.Types.HttpRequest
-import wit.wasmo.http.Types.HttpResponse
+import wit.wasmo.http.HttpRequest
+import wit.wasmo.http.HttpResponse
 
 /**
  * ```

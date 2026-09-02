@@ -1,7 +1,7 @@
 [versions]
 argon2 = "2.12"
 assertk = "0.28.1"
-brevity = "0.2.0"
+brevity = "0.3.0"
 burst = "2.13.0"
 chicory = "1.7.5"
 clikt = "5.0.1"

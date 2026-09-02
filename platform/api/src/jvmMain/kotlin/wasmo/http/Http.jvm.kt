@@ -5,9 +5,9 @@ import kotlinx.serialization.encodeToString
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.encodeUtf8
-import wit.wasmo.http.Types.Header
-import wit.wasmo.http.Types.HttpRequest
-import wit.wasmo.http.Types.HttpResponse
+import wit.wasmo.http.Header
+import wit.wasmo.http.HttpRequest
+import wit.wasmo.http.HttpResponse
 
 val HttpRequest.httpUrl: HttpUrl
   get() = url.value.toHttpUrl()

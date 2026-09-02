@@ -8,7 +8,7 @@ import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.http.HttpResponse
-import wit.wasmo.http.Types.Header
+import wit.wasmo.http.Header
 
 class AttachmentsTest {
   @InterceptTest

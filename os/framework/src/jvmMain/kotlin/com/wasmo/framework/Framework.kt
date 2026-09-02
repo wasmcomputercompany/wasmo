@@ -6,7 +6,7 @@ import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okio.BufferedSink
 import okio.ByteString
-import wit.wasmo.http.Types.Header
+import wit.wasmo.http.Header
 
 data class Request(
   val method: String = "GET",
