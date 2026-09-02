@@ -50,16 +50,12 @@ class Argon2PasswordHasher(pepper: HashingPepper): PasswordHasher(pepper) {
     password: AccountPassword,
     accountId: AccountId,
   ): PasswordDigest {
-      val data: ByteArray = dataBytes(password, accountId)
-      try {
-        // The .java wrapper of the argon2 library internally generates a new salt each time this
-        // function is called; the value of that salt cannot be customized via the API surface.
-        // That salt value is embedded within the returned hashString.
-        val hashString = argon2.hash(Argon2Config.ITERATIONS, Argon2Config.MEMORY, Argon2Config.PARALLELISM, data)
-        return PasswordDigest(hashString)
-      } finally {
-        argon2.wipeArray(data)
-      }
+    val data: ByteArray = dataBytes(password, accountId)
+    // The .java wrapper of the argon2 library internally generates a new salt each time this
+    // function is called; the value of that salt cannot be customized via the API surface.
+    // That salt value is embedded within the returned hashString.
+    val hashString = argon2.hash(Argon2Config.ITERATIONS, Argon2Config.MEMORY, Argon2Config.PARALLELISM, data)
+    return PasswordDigest(hashString)
   }
 
   override fun verify(
@@ -68,10 +64,6 @@ class Argon2PasswordHasher(pepper: HashingPepper): PasswordHasher(pepper) {
     passwordDigest: PasswordDigest
   ): Boolean {
     val data: ByteArray = dataBytes(password, accountId)
-    try {
-      return argon2.verify(passwordDigest.value, data)
-    } finally {
-        argon2.wipeArray(data)
-    }
+    return argon2.verify(passwordDigest.value, data)
   }
 }

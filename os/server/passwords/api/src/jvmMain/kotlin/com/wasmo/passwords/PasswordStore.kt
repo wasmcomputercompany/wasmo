@@ -10,6 +10,8 @@ interface PasswordStore {
    */
   context(sqlTransaction: SqlTransaction)
   suspend fun checkPassword(accountId: AccountId, providedPassword: AccountPassword): Boolean
+
+  // TODO: Make it possible to enforce password requirements such as minimum length and entropy.
   context(sqlTransaction: SqlTransaction)
   suspend fun setPassword(accountId: AccountId, oldPassword: AccountPassword, newPassword: AccountPassword): Boolean
 }

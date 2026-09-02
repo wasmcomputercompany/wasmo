@@ -34,6 +34,7 @@ import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okio.ByteString.Companion.decodeBase64
+import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
 import wasmo.sql.SqlDatabase
@@ -141,7 +142,7 @@ class HomelabCommand : CliktCommand() {
           hashingPepper = HashingPepper(
               requireNotNull(
                 System.getenv("WASMO_PASSWORD_PEPPER")
-              ).decodeBase64()!!
+              ).decodeHex()
           )
         )
         return serviceGraph.wasmoService

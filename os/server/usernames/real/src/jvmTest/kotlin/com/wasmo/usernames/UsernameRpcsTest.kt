@@ -93,12 +93,14 @@ class UsernameRpcsTest {
 
     assertThat(createResponse.body.decision)
       .isEqualTo(CreateUsernameDecision.Success)
-    assertThat(linkNoPasswordResponse.body.decision)
-      .isEqualTo(LinkUsernameDecision.PasswordAuthenticationFailed)
-    assertThat(linkWrongPasswordResponse.body.decision)
-      .isEqualTo(LinkUsernameDecision.PasswordAuthenticationFailed)
-    assertThat(linkRightPasswordResponse.body.decision)
-      .isEqualTo(LinkUsernameDecision.Success)
+
+    val linkDecisions = listOf(linkNoPasswordResponse, linkWrongPasswordResponse, linkRightPasswordResponse).associateWith { it.body.decision }
+
+    assertThat(linkDecisions).isEqualTo(mapOf(
+        linkNoPasswordResponse to LinkUsernameDecision.PasswordAuthenticationFailed,
+        linkNoPasswordResponse to LinkUsernameDecision.PasswordAuthenticationFailed,
+        linkRightPasswordResponse to LinkUsernameDecision.Success,
+    ))
   }
 
   @Test

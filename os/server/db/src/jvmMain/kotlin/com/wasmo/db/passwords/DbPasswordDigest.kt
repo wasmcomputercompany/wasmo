@@ -9,5 +9,5 @@ data class DbPasswordDigest(
   val id: PasswordDigestId,
   val createdAt: Instant,
   val accountId: AccountId,
-  val passwordDigest: PasswordDigest, // Argon2PasswordHasher produces passwordHashes that are salted and peppered
+  val passwordDigest: PasswordDigest,
 )

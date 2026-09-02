@@ -9,7 +9,8 @@ import kotlin.time.Clock
 import wasmox.sql.SqlTransaction
 
 /**
- * Note: This class doesn't apply rate limiting. Rate limiting should be applied at the RPC layer.
+ * TODO: Apply rate limiting here (and document this at the PasswordStore interface, not at the RPC level.
+ * This requires the PasswordStore methods to indicate whether a call was rate limited (exception or different return value).)
  *
  * @param clock time source for creation time of password entries in DB
  * @param passwordHasher produces and verifies [com.wasmo.identifiers.PasswordDigest]s.

@@ -48,6 +48,8 @@ value class HashingPepper(val value: ByteString) {
  * A composite value composing salted hash of the password, the salt, and metadata (e.g. hash
  * algorithm / version used). Because the hashes are salted and peppered, digests of the same
  * password will in general not be equal.
+ *
+ * Argon2PasswordHasher produces passwordHashes that are salted and peppered
  */
 @JvmInline
 value class PasswordDigest(val value: String)
