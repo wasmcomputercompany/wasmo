@@ -57,6 +57,10 @@ class SignUpUi(
         eventListener = presenter::onEvent,
         username = newOrExistingAccountWithUsernameModel.username,
         usernameHelperText = newOrExistingAccountWithUsernameModel.usernameHelperText,
+        password = newOrExistingAccountWithUsernameModel.password,
+        isPasswordVisible = newOrExistingAccountWithUsernameModel.isPasswordVisible,
+        passwordConfirmation = newOrExistingAccountWithUsernameModel.passwordConfirmation,
+        isPasswordConfirmationVisible = newOrExistingAccountWithUsernameModel.isPasswordConfirmationVisible,
         existingUsernameToSignInAs = newOrExistingAccountWithUsernameModel.existingUsernameToSignInAs,
         canSubmit = newOrExistingAccountWithUsernameModel.canSubmit,
         disabled = state.inFlightCalls > 0,
@@ -65,15 +69,17 @@ class SignUpUi(
       return
     }
 
-    val selectUsernameToSignInModel = state.selectUsernameToSignIn
+    val selectUsernameToSignInModel = state.signInWithUsernameAndPassword
     if (selectUsernameToSignInModel != null) {
-      SelectUsernameToSignInScreen(
+      SignInWithUsernameAndPasswordScreen(
         attrs = attrs,
         eventListener = presenter::onEvent,
-        options = selectUsernameToSignInModel.usernameOptions,
+        usernameOptions = selectUsernameToSignInModel.usernameOptions,
+        passwordEntry = selectUsernameToSignInModel.passwordEntry,
         canCreateUsername = selectUsernameToSignInModel.canCreateUsername,
         canSubmit = selectUsernameToSignInModel.canSubmit,
         busy = state.inFlightCalls > 0,
+        errorMessage = selectUsernameToSignInModel.errorMessage,
       )
       return
     }

@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CreateUsernameRequest(
   val username: UsernameSlug,
+  val password: String,
 )
 
 @Serializable
@@ -24,11 +25,15 @@ enum class CreateUsernameDecision {
 
   /** The chosen username already exists (not deleted). */
   UsernameTaken,
+
+  /** Rate limited exceeded. */
+  TooManyAttempts,
 }
 
 @Serializable
 data class LinkUsernameRequest(
   val username: UsernameSlug,
+  val password: String,
 )
 
 @Serializable
@@ -46,6 +51,12 @@ enum class LinkUsernameDecision {
 
   /** The chosen username does not exist, not even in deleted form. */
   UsernameNotFound,
+
+  /** The password for sign-in was incorrect, or incorrectly missing / present. */
+  PasswordAuthenticationFailed,
+
+  /** Rate limited exceeded. */
+  TooManyAttempts,
 }
 
 @Serializable
@@ -55,7 +66,12 @@ data class LinkedUsernameSnapshot(
 )
 
 @Serializable
+data class AccountSignInConfig(
+  val isPasswordRequired: Boolean,
+)
+
+@Serializable
 data class SignInSnapshot(
-  val usernameOptions: List<UsernameSlug> = listOf(),
+  val usernameOptions: Map<UsernameSlug, AccountSignInConfig> = mapOf(),
   val canCreateUsername: Boolean = false,
 )

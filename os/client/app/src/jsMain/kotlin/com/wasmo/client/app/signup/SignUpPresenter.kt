@@ -27,8 +27,8 @@ class SignUpPresenter(
   private val accountDataService: AccountDataService,
   signInSnapshot: SignInSnapshot?,
 ) : Presenter<SignUpModel, SignUpEvent> {
-  private val existingUsernames = signInSnapshot?.usernameOptions ?: listOf()
-  private val normalizedToExistingUsername = existingUsernames.associateBy { it.normalizedValue }
+  private val existingUsernamesToSignInConfig = signInSnapshot?.usernameOptions ?: mapOf()
+  private val normalizedToExistingUsername = existingUsernamesToSignInConfig.keys.associateBy { it.normalizedValue }
 
   private val mutableModel = MutableStateFlow(
     // TODO: Make SignInSnapshot responsible for all sign-in options, not only username.
@@ -40,10 +40,11 @@ class SignUpPresenter(
       )
     } else {
       SignUpModel(
-        selectUsernameToSignIn = SelectUsernameToSignInModel(
-          usernameOptions = signInSnapshot.usernameOptions,
+        signInWithUsernameAndPassword = SignInWithUsernameAndPasswordModel(
+          usernameOptions = existingUsernamesToSignInConfig.keys.toList(),
           canCreateUsername = signInSnapshot.canCreateUsername,
           canSubmit = true,
+          passwordEntry = null, // no account with a potential password has been selected yet
         ),
       )
     }
@@ -51,6 +52,14 @@ class SignUpPresenter(
 
   override val model: StateFlow<SignUpModel>
     get() = mutableModel
+
+  private fun updateSignInWithUsernameAndPasswordModel(
+    update: (SignInWithUsernameAndPasswordModel) -> SignInWithUsernameAndPasswordModel,
+  ) = mutableModel.update { signUpModel ->
+    signUpModel.copy(
+      signInWithUsernameAndPassword = signUpModel.signInWithUsernameAndPassword?.let { update(it) }
+    )
+  }
 
   override fun onEvent(event: SignUpEvent) {
     when (event) {
@@ -151,19 +160,28 @@ class SignUpPresenter(
         }
       }
 
-      is SignUpEvent.EditUsername -> {
+      is SignUpEvent.EditUsername, is SignUpEvent.EditPassword, is SignUpEvent.EditPasswordConfirmation -> {
         mutableModel.update {
           val usernameModel = it.newOrExistingAccountWithUsername ?: return // Race.
-          val usernameString = event.username
-          val isValid = isUsernameValid(usernameString)
-          val signInUsername: UsernameSlug? = if (isValid) normalizedToExistingUsername[UsernameSlug.normalize(usernameString)] else null
+          val username = if (event is SignUpEvent.EditUsername) event.username else usernameModel.username
+          val password = if (event is SignUpEvent.EditPassword) event.password else usernameModel.password
+          val passwordConfirmation = if (event is SignUpEvent.EditPasswordConfirmation) event.passwordConfirmation else usernameModel.passwordConfirmation
+
+          val isUsernameValid = isUsernameValid(username)
+          val signInUsername: UsernameSlug? = if (isUsernameValid) normalizedToExistingUsername[UsernameSlug.normalize(username)] else null
           val isSignIn = signInUsername != null
+          val isPasswordVisible = signInUsername == null || existingUsernamesToSignInConfig[signInUsername]!!.isPasswordRequired
+          val isPasswordConfirmationVisible = isPasswordVisible && (password != "" || passwordConfirmation != "") && !isSignIn
           it.copy(
             newOrExistingAccountWithUsername = usernameModel.copy(
-              username = event.username,
-              canSubmit = isValid,
+              username = username,
+              password = password,
+              isPasswordVisible = isPasswordVisible,
+              passwordConfirmation = passwordConfirmation,
+              isPasswordConfirmationVisible = isPasswordConfirmationVisible,
+              canSubmit = isUsernameValid && (!isPasswordConfirmationVisible || password == passwordConfirmation),
               existingUsernameToSignInAs = signInUsername,
-              usernameHelperText = if (isSignIn) "${signInUsername.value} exists" else ""
+              usernameHelperText = if (isSignIn) "${signInUsername.value} exists" else "",
             ),
           )
         }
@@ -172,7 +190,11 @@ class SignUpPresenter(
       SignUpEvent.ClickSignUpWithUsername -> {
         callServer { state ->
           val usernameModel = state.newOrExistingAccountWithUsername ?: return@callServer // Race.
-          val response = accountDataService.createUsername(UsernameSlug(usernameModel.username))
+          val password = if (usernameModel.isPasswordVisible) usernameModel.password else ""
+          val response = accountDataService.createUsername(
+            username = UsernameSlug(usernameModel.username),
+            password = password,
+          )
           when (response.decision) {
             CreateUsernameDecision.Success -> {
               response.account?.let { accountSnapshot ->
@@ -188,20 +210,33 @@ class SignUpPresenter(
       }
 
       is SignUpEvent.ClickUsername -> {
-        callServer {
-          val response = accountDataService.linkUsername(event.usernameSlug)
-          when (response.decision) {
-            LinkUsernameDecision.Success -> {
-              response.account?.let { accountSnapshot ->
-                accountDataService.receiveAccountSnapshot(accountSnapshot)
-              }
-              router.goTo(HomeRoute, TransitionDirection.PUSH)
-            }
-            else -> {
-              // TODO: Update UI to show an error message
-            }
+        val usernameSlug = event.usernameSlug
+        val isPasswordRequired = existingUsernamesToSignInConfig[usernameSlug]?.isPasswordRequired ?: false
+
+        if (isPasswordRequired) {
+          // Since the username requires a password to sign in, we show the password entry field,
+          // starting from an empty string or whatever partial password had previously been typed.
+          updateSignInWithUsernameAndPasswordModel { model ->
+            val password = model.passwordEntry?.second
+            model.copy(
+              passwordEntry = Pair(usernameSlug, password ?: ""),
+              canSubmit = true
+            )
           }
+        } else {
+          // clear any previous selection of a username and associated partially-typed password,
+          // then sign-in without password for the newly clicked username.
+          updateSignInWithUsernameAndPasswordModel { model ->
+            model.copy(
+              passwordEntry = null
+            )
+          }
+          attemptSignIn(usernameSlug, password = null)
         }
+      }
+
+      is SignUpEvent.ClickSignInWithUsernamePassword -> {
+        attemptSignIn(event.usernameSlug, event.password)
       }
 
       SignUpEvent.ClickNewAccount -> {
@@ -213,6 +248,33 @@ class SignUpPresenter(
       }
     }
   }
+
+  private fun LinkUsernameDecision.toErrorMessage(): String? = when(this) {
+    LinkUsernameDecision.Success -> null
+    LinkUsernameDecision.PasswordAuthenticationFailed -> "Authentication failed."
+    LinkUsernameDecision.UsernameDeleted -> "Username deleted."
+    LinkUsernameDecision.UsernameNotFound -> "Username not found."
+    LinkUsernameDecision.TooManyAttempts -> "Rate limit exceeded."
+  }
+
+  private fun attemptSignIn(usernameSlug: UsernameSlug, password: String?) =
+    callServer {
+      val response = accountDataService.linkUsername(usernameSlug, password ?: "")
+      val errorMessage = response.decision.toErrorMessage()
+      if (errorMessage != null) {
+        updateSignInWithUsernameAndPasswordModel { model ->
+          model.copy(
+            errorMessage = errorMessage,
+          )
+        }
+      }
+      if (response.decision == LinkUsernameDecision.Success) {
+        response.account?.let { accountSnapshot ->
+          accountDataService.receiveAccountSnapshot(accountSnapshot)
+        }
+        router.goTo(HomeRoute, TransitionDirection.PUSH)
+      }
+    }
 
   private fun callServer(block: suspend (SignUpModel) -> Unit) {
     mutableModel.update {

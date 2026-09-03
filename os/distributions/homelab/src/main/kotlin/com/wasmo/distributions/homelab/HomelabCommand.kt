@@ -1,7 +1,6 @@
 package com.wasmo.distributions.homelab
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.wasmo.accounts.CookieSecret
@@ -10,6 +9,8 @@ import com.wasmo.common.catalog.DevelopmentCatalog
 import com.wasmo.events.LoggingEventListener
 import com.wasmo.identifiers.Deployment
 import com.wasmo.identifiers.DistributionShortCode
+import com.wasmo.identifiers.HashingPepper
+import com.wasmo.identifiers.OsScope
 import com.wasmo.identifiers.Secret
 import com.wasmo.ktor.KtorLogger
 import com.wasmo.ktor.WasmoKtorConfig
@@ -23,6 +24,8 @@ import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.wiring.Distribution
 import com.wasmo.wiring.WasmoService
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.createGraphFactory
 import io.ktor.server.engine.EmbeddedServer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,6 +33,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okio.ByteString.Companion.decodeBase64
+import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
 import wasmo.sql.SqlDatabase
@@ -134,6 +139,11 @@ class HomelabCommand : CliktCommand() {
           localPostgresql = localPostgresql,
           logger = logger,
           eventListener = eventListener,
+          hashingPepper = HashingPepper(
+              requireNotNull(
+                System.getenv("WASMO_PASSWORD_PEPPER")
+              ).decodeHex()
+          )
         )
         return serviceGraph.wasmoService
       }

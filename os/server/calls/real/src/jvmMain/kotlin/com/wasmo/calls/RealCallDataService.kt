@@ -160,7 +160,7 @@ class RealCallDataService(
     context(sqlTransaction: SqlTransaction)
     override suspend fun load(): SignInSnapshot =
       SignInSnapshot(
-        usernameOptions = findUsernamesThatCanSignIn().map { it.username },
+        usernameOptions = findUsernamesThatCanSignIn().mapKeys { it.key.username },
         canCreateUsername = true,
       )
   }
