@@ -5,8 +5,8 @@ import com.wasmo.journal.server.attachments.AttachmentStore
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
-import wit.wasmo.object_store.Types.DeleteObjectRequest
-import wit.wasmo.object_store.Types.Key
+import wit.wasmo.objectstore.DeleteObjectRequest
+import wit.wasmo.objectstore.Key
 
 /**
  * Manages the `site/` directory in the object store.

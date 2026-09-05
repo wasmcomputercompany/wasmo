@@ -1,10 +1,10 @@
 package wasmo.http
 
 import okio.ByteString
-import wit.wasmo.http.Types.Header
-import wit.wasmo.http.Types.HttpRequest as WitHttpRequest
-import wit.wasmo.http.Types.HttpResponse as WitHttpResponse
-import wit.wasmo.http.Types.Url
+import wit.wasmo.http.Header
+import wit.wasmo.http.HttpRequest as WitHttpRequest
+import wit.wasmo.http.HttpResponse as WitHttpResponse
+import wit.wasmo.http.Url
 
 interface HttpService {
   suspend fun execute(request: WitHttpRequest): WitHttpResponse

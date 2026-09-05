@@ -9,11 +9,12 @@ import kotlin.time.Clock
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 import okio.ByteString.Companion.encodeUtf8
-import wasmo.objectstore.DeleteObjectRequest
-import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.ListObjectsRequest
-import wasmo.objectstore.PutObjectRequest
-import wit.wasmo.object_store.Types.Entry
+import wasmo.objectstore.toContentType
+import wit.wasmo.objectstore.DeleteObjectRequest
+import wit.wasmo.objectstore.Entry
+import wit.wasmo.objectstore.GetObjectRequest
+import wit.wasmo.objectstore.Key
 
 /**
  * Run this test manually to confirm connectivity to a particular Backblaze bucket.
@@ -39,25 +40,21 @@ class BackblazeB2ConnectivityTest {
     val address = backblazeB2BucketAddress ?: return@runTest
     val objectStore = s3Client.connect(address)
 
-    val key = "files/hello.txt"
+    val key = Key("files/hello.txt")
     val value = "Hello, this file has a path!".encodeUtf8()
 
     val putObjectResponse = objectStore.put(
-      PutObjectRequest(
+      wit.wasmo.objectstore.PutObjectRequest(
         key = key,
         value = value,
-        contentType = "text/plain;charset=utf-8",
+        contentType = "text/plain;charset=utf-8".toContentType(),
       ),
     )
 
-    val getObjectResponse = objectStore.get(
-      GetObjectRequest(
-        key = key,
-      ),
-    )
+    val getObjectResponse = objectStore.get(GetObjectRequest(key))
     assertThat(getObjectResponse.value).isEqualTo(value)
     assertThat(getObjectResponse.etag).isEqualTo(putObjectResponse.etag)
-    assertThat(getObjectResponse.contentType).isEqualTo("text/plain;charset=utf-8")
+    assertThat(getObjectResponse.contentType).isEqualTo("text/plain;charset=utf-8".toContentType())
 
     val list = objectStore.list(ListObjectsRequest())
 

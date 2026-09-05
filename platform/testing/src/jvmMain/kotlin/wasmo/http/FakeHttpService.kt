@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.update
 import okhttp3.HttpUrl
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
-import wit.wasmo.http.Types.HttpRequest
-import wit.wasmo.http.Types.HttpResponse
+import wit.wasmo.http.HttpRequest
+import wit.wasmo.http.HttpResponse
 
 class FakeHttpService : HttpService {
   private val handlersFlow = MutableStateFlow(listOf<Handler>())

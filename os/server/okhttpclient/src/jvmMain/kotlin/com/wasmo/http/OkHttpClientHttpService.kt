@@ -17,9 +17,9 @@ import okhttp3.Response
 import okio.IOException
 import wasmo.http.HttpService
 import wasmo.http.httpUrl
-import wit.wasmo.http.Types.Header
-import wit.wasmo.http.Types.HttpRequest
-import wit.wasmo.http.Types.HttpResponse
+import wit.wasmo.http.Header
+import wit.wasmo.http.HttpRequest
+import wit.wasmo.http.HttpResponse
 
 @Inject
 @SingleIn(OsScope::class)

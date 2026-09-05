@@ -25,9 +25,9 @@ import wasmo.http.HttpResponse
 import wasmo.http.HttpService
 import wasmo.http.httpUrl
 import wasmo.jobs.JobQueue
-import wit.wasmo.http.Types.Header
-import wit.wasmo.http.Types.HttpRequest
-import wit.wasmo.http.Types.HttpResponse
+import wit.wasmo.http.Header
+import wit.wasmo.http.HttpRequest
+import wit.wasmo.http.HttpResponse
 
 class JournalHttpService(
   private val clock: Clock,

@@ -5,7 +5,7 @@ import assertk.assertions.hasMessage
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import wasmo.objectstore.validateKey
-import wit.wasmo.object_store.Types.Key
+import wit.wasmo.objectstore.Key
 
 class ObjectStoreKeyTest {
   @Test
