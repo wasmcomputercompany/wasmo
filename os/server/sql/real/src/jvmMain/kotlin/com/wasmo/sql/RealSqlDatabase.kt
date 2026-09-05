@@ -212,7 +212,7 @@ internal class RealRowIterator(
           )
         }
 
-        "TEXT" -> SqlValue.String(value as String)
+        "TEXT", "VARCHAR" -> SqlValue.String(value as String)
         "BYTEA" -> SqlValue.Bytes((value as Buffer).bytes.toByteString())
         "UUID" -> {
           value as UUID

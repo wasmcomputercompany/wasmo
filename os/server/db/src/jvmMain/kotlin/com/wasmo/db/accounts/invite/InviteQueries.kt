@@ -36,13 +36,13 @@ suspend fun findInvitesByClaimedBy(
   }
   return rowIterator.singleOrNull {
     DbInvite(
-      getInviteId(0),
-      getInstant(1)!!,
-      getAccountId(2),
-      getS32(3)!!,
-      getString(4)!!,
-      getInstant(5),
-      getAccountIdOrNull(6),
+      id = getInviteId(0),
+      createdAt = getInstant(1)!!,
+      createdBy = getAccountId(2),
+      version = getS64(3)!!,
+      code = getString(4)!!,
+      claimedAt = getInstant(5),
+      claimedBy = getAccountIdOrNull(6),
     )
   }
 }
@@ -68,13 +68,13 @@ suspend fun findInvitesByCode(code: String): DbInvite? {
 
   return rowIterator.singleOrNull {
     DbInvite(
-      getInviteId(0),
-      getInstant(1)!!,
-      getAccountId(2),
-      getS32(3)!!,
-      getString(4)!!,
-      getInstant(5),
-      getAccountIdOrNull(6),
+      id = getInviteId(0),
+      createdAt = getInstant(1)!!,
+      createdBy = getAccountId(2),
+      version = getS64(3)!!,
+      code = getString(4)!!,
+      claimedAt = getInstant(5),
+      claimedBy = getAccountIdOrNull(6),
     )
   }
 }
@@ -111,10 +111,10 @@ suspend fun insertInvite(
 
 context(connection: SqlConnection)
 suspend fun claimInvite(
-  newVersion: Int,
+  newVersion: Long,
   claimedAt: Instant?,
   claimedBy: AccountId?,
-  expectedVersion: Int,
+  expectedVersion: Long,
   id: InviteId,
 ): Long {
   return connection.execute(
@@ -129,10 +129,10 @@ suspend fun claimInvite(
       id = $5
     """,
   ) {
-    bindS32(0, newVersion)
+    bindS64(0, newVersion)
     bindInstant(1, claimedAt)
     bindAccountId(2, claimedBy)
-    bindS32(3, expectedVersion)
+    bindS64(3, expectedVersion)
     bindInviteId(4, id)
   }
 }
