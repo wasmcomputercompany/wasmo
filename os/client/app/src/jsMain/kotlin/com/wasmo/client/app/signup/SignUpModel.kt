@@ -7,20 +7,27 @@ data class SignUpModel(
   val enterChallengeCode: EnterChallengeCodeModel? = null,
   val enterEmailAddress: EnterEmailAddressModel? = null,
   val newOrExistingAccountWithUsername: NewOrExistingAccountWithUsernameModel? = null,
-  val selectUsernameToSignIn: SelectUsernameToSignInModel? = null,
+  val signInWithUsernameAndPassword: SignInWithUsernameAndPasswordModel? = null,
 )
 
 /** Select an existing username, sign-in as that. */
-data class SelectUsernameToSignInModel(
+data class SignInWithUsernameAndPasswordModel(
   val usernameOptions: List<UsernameSlug> = listOf(),
+  // If non-null, the username that has been selected and the part of the password typed so far.
+  val passwordEntry: Pair<UsernameSlug, String>?,
   val canCreateUsername: Boolean = false,
   val canSubmit: Boolean = false,
+  val errorMessage: String? = null,
 )
 
 /** Enter a new username to sign-up and simultaneously sign-in with that username, or sign-in as an existing username. */
 data class NewOrExistingAccountWithUsernameModel(
   val username: String = "",
   val usernameHelperText: String = "",
+  val password: String = "",
+  val isPasswordVisible: Boolean = false,
+  val passwordConfirmation: String = "",
+  val isPasswordConfirmationVisible: Boolean = false,
   val canSubmit: Boolean = false,
   // An existing username to sign-in as. For example, if user "Jesse.123" already exists
   // and the user has typed username="jesse123", then rather than sign-up as "jesse123",

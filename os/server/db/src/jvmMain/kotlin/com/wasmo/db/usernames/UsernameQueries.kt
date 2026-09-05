@@ -1,5 +1,6 @@
 package com.wasmo.db.usernames
 
+import com.wasmo.api.AccountSignInConfig
 import com.wasmo.db.bindAccountId
 import com.wasmo.db.bindUsername
 import com.wasmo.db.getAccountId
@@ -155,19 +156,41 @@ suspend fun selectLinkedUsernameOrNullAllowDeleted(
 }
 
 context(connection: SqlConnection)
+suspend fun findAccountId(
+  username: UsernameSlug,
+): AccountId? {
+  val rowIterator = connection.executeQuery(
+    """
+      SELECT account_id
+      FROM Username
+      WHERE username = $1
+      LIMIT 1
+    """.trimIndent()
+  ) {
+    bindUsername(0, username)
+  }
+  return rowIterator.singleOrNull {
+    getAccountId(0)
+  }
+}
+
+context(connection: SqlConnection)
 suspend fun findUsernamesThatCanSignIn(
   limit: Long = Long.MAX_VALUE,
-): List<DbUsername> {
+): Map<DbUsername, AccountSignInConfig> {
   val rowIterator = connection.executeQuery(
     """
     SELECT
-      id,
-      created_at,
-      account_id,
-      username,
-      normalized_value,
-      deleted_at
-    FROM Username
+      u.id,
+      u.created_at,
+      u.account_id,
+      u.username,
+      u.normalized_value,
+      u.deleted_at,
+      p.id IS NOT NULL AS has_password
+    FROM Username u
+    LEFT JOIN PasswordDigest p
+    ON u.account_id = p.account_id
     WHERE deleted_at IS NULL
     ORDER BY username ASC
     LIMIT $1
@@ -176,9 +199,12 @@ suspend fun findUsernamesThatCanSignIn(
     bindS64(0, limit)
   }
   return rowIterator.list {
-    getUsername()
-  }
+    getUsernameAndSignInConfig()
+  }.associate({ it })
 }
+
+private fun SqlRow.getUsernameAndSignInConfig(): Pair<DbUsername, AccountSignInConfig> =
+  this.getUsername() to AccountSignInConfig(isPasswordRequired = getBool(6)!!)
 
 private fun SqlRow.getUsername(): DbUsername =
   DbUsername(

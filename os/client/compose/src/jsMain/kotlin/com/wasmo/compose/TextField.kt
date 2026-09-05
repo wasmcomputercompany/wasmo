@@ -17,6 +17,7 @@ fun TextField(
   disabled: Boolean = false,
   helperText: String? = null,
   groupedInputs: (@Composable DOMScope<HTMLFieldSetElement>.() -> Unit)? = null,
+  type: InputType<String> = InputType.Text,
   inputAttrs: InputAttrsScope<String>.() -> Unit,
 ) {
   val inputId = rememberNextId()
@@ -27,7 +28,7 @@ fun TextField(
     if (groupedInputs != null) {
       FieldsetGroup {
         Input(
-          type = InputType.Text,
+          type = type,
           attrs = {
             describedBy(inputId)
             ariaLabel(ariaLabel)
@@ -39,7 +40,7 @@ fun TextField(
       }
     } else {
       Input(
-        type = InputType.Text,
+        type = type,
         attrs = {
           describedBy(inputId)
           ariaLabel(ariaLabel)

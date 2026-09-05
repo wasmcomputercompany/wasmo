@@ -53,6 +53,8 @@ kotlin {
         implementation(projects.os.server.objectstore.fs)
         implementation(projects.os.server.passkeys.api)
         implementation(projects.os.server.passkeys.real)
+        implementation(projects.os.server.passwords.api)
+        implementation(projects.os.server.passwords.real)
         implementation(projects.os.server.payments.api)
         implementation(projects.os.server.payments.stripe)
         implementation(projects.os.server.permits.api)

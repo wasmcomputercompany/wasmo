@@ -27,6 +27,7 @@ import com.wasmo.emails.ConfirmEmailAddressRpc
 import com.wasmo.emails.LinkEmailAddressRpc
 import com.wasmo.framework.Request
 import com.wasmo.framework.Url
+import com.wasmo.identifiers.AccountPassword
 import com.wasmo.identifiers.ComputerSlug
 import com.wasmo.identifiers.Deployment
 import com.wasmo.installedapps.CallAppAction
@@ -117,10 +118,10 @@ class CallTester(
   )
 
   suspend fun createUsername(request: CreateUsernameRequest) =
-    createUsernameRpcProvider().handle(request.username)
+    createUsernameRpcProvider().handle(request.username, AccountPassword(request.password))
 
   suspend fun linkUsername(request: LinkUsernameRequest) =
-    linkUsernameRpcProvider().handle(request.username)
+    linkUsernameRpcProvider().handle(request.username, AccountPassword(request.password))
 
   suspend fun confirmEmailAddress(request: ConfirmEmailAddressRequest) =
     confirmEmailAddressRpcProvider().confirm(request)

@@ -6,6 +6,8 @@ import kotlin.time.Instant
 import wasmo.sql.SqlConnection
 
 interface PermitService {
+  // TODO: Make this return a Permit? so we can permit.release() rather than having to repeat
+  // (now, type, value, -count) to release acquired permits back into the pool.
   /**
    * @param count the number of permits to acquire. Use -1 to release a permit, typically after a
    *   successful action that shouldn't consume a permit.

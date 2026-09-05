@@ -1,6 +1,12 @@
 Local Development PostgreSQL
 ============================
 
+One-time setup (optionally okay to keep even when wiping the database):
+
+```bash
+$ echo 'export WASMO_PASSWORD_PEPPER="'$(xxd -l 16 -p /dev/random)'"'  >> ~/.zshrc && source ~/.zshrc
+```
+
 Create the database:
 
 ```bash

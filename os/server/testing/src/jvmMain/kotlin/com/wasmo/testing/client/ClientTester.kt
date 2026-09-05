@@ -118,11 +118,13 @@ class ClientTester(
 
   suspend fun createUsername(
     username: UsernameSlug = createNewUsername(),
+    password: String,
   ) : Response<CreateUsernameResponse>
   {
       val createResponse = call().createUsername(
         CreateUsernameRequest(
           username = username,
+          password = password,
         ),
       )
       return createResponse
@@ -130,9 +132,11 @@ class ClientTester(
 
   suspend fun linkUsername(
     username: UsernameSlug,
+    password: String,
   ) = call().linkUsername(
     LinkUsernameRequest(
       username = username,
+      password = password,
     ),
   )
 

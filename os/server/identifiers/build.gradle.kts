@@ -19,6 +19,7 @@ kotlin {
         implementation(libs.okio)
         implementation(projects.identifiers)
         implementation(projects.support.issues)
+        implementation(projects.wasmo.os.json)
       }
     }
   }

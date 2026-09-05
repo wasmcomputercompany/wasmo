@@ -13,6 +13,7 @@ import com.wasmo.computers.free.FreeComputersBindings
 import com.wasmo.emails.EmailBindings
 import com.wasmo.events.EventListener
 import com.wasmo.identifiers.Deployment
+import com.wasmo.identifiers.HashingPepper
 import com.wasmo.identifiers.OsScope
 import com.wasmo.installedapps.InstalledAppBindings
 import com.wasmo.installedapps.InstalledAppServiceGraph
@@ -22,6 +23,7 @@ import com.wasmo.objectstore.ObjectStoreAddress
 import com.wasmo.objectstore.filesystem.FileSystemObjectStoreBindings
 import com.wasmo.objectstore.s3.S3ObjectStoreBindings
 import com.wasmo.passkeys.PasskeysBindings
+import com.wasmo.passwords.PasswordBindings
 import com.wasmo.permits.PermitsBindings
 import com.wasmo.postgresqloperator.ExecPostgresqlOperatorBindings
 import com.wasmo.postgresqloperator.LocalPostgresql
@@ -57,6 +59,7 @@ import wasmo.sql.SqlDatabase
     KtorBindings::class,
     ObjectStoreBindings::class,
     PasskeysBindings::class,
+    PasswordBindings::class,
     PermitsBindings::class,
     PostmarkBindings::class,
     S3ObjectStoreBindings::class,
@@ -89,6 +92,7 @@ internal interface HomelabGraph {
       @Provides localPostgresql: LocalPostgresql,
       @Provides logger: Logger,
       @Provides eventListener: EventListener,
+      @Provides hashingPepper: HashingPepper,
     ): HomelabGraph
   }
 }
