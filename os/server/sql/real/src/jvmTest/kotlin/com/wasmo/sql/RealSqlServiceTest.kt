@@ -28,6 +28,7 @@ import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.test.runTest
+import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.json.JsonLiteral
 
@@ -48,6 +49,32 @@ class RealSqlServiceTest {
       valueBytes = "some bytes".encodeUtf8(),
       valueUuid = Uuid.parse("00000000-0000-4000-8000-000000000000"),
       valueJson = JsonLiteral("""{"a":1,"b":2}"""), // Must be in canonical form.
+    )
+    tester.sqlDatabase.newConnection().use { connection ->
+      connection.createTableAllTypes()
+      connection.insertIntoAllTypes(value)
+      assertThat(connection.selectFromAllTypes()).containsExactly(value)
+    }
+  }
+
+  /**
+   * This is similar in structure to the previous test, but the value of [AllTypes.valueJson] does
+   * not tell us what its type is - it could be [JsonLiteral] or [Double]. Unambiguously extracting
+   * the type information is necessary to correctly convert row instances to values.
+   */
+  @Test
+  fun `read and write all types with ambiguous value`() = runTest {
+    val value = AllTypes(
+      valueBool = false,
+      valueS32 = 0,
+      valueS64 = 0L,
+      valueF32 = 0f,
+      valueF64 = 0.0,
+      valueInstant = Instant.parse("1979-01-01T00:00:00Z"),
+      valueString = "",
+      valueBytes = ByteString.EMPTY,
+      valueUuid = Uuid.parse("00000000-0000-0000-0000-000000000000"),
+      valueJson = JsonLiteral("""0.0"""), // Must be in canonical form.
     )
     tester.sqlDatabase.newConnection().use { connection ->
       connection.createTableAllTypes()

@@ -28,6 +28,7 @@ class RealSqlDatabaseProvisioner(
   private val osDb: SqlDatabase,
   private val appDatabasePasswordSource: AppDatabasePasswordSource,
   private val clock: Clock,
+  private val vertxRowMetadataHack: VertxRowMetadataHack,
   private val eventListener: EventListener,
 ) : SqlDatabaseProvisioner {
   override suspend fun getOrProvision(
@@ -80,7 +81,7 @@ class RealSqlDatabaseProvisioner(
     // Log into the database as the provisioning owner to set up the app user permissions.
     trackAndClose { closeTracker ->
       val appDb = closeTracker.track { closeListener ->
-        val client = PostgresqlClient.Factory(eventListener)
+        val client = PostgresqlClient.Factory(vertxRowMetadataHack, eventListener)
           .connect(postgresqlConfig.adminToAppDatabase(databaseName))
         RealSqlDatabase(
           client = client,

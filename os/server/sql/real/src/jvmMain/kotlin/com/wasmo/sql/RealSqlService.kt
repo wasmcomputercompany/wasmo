@@ -16,6 +16,7 @@ import wasmo.sql.SqlService
 @SingleIn(InstalledAppScope::class)
 class RealSqlService(
   private val sqlDatabaseProvisioner: SqlDatabaseProvisioner,
+  private val vertxRowMetadataHack: VertxRowMetadataHack,
   private val eventListener: EventListener,
 ) : SqlService {
   private val closeTracker = CloseTracker()
@@ -24,7 +25,7 @@ class RealSqlService(
     val databaseSlug = DatabaseSlug(name)
     return closeTracker.track { closeListener ->
       val databaseAddress = sqlDatabaseProvisioner.getOrProvision(databaseSlug)
-      val client = PostgresqlClient.Factory(eventListener)
+      val client = PostgresqlClient.Factory(vertxRowMetadataHack, eventListener)
         .connect(databaseAddress)
 
       RealSqlDatabase(

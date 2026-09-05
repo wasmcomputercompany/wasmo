@@ -5,6 +5,7 @@ import app.cash.burst.coroutines.CoroutineTestInterceptor
 import com.wasmo.identifiers.Event
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.RealOsDatabaseInitializer
+import com.wasmo.sql.VertxRowMetadataHack
 import com.wasmo.sql.asSqlDatabase
 import wasmo.sql.SqlDatabase
 
@@ -19,7 +20,10 @@ class PostgresqlTester : CoroutineTestInterceptor {
     get() = run!!.sqlDatabase
 
   override suspend fun intercept(testFunction: CoroutineTestFunction) {
-    val postgresqlClientFactory = PostgresqlClient.Factory { events.add(it) }
+    val postgresqlClientFactory = PostgresqlClient.Factory(
+      vertxRowMetadataHack = VertxRowMetadataHack(),
+      eventListener = { events.add(it) },
+    )
     val prefix = ProjectPrefix.detect()
     val postgresqlConfig = testPostgresqlConfig(prefix)
     val initializer = RealOsDatabaseInitializer(

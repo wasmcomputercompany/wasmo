@@ -20,6 +20,7 @@ import okio.Closeable
 class PostgresqlClient(
   private val address: PostgresqlAddress,
   private val pool: Pool,
+  val vertxRowMetadataHack: VertxRowMetadataHack,
   val eventListener: EventListener,
 ) : Closeable {
   suspend fun <T> withConnection(block: suspend SqlClient.() -> T): T {
@@ -45,6 +46,7 @@ class PostgresqlClient(
   @Inject
   @SingleIn(OsScope::class)
   class Factory(
+    private val vertxRowMetadataHack: VertxRowMetadataHack,
     private val eventListener: EventListener,
   ) {
     fun connect(
@@ -81,7 +83,12 @@ class PostgresqlClient(
         }
         .build()
 
-      return PostgresqlClient(address, pool, eventListener = eventListener)
+      return PostgresqlClient(
+        vertxRowMetadataHack = vertxRowMetadataHack,
+        address = address,
+        pool = pool,
+        eventListener = eventListener,
+      )
     }
   }
 }
