@@ -8,7 +8,7 @@ data class DbInvite(
   val id: InviteId,
   val createdAt: Instant,
   val createdBy: AccountId,
-  val version: Int,
+  val version: Long,
   val code: String,
   val claimedAt: Instant?,
   val claimedBy: AccountId?,

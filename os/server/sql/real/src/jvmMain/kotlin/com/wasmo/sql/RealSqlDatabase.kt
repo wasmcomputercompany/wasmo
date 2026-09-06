@@ -17,13 +17,12 @@ import io.vertx.sqlclient.Tuple
 import io.vertx.sqlclient.data.NullValue
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.UUID
 import kotlin.time.Instant
 import kotlin.time.toJavaInstant
-import kotlin.time.toKotlinInstant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
-import kotlin.uuid.toKotlinUuid
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
 import wasmo.json.JsonLiteral
@@ -33,8 +32,16 @@ import wasmo.sql.SqlConnection
 import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
+import wit.wasi.clocks.v0_2_0.WallClock
+import wit.wasmo.sql.SqlRow as WasmoSqlRow
+import wit.wasmo.sql.SqlValue
+import wit.wasmo.uuid.Uuid as WasmoUuid
 
-fun PostgresqlClient.asSqlDatabase(): SqlDatabase = RealSqlDatabase(this, eventListener = this.eventListener)
+fun PostgresqlClient.asSqlDatabase(): SqlDatabase =
+  RealSqlDatabase(
+    client = this,
+    eventListener = eventListener,
+  )
 
 internal class RealSqlDatabase(
   private val client: PostgresqlClient,
@@ -48,6 +55,7 @@ internal class RealSqlDatabase(
       RealSqlConnection(
         sqlClient = client.connect(),
         closeListener = closeListener,
+        vertxRowMetadataHack = client.vertxRowMetadataHack,
         eventListener = eventListener,
       )
     }
@@ -63,6 +71,7 @@ internal class RealSqlDatabase(
 internal class RealSqlConnection(
   override val sqlClient: SqlClient,
   private val closeListener: CloseListener,
+  private val vertxRowMetadataHack: VertxRowMetadataHack,
   private val eventListener: EventListener,
 ) : OsSqlConnection {
   private val closeTracker = CloseTracker()
@@ -78,7 +87,8 @@ internal class RealSqlConnection(
     sql: String,
     bindParameters: (SqlBinder.() -> Unit)?,
   ) = preserveStackTrace {
-    RealRowIterator(executeInternal(sql, bindParameters).iterator())
+    val rowSet = executeInternal(sql, bindParameters)
+    RealRowIterator(vertxRowMetadataHack, rowSet.iterator())
   }
 
   private suspend fun executeInternal(
@@ -172,11 +182,51 @@ internal class TupleBuilder : SqlBinder {
 }
 
 internal class RealRowIterator(
+  private val vertxRowMetadataHack: VertxRowMetadataHack,
   private val delegate: VertxRowIterator<VertxRow?>,
 ) : RowIterator {
   override suspend fun next(): SqlRow? {
     if (!delegate.hasNext()) return null
-    return RealSqlRow(delegate.next()!!)
+    val row = delegate.next()!!
+    val wasmoRow = vertxRowToWasmoSqlRow(row)
+    return RealSqlRow(wasmoRow)
+  }
+
+  fun vertxRowToWasmoSqlRow(row: VertxRow): WasmoSqlRow {
+    val columnDescriptors = vertxRowMetadataHack.getColumnDescriptors(row)
+    val sqlValues = List(row.size()) { c ->
+      val value = row.get(Any::class.java, c) ?: return@List null
+      when (val typeName = columnDescriptors[c].typeName()) {
+        "BOOL" -> SqlValue.Bool(value as Boolean)
+        "INT4" -> SqlValue.S32(value as Int)
+        "INT8" -> SqlValue.S64(value as Long)
+        "FLOAT4" -> SqlValue.F32(value as Float)
+        "FLOAT8" -> SqlValue.F64(value as Double)
+        "TIMESTAMPTZ" -> {
+          val instant = (value as OffsetDateTime).toInstant()
+          SqlValue.Datetime(
+            WallClock.Datetime(
+              seconds = instant.epochSecond.toULong(),
+              nanoseconds = instant.nano.toUInt(),
+            ),
+          )
+        }
+
+        "TEXT", "VARCHAR" -> SqlValue.String(value as String)
+        "BYTEA" -> SqlValue.Bytes((value as Buffer).bytes.toByteString())
+        "UUID" -> {
+          value as UUID
+          SqlValue.Uuid(
+            WasmoUuid(value.mostSignificantBits.toULong() to value.leastSignificantBits.toULong()),
+          )
+        }
+
+        "JSONB" -> SqlValue.Json(wit.wasmo.json.JsonLiteral(Json.CODEC.toString(value)))
+        else -> error("value type not implemented: $typeName")
+      }
+    }
+
+    return WasmoSqlRow(sqlValues)
   }
 
   override fun close() {
@@ -184,49 +234,45 @@ internal class RealRowIterator(
 }
 
 internal class RealSqlRow(
-  private val delegate: VertxRow,
+  private val delegate: WasmoSqlRow,
 ) : SqlRow {
-  override fun getBool(index: Int): Boolean? {
-    return delegate.getBoolean(index)
-  }
+  override fun getBool(index: Int) =
+    (delegate.value[index] as? SqlValue.Bool)?.value
 
-  override fun getS32(index: Int): Int? {
-    return delegate.getInteger(index)
-  }
+  override fun getS32(index: Int) =
+    (delegate.value[index] as? SqlValue.S32)?.value
 
-  override fun getS64(index: Int): Long? {
-    return delegate.getLong(index)
-  }
+  override fun getS64(index: Int) =
+    (delegate.value[index] as? SqlValue.S64)?.value
 
-  override fun getF32(index: Int): Float? {
-    return delegate.getFloat(index)
-  }
+  override fun getF32(index: Int) =
+    (delegate.value[index] as? SqlValue.F32)?.value
 
-  override fun getF64(index: Int): Double? {
-    return delegate.getDouble(index)
-  }
+  override fun getF64(index: Int) =
+    (delegate.value[index] as? SqlValue.F64)?.value
 
   override fun getInstant(index: Int): Instant? {
-    val offsetDateTime = delegate.getOffsetDateTime(index) ?: return null
-    return offsetDateTime.toInstant().toKotlinInstant()
+    val datetime = (delegate.value[index] as? SqlValue.Datetime)?.value ?: return null
+    return Instant.fromEpochSeconds(
+      epochSeconds = datetime.seconds.toLong(),
+      nanosecondAdjustment = datetime.nanoseconds.toInt(),
+    )
   }
 
-  override fun getString(index: Int): String? {
-    return delegate.getString(index)
-  }
+  override fun getString(index: Int) =
+    (delegate.value[index] as? SqlValue.String)?.value
 
-  override fun getBytes(index: Int): ByteString? {
-    val buffer = delegate.getBuffer(index) ?: return null
-    return buffer.bytes.toByteString()
-  }
+  override fun getBytes(index: Int) =
+    (delegate.value[index] as? SqlValue.Bytes)?.value
 
   override fun getUuid(index: Int): Uuid? {
-    return delegate.getUUID(index)?.toKotlinUuid()
+    val (v1, v2) = (delegate.value[index] as? SqlValue.Uuid)?.value?.value ?: return null
+    return Uuid.fromULongs(v1, v2)
   }
 
   override fun getJson(index: Int): JsonLiteral? {
-    val json = delegate.getJson(index) ?: return null
-    return JsonLiteral(Json.CODEC.toString(json))
+    val value = (delegate.value[index] as? SqlValue.Json)?.value ?: return null
+    return JsonLiteral(value.value)
   }
 }
 

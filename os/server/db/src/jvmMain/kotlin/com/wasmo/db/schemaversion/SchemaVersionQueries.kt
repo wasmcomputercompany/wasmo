@@ -48,8 +48,8 @@ private suspend fun ensureSchemaVersionStored(versionZeroMigrationHash: ByteStri
     // https://www.postgresql.org/docs/current/sql-prepare.html
     """
     CREATE TABLE IF NOT EXISTS DatabaseSchemaVersion (
-      id INTEGER NOT NULL PRIMARY KEY DEFAULT $DB_SCHEMA_VERSION_ID,
-      version INTEGER NOT NULL,
+      id BIGINT NOT NULL PRIMARY KEY DEFAULT $DB_SCHEMA_VERSION_ID,
+      version BIGINT NOT NULL,
       -- hash of the Map of migration SQLs up to and including version.
       migration_hash BYTEA NOT NULL
     )

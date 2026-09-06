@@ -7,6 +7,7 @@ import com.wasmo.ktor.KtorLogger
 import com.wasmo.ktor.WasmoKtorConfig
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.ProvisioningDb
+import com.wasmo.sql.VertxRowMetadataHack
 import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.sql.asSqlDatabase
 import io.ktor.server.engine.CommandLineConfig
@@ -48,7 +49,10 @@ abstract class Distribution {
     logger = KtorLogger(server)
     eventListener = LoggingEventListener(logger)
 
-    val postgresqlClientFactory = PostgresqlClient.Factory(eventListener)
+    val postgresqlClientFactory = PostgresqlClient.Factory(
+      VertxRowMetadataHack(),
+      eventListener,
+    )
     val osPostgresqlClient = postgresqlClientFactory.connect(postgresqlConfig.os)
     val provisioningDb = ProvisioningDb(
       provisioningDb = postgresqlClientFactory.connect(postgresqlConfig.admin)

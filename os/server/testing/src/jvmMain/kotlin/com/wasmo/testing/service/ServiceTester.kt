@@ -10,6 +10,7 @@ import com.wasmo.permits.PermitService
 import com.wasmo.sql.PostgresqlClient
 import com.wasmo.sql.ProvisioningDb
 import com.wasmo.sql.RealOsDatabaseInitializer
+import com.wasmo.sql.VertxRowMetadataHack
 import com.wasmo.sql.WasmoPostgresqlConfig
 import com.wasmo.sql.asSqlDatabase
 import com.wasmo.sql.testing.ProjectPrefix
@@ -27,7 +28,6 @@ import com.wasmo.testing.client.ClientTester
 import com.wasmo.testing.events.TestEventListener
 import dev.wasmo.absurd.dangerouslyClearAbsurdSchema
 import dev.zacsweers.metro.createGraphFactory
-import java.util.Base64
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -35,7 +35,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encodeUtf8
-import okio.ByteString.Companion.toByteString
 import okio.FileSystem
 import okio.Path
 import wasmo.http.FakeHttpService
@@ -113,7 +112,10 @@ class ServiceTester : CoroutineTestInterceptor {
     fileSystem.createDirectories(testDirectory)
 
     val prefix = ProjectPrefix.detect()
-    val clientFactory = PostgresqlClient.Factory { }
+    val clientFactory = PostgresqlClient.Factory(
+      vertxRowMetadataHack = VertxRowMetadataHack(),
+      eventListener = {},
+    )
     val postgresqlConfig = testPostgresqlConfig(prefix)
     val initializer = RealOsDatabaseInitializer(
       clientFactory = clientFactory,
@@ -171,7 +173,7 @@ class ServiceTester : CoroutineTestInterceptor {
             coroutineScope = this,
             fileSystem = fileSystem,
             testDirectory = testDirectory,
-            hashingPepper = HashingPepper("pepper for tests".encodeUtf8()) // 16 bytes
+            hashingPepper = HashingPepper("pepper for tests".encodeUtf8()), // 16 bytes
           )
           wasmoDb.transaction {
             graph.migrator.ensureSchemaVersion()

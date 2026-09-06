@@ -44,7 +44,7 @@ class InviteService(
     if (invite.claimedBy != claimedById) {
       if (invite.claimedBy != null) throw ArgumentUserException("already claimed")
       claimInvite(
-        newVersion = invite.version + 1,
+        newVersion = invite.version + 1L,
         claimedAt = clock.now(),
         claimedBy = claimedById,
         expectedVersion = invite.version,
