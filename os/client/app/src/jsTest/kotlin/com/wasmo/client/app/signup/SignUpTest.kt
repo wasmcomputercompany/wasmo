@@ -63,7 +63,7 @@ class SignUpTest {
         attrs = {
           classes("FillWidthHeight")
         },
-        options = listOf(
+        usernameOptions = listOf(
           UsernameSlug("admin"),
           UsernameSlug("jesse"),
         ),
@@ -72,6 +72,7 @@ class SignUpTest {
         canCreateUsername = true,
         eventListener = {
         },
+        passwordEntry = null,
       )
     }
   }
@@ -95,6 +96,10 @@ class SignUpTest {
         busy = false,
         eventListener = {
         },
+        password = "",
+        isPasswordVisible = false,
+        passwordConfirmation = "",
+        isPasswordConfirmationVisible = false,
       )
     }
   }
