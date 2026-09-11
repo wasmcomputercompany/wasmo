@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackOutput
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 
 @Suppress("unused") // Used reflectively.
 class WasmoProjectPlugin : Plugin<Project> {
@@ -115,6 +116,10 @@ internal class RealWasmoBuildExtension(
             binaries.executable()
           }
         }
+      }
+
+      project.tasks.withType<KotlinJvmTest>().configureEach {
+        environment("WASMO_ROOT", project.rootDir)
       }
     }
   }
