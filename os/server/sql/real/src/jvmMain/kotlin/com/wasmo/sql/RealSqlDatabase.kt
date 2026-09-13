@@ -33,6 +33,7 @@ import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
 import wit.wasi.clocks.v0_2_0.WallClock
+import wit.wasmo.sql.SqlError
 import wit.wasmo.sql.SqlRow as WasmoSqlRow
 import wit.wasmo.sql.SqlValue
 import wit.wasmo.uuid.Uuid as WasmoUuid
@@ -277,6 +278,10 @@ internal class RealSqlRow(
 }
 
 private fun PgException.toSqlException() = SqlException(
+  error = toSqlError(),
+)
+
+private fun PgException.toSqlError() = SqlError(
   message = message,
   sqlState = sqlState,
   detail = detail,

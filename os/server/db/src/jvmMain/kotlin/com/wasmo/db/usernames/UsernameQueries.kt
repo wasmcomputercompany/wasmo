@@ -9,6 +9,7 @@ import com.wasmo.identifiers.AccountId
 import com.wasmo.identifiers.UsernameSlug
 import kotlin.time.Instant
 import wasmo.sql.SqlConnection
+import wasmo.sql.SqlError
 import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
 import wasmox.sql.SqlTransaction
@@ -64,7 +65,11 @@ suspend fun replaceUsername(
     username = replacedUsername,
   )
   if (rowsAffectedByDelete == 0L) {
-    throw SqlException("Failed to delete username $replacedUsername for accountId $accountId")
+    throw SqlException(
+      SqlError(
+        "Failed to delete username $replacedUsername for accountId $accountId"
+      )
+    )
   }
   val rowsAffectedByInsert = insertUsername(
     createdAt = replacedAt,
