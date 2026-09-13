@@ -67,10 +67,12 @@ value class ProjectPrefix(
 
   companion object {
     fun detect(): ProjectPrefix {
+      val wasmoRoot = System.getenv("WASMO_ROOT")
+        ?: error("required WASMO_ROOT environment variable not set")
       val workingDirectory = FileSystem.SYSTEM.canonicalize(".".toPath())
+        .relativeTo(wasmoRoot.toPath())
       val segments = workingDirectory.segments
-      val relativeSegments = segments.subList(segments.lastIndexOf("wasmo") + 1, segments.size)
-      val prefix = relativeSegments.joinToString(separator = "_") { it.take(4) }
+      val prefix = segments.joinToString(separator = "_") { it.take(4) }
       return ProjectPrefix(prefix)
     }
   }
