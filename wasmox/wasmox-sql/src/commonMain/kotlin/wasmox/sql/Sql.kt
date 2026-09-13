@@ -104,6 +104,6 @@ suspend fun <T> RowIterator.singleOrNull(mapper: SqlRow.() -> T): T? {
 }
 
 val SqlException.isUniqueViolation: Boolean
-  get() = sqlState == "23505"
+  get() = error.sqlState == "23505"
 val SqlException.isDuplicateDatabase: Boolean
-  get() = sqlState == "42P04"
+  get() = error.sqlState == "42P04"

@@ -8,6 +8,7 @@ import kotlin.uuid.Uuid
 import okio.ByteString
 import okio.Closeable
 import wasmo.json.JsonLiteral
+import wit.wasmo.sql.SqlError as WitSqlError
 
 /**
  * Creates PostgreSQL databases and executes writes and reads on them.
@@ -41,27 +42,41 @@ interface SqlConnection : Closeable {
   ): RowIterator
 }
 
-/**
- * See the Postgresql docs for an explanation of each of these properties.
- * https://www.postgresql.org/docs/current/protocol-error-fields.html
- */
 open class SqlException(
-  message: String?,
-  /** https://www.postgresql.org/docs/current/errcodes-appendix.html */
-  val sqlState: String? = null,
-  val detail: String? = null,
-  val hint: String? = null,
-  val position: String? = null,
-  val where: String? = null,
-  val schema: String? = null,
-  val table: String? = null,
-  val column: String? = null,
-  val dataType: String? = null,
-  val constraint: String? = null,
-  val file: String? = null,
-  val line: String? = null,
-  val routine: String? = null,
-) : Exception(message)
+  val error: WitSqlError,
+) : Exception(error.message)
+
+fun SqlError(
+  message: String? = null,
+  sqlState: String? = null,
+  detail: String? = null,
+  hint: String? = null,
+  position: String? = null,
+  where: String? = null,
+  schema: String? = null,
+  table: String? = null,
+  column: String? = null,
+  dataType: String? = null,
+  constraint: String? = null,
+  file: String? = null,
+  line: String? = null,
+  routine: String? = null,
+) = WitSqlError(
+  message = message,
+  sqlState = sqlState,
+  detail = detail,
+  hint = hint,
+  position = position,
+  `where` = where,
+  schema = schema,
+  table = table,
+  column = column,
+  dataType = dataType,
+  constraint = constraint,
+  `file` = file,
+  line = line,
+  routine = routine,
+)
 
 interface RowIterator : Closeable {
   /** Returns null if there is no next row. */

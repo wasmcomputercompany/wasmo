@@ -61,7 +61,7 @@ class SaveEntryAction(
         check(rowCount == 1L)
       }
     } catch (e: SqlException) {
-      if (e.constraint == "entry_slug_key") {
+      if (e.error.constraint == "entry_slug_key") {
         return SaveEntryResponse(
           error = SaveEntryError.SlugConflict,
         )
