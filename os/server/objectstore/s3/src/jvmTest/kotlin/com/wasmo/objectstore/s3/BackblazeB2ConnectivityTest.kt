@@ -12,9 +12,9 @@ import okio.ByteString.Companion.encodeUtf8
 import wasmo.objectstore.Key
 import wasmo.objectstore.ListObjectsRequest
 import wasmo.objectstore.toContentType
-import wit.wasmo.objectstore.DeleteObjectRequest
-import wit.wasmo.objectstore.Entry
-import wit.wasmo.objectstore.GetObjectRequest
+import wit.wasmo.objectstore.v0_1_0.DeleteObjectRequest
+import wit.wasmo.objectstore.v0_1_0.Entry
+import wit.wasmo.objectstore.v0_1_0.GetObjectRequest
 
 /**
  * Run this test manually to confirm connectivity to a particular Backblaze bucket.
@@ -44,7 +44,7 @@ class BackblazeB2ConnectivityTest {
     val value = "Hello, this file has a path!".encodeUtf8()
 
     val putObjectResponse = objectStore.put(
-      wit.wasmo.objectstore.PutObjectRequest(
+      wit.wasmo.objectstore.v0_1_0.PutObjectRequest(
         key = key,
         value = value,
         contentType = "text/plain;charset=utf-8".toContentType(),
