@@ -30,7 +30,7 @@ import kotlin.uuid.Uuid
 import kotlinx.coroutines.test.runTest
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
-import wasmo.json.JsonLiteral
+import wit.wasmo.json.JsonLiteral
 
 class RealSqlServiceTest {
   @InterceptTest

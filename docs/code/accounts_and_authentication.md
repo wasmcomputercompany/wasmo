@@ -101,12 +101,12 @@ All privileged actions are written to an audit log.
 
 ### `Passkey`
 
-Passkeys are partially implemented in the [invites flow](../../code/invites.md). We should probably
+Passkeys are partially implemented in the [invites flow](../code/invites.md). We should probably
 redo that flow (but keep the passkeys).
 
 ### `VerifiedEmailAddress`
 
-We [verify email addresses](../../code/email_address_linking.md).
+We [verify email addresses](../code/email_address_linking.md).
 
 ### `AcceptedTerms`
 
