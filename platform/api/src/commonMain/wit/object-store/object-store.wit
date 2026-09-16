@@ -1,8 +1,8 @@
-package wasmo:object-store;
+package wasmo:object-store@0.1.0;
 
 @since(version = 0.1.0)
 interface types {
-  use wasmo:content-type/types.{content-type};
+  use wasmo:content-type/types@0.1.0.{content-type};
 
   /// UTF-8 encoded key length must be at least 1 byte, and at most 1024 bytes.
   /// Each code point must be greater than '\u0020' (space).

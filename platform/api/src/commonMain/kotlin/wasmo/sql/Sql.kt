@@ -7,8 +7,8 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import okio.ByteString
 import okio.Closeable
-import wit.wasmo.json.JsonLiteral
-import wit.wasmo.sql.SqlError as WitSqlError
+import wit.wasmo.json.v0_1_0.JsonLiteral
+import wit.wasmo.sql.v0_1_0.SqlError as WitSqlError
 
 /**
  * Creates PostgreSQL databases and executes writes and reads on them.

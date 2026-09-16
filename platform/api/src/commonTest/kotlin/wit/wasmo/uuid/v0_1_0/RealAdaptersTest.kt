@@ -1,8 +1,9 @@
 @file:OptIn(ExperimentalUuidApi::class)
 
-package wit.wasmo.uuid
+package wit.wasmo.uuid.v0_1_0
 
 import com.wasmo.assertRoundTrip
+import wit.wasmo.uuid.v0_1_0.RealAdapters
 import kotlin.test.Test
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid

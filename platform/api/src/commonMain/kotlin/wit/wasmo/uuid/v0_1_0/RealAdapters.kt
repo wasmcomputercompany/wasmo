@@ -1,4 +1,4 @@
-package wit.wasmo.uuid
+package wit.wasmo.uuid.v0_1_0
 
 import dev.wasmo.brevity.WitAdapter
 import kotlin.uuid.Uuid as KotlinUuid

@@ -33,7 +33,6 @@ import com.wasmo.testing.events.TestEventListener
 import com.wasmo.usernames.UsernameBindings
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import okio.FileSystem
 import okio.Path

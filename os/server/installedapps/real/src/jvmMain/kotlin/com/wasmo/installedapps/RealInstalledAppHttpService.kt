@@ -15,10 +15,10 @@ import wasmo.access.ComputerAccess
 import wasmo.http.contentType
 import wasmo.objectstore.GetObjectRequest
 import wasmo.objectstore.ObjectStore
-import wit.wasmo.http.Header as PlatformHeader
-import wit.wasmo.http.HttpRequest
-import wit.wasmo.http.HttpResponse
-import wit.wasmo.http.Url
+import wit.wasmo.http.v0_1_0.Header as PlatformHeader
+import wit.wasmo.http.v0_1_0.HttpRequest
+import wit.wasmo.http.v0_1_0.HttpResponse
+import wit.wasmo.http.v0_1_0.Url
 
 /**
  * Attempts to satisfy an HTTP request according to our routing precedence rules.

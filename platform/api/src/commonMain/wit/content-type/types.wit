@@ -1,4 +1,4 @@
-package wasmo:content-type;
+package wasmo:content-type@0.1.0;
 
 @since(version = 0.1.0)
 interface types {

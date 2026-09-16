@@ -3,16 +3,16 @@ package wasmo.objectstore
 import kotlin.jvm.JvmInline
 import okio.Buffer
 import okio.ByteString
-import wit.wasmo.contenttype.ContentType
-import wit.wasmo.objectstore.DeleteObjectRequest
-import wit.wasmo.objectstore.Entry
-import wit.wasmo.objectstore.EntryObject
-import wit.wasmo.objectstore.GetObjectRequest
-import wit.wasmo.objectstore.GetObjectResponse
-import wit.wasmo.objectstore.ListObjectsRequest
-import wit.wasmo.objectstore.ListObjectsResponse
-import wit.wasmo.objectstore.PutObjectRequest
-import wit.wasmo.objectstore.PutObjectResponse
+import wit.wasmo.contenttype.v0_1_0.ContentType
+import wit.wasmo.objectstore.v0_1_0.DeleteObjectRequest
+import wit.wasmo.objectstore.v0_1_0.Entry
+import wit.wasmo.objectstore.v0_1_0.EntryObject
+import wit.wasmo.objectstore.v0_1_0.GetObjectRequest
+import wit.wasmo.objectstore.v0_1_0.GetObjectResponse
+import wit.wasmo.objectstore.v0_1_0.ListObjectsRequest
+import wit.wasmo.objectstore.v0_1_0.ListObjectsResponse
+import wit.wasmo.objectstore.v0_1_0.PutObjectRequest
+import wit.wasmo.objectstore.v0_1_0.PutObjectResponse
 
 /**
  * An S3-like object store.

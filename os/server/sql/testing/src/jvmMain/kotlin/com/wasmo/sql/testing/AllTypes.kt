@@ -6,7 +6,7 @@ import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import okio.ByteString
-import wit.wasmo.json.JsonLiteral
+import wit.wasmo.json.v0_1_0.JsonLiteral
 import wasmo.sql.SqlConnection
 
 data class AllTypes(
