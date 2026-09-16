@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package com.wasmo.sql
 
 import com.wasmo.api.SqlExecuteStartedEvent
@@ -20,23 +18,22 @@ import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.time.Instant
 import kotlin.time.toJavaInstant
-import kotlin.uuid.ExperimentalUuidApi
+import kotlin.time.toKotlinInstant
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
+import kotlin.uuid.toKotlinUuid
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
-import wasmo.json.JsonLiteral
 import wasmo.sql.RowIterator
 import wasmo.sql.SqlBinder
 import wasmo.sql.SqlConnection
 import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
-import wit.wasi.clocks.v0_2_0.WallClock
+import wit.wasmo.json.JsonLiteral
 import wit.wasmo.sql.SqlError
 import wit.wasmo.sql.SqlRow as WasmoSqlRow
 import wit.wasmo.sql.SqlValue
-import wit.wasmo.uuid.Uuid as WasmoUuid
 
 fun PostgresqlClient.asSqlDatabase(): SqlDatabase =
   RealSqlDatabase(
@@ -127,7 +124,7 @@ internal class RealSqlConnection(
 
 internal class TupleBuilder : SqlBinder {
   private val _values = mutableListOf<Any?>()
-  public val values: List<Any?> = _values
+  val values: List<Any?> = _values
 
   private fun set(index: Int, value: Any) {
     while (_values.size <= index) {
@@ -174,7 +171,7 @@ internal class TupleBuilder : SqlBinder {
   }
 
   override fun bindJson(index: Int, value: JsonLiteral?) {
-    val jsonValue = value?.let { Json.CODEC.fromString(it.json, Any::class.java) }
+    val jsonValue = value?.let { Json.CODEC.fromString(it.value, Any::class.java) }
       ?: NullValue.JsonObject
     set(index, jsonValue)
   }
@@ -203,26 +200,11 @@ internal class RealRowIterator(
         "INT8" -> SqlValue.S64(value as Long)
         "FLOAT4" -> SqlValue.F32(value as Float)
         "FLOAT8" -> SqlValue.F64(value as Double)
-        "TIMESTAMPTZ" -> {
-          val instant = (value as OffsetDateTime).toInstant()
-          SqlValue.Datetime(
-            WallClock.Datetime(
-              seconds = instant.epochSecond.toULong(),
-              nanoseconds = instant.nano.toUInt(),
-            ),
-          )
-        }
-
+        "TIMESTAMPTZ" -> SqlValue.Datetime((value as OffsetDateTime).toInstant().toKotlinInstant())
         "TEXT", "VARCHAR" -> SqlValue.String(value as String)
         "BYTEA" -> SqlValue.Bytes((value as Buffer).bytes.toByteString())
-        "UUID" -> {
-          value as UUID
-          SqlValue.Uuid(
-            WasmoUuid(value.mostSignificantBits.toULong() to value.leastSignificantBits.toULong()),
-          )
-        }
-
-        "JSONB" -> SqlValue.Json(wit.wasmo.json.JsonLiteral(Json.CODEC.toString(value)))
+        "UUID" -> SqlValue.Uuid((value as UUID).toKotlinUuid())
+        "JSONB" -> SqlValue.Json(JsonLiteral(Json.CODEC.toString(value)))
         else -> error("value type not implemented: $typeName")
       }
     }
@@ -252,13 +234,8 @@ internal class RealSqlRow(
   override fun getF64(index: Int) =
     (delegate.value[index] as? SqlValue.F64)?.value
 
-  override fun getInstant(index: Int): Instant? {
-    val datetime = (delegate.value[index] as? SqlValue.Datetime)?.value ?: return null
-    return Instant.fromEpochSeconds(
-      epochSeconds = datetime.seconds.toLong(),
-      nanosecondAdjustment = datetime.nanoseconds.toInt(),
-    )
-  }
+  override fun getInstant(index: Int) =
+    (delegate.value[index] as? SqlValue.Datetime)?.value
 
   override fun getString(index: Int) =
     (delegate.value[index] as? SqlValue.String)?.value
@@ -266,10 +243,8 @@ internal class RealSqlRow(
   override fun getBytes(index: Int) =
     (delegate.value[index] as? SqlValue.Bytes)?.value
 
-  override fun getUuid(index: Int): Uuid? {
-    val (v1, v2) = (delegate.value[index] as? SqlValue.Uuid)?.value?.value ?: return null
-    return Uuid.fromULongs(v1, v2)
-  }
+  override fun getUuid(index: Int) =
+    (delegate.value[index] as? SqlValue.Uuid)?.value
 
   override fun getJson(index: Int): JsonLiteral? {
     val value = (delegate.value[index] as? SqlValue.Json)?.value ?: return null

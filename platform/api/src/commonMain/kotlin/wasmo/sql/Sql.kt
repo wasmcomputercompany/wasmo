@@ -7,7 +7,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import okio.ByteString
 import okio.Closeable
-import wasmo.json.JsonLiteral
+import wit.wasmo.json.JsonLiteral
 import wit.wasmo.sql.SqlError as WitSqlError
 
 /**
