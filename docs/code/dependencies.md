@@ -38,7 +38,6 @@ We use Alpine Linux as our Docker base image.
 Run this to update Gradle-managed files including the binary `gradle-wrapper.jar` file:
 
 ```bash
-$ cd ../..
 $ ./gradlew wrapper --gradle-version 9.5.1
 ```
 
