@@ -5,7 +5,7 @@ import com.wasmo.journal.server.attachments.AttachmentStore
 import okio.ByteString.Companion.encodeUtf8
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
-import wit.wasmo.objectstore.DeleteObjectRequest
+import wit.wasmo.objectstore.v0_1_0.DeleteObjectRequest
 import wasmo.objectstore.Key
 
 /**

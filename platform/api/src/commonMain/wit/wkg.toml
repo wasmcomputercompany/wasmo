@@ -1,0 +1,11 @@
+[workspace]
+members = [
+  "content-type",
+  "http",
+  "jobs",
+  "json",
+  "object-store",
+  "sql",
+  "transfer-service",
+  "uuid",
+]

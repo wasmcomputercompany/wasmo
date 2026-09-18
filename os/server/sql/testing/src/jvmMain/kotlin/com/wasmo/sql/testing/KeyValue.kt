@@ -1,6 +1,6 @@
 package com.wasmo.sql.testing
 
-import wit.wasmo.json.JsonLiteral
+import wit.wasmo.json.v0_1_0.JsonLiteral
 import wasmo.sql.SqlConnection
 
 suspend fun SqlConnection.createTableKeyValues() {

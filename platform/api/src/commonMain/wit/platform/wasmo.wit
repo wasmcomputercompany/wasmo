@@ -1,4 +1,4 @@
-package wasmo:platform;
+package wasmo:platform@0.1.0;
 
 /// The API contract between Wasmo OS and its applications.
 @since(version = 0.1.0)
@@ -23,21 +23,21 @@ world wasmo {
   import wasi:random/random@0.2.0;
 
   /// HTTP inbound and outbound.
-  import wasmo:http/http-service;
-  export wasmo:http/http-service;
+  import wasmo:http/http-service@0.1.0;
+  export wasmo:http/http-service@0.1.0;
 
   // Object store.
-  import wasmo:object-store/object-store;
+  import wasmo:object-store/object-store@0.1.0;
 
   /// Job queue.
-  import wasmo:jobs/job-queue-factory;
-  export wasmo:jobs/job-handler-factory;
+  import wasmo:jobs/job-queue-factory@0.1.0;
+  export wasmo:jobs/job-handler-factory@0.1.0;
 
   /// SQL database.
-  import wasmo:sql/sql-database-factory;
+  import wasmo:sql/sql-database-factory@0.1.0;
 
   /// Data transfer.
-  import wasmo:transfer-service/transfer-service;
+  import wasmo:transfer-service/transfer-service@0.1.0;
 
   /// Invoked after an app is first installed, and after each version update.
   export after-install: func(

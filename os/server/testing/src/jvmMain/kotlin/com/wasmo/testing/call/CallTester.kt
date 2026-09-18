@@ -42,7 +42,7 @@ import com.wasmo.website.ServerOsHtml
 import dev.zacsweers.metro.Inject
 import okhttp3.HttpUrl
 import okio.ByteString
-import wit.wasmo.http.Header
+import wit.wasmo.http.v0_1_0.Header
 
 /**
  * Tests a single API call to the server.

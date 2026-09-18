@@ -1,4 +1,4 @@
-package wasmo:uuid;
+package wasmo:uuid@0.1.0;
 
 @since(version = 0.1.0)
 interface types {
