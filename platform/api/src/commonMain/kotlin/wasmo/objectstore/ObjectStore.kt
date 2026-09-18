@@ -51,7 +51,7 @@ value class Key(
 
     val utf8Size = buffer.size
     require(utf8Size in 1..1024) {
-      "key length must be in 1..1024 but was $utf8Size: $this"
+      "key length must be in 1..1024 but was $utf8Size: $value"
     }
 
     while (!buffer.exhausted()) {
