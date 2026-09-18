@@ -6,7 +6,7 @@ import okio.ByteString.Companion.encodeUtf8
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.PutObjectRequest
 import wit.wasmo.objectstore.DeleteObjectRequest
-import wit.wasmo.objectstore.Key
+import wasmo.objectstore.Key
 
 /**
  * Manages the `site/` directory in the object store.

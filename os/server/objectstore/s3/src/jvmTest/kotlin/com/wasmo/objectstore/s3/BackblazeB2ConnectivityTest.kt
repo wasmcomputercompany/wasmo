@@ -9,12 +9,12 @@ import kotlin.time.Clock
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 import okio.ByteString.Companion.encodeUtf8
+import wasmo.objectstore.Key
 import wasmo.objectstore.ListObjectsRequest
 import wasmo.objectstore.toContentType
 import wit.wasmo.objectstore.DeleteObjectRequest
 import wit.wasmo.objectstore.Entry
 import wit.wasmo.objectstore.GetObjectRequest
-import wit.wasmo.objectstore.Key
 
 /**
  * Run this test manually to confirm connectivity to a particular Backblaze bucket.

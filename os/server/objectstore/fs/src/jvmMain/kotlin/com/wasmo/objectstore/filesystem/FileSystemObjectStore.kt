@@ -15,16 +15,15 @@ import okio.Path
 import okio.Sink
 import okio.Timeout
 import wasmo.objectstore.GetObjectResponse
+import wasmo.objectstore.Key
 import wasmo.objectstore.ListObjectsResponse
 import wasmo.objectstore.ObjectStore
 import wasmo.objectstore.etag
-import wasmo.objectstore.validateKey
 import wit.wasmo.objectstore.DeleteObjectRequest
 import wit.wasmo.objectstore.Entry
 import wit.wasmo.objectstore.EntryObject
 import wit.wasmo.objectstore.GetObjectRequest
 import wit.wasmo.objectstore.GetObjectResponse
-import wit.wasmo.objectstore.Key
 import wit.wasmo.objectstore.ListObjectsRequest
 import wit.wasmo.objectstore.ListObjectsResponse
 import wit.wasmo.objectstore.PutObjectRequest
@@ -104,16 +103,12 @@ class FileSystemObjectStore(
   }
 
   private fun Key.toPath(): Path {
-    validateKey()
     val result = path.resolve(this.value)
     require(path.isAncestorOf(result)) { "unexpected key: $this" }
     return result
   }
 
-  private fun Path.toKey(): Key {
-    return Key(relativeTo(path).toString())
-      .apply { validateKey() }
-  }
+  private fun Path.toKey() = Key(relativeTo(path).toString())
 
   private val Path.userAttributes: UserDefinedFileAttributeView?
     get() = Files.getFileAttributeView(

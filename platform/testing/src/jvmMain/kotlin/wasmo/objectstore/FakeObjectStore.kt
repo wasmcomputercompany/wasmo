@@ -8,7 +8,6 @@ import wit.wasmo.objectstore.Entry
 import wit.wasmo.objectstore.EntryObject
 import wit.wasmo.objectstore.GetObjectRequest
 import wit.wasmo.objectstore.GetObjectResponse
-import wit.wasmo.objectstore.Key
 import wit.wasmo.objectstore.ListObjectsRequest
 import wit.wasmo.objectstore.ListObjectsResponse
 import wit.wasmo.objectstore.PutObjectRequest
@@ -16,16 +15,13 @@ import wit.wasmo.objectstore.PutObjectResponse
 
 class FakeObjectStore : ObjectStore {
   var nextException: Exception? = null
-  private val objects = TreeMap<Key, Object>(
-    { a, b -> a.value.compareTo(b.value) },
-  )
+  private val objects = TreeMap<Key, Object> { a, b -> a.value.compareTo(b.value) }
 
   operator fun get(key: String): ByteString? =
     objects[Key(key)]?.value
 
   override suspend fun put(request: PutObjectRequest): PutObjectResponse {
     throwIfNecessary()
-    request.key.validateKey()
     val o = objects.getOrPut(request.key) {
       Object(
         key = request.key,
@@ -40,7 +36,6 @@ class FakeObjectStore : ObjectStore {
 
   override suspend fun get(request: GetObjectRequest): GetObjectResponse {
     throwIfNecessary()
-    request.key.validateKey()
     val o = objects[request.key]
     return GetObjectResponse(
       value = o?.value,
@@ -51,7 +46,6 @@ class FakeObjectStore : ObjectStore {
 
   override suspend fun delete(request: DeleteObjectRequest) {
     throwIfNecessary()
-    request.key.validateKey()
     objects.remove(request.key)
   }
 

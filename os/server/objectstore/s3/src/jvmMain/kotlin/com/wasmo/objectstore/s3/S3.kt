@@ -24,14 +24,13 @@ import retrofit2.http.PUT
 import retrofit2.http.Query
 import retrofit2.http.Url
 import wasmo.objectstore.GetObjectResponse
+import wasmo.objectstore.Key
 import wasmo.objectstore.ObjectStore
-import wasmo.objectstore.validateKey
 import wit.wasmo.objectstore.DeleteObjectRequest
 import wit.wasmo.objectstore.Entry
 import wit.wasmo.objectstore.EntryObject
 import wit.wasmo.objectstore.GetObjectRequest
 import wit.wasmo.objectstore.GetObjectResponse
-import wit.wasmo.objectstore.Key
 import wit.wasmo.objectstore.ListObjectsRequest
 import wit.wasmo.objectstore.ListObjectsResponse
 import wit.wasmo.objectstore.PutObjectRequest
@@ -74,7 +73,6 @@ internal class S3ObjectStore(
   private val service: SimpleStorageService,
 ) : ObjectStore {
   override suspend fun put(request: PutObjectRequest): PutObjectResponse {
-    request.key.validateKey()
     val response = service.put(
       key = request.key.value,
       contentType = request.contentType?.value,
@@ -86,7 +84,6 @@ internal class S3ObjectStore(
   }
 
   override suspend fun get(request: GetObjectRequest): GetObjectResponse {
-    request.key.validateKey()
     val response = service.get(
       key = request.key.value,
     )
@@ -98,7 +95,6 @@ internal class S3ObjectStore(
   }
 
   override suspend fun delete(request: DeleteObjectRequest) {
-    request.key.validateKey()
     service.delete(
       key = request.key.value,
     )

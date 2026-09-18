@@ -1,5 +1,6 @@
 package wasmo.objectstore
 
+import kotlin.jvm.JvmInline
 import okio.Buffer
 import okio.ByteString
 import wit.wasmo.contenttype.ContentType
@@ -8,7 +9,6 @@ import wit.wasmo.objectstore.Entry
 import wit.wasmo.objectstore.EntryObject
 import wit.wasmo.objectstore.GetObjectRequest
 import wit.wasmo.objectstore.GetObjectResponse
-import wit.wasmo.objectstore.Key
 import wit.wasmo.objectstore.ListObjectsRequest
 import wit.wasmo.objectstore.ListObjectsResponse
 import wit.wasmo.objectstore.PutObjectRequest
@@ -39,6 +39,29 @@ interface ObjectStore {
    * https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
    */
   suspend fun list(request: ListObjectsRequest): ListObjectsResponse
+}
+
+@JvmInline
+value class Key(
+  val value: String,
+) {
+  init {
+    val buffer = Buffer()
+      .writeUtf8(value)
+
+    val utf8Size = buffer.size
+    require(utf8Size in 1..1024) {
+      "key length must be in 1..1024 but was $utf8Size: $value"
+    }
+
+    while (!buffer.exhausted()) {
+      val pos = utf8Size - buffer.size
+      val codePoint = buffer.readUtf8CodePoint()
+      require(codePoint >= ' '.code && codePoint != '\u007f'.code) {
+        "key has invalid code point at $pos: 0x${codePoint.toString(radix = 16)}"
+      }
+    }
+  }
 }
 
 fun PutObjectRequest(
@@ -146,24 +169,3 @@ class ScopedObjectStore(
 
 val ByteString.etag: String
   get() = md5().hex()
-
-/**
- * https://www.backblaze.com/docs/cloud-storage-files#file-names
- */
-fun Key.validateKey() {
-  val buffer = Buffer()
-    .writeUtf8(value)
-
-  val utf8Size = buffer.size
-  require(utf8Size in 1..1024) {
-    "key length must be in 1..1024 but was $utf8Size: $value"
-  }
-
-  while (!buffer.exhausted()) {
-    val pos = utf8Size - buffer.size
-    val codePoint = buffer.readUtf8CodePoint()
-    require(codePoint >= ' '.code && codePoint != '\u007f'.code) {
-      "key has invalid code point at $pos: 0x${codePoint.toString(radix = 16)}"
-    }
-  }
-}
