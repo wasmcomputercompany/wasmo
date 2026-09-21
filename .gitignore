@@ -11,3 +11,7 @@ kotlin-js-store/yarn.lock
 # Rust
 target
 Cargo.lock
+
+# wkg
+wkg.lock
+wkg

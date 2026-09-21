@@ -1,10 +1,10 @@
-package wasmo:sql;
+package wasmo:sql@0.1.0;
 
 @since(version = 0.1.0)
 interface types {
   use wasi:clocks/wall-clock@0.2.0.{datetime};
-  use wasmo:json/types.{json-literal};
-  use wasmo:uuid/types.{uuid};
+  use wasmo:json/types@0.1.0.{json-literal};
+  use wasmo:uuid/types@0.1.0.{uuid};
 
   /// Closing a database cancels all in-flight calls.
   @since(version = 0.1.0)
@@ -29,13 +29,13 @@ interface types {
 
   @since(version = 0.1.0)
   variant sql-value {
-    bool(bool),
-    s32(s32),
-    s64(s64),
-    f32(f32),
-    f64(f64),
+    %bool(bool),
+    %s32(s32),
+    %s64(s64),
+    %f32(f32),
+    %f64(f64),
     datetime(datetime),
-    string(string),
+    %string(string),
     bytes(list<u8>),
     uuid(uuid),
     json(json-literal),

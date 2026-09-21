@@ -1,9 +1,9 @@
-package wasmo:transfer-service;
+package wasmo:transfer-service@0.1.0;
 
 @since(version = 0.1.0)
 interface types {
-  use wasmo:http/types.{http-request, http-response};
-  use wasmo:object-store/types.{key};
+  use wasmo:http/types@0.1.0.{http-request, http-response};
+  use wasmo:object-store/types@0.1.0.{key};
 
   @since(version = 0.1.0)
   record download-request {

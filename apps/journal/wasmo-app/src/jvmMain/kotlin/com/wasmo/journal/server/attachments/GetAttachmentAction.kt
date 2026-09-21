@@ -1,8 +1,8 @@
 package com.wasmo.journal.server.attachments
 
 import wasmo.http.HttpResponse
-import wit.wasmo.http.Header
-import wit.wasmo.http.HttpResponse
+import wit.wasmo.http.v0_1_0.Header
+import wit.wasmo.http.v0_1_0.HttpResponse
 
 /**
  * ```

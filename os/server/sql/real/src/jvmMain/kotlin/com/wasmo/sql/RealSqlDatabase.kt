@@ -30,10 +30,10 @@ import wasmo.sql.SqlConnection
 import wasmo.sql.SqlDatabase
 import wasmo.sql.SqlException
 import wasmo.sql.SqlRow
-import wit.wasmo.json.JsonLiteral
-import wit.wasmo.sql.SqlError
-import wit.wasmo.sql.SqlRow as WasmoSqlRow
-import wit.wasmo.sql.SqlValue
+import wit.wasmo.json.v0_1_0.JsonLiteral
+import wit.wasmo.sql.v0_1_0.SqlError
+import wit.wasmo.sql.v0_1_0.SqlRow as WasmoSqlRow
+import wit.wasmo.sql.v0_1_0.SqlValue
 
 fun PostgresqlClient.asSqlDatabase(): SqlDatabase =
   RealSqlDatabase(
