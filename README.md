@@ -56,7 +56,7 @@ running when you're using it. Each app runs in a secure sandbox and can't access
 Status
 ======
 
-Wasmo is under active development. We hope to have a public preview in July 2026.
+Wasmo is under active development. We hope to have a public preview in January 2027.
 
 Work-in-progress:
 
@@ -72,7 +72,7 @@ environment may be wiped without notice.
 Developers
 ==========
 
-Are you interested in building a Wasmo app? We hope to have a developer SDK in July 2026. Get in
+Are you interested in building a Wasmo app? We hope to have a developer SDK in January 2027. Get in
 touch now if you'd like.
 
 
