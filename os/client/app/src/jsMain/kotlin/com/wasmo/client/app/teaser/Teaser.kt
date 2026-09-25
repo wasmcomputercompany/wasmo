@@ -49,7 +49,7 @@ fun Teaser(
         }
       },
     ) {
-      Text("Coming in 2026")
+      Text("Coming in 2027")
     }
 
     Div(
