@@ -3,6 +3,7 @@ steps:
     commands:
       - "cat .buildkite/gradle.properties >> gradle.properties"
       - "gradle publishAndReleaseToMavenCentral"
+      - "gradle :platform:api:publishWit"
     plugins:
       - docker-compose#v5.11.0:
           run: ci-build

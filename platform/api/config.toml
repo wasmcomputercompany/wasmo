@@ -1,0 +1,12 @@
+[namespace_registries]
+wasi = "wasi.dev"
+wasmo = {
+  registry = "ghcr.io",
+  metadata = {
+    preferredProtocol = "oci",
+    oci = {
+      registry = "ghcr.io",
+      namespacePrefix = "wasmocomputercompany/"
+    }
+  }
+}
