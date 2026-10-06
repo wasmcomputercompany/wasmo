@@ -27,6 +27,11 @@ brevity {
   customTypeMappings.put("wasmo:object-store/types.key@0.1.0", "wasmo.objectstore.Key")
   customTypeMappings.put("wasi:clocks/wall-clock.datetime@0.2.0", "kotlin.time.Instant")
   worlds.add("wasmo:platform/wasmo")
+
+  publish {
+    isWorkspace = true
+    config = project.layout.projectDirectory.file("config.toml")
+  }
 }
 
 kotlin {
